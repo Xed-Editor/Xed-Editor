@@ -1,0 +1,65 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/java/com/rk/xededitor/ui/themes/Xed_dark.java",
+      "selection": {
+        "end": {
+          "column": 3,
+          "index": 781,
+          "line": 20
+        },
+        "start": {
+          "column": 3,
+          "index": 781,
+          "line": 20
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/res/drawable/run_white.xml",
+      "selection": {
+        "end": {
+          "column": 31,
+          "index": 227,
+          "line": 6
+        },
+        "start": {
+          "column": 31,
+          "index": 227,
+          "line": 6
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/res/drawable/run.xml",
+      "selection": {
+        "end": {
+          "column": 0,
+          "index": 0,
+          "line": 0
+        },
+        "start": {
+          "column": 0,
+          "index": 0,
+          "line": 0
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/java/com/rk/xededitor/MainActivity.kt",
+      "selection": {
+        "end": {
+          "column": 20,
+          "index": 1647,
+          "line": 43
+        },
+        "start": {
+          "column": 20,
+          "index": 1647,
+          "line": 43
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/java/com/rk/xededitor/MainActivity.kt"
+}
