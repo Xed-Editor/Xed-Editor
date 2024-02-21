@@ -30,8 +30,7 @@ public class Xed {
       View decorView = ctx.getWindow().getDecorView();
       decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
     }
-    ImageButton run = (ImageButton) ctx.findViewById(R.id.run);
-    run.setImageResource(R.drawable.run);
+    
     final String color =
         String.format(
             "#%06X", (0xFFFFFF & ctx.getResources().getColor(R.color.c0, ctx.getTheme())));

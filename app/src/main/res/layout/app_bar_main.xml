@@ -25,8 +25,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/run"
                 android:layout_gravity="end"
-                android:background="@android:color/transparent"
-                
+                android:backgroundTint="@color/c0"
+                android:onClick="run"
                 android:layout_marginEnd="20dp"
                 android:contentDescription="button_description" />
 

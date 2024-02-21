@@ -16,7 +16,6 @@ import io.github.rosemoe.sora.widget.schemes.*;
 public class Xed_dark {
   public static void applyTheme(Activity ctx,CodeEditor editor) {
   	editor.setColorScheme(new SchemeDarcula());
-     ImageButton run = (ImageButton)ctx.findViewById(R.id.run);
-    run.setImageResource(R.drawable.run_white);
+     
   }
 }

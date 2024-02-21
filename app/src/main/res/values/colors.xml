@@ -7,4 +7,5 @@
   <color name="dark">#424242</color>
   <color name="black">#1C1B20</color>
   <color name="white">#FFFBFF</color>
+  <color name="inverse">@color/dark</color>
   </resources>
