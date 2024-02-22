@@ -27,9 +27,12 @@ public class TreeNode {
     private TreeNodeLongClickListener mLongClickListener;
     private Object mValue;
     private boolean mExpanded;
-
+    public final boolean isFile;
+    public int indentation = 0;
+  
+  
     public static TreeNode root() {
-        TreeNode root = new TreeNode(null);
+        TreeNode root = new TreeNode(null,0);
         root.setSelectable(false);
         return root;
     }
@@ -38,10 +41,19 @@ public class TreeNode {
         return ++mLastId;
     }
 
-    public TreeNode(Object value) {
+    public TreeNode(Object value,int indentation) {
         children = new ArrayList<>();
         mValue = value;
+        isFile = false;
+        this.indentation = indentation;
     }
+  public TreeNode(Object value,boolean isFile,int indentation) {
+        children = new ArrayList<>();
+        mValue = value;
+        this.isFile = isFile;
+        this.indentation = indentation;
+    }
+  
 
     public TreeNode addChild(TreeNode childNode) {
         childNode.mParent = this;

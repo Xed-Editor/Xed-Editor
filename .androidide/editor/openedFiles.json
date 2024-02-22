@@ -1,17 +1,32 @@
 {
   "allFiles": [
     {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/res/layout/activity_main.xml",
+      "selection": {
+        "end": {
+          "column": 42,
+          "index": 1088,
+          "line": 28
+        },
+        "start": {
+          "column": 42,
+          "index": 1088,
+          "line": 28
+        }
+      }
+    },
+    {
       "file": "/storage/emulated/0/AndroidIDEProjects/Xed Editor/app/src/main/java/com/rk/xededitor/MainActivity.java",
       "selection": {
         "end": {
-          "column": 6,
-          "index": 2716,
-          "line": 75
+          "column": 11,
+          "index": 2177,
+          "line": 61
         },
         "start": {
-          "column": 6,
-          "index": 2716,
-          "line": 75
+          "column": 11,
+          "index": 2177,
+          "line": 61
         }
       }
     }
