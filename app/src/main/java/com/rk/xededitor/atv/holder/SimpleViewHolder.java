@@ -8,6 +8,14 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import com.rk.xededitor.rkUtils;
+import io.github.rosemoe.sora.text.ContentIO;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.net.Uri;
+import java.io.IOException;
+import java.io.*;
+
+import static com.rk.xededitor.MainActivity.*;
 
 public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private boolean isFile;
@@ -38,45 +46,50 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         isFile = node.isFile;
         final LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
-        final LinearLayout.LayoutParams layout_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        final LinearLayout.LayoutParams layout_params =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         layout_params.setMargins(0, 10, 0, 10);
         layout.setLayoutParams(layout_params);
-        
+
         arrow = new ImageView(context);
         final ImageView img = new ImageView(context);
         final TextView tv = new TextView(context);
-        if(showIndentation){
-            tv.setText(String.valueOf(value)+" "+node.indentation);
-        }else{
+        if (showIndentation) {
+            tv.setText(String.valueOf(value) + " " + node.indentation);
+        } else {
             tv.setText(String.valueOf(value));
         }
-        
-        tv.setTextColor(berryColor);
-        
 
-        
-        
-      //  final int space = 10;
-        
+        tv.setTextColor(berryColor);
 
         LinearLayout.LayoutParams imgParams;
         if (!isFile) {
-            imgParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            imgParams =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
             imgParams.setMargins(0, 0, 10, 0);
-            final LinearLayout.LayoutParams arr_params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            arr_params.setMargins(indentation_level * node.indentation,7,0,0);
+            final LinearLayout.LayoutParams arr_params =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
+            arr_params.setMargins(indentation_level * node.indentation, 7, 0, 0);
             arrow.setLayoutParams(arr_params);
             arrow.setImageDrawable(ContextCompat.getDrawable(context, closedDrawable));
             layout.addView(arrow);
             img.setImageDrawable(ContextCompat.getDrawable(context, folderDrawable));
             img.setLayoutParams(imgParams);
         } else {
-            final LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            final LinearLayout.LayoutParams params =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(indentation_level * node.indentation, 0, 0, 0);
             img.setImageDrawable(ContextCompat.getDrawable(context, fileDrawable));
             img.setLayoutParams(params);
         }
-        
+
         layout.addView(img);
         layout.addView(tv);
 
@@ -85,19 +98,28 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
 
     @Override
     public void toggle(boolean active) {
-        if (isFile || node == null || arrow == null) {
+        if (node == null || arrow == null || node.file == null) {
             return;
         }
-        //implement loading
-        if(!node.isLoaded()){
-            MainActivity.looper(node.folder,node,node.indentation+1);
+        // implement loading
+        if (!isFile && !node.isLoaded()) {
+            MainActivity.looper(node.file, node, node.indentation + 1);
             node.setLoaded();
+        } else if (isFile) {
+            Uri uri = node.file.getUri();
+
+            try {
+                InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                String content = ContentIO.createFrom(inputStream).toString();
+                inputStream.close();
+                editor.setText(content);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-            
-        
-        
-        
-        
-        arrow.setImageDrawable(ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
+
+        arrow.setImageDrawable(
+                ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
     }
 }

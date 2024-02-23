@@ -30,7 +30,7 @@ public class TreeNode {
     private boolean mExpanded;
     public final boolean isFile;
     public final int indentation;
-    public final DocumentFile folder;
+    public final DocumentFile file;
     private boolean isLoaded = false;
     
     public static TreeNode root() {
@@ -50,26 +50,21 @@ public class TreeNode {
         isLoaded = true;
     }
 
-    public TreeNode(DocumentFile folder,Object value,int indentation) {
-        children = new ArrayList<>();
-        mValue = value;
-        isFile = false;
-        this.indentation = indentation;
-        this.folder = folder;
-    }
+    
    private TreeNode(Object value,int indentation) {
         children = new ArrayList<>();
         mValue = value;
         isFile = false;
         this.indentation = indentation;
-        this.folder = null;
+        this.file = null;
     }
-    public TreeNode(Object value,boolean isFile,int indentation) {
+   
+    public TreeNode(DocumentFile file,Object value,boolean isFile,int indentation) {
         children = new ArrayList<>();
         mValue = value;
         this.isFile = isFile;
         this.indentation = indentation;
-        this.folder = null;
+        this.file = file;
     }
   
 

@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
     private static final int REQUEST_CODE_PICK_FOLDER = 123;
-
+    public static CodeEditor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarMain.toolbar);
 
-        CodeEditor editor = HomeFragment.binding.editor;
+         editor = HomeFragment.binding.editor;
         if (rkUtils.isDarkMode(this)) {
             Xed_dark.applyTheme(this, editor);
         } else {
@@ -164,11 +164,11 @@ public class MainActivity extends AppCompatActivity {
             for (DocumentFile file : rootFolder.listFiles()) {
                 if (file.isDirectory()) {
                     String folderName = file.getName();
-                    TreeNode thisFolder = new TreeNode(file,folderName, indent);
+                    TreeNode thisFolder = new TreeNode(file,folderName,false, indent);
                     root.addChild(thisFolder);
                 } else {
                     String fileName = file.getName();
-                    root.addChild(new TreeNode(fileName, true, indent));
+                    root.addChild(new TreeNode(file,fileName, true, indent));
                 }
             }
         }
