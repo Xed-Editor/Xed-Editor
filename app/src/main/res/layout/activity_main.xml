@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     tools:openDrawer="start"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     android:id="@+id/drawer_layout">
 
     <include
@@ -18,31 +18,37 @@
     <com.google.android.material.navigation.NavigationView
         android:layout_height="match_parent"
         android:layout_width="fill_parent"
-        android:fitsSystemWindows="true"
+        android:fitsSystemWindows="false"
         android:id="@+id/nav_view"
         android:layout_gravity="start">
 
-        <LinearLayout
+
+        <HorizontalScrollView
             android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:background="@color/c0"
-            android:layout_marginTop="35dp"
-            android:id="@+id/drawbar">
-
-            <TextView
-                android:layout_height="fill_parent"
-                android:layout_width="fill_parent"
-                android:clickable="true"
-                android:onClick="open_folder"
-                android:textColor="@color/inverse"
-                android:text="Click here to open a folder"
-                android:id="@+id/open_folder" />
-
-            
+            android:layout_width="match_parent">
+            <LinearLayout
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:background="@color/c0"
+                android:layout_marginTop="35dp"
+                android:id="@+id/drawbar">
 
 
-        </LinearLayout>
+                <TextView
+                    android:layout_height="1000dp"
+                    android:layout_width="wrap_content"
+                    android:clickable="true"
+                    android:background="@color/c2"
+                    android:onClick="open_folder"
+                    android:textColor="@color/inverse"
+                    android:text="Click here to open a folder"
+                    android:id="@+id/open_folder" />
+
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
 
     </com.google.android.material.navigation.NavigationView>
 

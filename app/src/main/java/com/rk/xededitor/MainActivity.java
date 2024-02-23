@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        ViewTreeObserver viewTreeObserver = binding.drawerLayout.getViewTreeObserver();
+       ViewTreeObserver viewTreeObserver = binding.drawerLayout.getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
                         binding.openFolder.setLayoutParams(params);
                     }
                 });
+        
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     @Override
