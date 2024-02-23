@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
                         LinearLayout.LayoutParams params =
                                 (LinearLayout.LayoutParams) binding.openFolder.getLayoutParams();
-                        params.setMargins(width / 6, rkUtils.Percentage(height, 92) / 2, 0, 0);
+                        params.setMargins(width / 10, rkUtils.Percentage(height, 87) / 2, 0, 0);
                         binding.openFolder.setLayoutParams(params);
                     }
                 });
@@ -159,15 +159,12 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    public void looper(DocumentFile rootFolder, TreeNode root, int indent) {
-        // TODO: Fix the lag isssue when choosing a big directory
+    public static void looper(DocumentFile rootFolder, TreeNode root, int indent) {
         if (rootFolder != null && rootFolder.isDirectory()) {
             for (DocumentFile file : rootFolder.listFiles()) {
                 if (file.isDirectory()) {
                     String folderName = file.getName();
-                    TreeNode thisFolder = new TreeNode(folderName, indent);
-                    int i = indent + 1;
-                    looper(file, thisFolder, i);
+                    TreeNode thisFolder = new TreeNode(file,folderName, indent);
                     root.addChild(thisFolder);
                 } else {
                     String fileName = file.getName();

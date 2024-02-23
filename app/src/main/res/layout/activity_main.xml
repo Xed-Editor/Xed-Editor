@@ -25,21 +25,22 @@
 
         <HorizontalScrollView
             android:layout_height="match_parent"
+            android:overScrollMode="always"
             android:layout_width="match_parent">
             <LinearLayout
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 android:orientation="vertical"
-                android:background="@color/c0"
                 android:layout_marginTop="35dp"
+                android:paddingRight="20dp"
+                android:paddingLeft="25dp"
                 android:id="@+id/drawbar">
 
 
                 <TextView
-                    android:layout_height="1000dp"
+                    android:layout_height="100dp"
                     android:layout_width="wrap_content"
                     android:clickable="true"
-                    android:background="@color/c2"
                     android:onClick="open_folder"
                     android:textColor="@color/inverse"
                     android:text="Click here to open a folder"

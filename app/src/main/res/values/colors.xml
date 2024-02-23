@@ -9,5 +9,8 @@
     <color name="black">#1C1B20</color>
     <color name="white">#FFFBFF</color>
     <color name="inverse">@color/dark</color>
-
+    <color name="lavender">#DBE1FE</color>
+    <color name="lavender_98">#E8E8F2</color>
+    <color name="lavender_97">#DCE2FA</color>
+    <color name="berry">#485D91</color>
 </resources>

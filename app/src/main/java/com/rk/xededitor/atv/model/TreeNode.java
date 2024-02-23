@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 
+import androidx.documentfile.provider.DocumentFile;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,9 +29,10 @@ public class TreeNode {
     private Object mValue;
     private boolean mExpanded;
     public final boolean isFile;
-    public int indentation = 0;
-  
-  
+    public final int indentation;
+    public final DocumentFile folder;
+    private boolean isLoaded = false;
+    
     public static TreeNode root() {
         TreeNode root = new TreeNode(null,0);
         root.setSelectable(false);
@@ -40,18 +42,34 @@ public class TreeNode {
     private int generateId() {
         return ++mLastId;
     }
+    
+    public boolean isLoaded() {
+    	return isLoaded;
+    }
+    public void setLoaded(){
+        isLoaded = true;
+    }
 
-    public TreeNode(Object value,int indentation) {
+    public TreeNode(DocumentFile folder,Object value,int indentation) {
         children = new ArrayList<>();
         mValue = value;
         isFile = false;
         this.indentation = indentation;
+        this.folder = folder;
     }
-  public TreeNode(Object value,boolean isFile,int indentation) {
+   private TreeNode(Object value,int indentation) {
+        children = new ArrayList<>();
+        mValue = value;
+        isFile = false;
+        this.indentation = indentation;
+        this.folder = null;
+    }
+    public TreeNode(Object value,boolean isFile,int indentation) {
         children = new ArrayList<>();
         mValue = value;
         this.isFile = isFile;
         this.indentation = indentation;
+        this.folder = null;
     }
   
 
