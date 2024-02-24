@@ -28,7 +28,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 import com.rk.xededitor.databinding.ActivityMainBinding;
 import io.github.rosemoe.sora.widget.CodeEditor;
-import com.rk.xededitor.ui.home.HomeFragment;
+//import com.rk.xededitor.ui.home.HomeFragment;
 import io.github.rosemoe.sora.*;
 import io.github.rosemoe.sora.widget.schemes.*;
 import android.graphics.Color;

@@ -9,6 +9,18 @@
     android:fitsSystemWindows="false"
     android:id="@+id/drawer_layout">
 
+    <LinearLayout
+        android:layout_marginTop="?attr/actionBarSize"
+        android:layout_height="fill_parent"
+        android:id="@+id/home_view"
+        android:layout_width="fill_parent">
+        <io.github.rosemoe.sora.widget.CodeEditor
+            android:id="@+id/editor"
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent" />
+
+    </LinearLayout>
+
     <include
         layout="@layout/app_bar_main"
         android:layout_width="match_parent"
@@ -52,5 +64,6 @@
 
 
     </com.google.android.material.navigation.NavigationView>
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -21,7 +21,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 import com.rk.xededitor.databinding.ActivityMainBinding;
 import io.github.rosemoe.sora.widget.CodeEditor;
-import com.rk.xededitor.ui.home.HomeFragment;
+// import com.rk.xededitor.ui.home.HomeFragment;
 import io.github.rosemoe.sora.*;
 import io.github.rosemoe.sora.widget.schemes.*;
 import android.graphics.Color;
@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private static final int REQUEST_CODE_PICK_FOLDER = 123;
     public static CodeEditor editor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         setSupportActionBar(binding.appBarMain.toolbar);
 
-         editor = HomeFragment.binding.editor;
+        // editor = HomeFragment.binding.editor;
+        editor = findViewById(R.id.editor);
         if (rkUtils.isDarkMode(this)) {
             Xed_dark.applyTheme(this, editor);
         } else {
@@ -58,12 +60,7 @@ public class MainActivity extends AppCompatActivity {
         mAppBarConfiguration =
                 new AppBarConfiguration.Builder(R.id.nav_home).setOpenableLayout(drawer).build();
 
-        NavController navController =
-                Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-
-       ViewTreeObserver viewTreeObserver = binding.drawerLayout.getViewTreeObserver();
+        ViewTreeObserver viewTreeObserver = binding.drawerLayout.getViewTreeObserver();
         viewTreeObserver.addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -82,8 +79,14 @@ public class MainActivity extends AppCompatActivity {
                         binding.openFolder.setLayoutParams(params);
                     }
                 });
-        
+
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+        getSupportActionBar().setTitle("");
+    }
+
+    public void menu(View view) {
+        
+        binding.drawerLayout.open();
     }
 
     @Override
@@ -149,10 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController =
-                Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+
+        return super.onSupportNavigateUp();
     }
 
     public void toast(String message) {
@@ -164,11 +165,11 @@ public class MainActivity extends AppCompatActivity {
             for (DocumentFile file : rootFolder.listFiles()) {
                 if (file.isDirectory()) {
                     String folderName = file.getName();
-                    TreeNode thisFolder = new TreeNode(file,folderName,false, indent);
+                    TreeNode thisFolder = new TreeNode(file, folderName, false, indent);
                     root.addChild(thisFolder);
                 } else {
                     String fileName = file.getName();
-                    root.addChild(new TreeNode(file,fileName, true, indent));
+                    root.addChild(new TreeNode(file, fileName, true, indent));
                 }
             }
         }

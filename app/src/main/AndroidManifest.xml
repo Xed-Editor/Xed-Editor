@@ -18,7 +18,7 @@
         android:theme="@style/AppTheme">
         <activity 
             android:name="MainActivity" 
-            
+            android:persistent="true"
             android:exported="true">
             <intent-filter>
                 <action 
@@ -29,7 +29,7 @@
         </activity>
        <activity 
             android:name="Settings" 
-            
+           android:persistent="true"
             android:exported="true">
             <intent-filter>
                 

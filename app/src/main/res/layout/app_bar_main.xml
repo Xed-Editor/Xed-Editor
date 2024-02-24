@@ -17,7 +17,22 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:background="@color/c0"
+            android:titleMargin="0px"
             android:layout_height="?attr/actionBarSize">
+            
+            
+           <ImageButton
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu"
+                android:layout_gravity="start"
+                
+                android:backgroundTint="@color/c0"
+                android:onClick="menu"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="button_description" />
+            
             
             <ImageButton
                 android:id="@+id/run"
@@ -34,7 +49,6 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
-
+   
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
