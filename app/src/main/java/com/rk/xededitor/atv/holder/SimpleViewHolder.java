@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.*;
 
 import static com.rk.xededitor.MainActivity.*;
+import java.net.URLConnection;
 
 public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private boolean isFile;
@@ -105,21 +106,31 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         if (!isFile && !node.isLoaded()) {
             MainActivity.looper(node.file, node, node.indentation + 1);
             node.setLoaded();
+            arrow.setImageDrawable(
+                    ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
         } else if (isFile) {
             Uri uri = node.file.getUri();
 
             try {
-                InputStream inputStream = context.getContentResolver().openInputStream(uri);
-                String content = ContentIO.createFrom(inputStream).toString();
-                inputStream.close();
-                editor.setText(content);
+                String type = node.file.getType();
+                if (type == null) {
+                    rkUtils.toast(context, "Error: Mime Type is null");
+                }
+                if (!(type.contains("text") || type.contains("plain"))) {
+                    // Todo: show window warning user (it's not a file )
+
+                    InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                    editor.setText(ContentIO.createFrom(inputStream));
+                    inputStream.close();
+                } else {
+                    InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                    editor.setText(ContentIO.createFrom(inputStream));
+                    inputStream.close();
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
-        arrow.setImageDrawable(
-                ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
     }
 }
