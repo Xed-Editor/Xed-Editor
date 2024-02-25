@@ -12,11 +12,13 @@ import io.github.rosemoe.sora.text.ContentIO;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import io.github.rosemoe.sora.widget.CodeEditor;
 import java.io.IOException;
 import java.io.*;
-
+import com.google.android.material.tabs.TabLayout;
 import static com.rk.xededitor.MainActivity.*;
 import java.net.URLConnection;
+import android.os.Vibrator;
 
 public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private boolean isFile;
@@ -30,6 +32,8 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private final int fileDrawable;
     public final int indentation_level = 50;
     public static boolean showIndentation = false;
+    private EditorManager manager;
+    private CodeEditor editor;
 
     public SimpleViewHolder(Context context) {
         super(context);
@@ -39,6 +43,8 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         openedDrawable = R.drawable.opened;
         folderDrawable = R.drawable.folder;
         fileDrawable = R.drawable.file;
+        editor = MainActivity.getEditor();
+        manager = new EditorManager(editor,context);
     }
 
     @Override
@@ -109,27 +115,17 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
             arrow.setImageDrawable(
                     ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
         } else if (isFile) {
-            Uri uri = node.file.getUri();
+          //  Uri uri = node.file.getUri();
 
-            try {
-                String type = node.file.getType();
-                if (type == null) {
-                    rkUtils.toast(context, "Error: Mime Type is null");
-                }
-                if (!(type.contains("text") || type.contains("plain"))) {
-                    // Todo: show window warning user (it's not a file )
-
-                    InputStream inputStream = context.getContentResolver().openInputStream(uri);
-                    editor.setText(ContentIO.createFrom(inputStream));
-                    inputStream.close();
-                } else {
-                    InputStream inputStream = context.getContentResolver().openInputStream(uri);
-                    editor.setText(ContentIO.createFrom(inputStream));
-                    inputStream.close();
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
+            String type = node.file.getType();
+            if (type == null) {
+                rkUtils.toast(context, "Error: Mime Type is null");
+            }
+            if (!(type.contains("text") || type.contains("plain"))) {
+                // Todo: show window warning user (it's not a file )
+                manager.newEditor(node.file);
+            } else {
+                manager.newEditor(node.file);
             }
         }
     }

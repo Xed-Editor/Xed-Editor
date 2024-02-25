@@ -31,15 +31,17 @@ import android.view.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.w3c.dom.Document;
+import android.content.Context;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    private ActivityMainBinding binding;
+    public ActivityMainBinding binding;
     private static final int REQUEST_CODE_PICK_FOLDER = 123;
-    public static CodeEditor editor;
-    public static Activity activity;
+    private static CodeEditor editor;
+    private static TabLayout tablayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,11 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         
-        activity = this;
-        
+
         setSupportActionBar(binding.appBarMain.toolbar);
-        
+
         // editor = HomeFragment.binding.editor;
         editor = findViewById(R.id.editor);
         if (rkUtils.isDarkMode(this)) {
@@ -87,29 +89,21 @@ public class MainActivity extends AppCompatActivity {
 
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        for (int i = 0; i < 12; i++) {
-            binding.editorTabLayout.addTab(binding.editorTabLayout.newTab().setText("yo"));
-        }
-
         
-        binding.editorTabLayout.addOnTabSelectedListener(
-                new TabLayout.OnTabSelectedListener() {
-                    @Override
-                    public void onTabSelected(TabLayout.Tab tab) {
-                        rkUtils.toast(activity, tab.getText().toString());
-                    }
-
-                    @Override
-                    public void onTabUnselected(TabLayout.Tab tab) {}
-
-                    @Override
-                    public void onTabReselected(TabLayout.Tab tab) {}
-                });
+        
+        
+        
+        tablayout = binding.editorTabLayout;
+        
+        
     }
 
     public void menu(View view) {
 
         binding.drawerLayout.open();
+    }
+    public static CodeEditor getEditor() {
+    	return editor;
     }
 
     @Override
@@ -136,6 +130,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void run(View view) {
         rkUtils.ni(this);
+    }
+    public static TabLayout getTabLayout() {
+    	return tablayout;
     }
 
     public void open_folder(View view) {
