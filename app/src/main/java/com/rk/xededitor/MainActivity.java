@@ -3,6 +3,7 @@ package com.rk.xededitor;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.rkUtils;
 import com.rk.xededitor.ui.themes.*;
 import android.os.*;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private static final int REQUEST_CODE_PICK_FOLDER = 123;
     public static CodeEditor editor;
+    public static Activity activity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +47,11 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        
+        activity = this;
+        
         setSupportActionBar(binding.appBarMain.toolbar);
-
+        
         // editor = HomeFragment.binding.editor;
         editor = findViewById(R.id.editor);
         if (rkUtils.isDarkMode(this)) {
@@ -81,11 +86,29 @@ public class MainActivity extends AppCompatActivity {
                 });
 
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        for (int i = 0; i < 12; i++) {
+            binding.editorTabLayout.addTab(binding.editorTabLayout.newTab().setText("yo"));
+        }
+
+        
+        binding.editorTabLayout.addOnTabSelectedListener(
+                new TabLayout.OnTabSelectedListener() {
+                    @Override
+                    public void onTabSelected(TabLayout.Tab tab) {
+                        rkUtils.toast(activity, tab.getText().toString());
+                    }
+
+                    @Override
+                    public void onTabUnselected(TabLayout.Tab tab) {}
+
+                    @Override
+                    public void onTabReselected(TabLayout.Tab tab) {}
+                });
     }
 
     public void menu(View view) {
-        
+
         binding.drawerLayout.open();
     }
 

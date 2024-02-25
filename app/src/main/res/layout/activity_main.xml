@@ -13,12 +13,23 @@
         android:layout_marginTop="?attr/actionBarSize"
         android:layout_height="fill_parent"
         android:id="@+id/home_view"
+        android:orientation="vertical"
         android:layout_width="fill_parent">
+                
+        <com.google.android.material.tabs.TabLayout
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:id="@+id/editor_tab_layout"
+            app:tabIndicatorColor="@color/berry"
+            app:tabBackground="@color/c0"
+            app:tabTextColor="@color/berry"
+            app:tabMode="scrollable">
+            </com.google.android.material.tabs.TabLayout>
+
         <io.github.rosemoe.sora.widget.CodeEditor
             android:id="@+id/editor"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent" />
-
     </LinearLayout>
 
     <include
