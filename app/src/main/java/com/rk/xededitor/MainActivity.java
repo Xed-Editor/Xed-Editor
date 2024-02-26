@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         
         
         tablayout = binding.editorTabLayout;
-        
+        rkUtils.setVisibility(tablayout,false);
         
     }
 

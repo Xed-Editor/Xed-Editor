@@ -21,8 +21,9 @@
             android:layout_width="fill_parent"
             android:id="@+id/editor_tab_layout"
             app:tabIndicatorColor="@color/berry"
-            app:tabBackground="@color/c0"
+            android:backgroundTint="@color/c0"
             app:tabTextColor="@color/berry"
+            app:tabRippleColor="@color/berry"
             app:tabMode="scrollable">
             </com.google.android.material.tabs.TabLayout>
 
