@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.documentfile.provider.DocumentFile;
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.CodeEditor;
@@ -11,6 +12,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.HashMap;
 import android.util.Log;
+import android.view.*;
 
 public class EditorManager {
 
@@ -19,7 +21,9 @@ public class EditorManager {
     private TabLayout tablayout;
     private final HashSet<Integer> uris;
     private final HashSet<Integer> strs;
-    private final HashMap<TabLayout.Tab, TabData> map;
+    private final HashMap<TabLayout.Tab, Content> map;
+
+    // private TabLayout.Tab last_tab;
 
     public EditorManager(CodeEditor editor, Context ctx) {
 
@@ -34,12 +38,11 @@ public class EditorManager {
                 new TabLayout.OnTabSelectedListener() {
                     @Override
                     public void onTabSelected(TabLayout.Tab tab) {
-
-                        TabData tabData = map.get(tab);
-                        if (tabData != null) {
-                            tabData.show();
+                        Content contnt = map.get(tab);
+                        if (contnt != null) {
+                            editor.setText(contnt);
                         } else {
-                            Log.e("tab click", "tab is null");
+                            Log.e("tab click", "tabData is null");
                         }
                     }
 
@@ -52,6 +55,7 @@ public class EditorManager {
     }
 
     public void newEditor(DocumentFile file) {
+        // this method will run when a new tab is opened
         Uri uri = file.getUri();
         String name = file.getName();
 
@@ -69,54 +73,28 @@ public class EditorManager {
             strs.add(name.hashCode());
         }
 
+        
+        Content contnt = null;
+        try {
+            InputStream inputStream;
+            inputStream = ctx.getContentResolver().openInputStream(uri);
+            contnt = ContentIO.createFrom(inputStream);
+            inputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
         TabLayout.Tab tab = tablayout.newTab();
         tab.setText(name);
+        map.put(tab, contnt);
         tablayout.addTab(tab);
-        TabData tabData = new TabData(ctx, editor, uri);
-        map.put(tab, tabData);
 
         rkUtils.setVisibility(tablayout, true);
 
         if (tablayout.getTabCount() == 1) {
-            tabData.show();
-        }
-        tab.select();
-        
-    }
-
-    public class TabData {
-        private InputStream inputStream;
-        private final Context ctx;
-        private final CodeEditor editor;
-        private final Uri uri;
-        private Content contnt;
-
-        public TabData(Context ctx, CodeEditor editor, Uri uri) {
-            this.uri = uri;
-            this.editor = editor;
-            this.ctx = ctx;
-            try {
-                inputStream = ctx.getContentResolver().openInputStream(uri);
-                this.contnt = ContentIO.createFrom(inputStream);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-
-        public void show() {
             editor.setText(contnt);
         }
-        
-        
-        //make sure to de_init_when tab is closed
-        public void de_init() {
-            try {
-                inputStream.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
+        tab.select();
     }
 }
