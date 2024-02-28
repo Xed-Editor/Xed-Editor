@@ -69,8 +69,7 @@ public class EditorManager {
 
         if (uris.contains(uri)) {
             MainActivity.getBinding().drawerLayout.close();
-             return;
-            // dublicate
+            return;
         } else {
             uris.add(uri);
         }
@@ -107,7 +106,7 @@ public class EditorManager {
             editor.setText(contnt);
         }
         tab.select();
-
+        MainActivity.getBinding().drawerLayout.close();
         tab.view.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -125,6 +124,9 @@ public class EditorManager {
                             popupMenu.setOnMenuItemClickListener(
                                     new PopupMenu.OnMenuItemClickListener() {
                                         public boolean onMenuItemClick(MenuItem item) {
+                                            /*Note : any variable refrenced here in a different scope 
+                                            any modifications done to them may not result in any effect 
+                                            unless they are static*/
                                             int id = item.getItemId();
                                             if (id == R.id.close_this) {
 

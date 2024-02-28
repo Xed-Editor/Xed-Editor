@@ -47,6 +47,8 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     final TextView tv;
     final LinearLayout.LayoutParams params;
     final LinearLayout.LayoutParams arr_params;
+     
+    
 
     public SimpleViewHolder(Context context) {
         super(context);
@@ -58,7 +60,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         fileDrawable = R.drawable.file;
         layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
-        
+
         layout_params =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -77,7 +79,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
-        imgParams.setMargins(0, 0, 10, 0);
+        imgParams.setMargins(0, 0, 4, 0);
 
         arr_params =
                 new LinearLayout.LayoutParams(
@@ -89,6 +91,17 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
 
         editor = MainActivity.getEditor();
         manager = new EditorManager(editor, context);
+
+        
+        /*
+        Todo:
+            set berry color to white of file viewer
+            remove Tablayout when no tabs in it
+            remove editor if no tabs is opend
+            enable line viewing when scrolling towards right
+        */
+        
+        
     }
 
     @Override
@@ -126,14 +139,13 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         }
         // implement loading
         if (!isFile) {
-            //  arrow.setImageDrawable(
-            // ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
+            
 
             if (isRotated) {
-                rotateImage(90, 0, arrow);
+                arrow.startAnimation(animate(90,0));
                 isRotated = false;
             } else {
-                rotateImage(0, 90, arrow);
+                arrow.startAnimation(animate(0,90));
                 isRotated = true;
             }
 
@@ -158,17 +170,12 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         }
     }
 
-    private void rotateImage(float fromDegrees, float toDegrees, View v) {
-        RotateAnimation rotateAnimation =
+    private RotateAnimation animate(int from,int to) {
+    	RotateAnimation rotateAnimation =
                 new RotateAnimation(
-                        fromDegrees,
-                        toDegrees,
-                        Animation.RELATIVE_TO_SELF,
-                        0.5f,
-                        Animation.RELATIVE_TO_SELF,
-                        0.5f);
-        rotateAnimation.setDuration(300); // Set the duration of the animation in milliseconds
-        rotateAnimation.setFillAfter(true); // Keeps the state of the view after the animation ends
-        v.startAnimation(rotateAnimation);
+                        from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateAnimation.setDuration(300);
+        rotateAnimation.setFillAfter(true);
+        return rotateAnimation;
     }
 }

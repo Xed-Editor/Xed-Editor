@@ -152,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_save) {
             rkUtils.ni(this);
+            //todo implement saveing
             return true;
         } else if (id == R.id.action_settings) {
             Intent intent = new Intent(this, Settings.class);
