@@ -58,12 +58,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         fileDrawable = R.drawable.file;
         layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            layout.setBackground(ContextCompat.getDrawable(context, R.drawable.ripple_effect));
-        } else {
-            layout.setBackgroundDrawable(
-                    ContextCompat.getDrawable(context, R.drawable.ripple_effect));
-        }
+        
         layout_params =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

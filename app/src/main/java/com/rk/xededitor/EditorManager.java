@@ -10,6 +10,7 @@ import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.*;
 import java.util.HashMap;
 import android.util.Log;
@@ -21,12 +22,10 @@ public class EditorManager {
     private final CodeEditor editor;
     private final Context ctx;
     private TabLayout tablayout;
-    private final HashSet<Integer> uris;
-    private final HashSet<Integer> strs;
-    private final HashMap<TabLayout.Tab, Content> map;
-    PopupMenu popupMenu;
-
-    // private TabLayout.Tab last_tab;
+    private static HashSet<Uri> uris;
+    private static HashSet<String> strs;
+    private static HashMap<TabLayout.Tab, Content> map;
+    private PopupMenu popupMenu;
 
     public EditorManager(CodeEditor editor, Context ctx) {
 
@@ -68,31 +67,33 @@ public class EditorManager {
         Uri uri = file.getUri();
         String name = file.getName();
 
-        if (uris.contains(uri.hashCode())) {
-            return;
+        if (uris.contains(uri)) {
+            MainActivity.getBinding().drawerLayout.close();
+             return;
             // dublicate
         } else {
-            uris.add(uri.hashCode());
+            uris.add(uri);
         }
 
-        if (strs.contains(name.hashCode())) {
+        if (strs.contains(name)) {
             name = file.getParentFile().getName() + "/" + name;
-            strs.add(name.hashCode());
+            strs.add(name);
         } else {
-            strs.add(name.hashCode());
+            strs.add(name);
         }
+        final String final_name = name;
 
-        Content contnt = null;
+        Content contntx = null;
         try {
             InputStream inputStream;
             inputStream = ctx.getContentResolver().openInputStream(uri);
-            contnt = ContentIO.createFrom(inputStream);
+            contntx = ContentIO.createFrom(inputStream);
             inputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-
+        final Content contnt = contntx;
         TabLayout.Tab tab = tablayout.newTab();
         tab.setText(name);
         map.put(tab, contnt);
@@ -106,12 +107,14 @@ public class EditorManager {
             editor.setText(contnt);
         }
         tab.select();
+
         tab.view.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (tablayout.getTabAt(tablayout.getSelectedTabPosition()).equals(tab)) {
                             if (popupMenu != null) {
+                                // remove click listner of previous tab
                                 popupMenu.setOnMenuItemClickListener(null);
                             }
 
@@ -122,11 +125,41 @@ public class EditorManager {
                             popupMenu.setOnMenuItemClickListener(
                                     new PopupMenu.OnMenuItemClickListener() {
                                         public boolean onMenuItemClick(MenuItem item) {
-                                            Toast.makeText(
-                                                            ctx,
-                                                            "You Clicked : " + item.getTitle(),
-                                                            Toast.LENGTH_SHORT)
-                                                    .show();
+                                            int id = item.getItemId();
+                                            if (id == R.id.close_this) {
+
+                                                tablayout.removeTab(tab);
+                                                map.remove(tab);
+                                                uris.remove(uri);
+                                                strs.remove(final_name);
+                                                if (tablayout.getChildCount() > 1) {
+                                                    tablayout.selectTab(tablayout.getTabAt(0));
+                                                }
+
+                                            } else if (id == R.id.close_others) {
+
+                                                for (int i = tablayout.getTabCount() - 1;
+                                                        i >= 0;
+                                                        i--) {
+                                                    TabLayout.Tab t = tablayout.getTabAt(i);
+                                                    if (!t.equals(tab)) {
+                                                        tablayout.removeTab(t);
+                                                    }
+                                                }
+
+                                                map.clear();
+                                                map.putIfAbsent(tab, contnt);
+                                                uris.clear();
+                                                uris.add(uri);
+                                                strs.clear();
+                                                strs.add(final_name);
+
+                                            } else if (id == R.id.close_all) {
+                                                tablayout.removeAllTabs();
+                                                map.clear();
+                                                uris.clear();
+                                                strs.clear();
+                                            }
                                             return true;
                                         }
                                     });
