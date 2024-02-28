@@ -2,6 +2,7 @@ package com.rk.xededitor;
 
 import android.content.Context;
 import android.net.Uri;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.documentfile.provider.DocumentFile;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.rkUtils;
@@ -13,6 +14,7 @@ import java.util.*;
 import java.util.HashMap;
 import android.util.Log;
 import android.view.*;
+import android.widget.*;
 
 public class EditorManager {
 
@@ -22,6 +24,7 @@ public class EditorManager {
     private final HashSet<Integer> uris;
     private final HashSet<Integer> strs;
     private final HashMap<TabLayout.Tab, Content> map;
+    PopupMenu popupMenu;
 
     // private TabLayout.Tab last_tab;
 
@@ -38,6 +41,7 @@ public class EditorManager {
                 new TabLayout.OnTabSelectedListener() {
                     @Override
                     public void onTabSelected(TabLayout.Tab tab) {
+
                         Content contnt = map.get(tab);
                         if (contnt != null) {
                             editor.setText(contnt);
@@ -56,19 +60,13 @@ public class EditorManager {
 
     public void newEditor(DocumentFile file) {
         // this method will run when a new tab is opened
-        if(editor.getVisibility() == View.GONE){
-            rkUtils.setVisibility(MainActivity.binding.empty,false);
-            rkUtils.setVisibility(editor,true);
-            
+        if (editor.getVisibility() == View.GONE) {
+            rkUtils.setVisibility(MainActivity.binding.empty, false);
+            rkUtils.setVisibility(editor, true);
         }
-        
-        
-        
+
         Uri uri = file.getUri();
         String name = file.getName();
-        
-        
-        
 
         if (uris.contains(uri.hashCode())) {
             return;
@@ -84,7 +82,6 @@ public class EditorManager {
             strs.add(name.hashCode());
         }
 
-        
         Content contnt = null;
         try {
             InputStream inputStream;
@@ -101,13 +98,41 @@ public class EditorManager {
         map.put(tab, contnt);
         tablayout.addTab(tab);
 
-        if(tablayout.getVisibility() == View.GONE){
-            rkUtils.setVisibility(tablayout,true);
+        if (tablayout.getVisibility() == View.GONE) {
+            rkUtils.setVisibility(tablayout, true);
         }
 
         if (tablayout.getTabCount() == 1) {
             editor.setText(contnt);
         }
         tab.select();
+        tab.view.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (tablayout.getTabAt(tablayout.getSelectedTabPosition()).equals(tab)) {
+                            if (popupMenu != null) {
+                                popupMenu.setOnMenuItemClickListener(null);
+                            }
+
+                            popupMenu = new PopupMenu(ctx, tab.view);
+                            popupMenu
+                                    .getMenuInflater()
+                                    .inflate(R.menu.popup_menu, popupMenu.getMenu());
+                            popupMenu.setOnMenuItemClickListener(
+                                    new PopupMenu.OnMenuItemClickListener() {
+                                        public boolean onMenuItemClick(MenuItem item) {
+                                            Toast.makeText(
+                                                            ctx,
+                                                            "You Clicked : " + item.getTitle(),
+                                                            Toast.LENGTH_SHORT)
+                                                    .show();
+                                            return true;
+                                        }
+                                    });
+                            popupMenu.show();
+                        }
+                    }
+                });
     }
 }
