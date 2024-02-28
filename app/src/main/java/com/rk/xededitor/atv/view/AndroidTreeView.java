@@ -31,7 +31,7 @@ public class AndroidTreeView {
     private TreeNode.TreeNodeClickListener nodeClickListener;
     private TreeNode.TreeNodeLongClickListener nodeLongClickListener;
     private boolean mSelectionModeEnabled;
-    private boolean mUseDefaultAnimation = false;
+    private boolean mUseDefaultAnimation = true;
     private boolean use2dScroll = false;
     private boolean enableAutoToggle = true;
 
