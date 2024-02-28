@@ -56,8 +56,19 @@ public class EditorManager {
 
     public void newEditor(DocumentFile file) {
         // this method will run when a new tab is opened
+        if(editor.getVisibility() == View.GONE){
+            rkUtils.setVisibility(MainActivity.binding.empty,false);
+            rkUtils.setVisibility(editor,true);
+            
+        }
+        
+        
+        
         Uri uri = file.getUri();
         String name = file.getName();
+        
+        
+        
 
         if (uris.contains(uri.hashCode())) {
             return;
@@ -90,7 +101,9 @@ public class EditorManager {
         map.put(tab, contnt);
         tablayout.addTab(tab);
 
-        rkUtils.setVisibility(tablayout, true);
+        if(tablayout.getVisibility() == View.GONE){
+            rkUtils.setVisibility(tablayout,true);
+        }
 
         if (tablayout.getTabCount() == 1) {
             editor.setText(contnt);

@@ -27,8 +27,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_menu"
                 android:layout_gravity="start"
-                
-                android:backgroundTint="@color/c0"
+                android:background="@color/c0"
                 android:onClick="menu"
                 android:layout_marginEnd="5dp"
                 android:contentDescription="button_description" />

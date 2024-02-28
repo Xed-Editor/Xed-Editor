@@ -38,7 +38,7 @@ import android.content.Context;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    public ActivityMainBinding binding;
+    public static ActivityMainBinding binding;
     private static final int REQUEST_CODE_PICK_FOLDER = 123;
     private static CodeEditor editor;
     private static TabLayout tablayout;
@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         
         
         tablayout = binding.editorTabLayout;
-        rkUtils.setVisibility(tablayout,false);
+        
         
     }
 
@@ -105,6 +105,10 @@ public class MainActivity extends AppCompatActivity {
     public static CodeEditor getEditor() {
     	return editor;
     }
+    public static ActivityMainBinding getBinding() {
+    	return binding;
+    }
+    
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

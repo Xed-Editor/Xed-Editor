@@ -43,6 +43,7 @@ public class rkUtils {
       v.setVisibility(View.GONE);
     }
   }
+    
   
  public static int getScreenHeight(Context context) {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
