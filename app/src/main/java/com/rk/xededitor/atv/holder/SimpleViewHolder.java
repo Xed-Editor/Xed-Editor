@@ -3,6 +3,8 @@ package com.rk.xededitor;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.RotateAnimation;
+import android.view.animation.*;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -19,6 +21,7 @@ import com.google.android.material.tabs.TabLayout;
 import static com.rk.xededitor.MainActivity.*;
 import java.net.URLConnection;
 import android.os.Vibrator;
+import android.os.*;
 
 public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private boolean isFile;
@@ -31,9 +34,10 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private final int folderDrawable;
     private final int fileDrawable;
     public final int indentation_level = 50;
-    public static boolean showIndentation = false;
+
     private EditorManager manager;
     private CodeEditor editor;
+    boolean isRotated = false;
 
     public SimpleViewHolder(Context context) {
         super(context);
@@ -44,7 +48,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         folderDrawable = R.drawable.folder;
         fileDrawable = R.drawable.file;
         editor = MainActivity.getEditor();
-        manager = new EditorManager(editor,context);
+        manager = new EditorManager(editor, context);
     }
 
     @Override
@@ -53,6 +57,12 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         isFile = node.isFile;
         final LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            layout.setBackground(ContextCompat.getDrawable(context, R.drawable.ripple_effect));
+        } else {
+            layout.setBackgroundDrawable(
+                    ContextCompat.getDrawable(context, R.drawable.ripple_effect));
+        }
         final LinearLayout.LayoutParams layout_params =
                 new LinearLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -61,12 +71,10 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
 
         arrow = new ImageView(context);
         final ImageView img = new ImageView(context);
+        img.setImageDrawable(ContextCompat.getDrawable(context, fileDrawable));
         final TextView tv = new TextView(context);
-        if (showIndentation) {
-            tv.setText(String.valueOf(value) + " " + node.indentation);
-        } else {
-            tv.setText(String.valueOf(value));
-        }
+
+        tv.setText(String.valueOf(value));
 
         tv.setTextColor(berryColor);
 
@@ -93,7 +101,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT);
             params.setMargins(indentation_level * node.indentation, 0, 0, 0);
-            img.setImageDrawable(ContextCompat.getDrawable(context, fileDrawable));
+
             img.setLayoutParams(params);
         }
 
@@ -109,13 +117,27 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
             return;
         }
         // implement loading
-        if (!isFile && !node.isLoaded()) {
-            MainActivity.looper(node.file, node, node.indentation + 1);
+        if (!isFile) {
+          //  arrow.setImageDrawable(
+                    //ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
+            
+            if (isRotated) {
+                    rotateImage(90, 0,arrow);
+                    isRotated = false;
+                } else {
+                    rotateImage(0, 90,arrow);
+                    isRotated = true;
+                }
+            
+            
+            if(!node.isLoaded()){
+                MainActivity.looper(node.file, node, node.indentation + 1);
             node.setLoaded();
-            arrow.setImageDrawable(
-                    ContextCompat.getDrawable(context, active ? openedDrawable : closedDrawable));
+            }
+            
+            
         } else if (isFile) {
-          //  Uri uri = node.file.getUri();
+            //  Uri uri = node.file.getUri();
 
             String type = node.file.getType();
             if (type == null) {
@@ -128,5 +150,15 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
                 manager.newEditor(node.file);
             }
         }
+        
+    }
+    
+    private void rotateImage(float fromDegrees, float toDegrees,View v) {
+        RotateAnimation rotateAnimation = new RotateAnimation(fromDegrees, toDegrees,
+                Animation.RELATIVE_TO_SELF, 0.5f,
+                Animation.RELATIVE_TO_SELF, 0.5f);
+        rotateAnimation.setDuration(300); // Set the duration of the animation in milliseconds
+        rotateAnimation.setFillAfter(true); // Keeps the state of the view after the animation ends
+        v.startAnimation(rotateAnimation);
     }
 }
