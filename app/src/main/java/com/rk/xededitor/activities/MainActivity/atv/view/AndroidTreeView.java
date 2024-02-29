@@ -1,4 +1,4 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -9,8 +9,7 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-
-
+import com.rk.xededitor.R;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;

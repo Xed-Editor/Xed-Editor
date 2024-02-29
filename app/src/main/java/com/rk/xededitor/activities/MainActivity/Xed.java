@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.themes;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.app.Activity;
 import android.view.View;

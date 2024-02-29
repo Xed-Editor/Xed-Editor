@@ -1,4 +1,4 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.content.Context;
 import android.view.ContextThemeWrapper;
@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
+import com.rk.xededitor.R;
 
 
 /**

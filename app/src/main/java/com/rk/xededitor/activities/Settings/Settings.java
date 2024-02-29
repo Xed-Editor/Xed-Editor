@@ -1,4 +1,4 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.settings;
 
 import android.app.*;
 import android.content.*;
@@ -10,10 +10,10 @@ import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.*;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.rk.xededitor.ui.themes.*;
+import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.*;
 import io.github.rosemoe.sora.widget.schemes.*;
-
+import com.rk.xededitor.R;
 public class Settings extends AppCompatActivity {
 
     private static final int REQUEST_CODE_PICK_FOLDER = 123;

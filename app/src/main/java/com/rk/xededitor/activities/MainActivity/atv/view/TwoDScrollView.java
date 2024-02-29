@@ -1,4 +1,4 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.content.Context;
 import android.graphics.Rect;

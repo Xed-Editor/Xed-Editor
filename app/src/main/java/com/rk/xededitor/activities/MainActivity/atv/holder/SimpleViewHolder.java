@@ -1,4 +1,4 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -19,10 +19,12 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 import java.io.IOException;
 import java.io.*;
 import com.google.android.material.tabs.TabLayout;
-import static com.rk.xededitor.MainActivity.*;
 import java.net.URLConnection;
 import android.os.Vibrator;
 import android.os.*;
+import com.rk.xededitor.rkUtils;
+import com.rk.xededitor.R;
+import static com.rk.xededitor.Config.FileViewer.indentation_level;
 
 public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private boolean isFile;
@@ -34,7 +36,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private final int openedDrawable;
     private final int folderDrawable;
     private final int fileDrawable;
-    public final int indentation_level = 50;
+    
 
     private EditorManager manager;
     private CodeEditor editor;
@@ -74,6 +76,8 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
 
         tv = new TextView(context);
         tv.setTextColor(berryColor);
+        
+        
 
         imgParams =
                 new LinearLayout.LayoutParams(
@@ -93,15 +97,6 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         manager = new EditorManager(editor, context);
 
         
-        /*
-        Todo:
-            set berry color to white of file viewer
-            remove Tablayout when no tabs in it
-            remove editor if no tabs is opend
-            enable line viewing when scrolling towards right
-           add file saving
-           add quick text editing (outside of projects)
-        */
         
         
     }

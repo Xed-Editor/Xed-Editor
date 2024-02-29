@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import android.content.Context;
 import android.content.res.Configuration;
-
+import com.rk.xededitor.activities.MainActivity.*;
 public class rkUtils {
 
   public static boolean isDarkMode(Context ctx) {

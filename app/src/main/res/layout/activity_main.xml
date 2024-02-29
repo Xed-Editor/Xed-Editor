@@ -80,6 +80,7 @@
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:textColor="@color/inverse"
+                    android:backgroundTint="@color/c0"
                     android:text="Click here to open a folder"
                     android:id="@+id/open_folder" />
 

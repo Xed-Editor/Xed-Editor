@@ -1,10 +1,9 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
-
+import com.rk.xededitor.R;
 import androidx.documentfile.provider.DocumentFile;
 import java.util.ArrayList;
 import java.util.Collection;

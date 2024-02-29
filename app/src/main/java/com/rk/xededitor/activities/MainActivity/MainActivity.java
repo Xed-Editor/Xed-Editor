@@ -1,4 +1,4 @@
-package com.rk.xededitor;
+package com.rk.xededitor.activities.MainActivity;
 
 import android.app.*;
 import android.content.*;
@@ -17,10 +17,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.databinding.ActivityMainBinding;
-import com.rk.xededitor.ui.themes.*;
 import io.github.rosemoe.sora.*;
+import io.github.rosemoe.sora.text.Content;
+import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.*;
+import com.rk.xededitor.rkUtils;
+import com.rk.xededitor.R;
+import com.rk.xededitor.Config;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,14 +46,17 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(binding.appBarMain.toolbar);
     tablayout = binding.editorTabLayout;
     editor = binding.editor;
-    
+
     if (rkUtils.isDarkMode(this)) {
       Xed_dark.applyTheme(this, editor);
     } else {
       Xed.applyTheme(this, editor);
     }
 
-    mAppBarConfiguration = new AppBarConfiguration.Builder(R.id.nav_home).setOpenableLayout(binding.drawerLayout).build();
+    mAppBarConfiguration =
+        new AppBarConfiguration.Builder(R.id.nav_home)
+            .setOpenableLayout(binding.drawerLayout)
+            .build();
     ViewTreeObserver viewTreeObserver = binding.drawerLayout.getViewTreeObserver();
     viewTreeObserver.addOnGlobalLayoutListener(
         new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -55,17 +66,19 @@ public class MainActivity extends AppCompatActivity {
             binding.drawerLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             LinearLayout.LayoutParams params =
                 (LinearLayout.LayoutParams) binding.openFolder.getLayoutParams();
-            params.setMargins(binding.drawerLayout.getWidth() / 50, rkUtils.Percentage(binding.drawerLayout.getHeight(), 87) / 2, 0, 0);
+            params.setMargins(
+                binding.drawerLayout.getWidth() / 50,
+                rkUtils.Percentage(binding.drawerLayout.getHeight(), 87) / 2,
+                0,
+                0);
             binding.openFolder.setLayoutParams(params);
           }
         });
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+    editor.setPinLineNumber(Config.Editor.pinLineNumbers);
   }
-
-  
-
-  
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -87,20 +100,46 @@ public class MainActivity extends AppCompatActivity {
     binding.drawbar.addView(tView.getView());
   }
 
-  
-
-  
-
-  
-
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
 
     final int id = item.getItemId();
 
     if (id == R.id.action_save) {
-      rkUtils.ni(this);
-      // todo implement saveing
+
+      HashMap<TabLayout.Tab, Content> map = EditorManager.getMap();
+      HashMap<TabLayout.Tab, Uri> uris = EditorManager.getUriMap();
+      if (map == null || uris == null) {
+        rkUtils.toast(this, "Can't save");
+        return true;
+      }
+      if (map.isEmpty() || uris.isEmpty()) {
+        rkUtils.toast(this, "map and uri is empty");
+        return true;
+      }
+      for (int i = 0; i < tablayout.getTabCount(); i++) {
+        TabLayout.Tab tab = tablayout.getTabAt(i);
+        Content contentx = map.get(tab);
+        Uri uri = uris.get(tab);
+
+        if (uri != null || contentx != null) {
+          rkUtils.toast(this, "Uri or content is null");
+          return true;
+        }
+        try {
+          OutputStream outputStream = getContentResolver().openOutputStream(uri);
+          if (outputStream != null) {
+            ContentIO.writeTo(contentx, outputStream, true);
+            rkUtils.toast(this, "saved!");
+          } else {
+            rkUtils.toast(this, "InputStram is null");
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+          rkUtils.toast(this, "Unknown Error \n" + e.toString());
+        }
+      }
+
       return true;
     } else if (id == R.id.action_settings) {
       Intent intent = new Intent(this, Settings.class);
@@ -127,12 +166,12 @@ public class MainActivity extends AppCompatActivity {
   public boolean onSupportNavigateUp() {
     return super.onSupportNavigateUp();
   }
-  
-  
-  //static getters
+
+  // static getters
   public static TabLayout getTabLayout() {
     return tablayout;
   }
+
   public static CodeEditor getEditor() {
     return editor;
   }
@@ -140,18 +179,19 @@ public class MainActivity extends AppCompatActivity {
   public static ActivityMainBinding getBinding() {
     return binding;
   }
-  
-  
-  //click listners
+
+  // click listners
   public void run(View view) {
     rkUtils.ni(this);
   }
+
   public void menu(View view) {
     binding.drawerLayout.open();
   }
+
   public void open_folder(View view) {
     // Launch SAF intent to pick a folder
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-    ActivityCompat.startActivityForResult(this,intent,REQUEST_CODE_PICK_FOLDER,null);
+    ActivityCompat.startActivityForResult(this, intent, REQUEST_CODE_PICK_FOLDER, null);
   }
 }

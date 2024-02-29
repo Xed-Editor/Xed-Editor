@@ -1,0 +1,7 @@
+Todo:
+     add file saving
+       fix file saveing when user removes all the content of file
+     add quick text editing (outside of projects)
+       fix app is not appearing in action chhoser menu
+     
+           
