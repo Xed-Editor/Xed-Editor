@@ -33,6 +33,16 @@ import java.util.List;
  * TwoDScrollView, but using the two together is possible to achieve the effect of a text view
  * within a larger container.
  */
+
+
+
+
+/*
+
+i know what i am doing i swear
+
+
+*/
 public class TwoDScrollView extends FrameLayout {
     static final int ANIMATED_SCROLL_GAP = 250;
     static final float MAX_SCROLL_FACTOR = 0.5f;

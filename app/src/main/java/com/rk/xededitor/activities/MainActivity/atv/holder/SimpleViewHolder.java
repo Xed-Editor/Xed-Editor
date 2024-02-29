@@ -99,6 +99,8 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
             remove Tablayout when no tabs in it
             remove editor if no tabs is opend
             enable line viewing when scrolling towards right
+           add file saving
+           add quick text editing (outside of projects)
         */
         
         
@@ -150,7 +152,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
             }
 
             if (!node.isLoaded()) {
-                MainActivity.looper(node.file, node, node.indentation + 1);
+                rkUtils.looper(node.file, node, node.indentation + 1);
                 node.setLoaded();
             }
 

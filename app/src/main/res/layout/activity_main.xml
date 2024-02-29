@@ -73,11 +73,12 @@
                 android:id="@+id/drawbar">
 
 
-                <TextView
-                    android:layout_height="100dp"
+                <Button
+                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:clickable="true"
                     android:onClick="open_folder"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     android:textColor="@color/inverse"
                     android:text="Click here to open a folder"
                     android:id="@+id/open_folder" />
