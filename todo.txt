@@ -1,7 +1,5 @@
 Todo:
-     add file saving
-       fix file saveing when user removes all the content of file
-     add quick text editing (outside of projects)
-       fix app is not appearing in action chhoser menu
+    todo 1 = add quick text editing (outside of projects)
+     Error 2.1 = fix app is not appearing in action chhoser menu
      
            

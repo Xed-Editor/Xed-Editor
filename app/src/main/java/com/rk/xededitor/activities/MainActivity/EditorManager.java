@@ -9,7 +9,11 @@ import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.CodeEditor;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.*;
 import java.util.HashMap;
@@ -22,18 +26,11 @@ public class EditorManager {
 
   private final CodeEditor editor;
   private final Context ctx;
-  private TabLayout tablayout;
-  private static HashMap<TabLayout.Tab,Uri> uris;
+  private static TabLayout tablayout;
+  private static HashMap<TabLayout.Tab, Uri> uris;
   private static HashSet<String> strs;
   private static HashMap<TabLayout.Tab, Content> map;
   private PopupMenu popupMenu;
-  
-  public static HashMap<TabLayout.Tab, Content> getMap(){
-    return map;
-  }
-  public static HashMap<TabLayout.Tab, Uri> getUriMap(){
-    return uris;
-  }
 
   public EditorManager(CodeEditor editor, Context ctx) {
 
@@ -106,8 +103,10 @@ public class EditorManager {
     TabLayout.Tab tab = tablayout.newTab();
     tab.setText(name);
     map.put(tab, contnt);
-    uris.put(tab,uri);
+    uris.put(tab, uri);
     tablayout.addTab(tab);
+    
+    
 
     if (tablayout.getVisibility() == View.GONE) {
       rkUtils.setVisibility(tablayout, true);
@@ -163,7 +162,7 @@ public class EditorManager {
                         map.clear();
                         map.putIfAbsent(tab, contnt);
                         uris.clear();
-                        uris.put(tab,uri);
+                        uris.put(tab, uri);
                         strs.clear();
                         strs.add(final_name);
 
@@ -183,5 +182,36 @@ public class EditorManager {
             }
           }
         });
+  }
+
+  public static void save_files(Context ctx) {
+    if (map == null || uris == null) {
+      rkUtils.toast(ctx, "Can't save");
+    }
+    if (map.isEmpty() || uris.isEmpty()) {
+      rkUtils.toast(ctx, "map or uri is empty");
+    }
+    for (int i = 0; i < tablayout.getTabCount(); i++) {
+      TabLayout.Tab tab = tablayout.getTabAt(i);
+      Content contentx = map.get(tab);
+      Uri uri = uris.get(tab);
+
+      if (contentx == null || uri == null) {
+        rkUtils.toast(ctx, "content or uri is null");
+        continue;
+      }
+      try {
+        OutputStream outputStream = ctx.getContentResolver().openOutputStream(uri,"wt");
+        if (outputStream != null) {
+          ContentIO.writeTo(contentx,outputStream,true);
+          rkUtils.toast(ctx, "saved!");
+        } else {
+          rkUtils.toast(ctx, "InputStream is null");
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+        rkUtils.toast(ctx, "Unknown Error \n" + e.toString());
+      }
+    }
   }
 }

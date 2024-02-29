@@ -16,10 +16,16 @@ import androidx.navigation.*;
 import androidx.navigation.ui.AppBarConfiguration;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.activities.MainActivity.EditorManager;
 import com.rk.xededitor.databinding.ActivityMainBinding;
 import io.github.rosemoe.sora.*;
+import io.github.rosemoe.sora.event.ClickEvent;
+import io.github.rosemoe.sora.event.ContentChangeEvent;
+import io.github.rosemoe.sora.event.EventReceiver;
+import io.github.rosemoe.sora.event.Unsubscribe;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
+import io.github.rosemoe.sora.text.ContentLine;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.*;
 import com.rk.xededitor.rkUtils;
@@ -27,6 +33,8 @@ import com.rk.xededitor.R;
 import com.rk.xededitor.Config;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
@@ -37,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
   private static final int REQUEST_CODE_PICK_FOLDER = 123;
   private static CodeEditor editor;
   private static TabLayout tablayout;
-
+  private static int lines = 0;
+  private static int plines = 0;
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -78,7 +87,13 @@ public class MainActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayShowTitleEnabled(false);
 
     editor.setPinLineNumber(Config.Editor.pinLineNumbers);
+
+   
+    
+    
   }
+
+  
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -107,38 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
     if (id == R.id.action_save) {
 
-      HashMap<TabLayout.Tab, Content> map = EditorManager.getMap();
-      HashMap<TabLayout.Tab, Uri> uris = EditorManager.getUriMap();
-      if (map == null || uris == null) {
-        rkUtils.toast(this, "Can't save");
-        return true;
-      }
-      if (map.isEmpty() || uris.isEmpty()) {
-        rkUtils.toast(this, "map and uri is empty");
-        return true;
-      }
-      for (int i = 0; i < tablayout.getTabCount(); i++) {
-        TabLayout.Tab tab = tablayout.getTabAt(i);
-        Content contentx = map.get(tab);
-        Uri uri = uris.get(tab);
-
-        if (uri != null || contentx != null) {
-          rkUtils.toast(this, "Uri or content is null");
-          return true;
-        }
-        try {
-          OutputStream outputStream = getContentResolver().openOutputStream(uri);
-          if (outputStream != null) {
-            ContentIO.writeTo(contentx, outputStream, true);
-            rkUtils.toast(this, "saved!");
-          } else {
-            rkUtils.toast(this, "InputStram is null");
-          }
-        } catch (IOException e) {
-          e.printStackTrace();
-          rkUtils.toast(this, "Unknown Error \n" + e.toString());
-        }
-      }
+      EditorManager.save_files(this);
 
       return true;
     } else if (id == R.id.action_settings) {
