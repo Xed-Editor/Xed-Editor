@@ -20,6 +20,9 @@
 /build/
 app/build
 .androidide
+signing.properties
+*.keystore
+release-key.keystore
 # Local configuration file (sdk path, etc)
 local.properties
 

@@ -31,7 +31,7 @@ public class EditorManager {
   private static HashSet<String> strs;
   private static HashMap<TabLayout.Tab, Content> map;
   private static PopupMenu popupMenu;
-
+  private static boolean should_open = false;
   public EditorManager(CodeEditor editor, Context ctx) {
 
     this.editor = editor;
@@ -115,7 +115,14 @@ public class EditorManager {
       editor.setText(contnt);
     }
     tab.select();
-    MainActivity.getBinding().drawerLayout.close();
+    
+    if(should_open){
+      MainActivity.getBinding().drawerLayout.close();
+    }else{
+      should_open = true;
+    }
+    
+    
     tab.view.setOnClickListener(
         new View.OnClickListener() {
           @Override
@@ -141,8 +148,6 @@ public class EditorManager {
                           uris.clear();
                           strs.clear();
                           map.clear();
-                      
-                      
                           tablayout.removeAllTabs();
                           rkUtils.setVisibility(tablayout, false);
                           rkUtils.setVisibility(editor, false);
