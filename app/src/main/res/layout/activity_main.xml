@@ -44,6 +44,7 @@
             android:onClick="menu"
             />
     </LinearLayout>
+  
 
     <include
         layout="@layout/app_bar_main"

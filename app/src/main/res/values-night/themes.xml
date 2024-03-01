@@ -3,6 +3,7 @@
   <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
     <!-- Customize your theme here. -->
     <item name="colorPrimary">@color/c0</item>
+    
   </style>
 
   <style name="AppTheme" parent="Base.AppTheme" />

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+>
+
+    <item
+        android:id="@+id/simple_settings_item"
+        android:title="Settings"
+        android:name="Settings" />
+    <item
+        android:id="@+id/smooth_mode_item"
+        android:title="Smooth Mode : OFF"
+        android:name="Smooth Mode" />
+    <item
+        android:id="@+id/plugins"
+        android:title="Plugins"
+        android:name="Plugins" />
+</menu>

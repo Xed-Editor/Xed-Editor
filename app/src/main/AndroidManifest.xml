@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="Settings"
+            android:name="com.rk.xededitor.activities.settings.Settings"
             android:persistent="true"
             android:exported="true">
             <intent-filter>
@@ -39,11 +39,12 @@
         </activity>
 
         <activity
-            android:name="Editor"
+            android:name="com.rk.xededitor.activities.simpleeditor.SimpleEditor"
             android:persistent="true"
             android:exported="true">
             <intent-filter>
-
+                 <action android:name="android.intent.action.VIEW" />
+                  <action android:name="android.intent.action.EDIT" />
                 <category
                     android:name="android.intent.category.DEFAULT" />
                 <data

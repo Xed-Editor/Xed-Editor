@@ -37,6 +37,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import com.rk.xededitor.activities.settings.Settings;
 
 public class MainActivity extends AppCompatActivity {
 
