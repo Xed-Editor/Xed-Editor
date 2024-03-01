@@ -46,8 +46,8 @@ public class MainActivity extends AppCompatActivity {
   private static final int REQUEST_CODE_PICK_FOLDER = 123;
   private static CodeEditor editor;
   private static TabLayout tablayout;
-  private static int lines = 0;
-  private static int plines = 0;
+  private static Context ctx;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(binding.appBarMain.toolbar);
     tablayout = binding.editorTabLayout;
     editor = binding.editor;
+    ctx = this;
 
     if (rkUtils.isDarkMode(this)) {
       Xed_dark.applyTheme(this, editor);
@@ -88,13 +89,7 @@ public class MainActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayShowTitleEnabled(false);
 
     editor.setPinLineNumber(Config.Editor.pinLineNumbers);
-
-   
-    
-    
   }
-
-  
 
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -110,9 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
     rkUtils.setVisibility(binding.openFolder, false);
     TreeNode root = TreeNode.root();
-    DocumentFile rootFolder = DocumentFile.fromTreeUri(this, treeUri);
+    DocumentFile rootFolder = DocumentFile.fromTreeUri(ctx, treeUri);
     rkUtils.looper(rootFolder, root, 0);
-    AndroidTreeView tView = new AndroidTreeView(this, root);
+    AndroidTreeView tView = new AndroidTreeView(ctx, root);
     binding.drawbar.addView(tView.getView());
   }
 
