@@ -4,7 +4,7 @@ Xed Editor is a VsCode like code editor for android devices
 
 ## Installation
 
-Download latest debug build
+Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
 
