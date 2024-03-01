@@ -30,7 +30,7 @@ public class EditorManager {
   private static HashMap<TabLayout.Tab, Uri> uris;
   private static HashSet<String> strs;
   private static HashMap<TabLayout.Tab, Content> map;
-  private PopupMenu popupMenu;
+  private static PopupMenu popupMenu;
 
   public EditorManager(CodeEditor editor, Context ctx) {
 
@@ -69,7 +69,8 @@ public class EditorManager {
     String name = file.getName();
 
     if (uris.containsValue(uri)) {
-      MainActivity.getBinding().drawerLayout.close();
+      // MainActivity.getBinding().drawerLayout.close();
+      rkUtils.toast(ctx, "already there ");
       return;
     }
 
@@ -105,8 +106,6 @@ public class EditorManager {
     map.put(tab, contnt);
     uris.put(tab, uri);
     tablayout.addTab(tab);
-    
-    
 
     if (tablayout.getVisibility() == View.GONE) {
       rkUtils.setVisibility(tablayout, true);
@@ -138,13 +137,27 @@ public class EditorManager {
                       int id = item.getItemId();
                       if (id == R.id.close_this) {
 
+                        if (tablayout.getTabCount() == 1) {
+                          uris.clear();
+                          strs.clear();
+                          map.clear();
+                      
+                      
+                          tablayout.removeAllTabs();
+                          rkUtils.setVisibility(tablayout, false);
+                          rkUtils.setVisibility(editor, false);
+                          rkUtils.setVisibility(MainActivity.binding.empty, true);
+                          return true;
+                        }
+
                         tablayout.removeTab(tab);
                         map.remove(tab);
                         uris.remove(uri);
                         strs.remove(final_name);
-                        if (tablayout.getChildCount() > 1) {
+                        if (tablayout.getTabCount() > 0) {
                           tablayout.selectTab(tablayout.getTabAt(0));
                         } else {
+
                           rkUtils.setVisibility(tablayout, false);
                           rkUtils.setVisibility(editor, false);
                           rkUtils.setVisibility(MainActivity.binding.empty, true);
@@ -201,9 +214,9 @@ public class EditorManager {
         continue;
       }
       try {
-        OutputStream outputStream = ctx.getContentResolver().openOutputStream(uri,"wt");
+        OutputStream outputStream = ctx.getContentResolver().openOutputStream(uri, "wt");
         if (outputStream != null) {
-          ContentIO.writeTo(contentx,outputStream,true);
+          ContentIO.writeTo(contentx, outputStream, true);
           rkUtils.toast(ctx, "saved!");
         } else {
           rkUtils.toast(ctx, "InputStream is null");
