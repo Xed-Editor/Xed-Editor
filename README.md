@@ -3,7 +3,7 @@
 Xed Editor is a VsCode like code editor for android devices 
 
 ## Features
-- [] basic text editing
+- [ ] basic text editing
 
 ## Installation
 
