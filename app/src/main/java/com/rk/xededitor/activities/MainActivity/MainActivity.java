@@ -14,30 +14,17 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.*;
 import androidx.navigation.ui.AppBarConfiguration;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.rk.xededitor.activities.MainActivity.EditorManager;
+import com.rk.xededitor.Config;
+import com.rk.xededitor.R;
+import com.rk.xededitor.activities.settings.Settings;
 import com.rk.xededitor.databinding.ActivityMainBinding;
+import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.*;
-import io.github.rosemoe.sora.event.ClickEvent;
-import io.github.rosemoe.sora.event.ContentChangeEvent;
-import io.github.rosemoe.sora.event.EventReceiver;
-import io.github.rosemoe.sora.event.Unsubscribe;
-import io.github.rosemoe.sora.text.Content;
-import io.github.rosemoe.sora.text.ContentIO;
-import io.github.rosemoe.sora.text.ContentLine;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.*;
-import com.rk.xededitor.rkUtils;
-import com.rk.xededitor.R;
-import com.rk.xededitor.Config;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import com.rk.xededitor.activities.settings.Settings;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +33,8 @@ public class MainActivity extends AppCompatActivity {
   private static final int REQUEST_CODE_PICK_FOLDER = 123;
   private static CodeEditor editor;
   private static TabLayout tablayout;
-  private static Context ctx;
+  private TreeNode root;
+  private AndroidTreeView tView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     setSupportActionBar(binding.appBarMain.toolbar);
     tablayout = binding.editorTabLayout;
     editor = binding.editor;
-    ctx = this;
+    
 
     if (rkUtils.isDarkMode(this)) {
       Xed_dark.applyTheme(this, editor);
@@ -79,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                 (LinearLayout.LayoutParams) binding.openFolder.getLayoutParams();
             params.setMargins(
                 binding.drawerLayout.getWidth() / 50,
-                rkUtils.Percentage(binding.drawerLayout.getHeight(), 87) / 2,
+                rkUtils.Percentage(binding.drawerLayout.getHeight(), 69) / 2,
                 0,
                 0);
             binding.openFolder.setLayoutParams(params);
@@ -88,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     getSupportActionBar().setDisplayShowTitleEnabled(false);
 
+    
+    //load configurations from data
+    new Config(this);
     editor.setPinLineNumber(Config.Editor.pinLineNumbers);
   }
 
@@ -95,6 +86,11 @@ public class MainActivity extends AppCompatActivity {
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
     if (!(requestCode == REQUEST_CODE_PICK_FOLDER && resultCode == Activity.RESULT_OK)) {
+      // set visibility to visible again
+      if(binding.openFolder.getVisibility() == View.GONE){
+        rkUtils.setVisibility(binding.openFolder, true);
+        rkUtils.setVisibility(binding.fmToolbar, false);
+      }
       return;
     }
     Uri treeUri = data != null ? data.getData() : null;
@@ -104,11 +100,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     rkUtils.setVisibility(binding.openFolder, false);
-    TreeNode root = TreeNode.root();
-    DocumentFile rootFolder = DocumentFile.fromTreeUri(ctx, treeUri);
+    root = TreeNode.root();
+    DocumentFile rootFolder = DocumentFile.fromTreeUri(this, treeUri);
+    String name = rootFolder.getName();
+    if(name.length() > 13){
+      name = name.substring(0,10)+"...";
+    }
+    binding.rootName.setText(name);
     rkUtils.looper(rootFolder, root, 0);
-    AndroidTreeView tView = new AndroidTreeView(ctx, root);
+    tView = new AndroidTreeView(this, root);
     binding.drawbar.addView(tView.getView());
+    rkUtils.setVisibility(binding.fmToolbar, true);
   }
 
   @Override
@@ -117,9 +119,7 @@ public class MainActivity extends AppCompatActivity {
     final int id = item.getItemId();
 
     if (id == R.id.action_save) {
-
       EditorManager.save_files(this);
-
       return true;
     } else if (id == R.id.action_settings) {
       Intent intent = new Intent(this, Settings.class);
@@ -167,6 +167,16 @@ public class MainActivity extends AppCompatActivity {
 
   public void menu(View view) {
     binding.drawerLayout.open();
+  }
+
+  public void reselect(View v) {
+    List<TreeNode> nodes = new ArrayList<>();
+    nodes.addAll(root.getChildren());
+    for (TreeNode node : nodes) {
+      tView.removeNode(node);
+    }
+    root.children.clear();
+    open_folder(v);
   }
 
   public void open_folder(View view) {

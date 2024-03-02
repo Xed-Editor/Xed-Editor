@@ -6,45 +6,45 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     tools:openDrawer="start"
-    android:fitsSystemWindows="false"
+    android:fitsSystemWindows="true"
     android:id="@+id/drawer_layout">
 
     <LinearLayout
-        android:layout_marginTop="?attr/actionBarSize"
         android:layout_height="fill_parent"
-        android:id="@+id/home_view"
+        android:layout_width="fill_parent"
         android:orientation="vertical"
-        android:layout_width="fill_parent">
-                
+        android:layout_marginTop="?attr/actionBarSize"
+        android:id="@+id/home_view">
+
         <com.google.android.material.tabs.TabLayout
             android:layout_height="wrap_content"
             android:layout_width="fill_parent"
-            android:id="@+id/editor_tab_layout"
+            android:visibility="gone"
+            app:tabMode="scrollable"
             app:tabIndicatorColor="@color/berry"
             android:backgroundTint="@color/c0"
             app:tabTextColor="@color/berry"
-            app:tabRippleColor="@color/berry"
-            android:visibility="gone"
-            app:tabMode="scrollable">
-            </com.google.android.material.tabs.TabLayout>
+            android:layout_marginTop="?attr/actionBarSize"
+            android:id="@+id/editor_tab_layout"
+            app:tabRippleColor="@color/berry" />
 
         <io.github.rosemoe.sora.widget.CodeEditor
-            android:id="@+id/editor"
-            android:visibility="gone"
-            android:layout_height="fill_parent"
-            android:layout_width="fill_parent" />
-        <TextView
-            android:id="@+id/empty"
             android:layout_height="fill_parent"
             android:layout_width="fill_parent"
-            android:text="Such Empty!"
-            android:layout_gravity="center"
-            android:gravity="center"
+            android:visibility="gone"
+            android:id="@+id/editor" />
+
+        <TextView
+            android:layout_height="fill_parent"
+            android:layout_width="fill_parent"
             android:layout_marginBottom="25dp"
+            android:gravity="center"
             android:onClick="menu"
-            />
+            android:id="@+id/empty"
+            android:text="Such Empty!"
+            android:layout_gravity="center" />
+
     </LinearLayout>
-  
 
     <include
         layout="@layout/app_bar_main"
@@ -60,37 +60,64 @@
         android:layout_gravity="start">
 
 
+        <LinearLayout
+            android:id="@+id/fm_toolbar"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="?attr/actionBarSize"
+            android:orientation="horizontal"
+            android:elevation="1dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/rootName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="20sp"
+                android:textColor="@color/berry"
+                android:layout_marginStart="20dp" />
+
+            <ImageButton
+                android:id="@+id/reselect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/refresh"
+                android:onClick="reselect"
+                android:backgroundTint="@android:color/transparent"
+                android:layout_marginEnd="20dp" />
+
+        </LinearLayout>
+
+
         <HorizontalScrollView
             android:layout_height="match_parent"
-            android:overScrollMode="always"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:overScrollMode="always">
+
             <LinearLayout
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
+                android:paddingRight="11dp"
                 android:orientation="vertical"
-                android:layout_marginTop="35dp"
-                android:paddingRight="20dp"
-                android:paddingLeft="25dp"
+                android:paddingLeft="11dp"
                 android:id="@+id/drawbar">
 
-
-                <Button
+                <TextView
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:onClick="open_folder"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:textColor="@color/inverse"
                     android:backgroundTint="@color/c0"
+                    android:textColor="@color/inverse"
+                    android:layout_marginStart="48dp"
                     android:text="Click here to open a folder"
                     android:id="@+id/open_folder" />
 
-
             </LinearLayout>
+
         </HorizontalScrollView>
 
-
     </com.google.android.material.navigation.NavigationView>
-
 
 </androidx.drawerlayout.widget.DrawerLayout>
