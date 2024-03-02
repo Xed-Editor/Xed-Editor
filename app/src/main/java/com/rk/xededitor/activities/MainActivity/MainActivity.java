@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     
     //load configurations from data
-    new Config(this);
+    Config.init(this);
     editor.setPinLineNumber(Config.Editor.pinLineNumbers);
   }
 

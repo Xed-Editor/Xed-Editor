@@ -48,7 +48,7 @@
                 <category
                     android:name="android.intent.category.DEFAULT" />
                 <data
-                android:mimeType="text/plain"/>
+                android:mimeType="text/*"/>
             </intent-filter>
         </activity>
     </application>

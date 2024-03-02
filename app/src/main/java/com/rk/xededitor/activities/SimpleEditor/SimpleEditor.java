@@ -76,6 +76,8 @@ public class SimpleEditor extends AppCompatActivity {
               rkUtils.ni(context);
             } else if (id == R.id.plugins) {
               rkUtils.ni(context);
+            }else if(id == R.id.search){
+              rkUtils.ni(context);
             }
             return true;
           }

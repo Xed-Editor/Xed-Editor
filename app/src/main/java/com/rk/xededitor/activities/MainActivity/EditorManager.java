@@ -205,9 +205,11 @@ public class EditorManager {
   public static void save_files(Context ctx) {
     if (map == null || uris == null) {
       rkUtils.toast(ctx, "Can't save");
+      return;
     }
     if (map.isEmpty() || uris.isEmpty()) {
       rkUtils.toast(ctx, "map or uri is empty");
+      return;
     }
     for (int i = 0; i < tablayout.getTabCount(); i++) {
       TabLayout.Tab tab = tablayout.getTabAt(i);

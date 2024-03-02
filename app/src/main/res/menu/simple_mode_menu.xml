@@ -16,4 +16,9 @@
         android:id="@+id/plugins"
         android:title="Plugins"
         android:name="Plugins" />
+    <item
+        android:id="@+id/search"
+        android:title="Search"
+        android:name="Search" />
+
 </menu>
