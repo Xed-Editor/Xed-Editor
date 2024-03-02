@@ -17,11 +17,11 @@
         app:showAsAction="never" />
 
 
-    <item
+   <!-- <item
         android:id="@+id/action_plugin"
         android:orderInCategory="100"
         android:title="Plugins"
-        app:showAsAction="never" />
+        app:showAsAction="never" />-->
 
 
     <item

@@ -15,6 +15,15 @@ android {
     compileSdk = 33
     
     
+   dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
+
+    
+    
+  
+    
     signingConfigs {
         create("release") {
             keyAlias = properties["keyAlias"] as String
@@ -26,10 +35,10 @@ android {
     
     defaultConfig {
         applicationId = "com.rk.xededitor"
-        minSdk = 25
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0.2"
+        versionName = "1.0.3"
         
         vectorDrawables { 
             useSupportLibrary = true
@@ -49,19 +58,26 @@ android {
         
     }
     
+    
 }
 
-/*tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "1.8"
-}*/
+}
 
 
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.3"))
     implementation("io.github.Rosemoe.sora-editor:editor")
+    implementation("io.github.Rosemoe.sora-editor:editor-lsp")
+    implementation("io.github.Rosemoe.sora-editor:language-java")
+    
+   // implementation("io.github.Rosemoe.sora-editor:language-textmate")
+    implementation("io.github.Rosemoe.sora-editor:language-treesitter")
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
