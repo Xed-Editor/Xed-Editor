@@ -41,7 +41,7 @@ if (file.exists()) {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            //proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
     }
@@ -50,7 +50,7 @@ print("not a local environment skipping signing ")
 buildTypes {
         getByName("release") {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+           // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
         
@@ -70,8 +70,8 @@ buildTypes {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 33
-        versionCode = 6
-        versionName = "1.0.6"
+        versionCode = 7
+        versionName = "1.0.7"
         
         
     }
