@@ -12,6 +12,7 @@ android {
     compileSdk = 33
 
     
+  //required by izzyOnDroid repo 
    dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -69,12 +70,10 @@ buildTypes {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 33
-        versionCode = 5
-        versionName = "1.0.5"
+        versionCode = 6
+        versionName = "1.0.6"
         
-        vectorDrawables { 
-            useSupportLibrary = true
-        }
+        
     }
     
     
@@ -96,44 +95,27 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
 }
 
 dependencies {
-
         val lifecycle_version = "2.5.1"
-        //val arch_version = "2.2.0"
-        
-        // debugImplementation because LeakCanary should only run in debug builds.
-       // debugImplementation ("com.squareup.leakcanary:leakcanary-android:2.13")
-       
-        
-        
-
         implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-        
         implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
-        
         implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
-        //kapt("androidx.lifecycle:lifecycle-compiler:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-service:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-process:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
   // implementation ("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
     //coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$version")
+   // implementation("io.github.Rosemoe.sora-editor:language-textmate")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.3"))
     implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("io.github.Rosemoe.sora-editor:editor-lsp")
     implementation("io.github.Rosemoe.sora-editor:language-java")
-    
-   // implementation("io.github.Rosemoe.sora-editor:language-textmate")
     implementation("io.github.Rosemoe.sora-editor:language-treesitter")
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    /*
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
-    */
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
