@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="Xed Editor"
+        
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.rk.xededitor.activities.MainActivity.MainActivity"
+            android:persistent="true"
+           android:configChanges="uiMode"
+            android:exported="true">
+            <intent-filter>
+                <action
+                    android:name="android.intent.action.MAIN" />
+                <category
+                    android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.rk.xededitor.activities.settings.Settings"
+            android:persistent="true"
+            android:exported="true">
+            <intent-filter>
+
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+    android:name="com.rk.xededitor.activities.simpleeditor.SimpleEditor"
+    android:persistent="true"
+    android:exported="true">
+    <intent-filter tools:ignore="AppLinkUrlError">
+        <action android:name="android.intent.action.VIEW" />
+        <action android:name="android.intent.action.EDIT" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:mimeType="text/*" />
+    </intent-filter>
+</activity>
+    
+    
+
+    
+
+    
+    </application>
+</manifest>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/coordinator">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
+        android:backgroundTint="@color/c0"
+        android:id="@+id/appbar">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+            android:id="@+id/toolbar">
+
+            <TextView
+                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_marginBottom="?attr/actionBarSize"
+                android:visibility="invisible"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="18dp"
+                android:layout_gravity="end"
+                android:id="@+id/null_t" />
+
+            <ImageButton
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/ic_menu_moreoverflow_material"
+                android:layout_marginEnd="1dp"
+                android:contentDescription="button_description"
+                android:onClick="show_overflow_menu"
+                android:backgroundTint="@color/c0"
+                android:id="@+id/ov_menu"
+                android:layout_gravity="end" />
+
+            <ImageButton
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/save"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="button_description"
+                android:onClick="save"
+                android:backgroundTint="@color/c0"
+                android:id="@+id/simple_save"
+                android:layout_gravity="end" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <io.github.rosemoe.sora.widget.CodeEditor
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:id="@+id/seditor" />
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

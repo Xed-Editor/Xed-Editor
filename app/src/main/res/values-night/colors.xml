@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="c0">#424242</color>
+    <color name="c01">#867EA7</color>
+    <color name="c1">#E5D9FA</color>
+    <color name="c2">#E8DEF8</color>
+    <color name="inverse">@color/white</color>
+    <color name="black">#424242</color>
+    <color name="white">#FFFBFF</color>
+    <color name="berry">#B0C5FE</color>
+</resources>

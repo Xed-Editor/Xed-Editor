@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:background="@color/c0"
+            android:titleMargin="0px"
+            android:layout_height="?attr/actionBarSize">
+            
+            
+           <ImageButton
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu"
+                android:layout_gravity="start"
+                android:background="@color/c0"
+                android:onClick="menu"
+                android:layout_marginEnd="5dp"
+                android:contentDescription="button_description" />
+            
+            
+            <ImageButton
+                android:id="@+id/run"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/run"
+                android:layout_gravity="end"
+                android:backgroundTint="@color/c0"
+                android:onClick="run"
+                android:layout_marginEnd="20dp"
+                android:contentDescription="button_description" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+   
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
