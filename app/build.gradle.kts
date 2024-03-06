@@ -17,6 +17,7 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+   
 
     
     
@@ -41,6 +42,7 @@ if (file.exists()) {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = true
+            isCrunchPngs = false
             //proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
@@ -50,6 +52,7 @@ print("not a local environment skipping signing ")
 buildTypes {
         getByName("release") {
             isMinifyEnabled = true
+           isCrunchPngs = false
            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
@@ -70,8 +73,8 @@ buildTypes {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 33
-        versionCode = 7
-        versionName = "1.0.7"
+        versionCode = 8
+        versionName = "1.0.8"
         
         
     }
@@ -88,11 +91,17 @@ buildTypes {
     }
     
     
+   compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
+    }
+    kotlin {
+        jvmToolchain(17)
+    }
+    
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "1.8"
-}
 
 dependencies {
         val lifecycle_version = "2.5.1"
@@ -105,11 +114,11 @@ dependencies {
         implementation("androidx.lifecycle:lifecycle-process:$lifecycle_version")
         implementation("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
   // implementation ("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
-    //coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:$version")
-   // implementation("io.github.Rosemoe.sora-editor:language-textmate")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation("io.github.Rosemoe.sora-editor:language-textmate")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.3"))
+    implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
     implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("io.github.Rosemoe.sora-editor:editor-lsp")
     implementation("io.github.Rosemoe.sora-editor:language-java")
