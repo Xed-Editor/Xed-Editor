@@ -50,6 +50,8 @@
         <activity
             android:name="com.rk.xededitor.activities.simpleeditor.SimpleEditor"
             android:persistent="true"
+           android:screenOrientation="portrait"
+            android:configChanges="uiMode"
             android:exported="true">
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />

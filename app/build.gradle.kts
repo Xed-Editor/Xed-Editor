@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "com.rk.xededitor"
     compileSdk = 33
-    buildToolsVersion = "34.0.4"
+   
     
   //required by izzyOnDroid repo 
    dependenciesInfo {
@@ -26,6 +26,7 @@ val file = File(filePath)
 
 if (file.exists()) {
     println("File exists.")
+    buildToolsVersion = "34.0.4"
     
     signingConfigs {
         create("release") {
@@ -137,6 +138,6 @@ dependencies {
     implementation ("com.itsaky.androidide.treesitter:tree-sitter-xml:4.1.0")*/
     
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
-    implementation(fileTree("dir" to "libs", "includes" to listOf("*.jar")))
+   // implementation(fileTree("dir" to "libs", "includes" to listOf("*.jar")))
    
 }
