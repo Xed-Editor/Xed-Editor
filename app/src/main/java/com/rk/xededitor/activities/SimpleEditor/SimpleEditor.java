@@ -16,7 +16,7 @@ import com.rk.xededitor.activities.MainActivity.Xed_dark;
 import com.rk.xededitor.rkUtils;
 import android.view.WindowInsetsController;
 import android.view.View;
-import io.github.rosemoe.sora.langs.java.JavaLanguage;
+
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
@@ -122,11 +122,11 @@ public class SimpleEditor extends AppCompatActivity {
 
         // Proceed to use the display name as needed
         if (displayName != null) {
-          if (displayName.endsWith(".java")) {
+        /*  if (displayName.endsWith(".java")) {
             JavaLanguage java = new JavaLanguage();
             java.useTab();
             seditor.setEditorLanguage(java);
-          }
+          }*/
           if (displayName.length() > 13) {
             displayName = displayName.substring(0, 10) + "...";
           }

@@ -5,30 +5,28 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="Settings"
-        android:actionLayout="@layout/memu_item"
-         />
+        android:title="Settings"/>
 
 
     <item
         android:id="@+id/action_save"
         android:orderInCategory="100"
         android:title="Save"
-        app:showAsAction="never" />
+         />
 
 
     <item
         android:id="@+id/action_plugin"
         android:orderInCategory="100"
         android:title="Plugins"
-        app:showAsAction="never" />
+         />
 
 
     <item
         android:id="@+id/action_terminal"
         android:orderInCategory="100"
         android:title="Terminal"
-        app:showAsAction="never" />
+         />
 
 
 </menu>

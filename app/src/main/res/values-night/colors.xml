@@ -8,4 +8,5 @@
     <color name="black">#424242</color>
     <color name="white">#FFFBFF</color>
     <color name="berry">#B0C5FE</color>
+   <color name="lavenderXdark">@color/c0</color>
 </resources>

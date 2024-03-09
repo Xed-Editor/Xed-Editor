@@ -12,9 +12,7 @@ import com.rk.xededitor.R;
 import com.rk.xededitor.activities.MainActivity.MainActivity;
 import com.rk.xededitor.activities.MainActivity.mFragment;
 import com.rk.xededitor.rkUtils;
-import io.github.rosemoe.sora.lang.EmptyLanguage;
-import io.github.rosemoe.sora.lang.Language;
-import io.github.rosemoe.sora.langs.java.JavaLanguage;
+import android.util.Log;
 import io.github.rosemoe.sora.text.*;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import java.io.*;
@@ -23,8 +21,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class EditorManager {
-  private FragmentManager fragmentManager;
-  //  private final CodeEditor editor;
+  private final FragmentManager fragmentManager;
   private final Context ctx;
   private static TabLayout tablayout;
   public static HashMap<TabLayout.Tab, Uri> uris;
@@ -32,34 +29,21 @@ public class EditorManager {
   public static HashMap<TabLayout.Tab, mFragment> fragments;
   private static PopupMenu popupMenu;
   
-  private final JavaLanguage java;
-  private final EmptyLanguage text;
-  private mFragment first_fragmnt;
 
-  // CodeEditor editor,
   public EditorManager(Context ctx) {
-
-    //   this.editor = editor;
     this.ctx = ctx;
     tablayout = MainActivity.getBinding().editorTabLayout;
-    // map = new HashMap<>();
     strs = new HashSet<>();
     uris = new HashMap<>();
     fragments = new HashMap<>();
     fragmentManager = MainActivity.getManager();
-    java = new JavaLanguage();
-    text = new EmptyLanguage();
 
     tablayout.addOnTabSelectedListener(
         new TabLayout.OnTabSelectedListener() {
           @Override
           public void onTabSelected(TabLayout.Tab tab) {
-            mFragment f;
-            if (tab.getPosition() == 0) {
-              f = first_fragmnt;
-            } else {
-              f = fragments.get(tab);
-            }
+            mFragment f = fragments.get(tab);
+
 
             if (f != null) {
               FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -76,14 +60,6 @@ public class EditorManager {
         });
   }
 
-  private Language getLang(String name) {
-    if (name.endsWith(".java")) {
-      return java;
-    } else {
-      return text;
-    }
-  }
-
   public void newEditor(DocumentFile file) {
     // this method will run when a new tab is opened
     Uri uri = file.getUri();
@@ -91,7 +67,6 @@ public class EditorManager {
       rkUtils.toast(ctx, "already there ");
       return;
     }
-    
 
     if (MainActivity.getBinding().fragmentContainer.getVisibility() == View.GONE) {
       rkUtils.setVisibility(MainActivity.binding.empty, false);
@@ -113,7 +88,7 @@ public class EditorManager {
 
     TabLayout.Tab tab = tablayout.newTab();
     tab.setText(final_name);
-    final mFragment fragment = new mFragment(ctx, uri, getLang(final_name));
+    final mFragment fragment = new mFragment(ctx, uri, final_name);
 
     fragments.put(tab, fragment);
 
@@ -129,12 +104,8 @@ public class EditorManager {
     }
 
     // don't open drawer if its first time
-    if(tablayout.getTabCount() == 1){
-      first_fragmnt = fragment;
-    }else{
-      MainActivity.getBinding().drawerLayout.close();
-    }
  
+
     tab.select();
 
     tab.view.setOnClickListener(
@@ -158,18 +129,17 @@ public class EditorManager {
                       int id = item.getItemId();
                       if (id == R.id.close_this) {
 
-                        
                         if (tablayout.getTabCount() == 1) {
                           uris.clear();
                           strs.clear();
-                          
-                            for (mFragment fr : fragments.values()) {
-                          FragmentTransaction transaction =
-                              MainActivity.getManager().beginTransaction();
-                          transaction.remove(fr);
-                          transaction.commit();
-                        }
-                          
+
+                          for (mFragment fr : fragments.values()) {
+                            FragmentTransaction transaction =
+                                MainActivity.getManager().beginTransaction();
+                            fr.releaseEditor();
+                            transaction.remove(fr);
+                            transaction.commit();
+                          }
 
                           fragments.clear();
                           tablayout.removeAllTabs();
@@ -178,28 +148,23 @@ public class EditorManager {
                           rkUtils.setVisibility(MainActivity.binding.empty, true);
                           return true;
                         }
-            
-                          FragmentTransaction transaction =
+
+                        //todo : optimize 
+                        for (Map.Entry<TabLayout.Tab,mFragment> entry : fragments.entrySet()) {
+                          if (entry.getKey().equals(tablayout.getTabAt(tablayout.getSelectedTabPosition()))) {
+                            FragmentTransaction transaction =
                                 MainActivity.getManager().beginTransaction();
-                            transaction.remove(fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition())));
-                            transaction.commit();
-                    
-                    
-                    
-                        tablayout.removeTab(tab);
-                        fragments.remove(tab);
-
-                        uris.remove(uri);
-                        strs.remove(final_name);
-                        final int tab_count = tablayout.getTabCount();
-
-                        if (tab_count > 0) {
-                          if (tab_count - 1 >= 0) {
-                            tablayout.selectTab(tablayout.getTabAt(tab_count - 1));
-                          } else {
-                            tablayout.selectTab(tablayout.getTabAt(0));
+                            entry.getValue().releaseEditor();
+                            transaction.remove(entry.getValue());
+                            transaction.commitNow();
+                            break;
                           }
                         }
+
+                        tablayout.removeTab(tab);
+                        fragments.remove(tab);
+                        uris.remove(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+                        strs.remove(final_name);
 
                       } else if (id == R.id.close_others) {
 
@@ -210,13 +175,14 @@ public class EditorManager {
                           }
                         }
                         for (mFragment fr : fragments.values()) {
-                          if(fr != fragment){
-                            FragmentTransaction transaction =
+                          if (fr == null || fr.equals(fragment)) {
+                            continue;
+                          }
+                          FragmentTransaction transaction =
                               MainActivity.getManager().beginTransaction();
+                          fr.releaseEditor();
                           transaction.remove(fr);
                           transaction.commit();
-                          }
-                          
                         }
 
                         fragments.clear();
@@ -229,8 +195,12 @@ public class EditorManager {
                       } else if (id == R.id.close_all) {
                         tablayout.removeAllTabs();
                         for (mFragment fr : fragments.values()) {
+                          if (fr == null) {
+                            continue;
+                          }
                           FragmentTransaction transaction =
                               MainActivity.getManager().beginTransaction();
+                          fr.releaseEditor();
                           transaction.remove(fr);
                           transaction.commit();
                         }

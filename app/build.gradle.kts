@@ -10,7 +10,7 @@ plugins {
 android {
     namespace = "com.rk.xededitor"
     compileSdk = 33
-
+    buildToolsVersion = "34.0.4"
     
   //required by izzyOnDroid repo 
    dependenciesInfo {
@@ -73,8 +73,8 @@ buildTypes {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 33
-        versionCode = 8
-        versionName = "1.0.8"
+        versionCode = 9
+        versionName = "1.0.9"
         
         
     }
@@ -104,28 +104,39 @@ buildTypes {
 
 
 dependencies {
-        val lifecycle_version = "2.5.1"
-        implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-service:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-process:$lifecycle_version")
-        implementation("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
-  // implementation ("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
+    val lifecycle_version = "2.5.1"
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-service:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-process:$lifecycle_version")
+    implementation("androidx.lifecycle:lifecycle-reactivestreams-ktx:$lifecycle_version")
+// implementation ("com.squareup.leakcanary:leakcanary-android:3.0-alpha-1")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
     implementation("androidx.constraintlayout:constraintlayout:2.1.3")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
     implementation("io.github.Rosemoe.sora-editor:editor")
-    implementation("io.github.Rosemoe.sora-editor:editor-lsp")
-    implementation("io.github.Rosemoe.sora-editor:language-java")
-    implementation("io.github.Rosemoe.sora-editor:language-treesitter")
+   // implementation("io.github.Rosemoe.sora-editor:editor-lsp")
+  //  implementation("io.github.Rosemoe.sora-editor:language-java")
+  //  implementation("io.github.Rosemoe.sora-editor:language-treesitter")
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+   // implementation ("com.github.termux:termux-shared:0.117")
+    //implementation ("com.github.termux:terminal-view:0.117")
+   /* implementation ("com.itsaky.androidide.treesitter:tree-sitter-java:4.1.0")
+    implementation ("com.itsaky.androidide.treesitter:tree-sitter-kotlin:4.1.0")
+    implementation ("com.itsaky.androidide.treesitter:tree-sitter-json:4.1.0")
+    implementation ("com.itsaky.androidide.treesitter:tree-sitter-python:4.1.0")
+    implementation ("com.itsaky.androidide.treesitter:tree-sitter-xml:4.1.0")*/
+    
+    implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
+    implementation(fileTree("dir" to "libs", "includes" to listOf("*.jar")))
+   
 }

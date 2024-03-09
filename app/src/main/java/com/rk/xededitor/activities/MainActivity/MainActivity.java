@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.navigation.*;
 import androidx.navigation.ui.AppBarConfiguration;
 import com.google.android.material.tabs.TabLayout;
+
 import com.rk.xededitor.*;
 import com.rk.xededitor.R;
 import com.rk.xededitor.activities.settings.Settings;
@@ -26,7 +27,7 @@ import com.rk.xededitor.databinding.ActivityMainBinding;
 import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.*;
 import io.github.rosemoe.sora.lang.*;
-import io.github.rosemoe.sora.langs.java.*;
+
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.*;
 import java.io.*;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
   private TreeNode root;
   private AndroidTreeView tView;
   private static FragmentManager manager;
+  private Context ctx;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +59,27 @@ public class MainActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayShowTitleEnabled(false);
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     manager = getSupportFragmentManager();
-    if(!rkUtils.isDarkMode(this)){
+    if (!rkUtils.isDarkMode(this)) {
       light_statusbar();
     }
-    
+    ctx = this;
 
+    // EasyWindow.with(this).setHeight(750).setWidth(450).setTitle("yo").show();
+
+    if (!new File(rkUtils.getPublicDirectory()+"/files").exists()) {
+      try {
+        rkUtils.copyFileFromAssetsToInternalStorage(this, "files.zip", "files.zip");
+        rkUtils.unzip(rkUtils.getPublicDirectory()+"/files.zip",rkUtils.getPublicDirectory()+"/files");
+        new File(rkUtils.getPublicDirectory()+"/files.zip").delete();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
+
   @SuppressWarnings("deprecation")
-  public void light_statusbar(){
-        //status bar color
+  public void light_statusbar() {
+    // status bar color
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       WindowInsetsController insetsController = getWindow().getInsetsController();
       if (insetsController != null) {
@@ -103,10 +117,6 @@ public class MainActivity extends AppCompatActivity {
     root = TreeNode.root();
     DocumentFile rootFolder = DocumentFile.fromTreeUri(this, uri);
     String name = rootFolder.getName();
-
-    if (name == null) {
-      name = "null";
-    }
 
     if (name.length() > 13) {
       name = name.substring(0, 10) + "...";
@@ -197,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
   @Override
   public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    rkUtils.toast(this,"Restart the app to take effect!");
-    
+    rkUtils.toast(this, "Restart the app to take effect!");
   }
 }
