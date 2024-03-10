@@ -25,8 +25,9 @@ Do you know this app is completely built on Android without useing any desktop o
 
 - Bitcoin
 
-
+```
 bc1q7dpav7fzyryvzpa3gjuvrnalw07m7fwg87yl2c
+```
 
 - ETH
 
