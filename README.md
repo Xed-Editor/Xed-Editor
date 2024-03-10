@@ -20,7 +20,7 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
 ## Support Devlopment
 
-Do you know this app is completely built on Android without useing any desktop or pc so it's very hard to develop app on Android if you want me to continue Devlopment of this app consider supporting me
+Did you know that our app is solely developed on Android, without the aid of desktop tools or PC support? This unique approach presents challenges that require dedication and innovation to overcome. Your support can make a significant difference in the app's evolution and sustainability.
 
 - UPI
 
