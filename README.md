@@ -4,6 +4,8 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=visits&edge_flat=false)](https://hits.seeyoufarm.com)
 
+[![CI](https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push)](https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml)
+
 ## Features
 - [x] Basic text editing
 - [x] Simple file browser
