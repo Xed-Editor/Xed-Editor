@@ -20,8 +20,6 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
 ## Support Devlopment
 
-Did you know that this app is solely developed on Android, without the aid of desktop tools or PC support? This unique approach presents challenges that require dedication and innovation to overcome. Your support can make a significant difference in the app's evolution and sustainability.
-
 - UPI
 
 ```
