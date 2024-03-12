@@ -10,9 +10,10 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 - [x] Basic text editing
 - [x] Simple file browser
 - [x] File editing outside of projects
-- [ ] Plugins
+- [x] Settings
 - [ ] Terminal
-- [ ] Settings
+- [ ] Plugins
+
 
 
 ## Installation
