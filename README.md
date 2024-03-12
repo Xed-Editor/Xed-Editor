@@ -29,15 +29,6 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 rohitkushvaha5@axl
 ```
 
-## Speghetti Warning
-
-Don't worry if you find Speghetti code 
-i believe in implementing all features instead of
-premature optimization.
-feel free to send a pull request if you find any memory leaks
-or have a feature in mind.
-
-
 
 # Screenshots
 
