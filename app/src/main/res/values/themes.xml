@@ -5,11 +5,12 @@
     
     
     
-    <!-- this is the source of ugliness and slowness-->
-     <item name="colorPrimary">@color/c0</item>
+
+     <item name="colorPrimary">@color/f5</item>
     
      
   </style>
+ 
 
   <style name="AppTheme" parent="Base.AppTheme" />
 </resources>

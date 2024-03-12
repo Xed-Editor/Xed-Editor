@@ -2,44 +2,61 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/coordinator"
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:id="@+id/coordinator">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
-        <!-- app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"> android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar" -->
-
+        android:layout_width="match_parent"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior"
+        android:id="@+id/appbar">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/c0">
+            android:layout_width="match_parent"
+            android:background="?attr/colorPrimary"
+            android:id="@+id/toolbar">
 
             <TextView
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/inverse"
+                android:layout_width="match_parent"
+                
                 android:text="Settings" />
 
         </com.google.android.material.appbar.MaterialToolbar>
 
-
     </com.google.android.material.appbar.AppBarLayout>
 
-   <androidx.core.widget.NestedScrollView
-        android:id="@+id/nested_scroll_view"
-        android:layout_width="match_parent"
+    <androidx.core.widget.NestedScrollView
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        android:layout_width="match_parent"
+        android:background="?attr/colorPrimary"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+        android:id="@+id/nested_scroll_view">
 
 
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_width="match_parent">
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="Black Night Mode" />
+            <com.google.android.material.materialswitch.MaterialSwitch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false"
+                android:id="@+id/oled"
+                android:theme="@style/Xswitch"
+            />
+
+        </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -3,51 +3,45 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
+    android:layout_width="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:id="@+id/appbar">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent"
-            android:background="@color/c0"
             android:titleMargin="0px"
-            android:layout_height="?attr/actionBarSize">
-            
-            
-           <ImageButton
-                android:id="@+id/menu"
-                android:layout_width="wrap_content"
+            android:id="@+id/toolbar">
+
+            <ImageView
                 android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:src="@drawable/ic_menu"
-                android:layout_gravity="start"
-                android:background="@color/c0"
-                android:onClick="menu"
                 android:layout_marginEnd="5dp"
-                android:contentDescription="button_description" />
-            
-            
-            <ImageButton
-                android:id="@+id/run"
-                android:layout_width="wrap_content"
+                android:contentDescription="button_description"
+                android:backgroundTint="?attr/colorPrimary"
+                android:onClick="menu"
+                android:id="@+id/menu"
+                android:layout_gravity="start" />
+
+            <ImageView
                 android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
                 android:src="@drawable/run"
-                android:layout_gravity="end"
-                android:backgroundTint="@color/c0"
-                android:onClick="run"
+                android:visibility="gone"
                 android:layout_marginEnd="20dp"
-                android:contentDescription="button_description" />
+                android:contentDescription="button_description"
+                android:onClick="run"
+                android:backgroundTint="?attr/colorPrimary"
+                android:id="@+id/run"
+                android:layout_gravity="end" />
 
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
-
-   
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

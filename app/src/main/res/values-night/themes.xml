@@ -1,10 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <!-- Base application theme. -->
-  <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
-    <!-- Customize your theme here. -->
-    <item name="colorPrimary">@color/c0</item>
-    
-  </style>
+    <!-- Base application theme. -->
+    <style
+        name="Base.AppTheme"
+        parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/dark</item>
 
-  <style name="AppTheme" parent="Base.AppTheme" />
+    </style>
+
+    <style
+        name="oled"
+        parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/black</item>
+
+
+    </style>
+
+
+    
+
+    <style
+        name="AppTheme"
+        parent="Base.AppTheme" />
 </resources>

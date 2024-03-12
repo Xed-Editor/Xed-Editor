@@ -98,12 +98,13 @@ public class rkUtils {
       Context context, String fileName, String destinationPath) {
     InputStream inputStream = null;
     OutputStream outputStream = null;
+    
     try {
       // Open your local file as the input stream
       inputStream = context.getAssets().open(fileName);
 
       // Path to the just created empty file
-      String outFileName = getPublicDirectory() + "/" + destinationPath;
+      String outFileName = destinationPath;
 
       // Open the empty file as the output stream
       outputStream = new FileOutputStream(outFileName);
@@ -165,11 +166,9 @@ public class rkUtils {
     bos.close();
   }
 
-  public static String getPackageName() {
-    return "com.rk.xededitor";
-  }
+  
 
   public static String getPublicDirectory() {
-    return "/sdcard/Android/data/" + getPackageName();
+    return "/storage/emulated/0/Android/data/com.rk.xededitor";
   }
 }

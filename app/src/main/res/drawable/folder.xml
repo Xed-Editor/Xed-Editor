@@ -2,8 +2,9 @@
     android:viewportWidth="24"
     android:viewportHeight="24"
     android:width="24dp"
+    android:tint="?android:attr/colorControlNormal"
     android:height="24dp">
     <path
         android:pathData="M4 4C2.9057453 4 2 4.9057453 2 6L2 18C2 19.094255 2.9057453 20 4 20L20 20C21.094255 20 22 19.094255 22 18L22 8C22 6.9057453 21.094255 6 20 6L12 6L10 4L4 4zM4 6L9.171875 6L11.171875 8L20 8L20 18L4 18L4 6z"
-        android:fillColor="@color/inverse" />
+        android:fillColor="#FFFFFFFF"/>
 </vector>

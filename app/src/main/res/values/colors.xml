@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="white_pink">#FEF7FF</color>
-   <color name="c0">@color/f5</color> 
-   <color name="f5">#f5f5f5</color> 
-    <color name="c01">#867EA7</color>
-    <color name="c1">#E5D9FA</color>
-    <color name="c2">#E8DEF8</color>
-    <color name="dark">#424242</color>
-    <color name="black">#1C1B20</color>
+    <color name="f5">#f5f5f5</color>
+    <color name="dark">#1C1B20</color>
+    <color name="black">#000</color>
     <color name="white">#FFFBFF</color>
-    <color name="inverse">@color/dark</color>
-    <color name="lavender">#DBE1FE</color>
-     <color name="lavenderXdark">@color/lavender</color>
-    <color name="lavender_98">#E8E8F2</color>
-    <color name="lavender_97">#DCE2FA</color>
     <color name="berry">#485D91</color>
+
 </resources>

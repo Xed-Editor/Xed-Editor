@@ -3,9 +3,11 @@ package com.rk.xededitor.activities.MainActivity;
 import android.app.*;
 import android.content.*;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.*;
 import android.os.*;
+import android.content.SharedPreferences.Editor;
 import androidx.annotation.NonNull;
 import android.provider.*;
 import android.util.*;
@@ -13,11 +15,13 @@ import android.view.*;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.*;
 import androidx.navigation.ui.AppBarConfiguration;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
 import com.rk.xededitor.*;
@@ -49,7 +53,40 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+    boolean isDarkMode = rkUtils.isDarkMode(this);
+    SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
+    boolean isOled = pref.getBoolean("isOled", false);
+    if (isDarkMode && isOled) {
+      setTheme(R.style.oled);
+    }
+
     setContentView(binding.getRoot());
+
+    if (isDarkMode) {
+      if (isOled) {
+        int black = ContextCompat.getColor(this, R.color.black);
+        binding.appBarMain.toolbar.setBackgroundColor(black);
+        binding.drawerX.setBackgroundColor(black);
+        binding.empty.setBackgroundColor(black);
+        binding.homeView.setBackgroundColor(black);
+        binding.editorTabLayout.setBackgroundColor(black);
+        binding.drawerLayout.setScrimColor(Color.parseColor("#1FFFFFFF"));
+      } else {
+        int dark = ContextCompat.getColor(this, R.color.dark);
+        binding.appBarMain.toolbar.setBackgroundColor(dark);
+        binding.drawerX.setBackgroundColor(dark);
+        binding.empty.setBackgroundColor(dark);
+        binding.homeView.setBackgroundColor(dark);
+      }
+    } else {
+      int f5 = ContextCompat.getColor(this, R.color.f5);
+      binding.appBarMain.toolbar.setBackgroundColor(f5);
+      binding.drawerX.setBackgroundColor(f5);
+      binding.empty.setBackgroundColor(f5);
+      binding.homeView.setBackgroundColor(f5);
+    }
+
     setSupportActionBar(binding.appBarMain.toolbar);
     tablayout = binding.editorTabLayout;
     mAppBarConfiguration =
@@ -59,19 +96,34 @@ public class MainActivity extends AppCompatActivity {
     getSupportActionBar().setDisplayShowTitleEnabled(false);
     binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     manager = getSupportFragmentManager();
-    if (!rkUtils.isDarkMode(this)) {
+    if (!isDarkMode) {
       light_statusbar();
     }
     ctx = this;
 
     // EasyWindow.with(this).setHeight(750).setWidth(450).setTitle("yo").show();
 
-    if (!new File(rkUtils.getPublicDirectory()+"/files").exists()) {
+    if (!pref.getBoolean("isUnpacked", false)) {
+      rkUtils.toast(this,"Extracting assets");
+      File directory = getExternalFilesDir(null);
+      if (!directory.exists()) {
+        directory.mkdirs();
+      }
       try {
-        rkUtils.copyFileFromAssetsToInternalStorage(this, "files.zip", "files.zip");
-        rkUtils.unzip(rkUtils.getPublicDirectory()+"/files.zip",rkUtils.getPublicDirectory()+"/files");
-        new File(rkUtils.getPublicDirectory()+"/files.zip").delete();
+        rkUtils.copyFileFromAssetsToInternalStorage(
+            this, "files.zip", getExternalFilesDir(null).getAbsolutePath() + "/files.zip");
+        rkUtils.unzip(
+            getExternalFilesDir(null).getAbsolutePath() + "/files.zip",
+            getExternalFilesDir(null).getAbsolutePath());
+        new File(getExternalFilesDir(null).getAbsolutePath() + "/files.zip").delete();
+
+        Editor editor = pref.edit();
+
+        editor.putBoolean("isUnpacked", true);
+        editor.commit();
+
       } catch (Exception e) {
+        rkUtils.toast(this, e.toString());
         e.printStackTrace();
       }
     }
@@ -141,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
 
       return true;
     } else if (id == R.id.action_settings) {
-      Intent intent = new Intent(this, Settings.class);
+      Intent intent = new Intent(ctx, Settings.class);
       startActivity(intent);
       return true;
     } else if (id == R.id.action_terminal) {

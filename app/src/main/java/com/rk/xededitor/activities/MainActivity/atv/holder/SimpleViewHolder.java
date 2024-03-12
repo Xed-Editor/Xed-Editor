@@ -18,7 +18,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private final Context context;
     private final int berryColor;
     private final int closedDrawable;
-    private final int openedDrawable;
+    
     private final int folderDrawable;
     private final int fileDrawable;
     private final int indentation_level = 68;
@@ -42,7 +42,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         this.context = context;
         berryColor = ContextCompat.getColor(context, R.color.berry);
         closedDrawable = R.drawable.closed;
-        openedDrawable = R.drawable.opened;
+        
         folderDrawable = R.drawable.folder;
         fileDrawable = R.drawable.file;
         layout = new LinearLayout(context);

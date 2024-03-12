@@ -5,6 +5,10 @@
         <item name="android:paddingLeft">20dp</item>
         
     </style>
-  
+    <style name="Xswitch">
+             <item name="colorPrimary">@color/berry</item>
+
+        
+    </style>
     
 </resources>

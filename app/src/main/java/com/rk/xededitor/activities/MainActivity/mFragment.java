@@ -1,6 +1,7 @@
 package com.rk.xededitor.activities.MainActivity;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
@@ -48,22 +50,12 @@ public class mFragment extends Fragment {
     editor = new CodeEditor(ctx, null);
     if (rkUtils.isDarkMode(ctx)) {
       editor.setColorScheme(new SchemeDarcula());
-    } else {
-      final String color =
-          String.format(
-              "#%06X", (0xFFFFFF & ctx.getResources().getColor(R.color.c0, ctx.getTheme())));
-      final EditorColorScheme default_theme = editor.getColorScheme();
-      default_theme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.parseColor(color));
-      default_theme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, Color.parseColor(color));
-      editor.setColorScheme(default_theme);
     }
 
     editor.setText(content);
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
     editor.setTextSize(14);
     ensureTextmateTheme();
-
-    
   }
 
   public Content getContent() {
@@ -74,8 +66,8 @@ public class mFragment extends Fragment {
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    
-    ensureTextmateTheme();
+
+ //   ensureTextmateTheme();
 
     return editor;
   }
@@ -88,28 +80,29 @@ public class mFragment extends Fragment {
   private void ensureTextmateTheme() {
 
     var editorColorScheme = editor.getColorScheme();
-
-    if (editorColorScheme instanceof TextMateColorScheme) {
-      return;
-    }
-
-    FileProviderRegistry.getInstance().addFileProvider(new AssetsFileResolver(ctx.getAssets()));
-
     var themeRegistry = ThemeRegistry.getInstance();
 
     boolean darkMode = rkUtils.isDarkMode(ctx);
     try {
-      String path;
+
       if (darkMode) {
-        path = rkUtils.getPublicDirectory() + "/files/textmate/darcula.json";
+        SharedPreferences pref = ctx.getApplicationContext().getSharedPreferences("MyPref", 0);
+        String path;
+        if (pref.getBoolean("isOled", false)) {
+          path = rkUtils.getPublicDirectory() + "/files/textmate/black/darcula.json";
+        } else {
+          path = rkUtils.getPublicDirectory() + "/files/textmate/darcula.json";
+        }
+
         themeRegistry.loadTheme(
             new ThemeModel(
                 IThemeSource.fromInputStream(
                     FileProviderRegistry.getInstance().tryGetInputStream(path), path, null),
                 "darcula"));
         editorColorScheme = TextMateColorScheme.create(themeRegistry);
+
       } else {
-        path = rkUtils.getPublicDirectory() + "/files/textmate/quietlight.json";
+        String path = rkUtils.getPublicDirectory() + "/files/textmate/quietlight.json";
         themeRegistry.loadTheme(
             new ThemeModel(
                 IThemeSource.fromInputStream(
@@ -123,6 +116,7 @@ public class mFragment extends Fragment {
     }
 
     if (darkMode) {
+      SharedPreferences pref = ctx.getApplicationContext().getSharedPreferences("MyPref", 0);
       themeRegistry.setTheme("darcula");
     } else {
       themeRegistry.setTheme("quietlight");
