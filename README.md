@@ -32,6 +32,11 @@ rohitkushvaha5@axl
 
 # Screenshots
 
+<div style="overflow: hidden">
+<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
+</div>
+
+
 
 ![Screenshot_20240302-182508](https://raw.githubusercontent.com/Rohitkushvaha01/Xed-Editor/main/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg)
 
