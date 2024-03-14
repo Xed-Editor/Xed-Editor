@@ -22,15 +22,6 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
-## Support Devlopment
-
-- UPI
-
-```
-rohitkushvaha5@axl
-```
-
-
 # Screenshots
 
 <div >
