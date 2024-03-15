@@ -11,11 +11,10 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 - [x] Simple file browser
 - [x] File editing outside of projects
 - [x] Settings
-- [x] Terminal (due to fdroid restriction on precompiled binaries this feature will be provided as a plugin)
-
 - [ ] Undo-Redo
 - [ ] Text Searching in text files
 - [ ] Plugins
+- [x] Terminal (due to fdroid restriction on precompiled binaries this feature will be provided as a plugin)
 
 
 
