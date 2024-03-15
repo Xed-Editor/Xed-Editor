@@ -28,7 +28,6 @@ public class EditorManager {
   public static HashSet<String> strs;
   public static HashMap<TabLayout.Tab, mFragment> fragments;
   private static PopupMenu popupMenu;
-  
 
   public EditorManager(Context ctx) {
     this.ctx = ctx;
@@ -44,7 +43,6 @@ public class EditorManager {
           public void onTabSelected(TabLayout.Tab tab) {
             mFragment f = fragments.get(tab);
 
-
             if (f != null) {
               FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
               fragmentTransaction.replace(R.id.fragment_container, f);
@@ -58,6 +56,47 @@ public class EditorManager {
           @Override
           public void onTabReselected(TabLayout.Tab tab) {}
         });
+    MainActivity.getBinding()
+        .appBarMain
+        .undo
+        .setOnClickListener(
+            new View.OnClickListener() {
+
+              @Override
+              public void onClick(View v) {
+                mFragment xf =
+                    fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+
+                if (xf != null) {
+                  if (xf.getEditor().canUndo()) {
+                    xf.getEditor().undo();
+                    v.setEnabled(xf.getEditor().canUndo());
+                    rkUtils.toast(ctx, "undo");
+                  }
+                }
+              }
+            });
+    MainActivity.getBinding()
+        .appBarMain
+        .redo
+        .setOnClickListener(
+            new View.OnClickListener() {
+
+              @Override
+              public void onClick(View v) {
+                mFragment xf =
+                    fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+
+                if (xf != null) {
+
+                  if (xf.getEditor().canRedo()) {
+                    xf.getEditor().redo();
+                    v.setEnabled(xf.getEditor().canRedo());
+                    rkUtils.toast(ctx, "redo");
+                  }
+                }
+              }
+            });
   }
 
   public void newEditor(DocumentFile file) {
@@ -66,6 +105,10 @@ public class EditorManager {
     if (uris.containsValue(uri)) {
       rkUtils.toast(ctx, "already there ");
       return;
+    }
+    if (MainActivity.getBinding().appBarMain.undo.getVisibility() == View.GONE) {
+      rkUtils.setVisibility(MainActivity.getBinding().appBarMain.undo, true);
+      rkUtils.setVisibility(MainActivity.getBinding().appBarMain.redo, true);
     }
 
     if (MainActivity.getBinding().fragmentContainer.getVisibility() == View.GONE) {
@@ -104,7 +147,6 @@ public class EditorManager {
     }
 
     // don't open drawer if its first time
- 
 
     tab.select();
 
@@ -149,9 +191,11 @@ public class EditorManager {
                           return true;
                         }
 
-                        //todo : optimize 
-                        for (Map.Entry<TabLayout.Tab,mFragment> entry : fragments.entrySet()) {
-                          if (entry.getKey().equals(tablayout.getTabAt(tablayout.getSelectedTabPosition()))) {
+                        // todo : optimize
+                        for (Map.Entry<TabLayout.Tab, mFragment> entry : fragments.entrySet()) {
+                          if (entry
+                              .getKey()
+                              .equals(tablayout.getTabAt(tablayout.getSelectedTabPosition()))) {
                             FragmentTransaction transaction =
                                 MainActivity.getManager().beginTransaction();
                             entry.getValue().releaseEditor();

@@ -196,9 +196,6 @@ public class MainActivity extends AppCompatActivity {
       Intent intent = new Intent(ctx, Settings.class);
       startActivity(intent);
       return true;
-    } else if (id == R.id.action_terminal) {
-      rkUtils.ni(this);
-      return true;
     } else if (id == R.id.action_plugin) {
       rkUtils.ni(this);
       return true;
@@ -222,7 +219,10 @@ public class MainActivity extends AppCompatActivity {
   }
 
   // click listners
-  public void run(View view) {
+  public void undo(View view) {
+    rkUtils.ni(this);
+  }
+  public void redo(View view) {
     rkUtils.ni(this);
   }
 

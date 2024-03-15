@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.*;
+import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme;
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry;
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry;
@@ -55,11 +57,25 @@ public class mFragment extends Fragment {
     editor.setText(content);
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
     editor.setTextSize(14);
+
     ensureTextmateTheme();
+    MainActivity.getBinding().appBarMain.undo.setEnabled(editor.canUndo());
+    MainActivity.getBinding().appBarMain.redo.setEnabled(editor.canRedo());
+ 
+    editor.subscribeEvent(
+        ContentChangeEvent.class,
+        (event, unsubscribe) -> {
+          MainActivity.getBinding().appBarMain.undo.setEnabled(editor.canUndo());
+          MainActivity.getBinding().appBarMain.redo.setEnabled(editor.canRedo());
+        });
   }
 
   public Content getContent() {
     return content;
+  }
+
+  public CodeEditor getEditor() {
+    return editor;
   }
 
   @Override
@@ -67,8 +83,9 @@ public class mFragment extends Fragment {
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     // Inflate the layout for this fragment
 
- //   ensureTextmateTheme();
-
+    //   ensureTextmateTheme();
+    MainActivity.getBinding().appBarMain.undo.setEnabled(editor.canUndo());
+    MainActivity.getBinding().appBarMain.redo.setEnabled(editor.canRedo());
     return editor;
   }
 
