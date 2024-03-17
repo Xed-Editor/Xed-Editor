@@ -33,6 +33,10 @@ Builds on fdroid are 4-5 days old
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
 
 
+## Building from source
+
+1. Clone the repo
+```https://github.com/RohitKushvaha01/Xed-Editor```
 
 
 ## Screenshots
