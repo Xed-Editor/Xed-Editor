@@ -37,7 +37,7 @@ Builds on fdroid are 4-5 days old
 
 1. Clone the repo
 
-```https://github.com/RohitKushvaha01/Xed-Editor```
+```git clone https://github.com/RohitKushvaha01/Xed-Editor```
 
 2. CD
 
