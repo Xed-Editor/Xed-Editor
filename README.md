@@ -36,19 +36,19 @@ Builds on fdroid are 4-5 days old
 ## Building from source
 
 1. Clone the repo
-
+##
 ```git clone https://github.com/RohitKushvaha01/Xed-Editor```
 
 2. CD
-
+##
 ```cd "Xed-Editor"```
 
 3. Execute Permission
-
+##
 ```chmod +x gradlew```
 
 4. Build
-
+##
 ```./gradlew build```
 
 
