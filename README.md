@@ -47,7 +47,7 @@ Builds on fdroid are 4-5 days old
    
 ```chmod +x gradlew```
 
-6. Build
+5. Build
    
 ```./gradlew build```
 
