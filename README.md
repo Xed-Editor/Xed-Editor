@@ -26,6 +26,8 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
+Builds on fdroid are 4-5 days old
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
