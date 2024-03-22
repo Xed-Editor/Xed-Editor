@@ -3,6 +3,7 @@ package com.rk.xededitor.activities.MainActivity;
 import android.content.Context;
 import android.net.Uri;
 import android.view.*;
+import android.view.View;
 import android.widget.*;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.documentfile.provider.DocumentFile;
@@ -15,18 +16,34 @@ import com.rk.xededitor.rkUtils;
 import android.util.Log;
 import io.github.rosemoe.sora.text.*;
 import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.EditorSearcher;
 import java.io.*;
+import android.content.Context;
+import android.os.*;
+import android.view.*;
+import android.view.animation.*;
+import android.widget.*;
+import androidx.core.content.ContextCompat;
+import com.rk.xededitor.R;
+import com.rk.xededitor.rkUtils;
+import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.EditorSearcher.*;
+import java.io.*;
+import android.view.*;
+import android.animation.*;
 import java.util.*;
+import android.view.ViewGroup.LayoutParams;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-public class EditorManager {
+public class EditorManager implements View.OnClickListener {
   private final FragmentManager fragmentManager;
   private final Context ctx;
   private static TabLayout tablayout;
   public static HashMap<TabLayout.Tab, Uri> uris;
   public static HashSet<String> strs;
   public static HashMap<TabLayout.Tab, mFragment> fragments;
+
   private static PopupMenu popupMenu;
 
   public EditorManager(Context ctx) {
@@ -48,6 +65,12 @@ public class EditorManager {
               fragmentTransaction.replace(R.id.fragment_container, f);
               fragmentTransaction.commitNow();
             }
+            MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.GONE);
+            MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.GONE);
+            fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
+                .getEditor()
+                .getSearcher()
+                .stopSearch();
           }
 
           @Override
@@ -56,47 +79,13 @@ public class EditorManager {
           @Override
           public void onTabReselected(TabLayout.Tab tab) {}
         });
-    MainActivity.getBinding()
-        .appBarMain
-        .undo
-        .setOnClickListener(
-            new View.OnClickListener() {
-
-              @Override
-              public void onClick(View v) {
-                mFragment xf =
-                    fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
-
-                if (xf != null) {
-                  if (xf.getEditor().canUndo()) {
-                    xf.getEditor().undo();
-                    v.setEnabled(xf.getEditor().canUndo());
-                    rkUtils.toast(ctx, "undo");
-                  }
-                }
-              }
-            });
-    MainActivity.getBinding()
-        .appBarMain
-        .redo
-        .setOnClickListener(
-            new View.OnClickListener() {
-
-              @Override
-              public void onClick(View v) {
-                mFragment xf =
-                    fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
-
-                if (xf != null) {
-
-                  if (xf.getEditor().canRedo()) {
-                    xf.getEditor().redo();
-                    v.setEnabled(xf.getEditor().canRedo());
-                    rkUtils.toast(ctx, "redo");
-                  }
-                }
-              }
-            });
+    MainActivity.getBinding().appBarMain.undo.setOnClickListener(this);
+    MainActivity.getBinding().appBarMain.redo.setOnClickListener(this);
+    MainActivity.getBinding().appBarMain.search.setOnClickListener(this);
+    MainActivity.getBinding().appBarMain.searchClose.setOnClickListener(this);
+    MainActivity.getBinding().appBarMain.searchSearch.setOnClickListener(this);
+    MainActivity.getBinding().appBarMain.searchUp.setOnClickListener(this);
+    MainActivity.getBinding().appBarMain.searchDown.setOnClickListener(this);
   }
 
   public void newEditor(DocumentFile file) {
@@ -109,6 +98,7 @@ public class EditorManager {
     if (MainActivity.getBinding().appBarMain.undo.getVisibility() == View.GONE) {
       rkUtils.setVisibility(MainActivity.getBinding().appBarMain.undo, true);
       rkUtils.setVisibility(MainActivity.getBinding().appBarMain.redo, true);
+      MainActivity.getBinding().appBarMain.search.setVisibility(View.VISIBLE);
     }
 
     if (MainActivity.getBinding().fragmentContainer.getVisibility() == View.GONE) {
@@ -188,6 +178,11 @@ public class EditorManager {
                           rkUtils.setVisibility(tablayout, false);
                           rkUtils.setVisibility(MainActivity.getBinding().fragmentContainer, false);
                           rkUtils.setVisibility(MainActivity.binding.empty, true);
+
+                          rkUtils.setVisibility(MainActivity.getBinding().appBarMain.undo, false);
+                          rkUtils.setVisibility(MainActivity.getBinding().appBarMain.redo, false);
+                          MainActivity.getBinding().appBarMain.search.setVisibility(View.GONE);
+
                           return true;
                         }
 
@@ -254,6 +249,10 @@ public class EditorManager {
                         rkUtils.setVisibility(tablayout, false);
                         rkUtils.setVisibility(MainActivity.getBinding().fragmentContainer, false);
                         rkUtils.setVisibility(MainActivity.binding.empty, true);
+
+                        rkUtils.setVisibility(MainActivity.getBinding().appBarMain.undo, false);
+                        rkUtils.setVisibility(MainActivity.getBinding().appBarMain.redo, false);
+                        MainActivity.getBinding().appBarMain.search.setVisibility(View.GONE);
                       }
                       return true;
                     }
@@ -289,5 +288,104 @@ public class EditorManager {
       outputStream = null;
     }
     return "saved!";
+  }
+
+  @Override
+  public void onClick(View v) {
+    int id = v.getId();
+    if (id == R.id.undo) {
+
+      mFragment xf = fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+
+      if (xf != null) {
+        if (xf.getEditor().canUndo()) {
+          xf.getEditor().undo();
+          v.setEnabled(xf.getEditor().canUndo());
+        }
+      }
+    } else if (id == R.id.redo) {
+      mFragment xf = fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+
+      if (xf != null) {
+
+        if (xf.getEditor().canRedo()) {
+          xf.getEditor().redo();
+          v.setEnabled(xf.getEditor().canRedo());
+        }
+      }
+    } else if (id == R.id.search) {
+      MainActivity.getBinding().appBarMain.search.setVisibility(View.GONE);
+      MainActivity.getBinding().appBarMain.menu.setVisibility(View.GONE);
+      MainActivity.getBinding().appBarMain.redo.setVisibility(View.GONE);
+      MainActivity.getBinding().appBarMain.undo.setVisibility(View.GONE);
+
+      MainActivity.getBinding().appBarMain.sb.setVisibility(View.VISIBLE);
+      MainActivity.getBinding().appBarMain.searchBar.setVisibility(View.VISIBLE);
+      LayoutParams params = MainActivity.getBinding().appBarMain.searchBar.getLayoutParams();
+      params.width = rkUtils.getScreenWidth(ctx) - rkUtils.dpToPx(225, ctx);
+      MainActivity.getBinding().appBarMain.searchBar.setLayoutParams(params);
+      MainActivity.getBinding().appBarMain.searchBar.requestFocus();
+
+    } else if (id == R.id.search_close) {
+      MainActivity.getBinding().appBarMain.search.setVisibility(View.VISIBLE);
+      MainActivity.getBinding().appBarMain.menu.setVisibility(View.VISIBLE);
+      MainActivity.getBinding().appBarMain.redo.setVisibility(View.VISIBLE);
+      MainActivity.getBinding().appBarMain.undo.setVisibility(View.VISIBLE);
+
+      MainActivity.getBinding().appBarMain.sb.setVisibility(View.GONE);
+      MainActivity.getBinding().appBarMain.searchBar.setVisibility(View.GONE);
+
+      // MainActivity.getBinding().appBarMain.searchBar.setText("");
+
+      fragments
+          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
+          .getEditor()
+          .requestFocus();
+      fragments
+          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
+          .getEditor()
+          .getSearcher()
+          .stopSearch();
+
+      MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.GONE);
+      MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.GONE);
+
+    } else if (id == R.id.search_search) {
+      var keyword = MainActivity.getBinding().appBarMain.searchBar.getText().toString();
+      if (keyword.isBlank() || keyword.isEmpty()) {
+        rkUtils.toast(ctx, "keyword is empty");
+        return;
+      }
+
+      final boolean case_insenstive = true;
+      fragments
+          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
+          .getEditor()
+          .getSearcher()
+          .search(keyword, new SearchOptions(SearchOptions.TYPE_NORMAL, case_insenstive));
+
+      MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.VISIBLE);
+      MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.VISIBLE);
+
+    } else if (id == R.id.search_up) {
+      fragments
+          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
+          .getEditor()
+          .getSearcher()
+          .gotoPrevious();
+    } else if (id == R.id.search_down) {
+      fragments
+          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
+          .getEditor()
+          .getSearcher()
+          .gotoNext();
+    }
+    /*
+    todo
+      search button not appearing
+      crash on different tab
+
+
+    */
   }
 }

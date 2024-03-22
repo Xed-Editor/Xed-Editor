@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.rk.xededitor.R;
+import com.rk.xededitor.activities.MainActivity.MainActivity;
 import com.rk.xededitor.rkUtils;
 import io.github.rosemoe.sora.*;
 import io.github.rosemoe.sora.event.ContentChangeEvent;
@@ -24,6 +25,7 @@ import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolve
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.EditorSearcher;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 import io.github.rosemoe.sora.widget.schemes.SchemeDarcula;
 import java.io.InputStream;
@@ -50,9 +52,9 @@ public class mFragment extends Fragment {
       System.exit(1);
     }
     editor = new CodeEditor(ctx, null);
-    if (rkUtils.isDarkMode(ctx)) {
+    /*if (rkUtils.isDarkMode(ctx)) {
       editor.setColorScheme(new SchemeDarcula());
-    }
+    }*/
 
     editor.setText(content);
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
@@ -61,13 +63,15 @@ public class mFragment extends Fragment {
     ensureTextmateTheme();
     MainActivity.getBinding().appBarMain.undo.setEnabled(editor.canUndo());
     MainActivity.getBinding().appBarMain.redo.setEnabled(editor.canRedo());
- 
+
     editor.subscribeEvent(
         ContentChangeEvent.class,
         (event, unsubscribe) -> {
           MainActivity.getBinding().appBarMain.undo.setEnabled(editor.canUndo());
           MainActivity.getBinding().appBarMain.redo.setEnabled(editor.canRedo());
         });
+    
+    
   }
 
   public Content getContent() {
@@ -81,11 +85,11 @@ public class mFragment extends Fragment {
   @Override
   public View onCreateView(
       LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    // Inflate the layout for this fragment
-
-    //   ensureTextmateTheme();
     MainActivity.getBinding().appBarMain.undo.setEnabled(editor.canUndo());
     MainActivity.getBinding().appBarMain.redo.setEnabled(editor.canRedo());
+    /*
+    var s = new EditorSearcher.SearchOptions(false,false);
+    editor.getSearcher().search("x",s);*/
     return editor;
   }
 

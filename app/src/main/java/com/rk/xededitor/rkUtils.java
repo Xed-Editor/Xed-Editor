@@ -48,6 +48,10 @@ public class rkUtils {
   public static void toast(Context context, String message) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
   }
+ public static int dpToPx(float dp,Context ctx) {
+    float density = ctx.getResources().getDisplayMetrics().density;
+    return Math.round(dp * density);
+}
 
   public static void ni(Context context) {
     toast(context, "This feature is not implemented");

@@ -1,5 +1,6 @@
 package com.rk.xededitor.activities.MainActivity;
 
+import android.animation.Animator;
 import android.app.*;
 import android.content.*;
 import android.content.res.Configuration;
@@ -8,6 +9,8 @@ import android.graphics.Typeface;
 import android.net.*;
 import android.os.*;
 import android.content.SharedPreferences.Editor;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import androidx.annotation.NonNull;
 import android.provider.*;
 import android.util.*;
@@ -21,6 +24,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.*;
 import androidx.navigation.ui.AppBarConfiguration;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 
@@ -35,6 +40,7 @@ import io.github.rosemoe.sora.lang.*;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.*;
 import java.io.*;
+
 import java.util.*;
 
 public class MainActivity extends AppCompatActivity {
@@ -87,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
       binding.homeView.setBackgroundColor(f5);
     }
 
+    
     setSupportActionBar(binding.appBarMain.toolbar);
     tablayout = binding.editorTabLayout;
     mAppBarConfiguration =
@@ -101,10 +108,8 @@ public class MainActivity extends AppCompatActivity {
     }
     ctx = this;
 
-    // EasyWindow.with(this).setHeight(750).setWidth(450).setTitle("yo").show();
-
     if (!pref.getBoolean("isUnpacked", false)) {
-      rkUtils.toast(this,"Extracting assets");
+      rkUtils.toast(this, "Extracting assets");
       File directory = getExternalFilesDir(null);
       if (!directory.exists()) {
         directory.mkdirs();
@@ -127,6 +132,10 @@ public class MainActivity extends AppCompatActivity {
         e.printStackTrace();
       }
     }
+    
+    
+    
+    
   }
 
   @SuppressWarnings("deprecation")
@@ -222,6 +231,7 @@ public class MainActivity extends AppCompatActivity {
   public void undo(View view) {
     rkUtils.ni(this);
   }
+
   public void redo(View view) {
     rkUtils.ni(this);
   }
@@ -261,4 +271,6 @@ public class MainActivity extends AppCompatActivity {
     super.onConfigurationChanged(newConfig);
     rkUtils.toast(this, "Restart the app to take effect!");
   }
+
+  
 }

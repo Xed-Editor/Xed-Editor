@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     tools:openDrawer="start"
-    
     android:fitsSystemWindows="true"
     android:id="@+id/drawer_layout">
 
@@ -41,6 +40,7 @@
         </FrameLayout>
 
 
+
         <TextView
             android:layout_height="match_parent"
             android:layout_width="fill_parent"
@@ -64,7 +64,6 @@
         android:layout_width="wrap_content"
         android:fitsSystemWindows="false"
         android:id="@+id/nav_view"
-        
         android:layout_gravity="start">
 
         <LinearLayout

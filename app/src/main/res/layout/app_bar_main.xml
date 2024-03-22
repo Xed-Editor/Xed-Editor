@@ -11,11 +11,66 @@
         android:layout_width="match_parent"
         android:id="@+id/appbar">
 
+
         <androidx.appcompat.widget.Toolbar
             android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent"
             android:titleMargin="0px"
             android:id="@+id/toolbar">
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:id="@+id/sb"
+                android:visibility="gone"
+                android:orientation="horizontal">
+                <EditText
+                    android:layout_height="wrap_content"
+                    android:layout_width="fill_parent"
+                    android:singleLine="true"
+                    android:hint="keyword"
+                    android:visibility="gone"
+                    android:id="@+id/searchBar" />
+                <ImageButton
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/arrow_upward"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:id="@+id/search_up"
+                    android:visibility="gone"
+                    android:clickable="true"
+                    android:layout_gravity="end" />
+                <ImageButton
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/arrow_downward"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:id="@+id/search_down"
+                    android:visibility="gone"
+                    android:clickable="true"
+                    android:layout_gravity="end" />
+
+                <ImageButton
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/search"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:id="@+id/search_search"
+                    android:clickable="true"
+                    android:layout_gravity="end" />
+
+
+                <ImageButton
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/close"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:id="@+id/search_close"
+                    android:clickable="true"
+                    android:layout_gravity="end" />
+
+
+            </LinearLayout>
+
 
             <ImageView
                 android:layout_height="wrap_content"
@@ -29,11 +84,12 @@
                 android:clickable="true"
                 android:layout_gravity="start" />
 
-            <ImageView
+
+            <ImageButton
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:src="@drawable/redo"
-                android:layout_marginEnd="20dp"
+                android:layout_marginEnd="10dp"
                 android:contentDescription="button_description"
                 android:clickable="true"
                 android:visibility="gone"
@@ -41,16 +97,28 @@
                 android:id="@+id/redo"
                 android:layout_gravity="end" />
 
-            <ImageView
+            <ImageButton
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:src="@drawable/undo"
-                android:layout_marginEnd="20dp"
+                android:layout_marginEnd="10dp"
                 android:contentDescription="button_description"
                 android:clickable="true"
                 android:visibility="gone"
                 android:backgroundTint="?attr/colorPrimary"
                 android:id="@+id/undo"
+                android:layout_gravity="end" />
+
+            <ImageButton
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:src="@drawable/search"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="button_description"
+                android:clickable="true"
+                android:visibility="gone"
+                android:backgroundTint="?attr/colorPrimary"
+                android:id="@+id/search"
                 android:layout_gravity="end" />
 
 
