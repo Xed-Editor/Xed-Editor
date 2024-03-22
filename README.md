@@ -13,9 +13,10 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 - [x] Settings
 - [x] Amoled Theme (pure black)
 - [x] Undo-Redo
-- [ ] Text Searching in text files
+- [ ] Searching
+- [ ] Batch Replacement
 - [ ] Plugins
-- [x] Terminal (due to fdroid restriction on precompiled binaries this feature will be provided as a plugin)
+- [x] Terminal (will be provided as a plugin)
 
 
 
@@ -25,14 +26,33 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
+Builds on fdroid are outdated
+
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
 
 
+## Building from source
+
+1. Clone the repo
+   
+```git clone https://github.com/RohitKushvaha01/Xed-Editor```
+
+2. CD
+
+```cd "Xed-Editor"```
+
+4. Execute Permission
+   
+```chmod +x gradlew```
+
+5. Build
+   
+```./gradlew build```
 
 
-# Screenshots
+## Screenshots
 
 <div >
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />

@@ -227,15 +227,6 @@ public class MainActivity extends AppCompatActivity {
     return manager;
   }
 
-  // click listners
-  public void undo(View view) {
-    rkUtils.ni(this);
-  }
-
-  public void redo(View view) {
-    rkUtils.ni(this);
-  }
-
   public void menu(View view) {
     binding.drawerLayout.open();
   }
