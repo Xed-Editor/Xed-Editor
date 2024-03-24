@@ -1,8 +1,3 @@
-
-
-
-# Xed Editor
-
 <p align="center">
   <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Xed Editor" width="90" height="90"/>
 </p>
