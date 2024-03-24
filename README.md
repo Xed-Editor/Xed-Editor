@@ -4,7 +4,7 @@
 # Xed Editor
 
 <p align="center">
-  <img src="./fastlane/metadata/Android/images/icon.png
+  <img src="/fastlane/metadata/Android/images/icon.png
 " alt="Visual Code Space" width="90" height="90"/>
 </p>
 
