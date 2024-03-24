@@ -5,10 +5,10 @@
 
 <p align="center">
   <img src="/fastlane/metadata/Android/images/icon.png
-" alt="Visual Code Space" width="90" height="90"/>
+" alt="Xed Editor" width="90" height="90"/>
 </p>
 
-<h2 align="center"><b>Visual Code Space</b></h2>
+<h2 align="center"><b>Xed Editor</b></h2>
 
 <div align="center">
 </p>
