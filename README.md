@@ -1,10 +1,17 @@
-# Xed Editor
+<p align="center">
+  <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Xed Editor" width="90" height="90"/>
+</p>
 
-Xed Editor is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
+<h2 align="center"><b>Xed Editor</b></h2>
 
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+<div align="center">
+  <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" alt="Hits" style="margin-right: 20px;"></a>
+  <a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"><img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI" style="margin-left: 20px;"></a>
+</div>
+</p>
 
-[![CI](https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push)](https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml)
+</div>Xed Editor is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
+
 
 ## Features
 - [x] Basic text editing
@@ -13,7 +20,7 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 - [x] Settings
 - [x] Amoled Theme (pure black)
 - [x] Undo-Redo
-- [ ] Searching
+- [x] Searching
 - [ ] Batch Replacement
 - [ ] Plugins
 - [x] Terminal (will be provided as a plugin)
@@ -26,7 +33,7 @@ Xed Editor is a versatile text editor designed specifically for Android devices,
 Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
-Builds on fdroid are outdated
+Builds on fdroid maybe outdated
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
