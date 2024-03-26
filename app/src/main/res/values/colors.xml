@@ -4,6 +4,8 @@
     <color name="dark">#1C1B20</color>
     <color name="black">#000</color>
     <color name="white">#FFFBFF</color>
+   <color name="invert">@color/dark</color>
+  <color name="invert_dull">@color/dark</color>
     <color name="berry">#485D91</color>
 
 </resources>

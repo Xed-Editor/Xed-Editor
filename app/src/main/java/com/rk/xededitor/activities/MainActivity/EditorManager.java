@@ -39,7 +39,7 @@ import androidx.fragment.app.FragmentTransaction;
 public class EditorManager implements View.OnClickListener {
   private final FragmentManager fragmentManager;
   private final Context ctx;
-  private static TabLayout tablayout;
+  public static TabLayout tablayout;
   public static HashMap<TabLayout.Tab, Uri> uris;
   public static HashSet<String> strs;
   public static HashMap<TabLayout.Tab, mFragment> fragments;
@@ -67,10 +67,11 @@ public class EditorManager implements View.OnClickListener {
             }
             MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.GONE);
             MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.GONE);
-            fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
-                .getEditor()
-                .getSearcher()
-                .stopSearch();
+            mFragment xff = fragments.get(tab);
+            if (xff != null) {
+              xff.getEditor().getSearcher().stopSearch();
+            }
+           // search_close();
           }
 
           @Override
@@ -290,6 +291,28 @@ public class EditorManager implements View.OnClickListener {
     return "saved!";
   }
 
+  public void search_close() {
+    MainActivity.getBinding().appBarMain.search.setVisibility(View.VISIBLE);
+    MainActivity.getBinding().appBarMain.menu.setVisibility(View.VISIBLE);
+    MainActivity.getBinding().appBarMain.redo.setVisibility(View.VISIBLE);
+    MainActivity.getBinding().appBarMain.undo.setVisibility(View.VISIBLE);
+
+    MainActivity.getBinding().appBarMain.sb.setVisibility(View.GONE);
+    MainActivity.getBinding().appBarMain.searchBar.setVisibility(View.GONE);
+
+    // MainActivity.getBinding().appBarMain.searchBar.setText("");
+    mFragment xffc =
+        fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+    if (xffc != null) {
+      CodeEditor editor = xffc.getEditor();
+      editor.requestFocus();
+      editor.getSearcher().stopSearch();
+    }
+
+    MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.GONE);
+    MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.GONE);
+  }
+
   @Override
   public void onClick(View v) {
     int id = v.getId();
@@ -327,28 +350,7 @@ public class EditorManager implements View.OnClickListener {
       MainActivity.getBinding().appBarMain.searchBar.requestFocus();
 
     } else if (id == R.id.search_close) {
-      MainActivity.getBinding().appBarMain.search.setVisibility(View.VISIBLE);
-      MainActivity.getBinding().appBarMain.menu.setVisibility(View.VISIBLE);
-      MainActivity.getBinding().appBarMain.redo.setVisibility(View.VISIBLE);
-      MainActivity.getBinding().appBarMain.undo.setVisibility(View.VISIBLE);
-
-      MainActivity.getBinding().appBarMain.sb.setVisibility(View.GONE);
-      MainActivity.getBinding().appBarMain.searchBar.setVisibility(View.GONE);
-
-      // MainActivity.getBinding().appBarMain.searchBar.setText("");
-
-      fragments
-          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
-          .getEditor()
-          .requestFocus();
-      fragments
-          .get(tablayout.getTabAt(tablayout.getSelectedTabPosition()))
-          .getEditor()
-          .getSearcher()
-          .stopSearch();
-
-      MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.GONE);
-      MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.GONE);
+      search_close();
 
     } else if (id == R.id.search_search) {
       var keyword = MainActivity.getBinding().appBarMain.searchBar.getText().toString();
@@ -380,12 +382,5 @@ public class EditorManager implements View.OnClickListener {
           .getSearcher()
           .gotoNext();
     }
-    /*
-    todo
-      search button not appearing
-      crash on different tab
-
-
-    */
   }
 }

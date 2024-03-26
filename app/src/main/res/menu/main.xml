@@ -5,23 +5,26 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="Settings"/>
+        android:title="Settings" />
 
 
     <item
         android:id="@+id/action_save"
         android:orderInCategory="100"
         android:title="Save"
-         />
+    />
 
 
     <item
         android:id="@+id/action_plugin"
         android:orderInCategory="100"
         android:title="Plugins"
-         />
+    />
+    <item
+        android:id="@+id/action_replace"
+        android:orderInCategory="100"
+        android:title="Replace"
+    />
 
-
-    
 
 </menu>

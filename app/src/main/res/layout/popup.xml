@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/parent_popup"
+    android:layout_width="match_parent">
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:tag="keyRep"
+        android:orientation="vertical"
+        android:layout_width="match_parent">
+        <LinearLayout
+            android:background="@drawable/edittext"
+            android:layout_height="50dp"
+            android:layout_marginLeft="22dp"
+            android:layout_marginRight="22dp"
+            android:layout_marginTop="10dp"
+            android:tag="keyword"
+            android:layout_width="match_parent">
+
+            <EditText
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:singleLine="true"
+                android:hint="Keyword"
+                android:background="@android:color/transparent"
+            />
+
+        </LinearLayout>
+        <LinearLayout
+            android:background="@drawable/edittext"
+            android:layout_height="50dp"
+            android:tag="replacement"
+            android:layout_marginLeft="22dp"
+            android:layout_marginRight="22dp"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent">
+
+            <EditText
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:paddingEnd="5dp"
+                android:paddingStart="5dp"
+                android:singleLine="true"
+                android:hint="Replacement"
+                android:background="@android:color/transparent"
+            />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

@@ -5,7 +5,7 @@
         parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/dark</item>
-
+        
     </style>
 
     <style
@@ -13,12 +13,10 @@
         parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/black</item>
-
+        
 
     </style>
 
-
-    
 
     <style
         name="AppTheme"

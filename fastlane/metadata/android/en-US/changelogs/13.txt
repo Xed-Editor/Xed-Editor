@@ -1,0 +1,5 @@
+v1.1.2 (12)
++ Added Searching
+
+v1.1.3 (13)
+Fixed crash when switching tabs

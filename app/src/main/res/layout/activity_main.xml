@@ -28,6 +28,11 @@
             android:layout_marginTop="?attr/actionBarSize"
             android:id="@+id/editor_tab_layout"
             app:tabRippleColor="@color/berry" />
+        <View
+            android:layout_height="1px"
+            android:layout_width="fill_parent"
+            android:background="@color/invert_dull"
+        />
 
 
         <FrameLayout
@@ -38,7 +43,6 @@
             android:id="@+id/fragment_container">
 
         </FrameLayout>
-
 
 
         <TextView

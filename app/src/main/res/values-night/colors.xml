@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="berry">#B0C5FE</color>
-
+   <color name="invert">@color/white</color>
+ <color name="invert_dull">#999</color>
 </resources>

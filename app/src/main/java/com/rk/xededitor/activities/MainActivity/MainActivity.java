@@ -16,6 +16,7 @@ import android.provider.*;
 import android.util.*;
 import android.view.*;
 import android.widget.*;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,9 +29,45 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-
+import android.content.Context;
+import android.net.Uri;
+import android.view.*;
+import android.view.View;
+import android.widget.*;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.documentfile.provider.DocumentFile;
+import androidx.fragment.app.FragmentManager;
+import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.R;
+import com.rk.xededitor.activities.MainActivity.MainActivity;
+import com.rk.xededitor.activities.MainActivity.mFragment;
+import com.rk.xededitor.rkUtils;
+import android.util.Log;
+import io.github.rosemoe.sora.text.*;
+import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.EditorSearcher;
+import java.io.*;
+import android.content.Context;
+import android.os.*;
+import android.view.*;
+import android.view.animation.*;
+import android.widget.*;
+import androidx.core.content.ContextCompat;
+import com.rk.xededitor.R;
+import com.rk.xededitor.rkUtils;
+import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.EditorSearcher.*;
+import java.io.*;
+import android.view.*;
+import android.animation.*;
+import java.util.*;
+import android.view.ViewGroup.LayoutParams;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import com.rk.xededitor.*;
 import com.rk.xededitor.R;
+import com.rk.xededitor.activities.MainActivity.EditorManager;
+import com.rk.xededitor.activities.MainActivity.mFragment;
 import com.rk.xededitor.activities.settings.Settings;
 import com.rk.xededitor.databinding.ActivityMainBinding;
 import com.rk.xededitor.rkUtils;
@@ -93,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
       binding.homeView.setBackgroundColor(f5);
     }
 
-    
     setSupportActionBar(binding.appBarMain.toolbar);
     tablayout = binding.editorTabLayout;
     mAppBarConfiguration =
@@ -132,10 +168,6 @@ public class MainActivity extends AppCompatActivity {
         e.printStackTrace();
       }
     }
-    
-    
-    
-    
   }
 
   @SuppressWarnings("deprecation")
@@ -190,6 +222,53 @@ public class MainActivity extends AppCompatActivity {
     rkUtils.setVisibility(binding.fmToolbar, true);
   }
 
+  public void x() {
+    LinearLayout.LayoutParams params =
+        new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    params.setMargins(22, 10, 22, 0);
+
+    LinearLayout linearLayout1 = new LinearLayout(this);
+    linearLayout1.setLayoutParams(params);
+    linearLayout1.setTag("edittext");
+    linearLayout1.setBackground(getDrawable(R.drawable.edittext));
+
+    // Create first EditText
+    EditText editText1 = new EditText(this);
+    LinearLayout.LayoutParams editTextParams =
+        new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+    editText1.setLayoutParams(editTextParams);
+    editText1.setPadding(5, 0, 5, 0);
+    editText1.setSingleLine(true);
+    editText1.setHint("Keyword");
+    editText1.setBackground(null);
+
+    // Add EditText to LinearLayout
+    linearLayout1.addView(editText1);
+
+    // Create second LinearLayout
+    params =
+        new LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    params.setMargins(22, 4, 22, 0);
+
+    LinearLayout linearLayout2 = new LinearLayout(this);
+    linearLayout2.setLayoutParams(params);
+    linearLayout2.setBackground(getDrawable(R.drawable.edittext));
+    linearLayout2.setTag("edittext");
+    // Create second EditText
+    EditText editText2 = new EditText(this);
+    editText2.setLayoutParams(editTextParams);
+    editText2.setPadding(5, 0, 5, 0);
+    editText2.setSingleLine(true);
+    editText2.setHint("Replacement");
+    editText2.setBackground(null);
+
+    // Add EditText to LinearLayout
+    linearLayout2.addView(editText2);
+  }
+
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     final int id = item.getItemId();
@@ -204,6 +283,87 @@ public class MainActivity extends AppCompatActivity {
     } else if (id == R.id.action_settings) {
       Intent intent = new Intent(ctx, Settings.class);
       startActivity(intent);
+      return true;
+    } else if (id == R.id.action_replace) {
+      if (EditorManager.fragments == null || EditorManager.fragments.isEmpty()) {
+        rkUtils.toast(this, "Open a file first");
+        return true;
+      }
+      View customView = LayoutInflater.from(this).inflate(R.layout.popup, null);
+      AlertDialog dialog =
+          new MaterialAlertDialogBuilder(this)
+              .setTitle("Replace")
+              .setView(customView)
+              .setPositiveButton(
+                  "Replace All",
+                  new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                      // Your action when OK button is clicked
+                      rkUtils.ni(ctx);
+                      if (true) {
+                        return;
+                      }
+                      mFragment cf =
+                          EditorManager.fragments.get(
+                              EditorManager.tablayout.getTabAt(
+                                  EditorManager.tablayout.getSelectedTabPosition()));
+                      LinearLayout parent = customView.findViewById(R.id.parent_popup);
+                      for (int ix = 0; ix < parent.getChildCount(); ix++) {
+                        View child = parent.getChildAt(ix);
+                        if (child.getTag().equals("keyRep")) {
+                          LinearLayout layout = (LinearLayout) child;
+                          LinearLayout box1 = (LinearLayout) layout.getChildAt(0);
+                          LinearLayout box2 = (LinearLayout) layout.getChildAt(1);
+                          var e1 = (EditText) box1.getChildAt(0);
+                          var e2 = (EditText) box2.getChildAt(0);
+                          String keyword = e1.getText().toString();
+                          String replacement = e2.getText().toString();
+                          if (keyword.isBlank() || keyword.isEmpty()) {
+                            rkUtils.toast(ctx, "keyword is empty");
+                            return;
+                          }
+                          final CodeEditor editor = cf.getEditor();
+
+                          final boolean case_insenstive = true;
+                          var se = editor.getSearcher();
+                          se.search(
+                              keyword,
+                              new SearchOptions(SearchOptions.TYPE_NORMAL, case_insenstive));
+                          se.replaceAll(
+                              replacement,
+                              new Runnable() {
+                                @Override
+                                public void run() {
+                                  rkUtils.toast(ctx, "replaced");
+                                  // cf.getEditor().getSearcher().stopSearch();
+                                }
+                              });
+                          rkUtils.toast(ctx, keyword + replacement);
+                        }
+                      }
+                    }
+                  })
+              .setNegativeButton("Cancel", null)
+              .show();
+      dialog.setOnDismissListener(
+          new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+              // Your action when the dialog is dismissed
+              // This method will be called when the dialog is dismissed
+              ((AlertDialog) dialogInterface)
+                  .getButton(DialogInterface.BUTTON_POSITIVE)
+                  .setOnClickListener(null);
+              ((AlertDialog) dialogInterface)
+                  .getButton(DialogInterface.BUTTON_NEGATIVE)
+                  .setOnClickListener(null);
+              dialog.setOnDismissListener(null);
+            }
+          });
+      int color = ContextCompat.getColor(this, R.color.berry);
+      dialog.getButton(DialogInterface.BUTTON_NEGATIVE).setTextColor(color);
+      dialog.getButton(DialogInterface.BUTTON_POSITIVE).setTextColor(color);
       return true;
     } else if (id == R.id.action_plugin) {
       rkUtils.ni(this);
@@ -262,6 +422,4 @@ public class MainActivity extends AppCompatActivity {
     super.onConfigurationChanged(newConfig);
     rkUtils.toast(this, "Restart the app to take effect!");
   }
-
-  
 }
