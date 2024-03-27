@@ -1,0 +1,3 @@
+v1.1.4 (14)
+
+ Disabled opening more than 2 tabs because opening more than 2 tabs causes weird effects

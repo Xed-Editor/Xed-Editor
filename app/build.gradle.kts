@@ -73,8 +73,8 @@ buildTypes {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 33
-        versionCode = 13
-        versionName = "1.1.3"
+        versionCode = 14
+        versionName = "1.1.4"
         
         
     }

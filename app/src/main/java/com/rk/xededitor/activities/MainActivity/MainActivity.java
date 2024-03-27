@@ -304,10 +304,9 @@ public class MainActivity extends AppCompatActivity {
                       if (true) {
                         return;
                       }
-                      mFragment cf =
+                     /* mFragment cf =
                           EditorManager.fragments.get(
-                              EditorManager.tablayout.getTabAt(
-                                  EditorManager.tablayout.getSelectedTabPosition()));
+                                  EditorManager.tablayout.getSelectedTabPosition());
                       LinearLayout parent = customView.findViewById(R.id.parent_popup);
                       for (int ix = 0; ix < parent.getChildCount(); ix++) {
                         View child = parent.getChildAt(ix);
@@ -341,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                               });
                           rkUtils.toast(ctx, keyword + replacement);
                         }
-                      }
+                      }*/
                     }
                   })
               .setNegativeButton("Cancel", null)

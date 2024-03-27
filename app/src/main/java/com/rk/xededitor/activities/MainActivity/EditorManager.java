@@ -67,11 +67,13 @@ public class EditorManager implements View.OnClickListener {
             }
             MainActivity.getBinding().appBarMain.searchUp.setVisibility(View.GONE);
             MainActivity.getBinding().appBarMain.searchDown.setVisibility(View.GONE);
-            mFragment xff = fragments.get(tab);
-            if (xff != null) {
-              xff.getEditor().getSearcher().stopSearch();
-            }
-           // search_close();
+            /*  mFragment xff = fragments.get(tab);
+              if (xff != null) {
+                xff.getEditor().getSearcher().stopSearch();
+              }
+              // search_close();
+            */
+
           }
 
           @Override
@@ -91,6 +93,13 @@ public class EditorManager implements View.OnClickListener {
 
   public void newEditor(DocumentFile file) {
     // this method will run when a new tab is opened
+    
+    if(tablayout.getTabCount() >= 2){
+      rkUtils.toast(ctx,"opening more than 2 tabs is temporarily disabled");
+      return;
+    }
+    
+    
     Uri uri = file.getUri();
     if (uris.containsValue(uri)) {
       rkUtils.toast(ctx, "already there ");
@@ -301,8 +310,7 @@ public class EditorManager implements View.OnClickListener {
     MainActivity.getBinding().appBarMain.searchBar.setVisibility(View.GONE);
 
     // MainActivity.getBinding().appBarMain.searchBar.setText("");
-    mFragment xffc =
-        fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
+    mFragment xffc = fragments.get(tablayout.getTabAt(tablayout.getSelectedTabPosition()));
     if (xffc != null) {
       CodeEditor editor = xffc.getEditor();
       editor.requestFocus();
