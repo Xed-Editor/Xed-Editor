@@ -29,7 +29,7 @@
 
 ```
 
-Devlopment of this is temporarily halted untill I get a pc
+Devlopment of this is temporarily halted until I get a pc
 
  ```
 
