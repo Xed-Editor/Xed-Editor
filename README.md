@@ -29,7 +29,7 @@
 
 ```
 
-Devlopment of this is temporarily halted until I get a pc
+Devlopment of this app is temporarily halted until I get a pc
 
  ```
 
