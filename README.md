@@ -27,6 +27,12 @@
 
 
 
+```
+
+Devlopment of this is temporarily halted untill I get a pc
+
+ ```
+
 
 ## Installation
 
