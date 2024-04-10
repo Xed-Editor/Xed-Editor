@@ -25,15 +25,6 @@
 - [ ] Plugins
 - [x] Terminal (will be provided as a plugin)
 
-
-
-```
-
-Devlopment of this app is temporarily halted until I get a pc
-
- ```
-
-
 ## Installation
 
 Download latest build
