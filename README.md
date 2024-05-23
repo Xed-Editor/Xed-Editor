@@ -38,10 +38,7 @@ Builds on fdroid maybe outdated
 
 
 ## Known issues
-- [ ] Fragments doesn't change on switch tabs unless all tabs are removed and added again
-
-## Why Delayed Updates
-because I have a shitty 12 year old dual core pc that start crying as soon as i open Android studio 
+- [x] Fragments doesn't change on switch tabs unless all tabs are removed and added again
 
 
 ## Building from source
