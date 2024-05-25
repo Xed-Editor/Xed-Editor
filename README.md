@@ -37,10 +37,6 @@ Builds on fdroid maybe outdated
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
 
 
-## Known issues
-- [x] Fragments doesn't change on switch tabs unless all tabs are removed and added again
-
-
 ## Building from source
 
 1. Clone the repo
