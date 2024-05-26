@@ -1,0 +1,6 @@
+v1.1.5 (15)
+
++fixed all errors related to tabs
++fixed crashes
++recreated the whole from scratch
++uses better code practises
