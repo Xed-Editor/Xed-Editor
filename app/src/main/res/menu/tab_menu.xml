@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/close_this"
+        android:title="Close this"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/close_others"
+        android:title="Close others"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/close_all"
+        android:title="Close all"
+        app:showAsAction="never" />
+
+
+
+</menu>

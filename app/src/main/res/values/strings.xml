@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Xed Editor</string>
+    <string name="action_settings">Settings</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="open_drawer">open</string>
+    <string name="close_drawer">close</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+</resources>

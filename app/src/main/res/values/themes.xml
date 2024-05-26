@@ -1,11 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <!-- Base application theme. -->
-  <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
-    <!-- Customize your theme here. -->
-     <item name="colorPrimary">@color/f5</item>
-  </style>
-  
- 
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Fragments" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/berry</item>
+    </style>
 
-  <style name="AppTheme" parent="Base.AppTheme" />
+    <style name="Theme.Fragments" parent="Base.Theme.Fragments" />
 </resources>
