@@ -21,7 +21,7 @@
 - [x] Amoled Theme (pure black)
 - [x] Undo-Redo
 - [x] Searching
-- [ ] Batch Replacement
+- [x] Batch Replacement
 - [ ] Plugins
 - [x] Terminal (will be provided as a plugin)
 
