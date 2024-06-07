@@ -79,4 +79,5 @@ dependencies {
     implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
+    implementation("org.apache.tika:tika-core:2.9.0")
 }

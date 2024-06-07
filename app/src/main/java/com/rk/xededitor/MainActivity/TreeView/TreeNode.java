@@ -22,6 +22,7 @@ public class TreeNode {
     public final boolean isFile;
     public final int indentation;
     public final DocumentFile file;
+    private final Object mValue;
     private int mId;
     private int mLastId;
     private TreeNode mParent;
@@ -30,7 +31,6 @@ public class TreeNode {
     private BaseNodeViewHolder mViewHolder;
     private TreeNodeClickListener mClickListener;
     private TreeNodeLongClickListener mLongClickListener;
-    private final Object mValue;
     private boolean mExpanded;
     private boolean isLoaded = false;
 

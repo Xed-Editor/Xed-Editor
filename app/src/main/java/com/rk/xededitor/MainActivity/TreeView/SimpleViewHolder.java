@@ -1,19 +1,30 @@
 package com.rk.xededitor.MainActivity.TreeView;
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.rk.xededitor.MainActivity.MainActivity;
 import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
+
+import org.apache.tika.Tika;
+
+import java.io.InputStream;
 
 public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     final LinearLayout layout;
@@ -28,11 +39,11 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
     private final int closedDrawable;
     private final int folderDrawable;
     private final int fileDrawable;
-    private final int indentation_level = 68;
+    private final int indentation_level = 48;
+    private final ImageView arrow;
     //   private CodeEditor editor;
     boolean isRotated = false;
     private boolean isFile;
-    private final ImageView arrow;
     private TreeNode node;
 
 
@@ -111,6 +122,7 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         return layout;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void toggle(boolean active) {
         if (node == null || arrow == null || node.file == null) {
@@ -139,16 +151,72 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
 
             String type = node.file.getType();
             if (type == null) {
-                rkUtils.toast(context, "Error: Mime Type is null");
+                rkUtils.toast(context, "Error: File Mime Type is null");
             }
 
+
+            ((MainActivity) MainActivity.getActivity()).onNewEditor();
+            assert type != null;
             if (!(type.contains("text") || type.contains("plain"))) {
-                // Todo: show window warning user (it's not a file )
-                ((MainActivity) MainActivity.getActivity()).newEditor(node.file);
+                if (Boolean.parseBoolean(rkUtils.getSetting(context, node.file.getName(), "false"))) {
+                    ((MainActivity) MainActivity.getActivity()).newEditor(node.file);
+                    return;
+                }
+                Tika tika = new Tika();
+                ContentResolver contentResolver = context.getContentResolver();
+                try (InputStream inputStream = contentResolver.openInputStream(node.file.getUri())) {
+                    String s = tika.detect(inputStream);
+                    if (Boolean.parseBoolean(rkUtils.getSetting(context, s, "false"))) {
+                        ((MainActivity) MainActivity.getActivity()).newEditor(node.file);
+                        return;
+                    }
+                    if (s.contains("text") || s.contains("plain")) {
+                        ((MainActivity) MainActivity.getActivity()).newEditor(node.file);
+                        rkUtils.setSetting(context, node.file.getName(), "true");
+                    } else {
+
+                        View popuop_view = LayoutInflater.from(context).inflate(R.layout.popup_nontext, null);
+                        ((TextView) popuop_view.findViewById(R.id.msg)).setText("Selected file is a " + s + " file. opening non text file can permanently corrupt the file. \n\nare you sure you want to open this?");
+                        ((CheckBox) popuop_view.findViewById(R.id.ignore)).setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                rkUtils.setSetting(context, s, Boolean.toString(isChecked));
+                                assert node.file != null;
+                                rkUtils.setSetting(context, node.file.getName(), Boolean.toString(isChecked));
+                            }
+                        });
+                        new MaterialAlertDialogBuilder(context)
+                                .setTitle("Non Text File")
+                                .setView(popuop_view)
+                                .setNegativeButton("Cancel", null)
+                                .setPositiveButton(
+                                        "Open",
+                                        new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                assert node.file != null;
+                                                ((MainActivity) MainActivity.getActivity()).newEditor(node.file);
+                                            }
+                                        })
+                                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+
+                                    }
+                                })
+                                .show();
+
+
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
             } else {
                 ((MainActivity) MainActivity.getActivity()).newEditor(node.file);
             }
-            ((MainActivity) MainActivity.getActivity()).onNewEditor();
+
         }
     }
 

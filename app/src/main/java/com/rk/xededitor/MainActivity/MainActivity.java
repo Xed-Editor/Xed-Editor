@@ -18,13 +18,13 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -330,6 +330,7 @@ public class MainActivity extends AppCompatActivity {
 
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
@@ -459,7 +460,7 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }).show();
 
-        } else if(id==R.id.batchrep){
+        } else if (id == R.id.batchrep) {
             rkUtils.ni(this);
             Intent intent = new Intent(this, BatchReplacement.class);
             startActivity(intent);
