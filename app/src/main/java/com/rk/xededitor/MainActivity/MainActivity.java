@@ -24,6 +24,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -32,6 +33,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.MainActivity.TreeView.AndroidTreeView;
 import com.rk.xededitor.MainActivity.TreeView.TreeNode;
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         }
         if (rkUtils.isDarkMode(this) && rkUtils.isOled(this)) {
             findViewById(R.id.drawer_layout).setBackgroundColor(Color.BLACK);
+            findViewById(R.id.nav_view).setBackgroundColor(Color.BLACK);
             findViewById(R.id.main).setBackgroundColor(Color.BLACK);
             findViewById(R.id.appbar).setBackgroundColor(Color.BLACK);
             findViewById(R.id.toolbar).setBackgroundColor(Color.BLACK);
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
                 window.setStatusBarColor(Color.BLACK);
             }
         }
+
 
         initViews();
 
@@ -129,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+        rkUtils.toast(rkUtils.getSetting(activity,"wordwrap","false"));
 
     }
 
@@ -458,12 +463,10 @@ public class MainActivity extends AppCompatActivity {
 
         } else if(id==R.id.batchrep){
             rkUtils.ni(this);
+            Intent intent = new Intent(this, BatchReplacement.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void addBtn(View v) {
-        rkUtils.ni(activity);
     }
 }
 

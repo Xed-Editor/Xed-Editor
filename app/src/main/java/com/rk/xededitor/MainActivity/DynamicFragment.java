@@ -2,6 +2,7 @@ package com.rk.xededitor.MainActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 
 public class DynamicFragment extends Fragment {
@@ -58,6 +60,7 @@ public class DynamicFragment extends Fragment {
         editor.setText(content);
         editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
         editor.setTextSize(14);
+        editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(ctx,"wordwrap","false")));
         ensureTextmateTheme();
 
     }
@@ -89,8 +92,10 @@ public class DynamicFragment extends Fragment {
             if (darkMode) {
                 String path;
                 if (rkUtils.isOled(ctx)) {
+                    rkUtils.toast(ctx,"isOled");
                     path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
                 } else {
+                    rkUtils.toast(ctx,"is not Oled");
                     path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
                 }
                 if (!new File(path).exists()) {
@@ -103,6 +108,9 @@ public class DynamicFragment extends Fragment {
                                         FileProviderRegistry.getInstance().tryGetInputStream(path), path, null),
                                 "darcula"));
                 editorColorScheme = TextMateColorScheme.create(themeRegistry);
+                if(rkUtils.isOled(ctx)){
+                    editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK);
+                }
 
             } else {
 

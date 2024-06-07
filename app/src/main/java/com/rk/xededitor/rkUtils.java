@@ -134,6 +134,16 @@ public class rkUtils {
         SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
         return sharedPreferences.getBoolean("isOled", false);
     }
+    public static String getSetting(Context ctx,String key,String Default){
+        SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        return sharedPreferences.getString(key,Default);
+    }
+    public static void setSetting(Context ctx,String key,String value){
+        SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key,value);
+        editor.apply();
+    }
     public int dpToPx(int dp,Context ctx) {
         float density = ctx.getResources().getDisplayMetrics().density;
         return Math.round(dp * density);

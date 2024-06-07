@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,8 +15,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.rk.xededitor.MainActivity.DynamicFragment;
+import com.rk.xededitor.MainActivity.mAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
 
@@ -47,8 +52,20 @@ public class SettingsActivity extends AppCompatActivity {
             flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
             decorView.setSystemUiVisibility(flags);
         }
-
+        if (rkUtils.isDarkMode(this) && rkUtils.isOled(this)) {
+            findViewById(R.id.drawer_layout).setBackgroundColor(Color.BLACK);
+            findViewById(R.id.appbar).setBackgroundColor(Color.BLACK);
+            findViewById(R.id.toolbar).setBackgroundColor(Color.BLACK);
+            getWindow().setNavigationBarColor(Color.BLACK);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                Window window = getWindow();
+                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                window.setStatusBarColor(Color.BLACK);
+            }
+        }
         LinearLayout mainBody = findViewById(R.id.mainBody);
+
+
         mainBody.addView(addSwitch("Black Night Theme", rkUtils.isOled(this), new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -59,6 +76,20 @@ public class SettingsActivity extends AppCompatActivity {
                 rkUtils.toast(activity, "Restart Required");
             }
         }));
+        mainBody.addView(addSwitch("Word Wrap", Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")), new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                rkUtils.setSetting(activity,"wordwrap",Boolean.toString(isChecked));
+                if(mAdapter.fragments == null){
+                    return;
+                }
+                for(Fragment fragment : mAdapter.fragments){
+                    DynamicFragment dynamicFragment = (DynamicFragment) fragment;
+                    dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")));
+                }
+            }
+        }));
+
 
 
     }
