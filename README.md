@@ -58,7 +58,7 @@ chmod +x gradlew
 
 # Build
    
-./gradlew assembleRelease
+./gradlew assembleDebug
 ```
 
 
