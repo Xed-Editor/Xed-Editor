@@ -43,7 +43,7 @@ Builds on fdroid maybe outdated
 ```
 # Clone the repo
    
-git clone https://github.com/RohitKushvaha01/Xed-Editor```
+git clone https://github.com/RohitKushvaha01/Xed-Editor
 
 # CD
 
