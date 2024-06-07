@@ -133,8 +133,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        rkUtils.toast(rkUtils.getSetting(activity,"wordwrap","false"));
-
     }
 
     @Override
