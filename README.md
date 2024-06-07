@@ -34,7 +34,8 @@
 
 Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
-Builds on fdroid usually 2-3 day behind
+- Builds on fdroid are usually 2-3 day behind
+- Builds on izzyOnDroid are usually 1 day behind
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
@@ -43,6 +44,7 @@ Builds on fdroid usually 2-3 day behind
 
 
 ## Building from source
+
 ```
 # Clone the repo
    
