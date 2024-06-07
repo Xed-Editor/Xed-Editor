@@ -52,13 +52,9 @@ git clone https://github.com/RohitKushvaha01/Xed-Editor
 
 cd "Xed-Editor"
 
-# Execute Permission
-   
-chmod +x gradlew
-
 # Build
-   
-./gradlew assembleDebug
+
+bash gradlew assembleDebug
 ```
 
 
