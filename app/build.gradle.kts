@@ -33,6 +33,10 @@ android {
             getByName("release") {
                 isMinifyEnabled = true
                 isCrunchPngs = false
+                proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro"
+                )
                 signingConfig = signingConfigs.getByName("release")
             }
         }
@@ -42,6 +46,10 @@ android {
             getByName("release") {
                 isMinifyEnabled = true
                 isCrunchPngs = false
+                proguardFiles(
+                        getDefaultProguardFile("proguard-android-optimize.txt"),
+                        "proguard-rules.pro"
+                )
             }
         }
     }
@@ -49,7 +57,7 @@ android {
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 17
         versionName = "1.1.7"
     }

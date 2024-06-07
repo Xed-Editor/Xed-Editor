@@ -13,4 +13,5 @@
 /captures
 .externalNativeBuild
 .cxx
+*.log
 local.properties
