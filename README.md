@@ -22,6 +22,7 @@
 - [x] Undo-Redo
 - [x] Searching
 - [x] Batch Replacement
+- [ ] Creating files and folders
 - [ ] Plugins
 - [x] Terminal (will be provided as a plugin)
 
