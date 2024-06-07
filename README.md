@@ -40,22 +40,23 @@ Builds on fdroid maybe outdated
 
 
 ## Building from source
-
-1. Clone the repo
+```
+# Clone the repo
    
-```git clone https://github.com/RohitKushvaha01/Xed-Editor```
+git clone https://github.com/RohitKushvaha01/Xed-Editor```
 
-2. CD
+# CD
 
-```cd "Xed-Editor"```
+cd "Xed-Editor"
 
-4. Execute Permission
+# Execute Permission
    
-```chmod +x gradlew```
+chmod +x gradlew
 
-5. Build
+# Build
    
-```./gradlew build```
+./gradlew assembleRelease
+```
 
 
 ## Screenshots
