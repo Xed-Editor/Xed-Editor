@@ -92,14 +92,12 @@ public class DynamicFragment extends Fragment {
             if (darkMode) {
                 String path;
                 if (rkUtils.isOled(ctx)) {
-                    rkUtils.toast(ctx,"isOled");
                     path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
                 } else {
-                    rkUtils.toast(ctx,"is not Oled");
                     path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
                 }
                 if (!new File(path).exists()) {
-                    rkUtils.toast("theme file not found");
+                    rkUtils.toast("theme file not found please reinstall the Xed Editor");
                 }
 
                 themeRegistry.loadTheme(

@@ -17,26 +17,119 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar" >
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:backgroundTint="#00000000"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="5dp"
+                android:onClick="replace_all"
+                android:src="@drawable/double_arrow"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:backgroundTint="#00000000"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="5dp"
+                android:onClick="addBatch"
+                android:src="@drawable/add"/>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:backgroundTint="#00000000"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="5dp"
+                android:onClick="removeBatch"
+                android:id="@+id/removeBatch"
+                android:visibility="gone"
+                android:src="@drawable/remove"/>
 
-        <androidx.core.widget.NestedScrollView
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-            android:id="@+id/nested_scroll_view">
+        </androidx.appcompat.widget.Toolbar>
 
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical"
-                android:id="@+id/mainBody"/>
-
-        </androidx.core.widget.NestedScrollView>
 
 
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:id="@+id/nested_scroll_view">
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/mainBody">
+
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:tag="keyRep"
+            android:orientation="vertical"
+            android:layout_width="match_parent">
+
+            <LinearLayout
+                android:background="@drawable/edittext"
+                android:layout_height="50dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginRight="22dp"
+                android:layout_marginTop="10dp"
+                android:tag="keyword"
+                android:layout_width="match_parent">
+
+                <EditText
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="8dp"
+                    android:id="@+id/replace_replacement"
+                    android:singleLine="true"
+                    android:hint="keyword"
+                    android:background="@android:color/transparent"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:tag="keyRep"
+            android:orientation="vertical"
+            android:layout_width="match_parent">
+
+            <LinearLayout
+                android:background="@drawable/edittext"
+                android:layout_height="50dp"
+                android:layout_marginLeft="22dp"
+                android:layout_marginRight="22dp"
+                android:layout_marginTop="10dp"
+                android:tag="keyword"
+                android:layout_width="match_parent">
+
+                <EditText
+                    android:layout_height="match_parent"
+                    android:layout_width="match_parent"
+                    android:paddingEnd="5dp"
+                    android:paddingStart="8dp"
+                    android:singleLine="true"
+                    android:hint="replacement"
+                    android:background="@android:color/transparent"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="20dp"/>
+
+
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
