@@ -39,8 +39,7 @@ Builds on fdroid usually 2-3 day behind
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
-
-<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" height="80">
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 
 
 ## Building from source
