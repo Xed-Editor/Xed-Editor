@@ -28,6 +28,7 @@
 - [x] Undo-Redo
 - [x] Searching
 - [x] Batch Replacement
+- [x] Word Wrap
 - [ ] Creating files and folders
 - [ ] Plugins
 - [ ] Better File Browser
