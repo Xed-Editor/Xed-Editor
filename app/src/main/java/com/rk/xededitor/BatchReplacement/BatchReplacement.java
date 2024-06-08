@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -160,5 +161,17 @@ public class BatchReplacement extends AppCompatActivity {
         }
         dialog.hide();
         rkUtils.toast(this, "Action Completed");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            // Handle the back arrow click here
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
