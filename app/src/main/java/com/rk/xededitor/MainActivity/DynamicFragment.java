@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -13,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 
+import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
 
 import org.eclipse.tm4e.core.registry.IThemeSource;
@@ -22,6 +24,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme;
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry;
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry;
@@ -34,9 +37,11 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 public class DynamicFragment extends Fragment {
     public static List<Content> contents;
-    public CodeEditor editor;
     private final DocumentFile file;
     private final Context ctx;
+    public CodeEditor editor;
+    MenuItem undo;
+    MenuItem redo;
 
     public DynamicFragment(DocumentFile file, Context ctx) {
         this.ctx = ctx;
@@ -60,8 +65,13 @@ public class DynamicFragment extends Fragment {
         editor.setText(content);
         editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
         editor.setTextSize(14);
-        editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(ctx,"wordwrap","false")));
+        editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(ctx, "wordwrap", "false")));
         ensureTextmateTheme();
+        undo = MainActivity.menu.findItem(R.id.undo);
+        redo = MainActivity.menu.findItem(R.id.redo);
+        editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
+            updateUndoRedo();
+        });
 
     }
 
@@ -71,10 +81,34 @@ public class DynamicFragment extends Fragment {
         return editor;
     }
 
+    public void updateUndoRedo() {
+        redo.setEnabled(editor.canRedo());
+        undo.setEnabled(editor.canUndo());
+    }
+
     public void releaseEditor() {
+        releaseEditor(false);
+    }
+
+    public void releaseEditor(boolean removeCoontent) {
         editor.release();
         editor = null;
-        contents.remove(MainActivity.fileList.indexOf(file));
+        if (removeCoontent) {
+            contents.remove(MainActivity.fileList.indexOf(file));
+        }
+
+    }
+
+    public void Undo() {
+        if (editor.canUndo()) {
+            editor.undo();
+        }
+    }
+
+    public void Redo() {
+        if (editor.canRedo()) {
+            editor.redo();
+        }
     }
 
     public CodeEditor getEditor() {
@@ -106,7 +140,7 @@ public class DynamicFragment extends Fragment {
                                         FileProviderRegistry.getInstance().tryGetInputStream(path), path, null),
                                 "darcula"));
                 editorColorScheme = TextMateColorScheme.create(themeRegistry);
-                if(rkUtils.isOled(ctx)){
+                if (rkUtils.isOled(ctx)) {
                     editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK);
                 }
 

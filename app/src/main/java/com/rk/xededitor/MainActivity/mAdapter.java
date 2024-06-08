@@ -60,6 +60,7 @@ public class mAdapter extends FragmentStatePagerAdapter {
     }
 
     public void removeFragment(int position) {
+        ((MainActivity) MainActivity.getActivity()).onEditorRemove((DynamicFragment) fragments.get(position));
         fragments.remove(position);
         titles.remove(position);
         MainActivity.fileList.remove(position);
@@ -68,10 +69,16 @@ public class mAdapter extends FragmentStatePagerAdapter {
         notifyDataSetChanged();
         removeing = false;
         uris.remove(position);
+
     }
 
     public void closeOthers(int index) {
         Fragment selectedObj = fragments.get(index);
+        for (Fragment fragment : fragments) {
+            if (!fragment.equals(selectedObj)) {
+                ((MainActivity) MainActivity.getActivity()).onEditorRemove((DynamicFragment) fragment);
+            }
+        }
         DocumentFile selectedFile = MainActivity.fileList.get(index);
         MainActivity.fileList.clear();
         MainActivity.fileList.add(selectedFile);
@@ -91,6 +98,9 @@ public class mAdapter extends FragmentStatePagerAdapter {
     }
 
     public void clear() {
+        for (Fragment fragment : fragments) {
+            ((MainActivity) MainActivity.getActivity()).onEditorRemove((DynamicFragment) fragment);
+        }
         fragments.clear();
         titles.clear();
         uris.clear();

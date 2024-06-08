@@ -57,9 +57,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_DIRECTORY_SELECTION = 1002;
     public static TabLayout mTabLayout;
     public static List<DocumentFile> fileList;
+    public static Menu menu;
     private static Activity activity;
     final int REQUEST_FILE_SELECTION = 123;
-    public Menu menu;
     NavigationView navigationView;
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
@@ -160,6 +160,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
+                ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).updateUndoRedo();
+
             }
 
             @Override
@@ -269,13 +271,30 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.openBtn).setVisibility(View.GONE);
         findViewById(R.id.tabs).setVisibility(View.VISIBLE);
         findViewById(R.id.mainView).setVisibility(View.VISIBLE);
-        final boolean visible = !(mAdapter.fragments == null || mAdapter.fragments.size() == 0);
+        final boolean visible = !(mAdapter.fragments == null || mAdapter.fragments.isEmpty());
         menu.findItem(R.id.search).setVisible(visible);
         menu.findItem(R.id.action_save).setVisible(visible);
         menu.findItem(R.id.action_all).setVisible(visible);
         menu.findItem(R.id.batchrep).setVisible(visible);
+        MenuItem undo = menu.findItem(R.id.undo);
+        MenuItem redo = menu.findItem(R.id.redo);
+        undo.setVisible(true);
+        redo.setVisible(true);
+
 
     }
+
+    public void onEditorRemove(DynamicFragment fragment) {
+        fragment.releaseEditor();
+        if (mAdapter.fragments.size() <= 1) {
+            MenuItem undo = menu.findItem(R.id.undo);
+            MenuItem redo = menu.findItem(R.id.redo);
+            undo.setVisible(false);
+            redo.setVisible(false);
+
+        }
+    }
+
 
     public void newEditor(DocumentFile file) {
         final String file_name = file.getName();
@@ -295,8 +314,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        menu.findItem(R.id.search).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.size() == 0));
-        menu.findItem(R.id.batchrep).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.size() == 0));
+        menu.findItem(R.id.search).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
+        menu.findItem(R.id.batchrep).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
 
     }
 
@@ -324,7 +343,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        this.menu = menu;
+        MainActivity.menu = menu;
         menu.findItem(R.id.search).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.size() == 0));
         menu.findItem(R.id.batchrep).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.size() == 0));
 
@@ -398,6 +417,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         } else if (id == R.id.search) {
+
             View popuop_view = LayoutInflater.from(this).inflate(R.layout.popup_search, null);
             TextView searchBox = popuop_view.findViewById(R.id.searchbox);
             if (!SearchText.equals("")) {
@@ -414,6 +434,10 @@ public class MainActivity extends AppCompatActivity {
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
+                                            MenuItem undo = menu.findItem(R.id.undo);
+                                            MenuItem redo = menu.findItem(R.id.redo);
+                                            undo.setVisible(false);
+                                            redo.setVisible(false);
                                             CodeEditor editor = ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
                                             CheckBox checkBox = popuop_view.findViewById(R.id.case_senstive);
                                             SearchText = searchBox.getText().toString();
@@ -444,6 +468,10 @@ public class MainActivity extends AppCompatActivity {
             menu.findItem(R.id.search_close).setVisible(false);
             menu.findItem(R.id.replace).setVisible(false);
             SearchText = "";
+            MenuItem undo = menu.findItem(R.id.undo);
+            MenuItem redo = menu.findItem(R.id.redo);
+            undo.setVisible(true);
+            redo.setVisible(true);
 
             return true;
         } else if (id == R.id.replace) {
@@ -461,9 +489,22 @@ public class MainActivity extends AppCompatActivity {
                             }).show();
 
         } else if (id == R.id.batchrep) {
-            rkUtils.ni(this);
             Intent intent = new Intent(this, BatchReplacement.class);
             startActivity(intent);
+        } else if (id == R.id.undo) {
+            ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).Undo();
+            MenuItem undo = menu.findItem(R.id.undo);
+            MenuItem redo = menu.findItem(R.id.redo);
+            CodeEditor editor = ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+            redo.setEnabled(editor.canRedo());
+            undo.setEnabled(editor.canUndo());
+        } else if (id == R.id.redo) {
+            ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).Redo();
+            MenuItem undo = menu.findItem(R.id.undo);
+            MenuItem redo = menu.findItem(R.id.redo);
+            CodeEditor editor = ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+            redo.setEnabled(editor.canRedo());
+            undo.setEnabled(editor.canUndo());
         }
         return super.onOptionsItemSelected(item);
     }

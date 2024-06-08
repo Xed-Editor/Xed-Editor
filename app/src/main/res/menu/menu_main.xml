@@ -1,4 +1,5 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
     <item
@@ -12,6 +13,21 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/undo"
+        android:title="Undo"
+        android:visible="false"
+        android:enabled="false"
+        android:icon="@drawable/undo"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/redo"
+        android:title="Redo"
+        android:visible="false"
+        android:enabled="false"
+        android:icon="@drawable/redo"
+        app:showAsAction="always"
+        tools:ignore="HardcodedText" />
+    <item
         android:id="@+id/action_settings"
         android:title="Settings"
         android:icon="@drawable/settings"
@@ -23,7 +39,7 @@
     <item
         android:id="@+id/search"
         android:title="Search"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:icon="@drawable/search"/>
     <item
         android:id="@+id/search_next"

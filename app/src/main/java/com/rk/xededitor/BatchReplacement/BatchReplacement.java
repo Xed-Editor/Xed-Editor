@@ -3,26 +3,20 @@ package com.rk.xededitor.BatchReplacement;
 import static com.rk.xededitor.MainActivity.MainActivity.mTabLayout;
 import static com.rk.xededitor.rkUtils.dpToPx;
 
+import android.app.ProgressDialog;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.rk.xededitor.MainActivity.DynamicFragment;
 import com.rk.xededitor.MainActivity.mAdapter;
@@ -64,7 +58,8 @@ public class BatchReplacement extends AppCompatActivity {
 
 
     }
-    private View newEditBox(String hint){
+
+    private View newEditBox(String hint) {
         LinearLayout rootLinearLayout = new LinearLayout(this);
         rootLinearLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -76,8 +71,8 @@ public class BatchReplacement extends AppCompatActivity {
         LinearLayout innerLinearLayout = new LinearLayout(this);
         LinearLayout.LayoutParams innerParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                dpToPx(50,this));  // height is 50dp
-        innerParams.setMargins(dpToPx(22,this), dpToPx(10,this), dpToPx(22,this), 0);
+                dpToPx(50, this));  // height is 50dp
+        innerParams.setMargins(dpToPx(22, this), dpToPx(10, this), dpToPx(22, this), 0);
         innerLinearLayout.setLayoutParams(innerParams);
         innerLinearLayout.setTag("keyword");
 
@@ -91,7 +86,7 @@ public class BatchReplacement extends AppCompatActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         editText.setLayoutParams(editTextParams);
-        editText.setPadding(dpToPx(8,this), 0, dpToPx(5,this), 0);  // paddingStart 8dp, paddingEnd 5dp
+        editText.setPadding(dpToPx(8, this), 0, dpToPx(5, this), 0);  // paddingStart 8dp, paddingEnd 5dp
         editText.setId(View.generateViewId());
         editText.setSingleLine(true);
         editText.setHint(hint);
@@ -103,23 +98,25 @@ public class BatchReplacement extends AppCompatActivity {
         rootLinearLayout.addView(innerLinearLayout);
         return rootLinearLayout;
     }
-    public void addBatch(View v){
+
+    public void addBatch(View v) {
         int random_int = new Random().nextInt();
-        ((LinearLayout)findViewById(R.id.mainBody)).addView(newEditBox("keyword"));
-        ((LinearLayout)findViewById(R.id.mainBody)).addView(newEditBox("replacement"));
+        ((LinearLayout) findViewById(R.id.mainBody)).addView(newEditBox("keyword"));
+        ((LinearLayout) findViewById(R.id.mainBody)).addView(newEditBox("replacement"));
         View view = new View(this);
 
         // Set the width and height of the View
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                dpToPx(0,this), // Width in dp
-                dpToPx(20,this)   // Height in dp
+                dpToPx(0, this), // Width in dp
+                dpToPx(20, this)   // Height in dp
         );
         view.setLayoutParams(params);
-        ((LinearLayout)findViewById(R.id.mainBody)).addView(view);
+        ((LinearLayout) findViewById(R.id.mainBody)).addView(view);
 
         findViewById(R.id.removeBatch).setVisibility(View.VISIBLE);
     }
-    public void removeBatch(View v){
+
+    public void removeBatch(View v) {
         LinearLayout linearLayout = findViewById(R.id.mainBody);
         int childCount = linearLayout.getChildCount();
         if (childCount > 3) {
@@ -129,35 +126,39 @@ public class BatchReplacement extends AppCompatActivity {
             linearLayout.removeViewAt(childCount - 2);
             // Remove the third-to-last child
             linearLayout.removeViewAt(childCount - 3);
-            if(linearLayout.getChildCount() <= 3){
+            if (linearLayout.getChildCount() <= 3) {
                 findViewById(R.id.removeBatch).setVisibility(View.GONE);
             }
-        }else{
+        } else {
             findViewById(R.id.removeBatch).setVisibility(View.GONE);
         }
 
     }
-    public void replace_all(View v){
+
+    public void replace_all(View v) {
+        ProgressDialog dialog = ProgressDialog.show(this, "",
+                "Please wait...", true);
         LinearLayout linearLayout = findViewById(R.id.mainBody);
-        for(int i=0;i<linearLayout.getChildCount();i++){
+        for (int i = 0; i < linearLayout.getChildCount(); i++) {
             View view = linearLayout.getChildAt(i);
-            if(view instanceof LinearLayout){
-                LinearLayout l = (LinearLayout) ((LinearLayout)view).getChildAt(0);
+            if (view instanceof LinearLayout) {
+                LinearLayout l = (LinearLayout) ((LinearLayout) view).getChildAt(0);
                 EditText editText = (EditText) l.getChildAt(0);
-                if(editText.getHint().equals("keyword")){
-                    View viewx = linearLayout.getChildAt(i+1);
-                    LinearLayout lx = (LinearLayout) ((LinearLayout)viewx).getChildAt(0);
+                if (editText.getHint().equals("keyword")) {
+                    View viewx = linearLayout.getChildAt(i + 1);
+                    LinearLayout lx = (LinearLayout) ((LinearLayout) viewx).getChildAt(0);
                     EditText editTextx = (EditText) lx.getChildAt(0);
                     String keyword = editText.getText().toString();
                     String replacement = editTextx.getText().toString();
-                    if(mAdapter.fragments == null || mTabLayout == null){
+                    if (mAdapter.fragments == null || mTabLayout == null) {
                         return;
                     }
                     CodeEditor editor = ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
-                    editor.setText(editor.getText().toString().replaceAll(keyword,replacement));
+                    editor.setText(editor.getText().toString().replaceAll(keyword, replacement));
                 }
             }
         }
-        rkUtils.toast(this,"Action Completed");
+        dialog.hide();
+        rkUtils.toast(this, "Action Completed");
     }
 }
