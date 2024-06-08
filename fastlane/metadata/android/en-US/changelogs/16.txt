@@ -1,0 +1,3 @@
+v1.1.6 (16)
+
++ Added Word Wrap
