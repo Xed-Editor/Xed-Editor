@@ -46,6 +46,9 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 
+## Community
+
+[Telegram](https://t.me/XedEditor)
 
 ## Building from source
 
