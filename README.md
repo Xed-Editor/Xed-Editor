@@ -48,7 +48,7 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 
 ## Community
 
-[Telegram](https://t.me/XedEditor)
+[Join Telegram Group](https://t.me/XedEditor)
 
 ## Building from source
 
