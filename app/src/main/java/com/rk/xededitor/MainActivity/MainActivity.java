@@ -148,6 +148,13 @@ public class MainActivity extends AppCompatActivity {
                                     .setTitle("Unsaved Files")
                                     .setMessage("You have unsaved files!")
                                     .setNegativeButton("Cancel", null)
+                                    .setNeutralButton("Save & Exit", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            onOptionsItemSelected(menu.findItem(R.id.action_all));
+                                            finish();
+                                        }
+                                    })
                                     .setPositiveButton(
                                             "Exit",
                                             new DialogInterface.OnClickListener() {
@@ -158,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
                                             })
                                     .show();
                         }
+                        break;
                     }
                 }
             }
