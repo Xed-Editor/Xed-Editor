@@ -100,7 +100,6 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
         this.node = node;
 
         isFile = node.isFile;
-
         tv.setText(String.valueOf(value));
 
         if (!isFile) {
@@ -118,6 +117,8 @@ public class SimpleViewHolder extends TreeNode.BaseNodeViewHolder<Object> {
 
         layout.addView(img);
         layout.addView(tv);
+
+
 
         return layout;
     }

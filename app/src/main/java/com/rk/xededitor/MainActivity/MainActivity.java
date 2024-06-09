@@ -18,7 +18,6 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -73,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private mAdapter adapter;
     private boolean isReselecting = false;
     private String SearchText = "";
+
 
     public static Activity getActivity() {
         return activity;

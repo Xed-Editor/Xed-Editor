@@ -447,16 +447,8 @@ public class AndroidTreeView {
     private TreeNode.BaseNodeViewHolder getViewHolderForNode(TreeNode node) {
         TreeNode.BaseNodeViewHolder viewHolder = node.getViewHolder();
         if (viewHolder == null) {
-            try {
-                // final Object object =
-                // defaultViewHolderClass.getConstructor(Context.class).newInstance(mContext);
-                SimpleViewHolder h = new SimpleViewHolder(mContext);
-                // viewHolder = (TreeNode.BaseNodeViewHolder) object;
-                viewHolder = h;
-                node.setViewHolder(viewHolder);
-            } catch (Exception e) {
-                throw new RuntimeException("Could not instantiate class " + defaultViewHolderClass);
-            }
+            viewHolder = new SimpleViewHolder(mContext);
+            node.setViewHolder(viewHolder);
         }
         if (viewHolder.getContainerStyle() <= 0) {
             viewHolder.setContainerStyle(containerStyle);
