@@ -29,9 +29,9 @@
 - [x] Searching
 - [x] Batch Replacement
 - [x] Word Wrap
+- [ ] Better File Browser
 - [ ] Creating files and folders
 - [ ] Plugins
-- [ ] Better File Browser
 - [x] Terminal (will be provided as a plugin)
 
 ## Installation
