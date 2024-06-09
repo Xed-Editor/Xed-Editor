@@ -19,6 +19,8 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -28,6 +30,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -46,6 +49,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
@@ -83,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -112,11 +116,9 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.tabs).setBackgroundColor(Color.BLACK);
             findViewById(R.id.mainView).setBackgroundColor(Color.BLACK);
             getWindow().setNavigationBarColor(Color.BLACK);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.BLACK);
-            }
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.BLACK);
         }
 
 
@@ -133,10 +135,38 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if(mAdapter.fragments != null){
+                    for(Fragment fragment : mAdapter.fragments){
+                        DynamicFragment fragment1 = (DynamicFragment)fragment;
+                        if(fragment1.isModified){
+                            new MaterialAlertDialogBuilder(MainActivity.this)
+                                    .setTitle("Unsaved Files")
+                                    .setMessage("You have unsaved files!")
+                                    .setNegativeButton("Cancel", null)
+                                    .setPositiveButton(
+                                            "Exit",
+                                            new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    finish();
+                                                }
+                                            })
+                                    .show();
+                        }
+                    }
+                }
+            }
+        });
+
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         // Handle the theme change here
         rkUtils.toast("Restart Required");
@@ -199,11 +229,12 @@ public class MainActivity extends AppCompatActivity {
                             findViewById(R.id.openBtn).setVisibility(View.VISIBLE);
 
                         }
-                        final boolean visible = !(mAdapter.fragments == null || mAdapter.fragments.size() == 0);
+                        boolean visible = (!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
                         menu.findItem(R.id.search).setVisible(visible);
                         menu.findItem(R.id.action_save).setVisible(visible);
                         menu.findItem(R.id.action_all).setVisible(visible);
                         menu.findItem(R.id.batchrep).setVisible(visible);
+
 
                         return true;
                     }
@@ -231,8 +262,7 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.hscroll).setVisibility(View.VISIBLE);
 
             if (isReselecting) {
-                List<TreeNode> nodes = new ArrayList<>();
-                nodes.addAll(root.getChildren());
+                List<TreeNode> nodes = new ArrayList<>(root.getChildren());
                 for (TreeNode node : nodes) {
                     tView.removeNode(node);
                 }
@@ -293,8 +323,8 @@ public class MainActivity extends AppCompatActivity {
             redo.setVisible(false);
 
         }
-    }
 
+    }
 
     public void newEditor(DocumentFile file) {
         final String file_name = file.getName();
@@ -314,8 +344,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        menu.findItem(R.id.search).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
-        menu.findItem(R.id.batchrep).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
+        final boolean visible = !(mAdapter.fragments == null || mAdapter.fragments.isEmpty());
+
+        menu.findItem(R.id.batchrep).setVisible(visible);
+        menu.findItem(R.id.search).setVisible(visible);
+        menu.findItem(R.id.action_save).setVisible(visible);
+        menu.findItem(R.id.action_all).setVisible(visible);
+        menu.findItem(R.id.batchrep).setVisible(visible);
+        menu.findItem(R.id.search).setVisible(visible);
 
     }
 
@@ -344,8 +380,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MainActivity.menu = menu;
-        menu.findItem(R.id.search).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.size() == 0));
-        menu.findItem(R.id.batchrep).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.size() == 0));
+        menu.findItem(R.id.search).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
+        menu.findItem(R.id.batchrep).setVisible(!(mAdapter.fragments == null || mAdapter.fragments.isEmpty()));
 
         return true;
     }
@@ -365,20 +401,27 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.action_save) {
-            if (fileList.size() == 0) {
+            if (fileList.isEmpty()) {
                 return true;
             }
 
             try {
                 final int index = MainActivity.mTabLayout.getSelectedTabPosition();
                 DynamicFragment fg = (DynamicFragment) mAdapter.fragments.get(index);
+
+                TabLayout.Tab tab = mTabLayout.getTabAt(mTabLayout.getSelectedTabPosition());
+                assert tab != null;
+                String name = tab.getText().toString();
+                if(name.charAt(name.length()-1 )== '*'){
+                    fg.isModified = false;
+                    tab.setText(name.substring(0,name.length()-1));
+                }
+
                 //Content content = fg.editor.getText();
                 Content content = DynamicFragment.contents.get(mTabLayout.getSelectedTabPosition());
                 OutputStream outputStream = getContentResolver().openOutputStream(fileList.get(index).getUri(), "wt");
                 ContentIO.writeTo(content, outputStream, true);
-                if (outputStream != null) {
-                    outputStream.close();
-                }
+                outputStream.close();
                 outputStream = null;
                 rkUtils.toast("saved!");
 
@@ -394,10 +437,18 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_all) {
             for (int i = 0; i < mTabLayout.getTabCount(); i++) {
                 TabLayout.Tab mtab = mTabLayout.getTabAt(i);
+
                 OutputStream outputStream = null;
                 try {
                     final int index = mtab.getPosition();
                     DynamicFragment fg = (DynamicFragment) mAdapter.fragments.get(index);
+
+                    String name = mtab.getText().toString();
+                    if(name.charAt(name.length()-1) == '*'){
+                        fg.isModified = false;
+                        mtab.setText(name.substring(0,name.length()-1));
+                    }
+
                     //Content content = fg.editor.getText();
                     Content content = DynamicFragment.contents.get(index);
                     outputStream = getContentResolver().openOutputStream(fileList.get(index).getUri(), "wt");

@@ -10,10 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
 
@@ -40,6 +42,7 @@ public class DynamicFragment extends Fragment {
     private final DocumentFile file;
     private final Context ctx;
     public CodeEditor editor;
+    public boolean isModified = false;
     MenuItem undo;
     MenuItem redo;
 
@@ -54,30 +57,41 @@ public class DynamicFragment extends Fragment {
         try {
             InputStream inputStream;
             inputStream = ctx.getContentResolver().openInputStream(file.getUri());
+            assert inputStream != null;
             content = ContentIO.createFrom(inputStream);
             contents.add(content);
             inputStream.close();
             inputStream = null;
-
         } catch (Exception e) {
             e.printStackTrace();
         }
         editor.setText(content);
         editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
         editor.setTextSize(14);
-        editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(ctx, "wordwrap", "false")));
+        editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(ctx, "wordwrap", "false")),Boolean.parseBoolean(rkUtils.getSetting(ctx,"antiWordBreaking","true")));
         ensureTextmateTheme();
         undo = MainActivity.menu.findItem(R.id.undo);
         redo = MainActivity.menu.findItem(R.id.redo);
         editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
             updateUndoRedo();
+
+            MainActivity activity = ((MainActivity)MainActivity.getActivity());
+            TabLayout.Tab tab = activity.mTabLayout.getTabAt(mAdapter.fragments.indexOf(this));
+            String name = tab.getText().toString();
+            if((!isModified) && name.charAt(name.length()-1) != '*'){
+                tab.setText(tab.getText()+"*");
+
+            }
+            isModified = true;
+
+
         });
 
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return editor;
     }
 

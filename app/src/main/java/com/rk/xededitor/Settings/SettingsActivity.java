@@ -57,13 +57,19 @@ public class SettingsActivity extends AppCompatActivity {
             findViewById(R.id.appbar).setBackgroundColor(Color.BLACK);
             findViewById(R.id.toolbar).setBackgroundColor(Color.BLACK);
             getWindow().setNavigationBarColor(Color.BLACK);
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                Window window = getWindow();
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-                window.setStatusBarColor(Color.BLACK);
-            }
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.BLACK);
         }
         LinearLayout mainBody = findViewById(R.id.mainBody);
+
+
+        //switches
+
+
+
+
+
 
 
         mainBody.addView(addSwitch("Black Night Theme", rkUtils.isOled(this), new CompoundButton.OnCheckedChangeListener() {
@@ -86,6 +92,20 @@ public class SettingsActivity extends AppCompatActivity {
                 for(Fragment fragment : mAdapter.fragments){
                     DynamicFragment dynamicFragment = (DynamicFragment) fragment;
                     dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")));
+                }
+            }
+        }));
+
+        mainBody.addView(addSwitch("Anti word breaking for (WW)", Boolean.parseBoolean(rkUtils.getSetting(this,"antiWordBreaking","true")), new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                rkUtils.setSetting(SettingsActivity.this,"antiWordBreaking",Boolean.toString(isChecked));
+                if(mAdapter.fragments == null){
+                    return;
+                }
+                for(Fragment fragment : mAdapter.fragments){
+                    DynamicFragment dynamicFragment = (DynamicFragment) fragment;
+                    dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")),Boolean.parseBoolean(rkUtils.getSetting(activity,"antiWordBreaking","true")));
                 }
             }
         }));
