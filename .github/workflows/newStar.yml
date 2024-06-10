@@ -1,0 +1,13 @@
+name: newStar
+
+on:
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print Starred Repo
+        run: echo "New Star"
