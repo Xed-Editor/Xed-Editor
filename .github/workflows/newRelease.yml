@@ -9,5 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print Release Information
+      - name: Notify Telegram Group
+        env:
+          VERSION:
+          URL:
         run: bash .github/workflows/newRelease.sh
