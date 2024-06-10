@@ -23,4 +23,4 @@ jobs:
             echo "Variable does not exist."
           fi
         env:
-          TOKEN: ${{secrets.TelegramToken}}
+          TOKEN: ${{secrets.TELEGRAMTOKEN}}
