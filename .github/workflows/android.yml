@@ -36,6 +36,6 @@ jobs:
     - name: Notify Telegram Group
       env:
         USER: ${{github.actor}}
-        
+        TOKEN: ${{secrets.TelegramToken}}
         COMMIT_URL: ${{ github.repository_url }}/commit/${{ github.sha }}
       run: bash .github/workflows/newCommit.sh
