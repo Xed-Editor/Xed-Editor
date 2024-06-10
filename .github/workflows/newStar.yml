@@ -16,11 +16,12 @@ jobs:
         run: echo "New Star ${{github.actor}}"
 
       - name: Check Token
+        env:
+          TOKEN: ${{secrets.TelegramToken}}
         run: |
           if [[ -n $TOKEN ]]; then
             echo "Variable exists."
           else
             echo "Variable does not exist."
           fi
-        env:
-          TOKEN: ${{secrets.TELEGRAMTOKEN}}
+        
