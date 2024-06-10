@@ -10,4 +10,4 @@ jobs:
 
     steps:
       - name: Print Starred Repo
-        run: echo "New Star"
+        run: echo "New Star ${{github.actor}}"
