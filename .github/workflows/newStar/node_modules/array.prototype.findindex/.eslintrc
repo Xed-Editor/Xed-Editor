@@ -1,0 +1,39 @@
+{
+	"root": true,
+
+	"extends": "@ljharb",
+
+	"rules": {
+		"array-bracket-newline": 0,
+		"id-length": [2, { "min": 1, "max": 25, "properties": "never" }],
+		"max-statements": [2, 14],
+		"max-statements-per-line": [2, { "max": 2 }],
+		"max-params": 0,
+		"multiline-comment-style": 0,
+		"new-cap": [2, {
+			"capIsNewExceptions": [
+				"Call",
+				"Get",
+				"IsCallable",
+				"LengthOfArrayLike",
+				"RequireObjectCoercible",
+				"ToBoolean",
+				"ToObject",
+				"ToString",
+			],
+		}],
+		"no-magic-numbers": 0,
+		"object-curly-newline": 0,
+	},
+
+	"overrides": [
+		{
+			"files": "test/**",
+			"rules": {
+				"id-length": 0,
+				"max-lines-per-function": 0,
+				"no-invalid-this": 0,
+			},
+		},
+	],
+}
