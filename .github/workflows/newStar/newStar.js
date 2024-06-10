@@ -10,7 +10,7 @@ const actor = process.env.GITHUB_ACTOR;
 async function sendMessageAndExit() {
   try {
     // Send a message to the group chat with HTML formatting
-    await bot.sendMessage(chatId, "⭐ <a href=\"http://example.com\">@"+actor+"</a> Starred <a href=\"http://example.com\">Xed-Editor</a>", { parse_mode: "HTML" });
+    await bot.sendMessage(chatId, "⭐ <a href=\"github.com/\"+actor+"\">@"+actor+"</a> Starred <a href=\"http://example.com\">Xed-Editor</a>", { parse_mode: "HTML" });
     // Exit the script
     process.exit();
   } catch (error) {
