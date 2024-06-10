@@ -1,0 +1,13 @@
+name: newRelease
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print New Release
+        run: echo "A new release has been created."
