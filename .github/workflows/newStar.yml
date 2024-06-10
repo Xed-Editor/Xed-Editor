@@ -9,5 +9,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Print Starred Repo
         run: echo "New Star ${{github.actor}}"
+
+      - name: Check Token
+        run: |
+          if [[ -n $TOKEN ]]; then
+            echo "Variable exists."
+          else
+            echo "Variable does not exist."
+          fi
+        env:
+          TOKEN: ${{secrets.TelegramToken}}
