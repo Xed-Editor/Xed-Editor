@@ -7,4 +7,5 @@ const bot = new TelegramBot(token, { polling: true });
 const chatId = '-1002225667339';
 const actor = process.env.GITHUB_ACTOR;
 // Send a message to the group chat
-bot.sendMessage(chatId, "⭐ <a href=\"example.com\">@"+actor+"</a> Starred <a href=\"example.com\">Xed-Editor"+"</a>");
+bot.sendMessage(chatId, "⭐ <a href=\"http://example.com\">@"+actor+"</a> Starred <a href=\"http://example.com\">Xed-Editor</a>", { parse_mode: "HTML" });
+process.exit();
