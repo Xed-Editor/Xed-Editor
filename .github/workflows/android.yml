@@ -34,4 +34,8 @@ jobs:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
     - name: Notify Telegram Group
+      env:
+        USER: ${{github.actor}}
+        DISCRIPTION: ${{ithub.event.head_commit.message}}
+        COMMIT_URL: ${{ github.repository_url }}/commit/${{ github.sha }}
       run: bash .github/workflows/newCommit.sh
