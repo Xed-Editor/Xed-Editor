@@ -11,6 +11,6 @@ jobs:
     steps:
       - name: Notify Telegram Group
         env:
-          VERSION:
-          URL:
+          VERSION:${{ github.event.release.tag_name }}
+          URL:${{ github.event.release.html_url }}
         run: bash .github/workflows/newRelease.sh
