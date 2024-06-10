@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- package com.widget.treeview
+
+package com.rk.xededitor.MainActivity
  
  import android.content.Context
  import android.graphics.drawable.Drawable
@@ -24,9 +24,10 @@
  import android.view.ViewGroup
  import android.widget.ImageView
  import android.widget.TextView
+ import androidx.documentfile.provider.DocumentFile
  import androidx.recyclerview.widget.RecyclerView
- 
- import java.io.File
+ import com.rk.xededitor.R;
+ //import java.io.File
  
  
  interface OnItemClickListener {
@@ -37,7 +38,7 @@
  
  class TreeViewAdapter(
      val context: Context,
-     var datas: MutableList<Node<File>>
+     var datas: MutableList<Node<DocumentFile>>
  ) : RecyclerView.Adapter<TreeViewAdapter.ViewHolder>() {
      
      private val icFile: Drawable
@@ -48,10 +49,10 @@
      private var listener: OnItemClickListener? = null
      
      init {
-         icFile = context.getDrawable(R.drawable.ic_file)!!.apply { 
+         icFile = context.getDrawable(R.drawable.file)!!.apply {
              setTint(Color.parseColor("#4996ff"))
          }
-         icFolder = context.getDrawable(R.drawable.ic_folder)!!.apply { 
+         icFolder = context.getDrawable(R.drawable.folder)!!.apply {
              setTint(Color.parseColor("#4996ff"))
          }
          icChevronRight = context.getDrawable(R.drawable.ic_chevron_right)!!.apply { 
@@ -63,7 +64,7 @@
      }
      
      companion object {
-         fun merge(root: File): MutableList<Node<File>> {
+         fun merge(root: DocumentFile): MutableList<Node<DocumentFile>> {
              // child files
              val list = root.listFiles().toList()
              // dir with sorted
@@ -113,7 +114,7 @@
          holder.itemView.setOnClickListener {
              if(node.value.isDirectory()) {
                  var parent = node
-                 var child: List<Node<File>>
+                 var child: List<Node<DocumentFile>>
                  // expand and collapsed
                  if(!node.isExpand) {
                      var index = position

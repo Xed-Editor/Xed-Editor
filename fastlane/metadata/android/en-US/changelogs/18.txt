@@ -1,0 +1,7 @@
+v1.1.8 (18)
+
++added anti word breaking for word wrap
++added new file browser (incomplete)
++added warning when exiting with unsaved changes
++added warning when opening unknown files
+

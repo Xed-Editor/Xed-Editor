@@ -2,6 +2,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
 }
 
 android {
@@ -58,8 +59,8 @@ android {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 34
-        versionCode = 17
-        versionName = "1.1.7"
+        versionCode = 18
+        versionName = "1.1.8"
     }
 
     compileOptions {

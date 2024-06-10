@@ -75,11 +75,9 @@ public class SettingsActivity extends AppCompatActivity {
         mainBody.addView(addSwitch("Black Night Theme", rkUtils.isOled(this), new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isOled", isChecked);
-                editor.apply();
-                rkUtils.toast(activity, "Restart Required");
+                rkUtils.toast(SettingsActivity.this,"Setting will take effect after restart");
+                rkUtils.addToapplyPrefsOnRestart(SettingsActivity.this,"isOled",Boolean.toString(isChecked));
+
             }
         }));
         mainBody.addView(addSwitch("Word Wrap", Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")), new CompoundButton.OnCheckedChangeListener() {
@@ -107,6 +105,13 @@ public class SettingsActivity extends AppCompatActivity {
                     DynamicFragment dynamicFragment = (DynamicFragment) fragment;
                     dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")),Boolean.parseBoolean(rkUtils.getSetting(activity,"antiWordBreaking","true")));
                 }
+            }
+        }));
+        mainBody.addView(addSwitch("Legacy File Browser", Boolean.parseBoolean(rkUtils.getSetting(this, "legacyFileBrowser", "true")), new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                rkUtils.toast(SettingsActivity.this,"Setting will take effect after restart");
+                rkUtils.addToapplyPrefsOnRestart(SettingsActivity.this,"legacyFileBrowser",Boolean.toString(isChecked));
             }
         }));
 

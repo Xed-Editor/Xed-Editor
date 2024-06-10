@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,8 +38,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
-import com.rk.xededitor.MainActivity.TreeView.AndroidTreeView;
-import com.rk.xededitor.MainActivity.TreeView.TreeNode;
+import com.rk.xededitor.MainActivity.TreeViewX.AndroidTreeView;
+import com.rk.xededitor.MainActivity.TreeViewX.TreeNode;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
 import com.rk.xededitor.rkUtils;
@@ -61,9 +62,11 @@ public class MainActivity extends AppCompatActivity {
     public static TabLayout mTabLayout;
     public static List<DocumentFile> fileList;
     public static Menu menu;
+
     private static Activity activity;
     final int REQUEST_FILE_SELECTION = 123;
     NavigationView navigationView;
+
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -82,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dynamic);
+
+        // apply all prefrances that are quied
+        rkUtils.applyPrefs(this);
         activity = this;
         fileList = new ArrayList<>();
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -269,30 +275,36 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.safbuttons).setVisibility(View.GONE);
             findViewById(R.id.hscroll).setVisibility(View.VISIBLE);
 
-            if (isReselecting) {
-                List<TreeNode> nodes = new ArrayList<>(root.getChildren());
-                for (TreeNode node : nodes) {
-                    tView.removeNode(node);
+            Uri treeUri = data.getData();
+            DocumentFile rootFolder = DocumentFile.fromTreeUri(this, treeUri);
+            if(Boolean.parseBoolean(rkUtils.getSetting(this,"legacyFileBrowser","true"))){
+                if (isReselecting) {
+                    List<TreeNode> nodes = new ArrayList<>(root.getChildren());
+                    for (TreeNode node : nodes) {
+                        tView.removeNode(node);
+                    }
+                    root.children.clear();
+                    mTabLayout.removeAllTabs();
+                    ((LinearLayout) findViewById(R.id.maindrawer)).removeAllViews();
+                    isReselecting = false;
                 }
-                root.children.clear();
-                mTabLayout.removeAllTabs();
-                ((LinearLayout) findViewById(R.id.maindrawer)).removeAllViews();
-                isReselecting = false;
+                root = TreeNode.root();
+                rkUtils.looper(rootFolder, root, 0);
+                tView = new AndroidTreeView(this, root);
+                View tv = tView.getView();
+                LinearLayout.LayoutParams layout_params = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                layout_params.setMargins(30, 20, 0, 0);
+                tv.setLayoutParams(layout_params);
+                ((LinearLayout) findViewById(R.id.maindrawer)).addView(tv);
+
+
+            }else{
+                new MA(this,rootFolder);
             }
 
-            Uri treeUri = data.getData();
-            root = TreeNode.root();
-            DocumentFile rootFolder = DocumentFile.fromTreeUri(this, treeUri);
-            rkUtils.looper(rootFolder, root, 0);
-            tView = new AndroidTreeView(this, root);
-            View tv = tView.getView();
-            LinearLayout.LayoutParams layout_params = new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-            layout_params.setMargins(30, 20, 0, 0);
-            tv.setLayoutParams(layout_params);
-            ((LinearLayout) findViewById(R.id.maindrawer)).addView(tv);
-            String name = rootFolder.getName();
+        String name = rootFolder.getName();
             if (name.length() > 18) {
                 name = rootFolder.getName().substring(0, 15) + "...";
             }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.widget.treeview
+package com.rk.xededitor.MainActivity
 
 data class Node<T>(
     var value: T,
@@ -28,7 +28,7 @@ public object TreeView {
     
     // add child node
     fun <T> add(
-        parent: Node<T>, 
+        parent: Node<T>,
         child: List<Node<T>>? = null
     ) {
         // check 
@@ -58,7 +58,7 @@ public object TreeView {
     
     // remove child node
     fun <T> remove(
-        parent: Node<T>, 
+        parent: Node<T>,
         child: List<Node<T>>? = null
     ) {
         parent.child?.let {
@@ -95,5 +95,5 @@ public object TreeView {
         return result
     }
     
-    fun <T> getChilds(parent: Node<T>) = getChilds(parent, mutableListOf<Node<T>>()) 
+    fun <T> getChilds(parent: Node<T>) = getChilds(parent, mutableListOf<Node<T>>())
 }

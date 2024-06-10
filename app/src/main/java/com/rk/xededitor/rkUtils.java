@@ -11,15 +11,52 @@ import android.widget.Toast;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.rk.xededitor.MainActivity.MainActivity;
-import com.rk.xededitor.MainActivity.TreeView.TreeNode;
+import com.rk.xededitor.MainActivity.TreeViewX.TreeNode;
+import com.rk.xededitor.Settings.SettingsActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
 
 public class rkUtils {
 
+
+    public static void addToapplyPrefsOnRestart(Context ctx, String key, String value) {
+        String jsonString = rkUtils.getSetting(ctx, "applyOnBoot", "{}");
+
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            jsonObject.put(key, value);
+            String updatedJsonString = jsonObject.toString();
+            rkUtils.setSetting(ctx, "applyOnBoot", updatedJsonString);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void applyPrefs(Context ctx){
+        String jsonString = rkUtils.getSetting(ctx, "applyOnBoot", "{}");
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            Iterator<String> keys = jsonObject.keys();
+
+            // Loop through the keys
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = (String) jsonObject.get(key);
+                rkUtils.setSetting(ctx,key,value);
+                jsonObject.remove(key);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        }
     public static boolean isDarkMode(Context ctx) {
         return (ctx.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
                 == Configuration.UI_MODE_NIGHT_YES;
@@ -131,8 +168,7 @@ public class rkUtils {
     }
 
     public static boolean isOled(Context ctx) {
-        SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
-        return sharedPreferences.getBoolean("isOled", false);
+       return Boolean.parseBoolean(rkUtils.getSetting(ctx,"isOled","false"));
     }
     public static String getSetting(Context ctx,String key,String Default){
         SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
