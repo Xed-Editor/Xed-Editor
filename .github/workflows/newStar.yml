@@ -15,7 +15,7 @@ jobs:
       - name: Print Starred Repo
         run: echo "New Star ${{github.actor}}"
 
-      - name: Check Token
+      - name: Notify Telegram Group
         env:
           TOKEN: ${{secrets.TelegramToken}}
         run: node .github/workflows/newStar.js
