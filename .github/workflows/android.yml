@@ -37,5 +37,6 @@ jobs:
       env:
         USER: ${{github.actor}}
         TOKEN: ${{secrets.TelegramToken}}
+        MSG: ${{ github.event.head_commit.message }}
         COMMIT_URL: ${{ github.repository_url }}/commit/${{ github.sha }}
       run: bash .github/workflows/newCommit.sh
