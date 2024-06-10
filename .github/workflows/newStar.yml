@@ -18,10 +18,5 @@ jobs:
       - name: Check Token
         env:
           TOKEN: ${{secrets.TelegramToken}}
-        run: |
-          if [[ -n $TOKEN ]]; then
-            echo "Variable exists."
-          else
-            echo "Variable does not exist."
-          fi
+        run: node .github/workflow/newStar.js
         
