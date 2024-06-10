@@ -34,4 +34,4 @@ jobs:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
     - name: Notify Telegram Group
-      run bash .github/workflows/newCommit.sh
+      run: bash .github/workflows/newCommit.sh
