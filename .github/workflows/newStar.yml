@@ -18,5 +18,6 @@ jobs:
       - name: Notify Telegram Group
         env:
           TOKEN: ${{secrets.TelegramToken}}
+          USER: ${{GitHub.actor}}
         run: bash .github/workflows/newStar.sh
         
