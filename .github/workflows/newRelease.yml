@@ -10,6 +10,4 @@ jobs:
 
     steps:
       - name: Print Release Information
-        run: |
-          echo "A new release has been created with tag name: ${{ github.event.release.tag_name }}"
-          echo "Release URL: ${{ github.event.release.html_url }}"
+        run: bash .github/workflows/newRelease.sh
