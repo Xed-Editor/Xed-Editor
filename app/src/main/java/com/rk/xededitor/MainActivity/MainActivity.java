@@ -87,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dynamic);
 
         // apply all prefrances that are quied
+
+        String jsonString = rkUtils.getSetting(this, "applyOnBoot", "{}");
+rkUtils.toast(jsonString);
         rkUtils.applyPrefs(this);
         activity = this;
         fileList = new ArrayList<>();
