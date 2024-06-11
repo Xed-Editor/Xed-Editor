@@ -88,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
 
         // apply all prefrances that are quied
 
+activity = this;
         String jsonString = rkUtils.getSetting(this, "applyOnBoot", "{}");
 rkUtils.toast(jsonString);
         rkUtils.applyPrefs(this);
-        activity = this;
+        
         fileList = new ArrayList<>();
         Toolbar toolbar = findViewById(R.id.toolbar);
 
