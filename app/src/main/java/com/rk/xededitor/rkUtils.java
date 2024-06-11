@@ -52,6 +52,12 @@ public class rkUtils {
                 rkUtils.setSetting(ctx,key,value);
                 jsonObject.remove(key);
             }
+String updatedJsonString = jsonObject.toString();
+
+        // Update the preferences with the modified JSON string
+        rkUtils.setSetting(ctx, "applyOnBoot", updatedJsonString);
+
+
         }catch (Exception e){
             e.printStackTrace();
         }
