@@ -1,0 +1,15 @@
+Submitting Pull Requests
+
+We follow the GitHub Flow. To submit a pull request:
+
+   - Fork the repository.
+   - Clone your fork to your local machine.
+   - Create a new branch from main (or the default branch) for your feature or fix.
+   - Commit your changes and push the branch to your fork.
+   - Open a pull request from your branch to the main branch of this repository.
+
+Ensure your pull request includes:
+
+   - A clear description of the problem or feature.
+   - References to any related issues.
+   - Relevant tests or documentation updates.
