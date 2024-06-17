@@ -30,8 +30,8 @@
 - [x] Batch Replacement
 - [x] Word Wrap
 - [x] Better File Browser
-- [ ] Creating files and folders
 - [ ] Plugins
+- [ ] Creating files and folders
 - [x] Terminal (will be provided as a plugin)
 
 ## Installation
