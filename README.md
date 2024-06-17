@@ -29,7 +29,7 @@
 - [x] Searching
 - [x] Batch Replacement
 - [x] Word Wrap
-- [ ] Better File Browser
+- [x] Better File Browser
 - [ ] Creating files and folders
 - [ ] Plugins
 - [x] Terminal (will be provided as a plugin)
