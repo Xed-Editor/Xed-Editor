@@ -1,0 +1,3 @@
+v1.1.9 (19)
+
++Xed Editor now rember last opened directory

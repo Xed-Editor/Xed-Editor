@@ -24,6 +24,7 @@ package com.rk.xededitor.MainActivity
  import android.view.ViewGroup
  import android.widget.ImageView
  import android.widget.TextView
+ import androidx.appcompat.content.res.AppCompatResources
  import androidx.documentfile.provider.DocumentFile
  import androidx.recyclerview.widget.RecyclerView
  import com.rk.xededitor.R;
@@ -49,16 +50,16 @@ package com.rk.xededitor.MainActivity
      private var listener: OnItemClickListener? = null
      
      init {
-         icFile = context.getDrawable(R.drawable.file)!!.apply {
+         icFile = AppCompatResources.getDrawable(context,R.drawable.file)!!.apply {
              setTint(Color.parseColor("#4996ff"))
          }
-         icFolder = context.getDrawable(R.drawable.folder)!!.apply {
+         icFolder = AppCompatResources.getDrawable(context,R.drawable.folder)!!.apply {
              setTint(Color.parseColor("#4996ff"))
          }
-         icChevronRight = context.getDrawable(R.drawable.ic_chevron_right)!!.apply { 
+         icChevronRight = AppCompatResources.getDrawable(context,R.drawable.ic_chevron_right)!!.apply {
              setTint(Color.parseColor("#f74e99")) 
          }
-         icExpandMore = context.getDrawable(R.drawable.ic_expand_more)!!.apply { 
+         icExpandMore = AppCompatResources.getDrawable(context,R.drawable.ic_expand_more)!!.apply {
              setTint(Color.parseColor("#f74e99")) 
          }
      }

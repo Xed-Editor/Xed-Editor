@@ -1,8 +1,10 @@
 package com.rk.xededitor.MainActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.UriPermission;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
@@ -88,9 +90,8 @@ public class MainActivity extends AppCompatActivity {
 
         // apply all prefrances that are quied
 
-activity = this;
+        activity = this;
         String jsonString = rkUtils.getSetting(this, "applyOnBoot", "{}");
-rkUtils.toast(jsonString);
         rkUtils.applyPrefs(this);
         
         fileList = new ArrayList<>();
@@ -181,7 +182,73 @@ rkUtils.toast(jsonString);
             }
         });
 
-    }
+
+        String UriString = rkUtils.getSetting(this,"lastOpenedUri","null");
+        if(!UriString.equals("null")){
+            Uri uri = Uri.parse(UriString);
+            if (hasUriPermission(uri)){
+                DocumentFile file = DocumentFile.fromTreeUri(this,uri);
+                    //findViewById(R.id.tabs).setVisibility(View.VISIBLE);
+                    findViewById(R.id.mainView).setVisibility(View.VISIBLE);
+                    //findViewById(R.id.openBtn).setVisibility(View.GONE);
+                    findViewById(R.id.safbuttons).setVisibility(View.GONE);
+                    findViewById(R.id.hscroll).setVisibility(View.VISIBLE);
+                    if(Boolean.parseBoolean(rkUtils.getSetting(this,"legacyFileBrowser","true"))){
+                        if (isReselecting) {
+                            List<TreeNode> nodes = new ArrayList<>(root.getChildren());
+                            for (TreeNode node : nodes) {
+                                tView.removeNode(node);
+                            }
+                            root.children.clear();
+                            mTabLayout.removeAllTabs();
+                            ((LinearLayout) findViewById(R.id.maindrawer)).removeAllViews();
+                            isReselecting = false;
+                        }
+                        root = TreeNode.root();
+                        rkUtils.looper(file, root, 0);
+                        tView = new AndroidTreeView(this, root);
+                        View tv = tView.getView();
+                        LinearLayout.LayoutParams layout_params = new LinearLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+
+                        layout_params.setMargins(30, 20, 0, 0);
+                        tv.setLayoutParams(layout_params);
+                        ((LinearLayout) findViewById(R.id.maindrawer)).addView(tv);
+
+
+                    }else{
+                        new MA(this,file);
+                    }
+
+                    String name = file.getName();
+                    assert name != null;
+                    if (name.length() > 18) {
+                        name = file.getName().substring(0, 15) + "...";
+                    }
+
+                    ((TextView) findViewById(R.id.rootDirLabel)).setText(name);
+                    findViewById(R.id.drawerToolbar).setVisibility(View.VISIBLE);
+
+            }
+
+        }
+
+        }
+
+
+        public boolean hasUriPermission(Uri uri){
+            if (uri == null) return false;
+
+            // Check if we have persisted permissions for this URI
+            List<UriPermission> persistedPermissions = getContentResolver().getPersistedUriPermissions();
+            boolean hasPersistedPermission = persistedPermissions.stream()
+                    .anyMatch(p -> p.getUri().equals(uri));
+
+            if (hasPersistedPermission) {
+                return true;
+            }
+            return false;
+        }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -280,6 +347,7 @@ rkUtils.toast(jsonString);
             findViewById(R.id.hscroll).setVisibility(View.VISIBLE);
 
             Uri treeUri = data.getData();
+            persistUriPermission(treeUri);
             DocumentFile rootFolder = DocumentFile.fromTreeUri(this, treeUri);
             if(Boolean.parseBoolean(rkUtils.getSetting(this,"legacyFileBrowser","true"))){
                 if (isReselecting) {
@@ -386,6 +454,24 @@ rkUtils.toast(jsonString);
         startActivityForResult(intent, REQUEST_FILE_SELECTION);
     }
 
+    private void persistUriPermission(Uri uri) {
+        final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+        // Check if URI permission is already granted
+        if ((getContentResolver().getPersistedUriPermissions().stream().noneMatch(p -> p.getUri().equals(uri)))) {
+            getContentResolver().takePersistableUriPermission(uri, takeFlags);
+        }
+        rkUtils.setSetting(this,"lastOpenedUri",uri.toString());
+
+    }
+
+    private void revokeUriPermission(Uri uri) {
+        final int releaseFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+        getContentResolver().releasePersistableUriPermission(uri, releaseFlags);
+
+
+    }
     public void openDir(View v) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         startActivityForResult(intent, REQUEST_DIRECTORY_SELECTION);
@@ -393,6 +479,12 @@ rkUtils.toast(jsonString);
 
     public void reselctDir(View v) {
         isReselecting = true;
+        String uriStr = rkUtils.getSetting(this,"lastOpenedUri","null");
+        if(!uriStr.isEmpty() && !uriStr.equals("null")){
+            revokeUriPermission(Uri.parse(uriStr));
+            rkUtils.setSetting(this,"lastOpenedUri","null");
+        }
+
         openDir(null);
     }
 

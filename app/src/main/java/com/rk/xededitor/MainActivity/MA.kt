@@ -17,32 +17,25 @@ init {
         ctx.findViewById<RecyclerView>(R.id.recycler_view)
     }
 
-
     with(recyclerView) {
         visibility = View.VISIBLE
         setItemAnimator(null)
-        var root = ctx.getExternalFilesDir(null)!!
-
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // sdcard root directory
-            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                root = Environment.getExternalStorageDirectory()
-            }
-        }
         val nodes = TreeViewAdapter.merge(rootFolder)
         layoutManager = LinearLayoutManager(ctx)
 
         adapter = TreeViewAdapter(ctx, nodes).apply {
             setOnItemClickListener(object : OnItemClickListener {
                 override fun onItemClick(v: View, position: Int) {
-                    // TODO
-                    Toast.makeText(ctx, "onItemClick", Toast.LENGTH_SHORT).show()
+                    val file = nodes[position].value
+                    if(file.isFile){
+                        (ctx as MainActivity).newEditor(file)
+                        (ctx as MainActivity).onNewEditor()
+                    }
+
                 }
 
                 override fun onItemLongClick(v: View, position: Int) {
-                    // TODO
-                    Toast.makeText(ctx, "onItemLongClick", Toast.LENGTH_SHORT).show()
+                    rkUtils.ni(ctx)
                 }
             })
         }
