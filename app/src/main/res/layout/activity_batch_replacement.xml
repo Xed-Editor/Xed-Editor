@@ -88,7 +88,7 @@
                     android:paddingStart="8dp"
                     android:id="@+id/replace_replacement"
                     android:singleLine="true"
-                    android:hint="keyword"
+                    android:hint="keyword (Regex)"
                     android:background="@android:color/transparent"
                     />
             </LinearLayout>
