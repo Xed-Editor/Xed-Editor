@@ -24,7 +24,7 @@ If applicable, add screenshots to help explain your problem.
 **complete the following information):**
  - Device: [e.g. Redmi 5A]
  - OS: [e.g. MIUI 11]
- - OS Version [e.g. Android 10]
+ - Android Version [e.g. Android 10]
 
 **logcat output/logcat.txt(if applicable)**
 
