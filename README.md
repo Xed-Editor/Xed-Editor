@@ -34,6 +34,9 @@
 - [ ] Creating files and folders
 - [x] Terminal (will be provided as a plugin)
 
+
+See [Todo.md](https://github.com/RohitKushvaha01/Xed-Editor/releases) to know what's going on
+
 ## Installation
 
 Download latest build
