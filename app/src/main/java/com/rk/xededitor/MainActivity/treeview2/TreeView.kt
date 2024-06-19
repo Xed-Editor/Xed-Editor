@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rk.xededitor.MainActivity
+package com.rk.xededitor.MainActivity.treeview2
 
 data class Node<T>(
     var value: T,
@@ -22,56 +22,66 @@ data class Node<T>(
     var child: List<Node<T>>? = null,
     var isExpand: Boolean = false,
     var level: Int = 0
-)
+) {
 
-public object TreeView {
-    
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Node<*>
+
+        return value == other.value && parent == other.parent && child == other.child && isExpand == other.isExpand && level == other.level
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+}
+
+object TreeView {
+
     // add child node
     fun <T> add(
-        parent: Node<T>,
-        child: List<Node<T>>? = null
+        parent: Node<T>, child: List<Node<T>>? = null
     ) {
-        // check 
+        // check
         child?.let {
-            if(it.size > 0) {
+            if (it.isNotEmpty()) {
                 parent.isExpand = true
             }
         }
-        
+
         parent.parent?.let {
             val nodes = it.child
-            if(nodes != null && nodes.size == 1
-              && (child != null && child.size == 0 
-              || child == null)) {
+            if (nodes != null && nodes.size == 1 && ((child != null && child.isEmpty()) || child == null)) {
                 parent.isExpand = true
             }
         }
-        
+
         // parent associate with child
         parent.child = child
-        
+
         child?.forEach {
             it.parent = parent
             it.level = parent.level + 1
         }
     }
-    
+
     // remove child node
     fun <T> remove(
-        parent: Node<T>,
-        child: List<Node<T>>? = null
+        parent: Node<T>, child: List<Node<T>>? = null
     ) {
         parent.child?.let {
-            if(it.size > 0) {
+            if (it.isNotEmpty()) {
                 parent.isExpand = false
             }
         }
         parent.child = null
-        
+
         child?.forEach { childNode ->
             childNode.parent = null
             childNode.level = 0
-            if(childNode.isExpand) {
+            if (childNode.isExpand) {
                 childNode.isExpand = false
                 childNode.child?.let { listNodes ->
                     remove(childNode, listNodes)
@@ -79,21 +89,20 @@ public object TreeView {
             }
         }
     }
-    
+
     // Get all child nodes of the parent node
-    private fun <T> getChilds(
-        parent: Node<T>,
-        result: MutableList<Node<T>>
+    private fun <T> getChildren(
+        parent: Node<T>, result: MutableList<Node<T>>
     ): List<Node<T>> {
         parent.child?.let { result.addAll(it) }
-        
+
         parent.child?.forEach {
-            if(it.isExpand) {
-                getChilds(it, result)
+            if (it.isExpand) {
+                getChildren(it, result)
             }
         }
         return result
     }
-    
-    fun <T> getChilds(parent: Node<T>) = getChilds(parent, mutableListOf<Node<T>>())
+
+    fun <T> getChildren(parent: Node<T>) = getChildren(parent, mutableListOf())
 }

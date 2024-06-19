@@ -102,7 +102,7 @@ public class BatchReplacement extends AppCompatActivity {
 
     public void addBatch(View v) {
         int random_int = new Random().nextInt();
-        ((LinearLayout) findViewById(R.id.mainBody)).addView(newEditBox("keyword"));
+        ((LinearLayout) findViewById(R.id.mainBody)).addView(newEditBox("keyword (Regex)"));
         ((LinearLayout) findViewById(R.id.mainBody)).addView(newEditBox("replacement"));
         View view = new View(this);
 
@@ -145,7 +145,7 @@ public class BatchReplacement extends AppCompatActivity {
             if (view instanceof LinearLayout) {
                 LinearLayout l = (LinearLayout) ((LinearLayout) view).getChildAt(0);
                 EditText editText = (EditText) l.getChildAt(0);
-                if (editText.getHint().equals("keyword")) {
+                if (editText.getHint().equals("keyword (Regex)")) {
                     View viewx = linearLayout.getChildAt(i + 1);
                     LinearLayout lx = (LinearLayout) ((LinearLayout) viewx).getChildAt(0);
                     EditText editTextx = (EditText) lx.getChildAt(0);

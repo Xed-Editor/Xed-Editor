@@ -1,7 +1,6 @@
 package com.rk.xededitor.MainActivity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
@@ -42,6 +41,8 @@ import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.MainActivity.TreeViewX.AndroidTreeView;
 import com.rk.xededitor.MainActivity.TreeViewX.TreeNode;
+import com.rk.xededitor.MainActivity.treeview2.MA;
+import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
 import com.rk.xededitor.rkUtils;
@@ -192,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                     findViewById(R.id.mainView).setVisibility(View.VISIBLE);
                     //findViewById(R.id.openBtn).setVisibility(View.GONE);
                     findViewById(R.id.safbuttons).setVisibility(View.GONE);
-                    findViewById(R.id.hscroll).setVisibility(View.VISIBLE);
+                    findViewById(R.id.maindrawer).setVisibility(View.VISIBLE);
                     if(Boolean.parseBoolean(rkUtils.getSetting(this,"legacyFileBrowser","true"))){
                         if (isReselecting) {
                             List<TreeNode> nodes = new ArrayList<>(root.getChildren());
@@ -233,7 +234,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        }
+
+
+        //PluginServer pluginThread = new PluginServer(this);
+        //pluginThread.start();
+
+
+    }
 
 
         public boolean hasUriPermission(Uri uri){
@@ -344,7 +351,7 @@ public class MainActivity extends AppCompatActivity {
             findViewById(R.id.mainView).setVisibility(View.VISIBLE);
             //findViewById(R.id.openBtn).setVisibility(View.GONE);
             findViewById(R.id.safbuttons).setVisibility(View.GONE);
-            findViewById(R.id.hscroll).setVisibility(View.VISIBLE);
+            findViewById(R.id.maindrawer).setVisibility(View.VISIBLE);
 
             Uri treeUri = data.getData();
             persistUriPermission(treeUri);
@@ -473,11 +480,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
     public void openDir(View v) {
+        TreeViewAdapter.stopThread();
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
         startActivityForResult(intent, REQUEST_DIRECTORY_SELECTION);
     }
 
     public void reselctDir(View v) {
+
         isReselecting = true;
         String uriStr = rkUtils.getSetting(this,"lastOpenedUri","null");
         if(!uriStr.isEmpty() && !uriStr.equals("null")){

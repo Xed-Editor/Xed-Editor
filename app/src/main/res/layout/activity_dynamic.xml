@@ -116,17 +116,14 @@ android:layout_height="match_parent">
 
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="30dp"
-        android:visibility="gone"
-        android:id="@+id/hscroll"
-        >
-        <LinearLayout
+
+    <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:orientation="vertical"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="15dp"
+            android:visibility="gone"
             android:id="@+id/maindrawer">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -134,10 +131,11 @@ android:layout_height="match_parent">
                 android:layout_marginTop="10dp"
                 android:layout_height="match_parent"
                 android:visibility="gone"
+
                 android:layout_width="match_parent"/>
 
         </LinearLayout>
-    </HorizontalScrollView>
+
 
 
 </com.google.android.material.navigation.NavigationView>

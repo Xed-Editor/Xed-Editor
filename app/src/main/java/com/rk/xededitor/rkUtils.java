@@ -2,6 +2,7 @@ package com.rk.xededitor;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
@@ -24,6 +25,10 @@ import java.io.OutputStream;
 import java.util.Iterator;
 
 public class rkUtils {
+
+
+
+
 
 
     public static void addToapplyPrefsOnRestart(Context ctx, String key, String value) {
@@ -52,7 +57,7 @@ public class rkUtils {
                 rkUtils.setSetting(ctx,key,value);
                 jsonObject.remove(key);
             }
-String updatedJsonString = jsonObject.toString();
+            String updatedJsonString = jsonObject.toString();
 
         // Update the preferences with the modified JSON string
         rkUtils.setSetting(ctx, "applyOnBoot", updatedJsonString);
@@ -184,7 +189,8 @@ String updatedJsonString = jsonObject.toString();
         SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key,value);
-        editor.apply();
+        //editor.apply();
+        editor.commit();
     }
     public int dpToPx(int dp,Context ctx) {
         float density = ctx.getResources().getDisplayMetrics().density;
