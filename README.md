@@ -4,7 +4,7 @@
 
 <h2 align="center"><b>Xed Editor</b></h2>
 
-<div align="center">
+<div>
  <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" alt="Hits">
 <img src="https://img.shields.io/github/downloads/RohitKushvaha01/Xed-Editor/total" alt="Download Count">
   <a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"><img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI"></a>
