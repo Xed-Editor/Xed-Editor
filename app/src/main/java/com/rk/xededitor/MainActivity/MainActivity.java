@@ -13,11 +13,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -39,9 +38,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
-import com.rk.xededitor.MainActivity.TreeViewX.AndroidTreeView;
-import com.rk.xededitor.MainActivity.TreeViewX.TreeNode;
 import com.rk.xededitor.MainActivity.treeview2.MA;
+import com.rk.xededitor.MainActivity.treeview2.Node;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
@@ -73,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    private TreeNode root;
-    private AndroidTreeView tView;
     private mAdapter adapter;
     private boolean isReselecting = false;
     private String SearchText = "";
@@ -94,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         activity = this;
         String jsonString = rkUtils.getSetting(this, "applyOnBoot", "{}");
         rkUtils.applyPrefs(this);
-        
+
         fileList = new ArrayList<>();
         Toolbar toolbar = findViewById(R.id.toolbar);
 
@@ -148,14 +144,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if(mAdapter.fragments != null){
-                    for(Fragment fragment : mAdapter.fragments){
-                        DynamicFragment fragment1 = (DynamicFragment)fragment;
-                        if(fragment1.isModified){
+                if (mAdapter.fragments != null) {
+                    for (Fragment fragment : mAdapter.fragments) {
+                        DynamicFragment fragment1 = (DynamicFragment) fragment;
+                        if (fragment1.isModified) {
                             new MaterialAlertDialogBuilder(MainActivity.this)
                                     .setTitle("Unsaved Files")
                                     .setMessage("You have unsaved files!")
@@ -184,56 +179,32 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        String UriString = rkUtils.getSetting(this,"lastOpenedUri","null");
-        if(!UriString.equals("null")){
+        String UriString = rkUtils.getSetting(this, "lastOpenedUri", "null");
+        if (!UriString.equals("null")) {
             Uri uri = Uri.parse(UriString);
-            if (hasUriPermission(uri)){
-                DocumentFile file = DocumentFile.fromTreeUri(this,uri);
-                    //findViewById(R.id.tabs).setVisibility(View.VISIBLE);
-                    findViewById(R.id.mainView).setVisibility(View.VISIBLE);
-                    //findViewById(R.id.openBtn).setVisibility(View.GONE);
-                    findViewById(R.id.safbuttons).setVisibility(View.GONE);
-                    findViewById(R.id.maindrawer).setVisibility(View.VISIBLE);
-                    if(Boolean.parseBoolean(rkUtils.getSetting(this,"legacyFileBrowser","true"))){
-                        if (isReselecting) {
-                            List<TreeNode> nodes = new ArrayList<>(root.getChildren());
-                            for (TreeNode node : nodes) {
-                                tView.removeNode(node);
-                            }
-                            root.children.clear();
-                            mTabLayout.removeAllTabs();
-                            ((LinearLayout) findViewById(R.id.maindrawer)).removeAllViews();
-                            isReselecting = false;
-                        }
-                        root = TreeNode.root();
-                        rkUtils.looper(file, root, 0);
-                        tView = new AndroidTreeView(this, root);
-                        View tv = tView.getView();
-                        LinearLayout.LayoutParams layout_params = new LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            if (hasUriPermission(uri)) {
+                DocumentFile file = DocumentFile.fromTreeUri(this, uri);
+                //findViewById(R.id.tabs).setVisibility(View.VISIBLE);
+                findViewById(R.id.mainView).setVisibility(View.VISIBLE);
+                //findViewById(R.id.openBtn).setVisibility(View.GONE);
+                findViewById(R.id.safbuttons).setVisibility(View.GONE);
+                findViewById(R.id.maindrawer).setVisibility(View.VISIBLE);
 
-                        layout_params.setMargins(30, 20, 0, 0);
-                        tv.setLayoutParams(layout_params);
-                        ((LinearLayout) findViewById(R.id.maindrawer)).addView(tv);
+                //use new file browser
+                new MA(this, file);
 
+                String name = file.getName();
+                assert name != null;
+                if (name.length() > 18) {
+                    name = file.getName().substring(0, 15) + "...";
+                }
 
-                    }else{
-                        new MA(this,file);
-                    }
-
-                    String name = file.getName();
-                    assert name != null;
-                    if (name.length() > 18) {
-                        name = file.getName().substring(0, 15) + "...";
-                    }
-
-                    ((TextView) findViewById(R.id.rootDirLabel)).setText(name);
-                    findViewById(R.id.drawerToolbar).setVisibility(View.VISIBLE);
+                ((TextView) findViewById(R.id.rootDirLabel)).setText(name);
+                findViewById(R.id.drawerToolbar).setVisibility(View.VISIBLE);
 
             }
 
         }
-
 
 
         //PluginServer pluginThread = new PluginServer(this);
@@ -243,19 +214,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-        public boolean hasUriPermission(Uri uri){
-            if (uri == null) return false;
+    public boolean hasUriPermission(Uri uri) {
+        if (uri == null) return false;
 
-            // Check if we have persisted permissions for this URI
-            List<UriPermission> persistedPermissions = getContentResolver().getPersistedUriPermissions();
-            boolean hasPersistedPermission = persistedPermissions.stream()
-                    .anyMatch(p -> p.getUri().equals(uri));
+        // Check if we have persisted permissions for this URI
+        List<UriPermission> persistedPermissions = getContentResolver().getPersistedUriPermissions();
+        boolean hasPersistedPermission = persistedPermissions.stream()
+                .anyMatch(p -> p.getUri().equals(uri));
 
-            if (hasPersistedPermission) {
-                return true;
-            }
-            return false;
+        if (hasPersistedPermission) {
+            return true;
         }
+        return false;
+    }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -337,6 +308,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    static DocumentFile rootFolder;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -352,44 +325,21 @@ public class MainActivity extends AppCompatActivity {
             //findViewById(R.id.openBtn).setVisibility(View.GONE);
             findViewById(R.id.safbuttons).setVisibility(View.GONE);
             findViewById(R.id.maindrawer).setVisibility(View.VISIBLE);
+            findViewById(R.id.drawerToolbar).setVisibility(View.VISIBLE);
 
             Uri treeUri = data.getData();
             persistUriPermission(treeUri);
-            DocumentFile rootFolder = DocumentFile.fromTreeUri(this, treeUri);
-            if(Boolean.parseBoolean(rkUtils.getSetting(this,"legacyFileBrowser","true"))){
-                if (isReselecting) {
-                    List<TreeNode> nodes = new ArrayList<>(root.getChildren());
-                    for (TreeNode node : nodes) {
-                        tView.removeNode(node);
-                    }
-                    root.children.clear();
-                    mTabLayout.removeAllTabs();
-                    ((LinearLayout) findViewById(R.id.maindrawer)).removeAllViews();
-                    isReselecting = false;
-                }
-                root = TreeNode.root();
-                rkUtils.looper(rootFolder, root, 0);
-                tView = new AndroidTreeView(this, root);
-                View tv = tView.getView();
-                LinearLayout.LayoutParams layout_params = new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            rootFolder = DocumentFile.fromTreeUri(this, treeUri);
 
-                layout_params.setMargins(30, 20, 0, 0);
-                tv.setLayoutParams(layout_params);
-                ((LinearLayout) findViewById(R.id.maindrawer)).addView(tv);
+            //use new file browser
+            new MA(this, rootFolder);
 
-
-            }else{
-                new MA(this,rootFolder);
-            }
-
-        String name = rootFolder.getName();
+            String name = rootFolder.getName();
             if (name.length() > 18) {
                 name = rootFolder.getName().substring(0, 15) + "...";
             }
 
             ((TextView) findViewById(R.id.rootDirLabel)).setText(name);
-            findViewById(R.id.drawerToolbar).setVisibility(View.VISIBLE);
 
         }
     }
@@ -468,7 +418,7 @@ public class MainActivity extends AppCompatActivity {
         if ((getContentResolver().getPersistedUriPermissions().stream().noneMatch(p -> p.getUri().equals(uri)))) {
             getContentResolver().takePersistableUriPermission(uri, takeFlags);
         }
-        rkUtils.setSetting(this,"lastOpenedUri",uri.toString());
+        rkUtils.setSetting(this, "lastOpenedUri", uri.toString());
 
     }
 
@@ -479,6 +429,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
     public void openDir(View v) {
         TreeViewAdapter.stopThread();
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -486,15 +437,113 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void reselctDir(View v) {
-
         isReselecting = true;
-        String uriStr = rkUtils.getSetting(this,"lastOpenedUri","null");
-        if(!uriStr.isEmpty() && !uriStr.equals("null")){
+        String uriStr = rkUtils.getSetting(this, "lastOpenedUri", "null");
+        if (!uriStr.isEmpty() && !uriStr.equals("null")) {
             revokeUriPermission(Uri.parse(uriStr));
-            rkUtils.setSetting(this,"lastOpenedUri","null");
+            rkUtils.setSetting(this, "lastOpenedUri", "null");
         }
 
         openDir(null);
+    }
+
+    public void fileOptions(View v) {
+        PopupMenu popupMenu = new PopupMenu(activity, v);
+        MenuInflater inflater = popupMenu.getMenuInflater();
+        inflater.inflate(R.menu.root_file_options, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.reselect) {
+                    reselctDir(null);
+                } else if (id == R.id.openFile) {
+                    openFile(null);
+                    TreeViewAdapter.stopThread();
+                } else if (id == R.id.close) {
+                    findViewById(R.id.mainView).setVisibility(View.GONE);
+                    findViewById(R.id.safbuttons).setVisibility(View.VISIBLE);
+                    findViewById(R.id.maindrawer).setVisibility(View.GONE);
+                    findViewById(R.id.drawerToolbar).setVisibility(View.GONE);
+
+                    TreeViewAdapter.stopThread();
+
+                    String UriString = rkUtils.getSetting(MainActivity.this, "lastOpenedUri", "null");
+                    if (!UriString.equals("null")) {
+                        Uri uri = Uri.parse(UriString);
+                        if (hasUriPermission(uri)) {
+                            revokeUriPermission(uri);
+                        }
+                        rkUtils.setSetting(MainActivity.this, "lastOpenedUri", "null");
+                    }
+
+                } else if (id == R.id.ceateFolder) {
+                    View popuop_view = LayoutInflater.from(MainActivity.this).inflate(R.layout.popup_new, null);
+                    EditText editText = popuop_view.findViewById(R.id.name);
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("New Folder")
+                            .setView(popuop_view)
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton(
+                                    "Create",
+                                    (dialogInterface, i) -> {
+                                        if (rootFolder != null) {
+                                            rootFolder.createDirectory(editText.getText().toString());
+                                        } else {
+                                            String UriString = rkUtils.getSetting(MainActivity.this, "lastOpenedUri", "null");
+                                            if (!UriString.equals("null")) {
+                                                Uri uri = Uri.parse(UriString);
+                                                if (hasUriPermission(uri)) {
+                                                    DocumentFile rootFolder = DocumentFile.fromTreeUri(MainActivity.this, uri);
+                                                    DocumentFile file = rootFolder.createDirectory(editText.getText().toString());
+
+                                                }
+                                            }
+                                        }
+                                    })
+                            .show();
+
+                } else if (id == R.id.createFile) {
+                    View popuop_view = LayoutInflater.from(MainActivity.this).inflate(R.layout.popup_new, null);
+                    EditText editText = popuop_view.findViewById(R.id.name);
+                    EditText editText1 = popuop_view.findViewById(R.id.mime);
+                    popuop_view.findViewById(R.id.mimeTypeEditor).setVisibility(View.VISIBLE);
+                    String mimeType;
+                    String mimeTypeU = editText1.getText().toString();
+                    if (!mimeTypeU.isEmpty()) {
+                        mimeType = mimeTypeU;
+                    } else {
+                        mimeType = "text/plain";
+                    }
+
+                    new MaterialAlertDialogBuilder(MainActivity.this)
+                            .setTitle("New File")
+                            .setView(popuop_view)
+                            .setNegativeButton("Cancel", null)
+                            .setPositiveButton(
+                                    "Create",
+                                    (dialogInterface, i) -> {
+                                        if (rootFolder != null) {
+                                            rootFolder.createDirectory(editText.getText().toString());
+                                        } else {
+                                            String UriString = rkUtils.getSetting(MainActivity.this, "lastOpenedUri", "null");
+                                            if (!UriString.equals("null")) {
+                                                Uri uri = Uri.parse(UriString);
+                                                if (hasUriPermission(uri)) {
+                                                    DocumentFile rootFolder = DocumentFile.fromTreeUri(MainActivity.this, uri);
+                                                    rootFolder.createFile(mimeType, editText.getText().toString());
+                                                }
+                                            }
+                                        }
+
+                                    })
+                            .show();
+                }
+
+                return true;
+            }
+        });
+        popupMenu.show();
     }
 
     public void openDrawer(View v) {
@@ -537,9 +586,9 @@ public class MainActivity extends AppCompatActivity {
                 TabLayout.Tab tab = mTabLayout.getTabAt(mTabLayout.getSelectedTabPosition());
                 assert tab != null;
                 String name = tab.getText().toString();
-                if(name.charAt(name.length()-1 )== '*'){
+                if (name.charAt(name.length() - 1) == '*') {
                     fg.isModified = false;
-                    tab.setText(name.substring(0,name.length()-1));
+                    tab.setText(name.substring(0, name.length() - 1));
                 }
 
                 //Content content = fg.editor.getText();
@@ -569,9 +618,9 @@ public class MainActivity extends AppCompatActivity {
                     DynamicFragment fg = (DynamicFragment) mAdapter.fragments.get(index);
 
                     String name = mtab.getText().toString();
-                    if(name.charAt(name.length()-1) == '*'){
+                    if (name.charAt(name.length() - 1) == '*') {
                         fg.isModified = false;
-                        mtab.setText(name.substring(0,name.length()-1));
+                        mtab.setText(name.substring(0, name.length() - 1));
                     }
 
                     //Content content = fg.editor.getText();

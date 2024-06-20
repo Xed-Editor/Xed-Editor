@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/reselect"
+        android:title="Reselect" />
+
+    <item
+        android:id="@+id/openFile"
+        android:title="OpenFile" />
+    <item
+        android:id="@+id/ceateFolder"
+        android:title="New Folder"/>
+    <item
+        android:id="@+id/createFile"
+        android:title="New File"/>
+
+    <item
+        android:id="@+id/close"
+        android:title="Close" />
+
+
+</menu>

@@ -24,6 +24,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.documentfile.provider.DocumentFile
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.R
 import java.util.LinkedList
@@ -36,6 +37,27 @@ interface OnItemClickListener {
 
     fun onItemLongClick(v: View, position: Int)
 }
+
+class TreeDiffCallback(
+    private val oldList: List<Node<DocumentFile>>,
+    private val newList: List<Node<DocumentFile>>
+) : DiffUtil.Callback() {
+
+    override fun getOldListSize() = oldList.size
+
+    override fun getNewListSize() = newList.size
+
+    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        // Define how to check if items represent the same item
+        return oldList[oldItemPosition].value.uri == newList[newItemPosition].value.uri
+    }
+
+    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+        // Define how to check if item contents are the same
+        return oldList[oldItemPosition] == newList[newItemPosition]
+    }
+}
+
 
 class TreeViewAdapter(
     val context: Context, var data: MutableList<Node<DocumentFile>>
@@ -136,17 +158,24 @@ class TreeViewAdapter(
         }
     }
 
+    fun setData(newData: MutableList<Node<DocumentFile>>) {
+        val diffCallback = TreeDiffCallback(data, newData)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        data.clear()
+        data.addAll(newData)
+
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+
     fun setOnItemClickListener(listener: OnItemClickListener?) {
         this.listener = listener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        // val view = LayoutInflater.from(parent.context)
-        //   .inflate(R.layout.recycler_view_item, parent, false)
 
-
-        val view: View
-        view = if (cachedViews.isEmpty()) {
+        val view: View = if (cachedViews.isEmpty()) {
             LayoutInflater.from(context)
                 .inflate(R.layout.recycler_view_item, parent, false)
         } else {
@@ -159,14 +188,16 @@ class TreeViewAdapter(
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
+
+
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val node = data[position]
         val isDir = node.value.isDirectory
         val expandView = holder.expandView
         val fileView = holder.fileView
-
 
         fileView.setPadding(0, 0, 0, 0)
         holder.itemView.setPaddingRelative(node.level * 35, 0, 0, 0)
@@ -188,9 +219,6 @@ class TreeViewAdapter(
         }
 
         holder.textView.text = node.value.name
-
-
-
         holder.itemView.setOnClickListener {
             if (isDir) {
                 var parent = node
@@ -209,7 +237,7 @@ class TreeViewAdapter(
                         } else {
                             // Cache miss: Calculate child list and store in cache
                             child = merge(parent.value)
-                            cacheList.put(key,child)
+                            cacheList.put(key, child)
                         }
 
 

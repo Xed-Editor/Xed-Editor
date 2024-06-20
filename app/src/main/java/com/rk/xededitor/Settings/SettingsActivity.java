@@ -1,22 +1,21 @@
 package com.rk.xededitor.Settings;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.rk.xededitor.MainActivity.DynamicFragment;
 import com.rk.xededitor.MainActivity.mAdapter;
@@ -27,6 +26,7 @@ import java.util.Objects;
 
 public class SettingsActivity extends AppCompatActivity {
     private SettingsActivity activity;
+    private LayoutInflater inflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +42,8 @@ public class SettingsActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        inflater = LayoutInflater.from(this);
 
 
         if (!rkUtils.isDarkMode(this)) {
@@ -66,55 +68,40 @@ public class SettingsActivity extends AppCompatActivity {
 
         //switches
 
-
-
-
-
-
-
-        mainBody.addView(addSwitch("Black Night Theme", rkUtils.isOled(this), new CompoundButton.OnCheckedChangeListener() {
+        mainBody.addView(addSwitch("Black Night Theme", rkUtils.isOled(this),R.drawable.dark_mode, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                rkUtils.toast(SettingsActivity.this,"Setting will take effect after restart");
-                rkUtils.addToapplyPrefsOnRestart(SettingsActivity.this,"isOled",Boolean.toString(isChecked));
-
+                rkUtils.addToapplyPrefsOnRestart(SettingsActivity.this, "isOled", Boolean.toString(isChecked));
+                rkUtils.toast(SettingsActivity.this, "Setting will take effect after restart");
             }
         }));
-        mainBody.addView(addSwitch("Word Wrap", Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")), new CompoundButton.OnCheckedChangeListener() {
+        mainBody.addView(addSwitch("Word Wrap", Boolean.parseBoolean(rkUtils.getSetting(activity, "wordwrap", "false")),R.drawable.reorder, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                rkUtils.setSetting(activity,"wordwrap",Boolean.toString(isChecked));
-                if(mAdapter.fragments == null){
+                rkUtils.setSetting(activity, "wordwrap", Boolean.toString(isChecked));
+                if (mAdapter.fragments == null) {
                     return;
                 }
-                for(Fragment fragment : mAdapter.fragments){
+                for (Fragment fragment : mAdapter.fragments) {
                     DynamicFragment dynamicFragment = (DynamicFragment) fragment;
-                    dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")));
+                    dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity, "wordwrap", "false")));
                 }
             }
         }));
 
-        mainBody.addView(addSwitch("Anti word breaking for (WW)", Boolean.parseBoolean(rkUtils.getSetting(this,"antiWordBreaking","true")), new CompoundButton.OnCheckedChangeListener() {
+        mainBody.addView(addSwitch("Anti word breaking for (WW)", Boolean.parseBoolean(rkUtils.getSetting(this, "antiWordBreaking", "true")),R.drawable.reorder, new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                rkUtils.setSetting(SettingsActivity.this,"antiWordBreaking",Boolean.toString(isChecked));
-                if(mAdapter.fragments == null){
+                rkUtils.setSetting(SettingsActivity.this, "antiWordBreaking", Boolean.toString(isChecked));
+                if (mAdapter.fragments == null) {
                     return;
                 }
-                for(Fragment fragment : mAdapter.fragments){
+                for (Fragment fragment : mAdapter.fragments) {
                     DynamicFragment dynamicFragment = (DynamicFragment) fragment;
-                    dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity,"wordwrap","false")),Boolean.parseBoolean(rkUtils.getSetting(activity,"antiWordBreaking","true")));
+                    dynamicFragment.editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(activity, "wordwrap", "false")), Boolean.parseBoolean(rkUtils.getSetting(activity, "antiWordBreaking", "true")));
                 }
             }
         }));
-        mainBody.addView(addSwitch("Legacy File Browser", Boolean.parseBoolean(rkUtils.getSetting(this, "legacyFileBrowser", "true")), new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                rkUtils.toast(SettingsActivity.this,"Setting will take effect after restart");
-                rkUtils.addToapplyPrefsOnRestart(SettingsActivity.this,"legacyFileBrowser",Boolean.toString(isChecked));
-            }
-        }));
-
 
 
     }
@@ -131,42 +118,21 @@ public class SettingsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public View addSwitch(String name, boolean enabled, CompoundButton.OnCheckedChangeListener listner) {
-        LinearLayout linearLayout = new LinearLayout(this);
-        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        linearLayout.setPadding(10, 0, 10, 0); // Padding in pixels, not dp
-        linearLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-
-        // Create a TextView
-        TextView textView = new TextView(this);
-        textView.setLayoutParams(new LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-        ));
-        textView.setText(name);
-
-        // Create a MaterialSwitch
-        MaterialSwitch materialSwitch = new MaterialSwitch(this);
-
-        materialSwitch.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-        ));
-        materialSwitch.setChecked(enabled);
-        materialSwitch.setId(View.generateViewId());
-        materialSwitch.setOnCheckedChangeListener(listner);
-
-        // Add views to LinearLayout
-        linearLayout.addView(textView);
-        linearLayout.addView(materialSwitch);
-
-        // Set the LinearLayout as the content view
-        return linearLayout;
-
+    public View addSwitch(String name, boolean enabled, CompoundButton.OnCheckedChangeListener listener) {
+        return addSwitch(name, enabled, R.drawable.settings, listener);
     }
+
+    public View addSwitch(String name, boolean enabled, int resourceId, CompoundButton.OnCheckedChangeListener listener) {
+        View v = inflater.inflate(R.layout.setting_toggle_layout, null);
+        TextView textView = v.findViewById(R.id.textView);
+        MaterialSwitch materialSwitch = v.findViewById(R.id.materialSwitch);
+        materialSwitch.setChecked(enabled);
+        textView.setText(name);
+        materialSwitch.setOnCheckedChangeListener(listener);
+        ImageView imageView = v.findViewById(R.id.imageView);
+        imageView.setImageDrawable(ContextCompat.getDrawable(this,resourceId));
+        return v;
+    }
+
 
 }

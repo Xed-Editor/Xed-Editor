@@ -12,8 +12,6 @@ import android.widget.Toast;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.rk.xededitor.MainActivity.MainActivity;
-import com.rk.xededitor.MainActivity.TreeViewX.TreeNode;
-import com.rk.xededitor.Settings.SettingsActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -123,21 +121,6 @@ public class rkUtils {
 
     public static int Percentage(int value, int percent) {
         return (value * percent) / 100;
-    }
-
-    public static void looper(DocumentFile rootFolder, TreeNode root, int indent) {
-        if (rootFolder != null && rootFolder.isDirectory()) {
-            for (DocumentFile file : rootFolder.listFiles()) {
-                if (file.isDirectory()) {
-                    String folderName = file.getName();
-                    TreeNode thisFolder = new TreeNode(file, folderName, false, indent);
-                    root.addChild(thisFolder);
-                } else {
-                    String fileName = file.getName();
-                    root.addChild(new TreeNode(file, fileName, true, indent));
-                }
-            }
-        }
     }
 
     public static void copyFileFromAssetsToInternalStorage(
