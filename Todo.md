@@ -1,5 +1,5 @@
 ## TodoList
-When todolist is completes a new release is created
+
 - [x] New File Browser
 - [x] Create Files and folders
 - [x] Fix cache when restarting
