@@ -16,7 +16,6 @@
 
 ## Features
 - [x] Basic text editing
-- [x] Simple file browser
 - [x] File editing outside of projects
 - [x] Settings
 - [x] Amoled Theme (pure black)
@@ -24,9 +23,10 @@
 - [x] Searching
 - [x] Batch Replacement
 - [x] Word Wrap
-- [x] Better File Browser
+- [x] File Browser
 - [ ] Plugins
-- [ ] Creating files and folders
+- [x] Creating files and folders
+- [x] Rename, Delete files and folders
 - [x] Terminal (will be provided as a plugin)
 
 
