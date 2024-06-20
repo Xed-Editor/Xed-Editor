@@ -27,7 +27,7 @@
 - [ ] Plugins
 - [x] Creating files and folders
 - [x] Rename, Delete files and folders
-- [ ] Copy Paste of files
+- [ ] Copy Paste of files and Folders 
 - [x] Terminal (will be provided as a plugin)
 
 
