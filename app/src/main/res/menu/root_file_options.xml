@@ -1,20 +1,45 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/reselect"
+        android:visible="false"
         android:title="Reselect" />
 
     <item
         android:id="@+id/openFile"
+        android:visible="false"
         android:title="OpenFile" />
     <item
         android:id="@+id/ceateFolder"
-        android:title="New Folder"/>
+        android:visible="false"
+        android:title="New Folder" />
     <item
         android:id="@+id/createFile"
-        android:title="New File"/>
+        android:visible="false"
+        android:title="New File" />
+    <item
+        android:id="@+id/rename"
+        android:title="Rename"/>
+    <item
+        android:id="@+id/openWith"
+        android:title="Open With..."/>
+
+    <item
+        android:id="@+id/copy"
+        android:visible="false"
+        android:title="Copy" />
+
+    <item
+        android:id="@+id/paste"
+        android:visible="false"
+        android:title="Paste" />
+    <item
+        android:id="@+id/delete"
+        android:title="Delete" />
+
 
     <item
         android:id="@+id/close"
+        android:visible="false"
         android:title="Close" />
 
 

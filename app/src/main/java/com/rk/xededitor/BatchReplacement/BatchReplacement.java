@@ -1,6 +1,6 @@
 package com.rk.xededitor.BatchReplacement;
 
-import static com.rk.xededitor.MainActivity.MainActivity.mTabLayout;
+import static com.rk.xededitor.MainActivity.Data.*;
 import static com.rk.xededitor.rkUtils.dpToPx;
 
 import android.app.ProgressDialog;
@@ -22,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import com.rk.xededitor.MainActivity.DynamicFragment;
 import com.rk.xededitor.MainActivity.mAdapter;
 import com.rk.xededitor.R;
+import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.databinding.ActivityBatchReplacementBinding;
 import com.rk.xededitor.rkUtils;
 
@@ -46,7 +47,7 @@ public class BatchReplacement extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Replace");
 
-        if (rkUtils.isDarkMode(this) && rkUtils.isOled(this)) {
+        if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
             findViewById(R.id.drawer_layout).setBackgroundColor(Color.BLACK);
             findViewById(R.id.appbar).setBackgroundColor(Color.BLACK);
             findViewById(R.id.mainBody).setBackgroundColor(Color.BLACK);
@@ -151,10 +152,10 @@ public class BatchReplacement extends AppCompatActivity {
                     EditText editTextx = (EditText) lx.getChildAt(0);
                     String keyword = editText.getText().toString();
                     String replacement = editTextx.getText().toString();
-                    if (mAdapter.fragments == null || mTabLayout == null) {
+                    if (fragments == null || mTabLayout == null) {
                         return;
                     }
-                    CodeEditor editor = ((DynamicFragment) mAdapter.fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+                    CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
                     editor.setText(editor.getText().toString().replaceAll(keyword, replacement));
                 }
             }

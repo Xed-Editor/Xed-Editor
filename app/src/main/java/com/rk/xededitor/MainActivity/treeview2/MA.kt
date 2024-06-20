@@ -7,19 +7,25 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
+import java.util.Timer
+import java.util.TimerTask
 
-class MA(val ctx: Activity, rootFolder: DocumentFile) {
+class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
     init {
-        val recyclerView: RecyclerView by lazy {
-            ctx.findViewById<RecyclerView>(R.id.recycler_view)
-        }
+        val recyclerView: RecyclerView = ctx.findViewById<RecyclerView>(R.id.recycler_view)
+
+
+
 
         with(recyclerView) {
             visibility = View.VISIBLE
+
             val nodes = TreeViewAdapter.merge(rootFolder)
             layoutManager = LinearLayoutManager(ctx)
             setItemViewCacheSize(300)
+            itemAnimator = null
 
 
             adapter = TreeViewAdapter(ctx, nodes).apply {
@@ -27,18 +33,37 @@ class MA(val ctx: Activity, rootFolder: DocumentFile) {
                     override fun onItemClick(v: View, position: Int) {
                         val file = nodes[position].value
                         if (file.isFile) {
-                            (ctx as MainActivity).newEditor(file)
+                            ctx.newEditor(file)
                             ctx.onNewEditor()
+                            if(!SettingsData.getBoolean(ctx,"keepDrawerLocked",true)){
+                                val timer = Timer()
+                                val timerTask: TimerTask = object : TimerTask() {
+                                    override fun run() {
+                                        ctx.runOnUiThread{
+                                            ctx.binding.drawerLayout.close()
+                                        }
+
+                                        timer.cancel()
+                                    }
+
+                                }
+                                timer.schedule(timerTask,0,500)
+                            }
                         }
+
 
                     }
 
+
+
                     override fun onItemLongClick(v: View, position: Int) {
-                        rkUtils.ni(ctx)
+                        val file = nodes[position].value
+                        TreeViewAdapter.nodemap?.get(nodes[position])?.let {
+                            HandleFileActions(ctx,rootFolder,file, it)
+                        }
                     }
                 })
             }
-
 
 
         }

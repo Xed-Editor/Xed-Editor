@@ -38,26 +38,6 @@ interface OnItemClickListener {
     fun onItemLongClick(v: View, position: Int)
 }
 
-class TreeDiffCallback(
-    private val oldList: List<Node<DocumentFile>>,
-    private val newList: List<Node<DocumentFile>>
-) : DiffUtil.Callback() {
-
-    override fun getOldListSize() = oldList.size
-
-    override fun getNewListSize() = newList.size
-
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        // Define how to check if items represent the same item
-        return oldList[oldItemPosition].value.uri == newList[newItemPosition].value.uri
-    }
-
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        // Define how to check if item contents are the same
-        return oldList[oldItemPosition] == newList[newItemPosition]
-    }
-}
-
 
 class TreeViewAdapter(
     val context: Context, var data: MutableList<Node<DocumentFile>>
@@ -82,6 +62,7 @@ class TreeViewAdapter(
 
 
     init {
+        nodemap = HashMap<Node<DocumentFile>,View>()
 
         thread = Thread {
 
@@ -156,18 +137,10 @@ class TreeViewAdapter(
             }
 
         }
+
+        @JvmStatic
+        var nodemap:HashMap<Node<DocumentFile>,View>? = null
     }
-
-    fun setData(newData: MutableList<Node<DocumentFile>>) {
-        val diffCallback = TreeDiffCallback(data, newData)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-
-        data.clear()
-        data.addAll(newData)
-
-        diffResult.dispatchUpdatesTo(this)
-    }
-
 
     fun setOnItemClickListener(listener: OnItemClickListener?) {
         this.listener = listener
@@ -198,6 +171,9 @@ class TreeViewAdapter(
         val isDir = node.value.isDirectory
         val expandView = holder.expandView
         val fileView = holder.fileView
+        if (!nodemap?.containsKey(node)!!){
+            nodemap!![node] = holder.textView;
+        }
 
         fileView.setPadding(0, 0, 0, 0)
         holder.itemView.setPaddingRelative(node.level * 35, 0, 0, 0)

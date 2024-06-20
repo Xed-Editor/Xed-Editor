@@ -7,8 +7,9 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Toast;
-
+import static com.rk.xededitor.MainActivity.Data.*;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.rk.xededitor.MainActivity.MainActivity;
@@ -29,47 +30,7 @@ public class rkUtils {
 
 
 
-    public static void addToapplyPrefsOnRestart(Context ctx, String key, String value) {
-        String jsonString = rkUtils.getSetting(ctx, "applyOnBoot", "{}");
 
-        try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            jsonObject.put(key, value);
-            String updatedJsonString = jsonObject.toString();
-            rkUtils.setSetting(ctx, "applyOnBoot", updatedJsonString);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-    public static void applyPrefs(Context ctx){
-        String jsonString = rkUtils.getSetting(ctx, "applyOnBoot", "{}");
-        try {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            Iterator<String> keys = jsonObject.keys();
-
-            // Loop through the keys
-            while (keys.hasNext()) {
-                String key = keys.next();
-                String value = (String) jsonObject.get(key);
-                rkUtils.setSetting(ctx,key,value);
-                jsonObject.remove(key);
-            }
-            String updatedJsonString = jsonObject.toString();
-
-        // Update the preferences with the modified JSON string
-        rkUtils.setSetting(ctx, "applyOnBoot", updatedJsonString);
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        }
-    public static boolean isDarkMode(Context ctx) {
-        return (ctx.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
-                == Configuration.UI_MODE_NIGHT_YES;
-    }
 
     public static boolean isValidColor(String colorString) {
         try {
@@ -85,7 +46,7 @@ public class rkUtils {
     }
 
     public static void toast(String msg) {
-        toast(MainActivity.getActivity(), msg);
+        toast(activity, msg);
     }
 
     public static int dpToPx(float dp, Context ctx) {
@@ -101,13 +62,6 @@ public class rkUtils {
         toast(context, name + " is not implemented");
     }
 
-    public static void setVisibility(View v, boolean visible) {
-        if (visible) {
-            v.setVisibility(View.VISIBLE);
-        } else {
-            v.setVisibility(View.GONE);
-        }
-    }
 
     public static int getScreenHeight(Context context) {
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
@@ -123,6 +77,15 @@ public class rkUtils {
         return (value * percent) / 100;
     }
 
+    public static String getMimeType(Context context, DocumentFile documentFile) {
+        String mimeType = context.getContentResolver().getType(documentFile.getUri());
+        if (mimeType == null) {
+            // Fallback: get MIME type from file extension
+            String extension = MimeTypeMap.getFileExtensionFromUrl(documentFile.getUri().toString());
+            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return mimeType;
+    }
     public static void copyFileFromAssetsToInternalStorage(
             Context context, String fileName, String destinationPath) {
         InputStream inputStream = null;
@@ -161,20 +124,7 @@ public class rkUtils {
         }
     }
 
-    public static boolean isOled(Context ctx) {
-       return Boolean.parseBoolean(rkUtils.getSetting(ctx,"isOled","false"));
-    }
-    public static String getSetting(Context ctx,String key,String Default){
-        SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        return sharedPreferences.getString(key,Default);
-    }
-    public static void setSetting(Context ctx,String key,String value){
-        SharedPreferences sharedPreferences = ctx.getApplicationContext().getSharedPreferences("Settings", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key,value);
-        //editor.apply();
-        editor.commit();
-    }
+
     public int dpToPx(int dp,Context ctx) {
         float density = ctx.getResources().getDisplayMetrics().density;
         return Math.round(dp * density);

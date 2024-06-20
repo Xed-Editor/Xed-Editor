@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="Name"
+                android:hint="Name eg. Test.txt"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />

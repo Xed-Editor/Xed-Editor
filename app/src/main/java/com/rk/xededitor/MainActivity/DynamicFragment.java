@@ -9,7 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
+import static com.rk.xededitor.MainActivity.Data.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.R;
+import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.rkUtils;
 
 import org.eclipse.tm4e.core.registry.IThemeSource;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme;
@@ -38,7 +40,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 
 public class DynamicFragment extends Fragment {
-    public static List<Content> contents;
+    
     private final DocumentFile file;
     private final Context ctx;
     public CodeEditor editor;
@@ -68,19 +70,17 @@ public class DynamicFragment extends Fragment {
         editor.setText(content);
         editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
         editor.setTextSize(14);
-        editor.setWordwrap(Boolean.parseBoolean(rkUtils.getSetting(ctx, "wordwrap", "false")),Boolean.parseBoolean(rkUtils.getSetting(ctx,"antiWordBreaking","true")));
+        editor.setWordwrap(Boolean.parseBoolean(SettingsData.getSetting(ctx, "wordwrap", "false")),Boolean.parseBoolean(SettingsData.getSetting(ctx,"antiWordBreaking","true")));
+        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(ctx,"useIcu",true);
         ensureTextmateTheme();
-        undo = MainActivity.menu.findItem(R.id.undo);
-        redo = MainActivity.menu.findItem(R.id.redo);
+        undo = Data.menu.findItem(R.id.undo);
+        redo = Data.menu.findItem(R.id.redo);
         editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
             updateUndoRedo();
-
-            MainActivity activity = ((MainActivity)MainActivity.getActivity());
-            TabLayout.Tab tab = activity.mTabLayout.getTabAt(mAdapter.fragments.indexOf(this));
-            String name = tab.getText().toString();
+            TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
+            String name = Objects.requireNonNull(tab.getText()).toString();
             if((!isModified) && name.charAt(name.length()-1) != '*'){
                 tab.setText(tab.getText()+"*");
-
             }
             isModified = true;
 
@@ -108,7 +108,7 @@ public class DynamicFragment extends Fragment {
         editor.release();
         editor = null;
         if (removeCoontent) {
-            contents.remove(MainActivity.fileList.indexOf(file));
+            contents.remove(fileList.indexOf(file));
         }
 
     }
@@ -134,12 +134,12 @@ public class DynamicFragment extends Fragment {
         var editorColorScheme = editor.getColorScheme();
         var themeRegistry = ThemeRegistry.getInstance();
 
-        boolean darkMode = rkUtils.isDarkMode(ctx);
+        boolean darkMode = SettingsData.isDarkMode(ctx);
         try {
 
             if (darkMode) {
                 String path;
-                if (rkUtils.isOled(ctx)) {
+                if (SettingsData.isOled(ctx)) {
                     path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
                 } else {
                     path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
@@ -154,7 +154,7 @@ public class DynamicFragment extends Fragment {
                                         FileProviderRegistry.getInstance().tryGetInputStream(path), path, null),
                                 "darcula"));
                 editorColorScheme = TextMateColorScheme.create(themeRegistry);
-                if (rkUtils.isOled(ctx)) {
+                if (SettingsData.isOled(ctx)) {
                     editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK);
                 }
 

@@ -25,6 +25,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
+import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.rkUtils;
 
 import org.eclipse.tm4e.core.registry.IThemeSource;
@@ -67,7 +68,7 @@ public class SimpleEditor extends AppCompatActivity {
         }
 
 
-        if (!rkUtils.isDarkMode(this)) {
+        if (!SettingsData.isDarkMode(this)) {
             //light mode
             getWindow().setNavigationBarColor(Color.parseColor("#FEF7FF"));
             View decorView = getWindow().getDecorView();
@@ -242,18 +243,18 @@ public class SimpleEditor extends AppCompatActivity {
         var editorColorScheme = editor.getColorScheme();
         var themeRegistry = ThemeRegistry.getInstance();
 
-        boolean darkMode = rkUtils.isDarkMode(this);
+        boolean darkMode = SettingsData.isDarkMode(this);
         try {
 
             if (darkMode) {
                 String path;
-                if (rkUtils.isOled(this)) {
+                if (SettingsData.isOled(this)) {
                     path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
                 } else {
                     path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
                 }
                 if (!new File(path).exists()) {
-                    rkUtils.toast("theme file not found");
+                    rkUtils.toast("Error : theme file not found");
                 }
 
                 themeRegistry.loadTheme(
