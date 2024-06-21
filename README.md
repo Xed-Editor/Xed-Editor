@@ -55,6 +55,10 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=RohitKushvaha01/Xed-Editor&type=Date)](https://star-history.com/#RohitKushvaha01/Xed-Editor&Date)
+
 ## Community
 
 - [Join Telegram Group](https://t.me/XedEditor)
