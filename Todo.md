@@ -17,3 +17,4 @@ v2.0.1
 - [ ] Fix Search arrows are inverted
 - [ ] Fix Unsupported error on files opening with xed
 - [ ] Md File viewer
+- [ ] Add File/Folder info viewer
