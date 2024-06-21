@@ -1,5 +1,6 @@
 ## TodoList
 
+v1.1.9
 - [x] New File Browser
 - [x] Create Files and folders
 - [x] Fix cache when restarting
@@ -9,5 +10,8 @@
 - [x] Use multi threading in file saving
 - [x] Add Missing features to External editor
 - [x] Ask before closing unsaved tabs
+
+
+v2.0.0
 - [ ] Md File viewer
-- [ ] Html,Css and js interpretor
+- [ ] Add "Save as" option
