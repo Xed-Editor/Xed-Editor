@@ -1,25 +1,39 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
-
 
     <item
         android:id="@+id/action_save"
         android:title="Save"
-        android:icon="@drawable/save"
-        app:showAsAction="always"
-         />
-
+        app:showAsAction="never" />
     <item
-        android:id="@+id/search"
-        android:title="Search"
-        app:showAsAction="always"
-        android:icon="@drawable/search"/>
+        android:id="@+id/undo"
+        android:title="Undo"
+        android:enabled="false"
+        android:icon="@drawable/undo"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/redo"
+        android:title="Redo"
+        android:enabled="false"
+        android:icon="@drawable/redo"
+        app:showAsAction="ifRoom"
+        tools:ignore="HardcodedText" />
     <item
         android:id="@+id/action_settings"
         android:title="Settings"
         android:icon="@drawable/settings"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/batchrep"
+        android:title="Batch Replacement"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/search"
+        android:title="Search"
+        app:showAsAction="never"
+        android:icon="@drawable/search"/>
     <item
         android:id="@+id/search_next"
         android:title="Go Next"
@@ -41,7 +55,7 @@
     <item
         android:id="@+id/replace"
         android:title="Replace"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         android:icon="@drawable/find_replace"
         android:visible="false" />
 

@@ -1,5 +1,10 @@
 package com.rk.xededitor.MainActivity;
 
+import static com.rk.xededitor.MainActivity.Data.contents;
+import static com.rk.xededitor.MainActivity.Data.fileList;
+import static com.rk.xededitor.MainActivity.Data.fragments;
+import static com.rk.xededitor.MainActivity.Data.mTabLayout;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -9,7 +14,8 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import static com.rk.xededitor.MainActivity.Data.*;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
@@ -25,7 +31,6 @@ import org.eclipse.tm4e.core.registry.IThemeSource;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import io.github.rosemoe.sora.event.ContentChangeEvent;
@@ -40,7 +45,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 
 public class DynamicFragment extends Fragment {
-    
+
     private final DocumentFile file;
     private final Context ctx;
     public CodeEditor editor;
@@ -63,15 +68,15 @@ public class DynamicFragment extends Fragment {
             content = ContentIO.createFrom(inputStream);
             contents.add(content);
             inputStream.close();
-            inputStream = null;
         } catch (Exception e) {
             e.printStackTrace();
         }
         editor.setText(content);
         editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
         editor.setTextSize(14);
-        editor.setWordwrap(Boolean.parseBoolean(SettingsData.getSetting(ctx, "wordwrap", "false")),Boolean.parseBoolean(SettingsData.getSetting(ctx,"antiWordBreaking","true")));
-        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(ctx,"useIcu",false);
+        boolean wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false);
+        editor.setWordwrap(wordwrap, SettingsData.getBoolean(ctx, "antiWordBreaking", true));
+        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(ctx, "useIcu", false);
         ensureTextmateTheme();
         undo = Data.menu.findItem(R.id.undo);
         redo = Data.menu.findItem(R.id.redo);
@@ -79,14 +84,21 @@ public class DynamicFragment extends Fragment {
             updateUndoRedo();
             TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
             String name = Objects.requireNonNull(tab.getText()).toString();
-            if((!isModified) && name.charAt(name.length()-1) != '*'){
-                tab.setText(tab.getText()+"*");
+            if ((!isModified) && name.charAt(name.length() - 1) != '*') {
+                tab.setText(tab.getText() + "*");
             }
             isModified = true;
-
-
         });
 
+        if (wordwrap) {
+            int length = content.toString().length();
+            if (length > 700 && content.toString().split("\\R").length < 100) {
+                rkUtils.toast("Please wait for word wrap complete" + content.toString().split("\\R").length);
+            }
+            if (length > 1500) {
+                Toast.makeText(ctx, "Please wait for word wrap to complete" + content.toString().split("\\R").length, Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Nullable
@@ -148,11 +160,7 @@ public class DynamicFragment extends Fragment {
                     rkUtils.toast("theme file not found please reinstall the Xed Editor");
                 }
 
-                themeRegistry.loadTheme(
-                        new ThemeModel(
-                                IThemeSource.fromInputStream(
-                                        FileProviderRegistry.getInstance().tryGetInputStream(path), path, null),
-                                "darcula"));
+                themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
                 editorColorScheme = TextMateColorScheme.create(themeRegistry);
                 if (SettingsData.isOled(ctx)) {
                     editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK);
@@ -164,11 +172,7 @@ public class DynamicFragment extends Fragment {
                 if (!new File(path).exists()) {
                     rkUtils.toast("theme file not found");
                 }
-                themeRegistry.loadTheme(
-                        new ThemeModel(
-                                IThemeSource.fromInputStream(
-                                        FileProviderRegistry.getInstance().tryGetInputStream(path), path, null),
-                                "quitelight"));
+                themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
                 editorColorScheme = TextMateColorScheme.create(themeRegistry);
             }
 

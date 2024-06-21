@@ -10,7 +10,7 @@ import static com.rk.xededitor.MainActivity.Data.menu;
 import static com.rk.xededitor.MainActivity.Data.rootFolder;
 import static com.rk.xededitor.MainActivity.Data.titles;
 import static com.rk.xededitor.MainActivity.Data.uris;
-import com.rk.xededitor.plugin.PluginServer;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -69,10 +69,11 @@ import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.EditorSearcher;
+
 public class MainActivity extends AppCompatActivity {
 
-    public ActivityDynamicBinding binding;
     final int REQUEST_FILE_SELECTION = 123;
+    public ActivityDynamicBinding binding;
     NavigationView navigationView;
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
@@ -82,8 +83,6 @@ public class MainActivity extends AppCompatActivity {
     private String SearchText = "";
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,10 +90,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityDynamicBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // apply all prefrances that are quied
-
         activity = this;
-        String jsonString = SettingsData.getSetting(this, "applyOnBoot", "{}");
         SettingsData.applyPrefs(this);
 
         fileList = new ArrayList<>();
@@ -129,27 +125,28 @@ public class MainActivity extends AppCompatActivity {
             binding.toolbar.setBackgroundColor(Color.BLACK);
             binding.tabs.setBackgroundColor(Color.BLACK);
             binding.mainView.setBackgroundColor(Color.BLACK);
-            getWindow().setNavigationBarColor(Color.BLACK);
             Window window = getWindow();
+            window.setNavigationBarColor(Color.BLACK);
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.BLACK);
         }
 
-       
 
         initViews();
 
 
         //todo use shared prefs instead of files
         if (!new File(getExternalFilesDir(null) + "/unzip").exists()) {
-            try {
-                Decompress.unzipFromAssets(this, "files.zip", getExternalFilesDir(null) + "/unzip");
-                new File(getExternalFilesDir(null) + "files").delete();
-                new File(getExternalFilesDir(null) + "files.zip").delete();
-                new File(getExternalFilesDir(null) + "textmate").delete();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            new Thread(() -> {
+                try {
+                    Decompress.unzipFromAssets(this, "files.zip", getExternalFilesDir(null) + "/unzip");
+                    new File(getExternalFilesDir(null) + "files").delete();
+                    new File(getExternalFilesDir(null) + "files.zip").delete();
+                    new File(getExternalFilesDir(null) + "textmate").delete();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
 
 
@@ -178,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     }
                 }
-                if (shouldExit){
+                if (shouldExit) {
                     finish();
                 }
             }
@@ -365,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void newEditor(DocumentFile file) {
 
-        if(adapter == null){
+        if (adapter == null) {
             fragments = new ArrayList<>();
             titles = new ArrayList<>();
             uris = new ArrayList<>();
@@ -452,7 +449,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void fileOptions(View v) {
 
-       new HandleFileActions(this,rootFolder,rootFolder,v);
+        new HandleFileActions(this, rootFolder, rootFolder, v);
     }
 
     public void hideKeyboard() {
@@ -496,29 +493,39 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
 
-            try {
-                final int index = mTabLayout.getSelectedTabPosition();
-                DynamicFragment fg = (DynamicFragment) fragments.get(index);
 
-                TabLayout.Tab tab = mTabLayout.getTabAt(mTabLayout.getSelectedTabPosition());
-                assert tab != null;
-                String name = tab.getText().toString();
-                if (name.charAt(name.length() - 1) == '*') {
-                    fg.isModified = false;
-                    tab.setText(name.substring(0, name.length() - 1));
+            final int index = mTabLayout.getSelectedTabPosition();
+            DynamicFragment fg = (DynamicFragment) fragments.get(index);
+
+            TabLayout.Tab tab = mTabLayout.getTabAt(mTabLayout.getSelectedTabPosition());
+            assert tab != null;
+            String name = tab.getText().toString();
+            if (name.charAt(name.length() - 1) == '*') {
+                fg.isModified = false;
+                tab.setText(name.substring(0, name.length() - 1));
+            }
+
+            new Thread(() -> {
+                Content content = contents.get(mTabLayout.getSelectedTabPosition());
+                OutputStream outputStream = null;
+                try {
+                    outputStream = getContentResolver().openOutputStream(fileList.get(index).getUri(), "wt");
+                    ContentIO.writeTo(content, outputStream, true);
+                    outputStream.close();
+                    activity.runOnUiThread(() -> {
+                        rkUtils.toast("saved!");
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    activity.runOnUiThread(() -> {
+                        rkUtils.toast("error \n " + e.getMessage().toString());
+                    });
                 }
 
-                //Content content = fg.editor.getText();
-                Content content = contents.get(mTabLayout.getSelectedTabPosition());
-                OutputStream outputStream = getContentResolver().openOutputStream(fileList.get(index).getUri(), "wt");
-                ContentIO.writeTo(content, outputStream, true);
-                outputStream.close();
-                outputStream = null;
-                rkUtils.toast("saved!");
+            }).start();
 
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            //Content content = fg.editor.getText();
+
 
             return true;
         } else if (id == R.id.action_settings) {
@@ -526,37 +533,41 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             return true;
         } else if (id == R.id.action_all) {
+
             for (int i = 0; i < mTabLayout.getTabCount(); i++) {
                 TabLayout.Tab mtab = mTabLayout.getTabAt(i);
 
-                OutputStream outputStream = null;
-                try {
-                    final int index = mtab.getPosition();
-                    DynamicFragment fg = (DynamicFragment) fragments.get(index);
 
-                    String name = mtab.getText().toString();
-                    if (name.charAt(name.length() - 1) == '*') {
-                        fg.isModified = false;
-                        mtab.setText(name.substring(0, name.length() - 1));
-                    }
+                final int index = mtab.getPosition();
+                DynamicFragment fg = (DynamicFragment) fragments.get(index);
 
-                    //Content content = fg.editor.getText();
-                    Content content = contents.get(index);
-                    outputStream = getContentResolver().openOutputStream(fileList.get(index).getUri(), "wt");
-                    ContentIO.writeTo(content, outputStream, true);
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                } finally {
-                    try {
-                        outputStream.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                    outputStream = null;
+                String name = mtab.getText().toString();
+                if (name.charAt(name.length() - 1) == '*') {
+                    fg.isModified = false;
+                    mtab.setText(name.substring(0, name.length() - 1));
                 }
-                rkUtils.toast("saved all");
+
+                new Thread(() -> {
+                    OutputStream outputStream = null;
+                    Content content = contents.get(index);
+                    try {
+                        outputStream = getContentResolver().openOutputStream(fileList.get(index).getUri(), "wt");
+                        ContentIO.writeTo(content, outputStream, true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            outputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+
+
+
             }
+            rkUtils.toast("saved all");
             return true;
         } else if (id == R.id.search) {
 
