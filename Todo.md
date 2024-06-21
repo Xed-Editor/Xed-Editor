@@ -1,6 +1,6 @@
 ## TodoList
 
-v1.1.9
+v2.0.0
 - [x] New File Browser
 - [x] Create Files and folders
 - [x] Fix cache when restarting
@@ -12,6 +12,6 @@ v1.1.9
 - [x] Ask before closing unsaved tabs
 
 
-v2.0.0
+v2.0.1
 - [ ] Md File viewer
 - [ ] Add "Save as" option
