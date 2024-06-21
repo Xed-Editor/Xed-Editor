@@ -14,4 +14,5 @@ v2.0.0
 
 v2.0.1
 - [ ] Add "Save as" option
+- [ ] Fix Search arrows are inverted
 - [ ] Md File viewer
