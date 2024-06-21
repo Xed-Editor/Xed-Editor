@@ -28,8 +28,6 @@
 - [x] Creating files and folders
 - [x] Rename, Delete files and folders
 - [ ] Copy Paste of files and Folders 
-- [x] Terminal (will be provided as a plugin)
-
 
 See [Todo.md](/Todo.md) to know what's going on
 
