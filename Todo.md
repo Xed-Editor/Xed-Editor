@@ -6,7 +6,7 @@
 - [x] Add Icons to settings toggles
 - [x] Add Horizontal scrolling in treeview
 - [x] Set libIcu to false by default
-- [ ] Use multi threading in file saving
+- [x] Use multi threading in file saving
 - [ ] Add Missing features to External editor
 - [x] Ask before closing unsaved tabs
 - [ ] Md File viewer
