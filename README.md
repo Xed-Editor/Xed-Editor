@@ -59,10 +59,6 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
 </div>
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=RohitKushvaha01/Xed-Editor&type=Date)](https://star-history.com/#RohitKushvaha01/Xed-Editor&Date)
-
 ## Community
 
 - [Join Telegram Group](https://t.me/XedEditor)
