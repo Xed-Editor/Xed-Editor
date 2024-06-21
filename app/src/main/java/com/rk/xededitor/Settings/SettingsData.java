@@ -55,7 +55,7 @@ public class SettingsData {
     }
 
     public static boolean isOled(Context ctx) {
-        return Boolean.parseBoolean(getSetting(ctx,"isOled","false"));
+        return Boolean.parseBoolean(getSetting(ctx,"isOled","true"));
     }
     
     public static boolean getBoolean(Context ctx,String key,Boolean Default){

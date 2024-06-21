@@ -15,3 +15,4 @@
 .cxx
 *.log
 local.properties
+*md

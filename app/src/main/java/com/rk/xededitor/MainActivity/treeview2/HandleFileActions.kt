@@ -10,6 +10,7 @@ import android.widget.EditText
 import androidx.appcompat.widget.PopupMenu
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.xededitor.MainActivity.Data
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
 import com.rk.xededitor.R
@@ -207,6 +208,10 @@ class HandleFileActions(
                 val popupView: View =
                     LayoutInflater.from(mContext).inflate(R.layout.popup_new, null)
                 val editText = popupView.findViewById<EditText>(R.id.name)
+                editText.setText(file.name)
+                if(file.isDirectory){
+                    editText.hint = "Name eg. Test"
+                }
                 MaterialAlertDialogBuilder(mContext).setTitle("Rename").setView(popupView)
                     .setNegativeButton("Cancel", null).setPositiveButton(
                         "Rename"
@@ -234,6 +239,24 @@ class HandleFileActions(
                                         file.renameTo(fileName)
 
                                     if(file == rootFolder){
+
+                                        Data.activity.onOptionsItemSelected(Data.menu.findItem(R.id.action_all))
+                                        if(Data.activity.adapter != null){
+                                            Data.activity.adapter.clear()
+                                        }
+
+                                        if (Data.mTabLayout.tabCount < 1) {
+                                            Data.activity.binding.tabs.setVisibility(View.GONE)
+                                            Data.activity.binding.mainView.setVisibility(View.GONE)
+                                            Data.activity.binding.openBtn.setVisibility(View.VISIBLE)
+                                        }
+                                        val visible =
+                                            !(Data.fragments == null || Data.fragments.isEmpty())
+                                        Data.menu.findItem(R.id.search).setVisible(visible)
+                                        Data.menu.findItem(R.id.action_save).setVisible(visible)
+                                        Data.menu.findItem(R.id.action_all).setVisible(visible)
+                                        Data.menu.findItem(R.id.batchrep).setVisible(visible)
+
                                         mContext.findViewById<View>(R.id.mainView).visibility = View.GONE
                                         mContext.findViewById<View>(R.id.safbuttons).visibility = View.VISIBLE
                                         mContext.findViewById<View>(R.id.maindrawer).visibility = View.GONE

@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    private mAdapter adapter;
+    public mAdapter adapter;
     private boolean isReselecting = false;
     private String SearchText = "";
 
@@ -265,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
                         } else if (id == R.id.close_all) {
                             adapter.clear();
                         }
+
+                        //wtf this loop do ?
                         for (int i = 0; i < mTabLayout.getTabCount(); i++) {
                             TabLayout.Tab tab = mTabLayout.getTabAt(i);
                             if (tab != null) {

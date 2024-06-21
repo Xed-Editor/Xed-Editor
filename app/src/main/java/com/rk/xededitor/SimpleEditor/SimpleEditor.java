@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -212,6 +213,10 @@ public class SimpleEditor extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         if (intent != null && (Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_EDIT.equals(intent.getAction()))) {
             uri = intent.getData();
+            if(DocumentsContract.isTreeUri(uri)){
+                rkUtils.toast(this,"unsupported content");
+                finish();
+            }
             if (uri != null) {
                 // Try to retrieve the file's display name
                 String displayName = null;

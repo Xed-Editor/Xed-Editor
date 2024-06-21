@@ -49,79 +49,89 @@ class SettingsActivity : AppCompatActivity() {
 
 
 
-        Toggle(this,SettingsData.isOled(this))
+        Toggle(this, SettingsData.isOled(this))
             .setName("Black Night Theme")
             .setDrawable(R.drawable.dark_mode)
             .setListener { _, isChecked ->
-                SettingsData.addToapplyPrefsOnRestart(this@SettingsActivity, "isOled", isChecked.toString())
-            rkUtils.toast(this@SettingsActivity, "Setting will take effect after restart")
-        }.showToggle()
+                SettingsData.addToapplyPrefsOnRestart(
+                    this@SettingsActivity,
+                    "isOled",
+                    isChecked.toString()
+                )
+                rkUtils.toast(this@SettingsActivity, "Setting will take effect after restart")
+            }.showToggle()
 
 
 
-        Toggle(this,SettingsData.getBoolean(this, "wordwrap", false))
+        Toggle(this, SettingsData.getBoolean(this, "wordwrap", false))
             .setName("Word wrap")
             .setDrawable(R.drawable.reorder)
             .setListener { _, isChecked ->
                 SettingsData.setBoolean(this@SettingsActivity, "wordwrap", isChecked)
-                if (Data.fragments != null) {
+                if (Data.fragments != null && Data.fragments.isNotEmpty()) {
                     for (fragment in Data.fragments) {
                         val dynamicFragment = fragment as DynamicFragment
                         dynamicFragment.editor.isWordwrap = isChecked
                     }
+                    rkUtils.toast("Please wait for word wrap to complete")
+
                 }
             }.showToggle()
 
 
 
-            Toggle(this,SettingsData.getBoolean(this, "antiWordBreaking", true))
-                .setName("Anti word breaking for (WW)")
-                .setDrawable(R.drawable.reorder)
-                .setListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
-                    SettingsData.setBoolean(
-                        this@SettingsActivity,
-                        "antiWordBreaking",
-                        isChecked
-                    )
-                    if (Data.fragments == null) {
-                        return@OnCheckedChangeListener
-                    }
-                    for (fragment in Data.fragments) {
-                        val dynamicFragment = fragment as DynamicFragment
-                        dynamicFragment.editor.setWordwrap(SettingsData.getBoolean(this@SettingsActivity, "wordwrap", false), SettingsData.getBoolean(this@SettingsActivity, "antiWordBreaking", true))
-                    }
-                }).showToggle()
-
-
-                Toggle(this,SettingsData.getBoolean(this,"keepDrawerLocked",true))
-                    .setName("Keep Drawer Locked")
-                    .setDrawable(R.drawable.lock)
-                    .setListener { _, isChecked ->
-                        SettingsData.setBoolean(
+        Toggle(this, SettingsData.getBoolean(this, "antiWordBreaking", true))
+            .setName("Anti word breaking for (WW)")
+            .setDrawable(R.drawable.reorder)
+            .setListener(CompoundButton.OnCheckedChangeListener { _, isChecked ->
+                SettingsData.setBoolean(
+                    this@SettingsActivity,
+                    "antiWordBreaking",
+                    isChecked
+                )
+                if (Data.fragments == null) {
+                    return@OnCheckedChangeListener
+                }
+                for (fragment in Data.fragments) {
+                    val dynamicFragment = fragment as DynamicFragment
+                    dynamicFragment.editor.setWordwrap(
+                        SettingsData.getBoolean(
                             this@SettingsActivity,
-                            "keepDrawerLocked",
-                            isChecked
-                        )
-                    }.showToggle()
+                            "wordwrap",
+                            false
+                        ), SettingsData.getBoolean(this@SettingsActivity, "antiWordBreaking", true)
+                    )
+                }
+            }).showToggle()
+
+
+        Toggle(this, SettingsData.getBoolean(this, "keepDrawerLocked", true))
+            .setName("Keep Drawer Locked")
+            .setDrawable(R.drawable.lock)
+            .setListener { _, isChecked ->
+                SettingsData.setBoolean(
+                    this@SettingsActivity,
+                    "keepDrawerLocked",
+                    isChecked
+                )
+            }.showToggle()
 
 
 
-                Toggle(this, SettingsData.getBoolean(this, "useIcu", false))
-                    .setName("use libICU")
-                    .setDrawable(R.drawable.reorder)
-                    .setListener{ _,isChecked ->
-                        SettingsData.setBoolean(this@SettingsActivity,"useIcu",isChecked)
+        Toggle(this, SettingsData.getBoolean(this, "useIcu", false))
+            .setName("use libICU")
+            .setDrawable(R.drawable.reorder)
+            .setListener { _, isChecked ->
+                SettingsData.setBoolean(this@SettingsActivity, "useIcu", isChecked)
 
-                        if (Data.fragments != null) {
-                            for (dynamicFragment in Data.fragments) {
-                                dynamicFragment.editor.props.useICULibToSelectWords = isChecked
-                            }
-                        }
-
-
-                    }.showToggle()
+                if (Data.fragments != null) {
+                    for (dynamicFragment in Data.fragments) {
+                        dynamicFragment.editor.props.useICULibToSelectWords = isChecked
+                    }
+                }
 
 
+            }.showToggle()
 
 
     }

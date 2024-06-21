@@ -93,10 +93,10 @@ public class DynamicFragment extends Fragment {
         if (wordwrap) {
             int length = content.toString().length();
             if (length > 700 && content.toString().split("\\R").length < 100) {
-                rkUtils.toast("Please wait for word wrap complete" + content.toString().split("\\R").length);
+                rkUtils.toast("Please wait for word wrap to complete");
             }
             if (length > 1500) {
-                Toast.makeText(ctx, "Please wait for word wrap to complete" + content.toString().split("\\R").length, Toast.LENGTH_LONG).show();
+                Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show();
             }
         }
     }

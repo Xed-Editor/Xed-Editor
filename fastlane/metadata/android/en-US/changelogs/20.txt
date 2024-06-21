@@ -1,0 +1,10 @@
+v2.0.0 (20)
+
++ Removed old file browser
++ Added icons to settings toggles
++ Added libIcu toggle
++ Updated new File browser
++ Improved speed of folder expansion on new file browser
++ Used of multithreading resulting improved performance
++ fixed bug when backpress not responding
+
