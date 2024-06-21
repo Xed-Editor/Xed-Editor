@@ -53,6 +53,12 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
     height="80">](https://f-droid.org/packages/com.rk.xededitor)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 
+## Screenshots
+
+<div >
+<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
+</div>
+
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=RohitKushvaha01/Xed-Editor&type=Date)](https://star-history.com/#RohitKushvaha01/Xed-Editor&Date)
@@ -78,8 +84,4 @@ bash gradlew assembleDebug
 ```
 
 
-## Screenshots
 
-<div >
-<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
-</div>
