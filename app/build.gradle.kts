@@ -86,7 +86,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
-    implementation("io.github.Rosemoe.sora-editor:editor")
+    //implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
     implementation("org.apache.tika:tika-core:2.9.0")

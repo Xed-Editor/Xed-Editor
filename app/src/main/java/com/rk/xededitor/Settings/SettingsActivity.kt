@@ -106,7 +106,7 @@ class SettingsActivity : AppCompatActivity() {
 
 
 
-                Toggle(this, SettingsData.getBoolean(this, "useIcu", true))
+                Toggle(this, SettingsData.getBoolean(this, "useIcu", false))
                     .setName("use libICU")
                     .setDrawable(R.drawable.reorder)
                     .setListener{ _,isChecked ->

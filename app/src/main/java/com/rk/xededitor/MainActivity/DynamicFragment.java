@@ -71,7 +71,7 @@ public class DynamicFragment extends Fragment {
         editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
         editor.setTextSize(14);
         editor.setWordwrap(Boolean.parseBoolean(SettingsData.getSetting(ctx, "wordwrap", "false")),Boolean.parseBoolean(SettingsData.getSetting(ctx,"antiWordBreaking","true")));
-        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(ctx,"useIcu",true);
+        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(ctx,"useIcu",false);
         ensureTextmateTheme();
         undo = Data.menu.findItem(R.id.undo);
         redo = Data.menu.findItem(R.id.redo);

@@ -209,10 +209,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-
-
-
-
     }
 
     public boolean hasUriPermission(Uri uri) {
