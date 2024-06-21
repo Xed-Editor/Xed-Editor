@@ -45,8 +45,6 @@ See [Todo.md](/Todo.md) to know what's going on
 
 Download latest build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
-- Builds on fdroid are usually 2-3 day behind
-- Builds on izzyOnDroid are usually 1 day behind
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
