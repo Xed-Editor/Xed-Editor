@@ -169,22 +169,42 @@ class HandleFileActions(
                         waitDialog.show()
                         Thread {
                             //delete file
-                            file.delete()
+                            if (file != rootFolder){
+                                file.delete()
+                            }
+
                             mContext.runOnUiThread {
 
                                 if(file == rootFolder){
+                                    rootFolder.delete()
+                                    Data.activity.onOptionsItemSelected(Data.menu.findItem(R.id.action_all))
+                                    if(Data.activity.adapter != null){
+                                        Data.activity.adapter.clear()
+                                    }
+
+                                    if (Data.mTabLayout.tabCount < 1) {
+                                        Data.activity.binding.tabs.setVisibility(View.GONE)
+                                        Data.activity.binding.mainView.setVisibility(View.GONE)
+                                        Data.activity.binding.openBtn.setVisibility(View.VISIBLE)
+                                    }
+                                    val visible =
+                                        !(Data.fragments == null || Data.fragments.isEmpty())
+                                    Data.menu.findItem(R.id.search).setVisible(visible)
+                                    Data.menu.findItem(R.id.action_save).setVisible(visible)
+                                    Data.menu.findItem(R.id.action_all).setVisible(visible)
+                                    Data.menu.findItem(R.id.batchrep).setVisible(visible)
+
                                     mContext.findViewById<View>(R.id.mainView).visibility = View.GONE
-                                    mContext.findViewById<View>(R.id.safbuttons).visibility =
-                                        View.VISIBLE
+                                    mContext.findViewById<View>(R.id.safbuttons).visibility = View.VISIBLE
                                     mContext.findViewById<View>(R.id.maindrawer).visibility = View.GONE
                                     mContext.findViewById<View>(R.id.drawerToolbar).visibility =
                                         View.GONE
                                     stopThread()
-                                    val UriString = SettingsData.getSetting(
+                                    val uriString = SettingsData.getSetting(
                                         mContext, "lastOpenedUri", "null"
                                     )
-                                    if (UriString != "null") {
-                                        val uri = Uri.parse(UriString)
+                                    if (uriString != "null") {
+                                        val uri = Uri.parse(uriString)
                                         if (mContext.hasUriPermission(uri)) {
                                             mContext.revokeUriPermission(uri)
                                         }
@@ -192,7 +212,10 @@ class HandleFileActions(
                                             mContext, "lastOpenedUri", "null"
                                         )
                                     }
+                                    rkUtils.toast("Please reselect the directory")
                                 }
+                                //recreate the tree
+                                MA(mContext,rootFolder)
 
                                 waitDialog.dismiss()
                             }
@@ -276,6 +299,9 @@ class HandleFileActions(
                                             )
                                         }
                                         rkUtils.toast("Please reselect the directory")
+                                    }else{
+                                        //recreate the tree
+                                        MA(mContext,rootFolder)
                                     }
 
 
