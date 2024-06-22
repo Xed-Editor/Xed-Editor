@@ -15,7 +15,6 @@
 
 
 ## Features
-- [x] Basic text editing
 - [x] File editing outside of projects
 - [x] Settings
 - [x] Amoled Theme (pure black)
