@@ -9,7 +9,6 @@ v2.0.0
 - [x] Set libIcu to false by default
 - [x] Use multi threading in file saving
 - [x] Add Missing features to External editor
-- [x] Ask before closing unsaved tabs
 
 
 v2.0.1
