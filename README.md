@@ -59,6 +59,7 @@ from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
 <div >
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/04.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.jpg" width="32%" />
 </div>
+
 ## To contribute
 - Read this file to learn how to contribute to the project [CONTRIBUTING.md](/CONTRIBUTING.md)
 
