@@ -26,8 +26,9 @@
 - [x] File Browser
 - [ ] Plugins
 - [x] Creating files and folders
-- [x] Rename, Delete files and folders
 - [ ] Copy Pasteing files and Folders
+- [x] Rename, Delete files and folders
+
 
 See [Todo.md](/Todo.md) to know what's going on
 
