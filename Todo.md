@@ -14,6 +14,7 @@ v2.0.0
 
 v2.0.1
 - [ ] Add "Save as" option
+- [ ] Copy Pasteing files and Folders
 - [ ] Fix Search arrows are inverted
 - [ ] Fix Unsupported error on files opening with xed
 - [ ] Md File viewer
