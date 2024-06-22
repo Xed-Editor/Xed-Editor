@@ -26,7 +26,7 @@
 - [x] File Browser
 - [ ] Plugins
 - [x] Creating files and folders
-- [ ] Copy Pasteing files and Folders
+- [x] Copy Pasteing files and Folders
 - [x] Rename, Delete files and folders
 
 
