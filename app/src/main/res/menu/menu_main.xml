@@ -2,6 +2,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
+
+    <item
+        android:id="@+id/run"
+        android:title="Run"
+        android:visible="false"
+        android:icon="@drawable/run"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/action_all"
         android:title="Save All"

@@ -35,7 +35,7 @@ class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
                         if (file.isFile) {
                             ctx.newEditor(file)
                             ctx.onNewEditor()
-                            if(!SettingsData.getBoolean(ctx,"keepDrawerLocked",true)){
+                            if(!SettingsData.getBoolean(ctx,"keepDrawerLocked",false)){
                                 val timer = Timer()
                                 val timerTask: TimerTask = object : TimerTask() {
                                     override fun run() {

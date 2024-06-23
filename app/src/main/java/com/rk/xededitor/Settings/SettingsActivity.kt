@@ -105,7 +105,7 @@ class SettingsActivity : AppCompatActivity() {
             }).showToggle()
 
 
-        Toggle(this, SettingsData.getBoolean(this, "keepDrawerLocked", true))
+        Toggle(this, SettingsData.getBoolean(this, "keepDrawerLocked", false))
             .setName("Keep Drawer Locked")
             .setDrawable(R.drawable.lock)
             .setListener { _, isChecked ->

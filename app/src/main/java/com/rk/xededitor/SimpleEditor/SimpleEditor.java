@@ -23,6 +23,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.rk.xededitor.Decompress;
@@ -213,12 +214,14 @@ public class SimpleEditor extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         if (intent != null && (Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_EDIT.equals(intent.getAction()))) {
             uri = intent.getData();
-            if(DocumentsContract.isTreeUri(uri)){
-                rkUtils.toast(this,"unsupported content");
-                finish();
-            }
+
             if (uri != null) {
-                // Try to retrieve the file's display name
+                String mimeType = getContentResolver().getType(uri);
+                assert mimeType != null;
+                if (mimeType.isEmpty() || mimeType.contains("directory")){
+                    rkUtils.toast(this,"Unsupported content");
+                    finish();
+                }
                 String displayName = null;
                 try (Cursor cursor = getContentResolver().query(uri, null, null, null, null, null)) {
                     if (cursor != null && cursor.moveToFirst()) {

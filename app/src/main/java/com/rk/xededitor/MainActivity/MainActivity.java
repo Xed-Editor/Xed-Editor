@@ -11,6 +11,8 @@ import static com.rk.xededitor.MainActivity.Data.rootFolder;
 import static com.rk.xededitor.MainActivity.Data.titles;
 import static com.rk.xededitor.MainActivity.Data.uris;
 
+import com.rk.xededitor.plugin.PluginInstance;
+import com.rk.xededitor.plugin.PluginServer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,12 +31,12 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
@@ -47,11 +49,13 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.After;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
 import com.rk.xededitor.MainActivity.treeview2.MA;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
+
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
 import com.rk.xededitor.Settings.SettingsData;
@@ -74,11 +78,11 @@ public class MainActivity extends AppCompatActivity {
 
     final int REQUEST_FILE_SELECTION = 123;
     public ActivityDynamicBinding binding;
+    public mAdapter adapter;
     NavigationView navigationView;
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
-    public mAdapter adapter;
     private boolean isReselecting = false;
     private String SearchText = "";
 
@@ -159,12 +163,9 @@ public class MainActivity extends AppCompatActivity {
                         DynamicFragment fragment1 = (DynamicFragment) fragment;
                         if (fragment1.isModified) {
                             shouldExit = false;
-                            new MaterialAlertDialogBuilder(MainActivity.this).setTitle("Unsaved Files").setMessage("You have unsaved files!").setNegativeButton("Cancel", null).setNeutralButton("Save & Exit", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    onOptionsItemSelected(menu.findItem(R.id.action_all));
-                                    finish();
-                                }
+                            new MaterialAlertDialogBuilder(MainActivity.this).setTitle("Unsaved Files").setMessage("You have unsaved files!").setNegativeButton("Cancel", null).setNeutralButton("Save & Exit", (dialog, which) -> {
+                                onOptionsItemSelected(menu.findItem(R.id.action_all));
+                                finish();
                             }).setPositiveButton("Exit", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -206,6 +207,13 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+       // if (PluginServer.getLoadedPlugins() != null){
+        //not working
+            for (PluginInstance pluginInstance : PluginServer.getLoadedPlugins()){
+                pluginInstance.onActivityCreate(this);
+            }
+        //}
+
     }
 
     public boolean hasUriPermission(Uri uri) {
@@ -241,8 +249,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).updateUndoRedo();
-
+                fragments.get(mTabLayout.getSelectedTabPosition()).updateUndoRedo();
             }
 
             @Override
@@ -327,6 +334,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             binding.rootDirLabel.setText(name);
+
+        } else if (requestCode == HandleFileActions.getREQUEST_CODE_OPEN_DIRECTORY() && resultCode == RESULT_OK) {
+            Uri directoryUri = data.getData();
+
+            if (directoryUri != null) {
+                // Save a file in the selected directory
+                HandleFileActions.saveFile(this, directoryUri);
+            } else {
+                Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
+            }
 
         }
     }
@@ -479,6 +496,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
+
         if (id == android.R.id.home) {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START);
@@ -497,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             final int index = mTabLayout.getSelectedTabPosition();
-            DynamicFragment fg = (DynamicFragment) fragments.get(index);
+            DynamicFragment fg = fragments.get(index);
 
             TabLayout.Tab tab = mTabLayout.getTabAt(mTabLayout.getSelectedTabPosition());
             assert tab != null;
@@ -520,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     activity.runOnUiThread(() -> {
-                        rkUtils.toast("error \n " + e.getMessage().toString());
+                        rkUtils.toast("error \n " + e.getMessage());
                     });
                 }
 
@@ -541,7 +559,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 final int index = mtab.getPosition();
-                DynamicFragment fg = (DynamicFragment) fragments.get(index);
+                DynamicFragment fg = fragments.get(index);
 
                 String name = mtab.getText().toString();
                 if (name.charAt(name.length() - 1) == '*') {
@@ -567,7 +585,6 @@ public class MainActivity extends AppCompatActivity {
                 }).start();
 
 
-
             }
             rkUtils.toast("saved all");
             return true;
@@ -575,18 +592,18 @@ public class MainActivity extends AppCompatActivity {
 
             View popuop_view = LayoutInflater.from(this).inflate(R.layout.popup_search, null);
             TextView searchBox = popuop_view.findViewById(R.id.searchbox);
-            if (!SearchText.equals("")) {
+            if (!SearchText.isEmpty()) {
                 searchBox.setText(SearchText);
             }
 
-            AlertDialog dialog = new MaterialAlertDialogBuilder(this).setTitle("Search").setView(popuop_view).setNegativeButton("Cancel", null).setPositiveButton("Search", new DialogInterface.OnClickListener() {
+            new MaterialAlertDialogBuilder(this).setTitle("Search").setView(popuop_view).setNegativeButton("Cancel", null).setPositiveButton("Search", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     MenuItem undo = menu.findItem(R.id.undo);
                     MenuItem redo = menu.findItem(R.id.redo);
                     undo.setVisible(false);
                     redo.setVisible(false);
-                    CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+                    CodeEditor editor = fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
                     CheckBox checkBox = popuop_view.findViewById(R.id.case_senstive);
                     SearchText = searchBox.getText().toString();
                     editor.getSearcher().search(SearchText, new EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, !checkBox.isChecked()));
@@ -600,15 +617,17 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         } else if (id == R.id.search_next) {
-            CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
-            editor.getSearcher().gotoNext();
+            CodeEditor editor = fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
+            editor.getSearcher().gotoPrevious();
+
             return true;
         } else if (id == R.id.search_previous) {
-            CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
-            editor.getSearcher().gotoPrevious();
+            CodeEditor editor = fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
+            editor.getSearcher().gotoNext();
+
             return true;
         } else if (id == R.id.search_close) {
-            CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+            CodeEditor editor = fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
             editor.getSearcher().stopSearch();
             menu.findItem(R.id.search_next).setVisible(false);
             menu.findItem(R.id.search_previous).setVisible(false);
@@ -623,11 +642,10 @@ public class MainActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.replace) {
             View popuop_view = LayoutInflater.from(this).inflate(R.layout.popup_replace, null);
-            AlertDialog dialog = new MaterialAlertDialogBuilder(this).setTitle("Replace").setView(popuop_view).setNegativeButton("Cancel", null).setPositiveButton("Replace All", new DialogInterface.OnClickListener() {
+            new MaterialAlertDialogBuilder(this).setTitle("Replace").setView(popuop_view).setNegativeButton("Cancel", null).setPositiveButton("Replace All", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //fatass one liner
-                    ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor().getSearcher().replaceAll(((TextView) popuop_view.findViewById(R.id.replace_replacement)).getText().toString());
+                    fragments.get(mTabLayout.getSelectedTabPosition()).getEditor().getSearcher().replaceAll(((TextView) popuop_view.findViewById(R.id.replace_replacement)).getText().toString());
                 }
             }).show();
 
@@ -635,17 +653,17 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, BatchReplacement.class);
             startActivity(intent);
         } else if (id == R.id.undo) {
-            ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).Undo();
+            fragments.get(mTabLayout.getSelectedTabPosition()).Undo();
             MenuItem undo = menu.findItem(R.id.undo);
             MenuItem redo = menu.findItem(R.id.redo);
-            CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+            CodeEditor editor = fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
             redo.setEnabled(editor.canRedo());
             undo.setEnabled(editor.canUndo());
         } else if (id == R.id.redo) {
-            ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).Redo();
+            fragments.get(mTabLayout.getSelectedTabPosition()).Redo();
             MenuItem undo = menu.findItem(R.id.undo);
             MenuItem redo = menu.findItem(R.id.redo);
-            CodeEditor editor = ((DynamicFragment) fragments.get(mTabLayout.getSelectedTabPosition())).getEditor();
+            CodeEditor editor = fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
             redo.setEnabled(editor.canRedo());
             undo.setEnabled(editor.canUndo());
         }

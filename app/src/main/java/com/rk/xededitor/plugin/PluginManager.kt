@@ -15,11 +15,11 @@ import java.util.zip.ZipFile
 class PluginManager {
     companion object {
         @JvmStatic
-        fun activatePlugin(ctx: Context?, app: ApplicationInfo, active: Boolean) {
+        fun activatePlugin(ctx: Context?, packageName:String, active: Boolean) {
             val jsonString = SettingsData.getSetting(ctx, "activePlugins", "{}")
             try {
                 val jsonObject = JSONObject(jsonString)
-                jsonObject.put(app.packageName, active)
+                jsonObject.put(packageName, active)
                 val updatedJsonString = jsonObject.toString()
                 SettingsData.setSetting(ctx, "activePlugins", updatedJsonString)
             } catch (e: JSONException) {

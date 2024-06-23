@@ -71,6 +71,10 @@ android {
 
     buildFeatures {
         viewBinding = true
+
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
@@ -81,6 +85,8 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.asynclayoutinflater)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -89,5 +95,6 @@ dependencies {
     implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
-    implementation("org.apache.tika:tika-core:2.9.0")
+
+    
 }

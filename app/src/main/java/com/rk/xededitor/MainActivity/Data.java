@@ -13,6 +13,7 @@ import java.util.List;
 
 import io.github.rosemoe.sora.text.Content;
 
+
 public class Data {
 
     public static MainActivity activity;

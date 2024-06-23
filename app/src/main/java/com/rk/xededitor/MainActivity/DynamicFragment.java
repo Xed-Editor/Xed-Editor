@@ -80,8 +80,10 @@ public class DynamicFragment extends Fragment {
         ensureTextmateTheme();
         undo = Data.menu.findItem(R.id.undo);
         redo = Data.menu.findItem(R.id.redo);
+
         editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
             updateUndoRedo();
+
             TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
             String name = Objects.requireNonNull(tab.getText()).toString();
             if ((!isModified) && name.charAt(name.length() - 1) != '*') {
@@ -99,6 +101,10 @@ public class DynamicFragment extends Fragment {
                 Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public DocumentFile getFile(){
+        return file;
     }
 
     @Nullable

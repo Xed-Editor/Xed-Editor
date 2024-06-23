@@ -24,6 +24,10 @@
         android:title="Open With..."/>
 
     <item
+        android:title="Save as"
+        android:id="@+id/save_as"/>
+
+    <item
         android:id="@+id/copy"
         android:visible="false"
         android:title="Copy" />
