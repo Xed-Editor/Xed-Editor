@@ -1,7 +1,7 @@
 # Define the JSON payload separately for clarity
 payload='{
     "message_thread_id": "8",
-    "disable_web_page_preview" : "true"
+    "disable_web_page_preview" : "true",
     "chat_id": "-1002225667339_8",
     "text": "New <a href=\"'$COMMIT_URL'\">Commit</a> by <a href=\"https://github.com/'$USER'\">@'$USER'</a>\nDescription: '$MSG'",
     "parse_mode": "HTML"
