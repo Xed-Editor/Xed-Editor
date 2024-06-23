@@ -94,6 +94,8 @@ public class MainActivity extends BaseActivity {
         setContentView(binding.getRoot());
 
         activity = this;
+
+        //use thread
         SettingsData.applyPrefs(this);
 
         fileList = new ArrayList<>();
