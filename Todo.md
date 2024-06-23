@@ -16,8 +16,8 @@ v2.0.1
 - [x] Copy Pasteing files and Folders
 - [x] Fix Search arrows are inverted
 - [x] Fix Unsupported error on files opening with xed
-- [ ] fix slow app start
-- [ ] add plugin settings
-- [ ] add plugin documentation
-- [ ] add plugin repo
+- [ ] Fix slow app start
+- [ ] Add plugin settings
+- [ ] Add plugin documentation
+- [ ] Add plugin repo
 
