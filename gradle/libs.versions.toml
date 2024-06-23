@@ -12,6 +12,7 @@ kotlin = "1.9.10"
 asynclayoutinflater = "1.0.0"
 navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
+coreKtx = "1.13.1"
 
 [libraries]
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -26,8 +27,10 @@ navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version
 asynclayoutinflater = { group = "androidx.asynclayoutinflater", name = "asynclayoutinflater", version.ref = "asynclayoutinflater" }
 navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigationFragmentKtx" }
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "1.9.10" }
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
 

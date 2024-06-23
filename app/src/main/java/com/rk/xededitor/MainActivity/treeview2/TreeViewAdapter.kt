@@ -65,10 +65,6 @@ class TreeViewAdapter(
         nodemap = HashMap<Node<DocumentFile>,View>()
 
         thread = Thread {
-
-            println("starting thread")
-
-
             val lock = ReentrantLock()
             val localViews = Stack<View>()
 
@@ -106,8 +102,6 @@ class TreeViewAdapter(
                     }
                 }
             }
-
-            println("Thread will now stop")
         }.also { it.start() }
 
 

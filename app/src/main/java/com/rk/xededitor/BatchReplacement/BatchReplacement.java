@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.MainActivity.DynamicFragment;
 import com.rk.xededitor.MainActivity.mAdapter;
 import com.rk.xededitor.R;
@@ -31,7 +32,7 @@ import java.util.Random;
 
 import io.github.rosemoe.sora.widget.CodeEditor;
 
-public class BatchReplacement extends AppCompatActivity {
+public class BatchReplacement extends BaseActivity {
 
     private ActivityBatchReplacementBinding binding;
 

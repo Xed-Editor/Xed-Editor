@@ -26,6 +26,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
@@ -50,7 +51,7 @@ import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.EditorSearcher;
 
-public class SimpleEditor extends AppCompatActivity {
+public class SimpleEditor extends BaseActivity {
 
     MenuItem undo;
     MenuItem redo;

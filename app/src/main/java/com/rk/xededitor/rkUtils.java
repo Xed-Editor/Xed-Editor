@@ -11,7 +11,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 import static com.rk.xededitor.MainActivity.Data.*;
 import androidx.documentfile.provider.DocumentFile;
-
+import java.io.*;
 import com.rk.xededitor.MainActivity.MainActivity;
 
 import org.json.JSONException;
@@ -21,6 +21,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
 import java.util.Iterator;
 
 public class rkUtils {
@@ -41,6 +42,41 @@ public class rkUtils {
         }
     }
 
+    public static String calculateMD5(File file) {
+        try {
+            // Create a FileInputStream to read the file
+            FileInputStream fis = new FileInputStream(file);
+
+            // Create a MessageDigest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            // Create a buffer to read bytes from the file
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+
+            // Read the file and update the MessageDigest
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                md.update(buffer, 0, bytesRead);
+            }
+
+            // Close the FileInputStream
+            fis.close();
+
+            // Get the MD5 digest bytes
+            byte[] mdBytes = md.digest();
+
+            // Convert the byte array into a hexadecimal string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : mdBytes) {
+                hexString.append(String.format("%02x", b));
+            }
+
+            return hexString.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     public static void toast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }

@@ -1,16 +1,16 @@
 package com.rk.xededitor
 
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import java.util.Timer
 import java.util.TimerTask
 
-class After(timeInMillis:Long, runnable: Runnable) {
+class After(timeInMillis: Long, runnable: Runnable) {
     init {
-        val timer = Timer()
-        val timerTask: TimerTask = object : TimerTask() {
-            override fun run() {
-               runnable.run()
-            }
-        }
-        timer.schedule(timerTask,0, timeInMillis)
+       Thread{
+           Thread.sleep(timeInMillis)
+           runnable.run()
+       }.start()
     }
 }

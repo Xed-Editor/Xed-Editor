@@ -11,8 +11,6 @@ import static com.rk.xededitor.MainActivity.Data.rootFolder;
 import static com.rk.xededitor.MainActivity.Data.titles;
 import static com.rk.xededitor.MainActivity.Data.uris;
 
-import com.rk.xededitor.plugin.PluginInstance;
-import com.rk.xededitor.plugin.PluginServer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -49,17 +47,18 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.rk.xededitor.After;
+import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
 import com.rk.xededitor.MainActivity.treeview2.MA;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
-
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsActivity;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.databinding.ActivityDynamicBinding;
+import com.rk.xededitor.plugin.PluginInstance;
+import com.rk.xededitor.plugin.PluginServer;
 import com.rk.xededitor.rkUtils;
 
 import java.io.File;
@@ -74,7 +73,7 @@ import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.EditorSearcher;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
     final int REQUEST_FILE_SELECTION = 123;
     public ActivityDynamicBinding binding;
@@ -207,12 +206,10 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-       // if (PluginServer.getLoadedPlugins() != null){
-        //not working
-            for (PluginInstance pluginInstance : PluginServer.getLoadedPlugins()){
-                pluginInstance.onActivityCreate(this);
-            }
-        //}
+
+
+
+
 
     }
 
