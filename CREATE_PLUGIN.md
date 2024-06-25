@@ -10,11 +10,11 @@ git clone https://github.com/RohitKushvaha01/xedPluginDemo
 #profit
 ```
 
+## Read APIDocumentation.md for the API documentation 
 
 
 
-
-## If you want to Create the project from scratch
+## or else If you want to Create the project from scratch
 
 
 - Create a empty project in android studio
