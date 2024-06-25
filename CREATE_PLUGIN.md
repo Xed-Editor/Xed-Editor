@@ -14,8 +14,7 @@ git clone https://github.com/RohitKushvaha01/xedPluginDemo
 
 
 
-## if you want to
-## Create the project from scratch
+## If you want to Create the project from scratch
 
 
 - Create a empty project in android studio
