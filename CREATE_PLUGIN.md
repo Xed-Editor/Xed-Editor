@@ -10,7 +10,7 @@ git clone https://github.com/RohitKushvaha01/xedPluginDemo
 #profit
 ```
 
-Read [Documentation](https://github.com/RohitKushvaha01/Xed-Editor/APIDocumentation.md) for the API documentation 
+Read [Documentation](https://github.com/RohitKushvaha01/Xed-Editor/blob/main/APIDocumentation.md) for the API documentation 
 
 
 
@@ -62,7 +62,7 @@ add "-dontobfuscate" into the proguard rules
 - Disable minification
 ![Screenshot from 2024-06-25 11-42-50](https://github.com/RohitKushvaha01/Xed-Editor/assets/99863818/0e997a7c-087b-408a-a1b8-4e375dc8c0cd)
 
-Read [Documentation](https://github.com/RohitKushvaha01/Xed-Editor/APIDocumentation.md) for the API documentation  
+Read [Documentation](https://github.com/RohitKushvaha01/Xed-Editor/blob/main/APIDocumentation.md) for the API documentation  
 
 
 
