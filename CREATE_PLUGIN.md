@@ -9,7 +9,13 @@ git clone https://github.com/RohitKushvaha01/xedPluginDemo
 
 #profit
 ```
-## Creating the project from scratch
+
+
+
+
+
+## if you want to
+## Create the project from scratch
 
 
 - Create a empty project in android studio
