@@ -1,15 +1,6 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.Data.REQUEST_DIRECTORY_SELECTION;
-import static com.rk.xededitor.MainActivity.Data.activity;
-import static com.rk.xededitor.MainActivity.Data.contents;
-import static com.rk.xededitor.MainActivity.Data.fileList;
-import static com.rk.xededitor.MainActivity.Data.fragments;
-import static com.rk.xededitor.MainActivity.Data.mTabLayout;
-import static com.rk.xededitor.MainActivity.Data.menu;
-import static com.rk.xededitor.MainActivity.Data.rootFolder;
-import static com.rk.xededitor.MainActivity.Data.titles;
-import static com.rk.xededitor.MainActivity.Data.uris;
+import static com.rk.xededitor.MainActivity.Data.*;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -64,6 +55,7 @@ import com.rk.xededitor.rkUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -95,8 +87,13 @@ public class MainActivity extends BaseActivity {
 
         activity = this;
 
-        //use thread
-        SettingsData.applyPrefs(this);
+        PluginServer pluginServer = new PluginServer(getApplication());
+        pluginServer.start();
+
+
+
+
+
 
         fileList = new ArrayList<>();
         Toolbar toolbar = binding.toolbar;
@@ -422,7 +419,9 @@ public class MainActivity extends BaseActivity {
     protected void onDestroy() {
         Data.clear();
         super.onDestroy();
+
     }
+
 
     public void openFile(View v) {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);

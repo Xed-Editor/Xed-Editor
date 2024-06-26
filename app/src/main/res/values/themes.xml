@@ -12,6 +12,10 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="BoldTextView">
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="Theme.Fragments.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Fragments.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />

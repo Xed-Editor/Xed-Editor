@@ -1,11 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-    <!-- Main content -->
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/drawer_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<?xml version="1.0" encoding="utf-8"?><!-- Main content -->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -20,20 +18,19 @@
             android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
 
         <androidx.core.widget.NestedScrollView
-            android:layout_height="match_parent"
+            android:id="@+id/nested_scroll_view"
             android:layout_width="match_parent"
-            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-            android:id="@+id/nested_scroll_view">
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
 
-<LinearLayout
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:id="@+id/mainBody"/>
+            <LinearLayout
+                android:id="@+id/mainBody"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" />
 
         </androidx.core.widget.NestedScrollView>
-
 
 
     </com.google.android.material.appbar.AppBarLayout>

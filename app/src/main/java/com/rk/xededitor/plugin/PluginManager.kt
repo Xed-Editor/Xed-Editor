@@ -28,13 +28,12 @@ class PluginManager {
         }
 
         @JvmStatic
-        fun isPluginActive(ctx: Context?, app: ApplicationInfo): Boolean {
+        fun isPluginActive(ctx: Context?, packageName:String): Boolean {
             val jsonString = SettingsData.getSetting(ctx, "activePlugins", "{}")
             var toReturn = false
             try {
                 val jsonObject = JSONObject(jsonString)
-                toReturn = if (jsonObject.has(app.packageName)) {
-                    jsonObject.getBoolean(app.packageName)
+                toReturn = if (jsonObject.has(packageName)) { jsonObject.getBoolean(packageName)
                 } else {
                     return false
                 }

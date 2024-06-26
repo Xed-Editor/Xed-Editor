@@ -109,7 +109,6 @@ public class SimpleEditor extends BaseActivity {
         editor.setTextSize(14);
         boolean wordwrap = SettingsData.getBoolean(this, "wordwrap", false);
         editor.setWordwrap(wordwrap, SettingsData.getBoolean(this, "antiWordBreaking", true));
-        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(this, "useIcu", false);
 
 
 

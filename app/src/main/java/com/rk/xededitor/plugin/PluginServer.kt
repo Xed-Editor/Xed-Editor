@@ -3,8 +3,10 @@ package com.rk.xededitor.plugin
 import android.app.Application
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
+import com.rk.xededitor.MainActivity.Data
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xedplugin.API
@@ -29,8 +31,19 @@ class PluginServer(private val ctx: Application) : Thread() {
         private val minApiVersion = 1
         @JvmStatic
         var loadedPlugins: ArrayList<PluginInstance>? = null
-    }
+        @JvmStatic
+        var arrayOfPluginNames = ArrayList<String>()
+        @JvmStatic
+        var arrayOfPluginIcons = ArrayList<Drawable>()
+        @JvmStatic
+        var arrayOfPluginPackageNames = ArrayList<String>()
+        @JvmStatic
+        var pluginsinfo = mutableListOf<ApplicationInfo>()
+        @JvmStatic
+        var isRunning = false
 
+
+    }
 
     private val lock = ReentrantLock()
 
@@ -49,7 +62,29 @@ class PluginServer(private val ctx: Application) : Thread() {
     }
 
 
+
+
+
     override fun run() {
+        if (isRunning){
+            err("plugin server is already running trying to clean start a new thread")
+            lock.lock()
+            loadedPlugins = ArrayList()
+            lock.unlock()
+            arrayOfPluginNames = ArrayList<String>()
+            arrayOfPluginIcons = ArrayList<Drawable>()
+            arrayOfPluginPackageNames = ArrayList<String>()
+            pluginsinfo = mutableListOf<ApplicationInfo>()
+
+        }
+
+        while (Data.activity == null){ sleep(50) }
+
+        if(!SettingsData.getBoolean(Data.activity,"enablePlugins",false)){
+            info("plugins are disabled server won't start")
+            return
+        }
+        isRunning = true
         info("plugin server started")
 
         info("apiVersion : $apiVersion")
@@ -71,10 +106,10 @@ class PluginServer(private val ctx: Application) : Thread() {
             pm.getInstalledApplications(0)
         }
 
-        val pluginsinfo = mutableListOf<ApplicationInfo>()
+
         for (app in apps) {
-            val metaData =
-                pm.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA).metaData
+
+            val metaData = pm.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA).metaData
             if (metaData != null && metaData.containsKey(pluginKey) && metaData.containsKey(entryPointKey)) {
                 entryPointClassName = metaData.getString(entryPointKey, "")
 
@@ -84,6 +119,9 @@ class PluginServer(private val ctx: Application) : Thread() {
                     val pluginApiVersion = metaData.getInt(pluginKey, 0)
                     if (pluginApiVersion in minApiVersion..apiVersion) {
                         pluginsinfo.add(app)
+                        arrayOfPluginIcons.add(app.loadIcon(pm))
+                        arrayOfPluginNames.add(pm.getApplicationLabel(app).toString())
+                        arrayOfPluginPackageNames.add(app.packageName)
                     } else {
                         err("failed to load plugin : ${app.packageName} \n apiVersion : $pluginApiVersion")
                     }
@@ -109,7 +147,7 @@ class PluginServer(private val ctx: Application) : Thread() {
 
 
 
-                if (!PluginManager.isPluginActive(ctx, plugininfo)) {
+                if (PluginManager.isPluginActive(ctx, plugininfo.packageName)) {
                     val classLoader = DexClassLoader(
                         apkpath,
                         ctx.codeCacheDir.absolutePath,

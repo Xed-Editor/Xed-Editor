@@ -7,7 +7,6 @@
         tools:ignore="QueryAllPackagesPermission" />
 
 
-
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -22,10 +21,16 @@
         <activity
             android:name=".BatchReplacement.BatchReplacement"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_batch_replacement"
             android:theme="@style/Theme.Fragments.NoActionBar" />
         <activity
+            android:name=".plugin.ManagePluginActivity.ManagePluginActivity"
+            android:screenOrientation="portrait"
+            android:exported="true" />
+        <activity
             android:name=".SimpleEditor.SimpleEditor"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
@@ -38,7 +43,8 @@
         </activity>
         <activity
             android:name=".Settings.SettingsActivity"
-            android:exported="false"
+            android:exported="true"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_settings">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -48,6 +54,7 @@
             android:name=".MainActivity.MainActivity"
             android:configChanges="uiMode|screenSize|orientation|screenLayout|smallestScreenSize"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Fragments">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

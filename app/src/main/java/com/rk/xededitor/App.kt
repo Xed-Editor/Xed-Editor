@@ -7,9 +7,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        println("starting plugin server")
-        val pluginServer = PluginServer(this)
-        pluginServer.start()
+
 
     }
+
 }

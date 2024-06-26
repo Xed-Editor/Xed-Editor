@@ -76,7 +76,6 @@ public class DynamicFragment extends Fragment {
         editor.setTextSize(14);
         boolean wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false);
         editor.setWordwrap(wordwrap, SettingsData.getBoolean(ctx, "antiWordBreaking", true));
-        editor.getProps().useICULibToSelectWords = SettingsData.getBoolean(ctx, "useIcu", false);
         ensureTextmateTheme();
         undo = Data.menu.findItem(R.id.undo);
         redo = Data.menu.findItem(R.id.redo);

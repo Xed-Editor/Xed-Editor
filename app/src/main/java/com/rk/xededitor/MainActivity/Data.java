@@ -7,6 +7,7 @@ import android.view.Menu;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.plugin.PluginServer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,8 @@ public class Data {
         mTabLayout = null;
         fileList = null;
         rootFolder = null;
+
+
         //run the garbage collector
         Log.d("Data","Cleaning State Data...");
         System.gc();
