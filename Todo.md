@@ -24,4 +24,5 @@ v2.0.1
 v2.0.2
 - Add Vim keybinds
 - Fix batch replacement in external editor
+- [ ] Add plugin repo
 
