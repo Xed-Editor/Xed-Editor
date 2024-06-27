@@ -17,7 +17,11 @@ v2.0.1
 - [x] Fix Search arrows are inverted
 - [x] Fix Unsupported error on files opening with xed
 - [ ] Fix slow app start
-- [ ] Add plugin settings
-- [ ] Add plugin documentation
+- [x] Add plugin settings
+- [x] Add plugin documentation
 - [ ] Add plugin repo
+
+v2.0.2
+- Add Vim keybinds
+- Fix batch replacement in external editor
 
