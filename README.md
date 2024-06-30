@@ -27,7 +27,6 @@
 - [x] Creating files and folders
 - [x] Copy Pasteing files and Folders
 - [x] Rename, Delete files and folders
-- [ ] Vim keybinds
 
 See [Todo.md](/Todo.md) to know what's going on
 
