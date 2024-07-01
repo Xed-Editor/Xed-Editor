@@ -33,6 +33,10 @@ v2.0.2
 - [ ] Fix potential keyboard glitch
 - [ ] Refactor Batch replacement class to kotlin
 - [ ] Add missing menu items to external editor
+- [ ] Fix editor file name problem
 - [ ] Add a splash screen
 - [ ] Add share option
 - [ ] Add Plugin Documentation
+- [ ] Add Terminal+proot with Kali Linux PS1 prompt
+- [ ] Add Xposed Hook support in the plugin system
+- [ ] add IPC protocol in the plugin system
