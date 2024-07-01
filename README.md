@@ -28,7 +28,7 @@
 - [x] Copy Pasteing files and Folders
 - [x] Rename, Delete files and folders
 
-See [Todo.md](/Todo.md) to know what's going on
+See [Todo.md](/Todo.md) for current development status
 
 ## Installation
 
