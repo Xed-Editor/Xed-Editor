@@ -24,6 +24,7 @@ v2.0.1
 v2.0.2
 - [ ] Fix batch replacement in external editor
 - [ ] Add plugin repo
+- [ ] Add Creating new File without opening a folder
 - [ ] Add printing
 - [ ] Add Tab remembering
 - [ ] Always show as action for save button
