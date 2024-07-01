@@ -22,7 +22,9 @@ v2.0.1
 - [ ] Add plugin repo
 
 v2.0.2
-- [ ] Add Vim keybinds
 - [ ] Fix batch replacement in external editor
 - [ ] Add plugin repo
-
+- [ ] Add printing
+- [ ] Add Tab remembering
+- [ ] always show as action for save button
+- [ ] use system clipboard handler
