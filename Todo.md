@@ -26,5 +26,12 @@ v2.0.2
 - [ ] Add plugin repo
 - [ ] Add printing
 - [ ] Add Tab remembering
-- [ ] always show as action for save button
-- [ ] use system clipboard handler
+- [ ] Always show as action for save button
+- [ ] Use system clipboard handler
+- [ ] Remove anti word breaking toggle
+- [ ] Fix plugins ui
+- [ ] Fix potential keyboard glitch
+- [ ] Refactor Batch replacement class to kotlin
+- [ ] Add missing menu items to external editor
+- [ ] Add a splash screen
+- [ ] Add share option
