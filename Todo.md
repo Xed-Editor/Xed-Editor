@@ -35,3 +35,4 @@ v2.0.2
 - [ ] Add missing menu items to external editor
 - [ ] Add a splash screen
 - [ ] Add share option
+- [ ] Add Plugin Documentation
