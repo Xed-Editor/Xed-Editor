@@ -25,16 +25,17 @@ v3.0.0
 - [x] Fix batch replacement in external editor
 - [x] Add Creating new File without opening a folder
 - [x] Add printing
-- [ ] Add Tab remembering
 - [x] Always show as action for save button
-- [ ] Use system clipboard handler
 - [x] Remove anti word breaking toggle
+- [ ] Add missing menu items to external editor
+- [ ] Use system clipboard handler
+- [ ] Add share option
 - [ ] Fix plugins ui
 - [ ] Fix potential keyboard glitch
-- [ ] Add missing menu items to external editor
 - [x] Fix editor file name problem
+
+    
 - [ ] Add a splash screen
-- [ ] Add share option
 - [ ] Add Plugin Documentation
 - [ ] Add Terminal+proot with Kali Linux PS1 prompt
 - [ ] Add Xposed Hook support in the plugin system
