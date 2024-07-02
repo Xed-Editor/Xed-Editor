@@ -1,5 +1,6 @@
 package com.rk.xededitor.MainActivity;
 
+import static com.rk.xededitor.MainActivity.Data.activity;
 import static com.rk.xededitor.MainActivity.Data.contents;
 import static com.rk.xededitor.MainActivity.Data.fileList;
 import static com.rk.xededitor.MainActivity.Data.fragments;
@@ -45,155 +46,171 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 
 public class DynamicFragment extends Fragment {
-
-    private final DocumentFile file;
-    private final Context ctx;
-    public CodeEditor editor;
-    public boolean isModified = false;
-    MenuItem undo;
-    MenuItem redo;
-
-    public DynamicFragment(DocumentFile file, Context ctx) {
-        this.ctx = ctx;
-        this.file = file;
-        editor = new CodeEditor(ctx);
-        if (contents == null) {
-            contents = new ArrayList<>();
-        }
-        Content content = null;
+  
+  final String fileName;
+  private final DocumentFile file;
+  private final Context ctx;
+  public CodeEditor editor;
+  public boolean isModified = false;
+  MenuItem undo;
+  MenuItem redo;
+  boolean isNewFile;
+  
+  public DynamicFragment(DocumentFile file, Context ctx, boolean isNewFile) {
+    this.isNewFile = isNewFile;
+    fileName = file.getName();
+    this.ctx = ctx;
+    this.file = file;
+    editor = new CodeEditor(ctx);
+    if (contents == null) {
+      contents = new ArrayList<>();
+    }
+    final boolean wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false);
+    if (isNewFile) {
+      editor.setText("");
+    } else {
+      new Thread(() -> {
         try {
-            InputStream inputStream;
-            inputStream = ctx.getContentResolver().openInputStream(file.getUri());
-            assert inputStream != null;
-            content = ContentIO.createFrom(inputStream);
-            contents.add(content);
-            inputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        editor.setText(content);
-        editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
-        editor.setTextSize(14);
-        boolean wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false);
-        editor.setWordwrap(wordwrap, SettingsData.getBoolean(ctx, "antiWordBreaking", true));
-        ensureTextmateTheme();
-        undo = Data.menu.findItem(R.id.undo);
-        redo = Data.menu.findItem(R.id.redo);
-
-        editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
-            updateUndoRedo();
-
-            TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
-            String name = Objects.requireNonNull(tab.getText()).toString();
-            if ((!isModified) && name.charAt(name.length() - 1) != '*') {
-                tab.setText(tab.getText() + "*");
-            }
-            isModified = true;
-        });
-
-        if (wordwrap) {
+          InputStream inputStream;
+          inputStream = ctx.getContentResolver().openInputStream(file.getUri());
+          assert inputStream != null;
+          Content content = ContentIO.createFrom(inputStream);
+          contents.add(content);
+          inputStream.close();
+          activity.runOnUiThread(() -> editor.setText(content));
+          if (wordwrap) {
             int length = content.toString().length();
             if (length > 700 && content.toString().split("\\R").length < 100) {
-                rkUtils.toast("Please wait for word wrap to complete");
+              activity.runOnUiThread(() -> rkUtils.toast("Please wait for word wrap to complete"));
             }
             if (length > 1500) {
-                Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show();
+              activity.runOnUiThread(() -> Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show());
             }
-        }
-    }
-
-    public DocumentFile getFile(){
-        return file;
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return editor;
-    }
-
-    public void updateUndoRedo() {
-        redo.setEnabled(editor.canRedo());
-        undo.setEnabled(editor.canUndo());
-    }
-
-    public void releaseEditor() {
-        releaseEditor(false);
-    }
-
-    public void releaseEditor(boolean removeCoontent) {
-        editor.release();
-        editor = null;
-        if (removeCoontent) {
-            contents.remove(fileList.indexOf(file));
-        }
-
-    }
-
-    public void Undo() {
-        if (editor.canUndo()) {
-            editor.undo();
-        }
-    }
-
-    public void Redo() {
-        if (editor.canRedo()) {
-            editor.redo();
-        }
-    }
-
-    public CodeEditor getEditor() {
-        return editor;
-    }
-
-    private void ensureTextmateTheme() {
-
-        var editorColorScheme = editor.getColorScheme();
-        var themeRegistry = ThemeRegistry.getInstance();
-
-        boolean darkMode = SettingsData.isDarkMode(ctx);
-        try {
-
-            if (darkMode) {
-                String path;
-                if (SettingsData.isOled(ctx)) {
-                    path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
-                } else {
-                    path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
-                }
-                if (!new File(path).exists()) {
-                    rkUtils.toast("theme file not found please reinstall the Xed Editor");
-                }
-
-                themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
-                editorColorScheme = TextMateColorScheme.create(themeRegistry);
-                if (SettingsData.isOled(ctx)) {
-                    editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK);
-                }
-
-            } else {
-
-                String path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
-                if (!new File(path).exists()) {
-                    rkUtils.toast("theme file not found");
-                }
-                themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
-                editorColorScheme = TextMateColorScheme.create(themeRegistry);
-            }
-
+          }
         } catch (Exception e) {
-            e.printStackTrace();
+          e.printStackTrace();
         }
-
-        if (darkMode) {
-            SharedPreferences pref = ctx.getApplicationContext().getSharedPreferences("MyPref", 0);
-            themeRegistry.setTheme("darcula");
-        } else {
-            themeRegistry.setTheme("quietlight");
-        }
-
-        editor.setColorScheme(editorColorScheme);
+        
+        
+      }).start();
+      
+      
     }
-
+    
+    editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
+    editor.setTextSize(14);
+    editor.setWordwrap(wordwrap);
+    
+    new Thread(this::ensureTextmateTheme).start();
+    
+    undo = Data.menu.findItem(R.id.undo);
+    redo = Data.menu.findItem(R.id.redo);
+    
+    editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
+      updateUndoRedo();
+      
+      TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
+      String name = Objects.requireNonNull(tab.getText()).toString();
+      if (isModified) {
+        tab.setText(fileName + "*");
+      }
+      isModified = true;
+    });
+    
+    
+  }
+  
+  public DocumentFile getFile() {
+    return file;
+  }
+  
+  @Nullable
+  @Override
+  public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    return editor;
+  }
+  
+  public void updateUndoRedo() {
+    redo.setEnabled(editor.canRedo());
+    undo.setEnabled(editor.canUndo());
+  }
+  
+  public void releaseEditor() {
+    releaseEditor(false);
+  }
+  
+  public void releaseEditor(boolean removeCoontent) {
+    editor.release();
+    editor = null;
+    if (removeCoontent) {
+      contents.remove(fileList.indexOf(file));
+    }
+    
+  }
+  
+  public void Undo() {
+    if (editor.canUndo()) {
+      editor.undo();
+    }
+  }
+  
+  public void Redo() {
+    if (editor.canRedo()) {
+      editor.redo();
+    }
+  }
+  
+  public CodeEditor getEditor() {
+    return editor;
+  }
+  
+  private void ensureTextmateTheme() {
+    
+    var editorColorScheme = editor.getColorScheme();
+    var themeRegistry = ThemeRegistry.getInstance();
+    
+    boolean darkMode = SettingsData.isDarkMode(ctx);
+    try {
+      
+      if (darkMode) {
+        String path;
+        if (SettingsData.isOled(ctx)) {
+          path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
+        } else {
+          path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
+        }
+        if (!new File(path).exists()) {
+          activity.runOnUiThread(() -> rkUtils.toast("theme file not found please reinstall the Xed Editor or clear app data"));
+        }
+        
+        themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
+        editorColorScheme = TextMateColorScheme.create(themeRegistry);
+        if (SettingsData.isOled(ctx)) {
+          editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK);
+        }
+      } else {
+        String path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
+        if (!new File(path).exists()) {
+          activity.runOnUiThread(() -> rkUtils.toast("theme file not found please reinstall the Xed Editor or clear app data"));
+          
+        }
+        themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
+        editorColorScheme = TextMateColorScheme.create(themeRegistry);
+      }
+      
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    if (darkMode) {
+      SharedPreferences pref = ctx.getApplicationContext().getSharedPreferences("MyPref", 0);
+      themeRegistry.setTheme("darcula");
+    } else {
+      themeRegistry.setTheme("quietlight");
+    }
+    
+    editor.setColorScheme(editorColorScheme);
+  }
+  
 }
 

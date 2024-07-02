@@ -3,12 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
-    <item
-        android:id="@+id/run"
-        android:title="Run"
-        android:visible="false"
-        android:icon="@drawable/run"
-        app:showAsAction="always" />
+
 
     <item
         android:id="@+id/action_all"
@@ -19,7 +14,8 @@
         android:id="@+id/action_save"
         android:title="Save"
         android:visible="false"
-        app:showAsAction="never" />
+        android:icon="@drawable/save"
+        app:showAsAction="always" />
     <item
         android:id="@+id/undo"
         android:title="Undo"
@@ -40,6 +36,11 @@
         android:title="Settings"
         android:icon="@drawable/settings"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_print"
+        android:title="Print"
+        android:visible="false"
+        app:showAsAction="never" />
     <item
         android:id="@+id/batchrep"
         android:title="Batch Replacement"

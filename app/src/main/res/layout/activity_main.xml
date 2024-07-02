@@ -129,6 +129,13 @@
                 android:onClick="openDir"
                 android:text="Open a Directory" />
 
+            <Button
+                android:id="@+id/newFile"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:onClick="newFile"
+                android:text="New File" />
+
         </LinearLayout>
 
 

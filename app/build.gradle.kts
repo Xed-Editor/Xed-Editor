@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.Packaging
 import java.util.Properties
 
 plugins {
@@ -13,7 +14,10 @@ android {
         includeInApk = false
         includeInBundle = false
     }
-
+    
+    
+   
+    
     val filePath = "/home/rohit/signing.properties"
     val file = File(filePath)
 
@@ -93,7 +97,7 @@ dependencies {
     implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
-
+    
 
     
 }
