@@ -23,7 +23,6 @@ v2.0.1
 
 v3.0.0
 - [ ] Fix batch replacement in external editor
-- [ ] Add plugin repo
 - [ ] Add Creating new File without opening a folder
 - [x] Add printing
 - [ ] Add Tab remembering
@@ -41,3 +40,4 @@ v3.0.0
 - [ ] Add Terminal+proot with Kali Linux PS1 prompt
 - [ ] Add Xposed Hook support in the plugin system
 - [ ] add IPC protocol in the plugin system
+- [ ] Add plugin repo
