@@ -22,7 +22,7 @@ v2.0.1
 - [ ] Add plugin repo
 
 v3.0.0
-- [ ] Fix batch replacement in external editor
+- [x] Fix batch replacement in external editor
 - [ ] Add Creating new File without opening a folder
 - [x] Add printing
 - [ ] Add Tab remembering
