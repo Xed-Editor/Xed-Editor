@@ -23,7 +23,7 @@ v2.0.1
 
 v3.0.0
 - [x] Fix batch replacement in external editor
-- [ ] Add Creating new File without opening a folder
+- [x] Add Creating new File without opening a folder
 - [x] Add printing
 - [ ] Add Tab remembering
 - [x] Always show as action for save button
