@@ -27,9 +27,9 @@ v3.0.0
 - [ ] Add Creating new File without opening a folder
 - [ ] Add printing
 - [ ] Add Tab remembering
-- [ ] Always show as action for save button
+- [x] Always show as action for save button
 - [ ] Use system clipboard handler
-- [ ] Remove anti word breaking toggle
+- [x] Remove anti word breaking toggle
 - [ ] Fix plugins ui
 - [ ] Fix potential keyboard glitch
 - [ ] Refactor Batch replacement class to kotlin
