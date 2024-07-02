@@ -25,7 +25,7 @@ v3.0.0
 - [ ] Fix batch replacement in external editor
 - [ ] Add plugin repo
 - [ ] Add Creating new File without opening a folder
-- [ ] Add printing
+- [x] Add printing
 - [ ] Add Tab remembering
 - [x] Always show as action for save button
 - [ ] Use system clipboard handler
