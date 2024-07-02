@@ -31,9 +31,8 @@ v3.0.0
 - [x] Remove anti word breaking toggle
 - [ ] Fix plugins ui
 - [ ] Fix potential keyboard glitch
-- [ ] Refactor Batch replacement class to kotlin
 - [ ] Add missing menu items to external editor
-- [ ] Fix editor file name problem
+- [x] Fix editor file name problem
 - [ ] Add a splash screen
 - [ ] Add share option
 - [ ] Add Plugin Documentation
