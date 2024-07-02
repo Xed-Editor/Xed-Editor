@@ -33,8 +33,7 @@ v3.0.0
 - [ ] Fix plugins ui
 - [ ] Fix potential keyboard glitch
 - [x] Fix editor file name problem
-
-    
+- future
 - [ ] Add a splash screen
 - [ ] Add Plugin Documentation
 - [ ] Add Terminal+proot with Kali Linux PS1 prompt
