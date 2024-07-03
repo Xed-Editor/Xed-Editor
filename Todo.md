@@ -27,7 +27,7 @@ v3.0.0
 - [x] Add printing
 - [x] Always show as action for save button
 - [x] Remove anti word breaking toggle
-- [ ] Add missing menu items to external editor
+- [x] Add missing menu items to external editor
 - [ ] Use system clipboard handler
 - [ ] Add share option
 - [ ] Fix plugins ui
