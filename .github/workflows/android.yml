@@ -33,6 +33,9 @@ jobs:
       with:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
+    - name: Gradle Dependency Submission
+      uses: mikepenz/gradle-dependency-submission@v1.0.0
+            
     - name: Notify Telegram Group
       env:
         USER: ${{github.actor}}
@@ -40,3 +43,4 @@ jobs:
         MSG: ${{ github.event.head_commit.message }}
         COMMIT_URL: ${{ github.repository_url }}/commit/${{ github.sha }}
       run: bash .github/workflows/newCommit.sh
+      
