@@ -28,11 +28,12 @@ v3.0.0
 - [x] Always show as action for save button
 - [x] Remove anti word breaking toggle
 - [x] Add missing menu items to external editor
+- [x] Fix editor file name problem
 - [ ] Use system clipboard handler
 - [ ] Add share option
 - [ ] Fix plugins ui
 - [ ] Fix potential keyboard glitch
-- [x] Fix editor file name problem
+
 - future
 - [ ] Add a splash screen
 - [ ] Add Plugin Documentation
