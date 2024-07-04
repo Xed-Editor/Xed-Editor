@@ -1,0 +1,12 @@
+v2.1.0 (22)
+
+- Fixed batch replacement in external editor
+- Added Creating new File without opening a folder
+- Added printing
+- Always show as action for save button
+- Removed anti word breaking toggle
+- Added missing menu items to external editor
+- Fixed editor file name problem
+- Reduced Delay of text handler
+- Added share option
+- Potentially fixed keyboard glitch
