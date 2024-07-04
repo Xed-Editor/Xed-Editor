@@ -53,6 +53,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.rosemoe.sora.widget.CodeEditor;
+
 public class MainActivity extends BaseActivity {
   
   final int REQUEST_FILE_SELECTION = 123;
@@ -124,6 +126,8 @@ public class MainActivity extends BaseActivity {
         fragments.get(mTabLayout.getSelectedTabPosition()).updateUndoRedo();
       }
       
+      
+      
       @Override
       public void onTabUnselected(TabLayout.Tab tab) {
       }
@@ -165,6 +169,7 @@ public class MainActivity extends BaseActivity {
             menu.findItem(R.id.action_print).setVisible(visible);
             menu.findItem(R.id.action_all).setVisible(visible);
             menu.findItem(R.id.batchrep).setVisible(visible);
+            menu.findItem(R.id.share).setVisible(visible);
             
             
             return true;
@@ -177,6 +182,10 @@ public class MainActivity extends BaseActivity {
     
     
     new Init(this);
+  }
+  
+  public CodeEditor getCurrentEditor(){
+    return fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
   }
   
   public boolean hasUriPermission(Uri uri) {
@@ -268,6 +277,7 @@ public class MainActivity extends BaseActivity {
     menu.findItem(R.id.action_print).setVisible(visible);
     menu.findItem(R.id.action_all).setVisible(visible);
     menu.findItem(R.id.batchrep).setVisible(visible);
+    menu.findItem(R.id.share).setVisible(visible);
     MenuItem undo = menu.findItem(R.id.undo);
     MenuItem redo = menu.findItem(R.id.redo);
     undo.setVisible(true);
@@ -327,6 +337,7 @@ public class MainActivity extends BaseActivity {
     menu.findItem(R.id.action_all).setVisible(visible);
     menu.findItem(R.id.batchrep).setVisible(visible);
     menu.findItem(R.id.search).setVisible(visible);
+    menu.findItem(R.id.share).setVisible(visible);
     
   }
   

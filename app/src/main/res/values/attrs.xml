@@ -1,0 +1,74 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ~    sora-editor - the awesome code editor for Android
+  ~    https://github.com/Rosemoe/sora-editor
+  ~    Copyright (C) 2020-2024  Rosemoe
+  ~
+  ~     This library is free software; you can redistribute it and/or
+  ~     modify it under the terms of the GNU Lesser General Public
+  ~     License as published by the Free Software Foundation; either
+  ~     version 2.1 of the License, or (at your option) any later version.
+  ~
+  ~     This library is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  ~     Lesser General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU Lesser General Public
+  ~     License along with this library; if not, write to the Free Software
+  ~     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
+  ~     USA
+  ~
+  ~     Please contact Rosemoe by email 2073412493@qq.com if you need
+  ~     additional information or have any questions
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<resources>
+    <!-- Style attribute for CodeEditor -->
+    <attr name="codeEditorStyle" format="reference" />
+
+    <declare-styleable name="CodeEditor">
+        <attr name="scrollbarTrackHorizontal" format="reference" />
+        <attr name="scrollbarThumbHorizontal" format="reference" />
+        <attr name="scrollbarTrackVertical" format="reference" />
+        <attr name="scrollbarThumbVertical" format="reference" />
+
+        <attr name="lnPanelPositionMode">
+            <enum name="fixed" value="0" />
+            <enum name="follow" value="1" />
+        </attr>
+        <attr name="lnPanelPosition">
+            <flag name="left" value="1" />
+            <flag name="top" value="2" />
+            <flag name="right" value="4" />
+            <flag name="bottom" value="8" />
+            <flag name="center" value="15" />
+        </attr>
+
+        <attr name="text" format="string" />
+        <attr name="textSize" format="dimension" />
+        <attr name="dividerWidth" format="dimension" />
+        <attr name="dividerMargin" format="dimension" />
+        <attr name="lineNumberVisible" format="boolean" />
+        <attr name="autoCompleteEnabled" format="boolean" />
+        <attr name="symbolCompletionEnabled" format="boolean" />
+        <attr name="cursorBlinkPeriod" format="integer" />
+        <attr name="verticalScrollbarEnabled" format="boolean" />
+        <attr name="horizontalScrollbarEnabled" format="boolean" />
+        <attr name="pinLineNumber" format="boolean" />
+        <attr name="wordwrapMode">
+            <enum name="off" value="0" />
+            <!-- Without anti-word-breaking -->
+            <enum name="basic" value="1" />
+            <!-- With anti-word-breaking -->
+            <enum name="standard" value="2" />
+        </attr>
+        <attr name="highlightCurrentLine" format="boolean" />
+        <attr name="highlightCurrentBlock" format="boolean" />
+        <attr name="highlightBracketPair" format="boolean" />
+        <attr name="ligatures" format="boolean" />
+        <attr name="renderFunctionChars" format="boolean" />
+        <attr name="scalable" format="boolean" />
+        <attr name="tabWidth" format="integer" />
+    </declare-styleable>
+
+</resources>

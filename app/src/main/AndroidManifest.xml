@@ -53,6 +53,7 @@
             android:name=".MainActivity.MainActivity"
             android:configChanges="uiMode|screenSize|orientation|screenLayout|smallestScreenSize"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Fragments">
             <intent-filter>

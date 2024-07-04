@@ -15,6 +15,10 @@ android {
         includeInBundle = false
     }
     
+    lint {
+        disable += "MissingTranslation"
+    }
+    
     
    
     
@@ -63,8 +67,8 @@ android {
         applicationId = "com.rk.xededitor"
         minSdk = 26
         targetSdk = 34
-        versionCode = 22
-        versionName = "2.0.2"
+        versionCode = 23
+        versionName = "2.1.0"
     }
 
     compileOptions {
@@ -94,7 +98,8 @@ dependencies {
     implementation(project(":xedPlugin"))
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
-    implementation("io.github.Rosemoe.sora-editor:editor")
+    //implementation("io.github.Rosemoe.sora-editor:editor")
+    implementation("androidx.collection:collection:1.4.0")
     implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
     

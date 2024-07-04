@@ -74,5 +74,10 @@
         app:showAsAction="always"
         android:icon="@drawable/find_replace"
         android:visible="false" />
+    <item
+        android:id="@+id/share"
+        android:title="Share"
+        app:showAsAction="never"
+        android:visible="false" />
 
 </menu>

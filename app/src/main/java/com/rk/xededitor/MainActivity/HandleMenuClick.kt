@@ -212,6 +212,8 @@ class HandleMenuClick {
           undo.setEnabled(editor.canUndo())
         } else if (id == R.id.action_print) {
           Printer.print(this, mAdapter.getCurrentEditor().text.toString())
+        }else if(id == R.id.share){
+            rkUtils.shareText(this, getCurrentEditor().text.toString());
         } else {
           return true
         }

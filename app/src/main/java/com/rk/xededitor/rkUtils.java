@@ -3,6 +3,7 @@ package com.rk.xededitor;
 import static com.rk.xededitor.MainActivity.Data.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -59,7 +60,15 @@ public class rkUtils {
       return null;
     }
   }
-  
+  public static void shareText(Context ctx,String text) {
+    Intent sendIntent = new Intent();
+    sendIntent.setAction(Intent.ACTION_SEND);
+    sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+    sendIntent.setType("text/plain");
+    
+    Intent shareIntent = Intent.createChooser(sendIntent, null);
+    ctx.startActivity(shareIntent);
+  }
   public static void toast(Context context, String message) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
   }

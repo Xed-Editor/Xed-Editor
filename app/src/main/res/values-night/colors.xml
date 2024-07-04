@@ -3,4 +3,6 @@
     <color name="berry">#B0C5FE</color>
     <color name="invert">@color/white</color>
     <color name="invert_dull">#999</color>
+<color name="defaultSymbolInputBackgroundColor">@android:color/background_dark</color>
+    <color name="defaultSymbolInputTextColor">@android:color/white</color>
 </resources>

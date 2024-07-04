@@ -1,6 +1,7 @@
 package com.rk.xededitor.plugin.ManagePluginActivity
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.divider.MaterialDivider
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.MainActivity.Data.activity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityManagePluginBinding
 import com.rk.xededitor.plugin.PluginServer
@@ -67,7 +69,18 @@ class ManagePluginActivity : BaseActivity() {
     
     
     binding.mainBody.addView(view3)
-    binding.mainBody.addView(listView)
+    if(PluginServer.arrayOfPluginNames.isEmpty()){
+      val textView = TextView(activity)
+      textView.text = "No Installed Plugins"
+      textView.gravity = Gravity.CENTER
+      binding.mainBody.addView(textView)
+    }else{
+      binding.mainBody.addView(listView)
+    }
+    
+    
+    
+   
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
