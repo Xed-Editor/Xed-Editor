@@ -34,6 +34,10 @@ v2.1.0
 - [x] Fix plugins ui
 - [x] Fix potential keyboard glitch
 
+v2.1.1
+- [ ] Fix Batch replacement crash
+- [ ] Add Double Tap url selection
+
 - future
 - [ ] Add a splash screen
 - [ ] Add Plugin Documentation
