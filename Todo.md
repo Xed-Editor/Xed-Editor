@@ -32,7 +32,7 @@ v3.0.0
 - [x] Reduced Delay of text handler
 - [x] Add share option
 - [x] Fix plugins ui
-- [ ] Fix potential keyboard glitch
+- [x] Fix potential keyboard glitch
 
 - future
 - [ ] Add a splash screen
