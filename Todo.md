@@ -21,7 +21,7 @@ v2.0.1
 - [x] Add plugin documentation
 - [ ] Add plugin repo
 
-v3.0.0
+v2.1.0
 - [x] Fix batch replacement in external editor
 - [x] Add Creating new File without opening a folder
 - [x] Add printing
