@@ -29,8 +29,8 @@ v3.0.0
 - [x] Remove anti word breaking toggle
 - [x] Add missing menu items to external editor
 - [x] Fix editor file name problem
-- [ ] Use system clipboard handler
-- [ ] Add share option
+- [x] Reduced Delay of text handler
+- [x] Add share option
 - [ ] Fix plugins ui
 - [ ] Fix potential keyboard glitch
 
