@@ -31,7 +31,7 @@ v3.0.0
 - [x] Fix editor file name problem
 - [x] Reduced Delay of text handler
 - [x] Add share option
-- [ ] Fix plugins ui
+- [x] Fix plugins ui
 - [ ] Fix potential keyboard glitch
 
 - future
