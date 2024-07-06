@@ -35,7 +35,7 @@ v2.1.0
 - [x] Fix potential keyboard glitch
 
 v2.1.1
-- [ ] Fix Batch replacement crash
+- [x] Fix Batch replacement crash
 - [ ] Add Double Tap url selection
 
 - future
