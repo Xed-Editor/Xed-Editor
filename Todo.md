@@ -34,10 +34,14 @@ v2.1.0
 - [x] Fix plugins ui
 - [x] Fix potential keyboard glitch
 
+v2.2.0
+- [ ] Fix no undo redo when opening new file while a directory is opened
+- [ ] Add Xposed Hook support in the plugin system
+
 - future
 - [ ] Add a splash screen
 - [ ] Add Plugin Documentation
 - [ ] Add Terminal+proot with Kali Linux PS1 prompt
-- [ ] Add Xposed Hook support in the plugin system
+
 - [ ] add IPC protocol in the plugin system
 - [ ] Add plugin repo
