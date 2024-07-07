@@ -7,6 +7,8 @@ import android.view.Menu;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.MainActivity.treeview2.Node;
+import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.Settings.SettingsData;
 
 import org.json.JSONObject;
@@ -24,6 +26,8 @@ public class Data {
   public static MainActivity activity;
   public static ArrayList<DynamicFragment> fragments;
   public static ArrayList<String> titles;
+  
+ public static List<Node<DocumentFile>> nodes;
   
   public static ArrayList<Uri> uris;
   public static List<Content> contents;

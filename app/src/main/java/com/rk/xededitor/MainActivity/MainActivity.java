@@ -41,6 +41,7 @@ import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
 import com.rk.xededitor.MainActivity.treeview2.MA;
+import com.rk.xededitor.MainActivity.treeview2.Node;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
@@ -74,6 +75,7 @@ public class MainActivity extends BaseActivity {
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     activity = this;
+    
     
     setSupportActionBar(binding.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -222,8 +224,10 @@ public class MainActivity extends BaseActivity {
       persistUriPermission(treeUri);
       rootFolder = DocumentFile.fromTreeUri(this, treeUri);
       
+      new MA(MainActivity.this, rootFolder);
+      
       //use new file browser
-      new MA(this, rootFolder);
+      
       
       String name = rootFolder.getName();
       if (name.length() > 18) {

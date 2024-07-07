@@ -16,6 +16,9 @@ import android.print.PrintManager
 import android.widget.Toast
 import java.io.FileOutputStream
 
+
+
+//todo fix printer
 class Printer(private val context: Context, private val content: String) : PrintDocumentAdapter() {
   
   override fun onLayout(
@@ -70,7 +73,7 @@ class Printer(private val context: Context, private val content: String) : Print
     
     // Function to split a line into multiple lines that fit within the page width
     fun wrapText(line: String): List<String> {
-      val words = line.split(" ")
+      val words = line.split(" ").toString().split(".")
       val wrappedLines = mutableListOf<String>()
       var currentLine = StringBuilder()
       

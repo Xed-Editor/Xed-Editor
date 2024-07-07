@@ -116,6 +116,7 @@
             android:layout_gravity="center"
             android:orientation="vertical">
 
+
             <Button
                 android:id="@+id/openFile_btn"
                 android:layout_width="fill_parent"
@@ -139,6 +140,13 @@
 
         </LinearLayout>
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:visibility="gone"
+            android:layout_height="wrap_content" />
 
         <LinearLayout
             android:id="@+id/maindrawer"
@@ -147,6 +155,7 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="15dp"
             android:orientation="vertical"
+            android:layout_gravity="center"
             android:visibility="gone">
 
             <HorizontalScrollView

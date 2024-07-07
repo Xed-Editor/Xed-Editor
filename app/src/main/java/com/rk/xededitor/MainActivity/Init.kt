@@ -7,10 +7,9 @@ import android.view.WindowManager
 import androidx.documentfile.provider.DocumentFile
 import com.rk.xededitor.Decompress
 import com.rk.xededitor.MainActivity.treeview2.MA
+import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.merge
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.plugin.PluginServer
-import org.json.JSONException
-import org.json.JSONObject
 import java.io.File
 
 class Init(activity: MainActivity) {

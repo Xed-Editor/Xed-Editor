@@ -17,7 +17,6 @@
 package com.rk.xededitor.MainActivity.treeview2
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,11 +67,7 @@ class TreeViewAdapter(
       val lock = ReentrantLock()
       val localViews = Stack<View>()
       
-      val inflater = LayoutInflater.from(context)
-      for (i in 0 until 60) {
-        val view = inflater.inflate(R.layout.recycler_view_item, null)
-        localViews.push(view)
-      }
+      
       
       if (!Thread.currentThread().isInterrupted) {
         lock.lock()
@@ -82,25 +77,30 @@ class TreeViewAdapter(
       
       
       val mData: MutableList<Node<DocumentFile>> = data.toMutableList()
-      val queue: Queue<MutableList<Node<DocumentFile>>> = LinkedList()
+      val queue: Queue<List<Node<DocumentFile>>> = LinkedList()
       queue.add(mData)
       while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
-        val currentList = queue.poll()
-        if (currentList != null) {
-          currentList.forEach { node ->
-            if (!Thread.currentThread().isInterrupted) {
-              val file = node.value
-              if (file.isDirectory) {
-                // Merge and process child directories
-                val childList = merge(file)
-                lock.lock()
-                cacheList.put(file, childList)
-                lock.unlock()
-                queue.add(childList)
-              }
+        queue.poll()?.forEach { node ->
+          if (!Thread.currentThread().isInterrupted) {
+            val file = node.value
+            if (file.isDirectory) {
+              // Merge and process child directories
+              val childList = merge(file)
+              lock.lock()
+              cacheList.put(file, childList)
+              lock.unlock()
+              queue.add(childList)
             }
           }
         }
+      }
+      val inflater = LayoutInflater.from(context)
+      for (i in 0 until 100) {
+        if (Thread.currentThread().isInterrupted){
+          break
+        }
+        val view = inflater.inflate(R.layout.recycler_view_item, null)
+        localViews.push(view)
       }
     }.also { it.start() }
     
@@ -117,6 +117,7 @@ class TreeViewAdapter(
       // file with sorted
       val files = (list - dirs.toSet()).sortedBy { it.name }
       // file to node
+    
       return (dirs + files).map { Node(it) }.toMutableList()
     }
     
