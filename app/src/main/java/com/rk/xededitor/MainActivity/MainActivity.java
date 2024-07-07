@@ -16,6 +16,7 @@ import android.content.UriPermission;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -78,7 +79,6 @@ public class MainActivity extends BaseActivity {
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     getSupportActionBar().setDisplayShowTitleEnabled(false);
     
-    
     drawerLayout = binding.drawerLayout;
     navigationView = binding.navView;
     drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer);
@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity {
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     
     
-    new After(3000, () -> MainActivity.this.runOnUiThread(() -> {
+    new After(4000, () -> MainActivity.this.runOnUiThread(() -> {
       getOnBackPressedDispatcher().addCallback(MainActivity.this, new OnBackPressedCallback(true) {
         
         @Override
@@ -280,8 +280,8 @@ public class MainActivity extends BaseActivity {
     menu.findItem(R.id.share).setVisible(visible);
     MenuItem undo = menu.findItem(R.id.undo);
     MenuItem redo = menu.findItem(R.id.redo);
-    undo.setVisible(true);
-    redo.setVisible(true);
+    undo.setVisible(visible);
+    redo.setVisible(visible);
     
   }
   
@@ -328,6 +328,8 @@ public class MainActivity extends BaseActivity {
         }
       }
     }
+    
+    //viewPager.setCurrentItem(mTabLayout.getTabCount(),false);
     final boolean visible = !(fragments == null || fragments.isEmpty());
     
     menu.findItem(R.id.batchrep).setVisible(visible);
@@ -392,7 +394,7 @@ public class MainActivity extends BaseActivity {
   }
   
   public void fileOptions(View v) {
-    new HandleFileActions(this, rootFolder, rootFolder, v);
+   new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v);
   }
   
   public void hideKeyboard() {

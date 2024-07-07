@@ -62,12 +62,24 @@ public class DynamicFragment extends Fragment {
     this.ctx = ctx;
     this.file = file;
     editor = new CodeEditor(ctx);
+    if(SettingsData.isDarkMode(ctx)){
+      ensureTextmateTheme();
+    }else {
+      new Thread(this::ensureTextmateTheme).start();
+    }
+    
+    
+    
     if (contents == null) {
       contents = new ArrayList<>();
     }
+    
     final boolean wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false);
+    
+    
     if (isNewFile) {
       editor.setText("");
+      setListner();
     } else {
       new Thread(() -> {
         try {
@@ -90,7 +102,7 @@ public class DynamicFragment extends Fragment {
         } catch (Exception e) {
           e.printStackTrace();
         }
-        
+        setListner();
         
       }).start();
       
@@ -100,23 +112,26 @@ public class DynamicFragment extends Fragment {
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
     editor.setTextSize(14);
     editor.setWordwrap(wordwrap);
-    
-    new Thread(this::ensureTextmateTheme).start();
-    
     undo = Data.menu.findItem(R.id.undo);
     redo = Data.menu.findItem(R.id.redo);
     
+   
+    
+    
+    
+    
+  }
+  
+  private void setListner(){
     editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
       updateUndoRedo();
-      
       TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
-      String name = Objects.requireNonNull(tab.getText()).toString();
       if (isModified) {
         tab.setText(fileName + "*");
       }
       isModified = true;
+      
     });
-    
     
   }
   

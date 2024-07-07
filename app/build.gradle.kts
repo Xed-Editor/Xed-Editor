@@ -100,7 +100,7 @@ dependencies {
     implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
     //implementation("io.github.Rosemoe.sora-editor:editor")
     implementation("androidx.collection:collection:1.4.0")
-    implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
+  //  implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
     implementation("io.github.Rosemoe.sora-editor:language-textmate")
     
 

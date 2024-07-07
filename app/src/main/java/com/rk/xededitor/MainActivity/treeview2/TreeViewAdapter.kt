@@ -17,6 +17,7 @@
 package com.rk.xededitor.MainActivity.treeview2
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -68,7 +69,7 @@ class TreeViewAdapter(
       val localViews = Stack<View>()
       
       val inflater = LayoutInflater.from(context)
-      for (i in 0 until 100) {
+      for (i in 0 until 60) {
         val view = inflater.inflate(R.layout.recycler_view_item, null)
         localViews.push(view)
       }
@@ -125,7 +126,7 @@ class TreeViewAdapter(
     
     @JvmStatic
     fun stopThread() {
-      if (thread != null && thread!!.isAlive) {
+      if (thread != null) {
         thread!!.interrupt()
       }
       
@@ -184,7 +185,7 @@ class TreeViewAdapter(
       fileView.setImageDrawable(icFile)
     }
     
-    holder.textView.text = node.value.name
+    holder.textView.text = " "+node.value.name+"          "
     holder.itemView.setOnClickListener {
       if (isDir) {
         var parent = node

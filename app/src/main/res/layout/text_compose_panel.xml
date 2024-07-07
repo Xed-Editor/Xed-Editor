@@ -35,6 +35,7 @@
 	<HorizontalScrollView
 		android:layout_height="match_parent"
 		android:layout_width="wrap_content"
+		android:background="@drawable/magnifier_background"
 		android:id="@+id/panel_hv">
 
 		<LinearLayout
