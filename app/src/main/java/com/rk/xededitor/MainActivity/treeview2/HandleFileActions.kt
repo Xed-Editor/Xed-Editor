@@ -155,7 +155,7 @@ class HandleFileActions(
             rkUtils.toast("please enter name")
             return@setPositiveButton
           }
-          mContext.hideKeyboard()
+          
           val loading = Loading(mContext, null)
           
           loading.show()
@@ -197,7 +197,7 @@ class HandleFileActions(
             rkUtils.toast("please enter name")
             return@setPositiveButton
           }
-          mContext.hideKeyboard()
+          
           val loading = Loading(mContext, null).show()
           
           val fileName = editText.getText().toString()
@@ -295,7 +295,7 @@ class HandleFileActions(
             rkUtils.toast("please enter name")
             return@setPositiveButton
           }
-          mContext.hideKeyboard()
+          
           val loading = Loading(mContext, null).show()
           
           val fileName = editText.getText().toString()
