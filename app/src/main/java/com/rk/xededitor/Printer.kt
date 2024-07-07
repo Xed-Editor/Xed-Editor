@@ -17,8 +17,6 @@ import android.widget.Toast
 import java.io.FileOutputStream
 
 
-
-//todo fix printer
 class Printer(private val context: Context, private val content: String) : PrintDocumentAdapter() {
   
   override fun onLayout(
@@ -71,19 +69,34 @@ class Printer(private val context: Context, private val content: String) : Print
     
     val maxWidth = pageWidth - 80f // Leave some margin (40f on each side)
     
-    // Function to split a line into multiple lines that fit within the page width
+    // Function to split a line into multiple lines that fit within the page width without cutting words
     fun wrapText(line: String): List<String> {
-      val words = line.split(" ")
       val wrappedLines = mutableListOf<String>()
       var currentLine = StringBuilder()
       
-      for (word in words) {
-        val testLine = if (currentLine.isEmpty()) word else "${currentLine} $word"
-        if (paint.measureText(testLine) < maxWidth) {
-          currentLine.append(if (currentLine.isEmpty()) word else " $word")
+      line.split(" ").forEach { word ->
+        if (paint.measureText(word) > maxWidth) {
+          // If the word itself is too long to fit in a line, split it
+          var part = ""
+          for (char in word) {
+            if (paint.measureText(part + char) < maxWidth) {
+              part += char
+            } else {
+              wrappedLines.add(part + "-") // Add hyphen to indicate the word is split
+              part = char.toString()
+            }
+          }
+          if (part.isNotEmpty()) {
+            wrappedLines.add(part)
+          }
         } else {
-          wrappedLines.add(currentLine.toString())
-          currentLine = StringBuilder(word)
+          val testLine = if (currentLine.isEmpty()) word else "${currentLine} $word"
+          if (paint.measureText(testLine) < maxWidth) {
+            currentLine.append(if (currentLine.isEmpty()) word else " $word")
+          } else {
+            wrappedLines.add(currentLine.toString())
+            currentLine = StringBuilder(word)
+          }
         }
       }
       
