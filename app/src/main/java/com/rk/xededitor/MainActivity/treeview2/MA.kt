@@ -8,6 +8,7 @@ import com.rk.xededitor.After
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.rkUtils
 import java.util.Timer
 import java.util.TimerTask
 

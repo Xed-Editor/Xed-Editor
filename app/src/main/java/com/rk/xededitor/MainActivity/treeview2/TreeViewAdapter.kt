@@ -62,7 +62,7 @@ class TreeViewAdapter(
   
   
   init {
-    nodemap = HashMap<Node<DocumentFile>, View>()
+    nodemap = HashMap()
     
     thread = Thread {
       val lock = ReentrantLock()
@@ -162,9 +162,9 @@ class TreeViewAdapter(
     val isDir = node.value.isDirectory
     val expandView = holder.expandView
     val fileView = holder.fileView
-    if (!nodemap?.containsKey(node)!!) {
+    //if (!nodemap?.containsKey(node)!!) {
       nodemap!![node] = holder.textView
-    }
+    //}
     
     fileView.setPadding(0, 0, 0, 0)
     holder.itemView.setPaddingRelative(node.level * 35, 0, 0, 0)
