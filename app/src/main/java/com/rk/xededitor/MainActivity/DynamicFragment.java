@@ -1,6 +1,5 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.Data.activity;
 import static com.rk.xededitor.MainActivity.Data.contents;
 import static com.rk.xededitor.MainActivity.Data.fileList;
 import static com.rk.xededitor.MainActivity.Data.fragments;
@@ -23,6 +22,8 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.BaseActivity;
+import com.rk.xededitor.BaseActivityKt;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.rkUtils;
@@ -89,14 +90,14 @@ public class DynamicFragment extends Fragment {
           Content content = ContentIO.createFrom(inputStream);
           contents.add(content);
           inputStream.close();
-          activity.runOnUiThread(() -> editor.setText(content));
+          BaseActivityKt.runOnUi(() -> editor.setText(content));
           if (wordwrap) {
             int length = content.toString().length();
             if (length > 700 && content.toString().split("\\R").length < 100) {
-              activity.runOnUiThread(() -> rkUtils.toast("Please wait for word wrap to complete"));
+              BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx,"Please wait for word wrap to complete"));
             }
             if (length > 1500) {
-              activity.runOnUiThread(() -> Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show());
+              BaseActivityKt.runOnUi(() -> Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show());
             }
           }
         } catch (Exception e) {
@@ -195,7 +196,7 @@ public class DynamicFragment extends Fragment {
           path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
         }
         if (!new File(path).exists()) {
-          activity.runOnUiThread(() -> rkUtils.toast("theme file not found please reinstall the Xed Editor or clear app data"));
+          BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx,"theme file not found please reinstall the Xed Editor or clear app data"));
         }
         
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
@@ -206,7 +207,7 @@ public class DynamicFragment extends Fragment {
       } else {
         String path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
         if (!new File(path).exists()) {
-          activity.runOnUiThread(() -> rkUtils.toast("theme file not found please reinstall the Xed Editor or clear app data"));
+          BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx,"theme file not found please reinstall the Xed Editor or clear app data"));
           
         }
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));

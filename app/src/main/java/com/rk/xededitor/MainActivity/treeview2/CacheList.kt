@@ -1,26 +1,19 @@
 package com.rk.xededitor.MainActivity.treeview2
-
 import androidx.documentfile.provider.DocumentFile
+import com.rk.xededitor.MainActivity.treeview2.Node
 
 class CacheList : ArrayList<Pair<DocumentFile, List<Node<DocumentFile>>>>() {
+  
   fun containsKey(key: DocumentFile): Boolean {
-    return any { it.first == key }
+    return find { it.first == key } != null
   }
   
   fun get(key: DocumentFile): List<Node<DocumentFile>>? {
-    var value: List<Node<DocumentFile>>? = null
-    any {
-      if (it.first.equals(key)) {
-        value = it.second
-        true
-      } else {
-        false
-      }
-    }
-    return value
+    return find { it.first == key }?.second
   }
   
   fun put(key: DocumentFile, value: List<Node<DocumentFile>>) {
+    removeIf { it.first == key }
     add(Pair(key, value))
   }
   

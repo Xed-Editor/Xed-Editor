@@ -23,7 +23,7 @@ public class Data {
   
   public static final int REQUEST_DIRECTORY_SELECTION = 1002;
   public static final int REQUEST_CODE_CREATE_FILE = 1221;
-  public static MainActivity activity;
+  
   public static ArrayList<DynamicFragment> fragments;
   public static ArrayList<String> titles;
   
@@ -39,7 +39,7 @@ public class Data {
   
   public static void clear() {
     
-    activity = null;
+    nodes = null;
     menu = null;
     fragments = null;
     titles = null;

@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.After
 import com.rk.xededitor.MainActivity.Data
-import com.rk.xededitor.MainActivity.Data.activity
+
 import com.rk.xededitor.MainActivity.Data.nodes
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
@@ -14,24 +14,24 @@ import com.rk.xededitor.Settings.SettingsData
 
 class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
   init {
+    ctx.binding.recyclerView.visibility = View.GONE
+    ctx.binding.progressBar.visibility = View.VISIBLE
     Thread {
-      activity.runOnUiThread {
-        activity.binding.progressBar.visibility = View.VISIBLE }
       nodes = TreeViewAdapter.merge(Data.rootFolder)
-      activity.runOnUiThread {
-       
-        
-        with(activity.binding.recyclerView) {
-          activity.binding.progressBar.visibility = View.GONE
+      
+      ctx.runOnUiThread {
+        with(ctx.binding.recyclerView) {
+          ctx.binding.progressBar.visibility = View.GONE
           visibility = View.VISIBLE
           
           //val nodes = TreeViewAdapter.merge(rootFolder)
           layoutManager = LinearLayoutManager(ctx)
           setItemViewCacheSize(100)
-          itemAnimator = null
+          //itemAnimator = null
           
           
-          adapter = TreeViewAdapter(ctx, nodes).apply {
+          adapter = TreeViewAdapter(ctx).apply {
+            submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
               override fun onItemClick(v: View, position: Int) {
                 val file = nodes[position].value

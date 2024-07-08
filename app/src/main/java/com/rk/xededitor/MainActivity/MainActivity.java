@@ -1,7 +1,6 @@
 package com.rk.xededitor.MainActivity;
 
 import static com.rk.xededitor.MainActivity.Data.REQUEST_DIRECTORY_SELECTION;
-import static com.rk.xededitor.MainActivity.Data.activity;
 import static com.rk.xededitor.MainActivity.Data.fileList;
 import static com.rk.xededitor.MainActivity.Data.fragments;
 import static com.rk.xededitor.MainActivity.Data.mTabLayout;
@@ -16,6 +15,8 @@ import android.content.UriPermission;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -41,7 +42,6 @@ import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
 import com.rk.xededitor.MainActivity.treeview2.MA;
-import com.rk.xededitor.MainActivity.treeview2.Node;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
@@ -63,10 +63,12 @@ public class MainActivity extends BaseActivity {
   public ActivityMainBinding binding;
   public mAdapter adapter;
   NavigationView navigationView;
-  private ViewPager viewPager;
+  public ViewPager viewPager;
   private DrawerLayout drawerLayout;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
+  
+ 
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,7 @@ public class MainActivity extends BaseActivity {
     
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
-    activity = this;
+    
     
     
     setSupportActionBar(binding.toolbar);
@@ -120,69 +122,9 @@ public class MainActivity extends BaseActivity {
     mTabLayout.setupWithViewPager(viewPager);
     
     
-    mTabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-      
-      @Override
-      public void onTabSelected(TabLayout.Tab tab) {
-        viewPager.setCurrentItem(tab.getPosition());
-        fragments.get(mTabLayout.getSelectedTabPosition()).updateUndoRedo();
-      }
-      
-      
-      
-      @Override
-      public void onTabUnselected(TabLayout.Tab tab) {
-      }
-      
-      @Override
-      public void onTabReselected(TabLayout.Tab tab) {
-        PopupMenu popupMenu = new PopupMenu(activity, tab.view);
-        MenuInflater inflater = popupMenu.getMenuInflater();
-        inflater.inflate(R.menu.tab_menu, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-          @Override
-          public boolean onMenuItemClick(MenuItem item) {
-            final int id = item.getItemId();
-            if (id == R.id.close_this) {
-              adapter.removeFragment(mTabLayout.getSelectedTabPosition());
-            } else if (id == R.id.close_others) {
-              adapter.closeOthers(viewPager.getCurrentItem());
-            } else if (id == R.id.close_all) {
-              adapter.clear();
-            }
-            for (int i = 0; i < mTabLayout.getTabCount(); i++) {
-              TabLayout.Tab tab = mTabLayout.getTabAt(i);
-              if (tab != null) {
-                String name = titles.get(i);
-                if (name != null) {
-                  tab.setText(name);
-                }
-              }
-            }
-            if (mTabLayout.getTabCount() < 1) {
-              binding.tabs.setVisibility(View.GONE);
-              binding.mainView.setVisibility(View.GONE);
-              binding.openBtn.setVisibility(View.VISIBLE);
-              
-            }
-            boolean visible = (!(fragments == null || fragments.isEmpty()));
-            menu.findItem(R.id.search).setVisible(visible);
-            menu.findItem(R.id.action_save).setVisible(visible);
-            menu.findItem(R.id.action_print).setVisible(visible);
-            menu.findItem(R.id.action_all).setVisible(visible);
-            menu.findItem(R.id.batchrep).setVisible(visible);
-            menu.findItem(R.id.share).setVisible(visible);
-            
-            
-            return true;
-          }
-        });
-        popupMenu.show();
-        
-      }
-    });
+   
     
-    
+    //run async init
     new Init(this);
   }
   
@@ -201,7 +143,7 @@ public class MainActivity extends BaseActivity {
   public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     // Handle the theme change here
-    rkUtils.toast("Restart Required");
+    rkUtils.toast(this,"Restart Required");
   }
   
   @Override
@@ -289,18 +231,7 @@ public class MainActivity extends BaseActivity {
     
   }
   
-  public void onEditorRemove(DynamicFragment fragment) {
-    fragment.releaseEditor();
-    if (fragments.size() <= 1) {
-      MenuItem undo = menu.findItem(R.id.undo);
-      MenuItem redo = menu.findItem(R.id.redo);
-      undo.setVisible(false);
-      redo.setVisible(false);
-      
-    }
-    
-    
-  }
+  
   
   public void newEditor(DocumentFile file, boolean isNewFile) {
     
@@ -315,8 +246,9 @@ public class MainActivity extends BaseActivity {
     
     final String file_name = file.getName();
     
-    if (fileList.contains(file) || adapter.addFragment(new DynamicFragment(file, activity, isNewFile), file_name, file)) {
-      rkUtils.toast("File already opened!");
+    if (fileList.contains(file) || adapter.addFragment(new DynamicFragment(file, this, isNewFile), file_name, file)) {
+      rkUtils.toast(this,"File already opened!");
+      
       return;
     }
     
@@ -446,7 +378,7 @@ public class MainActivity extends BaseActivity {
       if (drawerToggle.onOptionsItemSelected(item)) {
         return true;
       }
-      return HandleMenuClick.handle(item);
+      return HandleMenuClick.handle(this,item);
     }
   }
 }

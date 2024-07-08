@@ -6,10 +6,9 @@
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
-
     <application
-        android:allowBackup="true"
         android:name=".App"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -17,21 +16,23 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
-
+        <activity
+            android:name=".CrashHandler.CrashActivity"
+            android:exported="false" />
         <activity
             android:name=".BatchReplacement.BatchReplacement"
             android:exported="false"
-            android:screenOrientation="portrait"
             android:label="@string/title_activity_batch_replacement"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.Fragments.NoActionBar" />
         <activity
             android:name=".plugin.ManagePluginActivity.ManagePluginActivity"
-            android:screenOrientation="portrait"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SimpleEditor.SimpleEditor"
-            android:screenOrientation="portrait"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
@@ -44,8 +45,8 @@
         <activity
             android:name=".Settings.SettingsActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_settings">
+            android:label="@string/title_activity_settings"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -54,9 +55,9 @@
             android:name=".MainActivity.MainActivity"
             android:configChanges="uiMode|screenSize|orientation|screenLayout|smallestScreenSize"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Fragments">
+            android:theme="@style/Theme.Fragments"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

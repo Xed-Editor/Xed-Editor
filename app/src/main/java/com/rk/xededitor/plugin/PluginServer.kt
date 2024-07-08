@@ -82,11 +82,7 @@ class PluginServer(private val ctx: Application) : Thread() {
       
     }
     
-    while (Data.activity == null) {
-      sleep(50)
-    }
-    
-    if (!SettingsData.getBoolean(Data.activity, "enablePlugins", false)) {
+    if (!SettingsData.getBoolean(ctx, "enablePlugins", false)) {
       info("plugins are disabled server won't start")
       return
     }

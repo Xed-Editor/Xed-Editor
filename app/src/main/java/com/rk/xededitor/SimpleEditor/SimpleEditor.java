@@ -301,7 +301,7 @@ public class SimpleEditor extends BaseActivity {
           path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
         }
         if (!new File(path).exists()) {
-          rkUtils.toast("Error : theme file not found");
+          rkUtils.toast(this,"Error : theme file not found");
         }
         
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
@@ -311,7 +311,7 @@ public class SimpleEditor extends BaseActivity {
         
         String path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
         if (!new File(path).exists()) {
-          rkUtils.toast("theme file not found");
+          rkUtils.toast(this,"theme file not found");
         }
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
         editorColorScheme = TextMateColorScheme.create(themeRegistry);

@@ -74,7 +74,7 @@ class SettingsActivity : BaseActivity() {
             val dynamicFragment = fragment as DynamicFragment
             dynamicFragment.editor.isWordwrap = isChecked
           }
-          rkUtils.toast("Please wait for word wrap to complete")
+          //rkUtils.toast(this,"Please wait for word wrap to complete")
           
         }
       }.showToggle()

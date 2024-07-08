@@ -1,25 +1,12 @@
 package com.rk.xededitor;
 
-import static com.rk.xededitor.MainActivity.Data.activity;
-
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
-
 import androidx.documentfile.provider.DocumentFile;
-
-import com.rk.xededitor.MainActivity.Data;
-
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.MessageDigest;
 
 public class rkUtils {
@@ -71,10 +58,6 @@ public class rkUtils {
   }
   public static void toast(Context context, String message) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-  }
-  
-  public static void toast(String msg) {
-    toast(activity, msg);
   }
   
   public static int dpToPx(float dp, Context ctx) {

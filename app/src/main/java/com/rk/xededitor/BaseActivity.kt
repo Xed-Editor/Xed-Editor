@@ -1,13 +1,22 @@
 package com.rk.xededitor
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.plugin.PluginServer
 
+private val handler:Handler  = Handler(Looper.getMainLooper())
+
+fun runOnUi(runnable: Runnable?) {
+  handler.post(runnable!!)
+}
+
 abstract class BaseActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    
     Thread {
       SettingsData.applyPrefs(this)
       val loadedPlugins = PluginServer.loadedPlugins

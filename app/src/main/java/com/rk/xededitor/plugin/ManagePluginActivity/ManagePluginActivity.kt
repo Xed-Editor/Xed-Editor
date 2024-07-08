@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.divider.MaterialDivider
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.Data.activity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityManagePluginBinding
 import com.rk.xededitor.plugin.PluginServer
@@ -70,7 +69,7 @@ class ManagePluginActivity : BaseActivity() {
     
     binding.mainBody.addView(view3)
     if(PluginServer.arrayOfPluginNames.isEmpty()){
-      val textView = TextView(activity)
+      val textView = TextView(this)
       textView.text = "No Installed Plugins"
       textView.gravity = Gravity.CENTER
       binding.mainBody.addView(textView)

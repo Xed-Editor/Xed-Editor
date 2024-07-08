@@ -11,7 +11,6 @@ import androidx.core.app.ActivityCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.Data.REQUEST_CODE_CREATE_FILE
-import com.rk.xededitor.MainActivity.Data.activity
 import com.rk.xededitor.MainActivity.Data.fragments
 import com.rk.xededitor.MainActivity.Data.mTabLayout
 import com.rk.xededitor.Printer
@@ -25,13 +24,13 @@ import java.io.IOException
 import java.io.OutputStream
 
 
-class HandleMenuClick {
+class HandleMenuClick() {
   companion object {
     @JvmStatic
     private var SearchText: String? = ""
     
     @JvmStatic
-    fun handle(item: MenuItem): Boolean {
+    fun handle(activity: MainActivity,item: MenuItem): Boolean {
       val id = item.itemId
       with(activity) {
         if (id == R.id.action_save) {
@@ -82,14 +81,14 @@ class HandleMenuClick {
                 }
                 
                 runOnUiThread {
-                  rkUtils.toast(
+                  rkUtils.toast(activity,
                     "saved!"
                   )
                 }
               } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                  rkUtils.toast(
+                  rkUtils.toast(activity,
                     """error ${e.message}"""
                   )
                 }
@@ -133,7 +132,7 @@ class HandleMenuClick {
               }
             }.start()
           }
-          rkUtils.toast("saved all")
+          rkUtils.toast(activity,"saved all")
           return true
         } else if (id == R.id.search) {
           val popuop_view = LayoutInflater.from(this).inflate(R.layout.popup_search, null)

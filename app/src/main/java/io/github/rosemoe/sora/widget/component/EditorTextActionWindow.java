@@ -23,7 +23,7 @@
  */
 package io.github.rosemoe.sora.widget.component;
 
-import static com.rk.xededitor.MainActivity.Data.activity;
+
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -327,7 +327,10 @@ public class EditorTextActionWindow extends EditorPopupWindow implements View.On
             editor.beginLongSelect();
         }else if (id == R.id.panel_btn_share){
             var clip = editor.getText().substring(editor.getCursor().getLeft(), editor.getCursor().getRight());
-            rkUtils.shareText(activity,clip);
+            if (!clip.isEmpty()){
+                rkUtils.shareText(editor.getContext(), clip);
+            }
+            
         }
         dismiss();
     }

@@ -7,7 +7,7 @@
     <string name="close_drawer">close</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_batch_replacement">BatchReplacement</string>
-    
+
     <string name="sora_editor_last">Last</string>
     <string name="sora_editor_next">Next</string>
     <string name="sora_editor_replace">Replace</string>

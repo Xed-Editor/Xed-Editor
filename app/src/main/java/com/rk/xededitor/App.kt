@@ -1,7 +1,7 @@
 package com.rk.xededitor
 
 import android.app.Application
-import android.util.Log
+import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.plugin.PluginManager
 import java.io.File
@@ -19,5 +19,6 @@ class App : Application() {
       }
       
     }.start()
+    CrashHandler.INSTANCE.init(this)
   }
 }

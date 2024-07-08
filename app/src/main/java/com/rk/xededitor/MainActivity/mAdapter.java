@@ -1,14 +1,15 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.Data.activity;
 import static com.rk.xededitor.MainActivity.Data.contents;
 import static com.rk.xededitor.MainActivity.Data.fileList;
 import static com.rk.xededitor.MainActivity.Data.fragments;
 import static com.rk.xededitor.MainActivity.Data.mTabLayout;
+import static com.rk.xededitor.MainActivity.Data.menu;
 import static com.rk.xededitor.MainActivity.Data.titles;
 import static com.rk.xededitor.MainActivity.Data.uris;
 
 import android.net.Uri;
+import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -16,6 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
+
+import com.rk.xededitor.R;
 
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.CodeEditor;
@@ -68,8 +71,21 @@ public class mAdapter extends FragmentStatePagerAdapter {
     return false;
   }
   
+  public void onEditorRemove(DynamicFragment fragment) {
+    fragment.releaseEditor();
+    if (fragments.size() <= 1) {
+      MenuItem undo = menu.findItem(R.id.undo);
+      MenuItem redo = menu.findItem(R.id.redo);
+      undo.setVisible(false);
+      redo.setVisible(false);
+      
+    }
+    
+    
+  }
+  
   public void removeFragment(int position) {
-    activity.onEditorRemove(fragments.get(position));
+    onEditorRemove(fragments.get(position));
     fragments.remove(position);
     titles.remove(position);
     fileList.remove(position);
@@ -87,7 +103,7 @@ public class mAdapter extends FragmentStatePagerAdapter {
     DynamicFragment selectedObj = fragments.get(index);
     for (DynamicFragment fragment : fragments) {
       if (!fragment.equals(selectedObj)) {
-        activity.onEditorRemove(fragment);
+        onEditorRemove(fragment);
       }
     }
     DocumentFile selectedFile = fileList.get(index);
@@ -110,7 +126,7 @@ public class mAdapter extends FragmentStatePagerAdapter {
   
   public void clear() {
     for (DynamicFragment fragment : fragments) {
-      activity.onEditorRemove(fragment);
+      onEditorRemove(fragment);
     }
     fragments.clear();
     titles.clear();

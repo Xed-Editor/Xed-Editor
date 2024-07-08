@@ -127,18 +127,37 @@ class HandleFileActions(
     
     fun close() {
       if (file == rootFolder) {
-        mContext.binding.mainView.visibility = View.GONE
-        mContext.binding.safbuttons.visibility = View.VISIBLE
-        mContext.binding.maindrawer.visibility = View.GONE
-        mContext.binding.drawerToolbar.visibility = View.GONE
-        stopThread()
-        val uriString = SettingsData.getSetting(mContext, "lastOpenedUri", "null")
-        if (uriString != "null") {
-          val uri = Uri.parse(uriString)
-          if (mContext.hasUriPermission(uri)) {
-            mContext.revokeUriPermission(uri)
+        
+        mContext.adapter?.clear()
+        for (i in 0 until Data.mTabLayout.tabCount) {
+          val tab = Data.mTabLayout.getTabAt(i)
+          if (tab != null) {
+            val name = Data.titles[i]
+            if (name != null) {
+              tab.setText(name)
+            }
           }
-          SettingsData.setSetting(mContext, "lastOpenedUri", "null")
+        }
+        if (Data.mTabLayout.tabCount < 1) {
+          mContext.binding.tabs.visibility = View.GONE
+          mContext.binding.mainView.visibility = View.GONE
+          mContext.binding.openBtn.visibility = View.VISIBLE
+        }
+        val visible =
+          !(Data.fragments == null || Data.fragments.isEmpty())
+        Data.menu.findItem(R.id.search).setVisible(visible)
+        Data.menu.findItem(R.id.action_save).setVisible(visible)
+        Data.menu.findItem(R.id.action_print).setVisible(visible)
+        Data.menu.findItem(R.id.action_all).setVisible(visible)
+        Data.menu.findItem(R.id.batchrep).setVisible(visible)
+        Data.menu.findItem(R.id.share).setVisible(visible)
+        mContext.binding.maindrawer.visibility = View.GONE
+        mContext.binding.safbuttons.visibility = View.VISIBLE
+        mContext.binding.drawerToolbar.visibility  = View.GONE
+        val uriString = SettingsData.getSetting(mContext, "lastOpenedUri", "null")
+        runCatching {
+          val uri = Uri.parse(uriString)
+          mContext.revokeUriPermission(uri)
         }
       }
     }
@@ -152,7 +171,7 @@ class HandleFileActions(
           "Create"
         ) { _: DialogInterface?, _: Int ->
           if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast("please enter name")
+            rkUtils.toast(mContext,"please enter name")
             return@setPositiveButton
           }
           
@@ -162,7 +181,7 @@ class HandleFileActions(
           val fileName = editText.getText().toString()
           for (xfile in file.listFiles()) {
             if (xfile.name == fileName) {
-              rkUtils.toast("Error : a file/folder already exist with this name")
+              rkUtils.toast(mContext,"Error : a file/folder already exist with this name")
               return@setPositiveButton
             }
           }
@@ -194,7 +213,7 @@ class HandleFileActions(
           "Create"
         ) { _: DialogInterface?, _: Int ->
           if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast("please enter name")
+            rkUtils.toast(mContext,"please enter name")
             return@setPositiveButton
           }
           
@@ -203,7 +222,7 @@ class HandleFileActions(
           val fileName = editText.getText().toString()
           for (xfile in file.listFiles()) {
             if (xfile.name == fileName) {
-              rkUtils.toast("Error : a file/folder already exist with this name")
+              rkUtils.toast(mContext,"Error : a file/folder already exist with this name")
               return@setPositiveButton
             }
           }
@@ -236,15 +255,15 @@ class HandleFileActions(
               
               if (file == rootFolder) {
                 rootFolder.delete()
-                Data.activity.onOptionsItemSelected(Data.menu.findItem(R.id.action_all))
-                if (Data.activity.adapter != null) {
-                  Data.activity.adapter.clear()
+                mContext.onOptionsItemSelected(Data.menu.findItem(R.id.action_all))
+                if (mContext.adapter != null) {
+                  mContext.adapter.clear()
                 }
                 
                 if (Data.mTabLayout.tabCount < 1) {
-                  Data.activity.binding.tabs.visibility = View.GONE
-                  Data.activity.binding.mainView.visibility = View.GONE
-                  Data.activity.binding.openBtn.visibility = View.VISIBLE
+                  mContext.binding.tabs.visibility = View.GONE
+                  mContext.binding.mainView.visibility = View.GONE
+                  mContext.binding.openBtn.visibility = View.VISIBLE
                 }
                 val visible = !(Data.fragments == null || Data.fragments.isEmpty())
                 Data.menu.findItem(R.id.search).setVisible(visible)
@@ -269,7 +288,7 @@ class HandleFileActions(
                     mContext, "lastOpenedUri", "null"
                   )
                 }
-                rkUtils.toast("Please reselect the directory")
+                rkUtils.toast(mContext,"Please reselect the directory")
               }
               //recreate the tree
               MA(mContext, rootFolder)
@@ -292,7 +311,7 @@ class HandleFileActions(
           "Rename"
         ) { _: DialogInterface?, _: Int ->
           if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast("please enter name")
+            rkUtils.toast(mContext,"please enter name")
             return@setPositiveButton
           }
           
@@ -301,7 +320,7 @@ class HandleFileActions(
           val fileName = editText.getText().toString()
           for (xfile in file.listFiles()) {
             if (xfile.name == fileName) {
-              rkUtils.toast("Error : a file/folder already exist with this name")
+              rkUtils.toast(mContext,"Error : a file/folder already exist with this name")
               return@setPositiveButton
             }
           }
@@ -309,15 +328,15 @@ class HandleFileActions(
           
           if (file == rootFolder) {
             
-            Data.activity.onOptionsItemSelected(Data.menu.findItem(R.id.action_all))
-            if (Data.activity.adapter != null) {
-              Data.activity.adapter.clear()
+            mContext.onOptionsItemSelected(Data.menu.findItem(R.id.action_all))
+            if (mContext.adapter != null) {
+              mContext.adapter.clear()
             }
             
             if (Data.mTabLayout.tabCount < 1) {
-              Data.activity.binding.tabs.visibility = View.GONE
-              Data.activity.binding.mainView.visibility = View.GONE
-              Data.activity.binding.openBtn.visibility = View.VISIBLE
+              mContext.binding.tabs.visibility = View.GONE
+              mContext.binding.mainView.visibility = View.GONE
+              mContext.binding.openBtn.visibility = View.VISIBLE
             }
             val visible = !(Data.fragments == null || Data.fragments.isEmpty())
             Data.menu.findItem(R.id.search).setVisible(visible)
@@ -342,7 +361,7 @@ class HandleFileActions(
                 mContext, "lastOpenedUri", "null"
               )
             }
-            rkUtils.toast("Please reselect the directory")
+            rkUtils.toast(mContext,"Please reselect the directory")
           } else {
             //recreate the tree
             MA(mContext, rootFolder)
@@ -368,7 +387,7 @@ class HandleFileActions(
       if (intent.resolveActivity(mContext.packageManager) != null) {
         mContext.startActivity(intent)
       } else {
-        rkUtils.toast("No app found to handle the file")
+        rkUtils.toast(mContext,"No app found to handle the file")
       }
     }
     
@@ -404,7 +423,7 @@ class HandleFileActions(
               MA(mContext, rootFolder)
             }
           } else {
-            rkUtils.toast("Clipboard is empty")
+            rkUtils.toast(mContext,"Clipboard is empty")
           }
         }
         

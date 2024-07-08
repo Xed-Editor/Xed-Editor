@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/copy_error"
+        android:title="Copy"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/report_issue"
+        android:title="Report Issue"
+        app:showAsAction="always" />
+
+</menu>
