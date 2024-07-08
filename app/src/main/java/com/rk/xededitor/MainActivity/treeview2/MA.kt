@@ -11,20 +11,25 @@ import com.rk.xededitor.MainActivity.Data.nodes
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.rkUtils
 
 class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
   init {
-    ctx.binding.recyclerView.visibility = View.GONE
-    ctx.binding.progressBar.visibility = View.VISIBLE
+    
     Thread {
+      ctx.runOnUiThread {
+        ctx.binding.recyclerView.visibility = View.GONE
+        ctx.binding.progressBar.visibility = View.VISIBLE
+      }
+      
+      
       nodes = TreeViewAdapter.merge(Data.rootFolder)
       
+      
       ctx.runOnUiThread {
+        
         with(ctx.binding.recyclerView) {
-          ctx.binding.progressBar.visibility = View.GONE
-          visibility = View.VISIBLE
           
-          //val nodes = TreeViewAdapter.merge(rootFolder)
           layoutManager = LinearLayoutManager(ctx)
           setItemViewCacheSize(100)
           //itemAnimator = null
@@ -33,10 +38,9 @@ class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
           adapter = TreeViewAdapter(ctx).apply {
             submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
-              override fun onItemClick(v: View, position: Int) {
-                val file = nodes[position].value
-                if (file.isFile) {
-                  ctx.newEditor(file, false)
+              override fun onItemClick(v: View, node: Node<DocumentFile>) {
+                if (node.value.isFile) {
+                  ctx.newEditor(node.value, false)
                   ctx.onNewEditor()
                   if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
                     After(500) {
@@ -47,15 +51,18 @@ class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
               }
               
               
-              override fun onItemLongClick(v: View, position: Int) {
-                val file = nodes[position].value
-                TreeViewAdapter.nodemap?.get(nodes[position])?.let {
-                  HandleFileActions(ctx, rootFolder, file, it)
+              override fun onItemLongClick(v: View, node: Node<DocumentFile>) {
+                
+                TreeViewAdapter.nodemap?.get(node)?.let {
+                  HandleFileActions(ctx, rootFolder, node.value, it)
                 }
               }
             })
           }
         }
+        ctx.binding.progressBar.visibility = View.GONE
+        ctx.binding.recyclerView.visibility = View.VISIBLE
+        
       }
     }.start()
     

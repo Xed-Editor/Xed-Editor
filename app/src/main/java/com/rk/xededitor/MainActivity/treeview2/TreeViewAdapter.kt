@@ -19,8 +19,8 @@ import java.util.Stack
 import java.util.concurrent.locks.ReentrantLock
 
 interface OnItemClickListener {
-  fun onItemClick(v: View, position: Int)
-  fun onItemLongClick(v: View, position: Int)
+  fun onItemClick(v: View, node: Node<DocumentFile>)
+  fun onItemLongClick(v: View, node: Node<DocumentFile>)
 }
 
 class TreeViewAdapter(
@@ -122,7 +122,6 @@ class TreeViewAdapter(
   
   @SuppressLint("SetTextI18n")
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val start = System.currentTimeMillis()
     val node = getItem(position)
     val isDir = node.value.isDirectory
     val expandView = holder.expandView
@@ -175,14 +174,12 @@ class TreeViewAdapter(
           submitList(tempData)
         }
       }
-      listener?.onItemClick(it, position)
+      listener?.onItemClick(it, currentList[position])
     }
     holder.itemView.setOnLongClickListener {
-      listener?.onItemLongClick(it, position)
+      listener?.onItemLongClick(it, currentList[position])
       true
     }
-    val s = System.currentTimeMillis() - start
-    println(s.toString() + "ms")
   }
   
   class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {

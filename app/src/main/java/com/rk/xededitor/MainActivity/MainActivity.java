@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity {
   public mAdapter adapter;
   NavigationView navigationView;
   public ViewPager viewPager;
-  private DrawerLayout drawerLayout;
+  public DrawerLayout drawerLayout;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
   
@@ -248,7 +248,6 @@ public class MainActivity extends BaseActivity {
     
     if (fileList.contains(file) || adapter.addFragment(new DynamicFragment(file, this, isNewFile), file_name, file)) {
       rkUtils.toast(this,"File already opened!");
-      
       return;
     }
     

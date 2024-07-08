@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.widget.PopupMenu
 import androidx.documentfile.provider.DocumentFile
+import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.xededitor.Decompress
@@ -19,8 +20,8 @@ class Init(activity: MainActivity) {
   init {
     Thread {
       
-      val file = File(activity.filesDir,"crash-journal.log")
-      if (file.exists()){
+      val file = File(activity.filesDir, "crash-journal.log")
+      if (file.exists()) {
         file.delete()
       }
       
@@ -83,8 +84,7 @@ class Init(activity: MainActivity) {
                 binding.mainView.visibility = View.GONE
                 binding.openBtn.visibility = View.VISIBLE
               }
-              val visible =
-                !(Data.fragments == null || Data.fragments.isEmpty())
+              val visible = !(Data.fragments == null || Data.fragments.isEmpty())
               Data.menu.findItem(R.id.search).setVisible(visible)
               Data.menu.findItem(R.id.action_save).setVisible(visible)
               Data.menu.findItem(R.id.action_print).setVisible(visible)
@@ -112,6 +112,9 @@ class Init(activity: MainActivity) {
             }
           }.start()
         }
+        
+        
+        
         
         val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
         if (uriString != "null") {
