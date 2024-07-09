@@ -132,6 +132,7 @@ class TreeViewAdapter(
     holder.itemView.setPaddingRelative(node.level * 35, 0, 0, 0)
     
     if (isDir) {
+      expandView.visibility = View.VISIBLE
       if (!node.isExpand) {
         expandView.setImageDrawable(icChevronRight)
       } else {
@@ -139,48 +140,59 @@ class TreeViewAdapter(
       }
       fileView.setImageDrawable(icFolder)
     } else {
-      expandView.setImageDrawable(null)
+      expandView.visibility = View.GONE
       fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
       fileView.setImageDrawable(icFile)
     }
     
     holder.textView.text = " " + node.value.name + "          "
-    holder.itemView.setOnClickListener {
-      if (isDir) {
-        var parent = node
-        var child: List<Node<DocumentFile>>
-        if (!node.isExpand) {
-          val tempData = currentList.toMutableList()
-          var index = position
-          do {
-            val key = parent.value
-            val cachedChild = cacheList.get(key)
-            child = cachedChild ?: merge(parent.value).also {
-              cacheList.put(key, it)
+    
+    val clickListener = View.OnClickListener {
+      val adapterPosition = holder.adapterPosition
+      if (adapterPosition != RecyclerView.NO_POSITION) {
+        val clickedNode = getItem(adapterPosition)
+        if (clickedNode.value.isDirectory) {
+          if (!clickedNode.isExpand) {
+            // Expand the directory
+            val tempData = currentList.toMutableList()
+            val index = tempData.indexOf(clickedNode)
+            val cachedChild = cacheList.get(clickedNode.value)
+            val children = cachedChild ?: merge(clickedNode.value).also {
+              cacheList.put(clickedNode.value, it)
             }
-            tempData.addAll(index + 1, child)
-            TreeView.add(parent, child)
-            if (child.isNotEmpty()) {
-              parent = child[0]
-              index++
-            }
-          } while (child.size == 1 && child[0].value.isDirectory)
-          submitList(tempData)
+            tempData.addAll(index + 1, children)
+            TreeView.add(clickedNode, children)
+            clickedNode.isExpand = true
+            submitList(tempData)
+          } else {
+            // Collapse the directory
+            val tempData = currentList.toMutableList()
+            val children = TreeView.getChildren(clickedNode)
+            tempData.removeAll(children.toSet())
+            TreeView.remove(clickedNode, clickedNode.child)
+            clickedNode.isExpand = false
+            submitList(tempData)
+          }
+          notifyItemChanged(adapterPosition) // Update the expand/collapse icon
         } else {
-          child = TreeView.getChildren(parent)
-          val tempData = currentList.toMutableList()
-          tempData.removeAll(child.toSet())
-          TreeView.remove(parent, parent.child)
-          submitList(tempData)
+          // It's a file, call the listener
+          listener?.onItemClick(it, clickedNode)
         }
       }
-      listener?.onItemClick(it, currentList[position])
     }
+    
+    holder.itemView.setOnClickListener(clickListener)
+    expandView.setOnClickListener(clickListener)
+    
     holder.itemView.setOnLongClickListener {
-      listener?.onItemLongClick(it, currentList[position])
+      val adapterPosition = holder.adapterPosition
+      if (adapterPosition != RecyclerView.NO_POSITION) {
+        listener?.onItemLongClick(it, getItem(adapterPosition))
+      }
       true
     }
   }
+  
   
   class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
