@@ -24,6 +24,7 @@ interface OnItemClickListener {
 }
 
 class TreeViewAdapter(
+  val recyclerView: RecyclerView,
   val context: Context
 ) : ListAdapter<Node<DocumentFile>, TreeViewAdapter.ViewHolder>(NodeDiffCallback()) {
   
@@ -120,6 +121,8 @@ class TreeViewAdapter(
     return ViewHolder(view)
   }
   
+  val animator = recyclerView.itemAnimator
+  
   @SuppressLint("SetTextI18n")
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val node = getItem(position)
@@ -154,6 +157,9 @@ class TreeViewAdapter(
         if (clickedNode.value.isDirectory) {
           if (!clickedNode.isExpand) {
             // Expand the directory
+            if (animator != null){
+              recyclerView.itemAnimator = animator
+            }
             val tempData = currentList.toMutableList()
             val index = tempData.indexOf(clickedNode)
             val cachedChild = cacheList.get(clickedNode.value)
@@ -166,6 +172,7 @@ class TreeViewAdapter(
             submitList(tempData)
           } else {
             // Collapse the directory
+            recyclerView.itemAnimator = null
             val tempData = currentList.toMutableList()
             val children = TreeView.getChildren(clickedNode)
             tempData.removeAll(children.toSet())

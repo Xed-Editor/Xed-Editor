@@ -32,14 +32,16 @@ class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
           
           layoutManager = LinearLayoutManager(ctx)
           setItemViewCacheSize(100)
+          
+         
           //itemAnimator = null
           
           
-          adapter = TreeViewAdapter(ctx).apply {
+          adapter = TreeViewAdapter(this,ctx).apply {
             submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
               override fun onItemClick(v: View, node: Node<DocumentFile>) {
-                if (node.value.isFile) {
+               // if (node.value.isFile) {
                   ctx.newEditor(node.value, false)
                   ctx.onNewEditor()
                   if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
@@ -47,7 +49,7 @@ class MA(val ctx: MainActivity, rootFolder: DocumentFile) {
                       ctx.binding.drawerLayout.close()
                     }
                   }
-                }
+               // }
               }
               
               
