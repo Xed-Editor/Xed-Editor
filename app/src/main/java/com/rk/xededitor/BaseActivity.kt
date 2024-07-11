@@ -18,7 +18,6 @@ abstract class BaseActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     
     Thread {
-      SettingsData.applyPrefs(this)
       val loadedPlugins = PluginServer.loadedPlugins
       while (loadedPlugins.isNullOrEmpty()) {
         Thread.sleep(50)

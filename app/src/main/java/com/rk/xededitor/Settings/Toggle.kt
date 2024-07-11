@@ -18,6 +18,11 @@ class Toggle(val ctx: SettingsActivity, val enabled: Boolean) {
   private val inflater: LayoutInflater = LayoutInflater.from(ctx)
   var drawable = ContextCompat.getDrawable(ctx, R.drawable.settings)
   
+  private val mainBody: LinearLayout = ctx.findViewById(R.id.mainBody)
+  val v: View = inflater.inflate(R.layout.setting_toggle_layout, null)
+  private val textView: TextView = v.findViewById(R.id.textView)
+  val materialSwitch: MaterialSwitch = v.findViewById(R.id.materialSwitch)
+  
   fun setName(name: String): Toggle {
     this.name = name
     return this
@@ -38,17 +43,15 @@ class Toggle(val ctx: SettingsActivity, val enabled: Boolean) {
     return this
   }
   
-  fun showToggle() {
-    val mainBody = ctx.findViewById<LinearLayout>(R.id.mainBody)
-    val v: View = inflater.inflate(R.layout.setting_toggle_layout, null)
-    val textView = v.findViewById<TextView>(R.id.textView)
-    val materialSwitch = v.findViewById<MaterialSwitch>(R.id.materialSwitch)
+  fun showToggle() : Toggle {
+   
     materialSwitch.setChecked(enabled)
     textView.text = name
     materialSwitch.setOnCheckedChangeListener(listener)
     val imageView = v.findViewById<ImageView>(R.id.imageView)
     imageView.setImageDrawable(drawable)
     mainBody.addView(v)
+    return this
   }
   
 }

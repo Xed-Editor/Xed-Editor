@@ -155,7 +155,6 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="15dp"
             android:orientation="vertical"
-            android:layout_gravity="center"
             android:visibility="gone">
 
             <HorizontalScrollView

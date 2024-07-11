@@ -15,11 +15,7 @@ import android.content.UriPermission;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -29,7 +25,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.core.view.GravityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -41,7 +36,7 @@ import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
-import com.rk.xededitor.MainActivity.treeview2.MA;
+import com.rk.xededitor.MainActivity.treeview2.TreeView;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
@@ -74,10 +69,10 @@ public class MainActivity extends BaseActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
+    SettingsData.applyPrefs(this);
+    
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
-    
-    
     
     setSupportActionBar(binding.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -121,9 +116,6 @@ public class MainActivity extends BaseActivity {
     viewPager.setOffscreenPageLimit(15);
     mTabLayout.setupWithViewPager(viewPager);
     
-    
-   
-    
     //run async init
     new Init(this);
   }
@@ -166,7 +158,7 @@ public class MainActivity extends BaseActivity {
       persistUriPermission(treeUri);
       rootFolder = DocumentFile.fromTreeUri(this, treeUri);
       
-      new MA(MainActivity.this, rootFolder);
+      new TreeView(MainActivity.this, rootFolder);
       
       //use new file browser
       
@@ -283,6 +275,9 @@ public class MainActivity extends BaseActivity {
   protected void onDestroy() {
     Data.clear();
     super.onDestroy();
+    
+    //close the application
+    //System.exit(0);
     
   }
   

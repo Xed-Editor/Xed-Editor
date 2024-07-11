@@ -2,8 +2,11 @@ package com.rk.xededitor.CrashHandler
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.rk.xededitor.MainActivity.Data
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
@@ -26,6 +28,9 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 
 class CrashActivity : AppCompatActivity() {
   private lateinit var error_editor: CodeEditor
@@ -151,12 +156,20 @@ class CrashActivity : AppCompatActivity() {
         onBackPressed()
         return true
       }
-      R.id.copy_error -> { rkUtils.ni(this) }
-      R.id.report_issue -> {rkUtils.ni(this)}
+      R.id.copy_error -> { copyToClipboard(this,error_editor.text.toString()) }
+      R.id.report_issue -> {
+        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20ReportTest&body="+ URLEncoder.encode(error_editor.text.toString(), StandardCharsets.UTF_8.toString())))
+        startActivity(browserIntent)
+      }
     }
     
     
     return super.onOptionsItemSelected(item)
+  }
+  fun copyToClipboard(context: Context, text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText("label", text)
+    clipboard.setPrimaryClip(clip)
   }
   
 }

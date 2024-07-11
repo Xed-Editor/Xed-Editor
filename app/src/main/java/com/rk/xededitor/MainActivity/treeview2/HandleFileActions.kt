@@ -70,7 +70,7 @@ class HandleFileActions(
           copyDocumentFile(to_save_file, newFile!!)
         }
         ctx.runOnUiThread {
-          MA(ctx, Data.rootFolder)
+          TreeView(ctx, Data.rootFolder)
         }
         loading.hide()
       }.start()
@@ -186,7 +186,7 @@ class HandleFileActions(
             }
           }
           file.createDirectory(fileName)
-          MA(
+          TreeView(
             mContext, rootFolder
           )
           
@@ -228,7 +228,7 @@ class HandleFileActions(
           }
           val child = file.createFile(mimeType, "file")
           child!!.renameTo(fileName)
-          MA(
+          TreeView(
             mContext, rootFolder
           )
           
@@ -291,7 +291,7 @@ class HandleFileActions(
                 rkUtils.toast(mContext,"Please reselect the directory")
               }
               //recreate the tree
-              MA(mContext, rootFolder)
+              TreeView(mContext, rootFolder)
               
               loading.hide()
             }
@@ -364,7 +364,7 @@ class HandleFileActions(
             rkUtils.toast(mContext,"Please reselect the directory")
           } else {
             //recreate the tree
-            MA(mContext, rootFolder)
+            TreeView(mContext, rootFolder)
           }
           
           loading.hide()
@@ -420,7 +420,7 @@ class HandleFileActions(
           if (fileToPaste != null) {
             if (file.isDirectory) {
               copyDocumentFile(mContext, fileToPaste.uri, file)
-              MA(mContext, rootFolder)
+              TreeView(mContext, rootFolder)
             }
           } else {
             rkUtils.toast(mContext,"Clipboard is empty")

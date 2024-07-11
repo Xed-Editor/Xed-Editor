@@ -6,11 +6,10 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.widget.PopupMenu
 import androidx.documentfile.provider.DocumentFile
-import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.xededitor.Decompress
-import com.rk.xededitor.MainActivity.treeview2.MA
+import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.plugin.PluginServer
@@ -127,7 +126,7 @@ class Init(activity: MainActivity) {
             binding.maindrawer.visibility = View.VISIBLE
             binding.drawerToolbar.visibility = View.VISIBLE
             
-            runOnUiThread { MA(this, Data.rootFolder) }
+            runOnUiThread { TreeView(this, Data.rootFolder) }
             
             var name = Data.rootFolder.name!!
             if (name.length > 18) {

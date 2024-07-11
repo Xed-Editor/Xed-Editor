@@ -43,7 +43,7 @@ public class SettingsData {
       
       
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
     
   }

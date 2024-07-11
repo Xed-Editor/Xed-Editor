@@ -121,6 +121,11 @@ class TreeViewAdapter(
     return ViewHolder(view)
   }
   
+  fun dpToPx(dpValue: Float): Int {
+    val scale: Float = context.getResources().getDisplayMetrics().density
+    return (dpValue * scale + 0.5f).toInt()
+  }
+  
   val animator = recyclerView.itemAnimator
   
   @SuppressLint("SetTextI18n")
@@ -135,6 +140,7 @@ class TreeViewAdapter(
     holder.itemView.setPaddingRelative(node.level * 35, 0, 0, 0)
     
     if (isDir) {
+      
       expandView.visibility = View.VISIBLE
       if (!node.isExpand) {
         expandView.setImageDrawable(icChevronRight)
@@ -143,6 +149,9 @@ class TreeViewAdapter(
       }
       fileView.setImageDrawable(icFolder)
     } else {
+      val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
+      layoutParams.setMargins(dpToPx(10f),0,0,0)
+      fileView.layoutParams = layoutParams
       expandView.visibility = View.GONE
       fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
       fileView.setImageDrawable(icFile)
@@ -167,16 +176,16 @@ class TreeViewAdapter(
               cacheList.put(clickedNode.value, it)
             }
             tempData.addAll(index + 1, children)
-            TreeView.add(clickedNode, children)
+            TreeViewModel.add(clickedNode, children)
             clickedNode.isExpand = true
             submitList(tempData)
           } else {
             // Collapse the directory
             recyclerView.itemAnimator = null
             val tempData = currentList.toMutableList()
-            val children = TreeView.getChildren(clickedNode)
+            val children = TreeViewModel.getChildren(clickedNode)
             tempData.removeAll(children.toSet())
-            TreeView.remove(clickedNode, clickedNode.child)
+            TreeViewModel.remove(clickedNode, clickedNode.child)
             clickedNode.isExpand = false
             submitList(tempData)
           }
