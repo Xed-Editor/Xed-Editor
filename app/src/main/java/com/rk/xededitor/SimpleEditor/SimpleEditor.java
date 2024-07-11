@@ -51,10 +51,9 @@ import io.github.rosemoe.sora.widget.EditorSearcher;
 
 public class SimpleEditor extends BaseActivity {
   
+  public static CodeEditor editor;
   MenuItem undo;
   MenuItem redo;
-  
-  public static CodeEditor editor;
   private Content content;
   private Uri uri;
   private Menu menu;
@@ -194,9 +193,9 @@ public class SimpleEditor extends BaseActivity {
       }
       redo.setEnabled(editor.canRedo());
       undo.setEnabled(editor.canUndo());
-    }else if(id == R.id.batchrep){
+    } else if (id == R.id.batchrep) {
       var intent = new Intent(this, BatchReplacement.class);
-      intent.putExtra("isExt",true);
+      intent.putExtra("isExt", true);
       startActivity(intent);
     }
     return super.onOptionsItemSelected(item);
@@ -220,7 +219,7 @@ public class SimpleEditor extends BaseActivity {
         String mimeType = getContentResolver().getType(uri);
         assert mimeType != null;
         if (mimeType.isEmpty() || mimeType.contains("directory")) {
-          rkUtils.toast(this, "Unsupported content");
+          rkUtils.toast(this, getResources().getString(R.string.unsupported_contnt));
           finish();
         }
         String displayName = null;
@@ -250,7 +249,7 @@ public class SimpleEditor extends BaseActivity {
               editor.setText(content); // Ensure content.toString() is what you intend to set
               
             } else {
-              rkUtils.toast(this, "Error: Content is null");
+              rkUtils.toast(this, getResources().getString(R.string.null_contnt));
             }
             inputStream.close();
           }
@@ -301,7 +300,7 @@ public class SimpleEditor extends BaseActivity {
           path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
         }
         if (!new File(path).exists()) {
-          rkUtils.toast(this,"Error : theme file not found");
+          rkUtils.toast(this, "Error : theme file not found");
         }
         
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
@@ -311,7 +310,7 @@ public class SimpleEditor extends BaseActivity {
         
         String path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
         if (!new File(path).exists()) {
-          rkUtils.toast(this,"theme file not found");
+          rkUtils.toast(this, "theme file not found");
         }
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
         editorColorScheme = TextMateColorScheme.create(themeRegistry);

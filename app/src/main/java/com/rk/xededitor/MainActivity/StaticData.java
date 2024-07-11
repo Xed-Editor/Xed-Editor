@@ -17,12 +17,12 @@ import io.github.rosemoe.sora.text.Content;
 
 public class StaticData {
   
-  
-  
+  public static final int REQUEST_CODE_CREATE_FILE = 3849;
+  public static final int REQUEST_DIRECTORY_SELECTION = 2937;
   public static ArrayList<DynamicFragment> fragments;
   public static ArrayList<String> titles;
   
- public static List<Node<DocumentFile>> nodes;
+  public static List<Node<DocumentFile>> nodes;
   
   public static ArrayList<Uri> uris;
   public static List<Content> contents;

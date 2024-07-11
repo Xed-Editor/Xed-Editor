@@ -65,7 +65,7 @@ class EditorReleaseEvent(editor: CodeEditor) : Event(editor)
  * @author Rosemoe
  */
 class ImePrivateCommandEvent(editor: CodeEditor, val action: String, val data: Bundle?) :
-    Event(editor)
+  Event(editor)
 
 /**
  * This event is triggered when editor is building its [EditorInfo] object for IPC.
@@ -87,28 +87,28 @@ class EditorFocusChangeEvent(editor: CodeEditor, val isGainFocus: Boolean) : Eve
  * Trigger when the editor is attached to window/detached from window
  */
 class EditorAttachStateChangeEvent(editor: CodeEditor, val isAttachedToWindow: Boolean) :
-    Event(editor)
+  Event(editor)
 
 /**
  * Trigger when mouse right-clicked the editor
  */
 class ContextClickEvent(
-    editor: CodeEditor,
-    position: CharPosition,
-    event: MotionEvent,
-    span: Span?,
-    spanRange: TextRange?
+  editor: CodeEditor,
+  position: CharPosition,
+  event: MotionEvent,
+  span: Span?,
+  spanRange: TextRange?
 ) : EditorMotionEvent(editor, position, event, span, spanRange)
 
 /**
  * Trigger when mouse hover updates
  */
 class HoverEvent(
-    editor: CodeEditor,
-    position: CharPosition,
-    event: MotionEvent,
-    span: Span?,
-    spanRange: TextRange?
+  editor: CodeEditor,
+  position: CharPosition,
+  event: MotionEvent,
+  span: Span?,
+  spanRange: TextRange?
 ) : EditorMotionEvent(editor, position, event, span, spanRange)
 
 /**
@@ -117,9 +117,9 @@ class HoverEvent(
  * @property position Target text position of the menu
  */
 class CreateContextMenuEvent(
-    editor: CodeEditor,
-    val menu: ContextMenu,
-    val position: CharPosition
+  editor: CodeEditor,
+  val menu: ContextMenu,
+  val position: CharPosition
 ) : Event(editor)
 
 /**
@@ -128,9 +128,9 @@ class CreateContextMenuEvent(
  * @property newTextSize new text size after changed
  */
 class TextSizeChangeEvent(
-    editor: CodeEditor,
-    val oldTextSize: Float,
-    val newTextSize: Float
+  editor: CodeEditor,
+  val oldTextSize: Float,
+  val newTextSize: Float
 ) : Event(editor)
 
 /**
@@ -140,7 +140,7 @@ class TextSizeChangeEvent(
  * @author Rosemoe
  */
 class PublishSearchResultEvent(editor: CodeEditor) : Event(editor) {
-
-    fun getSearcher() = editor.searcher
-
+  
+  fun getSearcher() = editor.searcher
+  
 }

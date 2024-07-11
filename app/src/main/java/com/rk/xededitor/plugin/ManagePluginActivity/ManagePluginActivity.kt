@@ -68,18 +68,16 @@ class ManagePluginActivity : BaseActivity() {
     
     
     binding.mainBody.addView(view3)
-    if(PluginServer.arrayOfPluginNames.isEmpty()){
+    if (PluginServer.arrayOfPluginNames.isEmpty()) {
       val textView = TextView(this)
       textView.text = "No Installed Plugins"
       textView.gravity = Gravity.CENTER
       binding.mainBody.addView(textView)
-    }else{
+    } else {
       binding.mainBody.addView(listView)
     }
     
     
-    
-   
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {

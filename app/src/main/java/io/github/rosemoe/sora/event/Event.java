@@ -37,95 +37,95 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Rosemoe
  */
 public abstract class Event {
-
-    private final long eventTime;
-    private final CodeEditor editor;
-    private int interceptTargets;
-
-    public Event(@NonNull CodeEditor editor) {
-        this(editor, System.currentTimeMillis());
+  
+  private final long eventTime;
+  private final CodeEditor editor;
+  private int interceptTargets;
+  
+  public Event(@NonNull CodeEditor editor) {
+    this(editor, System.currentTimeMillis());
+  }
+  
+  public Event(@NonNull CodeEditor editor, long eventTime) {
+    this.editor = Objects.requireNonNull(editor);
+    this.eventTime = eventTime;
+    interceptTargets = 0;
+  }
+  
+  /**
+   * Get event time
+   */
+  public long getEventTime() {
+    return eventTime;
+  }
+  
+  /**
+   * Get the editor
+   */
+  @NonNull
+  public CodeEditor getEditor() {
+    return editor;
+  }
+  
+  /**
+   * Check whether this event can be intercepted (so that the event is not sent to other
+   * receivers after being intercepted)
+   * Intercept-able events:
+   *
+   * @see LongPressEvent
+   * @see ClickEvent
+   * @see DoubleClickEvent
+   * @see EditorKeyEvent
+   */
+  public boolean canIntercept() {
+    return false;
+  }
+  
+  /**
+   * Intercept the event for all targets.
+   * <p>
+   * Make sure {@link #canIntercept()} returns true. Otherwise, an {@link UnsupportedOperationException}
+   * will be thrown.
+   *
+   * @see InterceptTarget
+   */
+  public void intercept() {
+    if (!canIntercept()) {
+      throw new UnsupportedOperationException("intercept() not supported");
     }
-
-    public Event(@NonNull CodeEditor editor, long eventTime) {
-        this.editor = Objects.requireNonNull(editor);
-        this.eventTime = eventTime;
-        interceptTargets = 0;
+    interceptTargets = InterceptTarget.TARGET_EDITOR | InterceptTarget.TARGET_RECEIVERS;
+  }
+  
+  /**
+   * Intercept the event for some targets
+   *
+   * @param targets Masks for target types
+   * @see InterceptTarget
+   */
+  public void intercept(int targets) {
+    if (!canIntercept()) {
+      throw new UnsupportedOperationException("intercept() not supported");
     }
-
-    /**
-     * Get event time
-     */
-    public long getEventTime() {
-        return eventTime;
-    }
-
-    /**
-     * Get the editor
-     */
-    @NonNull
-    public CodeEditor getEditor() {
-        return editor;
-    }
-
-    /**
-     * Check whether this event can be intercepted (so that the event is not sent to other
-     * receivers after being intercepted)
-     * Intercept-able events:
-     *
-     * @see LongPressEvent
-     * @see ClickEvent
-     * @see DoubleClickEvent
-     * @see EditorKeyEvent
-     */
-    public boolean canIntercept() {
-        return false;
-    }
-
-    /**
-     * Intercept the event for all targets.
-     * <p>
-     * Make sure {@link #canIntercept()} returns true. Otherwise, an {@link UnsupportedOperationException}
-     * will be thrown.
-     *
-     * @see InterceptTarget
-     */
-    public void intercept() {
-        if (!canIntercept()) {
-            throw new UnsupportedOperationException("intercept() not supported");
-        }
-        interceptTargets = InterceptTarget.TARGET_EDITOR | InterceptTarget.TARGET_RECEIVERS;
-    }
-
-    /**
-     * Intercept the event for some targets
-     *
-     * @param targets Masks for target types
-     * @see InterceptTarget
-     */
-    public void intercept(int targets) {
-        if (!canIntercept()) {
-            throw new UnsupportedOperationException("intercept() not supported");
-        }
-        interceptTargets = targets;
-    }
-
-    /**
-     * Get intercepted dispatch targets
-     *
-     * @see #intercept(int)
-     * @see InterceptTarget
-     */
-    public int getInterceptTargets() {
-        return interceptTargets;
-    }
-
-    /**
-     * Check whether this event is intercepted for some types of targets
-     *
-     * @see #getInterceptTargets()
-     */
-    public boolean isIntercepted() {
-        return interceptTargets != 0;
-    }
-
+    interceptTargets = targets;
+  }
+  
+  /**
+   * Get intercepted dispatch targets
+   *
+   * @see #intercept(int)
+   * @see InterceptTarget
+   */
+  public int getInterceptTargets() {
+    return interceptTargets;
+  }
+  
+  /**
+   * Check whether this event is intercepted for some types of targets
+   *
+   * @see #getInterceptTargets()
+   */
+  public boolean isIntercepted() {
+    return interceptTargets != 0;
+  }
+  
 }

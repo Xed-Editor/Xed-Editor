@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?xml version="1.0" encoding="utf-8"?><!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~    sora-editor - the awesome code editor for Android
   ~    https://github.com/Rosemoe/sora-editor
   ~    Copyright (C) 2020-2024  Rosemoe
@@ -24,8 +23,8 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/magnifier_image_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:elevation="4dp"
-    android:id="@+id/magnifier_image_view"
-    android:background="@drawable/magnifier_background" />
+    android:background="@drawable/magnifier_background"
+    android:elevation="4dp" />

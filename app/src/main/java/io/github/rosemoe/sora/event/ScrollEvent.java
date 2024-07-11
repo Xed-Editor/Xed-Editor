@@ -35,91 +35,91 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * the left-top position's pixel in editor.
  */
 public class ScrollEvent extends Event {
-
-    /**
-     * Caused by thumb's exact movements
-     */
-    public final static int CAUSE_USER_DRAG = 1;
-    /**
-     * Caused by fling after user's movements
-     */
-    public final static int CAUSE_USER_FLING = 2;
-    /**
-     * Caused by calling {@link CodeEditor#ensurePositionVisible(int, int)}.
-     * This can happen when this method is manually called or either the user edits the text
-     */
-    public final static int CAUSE_MAKE_POSITION_VISIBLE = 3;
-    /**
-     * Caused by the user's thumb reaching the edge of editor viewport, which causes the editor to
-     * scroll to move the selection to text currently outside the viewport.
-     */
-    public final static int CAUSE_TEXT_SELECTING = 4;
-
-    public final static int CAUSE_SCALE_TEXT = 5;
-
-    private final int startX;
-    private final int startY;
-    private final int endX;
-    private final int endY;
-    private final int cause;
-    private float flingVelocityX;
-    private float flingVelocityY;
-
-    public ScrollEvent(@NonNull CodeEditor editor, int startX, int startY, int endX, int endY, int cause) {
-        this(editor, startX, startY, endX, endY, cause, 0f, 0f);
-    }
-
-    public ScrollEvent(@NonNull CodeEditor editor, int startX, int startY, int endX, int endY, int cause, float vx, float vy) {
-        super(editor);
-        this.startX = startX;
-        this.startY = startY;
-        this.endX = endX;
-        this.endY = endY;
-        this.cause = cause;
-        this.flingVelocityX = vx;
-        this.flingVelocityY = vy;
-    }
-
-    /**
-     * Get the start x
-     */
-    public int getStartX() {
-        return startX;
-    }
-
-    /**
-     * Get the start y
-     */
-    public int getStartY() {
-        return startY;
-    }
-
-    /**
-     * Get end x
-     */
-    public int getEndX() {
-        return endX;
-    }
-
-    /**
-     * Get end y
-     */
-    public int getEndY() {
-        return endY;
-    }
-
-    /**
-     * Get the cause of the scroll
-     */
-    public int getCause() {
-        return cause;
-    }
-
-    public float getFlingVelocityX() {
-        return flingVelocityX;
-    }
-
-    public float getFlingVelocityY() {
-        return flingVelocityY;
-    }
+  
+  /**
+   * Caused by thumb's exact movements
+   */
+  public final static int CAUSE_USER_DRAG = 1;
+  /**
+   * Caused by fling after user's movements
+   */
+  public final static int CAUSE_USER_FLING = 2;
+  /**
+   * Caused by calling {@link CodeEditor#ensurePositionVisible(int, int)}.
+   * This can happen when this method is manually called or either the user edits the text
+   */
+  public final static int CAUSE_MAKE_POSITION_VISIBLE = 3;
+  /**
+   * Caused by the user's thumb reaching the edge of editor viewport, which causes the editor to
+   * scroll to move the selection to text currently outside the viewport.
+   */
+  public final static int CAUSE_TEXT_SELECTING = 4;
+  
+  public final static int CAUSE_SCALE_TEXT = 5;
+  
+  private final int startX;
+  private final int startY;
+  private final int endX;
+  private final int endY;
+  private final int cause;
+  private final float flingVelocityX;
+  private final float flingVelocityY;
+  
+  public ScrollEvent(@NonNull CodeEditor editor, int startX, int startY, int endX, int endY, int cause) {
+    this(editor, startX, startY, endX, endY, cause, 0f, 0f);
+  }
+  
+  public ScrollEvent(@NonNull CodeEditor editor, int startX, int startY, int endX, int endY, int cause, float vx, float vy) {
+    super(editor);
+    this.startX = startX;
+    this.startY = startY;
+    this.endX = endX;
+    this.endY = endY;
+    this.cause = cause;
+    this.flingVelocityX = vx;
+    this.flingVelocityY = vy;
+  }
+  
+  /**
+   * Get the start x
+   */
+  public int getStartX() {
+    return startX;
+  }
+  
+  /**
+   * Get the start y
+   */
+  public int getStartY() {
+    return startY;
+  }
+  
+  /**
+   * Get end x
+   */
+  public int getEndX() {
+    return endX;
+  }
+  
+  /**
+   * Get end y
+   */
+  public int getEndY() {
+    return endY;
+  }
+  
+  /**
+   * Get the cause of the scroll
+   */
+  public int getCause() {
+    return cause;
+  }
+  
+  public float getFlingVelocityX() {
+    return flingVelocityX;
+  }
+  
+  public float getFlingVelocityY() {
+    return flingVelocityY;
+  }
 }

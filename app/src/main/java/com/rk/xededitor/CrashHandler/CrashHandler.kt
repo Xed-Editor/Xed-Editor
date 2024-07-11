@@ -8,45 +8,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.widget.Toast
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.io.Writer
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.system.exitProcess
 
-/*
-*    sora-editor - the awesome code editor for Android
-*    https://github.com/Rosemoe/sora-editor
-*    Copyright (C) 2020-2024  Rosemoe
-*
-*     This library is free software; you can redistribute it and/or
-*     modify it under the terms of the GNU Lesser General Public
-*     License as published by the Free Software Foundation; either
-*     version 2.1 of the License, or (at your option) any later version.
-*
-*     This library is distributed in the hope that it will be useful,
-*     but WITHOUT ANY WARRANTY; without even the implied warranty of
-*     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-*     Lesser General Public License for more details.
-*
-*     You should have received a copy of the GNU Lesser General Public
-*     License along with this library; if not, write to the Free Software
-*     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
-*     USA
-*
-*     Please contact Rosemoe by email 2073412493@qq.com if you need
-*     additional information or have any questions
-*/
-
-
-/**
- * CrashHandler handles uncaught exceptions
- * And force the main thread continue to work
- *
- * @author Rosemoe
- *
- */
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
   private val handler = Handler(Looper.getMainLooper())
   private var context: Context? = null
@@ -59,13 +27,8 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
   
   override fun uncaughtException(thread: Thread, ex: Throwable) {
     saveCrashInfo(thread.name, ex)
-    handler.post {
-      Toast.makeText(
-        context, "Unexpected Crash", Toast.LENGTH_SHORT
-      ).show()
-    }
-    // Save the world, hopefully
-    if (Looper.myLooper() != null) {
+    
+    /*if (Looper.myLooper() != null) {
       while (true) {
         try {
           Looper.loop()
@@ -79,7 +42,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
           }
         }
       }
-    }
+    }*/
   }
   
   private fun collectDeviceInfo(ctx: Context?) {
@@ -125,13 +88,11 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
       .append(threadName).append("'\n")
     sb.append("Local date and time:")
       .append(SimpleDateFormat.getDateTimeInstance().format(Date(timestamp))).append('\n')
-    .append("\n\n\n----------------------------------------\n")
+      .append("\n\n\n----------------------------------------\n")
     for ((key, value) in info) {
       sb.append(key).append(" = ").append(value).append("\n")
     }
     
-    
-    //print any other errors
     val writer: Writer = StringWriter()
     val printWriter = PrintWriter(writer)
     ex.printStackTrace(printWriter)
@@ -146,23 +107,18 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
     sb.append(result).append('\n')
     
     
+    val error = sb.toString()
+    Log.e(LOG_TAG, error)
     
-    
-    
-    try {
-      val error = sb.toString()
-      Log.e(LOG_TAG, error)
-      
+    //crash hander activity should never crash
+    if (error.contains(CrashActivity::class.java.name)) {
+      //if it does exit instantly or else the activity loop over and over
+      exitProcess(1)
+    } else {
       val intent = Intent(context, CrashActivity::class.java)
       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       intent.putExtra("error", error)
       context?.startActivity(intent)
-      
-      val fos = context!!.openFileOutput("crash-journal.log", Context.MODE_APPEND)
-      fos.write(sb.toString().toByteArray())
-      fos.close()
-    } catch (e: Exception) {
-      Log.e(LOG_TAG, "an error occurred while writing file...", e)
     }
   }
   

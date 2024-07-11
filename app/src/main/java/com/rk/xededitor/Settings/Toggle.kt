@@ -43,8 +43,8 @@ class Toggle(val ctx: SettingsActivity, val enabled: Boolean) {
     return this
   }
   
-  fun showToggle() : Toggle {
-   
+  fun showToggle(): Toggle {
+    
     materialSwitch.setChecked(enabled)
     textView.text = name
     materialSwitch.setOnCheckedChangeListener(listener)

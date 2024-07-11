@@ -7,14 +7,14 @@
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
-        android:layout_margin="5dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp" />
 
     <TextView
         android:id="@+id/progress_message"
-        android:layout_gravity="center_vertical"
-        android:gravity="center_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Please wait..." />
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:text="@String/wait" />
 </LinearLayout>

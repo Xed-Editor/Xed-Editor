@@ -25,18 +25,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="Name eg. Test.txt"
+                android:hint="@String/newFile_hint"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/mimeTypeEditor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:tag="keyRep"
-            android:id="@+id/mimeTypeEditor"
             android:visibility="gone">
 
             <LinearLayout
@@ -53,7 +53,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:hint="MimeType eg. text/plain"
+                    android:hint="@String/mime"
                     android:paddingStart="8dp"
                     android:paddingEnd="5dp"
                     android:singleLine="true"

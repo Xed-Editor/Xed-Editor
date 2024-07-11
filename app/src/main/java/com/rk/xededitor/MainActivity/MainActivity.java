@@ -1,13 +1,13 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.Data.REQUEST_DIRECTORY_SELECTION;
-import static com.rk.xededitor.MainActivity.Data.fileList;
-import static com.rk.xededitor.MainActivity.Data.fragments;
-import static com.rk.xededitor.MainActivity.Data.mTabLayout;
-import static com.rk.xededitor.MainActivity.Data.menu;
-import static com.rk.xededitor.MainActivity.Data.rootFolder;
-import static com.rk.xededitor.MainActivity.Data.titles;
-import static com.rk.xededitor.MainActivity.Data.uris;
+import static com.rk.xededitor.MainActivity.StaticData.REQUEST_DIRECTORY_SELECTION;
+import static com.rk.xededitor.MainActivity.StaticData.fileList;
+import static com.rk.xededitor.MainActivity.StaticData.fragments;
+import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
+import static com.rk.xededitor.MainActivity.StaticData.menu;
+import static com.rk.xededitor.MainActivity.StaticData.rootFolder;
+import static com.rk.xededitor.MainActivity.StaticData.titles;
+import static com.rk.xededitor.MainActivity.StaticData.uris;
 
 import android.content.Context;
 import android.content.Intent;
@@ -57,13 +57,12 @@ public class MainActivity extends BaseActivity {
   final int REQUEST_FILE_SELECTION = 123;
   public ActivityMainBinding binding;
   public mAdapter adapter;
-  NavigationView navigationView;
   public ViewPager viewPager;
   public DrawerLayout drawerLayout;
+  NavigationView navigationView;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
   
- 
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +119,7 @@ public class MainActivity extends BaseActivity {
     new Init(this);
   }
   
-  public CodeEditor getCurrentEditor(){
+  public CodeEditor getCurrentEditor() {
     return fragments.get(mTabLayout.getSelectedTabPosition()).getEditor();
   }
   
@@ -135,7 +134,7 @@ public class MainActivity extends BaseActivity {
   public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     // Handle the theme change here
-    rkUtils.toast(this,"Restart Required");
+    rkUtils.toast(this, getResources().getString(R.string.restart_required));
   }
   
   @Override
@@ -180,7 +179,7 @@ public class MainActivity extends BaseActivity {
         Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
       }
       
-    } else if (requestCode == Data.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
+    } else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
       if (data != null) {
         Uri uri = data.getData();
         if (uri != null) {
@@ -224,7 +223,6 @@ public class MainActivity extends BaseActivity {
   }
   
   
-  
   public void newEditor(DocumentFile file, boolean isNewFile) {
     
     if (adapter == null) {
@@ -239,7 +237,7 @@ public class MainActivity extends BaseActivity {
     final String file_name = file.getName();
     
     if (fileList.contains(file) || adapter.addFragment(new DynamicFragment(file, this, isNewFile), file_name, file)) {
-      rkUtils.toast(this,"File already opened!");
+      rkUtils.toast(this, "File already opened!");
       return;
     }
     
@@ -273,7 +271,7 @@ public class MainActivity extends BaseActivity {
   
   @Override
   protected void onDestroy() {
-    Data.clear();
+    StaticData.clear();
     super.onDestroy();
     
     //close the application
@@ -324,7 +322,7 @@ public class MainActivity extends BaseActivity {
   }
   
   public void fileOptions(View v) {
-   new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v);
+    new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v);
   }
   
   public void hideKeyboard() {
@@ -348,7 +346,7 @@ public class MainActivity extends BaseActivity {
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_main, menu);
-    Data.menu = menu;
+    StaticData.menu = menu;
     menu.findItem(R.id.search).setVisible(!(fragments == null || fragments.isEmpty()));
     menu.findItem(R.id.batchrep).setVisible(!(fragments == null || fragments.isEmpty()));
     
@@ -372,7 +370,7 @@ public class MainActivity extends BaseActivity {
       if (drawerToggle.onOptionsItemSelected(item)) {
         return true;
       }
-      return HandleMenuClick.handle(this,item);
+      return HandleMenuClick.handle(this, item);
     }
   }
 }

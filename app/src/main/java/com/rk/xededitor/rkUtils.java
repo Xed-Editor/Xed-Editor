@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
+
 import androidx.documentfile.provider.DocumentFile;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
@@ -47,7 +49,8 @@ public class rkUtils {
       return null;
     }
   }
-  public static void shareText(Context ctx,String text) {
+  
+  public static void shareText(Context ctx, String text) {
     Intent sendIntent = new Intent();
     sendIntent.setAction(Intent.ACTION_SEND);
     sendIntent.putExtra(Intent.EXTRA_TEXT, text);
@@ -56,6 +59,7 @@ public class rkUtils {
     Intent shareIntent = Intent.createChooser(sendIntent, null);
     ctx.startActivity(shareIntent);
   }
+  
   public static void toast(Context context, String message) {
     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
   }
@@ -66,17 +70,13 @@ public class rkUtils {
   }
   
   public static void ni(Context context) {
-    toast(context, "This feature is not implemented");
+    toast(context, context.getResources().getString(R.string.ni));
   }
   
-  public static void ni(Context context, String name) {
-    toast(context, name + " is not implemented");
-  }
-  
-  public static long took(Runnable runnable){
+  public static long took(Runnable runnable) {
     var start = System.currentTimeMillis();
     runnable.run();
-    return System.currentTimeMillis()-start;
+    return System.currentTimeMillis() - start;
   }
   
   public static String getMimeType(Context context, DocumentFile documentFile) {

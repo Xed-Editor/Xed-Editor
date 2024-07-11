@@ -4,9 +4,9 @@ import android.view.View
 import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rk.xededitor.After
-import com.rk.xededitor.MainActivity.Data
+import com.rk.xededitor.MainActivity.StaticData
 
-import com.rk.xededitor.MainActivity.Data.nodes
+import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.Settings.SettingsData
 
@@ -20,7 +20,7 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
       }
       
       
-      nodes = TreeViewAdapter.merge(Data.rootFolder)
+      nodes = TreeViewAdapter.merge(StaticData.rootFolder)
       
       
       ctx.runOnUiThread {
@@ -30,23 +30,23 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
           layoutManager = LinearLayoutManager(ctx)
           setItemViewCacheSize(100)
           
-         
+          
           //itemAnimator = null
           
           
-          adapter = TreeViewAdapter(this,ctx).apply {
+          adapter = TreeViewAdapter(this, ctx).apply {
             submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
               override fun onItemClick(v: View, node: Node<DocumentFile>) {
-               // if (node.value.isFile) {
-                  ctx.newEditor(node.value, false)
-                  ctx.onNewEditor()
-                  if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
-                    After(500) {
-                      ctx.binding.drawerLayout.close()
-                    }
+                // if (node.value.isFile) {
+                ctx.newEditor(node.value, false)
+                ctx.onNewEditor()
+                if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
+                  After(500) {
+                    ctx.binding.drawerLayout.close()
                   }
-               // }
+                }
+                // }
               }
               
               

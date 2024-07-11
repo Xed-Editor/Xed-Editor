@@ -25,10 +25,10 @@
 package io.github.rosemoe.sora.lang.completion.snippet
 
 data class PlaceholderDefinition @JvmOverloads constructor(
-    var id: Int,
-    var choices: List<String>? = null,
-    var elements: List<PlaceHolderElement> = mutableListOf(), // do not use emptyList()
-    var transform: Transform? = null
+  var id: Int,
+  var choices: List<String>? = null,
+  var elements: List<PlaceHolderElement> = mutableListOf(), // do not use emptyList()
+  var transform: Transform? = null
 ) {
-    internal var text: String? = null
+  internal var text: String? = null
 }

@@ -21,11 +21,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.rk.xededitor.After
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.Data
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.DynamicFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
-import com.rk.xededitor.rkUtils
+import kotlin.system.exitProcess
 
 
 class SettingsActivity : BaseActivity() {
@@ -80,7 +80,7 @@ class SettingsActivity : BaseActivity() {
       .setOnDismissListener {
         shouldAsk = true
       }
-      
+    
     
     
     switch = Toggle(this, SettingsData.isOled(this)).setName("Black Night Theme")
@@ -93,8 +93,8 @@ class SettingsActivity : BaseActivity() {
         
         if (shouldAsk) {
           shouldAsk = false
-          After(210){
-            runOnUiThread{
+          After(210) {
+            runOnUiThread {
               d.show()
             }
           }
@@ -112,8 +112,8 @@ class SettingsActivity : BaseActivity() {
     Toggle(this, SettingsData.getBoolean(this, "wordwrap", false)).setName("Word wrap")
       .setDrawable(R.drawable.reorder).setListener { _, isChecked ->
         SettingsData.setBoolean(this@SettingsActivity, "wordwrap", isChecked)
-        if (Data.fragments != null && Data.fragments.isNotEmpty()) {
-          for (fragment in Data.fragments) {
+        if (StaticData.fragments != null && StaticData.fragments.isNotEmpty()) {
+          for (fragment in StaticData.fragments) {
             val dynamicFragment = fragment as DynamicFragment
             dynamicFragment.editor.isWordwrap = isChecked
           }
@@ -132,14 +132,11 @@ class SettingsActivity : BaseActivity() {
     }.showToggle()
     
     
-    
-    
-    
     var switch1: MaterialSwitch? = null
     var shouldAsk1: Boolean = true
     var isProgrammaticChange1 = false
     
-   var d1 = MaterialAlertDialogBuilder(this@SettingsActivity)
+    var d1 = MaterialAlertDialogBuilder(this@SettingsActivity)
       .setTitle("Restart Required")
       .setMessage("Please restart to apply settings")
       .setNegativeButton("Cancel") { _, _ ->
@@ -166,20 +163,14 @@ class SettingsActivity : BaseActivity() {
         
         if (shouldAsk1) {
           shouldAsk1 = false
-          After(210){
-            runOnUiThread{
+          After(210) {
+            runOnUiThread {
               d1.show()
             }
           }
         }
       }
       .showToggle().materialSwitch
-    
-    
-    
-    
-    
-    
     
     
     val mainBody = findViewById<LinearLayout>(R.id.mainBody)
@@ -199,13 +190,6 @@ class SettingsActivity : BaseActivity() {
       50
     )
     view.layoutParams = layoutParams
-    
-    
-    
-    
-    
-    
-    
     
     mainBody.addView(view)
     mainBody.addView(v)
@@ -231,23 +215,16 @@ class SettingsActivity : BaseActivity() {
   
   
   private fun doRestart(c: Context?) {
-    val tag="doRestart"
+    val tag = "doRestart"
     try {
-      //check if the context is given
       if (c != null) {
-        //fetch the packagemanager so we can get the default launch activity
-        // (you can replace this intent with any other activity if you want
         val pm = c.packageManager
-        //check if we got the PackageManager
         if (pm != null) {
-          //create the intent with the default start activity for your application
           val mStartActivity = pm.getLaunchIntentForPackage(
             c.packageName
           )
           if (mStartActivity != null) {
             mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            //create a pending intent so the application is restarted after System.exit(0) was called.
-            // We use an AlarmManager to call this intent in 100ms
             val mPendingIntentId = 223344
             val mPendingIntent = PendingIntent
               .getActivity(
@@ -256,8 +233,7 @@ class SettingsActivity : BaseActivity() {
               )
             val mgr = c.getSystemService(ALARM_SERVICE) as AlarmManager
             mgr[AlarmManager.RTC, System.currentTimeMillis() + 100] = mPendingIntent
-            //kill the application
-            System.exit(0)
+            exitProcess(0)
           } else {
             Log.e(tag, "Was not able to restart application, mStartActivity null")
           }

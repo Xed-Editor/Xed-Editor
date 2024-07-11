@@ -58,50 +58,50 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  * @author Rosemoe
  */
 class TextInlayHint(val text: String) : InlayHint(InlayHintLayoutType.IN_LINE) {
-
-    override fun onMeasure(
-        paint: Paint,
-        textMetrics: android.graphics.Paint.FontMetricsInt,
-        lineHeight: Int,
-        baseline: Float
-    ): Float {
-        val margin = paint.spaceWidth * 0.8f
-        val textSize = paint.textSize
-        paint.setTextSizeWrapped(textSize * 0.75f)
-        val width = paint.measureText(text) + margin * 3
-        paint.setTextSizeWrapped(textSize)
-        return width
-    }
-
-    override fun onRender(
-        canvas: Canvas,
-        paint: Paint,
-        textMetrics: android.graphics.Paint.FontMetricsInt,
-        colorScheme: EditorColorScheme,
-        lineHeight: Int,
-        baseline: Float,
-        measuredWidth: Float
-    ) {
-        val margin = paint.spaceWidth * 0.8f
-        val textSize = paint.textSize
-        paint.setTextSizeWrapped(textSize * 0.75f)
-
-        val myLineHeight = paint.descent() - paint.ascent()
-        val myBaseline = lineHeight / 2f - myLineHeight / 2f + paint.descent()
-        paint.color = colorScheme.getColor(EditorColorScheme.TEXT_INLAY_HINT_BACKGROUND)
-        canvas.drawRoundRect(
-            margin,
-            lineHeight / 2f - myLineHeight / 2f,
-            measuredWidth - margin,
-            lineHeight / 2f + myLineHeight / 2f,
-            0.15f,
-            0.15f,
-            paint
-        )
-        paint.color = colorScheme.getColor(EditorColorScheme.TEXT_INLAY_HINT_FOREGROUND)
-        canvas.drawText(text, margin * 1.5f, myBaseline, paint)
-
-        paint.setTextSizeWrapped(textSize)
-    }
-
+  
+  override fun onMeasure(
+    paint: Paint,
+    textMetrics: android.graphics.Paint.FontMetricsInt,
+    lineHeight: Int,
+    baseline: Float
+  ): Float {
+    val margin = paint.spaceWidth * 0.8f
+    val textSize = paint.textSize
+    paint.setTextSizeWrapped(textSize * 0.75f)
+    val width = paint.measureText(text) + margin * 3
+    paint.setTextSizeWrapped(textSize)
+    return width
+  }
+  
+  override fun onRender(
+    canvas: Canvas,
+    paint: Paint,
+    textMetrics: android.graphics.Paint.FontMetricsInt,
+    colorScheme: EditorColorScheme,
+    lineHeight: Int,
+    baseline: Float,
+    measuredWidth: Float
+  ) {
+    val margin = paint.spaceWidth * 0.8f
+    val textSize = paint.textSize
+    paint.setTextSizeWrapped(textSize * 0.75f)
+    
+    val myLineHeight = paint.descent() - paint.ascent()
+    val myBaseline = lineHeight / 2f - myLineHeight / 2f + paint.descent()
+    paint.color = colorScheme.getColor(EditorColorScheme.TEXT_INLAY_HINT_BACKGROUND)
+    canvas.drawRoundRect(
+      margin,
+      lineHeight / 2f - myLineHeight / 2f,
+      measuredWidth - margin,
+      lineHeight / 2f + myLineHeight / 2f,
+      0.15f,
+      0.15f,
+      paint
+    )
+    paint.color = colorScheme.getColor(EditorColorScheme.TEXT_INLAY_HINT_FOREGROUND)
+    canvas.drawText(text, margin * 1.5f, myBaseline, paint)
+    
+    paint.setTextSizeWrapped(textSize)
+  }
+  
 }

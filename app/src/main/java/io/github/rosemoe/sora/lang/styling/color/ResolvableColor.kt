@@ -32,9 +32,9 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  * @author Rosemoe
  */
 fun interface ResolvableColor : SpanExt {
-    /**
-     * Resolve this color
-     * @return Color int
-     */
-    fun resolve(colorScheme: EditorColorScheme): Int
+  /**
+   * Resolve this color
+   * @return Color int
+   */
+  fun resolve(colorScheme: EditorColorScheme): Int
 }

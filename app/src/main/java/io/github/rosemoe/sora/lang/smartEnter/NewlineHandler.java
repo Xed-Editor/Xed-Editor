@@ -34,26 +34,26 @@ import io.github.rosemoe.sora.text.Content;
  * Perform text processing when user enters '\n' and selection size is 0
  */
 public interface NewlineHandler {
-
-    /**
-     * Checks whether the given input matches the requirement to invoke this handler
-     *
-     * @param text     Current text in editor
-     * @param position The position of cursor
-     * @param style    Current code styles
-     * @return Whether this handler should be called
-     */
-    boolean matchesRequirement(@NonNull Content text, @NonNull CharPosition position, @Nullable Styles style);
-
-    /**
-     * Handle newline and return processed content to insert
-     *
-     * @param text     Current text in editor
-     * @param position The position of cursor
-     * @param style    Current code styles
-     * @return Actual content to insert
-     */
-    @NonNull
-    NewlineHandleResult handleNewline(@NonNull Content text, @NonNull CharPosition position, @Nullable Styles style, int tabSize);
-
+  
+  /**
+   * Checks whether the given input matches the requirement to invoke this handler
+   *
+   * @param text     Current text in editor
+   * @param position The position of cursor
+   * @param style    Current code styles
+   * @return Whether this handler should be called
+   */
+  boolean matchesRequirement(@NonNull Content text, @NonNull CharPosition position, @Nullable Styles style);
+  
+  /**
+   * Handle newline and return processed content to insert
+   *
+   * @param text     Current text in editor
+   * @param position The position of cursor
+   * @param style    Current code styles
+   * @return Actual content to insert
+   */
+  @NonNull
+  NewlineHandleResult handleNewline(@NonNull Content text, @NonNull CharPosition position, @Nullable Styles style, int tabSize);
+  
 }

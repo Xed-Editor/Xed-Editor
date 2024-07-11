@@ -1,83 +1,81 @@
-<menu xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
-
+    xmlns:tools="http://schemas.android.com/tools">
 
 
     <item
         android:id="@+id/action_all"
-        android:title="Save All"
+        android:title="@string/save_all"
         android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_save"
-        android:title="Save"
-        android:visible="false"
         android:icon="@drawable/save"
+        android:title="@string/save_1"
+        android:visible="false"
         app:showAsAction="always" />
     <item
         android:id="@+id/undo"
-        android:title="Undo"
-        android:visible="false"
         android:enabled="false"
         android:icon="@drawable/undo"
-        app:showAsAction="always"/>
+        android:title="@string/undo"
+        android:visible="false"
+        app:showAsAction="always" />
     <item
         android:id="@+id/redo"
-        android:title="Redo"
-        android:visible="false"
         android:enabled="false"
         android:icon="@drawable/redo"
+        android:title="Redo"
+        android:visible="false"
         app:showAsAction="always"
         tools:ignore="HardcodedText" />
     <item
         android:id="@+id/action_settings"
-        android:title="Settings"
         android:icon="@drawable/settings"
+        android:title="@string/settings"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_print"
-        android:title="Print"
+        android:title="@string/print"
         android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/batchrep"
-        android:title="Batch Replacement"
+        android:title="@string/batch_replacement"
         app:showAsAction="never" />
     <item
         android:id="@+id/search"
-        android:title="Search"
-        app:showAsAction="ifRoom"
-        android:icon="@drawable/search"/>
+        android:icon="@drawable/search"
+        android:title="@string/search"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/search_next"
-        android:title="Go Next"
-        app:showAsAction="always"
+        android:icon="@drawable/arrow_upward"
+        android:title="@string/go_next"
         android:visible="false"
-        android:icon="@drawable/arrow_upward"/>
+        app:showAsAction="always" />
     <item
         android:id="@+id/search_previous"
-        android:title="Go Prev."
-        app:showAsAction="always"
+        android:icon="@drawable/arrow_downward"
+        android:title="@string/go_prev"
         android:visible="false"
-        android:icon="@drawable/arrow_downward"/>
+        app:showAsAction="always" />
     <item
         android:id="@+id/search_close"
-        android:title="Close Search"
-        app:showAsAction="always"
+        android:icon="@drawable/close"
+        android:title="@string/close_search"
         android:visible="false"
-        android:icon="@drawable/close"/>
+        app:showAsAction="always" />
     <item
         android:id="@+id/replace"
-        android:title="Replace"
-        app:showAsAction="always"
         android:icon="@drawable/find_replace"
-        android:visible="false" />
+        android:title="@string/replace"
+        android:visible="false"
+        app:showAsAction="always" />
     <item
         android:id="@+id/share"
-        android:title="Share"
-        app:showAsAction="never"
-        android:visible="false" />
+        android:title="@string/share"
+        android:visible="false"
+        app:showAsAction="never" />
 
 </menu>

@@ -25,26 +25,26 @@
 package io.github.rosemoe.sora.util
 
 interface ShareableData<T> : Cloneable {
-
-    /**
-     * Declare that the object is retained by an owner
-     */
-    fun retain()
-
-    /**
-     * Declare that the object is no longer used by an owner
-     */
-    fun release()
-
-    /**
-     * Check if this object can be modified directly
-     */
-    fun isMutable(): Boolean
-
-    /**
-     * If this object is mutable, returns itself.
-     * Otherwise, the object is cloned and the cloned object is returned.
-     */
-    fun toMutable(): T
-
+  
+  /**
+   * Declare that the object is retained by an owner
+   */
+  fun retain()
+  
+  /**
+   * Declare that the object is no longer used by an owner
+   */
+  fun release()
+  
+  /**
+   * Check if this object can be modified directly
+   */
+  fun isMutable(): Boolean
+  
+  /**
+   * If this object is mutable, returns itself.
+   * Otherwise, the object is cloned and the cloned object is returned.
+   */
+  fun toMutable(): T
+  
 }

@@ -32,17 +32,17 @@ import io.github.rosemoe.sora.lang.styling.color.ResolvableColor
  * multiple spans, at your option.
  */
 interface SpanColorResolver : SpanExt {
-
-    /**
-     * Get override foreground color of the given [Span]. The given [Span] is readonly.
-     * Return null if the color is not overrode by this resolver.
-     */
-    fun getForegroundColor(span: Span): ResolvableColor?
-
-    /**
-     * Get override background color of the given [Span]. The given [Span] is readonly.
-     * Return null if the color is not overrode by this resolver.
-     */
-    fun getBackgroundColor(span: Span): ResolvableColor?
-
+  
+  /**
+   * Get override foreground color of the given [Span]. The given [Span] is readonly.
+   * Return null if the color is not overrode by this resolver.
+   */
+  fun getForegroundColor(span: Span): ResolvableColor?
+  
+  /**
+   * Get override background color of the given [Span]. The given [Span] is readonly.
+   * Return null if the color is not overrode by this resolver.
+   */
+  fun getBackgroundColor(span: Span): ResolvableColor?
+  
 }

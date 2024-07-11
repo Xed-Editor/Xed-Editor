@@ -4,11 +4,11 @@
 
     <item
         android:id="@+id/copy_error"
-        android:title="Copy"
+        android:title="@string/copy"
         app:showAsAction="always" />
     <item
         android:id="@+id/report_issue"
-        android:title="Report Issue"
+        android:title="@string/report_issue"
         app:showAsAction="always" />
 
 </menu>

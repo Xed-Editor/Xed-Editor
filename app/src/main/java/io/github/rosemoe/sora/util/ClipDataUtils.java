@@ -28,24 +28,24 @@ import android.content.ClipData;
 import androidx.annotation.Nullable;
 
 public class ClipDataUtils {
-
-    public static String clipDataToString(@Nullable ClipData clipData) {
-        if (clipData == null) {
-            return "";
-        }
-        var sb = new StringBuilder();
-        for (int i = 0; i < clipData.getItemCount(); i++) {
-            if (i > 0) {
-                sb.append('\n');
-            }
-            var item = clipData.getItemAt(i);
-            var text = item.getText();
-            if (text == null) {
-                text = item.toString();
-            }
-            sb.append(text);
-        }
-        return sb.toString();
+  
+  public static String clipDataToString(@Nullable ClipData clipData) {
+    if (clipData == null) {
+      return "";
     }
-
+    var sb = new StringBuilder();
+    for (int i = 0; i < clipData.getItemCount(); i++) {
+      if (i > 0) {
+        sb.append('\n');
+      }
+      var item = clipData.getItemAt(i);
+      var text = item.getText();
+      if (text == null) {
+        text = item.toString();
+      }
+      sb.append(text);
+    }
+    return sb.toString();
+  }
+  
 }

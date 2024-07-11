@@ -33,15 +33,15 @@ package io.github.rosemoe.sora.widget.component;
  * @see EditorDiagnosticTooltipWindow
  */
 public interface EditorBuiltinComponent {
-
-    /**
-     * Check whether this component is enabled
-     */
-    boolean isEnabled();
-
-    /**
-     * Enable/disable this builtin component
-     */
-    void setEnabled(boolean enabled);
-
+  
+  /**
+   * Check whether this component is enabled
+   */
+  boolean isEnabled();
+  
+  /**
+   * Enable/disable this builtin component
+   */
+  void setEnabled(boolean enabled);
+  
 }

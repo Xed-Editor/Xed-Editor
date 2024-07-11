@@ -1,12 +1,12 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.Data.contents;
-import static com.rk.xededitor.MainActivity.Data.fileList;
-import static com.rk.xededitor.MainActivity.Data.fragments;
-import static com.rk.xededitor.MainActivity.Data.mTabLayout;
-import static com.rk.xededitor.MainActivity.Data.menu;
-import static com.rk.xededitor.MainActivity.Data.titles;
-import static com.rk.xededitor.MainActivity.Data.uris;
+import static com.rk.xededitor.MainActivity.StaticData.contents;
+import static com.rk.xededitor.MainActivity.StaticData.fileList;
+import static com.rk.xededitor.MainActivity.StaticData.fragments;
+import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
+import static com.rk.xededitor.MainActivity.StaticData.menu;
+import static com.rk.xededitor.MainActivity.StaticData.titles;
+import static com.rk.xededitor.MainActivity.StaticData.uris;
 
 import android.net.Uri;
 import android.view.MenuItem;
@@ -31,6 +31,10 @@ public class mAdapter extends FragmentStatePagerAdapter {
     super(fm);
   }
   
+  public static CodeEditor getCurrentEditor() {
+    return fragments.get(mTabLayout.getSelectedTabPosition()).editor;
+  }
+  
   @NonNull
   @Override
   public Fragment getItem(int position) {
@@ -40,10 +44,6 @@ public class mAdapter extends FragmentStatePagerAdapter {
   @Override
   public int getCount() {
     return fragments.size();
-  }
-  
-  public static CodeEditor getCurrentEditor(){
-    return fragments.get(mTabLayout.getSelectedTabPosition()).editor;
   }
   
   @Override
@@ -90,7 +90,7 @@ public class mAdapter extends FragmentStatePagerAdapter {
     titles.remove(position);
     fileList.remove(position);
     removing = true;
-    if(!contents.isEmpty()){
+    if (!contents.isEmpty()) {
       contents.remove(position);
     }
     notifyDataSetChanged();

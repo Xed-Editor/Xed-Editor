@@ -31,30 +31,30 @@ import io.github.rosemoe.sora.util.IntPair;
  * @author Rosemoe
  */
 public class CharPosDesc {
-
-    private CharPosDesc() {
-
-    }
-
-    /**
-     * Make a new character position description
-     */
-    public static long make(int textOffset, float pixelWidthOrOffset) {
-        return IntPair.pack(textOffset, Float.floatToRawIntBits(pixelWidthOrOffset));
-    }
-
-    /**
-     * Get character offset in text
-     */
-    public static int getTextOffset(long packedValue) {
-        return IntPair.getFirst(packedValue);
-    }
-
-    /**
-     * Get character width or offset in pixel
-     */
-    public static float getPixelWidthOrOffset(long packedValue) {
-        return Float.intBitsToFloat(IntPair.getSecond(packedValue));
-    }
-
+  
+  private CharPosDesc() {
+  
+  }
+  
+  /**
+   * Make a new character position description
+   */
+  public static long make(int textOffset, float pixelWidthOrOffset) {
+    return IntPair.pack(textOffset, Float.floatToRawIntBits(pixelWidthOrOffset));
+  }
+  
+  /**
+   * Get character offset in text
+   */
+  public static int getTextOffset(long packedValue) {
+    return IntPair.getFirst(packedValue);
+  }
+  
+  /**
+   * Get character width or offset in pixel
+   */
+  public static float getPixelWidthOrOffset(long packedValue) {
+    return Float.intBitsToFloat(IntPair.getSecond(packedValue));
+  }
+  
 }

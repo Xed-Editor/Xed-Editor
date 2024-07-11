@@ -57,9 +57,10 @@ class CrashActivity : AppCompatActivity() {
       e.printStackTrace()
     }
     error_editor.editable = false
-    Thread{
-      try{
-        ensureTextmateTheme()}catch (e:Exception){
+    Thread {
+      try {
+        ensureTextmateTheme()
+      } catch (e: Exception) {
         e.printStackTrace()
       }
     }.start()
@@ -94,8 +95,9 @@ class CrashActivity : AppCompatActivity() {
         }
         if (!File(path).exists()) {
           runOnUiThread {
-            rkUtils.toast(this,
-              "theme file not found please reinstall the Xed editor or clear app data"
+            rkUtils.toast(
+              this,
+              getResources().getString(R.string.theme_not_found_err)
             )
           }
         }
@@ -115,8 +117,9 @@ class CrashActivity : AppCompatActivity() {
           this.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
         if (!File(path).exists()) {
           runOnUiThread {
-            rkUtils.toast(this,
-              "theme file not found please reinstall the Xed error_editor or clear app data"
+            rkUtils.toast(
+              this,
+              getResources().getString(R.string.theme_not_found_err)
             )
           }
         }
@@ -156,9 +159,21 @@ class CrashActivity : AppCompatActivity() {
         onBackPressed()
         return true
       }
-      R.id.copy_error -> { copyToClipboard(this,error_editor.text.toString()) }
+      
+      R.id.copy_error -> {
+        copyToClipboard(this, error_editor.text.toString())
+      }
+      
       R.id.report_issue -> {
-        val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20ReportTest&body="+ URLEncoder.encode(error_editor.text.toString(), StandardCharsets.UTF_8.toString())))
+        val browserIntent = Intent(
+          Intent.ACTION_VIEW,
+          Uri.parse(
+            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20ReportTest&body=" + URLEncoder.encode(
+              error_editor.text.toString(),
+              StandardCharsets.UTF_8.toString()
+            )
+          )
+        )
         startActivity(browserIntent)
       }
     }
@@ -166,6 +181,7 @@ class CrashActivity : AppCompatActivity() {
     
     return super.onOptionsItemSelected(item)
   }
+  
   fun copyToClipboard(context: Context, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("label", text)

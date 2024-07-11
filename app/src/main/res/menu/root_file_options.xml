@@ -1,50 +1,50 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/reselect"
-        android:visible="false"
-        android:title="Reselect" />
+        android:title="@string/reselect"
+        android:visible="false" />
 
     <item
         android:id="@+id/openFile"
-        android:visible="false"
-        android:title="OpenFile" />
+        android:title="@string/openfile"
+        android:visible="false" />
     <item
         android:id="@+id/ceateFolder"
-        android:visible="false"
-        android:title="New Folder" />
+        android:title="@string/new_folder"
+        android:visible="false" />
     <item
         android:id="@+id/createFile"
-        android:visible="false"
-        android:title="New File" />
+        android:title="@string/new_file_1"
+        android:visible="false" />
     <item
         android:id="@+id/rename"
-        android:title="Rename"/>
+        android:title="@string/rename" />
     <item
         android:id="@+id/openWith"
-        android:title="Open With..."/>
+        android:title="@string/open_with" />
 
     <item
-        android:title="Save as"
-        android:id="@+id/save_as"/>
+        android:id="@+id/save_as"
+        android:title="@string/save_as" />
 
     <item
         android:id="@+id/copy"
-        android:visible="false"
-        android:title="Copy" />
+        android:title="@string/copy"
+        android:visible="false" />
 
     <item
         android:id="@+id/paste"
-        android:visible="false"
-        android:title="Paste" />
+        android:title="@string/paste"
+        android:visible="false" />
     <item
         android:id="@+id/delete"
-        android:title="Delete" />
+        android:title="@string/delete" />
 
 
     <item
         android:id="@+id/close"
-        android:visible="false"
-        android:title="Close" />
+        android:title="Close"
+        android:visible="false" />
 
 
 </menu>

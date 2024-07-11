@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="f5">#f5f5f5</color>
     <color name="dark">#1C1B20</color>
-    <color name="black">#000</color>
-    <color name="white">#FFFBFF</color>
-    <color name="invert">@color/dark</color>
     <color name="invert_dull">@color/dark</color>
     <color name="berry">#485D91</color>
-    <color name="textActionNameColor">@android:color/tertiary_text_light</color>
     <color name="defaultSymbolInputBackgroundColor">@android:color/background_light</color>
     <color name="defaultSymbolInputTextColor">@android:color/black</color>
     <color name="bg">@android:color/white</color>

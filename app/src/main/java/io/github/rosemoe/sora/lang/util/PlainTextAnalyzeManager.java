@@ -37,28 +37,28 @@ import io.github.rosemoe.sora.text.CharPosition;
  * @author Rosemoe
  */
 public final class PlainTextAnalyzeManager extends BaseAnalyzeManager {
-
-    @Override
-    public void insert(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence insertedContent) {
-
+  
+  @Override
+  public void insert(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence insertedContent) {
+  
+  }
+  
+  @Override
+  public void delete(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence deletedContent) {
+  
+  }
+  
+  @Override
+  public void rerun() {
+    final var receiver = getReceiver();
+    final var ref = getContentRef();
+    if (receiver != null && ref != null) {
+      var style = new Styles();
+      style.spans = new PlainTextSpans(ref.getLineCount());
+      receiver.setStyles(this, style);
+    } else if (receiver != null) {
+      receiver.setStyles(this, null);
     }
-
-    @Override
-    public void delete(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence deletedContent) {
-
-    }
-
-    @Override
-    public void rerun() {
-        final var receiver = getReceiver();
-        final var ref = getContentRef();
-        if (receiver != null && ref != null) {
-            var style = new Styles();
-            style.spans = new PlainTextSpans(ref.getLineCount());
-            receiver.setStyles(this, style);
-        } else if (receiver != null) {
-            receiver.setStyles(this, null);
-        }
-    }
-
+  }
+  
 }

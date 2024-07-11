@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
-import com.rk.xededitor.MainActivity.Data
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xedplugin.API

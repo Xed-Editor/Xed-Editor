@@ -33,11 +33,11 @@ package io.github.rosemoe.sora.lang.completion;
  * @author Rosemoe
  */
 public class CompletionCancelledException extends RuntimeException {
-
-    public CompletionCancelledException() {
-    }
-
-    public CompletionCancelledException(String message) {
-        super(message);
-    }
+  
+  public CompletionCancelledException() {
+  }
+  
+  public CompletionCancelledException(String message) {
+    super(message);
+  }
 }

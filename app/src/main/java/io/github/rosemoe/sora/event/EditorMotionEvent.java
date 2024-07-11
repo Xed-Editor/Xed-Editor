@@ -43,76 +43,76 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @see LongPressEvent
  */
 public abstract class EditorMotionEvent extends Event {
-
-    private final CharPosition pos;
-    private final MotionEvent event;
-    private final Span span;
-    private final TextRange spanRange;
-
-    public EditorMotionEvent(@NonNull CodeEditor editor, @NonNull CharPosition position,
-                             @NonNull MotionEvent event, @Nullable Span span, @Nullable TextRange spanRange) {
-        super(editor);
-        this.pos = position;
-        this.event = event;
-        this.span = span;
-        this.spanRange = spanRange;
-    }
-
-    @Override
-    public boolean canIntercept() {
-        return true;
-    }
-
-    public boolean isFromMouse() {
-        return event.isFromSource(InputDevice.SOURCE_MOUSE);
-    }
-
-    public int getLine() {
-        return pos.line;
-    }
-
-    public int getColumn() {
-        return pos.column;
-    }
-
-    public int getIndex() {
-        return pos.index;
-    }
-
-    public CharPosition getCharPosition() {
-        return pos.fromThis();
-    }
-
-    public float getX() {
-        return event.getX();
-    }
-
-    public float getY() {
-        return event.getY();
-    }
-
-    /**
-     * Get original event object from Android framework
-     */
-    @NonNull
-    public MotionEvent getCausingEvent() {
-        return event;
-    }
-
-    /**
-     * Get span at event character position, maybe null.
-     */
-    @Nullable
-    public Span getSpan() {
-        return span;
-    }
-
-    /**
-     * Get span range at event character position, maybe null
-     */
-    @Nullable
-    public TextRange getSpanRange() {
-        return spanRange;
-    }
-
+  
+  private final CharPosition pos;
+  private final MotionEvent event;
+  private final Span span;
+  private final TextRange spanRange;
+  
+  public EditorMotionEvent(@NonNull CodeEditor editor, @NonNull CharPosition position,
+                           @NonNull MotionEvent event, @Nullable Span span, @Nullable TextRange spanRange) {
+    super(editor);
+    this.pos = position;
+    this.event = event;
+    this.span = span;
+    this.spanRange = spanRange;
+  }
+  
+  @Override
+  public boolean canIntercept() {
+    return true;
+  }
+  
+  public boolean isFromMouse() {
+    return event.isFromSource(InputDevice.SOURCE_MOUSE);
+  }
+  
+  public int getLine() {
+    return pos.line;
+  }
+  
+  public int getColumn() {
+    return pos.column;
+  }
+  
+  public int getIndex() {
+    return pos.index;
+  }
+  
+  public CharPosition getCharPosition() {
+    return pos.fromThis();
+  }
+  
+  public float getX() {
+    return event.getX();
+  }
+  
+  public float getY() {
+    return event.getY();
+  }
+  
+  /**
+   * Get original event object from Android framework
+   */
+  @NonNull
+  public MotionEvent getCausingEvent() {
+    return event;
+  }
+  
+  /**
+   * Get span at event character position, maybe null.
+   */
+  @Nullable
+  public Span getSpan() {
+    return span;
+  }
+  
+  /**
+   * Get span range at event character position, maybe null
+   */
+  @Nullable
+  public TextRange getSpanRange() {
+    return spanRange;
+  }
+  
 }

@@ -10,9 +10,9 @@ import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BatchReplacement.BatchReplacement
-import com.rk.xededitor.MainActivity.Data.REQUEST_CODE_CREATE_FILE
-import com.rk.xededitor.MainActivity.Data.fragments
-import com.rk.xededitor.MainActivity.Data.mTabLayout
+import com.rk.xededitor.MainActivity.StaticData.REQUEST_CODE_CREATE_FILE
+import com.rk.xededitor.MainActivity.StaticData.fragments
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.Printer
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsActivity
@@ -24,17 +24,17 @@ import java.io.IOException
 import java.io.OutputStream
 
 
-class HandleMenuClick() {
+class HandleMenuClick {
   companion object {
     @JvmStatic
     private var SearchText: String? = ""
     
     @JvmStatic
-    fun handle(activity: MainActivity,item: MenuItem): Boolean {
+    fun handle(activity: MainActivity, item: MenuItem): Boolean {
       val id = item.itemId
       with(activity) {
         if (id == R.id.action_save) {
-          if (Data.fileList.isEmpty()) {
+          if (StaticData.fileList.isEmpty()) {
             return true
           }
           val index = mTabLayout.selectedTabPosition
@@ -72,23 +72,25 @@ class HandleMenuClick() {
             
           } else {
             Thread {
-              val content = Data.contents[mTabLayout.selectedTabPosition]
+              val content = StaticData.contents[mTabLayout.selectedTabPosition]
               try {
-                val outputStream = contentResolver.openOutputStream(Data.fileList[index].uri, "wt")
+                val outputStream = contentResolver.openOutputStream(StaticData.fileList[index].uri, "wt")
                 if (outputStream != null) {
                   ContentIO.writeTo(content, outputStream, true)
                   outputStream.close()
                 }
                 
                 runOnUiThread {
-                  rkUtils.toast(activity,
-                    "saved!"
+                  rkUtils.toast(
+                    activity,
+                    activity.resources.getString(R.string.save)
                   )
                 }
               } catch (e: Exception) {
                 e.printStackTrace()
                 runOnUiThread {
-                  rkUtils.toast(activity,
+                  rkUtils.toast(
+                    activity,
                     """error ${e.message}"""
                   )
                 }
@@ -115,10 +117,10 @@ class HandleMenuClick() {
             }
             Thread {
               var outputStream: OutputStream? = null
-              val content = Data.contents[index]
+              val content = StaticData.contents[index]
               try {
                 outputStream = contentResolver.openOutputStream(
-                  Data.fileList[index].uri, "wt"
+                  StaticData.fileList[index].uri, "wt"
                 )
                 ContentIO.writeTo(content, outputStream!!, true)
               } catch (e: IOException) {
@@ -132,7 +134,7 @@ class HandleMenuClick() {
               }
             }.start()
           }
-          rkUtils.toast(activity,"saved all")
+          rkUtils.toast(activity, activity.resources.getString(R.string.saveAll))
           return true
         } else if (id == R.id.search) {
           val popuop_view = LayoutInflater.from(this).inflate(R.layout.popup_search, null)
@@ -144,8 +146,8 @@ class HandleMenuClick() {
             .setNegativeButton("Cancel", null).setPositiveButton(
               "Search"
             ) { dialogInterface, i ->
-              val undo = Data.menu.findItem(R.id.undo)
-              val redo = Data.menu.findItem(R.id.redo)
+              val undo = StaticData.menu.findItem(R.id.undo)
+              val redo = StaticData.menu.findItem(R.id.redo)
               undo.setVisible(false)
               redo.setVisible(false)
               val editor = fragments[mTabLayout.selectedTabPosition].getEditor()
@@ -154,10 +156,10 @@ class HandleMenuClick() {
               editor.searcher.search(
                 SearchText!!, SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked)
               )
-              Data.menu.findItem(R.id.search_next).setVisible(true)
-              Data.menu.findItem(R.id.search_previous).setVisible(true)
-              Data.menu.findItem(R.id.search_close).setVisible(true)
-              Data.menu.findItem(R.id.replace).setVisible(true)
+              StaticData.menu.findItem(R.id.search_next).setVisible(true)
+              StaticData.menu.findItem(R.id.search_previous).setVisible(true)
+              StaticData.menu.findItem(R.id.search_close).setVisible(true)
+              StaticData.menu.findItem(R.id.replace).setVisible(true)
             }.show()
           return true
         } else if (id == R.id.search_next) {
@@ -171,13 +173,13 @@ class HandleMenuClick() {
         } else if (id == R.id.search_close) {
           val editor = fragments[mTabLayout.selectedTabPosition].getEditor()
           editor.searcher.stopSearch()
-          Data.menu.findItem(R.id.search_next).setVisible(false)
-          Data.menu.findItem(R.id.search_previous).setVisible(false)
-          Data.menu.findItem(R.id.search_close).setVisible(false)
-          Data.menu.findItem(R.id.replace).setVisible(false)
+          StaticData.menu.findItem(R.id.search_next).setVisible(false)
+          StaticData.menu.findItem(R.id.search_previous).setVisible(false)
+          StaticData.menu.findItem(R.id.search_close).setVisible(false)
+          StaticData.menu.findItem(R.id.replace).setVisible(false)
           SearchText = ""
-          val undo = Data.menu.findItem(R.id.undo)
-          val redo = Data.menu.findItem(R.id.redo)
+          val undo = StaticData.menu.findItem(R.id.undo)
+          val redo = StaticData.menu.findItem(R.id.redo)
           undo.setVisible(true)
           redo.setVisible(true)
           return true
@@ -197,22 +199,22 @@ class HandleMenuClick() {
           startActivity(intent)
         } else if (id == R.id.undo) {
           fragments[mTabLayout.selectedTabPosition].Undo()
-          val undo = Data.menu.findItem(R.id.undo)
-          val redo = Data.menu.findItem(R.id.redo)
+          val undo = StaticData.menu.findItem(R.id.undo)
+          val redo = StaticData.menu.findItem(R.id.redo)
           val editor = fragments[mTabLayout.selectedTabPosition].getEditor()
           redo.setEnabled(editor.canRedo())
           undo.setEnabled(editor.canUndo())
         } else if (id == R.id.redo) {
           fragments[mTabLayout.selectedTabPosition].Redo()
-          val undo = Data.menu.findItem(R.id.undo)
-          val redo = Data.menu.findItem(R.id.redo)
+          val undo = StaticData.menu.findItem(R.id.undo)
+          val redo = StaticData.menu.findItem(R.id.redo)
           val editor = fragments[mTabLayout.selectedTabPosition].getEditor()
           redo.setEnabled(editor.canRedo())
           undo.setEnabled(editor.canUndo())
         } else if (id == R.id.action_print) {
           Printer.print(this, mAdapter.getCurrentEditor().text.toString())
-        }else if(id == R.id.share){
-            rkUtils.shareText(this, getCurrentEditor().text.toString());
+        } else if (id == R.id.share) {
+          rkUtils.shareText(this, currentEditor.text.toString())
         } else {
           return true
         }

@@ -111,6 +111,7 @@ class TreeViewAdapter(
     this.listener = listener
   }
   
+  
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     val view: View = if (cachedViews.isEmpty()) {
       LayoutInflater.from(context)
@@ -118,46 +119,8 @@ class TreeViewAdapter(
     } else {
       cachedViews.pop()
     }
-    return ViewHolder(view)
-  }
-  
-  fun dpToPx(dpValue: Float): Int {
-    val scale: Float = context.getResources().getDisplayMetrics().density
-    return (dpValue * scale + 0.5f).toInt()
-  }
-  
-  val animator = recyclerView.itemAnimator
-  
-  @SuppressLint("SetTextI18n")
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val node = getItem(position)
-    val isDir = node.value.isDirectory
-    val expandView = holder.expandView
-    val fileView = holder.fileView
-    nodemap!![node] = holder.textView
+    val holder = ViewHolder(view)
     
-    fileView.setPadding(0, 0, 0, 0)
-    holder.itemView.setPaddingRelative(node.level * 35, 0, 0, 0)
-    
-    if (isDir) {
-      
-      expandView.visibility = View.VISIBLE
-      if (!node.isExpand) {
-        expandView.setImageDrawable(icChevronRight)
-      } else {
-        expandView.setImageDrawable(icExpandMore)
-      }
-      fileView.setImageDrawable(icFolder)
-    } else {
-      val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
-      layoutParams.setMargins(dpToPx(10f),0,0,0)
-      fileView.layoutParams = layoutParams
-      expandView.visibility = View.GONE
-      fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
-      fileView.setImageDrawable(icFile)
-    }
-    
-    holder.textView.text = " " + node.value.name + "          "
     
     val clickListener = View.OnClickListener {
       val adapterPosition = holder.adapterPosition
@@ -166,7 +129,7 @@ class TreeViewAdapter(
         if (clickedNode.value.isDirectory) {
           if (!clickedNode.isExpand) {
             // Expand the directory
-            if (animator != null){
+            if (animator != null) {
               recyclerView.itemAnimator = animator
             }
             val tempData = currentList.toMutableList()
@@ -197,8 +160,10 @@ class TreeViewAdapter(
       }
     }
     
+    
     holder.itemView.setOnClickListener(clickListener)
-    expandView.setOnClickListener(clickListener)
+    holder.expandView.setOnClickListener(clickListener)
+    
     
     holder.itemView.setOnLongClickListener {
       val adapterPosition = holder.adapterPosition
@@ -207,6 +172,51 @@ class TreeViewAdapter(
       }
       true
     }
+    
+    holder.fileView.setPadding(0, 0, 0, 0)
+    
+    
+    return holder
+  }
+  
+  fun dpToPx(dpValue: Float): Int {
+    val scale: Float = context.resources.displayMetrics.density
+    return (dpValue * scale + 0.5f).toInt()
+  }
+  
+  val animator = recyclerView.itemAnimator
+  
+  @SuppressLint("SetTextI18n")
+  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    val node = getItem(position)
+    val isDir = node.value.isDirectory
+    val expandView = holder.expandView
+    val fileView = holder.fileView
+    nodemap!![node] = holder.textView
+    
+    holder.itemView.setPadding(node.level * 35, 0, 0, 0)
+    
+    if (isDir) {
+      expandView.visibility = View.VISIBLE
+      if (!node.isExpand) {
+        expandView.setImageDrawable(icChevronRight)
+      } else {
+        expandView.setImageDrawable(icExpandMore)
+      }
+      fileView.setImageDrawable(icFolder)
+    } else {
+      val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
+      layoutParams.setMargins(dpToPx(10f), 0, 0, 0)
+      fileView.layoutParams = layoutParams
+      expandView.visibility = View.GONE
+      fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
+      fileView.setImageDrawable(icFile)
+    }
+    
+    holder.textView.text =
+      StringBuilder(" ").append(node.value.name).append("          ").toString()
+    
+    
   }
   
   

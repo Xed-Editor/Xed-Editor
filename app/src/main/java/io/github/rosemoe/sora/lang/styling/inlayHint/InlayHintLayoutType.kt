@@ -25,7 +25,7 @@
 package io.github.rosemoe.sora.lang.styling.inlayHint
 
 enum class InlayHintLayoutType {
-    IN_LINE,
-    ABOVE_LINE,
-    BELOW_LINE
+  IN_LINE,
+  ABOVE_LINE,
+  BELOW_LINE
 }

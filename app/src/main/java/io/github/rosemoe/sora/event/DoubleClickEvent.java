@@ -40,10 +40,10 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Rosemoe
  */
 public class DoubleClickEvent extends EditorMotionEvent {
-
-    public DoubleClickEvent(@NonNull CodeEditor editor, @NonNull CharPosition position, @NonNull MotionEvent event,
-                            @Nullable Span span, @Nullable TextRange spanRange) {
-        super(editor, position, event, span, spanRange);
-    }
-
+  
+  public DoubleClickEvent(@NonNull CodeEditor editor, @NonNull CharPosition position, @NonNull MotionEvent event,
+                          @Nullable Span span, @Nullable TextRange spanRange) {
+    super(editor, position, event, span, spanRange);
+  }
+  
 }

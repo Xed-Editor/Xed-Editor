@@ -2,6 +2,6 @@
     android:shape="rectangle">
     <stroke
         android:width="2dp"
-        android:color="@color/berry"/> <!-- Change to your desired outline color -->
-    <corners android:radius="8dp"/> <!-- Adjust the radius as needed -->
+        android:color="@color/berry" /> <!-- Change to your desired outline color -->
+    <corners android:radius="8dp" /> <!-- Adjust the radius as needed -->
 </shape>

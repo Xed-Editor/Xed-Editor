@@ -34,4 +34,4 @@ import io.github.rosemoe.sora.lang.styling.color.ResolvableColor
  * @author Rosemoe
  */
 class LineGutterBackground(override var line: Int, var color: ResolvableColor) :
-    LineAnchorStyle(line)
+  LineAnchorStyle(line)

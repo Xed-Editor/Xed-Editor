@@ -1,13 +1,9 @@
 <resources>
-    <string name="app_name">Xed Editor</string>
-    <string name="action_settings">Settings</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="app_name" translatable="false">Xed Editor</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_batch_replacement">BatchReplacement</string>
-
     <string name="sora_editor_last">Last</string>
     <string name="sora_editor_next">Next</string>
     <string name="sora_editor_replace">Replace</string>
@@ -17,8 +13,52 @@
     <string name="sora_editor_editor_search_replacing">Replacing texts…</string>
     <string name="sora_editor_editor_search_busy">Editor is still preparing…</string>
     <string name="sora_editor_editor_formatting">Formatting your code…</string>
-    <string name="sora_editor_more">More</string>
-    <string name="sora_editor_diagnostics_more_actions">More Actions...</string>
+    <string name="sora_editor_diagnostics_more_actions">More Actions…</string>
     <string name="sora_editor_clip_text_length_too_large">Text is too large to copy</string>
     <string name="sora_editor_long_select">Long Select</string>
+    <string name="ni">This feature is not implemented</string>
+    <string name="unsupported_contnt">Unsupported content</string>
+    <string name="null_contnt">Error: Content is null</string>
+    <string name="restart_required">Restart Required</string>
+    <string name="save">file saved</string>
+    <string name="saveAll">saved all files</string>
+    <string name="ww_wait">Please wait for word wrap to complete</string>
+    <string name="theme_not_found_err">theme file not found please reinstall the Xed Editor or clear app data</string>
+    <string name="open_file_or_folder">Open File or Folder</string>
+    <string name="open_file">Open a File</string>
+    <string name="open_directory">Open a Directory</string>
+    <string name="new_file">New File</string>
+    <string name="newFile_hint">Name eg. Test.txt</string>
+    <string name="mime">MimeType eg. text/plain</string>
+    <string name="rep">Replacement</string>
+    <string name="searck_keyword">Search Keyword</string>
+    <string name="cs">Case Sensitive</string>
+    <string name="wait">Please wait…</string>
+    <string name="report_issue">Report Issue</string>
+    <string name="copy">Copy</string>
+    <string name="save_all">Save All</string>
+    <string name="save_1">Save</string>
+    <string name="undo">Undo</string>
+    <string name="settings">Settings</string>
+    <string name="print">Print</string>
+    <string name="batch_replacement">Batch Replacement</string>
+    <string name="search">Search</string>
+    <string name="go_next">Go Next</string>
+    <string name="go_prev">Go Prev.</string>
+    <string name="close_search">Close Search</string>
+    <string name="replace">Replace</string>
+    <string name="share">Share</string>
+    <string name="reselect">Reselect</string>
+    <string name="openfile">OpenFile</string>
+    <string name="new_folder">New Folder</string>
+    <string name="new_file_1">New File</string>
+    <string name="rename">Rename</string>
+    <string name="open_with">Open With…</string>
+    <string name="save_as">Save as</string>
+    <string name="paste">Paste</string>
+    <string name="delete">Delete</string>
+    <string name="close_this">Close this</string>
+    <string name="close_others">Close others</string>
+    <string name="close_all">Close all</string>
+
 </resources>

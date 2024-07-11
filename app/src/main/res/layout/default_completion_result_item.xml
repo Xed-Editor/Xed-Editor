@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+<?xml version="1.0" encoding="utf-8"?><!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~    sora-editor - the awesome code editor for Android
   ~    https://github.com/Rosemoe/sora-editor
   ~    Copyright (C) 2020-2024  Rosemoe
@@ -23,48 +22,47 @@
   ~     additional information or have any questions
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:orientation="horizontal"
-	android:gravity="center_vertical"
-	android:paddingTop="2dp"
-	android:paddingBottom="2dp">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp">
 
-	<ImageView
-		android:layout_height="24dp"
-		android:layout_width="24dp"
-		android:src="@android:drawable/ic_delete"
-		android:layout_marginLeft="8dp"
-		android:layout_marginRight="8dp"
-		android:id="@+id/result_item_image" />
+    <ImageView
+        android:id="@+id/result_item_image"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:src="@android:drawable/ic_delete" />
 
-	<LinearLayout
-		android:layout_height="wrap_content"
-		android:layout_width="match_parent"
-		android:orientation="vertical"
-		android:gravity="center_vertical"
-		android:paddingLeft="0dp"
-		android:paddingRight="8dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:paddingLeft="0dp"
+        android:paddingRight="8dp">
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Medium Text"
-			android:textColor="#FF000000"
-			android:id="@+id/result_item_label"
-			android:textSize="15sp"/>
+        <TextView
+            android:id="@+id/result_item_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medium Text"
+            android:textColor="#FF000000"
+            android:textSize="15sp" />
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Small Text"
-			android:id="@+id/result_item_desc"
-			android:textSize="11sp"
-			android:layout_marginTop="4dp"/>
+        <TextView
+            android:id="@+id/result_item_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Small Text"
+            android:textSize="11sp" />
 
-	</LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
 

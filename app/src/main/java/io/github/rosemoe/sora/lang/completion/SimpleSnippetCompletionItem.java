@@ -32,39 +32,38 @@ import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.widget.CodeEditor;
 
 public class SimpleSnippetCompletionItem extends CompletionItem {
-
-    private final SnippetDescription snippet;
-
-    public SimpleSnippetCompletionItem(CharSequence label, SnippetDescription snippet) {
-        this(label, null, snippet);
+  
+  private final SnippetDescription snippet;
+  
+  public SimpleSnippetCompletionItem(CharSequence label, SnippetDescription snippet) {
+    this(label, null, snippet);
+  }
+  
+  public SimpleSnippetCompletionItem(CharSequence label, CharSequence desc, SnippetDescription snippet) {
+    this(label, desc, null, snippet);
+  }
+  
+  public SimpleSnippetCompletionItem(CharSequence label, CharSequence desc, Drawable icon, SnippetDescription snippet) {
+    super(label, desc, icon);
+    this.snippet = snippet;
+    kind(CompletionItemKind.Snippet);
+  }
+  
+  
+  @Override
+  public void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, @NonNull CharPosition position) {
+    int prefixLength = snippet.getSelectedLength();
+    var selectedText = text.subSequence(position.index - prefixLength, position.index).toString();
+    int actionIndex = position.index;
+    if (snippet.getDeleteSelected()) {
+      text.delete(position.index - prefixLength, position.index);
+      actionIndex -= prefixLength;
     }
-
-    public SimpleSnippetCompletionItem(CharSequence label, CharSequence desc, SnippetDescription snippet) {
-        this(label, desc, null, snippet);
-    }
-
-    public SimpleSnippetCompletionItem(CharSequence label, CharSequence desc, Drawable icon, SnippetDescription snippet) {
-        super(label, desc, icon);
-        this.snippet = snippet;
-        kind(CompletionItemKind.Snippet);
-    }
-
-
-
-    @Override
-    public void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, @NonNull CharPosition position) {
-        int prefixLength = snippet.getSelectedLength();
-        var selectedText = text.subSequence(position.index - prefixLength, position.index).toString();
-        int actionIndex = position.index;
-        if (snippet.getDeleteSelected()) {
-            text.delete(position.index - prefixLength, position.index);
-            actionIndex -= prefixLength;
-        }
-        editor.getSnippetController().startSnippet(actionIndex, snippet.getSnippet(), selectedText);
-    }
-
-    @Override
-    public void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, int line, int column) {
-        // do nothing
-    }
+    editor.getSnippetController().startSnippet(actionIndex, snippet.getSnippet(), selectedText);
+  }
+  
+  @Override
+  public void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, int line, int column) {
+    // do nothing
+  }
 }

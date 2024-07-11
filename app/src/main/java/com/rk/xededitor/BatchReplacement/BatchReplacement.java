@@ -1,7 +1,6 @@
 package com.rk.xededitor.BatchReplacement;
 
-import static com.rk.xededitor.MainActivity.Data.fragments;
-import static com.rk.xededitor.MainActivity.Data.mTabLayout;
+import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.rkUtils.dpToPx;
 
 import android.app.ProgressDialog;
@@ -20,7 +19,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.rk.xededitor.BaseActivity;
-import com.rk.xededitor.MainActivity.DynamicFragment;
 import com.rk.xededitor.MainActivity.mAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
@@ -30,8 +28,6 @@ import com.rk.xededitor.rkUtils;
 
 import java.util.Objects;
 import java.util.Random;
-
-import io.github.rosemoe.sora.widget.CodeEditor;
 
 public class BatchReplacement extends BaseActivity {
   
@@ -155,15 +151,13 @@ public class BatchReplacement extends BaseActivity {
           String keyword = editText.getText().toString();
           String replacement = editTextx.getText().toString();
           
-          if (fragments != null){
-           var editor = mAdapter.getCurrentEditor();
-           editor.setText(editor.getText().toString().replaceAll(keyword, replacement));
+          if (fragments != null) {
+            var editor = mAdapter.getCurrentEditor();
+            editor.setText(editor.getText().toString().replaceAll(keyword, replacement));
             
-          }else if(getIntent().getExtras().getBoolean("isExt",false)){
+          } else if (getIntent().getExtras().getBoolean("isExt", false)) {
             SimpleEditor.editor.setText(SimpleEditor.editor.getText().toString().replaceAll(keyword, replacement));
           }
-          
-          
           
           
         }

@@ -39,124 +39,124 @@ import io.github.rosemoe.sora.text.ContentListener;
  * @author Rose
  */
 public interface Layout extends ContentListener {
-
-    /**
-     * Called by editor to destroy this layout
-     * This means the layout will never be used again
-     */
-    void destroyLayout();
-
-    /**
-     * Get line index of a row in layout
-     *
-     * @param row The row index in layout
-     * @return Line index in text
-     */
-    int getLineNumberForRow(int row);
-
-    /**
-     * Return a {@link RowIterator} object for editor to draw text rows
-     *
-     * @param initialRow The first row in result iterator
-     * @return Iterator contains rows
-     */
-    @NonNull
-    default RowIterator obtainRowIterator(int initialRow) {
-        return obtainRowIterator(initialRow, null);
-    }
-
-    /**
-     * Return a {@link RowIterator} object for editor to draw text rows
-     *
-     * @param initialRow The first row in result iterator
-     * @param preloadedLines Lines that are already loaded in editor
-     * @return Iterator contains rows
-     */
-    @NonNull
-    RowIterator obtainRowIterator(int initialRow, @Nullable SparseArray<ContentLine> preloadedLines);
-
-    /**
-     * Get the specific Row
-     */
-    @NonNull
-    Row getRowAt(int rowIndex);
-
-    /**
-     * Get the width of this layout
-     * Editor will use this to compute scroll range
-     *
-     * @return Width of layout
-     */
-    int getLayoutWidth();
-
-    /**
-     * Get the height of this layout
-     * Editor will use this to compute scroll range
-     *
-     * @return Height of layout
-     */
-    int getLayoutHeight();
-
-    /**
-     * Get the total row count
-     */
-    int getRowCount();
-
-    /**
-     * Get character line and column for offsets in layout
-     *
-     * @param xOffset Horizontal offset on layout
-     * @param yOffset Vertical offset on layout
-     * @return Packed IntPair, first is line and second is column
-     * @see io.github.rosemoe.sora.util.IntPair
-     */
-    long getCharPositionForLayoutOffset(float xOffset, float yOffset);
-
-    /**
-     * Get layout offset of a position in text
-     *
-     * @param line   The line index
-     * @param column Column on line
-     * @return An array containing layout offset, first element is the bottom of character and second element is the left of character
-     */
-    @NonNull
-    default float[] getCharLayoutOffset(int line, int column) {
-        return getCharLayoutOffset(line, column, new float[2]);
-    }
-
-    /**
-     * Get layout offset of a position in text
-     *
-     * @param line   The line index
-     * @param column Column on line
-     * @param array  If the array is given, it will try to save the two elements in this array. Otherwise, a new array is created
-     * @return An array containing layout offset, first element is the bottom of character and second element is the left of character
-     */
-    @NonNull
-    float[] getCharLayoutOffset(int line, int column, float[] array);
-
-    /**
-     * Get how many rows are in the given line
-     */
-    int getRowCountForLine(int line);
-
-    /**
-     * Get position after moving up once
-     *
-     * @return A packed pair (line, column) describing the result position
-     */
-    long getUpPosition(int line, int column);
-
-    /**
-     * Get position after moving down once
-     *
-     * @return A packed pair (line, column) describing the result position
-     */
-    long getDownPosition(int line, int column);
-
-    /**
-     * Get row index for text index
-     */
-    int getRowIndexForPosition(int index);
-
+  
+  /**
+   * Called by editor to destroy this layout
+   * This means the layout will never be used again
+   */
+  void destroyLayout();
+  
+  /**
+   * Get line index of a row in layout
+   *
+   * @param row The row index in layout
+   * @return Line index in text
+   */
+  int getLineNumberForRow(int row);
+  
+  /**
+   * Return a {@link RowIterator} object for editor to draw text rows
+   *
+   * @param initialRow The first row in result iterator
+   * @return Iterator contains rows
+   */
+  @NonNull
+  default RowIterator obtainRowIterator(int initialRow) {
+    return obtainRowIterator(initialRow, null);
+  }
+  
+  /**
+   * Return a {@link RowIterator} object for editor to draw text rows
+   *
+   * @param initialRow     The first row in result iterator
+   * @param preloadedLines Lines that are already loaded in editor
+   * @return Iterator contains rows
+   */
+  @NonNull
+  RowIterator obtainRowIterator(int initialRow, @Nullable SparseArray<ContentLine> preloadedLines);
+  
+  /**
+   * Get the specific Row
+   */
+  @NonNull
+  Row getRowAt(int rowIndex);
+  
+  /**
+   * Get the width of this layout
+   * Editor will use this to compute scroll range
+   *
+   * @return Width of layout
+   */
+  int getLayoutWidth();
+  
+  /**
+   * Get the height of this layout
+   * Editor will use this to compute scroll range
+   *
+   * @return Height of layout
+   */
+  int getLayoutHeight();
+  
+  /**
+   * Get the total row count
+   */
+  int getRowCount();
+  
+  /**
+   * Get character line and column for offsets in layout
+   *
+   * @param xOffset Horizontal offset on layout
+   * @param yOffset Vertical offset on layout
+   * @return Packed IntPair, first is line and second is column
+   * @see io.github.rosemoe.sora.util.IntPair
+   */
+  long getCharPositionForLayoutOffset(float xOffset, float yOffset);
+  
+  /**
+   * Get layout offset of a position in text
+   *
+   * @param line   The line index
+   * @param column Column on line
+   * @return An array containing layout offset, first element is the bottom of character and second element is the left of character
+   */
+  @NonNull
+  default float[] getCharLayoutOffset(int line, int column) {
+    return getCharLayoutOffset(line, column, new float[2]);
+  }
+  
+  /**
+   * Get layout offset of a position in text
+   *
+   * @param line   The line index
+   * @param column Column on line
+   * @param array  If the array is given, it will try to save the two elements in this array. Otherwise, a new array is created
+   * @return An array containing layout offset, first element is the bottom of character and second element is the left of character
+   */
+  @NonNull
+  float[] getCharLayoutOffset(int line, int column, float[] array);
+  
+  /**
+   * Get how many rows are in the given line
+   */
+  int getRowCountForLine(int line);
+  
+  /**
+   * Get position after moving up once
+   *
+   * @return A packed pair (line, column) describing the result position
+   */
+  long getUpPosition(int line, int column);
+  
+  /**
+   * Get position after moving down once
+   *
+   * @return A packed pair (line, column) describing the result position
+   */
+  long getDownPosition(int line, int column);
+  
+  /**
+   * Get row index for text index
+   */
+  int getRowIndexForPosition(int index);
+  
 }

@@ -30,8 +30,8 @@
                 android:visibility="gone"
                 app:tabGravity="fill"
                 app:tabIndicatorHeight="4dp"
+                app:tabTextAppearance="@style/tab_text"
                 app:tabMode="scrollable" />
-
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -56,19 +56,18 @@
             android:layout_gravity="center"
             android:background="@android:color/transparent"
             android:onClick="openDrawer"
-            android:text="Open a Directory or File"
+            android:text="@string/open_file_or_folder"
             android:textColor="@color/invert_dull" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 
     <!-- Navigation drawer -->
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-app:drawerLayoutCornerSize="0dp"
-        android:layout_gravity="start">
+        android:layout_gravity="start"
+        app:drawerLayoutCornerSize="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/drawerToolbar"
@@ -92,23 +91,20 @@ app:drawerLayoutCornerSize="0dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-
             <ImageButton
                 android:id="@+id/refreshButton"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-
-                android:onClick="fileOptions"
                 android:background="?android:attr/selectableItemBackground"
+                android:onClick="fileOptions"
                 android:src="@drawable/ic_menu_moreoverflow_material"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
         <LinearLayout
             android:id="@+id/safbuttons"
@@ -117,37 +113,36 @@ app:drawerLayoutCornerSize="0dp"
             android:layout_gravity="center"
             android:orientation="vertical">
 
-
             <Button
                 android:id="@+id/openFile_btn"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:onClick="openFile"
-                android:text="Open a File" />
+                android:text="@string/open_file" />
 
             <Button
                 android:id="@+id/openDir_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="openDir"
-                android:text="Open a Directory" />
+                android:text="@string/open_directory" />
 
             <Button
                 android:id="@+id/newFile"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:onClick="newFile"
-                android:text="New File" />
+                android:text="@string/new_file" />
 
         </LinearLayout>
 
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:visibility="gone"
-            android:layout_height="wrap_content" />
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/maindrawer"
@@ -172,20 +167,8 @@ app:drawerLayoutCornerSize="0dp"
 
             </HorizontalScrollView>
 
-
         </LinearLayout>
-
 
     </com.google.android.material.navigation.NavigationView>
 
-
 </androidx.drawerlayout.widget.DrawerLayout>
-
-
-
-
-
-
-
-
-

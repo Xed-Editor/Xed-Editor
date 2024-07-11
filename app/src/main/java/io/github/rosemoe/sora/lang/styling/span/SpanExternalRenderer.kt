@@ -54,17 +54,17 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  */
 @Experimental
 interface SpanExternalRenderer : SpanExt {
-    fun requirePreDraw(): Boolean
-
-    fun requirePostDraw(): Boolean
-
-    /**
-     * Called when the editor draws the given region.
-     *
-     * @param canvas      The canvas to draw
-     * @param paint       Paint for measuring
-     * @param colorScheme Current color scheme
-     * @param preOrPost   True for preDraw, False for postDraw
-     */
-    fun draw(canvas: Canvas?, paint: Paint?, colorScheme: EditorColorScheme?, preOrPost: Boolean)
+  fun requirePreDraw(): Boolean
+  
+  fun requirePostDraw(): Boolean
+  
+  /**
+   * Called when the editor draws the given region.
+   *
+   * @param canvas      The canvas to draw
+   * @param paint       Paint for measuring
+   * @param colorScheme Current color scheme
+   * @param preOrPost   True for preDraw, False for postDraw
+   */
+  fun draw(canvas: Canvas?, paint: Paint?, colorScheme: EditorColorScheme?, preOrPost: Boolean)
 }

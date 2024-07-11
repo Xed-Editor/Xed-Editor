@@ -29,103 +29,103 @@ package io.github.rosemoe.sora.util
  * An inlined enum containing useful character codes.
  */
 object CharCode {
-
-    /**
-     * The `\t` character.
-     */
-    const val Tab = 9
-
-    const val Space = 32
-
-    /**
-     * The `"` character.
-     */
-    const val DoubleQuote = 34
-
-
-    /**
-     * The `$` character.
-     */
-    const val DollarSign = 36
-
-
-    /**
-     * The `'` character.
-     */
-    const val SingleQuote = 39
-
-    /**
-     * The `(` character.
-     */
-    const val OpenParen = 40
-
-    /**
-     * The `)` character.
-     */
-    const val CloseParen = 41
-
-    /**
-     * The `-` character.
-     */
-    const val Dash = 45
-
-    /**
-     * The `.` character.
-     */
-    const val Period = 46
-
-    /**
-     * The `/` character.
-     */
-    const val Slash = 47
-
-
-    /**
-     * The `:` character.
-     */
-    const val Colon = 58
-
-    /**
-     * The `<` character.
-     */
-    const val LessThan = 60
-
-
-    /**
-     * The `>` character.
-     */
-    const val GreaterThan = 62
-
-
-    /**
-     * The `[` character.
-     */
-    const val OpenSquareBracket = 91
-
-    /**
-     * The `\` character.
-     */
-    const val Backslash = 92
-
-    /**
-     * The `]` character.
-     */
-    const val CloseSquareBracket = 93
-
-    /**
-     * The `_` character.
-     */
-    const val Underline = 95
-
-
-    /**
-     * The `{` character.
-     */
-    const val OpenCurlyBrace = 123
-
-    /**
-     * The `}` character.
-     */
-    const val CloseCurlyBrace = 125
-
+  
+  /**
+   * The `\t` character.
+   */
+  const val Tab = 9
+  
+  const val Space = 32
+  
+  /**
+   * The `"` character.
+   */
+  const val DoubleQuote = 34
+  
+  
+  /**
+   * The `$` character.
+   */
+  const val DollarSign = 36
+  
+  
+  /**
+   * The `'` character.
+   */
+  const val SingleQuote = 39
+  
+  /**
+   * The `(` character.
+   */
+  const val OpenParen = 40
+  
+  /**
+   * The `)` character.
+   */
+  const val CloseParen = 41
+  
+  /**
+   * The `-` character.
+   */
+  const val Dash = 45
+  
+  /**
+   * The `.` character.
+   */
+  const val Period = 46
+  
+  /**
+   * The `/` character.
+   */
+  const val Slash = 47
+  
+  
+  /**
+   * The `:` character.
+   */
+  const val Colon = 58
+  
+  /**
+   * The `<` character.
+   */
+  const val LessThan = 60
+  
+  
+  /**
+   * The `>` character.
+   */
+  const val GreaterThan = 62
+  
+  
+  /**
+   * The `[` character.
+   */
+  const val OpenSquareBracket = 91
+  
+  /**
+   * The `\` character.
+   */
+  const val Backslash = 92
+  
+  /**
+   * The `]` character.
+   */
+  const val CloseSquareBracket = 93
+  
+  /**
+   * The `_` character.
+   */
+  const val Underline = 95
+  
+  
+  /**
+   * The `{` character.
+   */
+  const val OpenCurlyBrace = 123
+  
+  /**
+   * The `}` character.
+   */
+  const val CloseCurlyBrace = 125
+  
 }

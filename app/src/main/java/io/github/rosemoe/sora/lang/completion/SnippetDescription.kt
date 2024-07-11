@@ -31,7 +31,7 @@ import io.github.rosemoe.sora.lang.completion.snippet.CodeSnippet
  * @param snippet The code snippet. The snippet should pass [CodeSnippet.checkContent] checks
  */
 data class SnippetDescription(
-    val selectedLength: Int,
-    val snippet: CodeSnippet,
-    val deleteSelected: Boolean = true
+  val selectedLength: Int,
+  val snippet: CodeSnippet,
+  val deleteSelected: Boolean = true
 )

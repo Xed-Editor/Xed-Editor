@@ -33,12 +33,12 @@ import io.github.rosemoe.sora.widget.CodeEditor
  * @author Rosemoe
  */
 interface LineNumberTipTextProvider {
-
-    /**
-     * Generate line number tip text for the given editor.
-     * @param editor current editor instance
-     * @return generated line number tip text
-     */
-    fun getCurrentText(editor: CodeEditor): String
-
+  
+  /**
+   * Generate line number tip text for the given editor.
+   * @param editor current editor instance
+   * @return generated line number tip text
+   */
+  fun getCurrentText(editor: CodeEditor): String
+  
 }

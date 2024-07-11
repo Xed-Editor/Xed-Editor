@@ -1,47 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parent_popup"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:tag="keyRep"
         android:orientation="vertical"
-        android:layout_width="match_parent">
+        android:tag="keyRep">
+
         <LinearLayout
-            android:background="@drawable/edittext"
+            android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="22dp"
-            android:layout_marginRight="22dp"
             android:layout_marginTop="10dp"
-            android:tag="keyword"
-            android:layout_width="match_parent">
+            android:layout_marginRight="22dp"
+            android:background="@drawable/edittext"
+            android:tag="keyword">
 
             <EditText
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:paddingEnd="5dp"
-                android:paddingStart="8dp"
                 android:id="@+id/searchbox"
-                android:singleLine="true"
-                android:hint="Search Keyword"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-            />
+                android:hint="@String/search_keyword"
+                android:paddingStart="8dp"
+                android:paddingEnd="5dp"
+                android:singleLine="true" />
         </LinearLayout>
+
         <CheckBox
+            android:id="@+id/case_senstive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/case_senstive"
-            android:checked="false"
             android:layout_marginLeft="22dp"
-            android:layout_marginRight="22dp"
             android:layout_marginTop="10dp"
-            android:text="Case Senstive"/>
+            android:layout_marginRight="22dp"
+            android:checked="false"
+            android:text="@String/cs" />
 
     </LinearLayout>
 

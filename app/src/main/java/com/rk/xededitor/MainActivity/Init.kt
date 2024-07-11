@@ -25,7 +25,7 @@ class Init(activity: MainActivity) {
       }
       
       with(activity) {
-        Data.fileList = ArrayList()
+        StaticData.fileList = ArrayList()
         PluginServer(application).start()
         
         if (!SettingsData.isDarkMode(this)) {
@@ -49,10 +49,10 @@ class Init(activity: MainActivity) {
           window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
           window.statusBarColor = Color.BLACK
         }
-        Data.mTabLayout.setOnTabSelectedListener(object : OnTabSelectedListener {
+        StaticData.mTabLayout.setOnTabSelectedListener(object : OnTabSelectedListener {
           override fun onTabSelected(tab: TabLayout.Tab) {
             viewPager.setCurrentItem(tab.position)
-            Data.fragments[Data.mTabLayout.selectedTabPosition].updateUndoRedo()
+            StaticData.fragments[StaticData.mTabLayout.selectedTabPosition].updateUndoRedo()
           }
           
           override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -63,33 +63,35 @@ class Init(activity: MainActivity) {
             popupMenu.setOnMenuItemClickListener { item ->
               val id = item.itemId
               if (id == R.id.close_this) {
-                adapter.removeFragment(Data.mTabLayout.selectedTabPosition)
+                adapter.removeFragment(StaticData.mTabLayout.selectedTabPosition)
               } else if (id == R.id.close_others) {
                 adapter.closeOthers(viewPager.currentItem)
               } else if (id == R.id.close_all) {
                 adapter.clear()
               }
-              for (i in 0 until Data.mTabLayout.tabCount) {
-                val tab = Data.mTabLayout.getTabAt(i)
-                if (tab != null) {
-                  val name = Data.titles[i]
-                  if (name != null) {
-                    tab.setText(name)
+               for (i in 0 until StaticData.mTabLayout.tabCount) {
+                  val tab = StaticData.mTabLayout.getTabAt(i)
+                  if (tab != null) {
+                    val name = StaticData.titles[i]
+                    if (name != null) {
+                      tab.setText(name)
+                    }
                   }
                 }
-              }
-              if (Data.mTabLayout.tabCount < 1) {
+              if (StaticData.mTabLayout.tabCount < 1) {
                 binding.tabs.visibility = View.GONE
                 binding.mainView.visibility = View.GONE
                 binding.openBtn.visibility = View.VISIBLE
               }
-              val visible = !(Data.fragments == null || Data.fragments.isEmpty())
-              Data.menu.findItem(R.id.search).setVisible(visible)
-              Data.menu.findItem(R.id.action_save).setVisible(visible)
-              Data.menu.findItem(R.id.action_print).setVisible(visible)
-              Data.menu.findItem(R.id.action_all).setVisible(visible)
-              Data.menu.findItem(R.id.batchrep).setVisible(visible)
-              Data.menu.findItem(R.id.share).setVisible(visible)
+              val visible = !(StaticData.fragments == null || StaticData.fragments.isEmpty())
+              StaticData.menu.findItem(R.id.search).setVisible(visible)
+              StaticData.menu.findItem(R.id.action_save).setVisible(visible)
+              StaticData.menu.findItem(R.id.action_print).setVisible(visible)
+              StaticData.menu.findItem(R.id.action_all).setVisible(visible)
+              StaticData.menu.findItem(R.id.batchrep).setVisible(visible)
+              StaticData.menu.findItem(R.id.share).setVisible(visible)
+              StaticData.menu.findItem(R.id.undo).setVisible(visible)
+              StaticData.menu.findItem(R.id.redo).setVisible(visible)
               true
             }
             popupMenu.show()
@@ -113,24 +115,22 @@ class Init(activity: MainActivity) {
         }
         
         
-        
-        
         val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
         if (uriString != "null") {
           val uri = Uri.parse(uriString)
           if (hasUriPermission(uri)) {
-            Data.rootFolder = DocumentFile.fromTreeUri(this, uri)
+            StaticData.rootFolder = DocumentFile.fromTreeUri(this, uri)
             //binding.tabs.setVisibility(View.VISIBLE);
             binding.mainView.visibility = View.VISIBLE
             binding.safbuttons.visibility = View.GONE
             binding.maindrawer.visibility = View.VISIBLE
             binding.drawerToolbar.visibility = View.VISIBLE
             
-            runOnUiThread { TreeView(this, Data.rootFolder) }
+            runOnUiThread { TreeView(this, StaticData.rootFolder) }
             
-            var name = Data.rootFolder.name!!
+            var name = StaticData.rootFolder.name!!
             if (name.length > 18) {
-              name = Data.rootFolder.name!!.substring(0, 15) + "..."
+              name = StaticData.rootFolder.name!!.substring(0, 15) + "..."
             }
             binding.rootDirLabel.text = name
           }

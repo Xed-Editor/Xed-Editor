@@ -1,9 +1,9 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.Data.contents;
-import static com.rk.xededitor.MainActivity.Data.fileList;
-import static com.rk.xededitor.MainActivity.Data.fragments;
-import static com.rk.xededitor.MainActivity.Data.mTabLayout;
+import static com.rk.xededitor.MainActivity.StaticData.contents;
+import static com.rk.xededitor.MainActivity.StaticData.fileList;
+import static com.rk.xededitor.MainActivity.StaticData.fragments;
+import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -22,7 +22,6 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.tabs.TabLayout;
-import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.BaseActivityKt;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
@@ -33,7 +32,6 @@ import org.eclipse.tm4e.core.registry.IThemeSource;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme;
@@ -63,12 +61,11 @@ public class DynamicFragment extends Fragment {
     this.ctx = ctx;
     this.file = file;
     editor = new CodeEditor(ctx);
-    if(SettingsData.isDarkMode(ctx)){
+    if (SettingsData.isDarkMode(ctx)) {
       ensureTextmateTheme();
-    }else {
+    } else {
       new Thread(this::ensureTextmateTheme).start();
     }
-    
     
     
     if (contents == null) {
@@ -94,10 +91,10 @@ public class DynamicFragment extends Fragment {
           if (wordwrap) {
             int length = content.toString().length();
             if (length > 700 && content.toString().split("\\R").length < 100) {
-              BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx,"Please wait for word wrap to complete"));
+              BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx, getResources().getString(R.string.ww_wait)));
             }
             if (length > 1500) {
-              BaseActivityKt.runOnUi(() -> Toast.makeText(ctx, "Please wait for word wrap to complete", Toast.LENGTH_LONG).show());
+              BaseActivityKt.runOnUi(() -> Toast.makeText(ctx, getResources().getString(R.string.ww_wait), Toast.LENGTH_LONG).show());
             }
           }
         } catch (Exception e) {
@@ -113,17 +110,13 @@ public class DynamicFragment extends Fragment {
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
     editor.setTextSize(14);
     editor.setWordwrap(wordwrap);
-    undo = Data.menu.findItem(R.id.undo);
-    redo = Data.menu.findItem(R.id.redo);
-    
-   
-    
-    
+    undo = StaticData.menu.findItem(R.id.undo);
+    redo = StaticData.menu.findItem(R.id.redo);
     
     
   }
   
-  private void setListner(){
+  private void setListner() {
     editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
       updateUndoRedo();
       TabLayout.Tab tab = mTabLayout.getTabAt(fragments.indexOf(this));
@@ -196,7 +189,7 @@ public class DynamicFragment extends Fragment {
           path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
         }
         if (!new File(path).exists()) {
-          BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx,"theme file not found please reinstall the Xed Editor or clear app data"));
+          BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx, getResources().getString(R.string.theme_not_found_err)));
         }
         
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
@@ -207,7 +200,7 @@ public class DynamicFragment extends Fragment {
       } else {
         String path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
         if (!new File(path).exists()) {
-          BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx,"theme file not found please reinstall the Xed Editor or clear app data"));
+          BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx, getResources().getString(R.string.theme_not_found_err)));
           
         }
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));

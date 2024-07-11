@@ -54,104 +54,104 @@ import io.github.rosemoe.sora.widget.resolveTouchRegion
  * @author Rosemoe
  */
 open class EditorSpanInteractionHandler(val editor: CodeEditor) {
-
-    val eventManager = editor.createSubEventManager()
-
-    init {
-        eventManager.subscribeAlways<ClickEvent> { event ->
-            if (!event.isFromMouse || (event.isFromMouse && editor.keyMetaStates.isCtrlPressed)) {
-                handleInteractionEvent(
-                    event,
-                    SpanInteractionInfo::isClickable,
-                    ::handleSpanClick,
-                    !event.isFromMouse
-                )
-            }
-        }
-        eventManager.subscribeAlways<DoubleClickEvent> { event ->
-            handleInteractionEvent(
-                event,
-                SpanInteractionInfo::isDoubleClickable,
-                ::handleSpanDoubleClick,
-                !event.isFromMouse
-            )
-        }
-        eventManager.subscribeAlways<LongPressEvent> { event ->
-            handleInteractionEvent(
-                event,
-                SpanInteractionInfo::isLongClickable,
-                ::handleSpanLongClick,
-                !event.isFromMouse
-            )
-        }
+  
+  val eventManager = editor.createSubEventManager()
+  
+  init {
+    eventManager.subscribeAlways<ClickEvent> { event ->
+      if (!event.isFromMouse || (event.isFromMouse && editor.keyMetaStates.isCtrlPressed)) {
+        handleInteractionEvent(
+          event,
+          SpanInteractionInfo::isClickable,
+          ::handleSpanClick,
+          !event.isFromMouse
+        )
+      }
     }
-
-    private fun handleInteractionEvent(
-        event: EditorMotionEvent,
-        predicate: (interactionInfo: SpanInteractionInfo) -> Boolean,
-        handler: (Span, SpanInteractionInfo, TextRange) -> Boolean,
-        checkCursorRange: Boolean = true
+    eventManager.subscribeAlways<DoubleClickEvent> { event ->
+      handleInteractionEvent(
+        event,
+        SpanInteractionInfo::isDoubleClickable,
+        ::handleSpanDoubleClick,
+        !event.isFromMouse
+      )
+    }
+    eventManager.subscribeAlways<LongPressEvent> { event ->
+      handleInteractionEvent(
+        event,
+        SpanInteractionInfo::isLongClickable,
+        ::handleSpanLongClick,
+        !event.isFromMouse
+      )
+    }
+  }
+  
+  private fun handleInteractionEvent(
+    event: EditorMotionEvent,
+    predicate: (interactionInfo: SpanInteractionInfo) -> Boolean,
+    handler: (Span, SpanInteractionInfo, TextRange) -> Boolean,
+    checkCursorRange: Boolean = true
+  ) {
+    val regionInfo = editor.resolveTouchRegion(event.causingEvent)
+    val span = event.span
+    val spanRange = event.spanRange
+    if (IntPair.getFirst(regionInfo) == REGION_TEXT &&
+      IntPair.getSecond(regionInfo) == IN_BOUND &&
+      span != null && spanRange != null
     ) {
-        val regionInfo = editor.resolveTouchRegion(event.causingEvent)
-        val span = event.span
-        val spanRange = event.spanRange
-        if (IntPair.getFirst(regionInfo) == REGION_TEXT &&
-            IntPair.getSecond(regionInfo) == IN_BOUND &&
-            span != null && spanRange != null
-        ) {
-            if (!checkCursorRange || spanRange.isPositionInside(editor.cursor.left())) {
-                span.getSpanExt<SpanInteractionInfo>(SpanExtAttrs.EXT_INTERACTION_INFO)?.let {
-                    if (predicate(it)) {
-                        if (handler(span, it, spanRange)) {
-                            event.intercept()
-                        }
-                    }
-                }
+      if (!checkCursorRange || spanRange.isPositionInside(editor.cursor.left())) {
+        span.getSpanExt<SpanInteractionInfo>(SpanExtAttrs.EXT_INTERACTION_INFO)?.let {
+          if (predicate(it)) {
+            if (handler(span, it, spanRange)) {
+              event.intercept()
             }
+          }
         }
+      }
     }
-
-    open fun handleSpanClick(
-        span: Span,
-        interactionInfo: SpanInteractionInfo,
-        spanRange: TextRange
-    ): Boolean {
-        return false
-    }
-
-    open fun handleSpanDoubleClick(
-        span: Span,
-        interactionInfo: SpanInteractionInfo,
-        spanRange: TextRange
-    ): Boolean {
-        when (interactionInfo) {
-            is SpanClickableUrl -> {
-                val uri = interactionInfo.getData()
-                runCatching {
-                    Uri.parse(uri)
-                }.onSuccess {
-                    val intent = Intent(Intent.ACTION_VIEW, it)
-                    editor.context.startActivity(intent)
-                }
-                return true
-            }
+  }
+  
+  open fun handleSpanClick(
+    span: Span,
+    interactionInfo: SpanInteractionInfo,
+    spanRange: TextRange
+  ): Boolean {
+    return false
+  }
+  
+  open fun handleSpanDoubleClick(
+    span: Span,
+    interactionInfo: SpanInteractionInfo,
+    spanRange: TextRange
+  ): Boolean {
+    when (interactionInfo) {
+      is SpanClickableUrl -> {
+        val uri = interactionInfo.getData()
+        runCatching {
+          Uri.parse(uri)
+        }.onSuccess {
+          val intent = Intent(Intent.ACTION_VIEW, it)
+          editor.context.startActivity(intent)
         }
-        return false
+        return true
+      }
     }
-
-    open fun handleSpanLongClick(
-        span: Span,
-        interactionInfo: SpanInteractionInfo,
-        spanRange: TextRange
-    ): Boolean {
-        return false
-    }
-
-    fun isEnabled() = eventManager.isEnabled
-
-    fun setEnabled(enabled: Boolean) {
-        eventManager.isEnabled = enabled
-    }
-
-
+    return false
+  }
+  
+  open fun handleSpanLongClick(
+    span: Span,
+    interactionInfo: SpanInteractionInfo,
+    spanRange: TextRange
+  ): Boolean {
+    return false
+  }
+  
+  fun isEnabled() = eventManager.isEnabled
+  
+  fun setEnabled(enabled: Boolean) {
+    eventManager.isEnabled = enabled
+  }
+  
+  
 }

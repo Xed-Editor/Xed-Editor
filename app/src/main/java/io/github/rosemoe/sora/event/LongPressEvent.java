@@ -42,11 +42,11 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Rosemoe
  */
 public class LongPressEvent extends EditorMotionEvent {
-
-
-    public LongPressEvent(@NonNull CodeEditor editor, @NonNull CharPosition position, @NonNull MotionEvent event,
-                          @Nullable Span span, @Nullable TextRange spanRange) {
-        super(editor, position, event, span, spanRange);
-    }
-
+  
+  
+  public LongPressEvent(@NonNull CodeEditor editor, @NonNull CharPosition position, @NonNull MotionEvent event,
+                        @Nullable Span span, @Nullable TextRange spanRange) {
+    super(editor, position, event, span, spanRange);
+  }
+  
 }

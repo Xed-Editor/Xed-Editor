@@ -34,24 +34,24 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @param <T> Result type
  */
 public abstract class ResultedEvent<T> extends Event {
-
-    private T result;
-
-    public ResultedEvent(@NonNull CodeEditor editor) {
-        super(editor);
-    }
-
-    @Nullable
-    public T getResult() {
-        return result;
-    }
-
-    public void setResult(@Nullable T result) {
-        this.result = result;
-    }
-
-    public boolean isResultSet() {
-        return result != null;
-    }
-
+  
+  private T result;
+  
+  public ResultedEvent(@NonNull CodeEditor editor) {
+    super(editor);
+  }
+  
+  @Nullable
+  public T getResult() {
+    return result;
+  }
+  
+  public void setResult(@Nullable T result) {
+    this.result = result;
+  }
+  
+  public boolean isResultSet() {
+    return result != null;
+  }
+  
 }
