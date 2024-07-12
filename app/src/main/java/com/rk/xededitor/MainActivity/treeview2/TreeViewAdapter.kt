@@ -215,7 +215,9 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         layoutParams.setMargins(dpToPx(10f), 0, 0, 0)
         fileView.layoutParams = layoutParams
         expandView.visibility = View.GONE
+        fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
         fileView.setImageDrawable(icFile)
+        
     }
 
     holder.textView.text = " ${node.value.name}          "
