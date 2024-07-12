@@ -192,7 +192,7 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val isDir = node.value.isDirectory
     val expandView = holder.expandView
     val fileView = holder.fileView
-
+    nodemap!![node] = holder.textView
     // Reset padding and margins to avoid accumulation
     holder.itemView.setPadding(0, 0, 0, 0)
     val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
