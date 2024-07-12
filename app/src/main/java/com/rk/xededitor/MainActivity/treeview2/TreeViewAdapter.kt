@@ -212,10 +212,10 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         fileView.setImageDrawable(icFolder)
     } else {
         // Set margins for files
-        layoutParams.setMargins(dpToPx(10f), 0, 0, 0)
+        layoutParams.setMargins(icChevronRight!!.intrinsicWidth+dpToPx(10f), 0, 0, 0)
         fileView.layoutParams = layoutParams
         expandView.visibility = View.GONE
-        fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
+        /*fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)*/
         fileView.setImageDrawable(icFile)
         
     }
