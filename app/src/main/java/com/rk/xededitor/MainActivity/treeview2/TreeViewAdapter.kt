@@ -187,38 +187,39 @@ class TreeViewAdapter(
   val animator = recyclerView.itemAnimator
   
   @SuppressLint("SetTextI18n")
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val node = getItem(position)
     val isDir = node.value.isDirectory
     val expandView = holder.expandView
     val fileView = holder.fileView
     nodemap!![node] = holder.textView
-    
+    // Reset padding and margins to avoid accumulation
+    holder.itemView.setPadding(0, 0, 0, 0)
+    val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
+    layoutParams.setMargins(0, 0, 0, 0)
+    fileView.layoutParams = layoutParams
+
+    // Set padding based on node level
     holder.itemView.setPadding(node.level * 35, 0, 0, 0)
-    
+
     if (isDir) {
-      expandView.visibility = View.VISIBLE
-      if (!node.isExpand) {
-        expandView.setImageDrawable(icChevronRight)
-      } else {
-        expandView.setImageDrawable(icExpandMore)
-      }
-      fileView.setImageDrawable(icFolder)
+        expandView.visibility = View.VISIBLE
+        if (!node.isExpand) {
+            expandView.setImageDrawable(icChevronRight)
+        } else {
+            expandView.setImageDrawable(icExpandMore)
+        }
+        fileView.setImageDrawable(icFolder)
     } else {
-      val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
-      layoutParams.setMargins(dpToPx(10f), 0, 0, 0)
-      fileView.layoutParams = layoutParams
-      expandView.visibility = View.GONE
-      fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)
-      fileView.setImageDrawable(icFile)
+        // Set margins for files
+        layoutParams.setMargins(dpToPx(10f), 0, 0, 0)
+        fileView.layoutParams = layoutParams
+        expandView.visibility = View.GONE
+        fileView.setImageDrawable(icFile)
     }
-    
-    holder.textView.text =
-      StringBuilder(" ").append(node.value.name).append("          ").toString()
-    
-    
-  }
-  
+
+    holder.textView.text = " ${node.value.name}          "
+}
   
   class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
