@@ -77,5 +77,10 @@
         android:title="@string/share"
         android:visible="false"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/insertdate"
+        android:title="@string/insertdate"
+        android:visible="false"
+        app:showAsAction="never" />
 
 </menu>

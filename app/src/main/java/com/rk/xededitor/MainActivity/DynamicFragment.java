@@ -46,14 +46,14 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 public class DynamicFragment extends Fragment {
   
-  final String fileName;
+  public final String fileName;
   private final DocumentFile file;
   private final Context ctx;
   public CodeEditor editor;
   public boolean isModified = false;
   MenuItem undo;
   MenuItem redo;
-  boolean isNewFile;
+  public boolean isNewFile;
   
   public DynamicFragment(DocumentFile file, Context ctx, boolean isNewFile) {
     this.isNewFile = isNewFile;

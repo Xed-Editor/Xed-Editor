@@ -7,13 +7,43 @@ import android.widget.Toast;
 
 import androidx.documentfile.provider.DocumentFile;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.security.MessageDigest;
 
 public class rkUtils {
   
-  
+  public static void writeToFile(File file, String data) {
+    BufferedWriter bufferedWriter = null;
+    try {
+      // Create a FileOutputStream
+      FileOutputStream fileOutputStream = new FileOutputStream(file);
+      
+      // Wrap the FileOutputStream with an OutputStreamWriter
+      OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+      
+      // Wrap the OutputStreamWriter with a BufferedWriter
+      bufferedWriter = new BufferedWriter(outputStreamWriter);
+      
+      // Write data to the file
+      bufferedWriter.write(data);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      // Close the BufferedWriter
+      if (bufferedWriter != null) {
+        try {
+          bufferedWriter.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
   public static String calculateMD5(File file) {
     try {
       // Create a FileInputStream to read the file

@@ -28,21 +28,18 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
   override fun uncaughtException(thread: Thread, ex: Throwable) {
     saveCrashInfo(thread.name, ex)
     
-    /*if (Looper.myLooper() != null) {
+    if (Looper.myLooper() != null) {
       while (true) {
         try {
           Looper.loop()
           return  // Quit loop if no exception
         } catch (t: Throwable) {
-          saveCrashInfo(thread.name, t)
-          handler.post {
-            Toast.makeText(
-              context, "Unexpected looper crash", Toast.LENGTH_SHORT
-            ).show()
-          }
+          exitProcess(1)
+          
         }
+        
       }
-    }*/
+    }
   }
   
   private fun collectDeviceInfo(ctx: Context?) {

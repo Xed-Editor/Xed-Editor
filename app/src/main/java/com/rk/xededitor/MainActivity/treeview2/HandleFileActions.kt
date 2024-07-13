@@ -143,14 +143,7 @@ class HandleFileActions(
           mContext.binding.mainView.visibility = View.GONE
           mContext.binding.openBtn.visibility = View.VISIBLE
         }
-        val visible =
-          !(StaticData.fragments == null || StaticData.fragments.isEmpty())
-        StaticData.menu.findItem(R.id.search).setVisible(visible)
-        StaticData.menu.findItem(R.id.action_save).setVisible(visible)
-        StaticData.menu.findItem(R.id.action_print).setVisible(visible)
-        StaticData.menu.findItem(R.id.action_all).setVisible(visible)
-        StaticData.menu.findItem(R.id.batchrep).setVisible(visible)
-        StaticData.menu.findItem(R.id.share).setVisible(visible)
+       MainActivity.updateMenuItems()
         mContext.binding.maindrawer.visibility = View.GONE
         mContext.binding.safbuttons.visibility = View.VISIBLE
         mContext.binding.drawerToolbar.visibility = View.GONE
@@ -265,11 +258,7 @@ class HandleFileActions(
                   mContext.binding.mainView.visibility = View.GONE
                   mContext.binding.openBtn.visibility = View.VISIBLE
                 }
-                val visible = !(StaticData.fragments == null || StaticData.fragments.isEmpty())
-                StaticData.menu.findItem(R.id.search).setVisible(visible)
-                StaticData.menu.findItem(R.id.action_save).setVisible(visible)
-                StaticData.menu.findItem(R.id.action_all).setVisible(visible)
-                StaticData.menu.findItem(R.id.batchrep).setVisible(visible)
+               MainActivity.updateMenuItems()
                 
                 mContext.binding.mainView.visibility = View.GONE
                 mContext.binding.safbuttons.visibility = View.VISIBLE
@@ -338,11 +327,7 @@ class HandleFileActions(
               mContext.binding.mainView.visibility = View.GONE
               mContext.binding.openBtn.visibility = View.VISIBLE
             }
-            val visible = !(StaticData.fragments == null || StaticData.fragments.isEmpty())
-            StaticData.menu.findItem(R.id.search).setVisible(visible)
-            StaticData.menu.findItem(R.id.action_save).setVisible(visible)
-            StaticData.menu.findItem(R.id.action_all).setVisible(visible)
-            StaticData.menu.findItem(R.id.batchrep).setVisible(visible)
+            MainActivity.updateMenuItems()
             
             mContext.binding.mainView.visibility = View.GONE
             mContext.binding.safbuttons.visibility = View.VISIBLE

@@ -117,6 +117,27 @@ public class MainActivity extends BaseActivity {
     
     //run async init
     new Init(this);
+    
+    Intent intent = getIntent();
+    String action = intent.getAction();
+    String type = intent.getType();
+    
+    if (Intent.ACTION_SEND.equals(action) && type != null) {
+      if(type.startsWith("text")){
+        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+        if (sharedText != null) {
+          var file = new File(getExternalCacheDir(), "newfile.txt");
+          newEditor(DocumentFile.fromFile(file), true,sharedText);
+          new After(150, () -> {
+            MainActivity.this.runOnUiThread(this::onNewEditor);
+          });
+         
+        }
+        
+      }
+    }
+    
+    
   }
   
   public CodeEditor getCurrentEditor() {
@@ -128,13 +149,6 @@ public class MainActivity extends BaseActivity {
     List<UriPermission> persistedPermissions = getContentResolver().getPersistedUriPermissions();
     boolean hasPersistedPermission = persistedPermissions.stream().anyMatch(p -> p.getUri().equals(uri));
     return hasPersistedPermission;
-  }
-  
-  @Override
-  public void onConfigurationChanged(@NonNull Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    // Handle the theme change here
-    rkUtils.toast(this, getResources().getString(R.string.restart_required));
   }
   
   @Override
@@ -222,8 +236,11 @@ public class MainActivity extends BaseActivity {
     
   }
   
-  
   public void newEditor(DocumentFile file, boolean isNewFile) {
+    newEditor(file,isNewFile,null);
+  }
+  
+  public void newEditor(DocumentFile file, boolean isNewFile,String text) {
     
     if (adapter == null) {
       fragments = new ArrayList<>();
@@ -236,9 +253,16 @@ public class MainActivity extends BaseActivity {
     
     final String file_name = file.getName();
     
-    if (fileList.contains(file) || adapter.addFragment(new DynamicFragment(file, this, isNewFile), file_name, file)) {
+    if (fileList.contains(file)){
       rkUtils.toast(this, "File already opened!");
       return;
+    }else{
+      var dynamicfragment = new DynamicFragment(file, this, isNewFile);
+      if (text != null){
+        dynamicfragment.editor.setText(text);
+      }
+      adapter.addFragment(dynamicfragment, file_name, file);
+      
     }
     
     
@@ -255,16 +279,7 @@ public class MainActivity extends BaseActivity {
     }
     
     //viewPager.setCurrentItem(mTabLayout.getTabCount(),false);
-    final boolean visible = !(fragments == null || fragments.isEmpty());
-    
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.action_save).setVisible(visible);
-    menu.findItem(R.id.action_print).setVisible(visible);
-    menu.findItem(R.id.action_all).setVisible(visible);
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.share).setVisible(visible);
+   updateMenuItems();
     
   }
   
@@ -372,6 +387,20 @@ public class MainActivity extends BaseActivity {
       }
       return HandleMenuClick.handle(this, item);
     }
+  }
+  public static void updateMenuItems(){
+    final boolean visible = !(fragments == null || fragments.isEmpty());
+    menu.findItem(R.id.batchrep).setVisible(visible);
+    menu.findItem(R.id.search).setVisible(visible);
+    menu.findItem(R.id.action_save).setVisible(visible);
+    menu.findItem(R.id.action_print).setVisible(visible);
+    menu.findItem(R.id.action_all).setVisible(visible);
+    menu.findItem(R.id.batchrep).setVisible(visible);
+    menu.findItem(R.id.search).setVisible(visible);
+    menu.findItem(R.id.share).setVisible(visible);
+    menu.findItem(R.id.undo).setVisible(visible);
+    menu.findItem(R.id.redo).setVisible(visible);
+    menu.findItem(R.id.insertdate).setVisible(visible);
   }
 }
 

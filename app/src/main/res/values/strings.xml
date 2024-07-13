@@ -60,5 +60,6 @@
     <string name="close_this">Close this</string>
     <string name="close_others">Close others</string>
     <string name="close_all">Close all</string>
+    <string name="insertdate">Insert Date</string>
 
 </resources>

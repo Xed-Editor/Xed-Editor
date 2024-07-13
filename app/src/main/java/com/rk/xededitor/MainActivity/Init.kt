@@ -83,15 +83,7 @@ class Init(activity: MainActivity) {
                 binding.mainView.visibility = View.GONE
                 binding.openBtn.visibility = View.VISIBLE
               }
-              val visible = !(StaticData.fragments == null || StaticData.fragments.isEmpty())
-              StaticData.menu.findItem(R.id.search).setVisible(visible)
-              StaticData.menu.findItem(R.id.action_save).setVisible(visible)
-              StaticData.menu.findItem(R.id.action_print).setVisible(visible)
-              StaticData.menu.findItem(R.id.action_all).setVisible(visible)
-              StaticData.menu.findItem(R.id.batchrep).setVisible(visible)
-              StaticData.menu.findItem(R.id.share).setVisible(visible)
-              StaticData.menu.findItem(R.id.undo).setVisible(visible)
-              StaticData.menu.findItem(R.id.redo).setVisible(visible)
+              MainActivity.updateMenuItems()
               true
             }
             popupMenu.show()
