@@ -60,4 +60,22 @@
     <string name="close_this">关闭此项</string>
     <string name="close_others">关闭其他</string>
     <string name="close_all">关闭所有</string>
+    <string name="insertdate">插入日期</string>
+    <string name="close">关闭</string>
+    <string name="unsaved">未保存的文件</string>
+    <string name="unsavedfiles">你有未保存的文件！</string>
+    <string name="cancel">取消</string>
+    <string name="saveexit">保存并退出</string>
+    <string name="exit">退出</string>
+    <string name="rr">需要重新启动</string>
+    <string name="rapply">请重新启动以应用设置</string>
+    <string name="oled">黑夜主题</string>
+    <string name="ww">自动换行</string>
+    <string name="keepdl">保持抽屉锁定</string>
+    <string name="restart">重新启动</string>
+    <string name="plugin">插件</string>
+    <string name="mp">管理插件</string>
+    <string name="ap">可用插件</string>
+    <string name="nip">没有安装的插件</string>
+
 </resources>

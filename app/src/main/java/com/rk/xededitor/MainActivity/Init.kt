@@ -19,11 +19,6 @@ class Init(activity: MainActivity) {
   init {
     Thread {
       
-      val file = File(activity.filesDir, "crash-journal.log")
-      if (file.exists()) {
-        file.delete()
-      }
-      
       with(activity) {
         StaticData.fileList = ArrayList()
         PluginServer(application).start()

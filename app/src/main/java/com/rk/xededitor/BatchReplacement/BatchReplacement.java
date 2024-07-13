@@ -43,7 +43,7 @@ public class BatchReplacement extends BaseActivity {
     Toolbar toolbar = binding.toolbar;
     setSupportActionBar(toolbar);
     Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-    getSupportActionBar().setTitle("Replace");
+    getSupportActionBar().setTitle(getResources().getString(R.string.title_activity_batch_replacement));
     
     if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
       findViewById(R.id.drawer_layout).setBackgroundColor(Color.BLACK);

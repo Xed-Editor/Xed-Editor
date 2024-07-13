@@ -60,4 +60,22 @@
     <string name="close_this">इसे बंद करें</string>
     <string name="close_others">अन्य बंद करें</string>
     <string name="close_all">सभी बंद करें</string>
+    <string name="insertdate">तिथि डालें</string>
+    <string name="close">बंद करें</string>
+    <string name="unsaved">असहेजित फ़ाइलें</string>
+    <string name="unsavedfiles">आपके पास असहेजित फ़ाइलें हैं!</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="saveexit">सहेजें और बाहर निकलें</string>
+    <string name="exit">बाहर निकलें</string>
+    <string name="rr">पुनः आरंभ आवश्यक</string>
+    <string name="rapply">सेटिंग्स लागू करने के लिए कृपया पुनः आरंभ करें</string>
+    <string name="oled">ब्लैक नाइट थीम</string>
+    <string name="ww">शब्द लपेटें</string>
+    <string name="keepdl">दराज को लॉक रखें</string>
+    <string name="restart">पुनः आरंभ</string>
+    <string name="plugin">प्लगइन्स</string>
+    <string name="mp">प्लगइन्स प्रबंधित करें</string>
+    <string name="ap">उपलब्ध प्लगइन्स</string>
+    <string name="nip">कोई स्थापित प्लगइन्स नहीं</string>
+
 </resources>

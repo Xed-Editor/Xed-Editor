@@ -61,5 +61,21 @@
     <string name="close_others">Close others</string>
     <string name="close_all">Close all</string>
     <string name="insertdate">Insert Date</string>
+    <string name="close">Close</string>
+    <string name="unsaved">Unsaved Files</string>
+    <string name="unsavedfiles">You have unsaved files!</string>
+    <string name="cancel">Cancel</string>
+    <string name="saveexit">Save and Exit</string>
+    <string name="exit">Exit</string>
+    <string name="rr">Restart Required</string>
+    <string name="rapply">Please restart to apply settings</string>
+    <string name="oled">Black Night Theme</string>
+    <string name="ww">Word wrap</string>
+    <string name="keepdl">Keep Drawer Locked</string>
+    <string name="restart">Restart</string>
+    <string name="plugin">Plugins</string>
+    <string name="mp">Manage Plugins</string>
+    <string name="ap">Available Plugins</string>
+    <string name="nip">No Installed Plugins</string>
 
 </resources>

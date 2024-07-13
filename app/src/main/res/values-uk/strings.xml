@@ -60,4 +60,22 @@
     <string name="close_this">Закрити це</string>
     <string name="close_others">Закрити інші</string>
     <string name="close_all">Закрити всі</string>
+    <string name="insertdate">Вставити дату</string>
+    <string name="close">Закрити</string>
+    <string name="unsaved">Несхвалені файли</string>
+    <string name="unsavedfiles">У вас є несхвалені файли!</string>
+    <string name="cancel">Скасувати</string>
+    <string name="saveexit">Зберегти і вийти</string>
+    <string name="exit">Вийти</string>
+    <string name="rr">Потрібне перезапуск</string>
+    <string name="rapply">Будь ласка, перезапустіть, щоб застосувати налаштування</string>
+    <string name="oled">Чорна нічна тема</string>
+    <string name="ww">Перенос слів</string>
+    <string name="keepdl">Тримати ящик закритим</string>
+    <string name="restart">Перезапустити</string>
+    <string name="plugin">Плагіни</string>
+    <string name="mp">Керування плагінами</string>
+    <string name="ap">Доступні плагіни</string>
+    <string name="nip">Немає встановлених плагінів</string>
+
 </resources>

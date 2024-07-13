@@ -43,7 +43,7 @@
 
     <item
         android:id="@+id/close"
-        android:title="Close"
+        android:title="@string/close"
         android:visible="false" />
 
 

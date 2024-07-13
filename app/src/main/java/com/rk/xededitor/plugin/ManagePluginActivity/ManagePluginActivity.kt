@@ -22,7 +22,7 @@ class ManagePluginActivity : BaseActivity() {
     super.onCreate(savedInstanceState)
     binding = ActivityManagePluginBinding.inflate(layoutInflater)
     setContentView(binding.root)
-    binding.toolbar.title = "Manage Plugins"
+    binding.toolbar.title = resources.getString(R.string.mp)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayShowTitleEnabled(true)
     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -30,7 +30,7 @@ class ManagePluginActivity : BaseActivity() {
     
     val v: View = LayoutInflater.from(this).inflate(R.layout.settings_activity_card, null)
     val textView = v.findViewById<TextView>(R.id.textView)
-    textView.text = "Available Plugins"
+    textView.text = resources.getString(R.string.ap)
     val imageView = v.findViewById<ImageView>(R.id.imageView)
     imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.extension))
     
@@ -70,7 +70,7 @@ class ManagePluginActivity : BaseActivity() {
     binding.mainBody.addView(view3)
     if (PluginServer.arrayOfPluginNames.isEmpty()) {
       val textView = TextView(this)
-      textView.text = "No Installed Plugins"
+      textView.text = resources.getString(R.string.nip)
       textView.gravity = Gravity.CENTER
       binding.mainBody.addView(textView)
     } else {

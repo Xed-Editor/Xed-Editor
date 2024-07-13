@@ -60,4 +60,22 @@
     <string name="close_this">Bunu Kapat</string>
     <string name="close_others">Diğerlerini Kapat</string>
     <string name="close_all">Hepsini Kapat</string>
+    <string name="insertdate">Tarih Ekle</string>
+    <string name="close">Kapat</string>
+    <string name="unsaved">Kaydedilmemiş Dosyalar</string>
+    <string name="unsavedfiles">Kaydedilmemiş dosyalarınız var!</string>
+    <string name="cancel">İptal</string>
+    <string name="saveexit">Kaydet ve Çık</string>
+    <string name="exit">Çık</string>
+    <string name="rr">Yeniden Başlatma Gerekli</string>
+    <string name="rapply">Ayarları uygulamak için lütfen yeniden başlatın</string>
+    <string name="oled">Siyah Gece Teması</string>
+    <string name="ww">Kelime Kaydırma</string>
+    <string name="keepdl">Çekmeceyi Kilitli Tut</string>
+    <string name="restart">Yeniden Başlat</string>
+    <string name="plugin">Eklentiler</string>
+    <string name="mp">Eklentileri Yönet</string>
+    <string name="ap">Mevcut Eklentiler</string>
+    <string name="nip">Yüklü Eklenti Yok</string>
+
 </resources>

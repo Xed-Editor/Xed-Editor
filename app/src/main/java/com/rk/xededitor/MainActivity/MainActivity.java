@@ -87,7 +87,6 @@ public class MainActivity extends BaseActivity {
     
     new After(4000, () -> MainActivity.this.runOnUiThread(() -> {
       getOnBackPressedDispatcher().addCallback(MainActivity.this, new OnBackPressedCallback(true) {
-        
         @Override
         public void handleOnBackPressed() {
           boolean shouldExit = true;
@@ -95,10 +94,10 @@ public class MainActivity extends BaseActivity {
             for (DynamicFragment fragment : fragments) {
               if (fragment.isModified) {
                 shouldExit = false;
-                new MaterialAlertDialogBuilder(MainActivity.this).setTitle("Unsaved Files").setMessage("You have unsaved files!").setNegativeButton("Cancel", null).setNeutralButton("Save & Exit", (dialog, which) -> {
+                new MaterialAlertDialogBuilder(MainActivity.this).setTitle(getResources().getString(R.string.unsaved)).setMessage(getResources().getString(R.string.unsavedfiles)).setNegativeButton(getResources().getString(R.string.cancel), null).setNeutralButton(getResources().getString(R.string.saveexit), (dialog, which) -> {
                   onOptionsItemSelected(menu.findItem(R.id.action_all));
                   finish();
-                }).setPositiveButton("Exit", (dialogInterface, i) -> finish()).show();
+                }).setPositiveButton(getResources().getString(R.string.exit), (dialogInterface, i) -> finish()).show();
               }
               break;
             }

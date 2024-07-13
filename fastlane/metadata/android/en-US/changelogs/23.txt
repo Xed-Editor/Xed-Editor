@@ -1,0 +1,11 @@
+v2.2.0 (23)
+- Changed Font
+- Added translation for Hindi,Russian,Turkish,Ukrainian,Chinese(simplified)
+- Improved File Browser
+- Added opening text as a file
+- Added Exception Handler
+- Fixed Delay when opening big directory
+- Fixed Ui freeze on file actions
+- Improved Overall Performance
+- Fixed Minor Bugs
+- Added Insert Date option in menu

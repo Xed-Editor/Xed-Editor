@@ -34,7 +34,7 @@ class SettingsActivity : BaseActivity() {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.settings_activity)
     val toolbar = findViewById<Toolbar>(R.id.toolbar)
-    toolbar.setTitle("Settings")
+    toolbar.setTitle(getResources().getString(R.string.title_activity_settings))
     setSupportActionBar(toolbar)
     
     supportActionBar?.setDisplayShowTitleEnabled(true)
@@ -65,13 +65,13 @@ class SettingsActivity : BaseActivity() {
     var isProgrammaticChange = false
     
     var d = MaterialAlertDialogBuilder(this@SettingsActivity)
-      .setTitle("Restart Required")
-      .setMessage("Please restart to apply settings")
-      .setNegativeButton("Cancel") { _, _ ->
+      .setTitle(resources.getString(R.string.rr))
+      .setMessage(resources.getString(R.string.rapply))
+      .setNegativeButton(resources.getString(R.string.cancel)) { _, _ ->
         isProgrammaticChange = true
         switch?.isChecked = !switch?.isChecked!!
       }
-      .setPositiveButton("Restart") { _, _ ->
+      .setPositiveButton(resources.getString(R.string.restart)) { _, _ ->
         SettingsData.setSetting(this@SettingsActivity, "isOled", switch?.isChecked!!.toString())
         
         doRestart(this)
@@ -83,7 +83,7 @@ class SettingsActivity : BaseActivity() {
     
     
     
-    switch = Toggle(this, SettingsData.isOled(this)).setName("Black Night Theme")
+    switch = Toggle(this, SettingsData.isOled(this)).setName(resources.getString(R.string.oled))
       .setDrawable(R.drawable.dark_mode)
       .setListener { _, _ ->
         if (isProgrammaticChange) {
@@ -109,7 +109,7 @@ class SettingsActivity : BaseActivity() {
     
     
     
-    Toggle(this, SettingsData.getBoolean(this, "wordwrap", false)).setName("Word wrap")
+    Toggle(this, SettingsData.getBoolean(this, "wordwrap", false)).setName(resources.getString(R.string.ww))
       .setDrawable(R.drawable.reorder).setListener { _, isChecked ->
         SettingsData.setBoolean(this@SettingsActivity, "wordwrap", isChecked)
         if (StaticData.fragments != null && StaticData.fragments.isNotEmpty()) {
@@ -125,7 +125,7 @@ class SettingsActivity : BaseActivity() {
     Toggle(
       this,
       SettingsData.getBoolean(this, "keepDrawerLocked", false)
-    ).setName("Keep Drawer Locked").setDrawable(R.drawable.lock).setListener { _, isChecked ->
+    ).setName(resources.getString(R.string.keepdl)).setDrawable(R.drawable.lock).setListener { _, isChecked ->
       SettingsData.setBoolean(
         this@SettingsActivity, "keepDrawerLocked", isChecked
       )
@@ -137,13 +137,13 @@ class SettingsActivity : BaseActivity() {
     var isProgrammaticChange1 = false
     
     var d1 = MaterialAlertDialogBuilder(this@SettingsActivity)
-      .setTitle("Restart Required")
-      .setMessage("Please restart to apply settings")
-      .setNegativeButton("Cancel") { _, _ ->
+      .setTitle(resources.getString(R.string.rr))
+      .setMessage(resources.getString(R.string.rapply))
+      .setNegativeButton(resources.getString(R.string.cancel)) { _, _ ->
         isProgrammaticChange1 = true
         switch1?.isChecked = !switch1?.isChecked!!
       }
-      .setPositiveButton("Restart") { _, _ ->
+      .setPositiveButton(resources.getString(R.string.restart)) { _, _ ->
         SettingsData.setBoolean(this, "enablePlugins", switch1?.isChecked!!)
         doRestart(this)
       }
@@ -153,7 +153,7 @@ class SettingsActivity : BaseActivity() {
     
     
     
-    switch1 = Toggle(this, SettingsData.getBoolean(this, "enablePlugins", false)).setName("Plugins")
+    switch1 = Toggle(this, SettingsData.getBoolean(this, "enablePlugins", false)).setName(resources.getString(R.string.plugin))
       .setDrawable(R.drawable.extension)
       .setListener { _, isChecked ->
         if (isProgrammaticChange1) {
@@ -176,7 +176,7 @@ class SettingsActivity : BaseActivity() {
     val mainBody = findViewById<LinearLayout>(R.id.mainBody)
     val v: View = LayoutInflater.from(this).inflate(R.layout.settings_activity_card, null)
     val textView = v.findViewById<TextView>(R.id.textView)
-    textView.text = "Manage Plugins"
+    textView.text = resources.getString(R.string.mp)
     val imageView = v.findViewById<ImageView>(R.id.imageView)
     imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.extension))
     if (SettingsData.getBoolean(this, "enablePlugins", false)) v.visibility =

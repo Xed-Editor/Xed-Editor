@@ -60,4 +60,22 @@
     <string name="close_this">Закрыть это</string>
     <string name="close_others">Закрыть другие</string>
     <string name="close_all">Закрыть все</string>
+    <string name="insertdate">Вставить дату</string>
+    <string name="close">Закрыть</string>
+    <string name="unsaved">Несохраненные файлы</string>
+    <string name="unsavedfiles">У вас есть несохраненные файлы!</string>
+    <string name="cancel">Отмена</string>
+    <string name="saveexit">Сохранить и выйти</string>
+    <string name="exit">Выйти</string>
+    <string name="rr">Требуется перезапуск</string>
+    <string name="rapply">Пожалуйста, перезапустите, чтобы применить настройки</string>
+    <string name="oled">Тема Черная ночь</string>
+    <string name="ww">Перенос слов</string>
+    <string name="keepdl">Держать ящик закрытым</string>
+    <string name="restart">Перезапустить</string>
+    <string name="plugin">Плагины</string>
+    <string name="mp">Управление плагинами</string>
+    <string name="ap">Доступные плагины</string>
+    <string name="nip">Нет установленных плагинов</string>
+
 </resources>
