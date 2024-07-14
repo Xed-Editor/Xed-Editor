@@ -68,7 +68,7 @@ public class MainActivity extends BaseActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    SettingsData.applyPrefs(this);
+   // SettingsData.applyPrefs(this);
     
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
