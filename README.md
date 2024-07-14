@@ -27,6 +27,7 @@
 - [x] Creating files and folders
 - [x] Copy Pasteing files and Folders
 - [x] Rename, Delete files and folders
+- [x] Print text
 
 ## Installation
 
