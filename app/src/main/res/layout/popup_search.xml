@@ -25,7 +25,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:hint="@String/search_keyword"
+                android:hint="@string/searck_keyword"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />
@@ -39,7 +39,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="22dp"
             android:checked="false"
-            android:text="@String/cs" />
+            android:text="@string/cs" />
 
     </LinearLayout>
 

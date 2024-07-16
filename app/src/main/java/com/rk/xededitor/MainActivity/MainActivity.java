@@ -84,7 +84,6 @@ public class MainActivity extends BaseActivity {
     drawerToggle.syncState();
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     
-    
     new After(4000, () -> MainActivity.this.runOnUiThread(() -> {
       getOnBackPressedDispatcher().addCallback(MainActivity.this, new OnBackPressedCallback(true) {
         @Override
@@ -130,7 +129,7 @@ public class MainActivity extends BaseActivity {
           new After(150, () -> {
             MainActivity.this.runOnUiThread(this::onNewEditor);
           });
-         
+          
         }
         
       }
@@ -160,7 +159,6 @@ public class MainActivity extends BaseActivity {
       binding.openBtn.setVisibility(View.GONE);
       newEditor(DocumentFile.fromSingleUri(this, selectedFileUri), false);
     } else if (requestCode == REQUEST_DIRECTORY_SELECTION && resultCode == RESULT_OK && data != null) {
-      //binding.tabs.setVisibility(View.VISIBLE);
       binding.mainView.setVisibility(View.VISIBLE);
       binding.safbuttons.setVisibility(View.GONE);
       binding.maindrawer.setVisibility(View.VISIBLE);
@@ -173,8 +171,6 @@ public class MainActivity extends BaseActivity {
       new TreeView(MainActivity.this, rootFolder);
       
       //use new file browser
-      
-      
       String name = rootFolder.getName();
       if (name.length() > 18) {
         name = rootFolder.getName().substring(0, 15) + "...";
@@ -208,15 +204,12 @@ public class MainActivity extends BaseActivity {
             } catch (Exception e) {
               e.printStackTrace();
             }
-            
           }).start();
         }
       }
     }
   }
   
-  /*this method is called when user opens a file
-  unlike newEditor which is called when opening a directory via file manager*/
   public void onNewEditor() {
     binding.openBtn.setVisibility(View.GONE);
     binding.tabs.setVisibility(View.VISIBLE);
@@ -232,38 +225,34 @@ public class MainActivity extends BaseActivity {
     MenuItem redo = menu.findItem(R.id.redo);
     undo.setVisible(visible);
     redo.setVisible(visible);
-    
   }
   
   public void newEditor(DocumentFile file, boolean isNewFile) {
-    newEditor(file,isNewFile,null);
+    newEditor(file, isNewFile, null);
   }
   
-  public void newEditor(DocumentFile file, boolean isNewFile,String text) {
-    
+  public void newEditor(DocumentFile file, boolean isNewFile, String text) {
     if (adapter == null) {
       fragments = new ArrayList<>();
       titles = new ArrayList<>();
       uris = new ArrayList<>();
       adapter = new mAdapter(getSupportFragmentManager());
       viewPager.setAdapter(adapter);
+      fileList = new ArrayList<>();
     }
-    
     
     final String file_name = file.getName();
     
-    if (fileList.contains(file)){
+    if (fileList.contains(file)) {
       rkUtils.toast(this, "File already opened!");
       return;
-    }else{
+    } else {
       var dynamicfragment = new DynamicFragment(file, this, isNewFile);
-      if (text != null){
+      if (text != null) {
         dynamicfragment.editor.setText(text);
       }
       adapter.addFragment(dynamicfragment, file_name, file);
-      
     }
-    
     
     fileList.add(file);
     
@@ -277,23 +266,15 @@ public class MainActivity extends BaseActivity {
       }
     }
     
-    //viewPager.setCurrentItem(mTabLayout.getTabCount(),false);
-   updateMenuItems();
-    
+    updateMenuItems();
   }
-  
   
   @Override
   protected void onDestroy() {
     StaticData.clear();
     activity = null;
     super.onDestroy();
-    
-    //close the application
-    //System.exit(0);
-    
   }
-  
   
   public void openFile(View v) {
     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -304,19 +285,15 @@ public class MainActivity extends BaseActivity {
   
   private void persistUriPermission(Uri uri) {
     final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-    // Check if URI permission is already granted
     if ((getContentResolver().getPersistedUriPermissions().stream().noneMatch(p -> p.getUri().equals(uri)))) {
       getContentResolver().takePersistableUriPermission(uri, takeFlags);
     }
     SettingsData.setSetting(this, "lastOpenedUri", uri.toString());
-    
   }
   
   public void revokeUriPermission(Uri uri) {
     final int releaseFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
     getContentResolver().releasePersistableUriPermission(uri, releaseFlags);
-    
-    
   }
   
   public void openDir(View v) {
@@ -372,8 +349,6 @@ public class MainActivity extends BaseActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     final int id = item.getItemId();
     
-    
-    //this is used to open and close the drawer
     if (id == android.R.id.home) {
       if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
         drawerLayout.closeDrawer(GravityCompat.START);
@@ -388,7 +363,8 @@ public class MainActivity extends BaseActivity {
       return HandleMenuClick.handle(this, item);
     }
   }
-  public static void updateMenuItems(){
+  
+  public static void updateMenuItems() {
     final boolean visible = !(fragments == null || fragments.isEmpty());
     menu.findItem(R.id.batchrep).setVisible(visible);
     menu.findItem(R.id.search).setVisible(visible);
@@ -403,4 +379,3 @@ public class MainActivity extends BaseActivity {
     menu.findItem(R.id.insertdate).setVisible(visible);
   }
 }
-

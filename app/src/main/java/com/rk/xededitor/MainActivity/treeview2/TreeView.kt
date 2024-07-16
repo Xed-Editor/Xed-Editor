@@ -4,6 +4,7 @@ import android.view.View
 import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rk.xededitor.After
+import com.rk.xededitor.Async
 import com.rk.xededitor.MainActivity.StaticData
 
 import com.rk.xededitor.MainActivity.StaticData.nodes
@@ -13,8 +14,8 @@ import com.rk.xededitor.Settings.SettingsData
 class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
   init {
     
-    Thread {
-      ctx.runOnUiThread {
+    Async.run {
+    ctx.runOnUiThread {
         ctx.binding.recyclerView.visibility = View.GONE
         ctx.binding.progressBar.visibility = View.VISIBLE
       }
@@ -63,7 +64,7 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
         ctx.binding.recyclerView.visibility = View.VISIBLE
         
       }
-    }.start()
+    }
     
     
   }

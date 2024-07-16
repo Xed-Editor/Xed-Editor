@@ -12,10 +12,11 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.xededitor.Async
 import com.rk.xededitor.FileClipboard
 import com.rk.xededitor.LoadingPopup
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
@@ -38,7 +39,7 @@ class HandleFileActions(
     @JvmStatic
     fun saveFile(ctx: MainActivity, destination: Uri) {
       val loading = LoadingPopup(ctx, null).show()
-      Thread {
+      Async.run {
         fun copyDocumentFile(source: DocumentFile, target: DocumentFile): Boolean? {
           fun copyStream(input: InputStream, output: OutputStream) {
             val buffer = ByteArray(4096)
@@ -73,7 +74,7 @@ class HandleFileActions(
           TreeView(ctx, StaticData.rootFolder)
         }
         loading.hide()
-      }.start()
+      }
       
     }
   }
@@ -84,22 +85,11 @@ class HandleFileActions(
     val inflater = popupMenu.menuInflater
     inflater.inflate(R.menu.root_file_options, popupMenu.menu)
     
-    if (file == rootFolder) {
-      popupMenu.menu.findItem(R.id.reselect).setVisible(true)
-      popupMenu.menu.findItem(R.id.close).setVisible(true)
-      popupMenu.menu.findItem(R.id.openFile).setVisible(true)
-      
+    if (file.isDirectory) {
+      popupMenu.menu.findItem(R.id.save_as).setVisible(false)
       popupMenu.menu.findItem(R.id.ceateFolder).setVisible(true)
       popupMenu.menu.findItem(R.id.createFile).setVisible(true)
-      popupMenu.menu.findItem(R.id.paste).setVisible(true)
-      
-      popupMenu.menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
-      
-    } else if (file.isDirectory) {
-      
-      popupMenu.menu.findItem(R.id.ceateFolder).setVisible(true)
-      popupMenu.menu.findItem(R.id.createFile).setVisible(true)
-      var copy = popupMenu.menu.findItem(R.id.copy)
+      val copy = popupMenu.menu.findItem(R.id.copy)
       copy.setVisible(true)
       if (!FileClipboard.isEmpty()) {
         copy.setTitle("Copy (Override)")
@@ -110,12 +100,23 @@ class HandleFileActions(
       
     } else {
       popupMenu.menu.findItem(R.id.save_as).setVisible(true)
-      var copy = popupMenu.menu.findItem(R.id.copy)
+      val copy = popupMenu.menu.findItem(R.id.copy)
       copy.setVisible(true)
       if (!FileClipboard.isEmpty()) {
         copy.setTitle("Copy (Override)")
       }
     }
+    
+    if (file == rootFolder) {
+      popupMenu.menu.findItem(R.id.reselect).setVisible(true)
+      popupMenu.menu.findItem(R.id.close).setVisible(true)
+      popupMenu.menu.findItem(R.id.openFile).setVisible(true)
+      popupMenu.menu.findItem(R.id.refresh).setVisible(true)
+      popupMenu.menu.findItem(R.id.paste).setVisible(true)
+      popupMenu.menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
+      
+    }
+    
     
     
     //menu functions
@@ -143,7 +144,7 @@ class HandleFileActions(
           mContext.binding.mainView.visibility = View.GONE
           mContext.binding.openBtn.visibility = View.VISIBLE
         }
-       MainActivity.updateMenuItems()
+        MainActivity.updateMenuItems()
         mContext.binding.maindrawer.visibility = View.GONE
         mContext.binding.safbuttons.visibility = View.VISIBLE
         mContext.binding.drawerToolbar.visibility = View.GONE
@@ -238,7 +239,7 @@ class HandleFileActions(
         ) { _: DialogInterface?, _: Int ->
           
           val loading = LoadingPopup(mContext, null).show()
-          Thread {
+          Async.run {
             //delete file
             if (file != rootFolder) {
               file.delete()
@@ -258,7 +259,7 @@ class HandleFileActions(
                   mContext.binding.mainView.visibility = View.GONE
                   mContext.binding.openBtn.visibility = View.VISIBLE
                 }
-               MainActivity.updateMenuItems()
+                MainActivity.updateMenuItems()
                 
                 mContext.binding.mainView.visibility = View.GONE
                 mContext.binding.safbuttons.visibility = View.VISIBLE
@@ -284,7 +285,7 @@ class HandleFileActions(
               
               loading.hide()
             }
-          }.start()
+          }
         }.setPositiveButton("Cancel", null).show()
     }
     
@@ -431,6 +432,10 @@ class HandleFileActions(
         R.id.rename -> {
           rename()
         }
+        
+        R.id.refresh -> {
+          TreeView(mContext, rootFolder)
+        }
       }
       true
     }
@@ -440,16 +445,16 @@ class HandleFileActions(
   
   private fun copyDocumentFile(context: Context, sourceUri: Uri, destinationDir: DocumentFile) {
     val loading = LoadingPopup(mContext, null).show()
-    Thread {
+    Async.run {
       val sourceFile = DocumentFile.fromSingleUri(context, sourceUri)
       if (sourceFile == null || !sourceFile.exists()) {
-        return@Thread
+        return@run
       }
       
-      val fileName = sourceFile.name ?: return@Thread
+      val fileName = sourceFile.name ?: return@run
       val destinationFile =
         destinationDir.createFile(sourceFile.type ?: "application/octet-stream", fileName)
-          ?: return@Thread
+          ?: return@run
       
       var inputStream: InputStream? = null
       var outputStream: OutputStream? = null
@@ -473,7 +478,7 @@ class HandleFileActions(
         loading.hide()
       }
       
-    }.start()
+    }
     
   }
   

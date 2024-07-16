@@ -77,5 +77,6 @@
     <string name="mp">Manage Plugins</string>
     <string name="ap">Available Plugins</string>
     <string name="nip">No Installed Plugins</string>
+    <string name="refresh">Refresh</string>
 
 </resources>

@@ -42,6 +42,8 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
     }
   }
   
+
+  
   private fun collectDeviceInfo(ctx: Context?) {
     val pi = ctx!!.packageManager.getPackageInfo(ctx.packageName, PackageManager.GET_ACTIVITIES)
     if (pi != null) {
@@ -79,7 +81,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
   }
   
   private fun saveCrashInfo(threadName: String, ex: Throwable) {
-    val sb = StringBuilder()
+   /* val sb = StringBuilder()
     val timestamp = System.currentTimeMillis()
     sb.append("Crash at ").append(timestamp).append("(timestamp) in thread named '")
       .append(threadName).append("'\n")
@@ -106,15 +108,32 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
     
     val error = sb.toString()
     Log.e(LOG_TAG, error)
-    
+    */
     //crash hander activity should never crash
-    if (error.contains(CrashActivity::class.java.name)) {
+    if (ex.stackTrace.toString().contains(CrashActivity::class.java.name)) {
       //if it does exit instantly or else the activity loop over and over
       exitProcess(1)
     } else {
+      val sb = StringBuilder()
+      for ((key, value) in info) {
+        sb.append(key).append(" = ").append(value).append("\n")
+      }
       val intent = Intent(context, CrashActivity::class.java)
       intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      intent.putExtra("error", error)
+      var cause = ex.cause.toString()
+      val prefix = "java.lang.Throwable:"
+      if(cause.startsWith(prefix)){
+        cause = cause.removePrefix(prefix)
+      }
+      intent.putExtra("error_cause",cause);
+      intent.putExtra("msg",ex.message)
+      val stringWriter = StringWriter()
+      val printWriter = PrintWriter(stringWriter)
+      ex.printStackTrace(printWriter)
+      val stackTraceString = stringWriter.toString()
+      intent.putExtra("stacktrace", stackTraceString)
+      intent.putExtra("thread",threadName)
+      intent.putExtra("info",sb.toString())
       context?.startActivity(intent)
     }
   }

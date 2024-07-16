@@ -30,6 +30,8 @@ import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
+import java.util.Date
 
 
 class CrashActivity : AppCompatActivity() {
@@ -40,6 +42,10 @@ class CrashActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContentView(R.layout.activity_error)
+    if(SettingsData.isDarkMode(this) && SettingsData.isOled(this)){
+      findViewById<Toolbar>(R.id.toolbar).setBackgroundColor(Color.BLACK)
+    }
+    
     ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
       val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
       v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -51,19 +57,24 @@ class CrashActivity : AppCompatActivity() {
     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     supportActionBar!!.setDisplayShowTitleEnabled(true)
     error_editor = findViewById(R.id.error_editor)
+    ensureTextmateTheme()
+    
+    
+    
+    
     try {
-      error_editor.setText(intent.getStringExtra("error"))
+      val sb = StringBuilder()
+      sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("'\nUnix Time : ").append(System.currentTimeMillis()).append("\n")
+      sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).append("\n\n")
+      sb.append(intent.getStringExtra("info")).append("\n\n")
+      sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
+      sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).append("\n")
+      sb.append("Error StackTrace : \n\n").append(intent.getStringExtra("stacktrace"))
+      error_editor.setText(sb.toString())
     } catch (e: Exception) {
       e.printStackTrace()
     }
     error_editor.editable = false
-    Thread {
-      try {
-        ensureTextmateTheme()
-      } catch (e: Exception) {
-        e.printStackTrace()
-      }
-    }.start()
     if (!SettingsData.isDarkMode(this)) {
       //light mode
       window.navigationBarColor = Color.parseColor("#FEF7FF")
@@ -168,7 +179,7 @@ class CrashActivity : AppCompatActivity() {
         val browserIntent = Intent(
           Intent.ACTION_VIEW,
           Uri.parse(
-            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20ReportTest&body=" + URLEncoder.encode(
+            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" + URLEncoder.encode(
               error_editor.text.toString(),
               StandardCharsets.UTF_8.toString()
             )

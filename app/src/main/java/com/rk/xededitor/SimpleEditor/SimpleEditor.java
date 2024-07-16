@@ -75,7 +75,6 @@ public class SimpleEditor extends BaseActivity {
     
     SettingsData.applyPrefs(this);
     
-    
     if (!SettingsData.isDarkMode(this)) {
       //light mode
       getWindow().setNavigationBarColor(Color.parseColor("#FEF7FF"));
@@ -179,8 +178,6 @@ public class SimpleEditor extends BaseActivity {
           editor.getSearcher().replaceAll(((TextView) popuop_view.findViewById(R.id.replace_replacement)).getText().toString());
         }
       }).show();
-      
-      
     } else if (id == R.id.undo) {
       if (editor.canUndo()) {
         editor.undo();
@@ -210,18 +207,19 @@ public class SimpleEditor extends BaseActivity {
     return true;
   }
   
-  
   private void handleIntent(Intent intent) {
     if (intent != null && (Intent.ACTION_VIEW.equals(intent.getAction()) || Intent.ACTION_EDIT.equals(intent.getAction()))) {
       uri = intent.getData();
       
       if (uri != null) {
         String mimeType = getContentResolver().getType(uri);
-        assert mimeType != null;
-        if (mimeType.isEmpty() || mimeType.contains("directory")) {
-          rkUtils.toast(this, getResources().getString(R.string.unsupported_contnt));
-          finish();
+        if (mimeType != null) {
+          if (mimeType.isEmpty() || mimeType.contains("directory")) {
+            rkUtils.toast(this, getResources().getString(R.string.unsupported_contnt));
+            finish();
+          }
         }
+        
         String displayName = null;
         try (Cursor cursor = getContentResolver().query(uri, null, null, null, null, null)) {
           if (cursor != null && cursor.moveToFirst()) {
@@ -247,7 +245,6 @@ public class SimpleEditor extends BaseActivity {
             content = ContentIO.createFrom(inputStream);
             if (content != null) {
               editor.setText(content); // Ensure content.toString() is what you intend to set
-              
             } else {
               rkUtils.toast(this, getResources().getString(R.string.null_contnt));
             }
@@ -259,7 +256,6 @@ public class SimpleEditor extends BaseActivity {
       }
     }
   }
-  
   
   public void save() {
     new Thread(() -> {
@@ -281,17 +277,14 @@ public class SimpleEditor extends BaseActivity {
         rkUtils.toast(SimpleEditor.this, toast);
       });
     }).start();
-    
   }
   
   private void ensureTextmateTheme() {
-    
     var editorColorScheme = editor.getColorScheme();
     var themeRegistry = ThemeRegistry.getInstance();
     
     boolean darkMode = SettingsData.isDarkMode(this);
     try {
-      
       if (darkMode) {
         String path;
         if (SettingsData.isOled(this)) {
@@ -305,9 +298,7 @@ public class SimpleEditor extends BaseActivity {
         
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
         editorColorScheme = TextMateColorScheme.create(themeRegistry);
-        
       } else {
-        
         String path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
         if (!new File(path).exists()) {
           rkUtils.toast(this, "theme file not found");
@@ -315,7 +306,6 @@ public class SimpleEditor extends BaseActivity {
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
         editorColorScheme = TextMateColorScheme.create(themeRegistry);
       }
-      
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -329,5 +319,4 @@ public class SimpleEditor extends BaseActivity {
     
     editor.setColorScheme(editorColorScheme);
   }
-  
 }

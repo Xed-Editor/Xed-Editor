@@ -8,6 +8,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.rk.xededitor.Async
 import com.rk.xededitor.Decompress
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
@@ -17,10 +18,10 @@ import java.io.File
 
 class Init(activity: MainActivity) {
   init {
-    Thread {
-      
+    Async.run{
+      Thread.currentThread().priority = 10
       with(activity) {
-        StaticData.fileList = ArrayList()
+        
         PluginServer(application).start()
         
         if (!SettingsData.isDarkMode(this)) {
@@ -64,15 +65,15 @@ class Init(activity: MainActivity) {
               } else if (id == R.id.close_all) {
                 adapter.clear()
               }
-               for (i in 0 until StaticData.mTabLayout.tabCount) {
-                  val tab = StaticData.mTabLayout.getTabAt(i)
-                  if (tab != null) {
-                    val name = StaticData.titles[i]
-                    if (name != null) {
-                      tab.setText(name)
-                    }
+              for (i in 0 until StaticData.mTabLayout.tabCount) {
+                val tab = StaticData.mTabLayout.getTabAt(i)
+                if (tab != null) {
+                  val name = StaticData.titles[i]
+                  if (name != null) {
+                    tab.setText(name)
                   }
                 }
+              }
               if (StaticData.mTabLayout.tabCount < 1) {
                 binding.tabs.visibility = View.GONE
                 binding.mainView.visibility = View.GONE
@@ -87,10 +88,10 @@ class Init(activity: MainActivity) {
         
         //todo use shared prefs instead of files
         if (!File(getExternalFilesDir(null).toString() + "/unzip").exists()) {
-          Thread {
+          Async.run{
             try {
               Decompress.unzipFromAssets(
-                this, "files.zip", getExternalFilesDir(null).toString() + "/unzip"
+                this@with, "files.zip", getExternalFilesDir(null).toString() + "/unzip"
               )
               File(getExternalFilesDir(null).toString() + "files").delete()
               File(getExternalFilesDir(null).toString() + "files.zip").delete()
@@ -98,7 +99,9 @@ class Init(activity: MainActivity) {
             } catch (e: Exception) {
               e.printStackTrace()
             }
-          }.start()
+          }
+          
+         
         }
         
         
@@ -126,6 +129,6 @@ class Init(activity: MainActivity) {
       }
       
       
-    }.start()
+    }
   }
 }

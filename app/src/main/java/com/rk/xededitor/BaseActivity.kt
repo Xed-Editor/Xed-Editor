@@ -16,55 +16,52 @@ abstract class BaseActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     
-    Thread {
+    Async.run {
       val loadedPlugins = PluginServer.loadedPlugins
-      while (loadedPlugins.isNullOrEmpty()) {
-        Thread.sleep(50)
+      if (!loadedPlugins.isNullOrEmpty()) {
+        for (pluginInstance in loadedPlugins) {
+          pluginInstance.onActivityCreate(this@BaseActivity)
+        }
       }
-      for (pluginInstance in loadedPlugins) {
-        pluginInstance.onActivityCreate(this)
-      }
-    }.start()
+      
+    }
   }
   
   override fun onDestroy() {
-    Thread {
+    Async.run {
       val loadedPlugins = PluginServer.loadedPlugins
-      while (loadedPlugins.isNullOrEmpty()) {
-        Thread.sleep(50)
+      if (!loadedPlugins.isNullOrEmpty()) {
+        for (pluginInstance in loadedPlugins) {
+          pluginInstance.onActivityDestroy(this@BaseActivity)
+        }
       }
-      for (pluginInstance in loadedPlugins) {
-        pluginInstance.onActivityDestroy(this)
-      }
-    }.start()
+    }
     super.onDestroy()
   }
   
   override fun onPause() {
     super.onPause()
-    Thread {
+    Async.run {
       val loadedPlugins = PluginServer.loadedPlugins
-      while (loadedPlugins.isNullOrEmpty()) {
-        Thread.sleep(50)
+      if (!loadedPlugins.isNullOrEmpty()) {
+        for (pluginInstance in loadedPlugins) {
+          pluginInstance.onActivityPause(this@BaseActivity)
+        }
       }
-      for (pluginInstance in loadedPlugins) {
-        pluginInstance.onActivityPause(this)
-      }
-    }.start()
+    }
   }
   
   override fun onResume() {
     super.onResume()
     
-    Thread {
+    Async.run {
       val loadedPlugins = PluginServer.loadedPlugins
-      while (loadedPlugins.isNullOrEmpty()) {
-        Thread.sleep(50)
+      if (!loadedPlugins.isNullOrEmpty()) {
+        for (pluginInstance in loadedPlugins) {
+          pluginInstance.onActivityResume(this@BaseActivity)
+        }
       }
-      for (pluginInstance in loadedPlugins) {
-        pluginInstance.onActivityResume(this)
-      }
-    }.start()
+    }
   }
   
 }

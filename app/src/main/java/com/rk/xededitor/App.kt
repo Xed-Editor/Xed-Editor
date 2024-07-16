@@ -9,7 +9,9 @@ import java.io.File
 class App : Application() {
   override fun onCreate() {
     super.onCreate()
-    Thread {
+    CrashHandler.INSTANCE.init(this)
+    val start = System.currentTimeMillis()
+    Async.run {
       val apkpath = PluginManager.getApkPath(this@App, packageName)
       val md5 = SettingsData.getSetting(this@App, "selfmd5", "")
       if (md5.isEmpty()) {
@@ -21,8 +23,9 @@ class App : Application() {
       } else if (!md5.equals(rkUtils.calculateMD5(apkpath?.let { File(it) }))) {
         codeCacheDir.delete()
       }
+      println(System.currentTimeMillis()-start)
       
-    }.start()
-    CrashHandler.INSTANCE.init(this)
+    }
+    
   }
 }

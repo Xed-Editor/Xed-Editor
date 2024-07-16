@@ -43,7 +43,6 @@ import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
-
 public class DynamicFragment extends Fragment {
   
   public final String fileName;
@@ -101,10 +100,7 @@ public class DynamicFragment extends Fragment {
           e.printStackTrace();
         }
         setListner();
-        
       }).start();
-      
-      
     }
     
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
@@ -112,8 +108,6 @@ public class DynamicFragment extends Fragment {
     editor.setWordwrap(wordwrap);
     undo = StaticData.menu.findItem(R.id.undo);
     redo = StaticData.menu.findItem(R.id.redo);
-    
-    
   }
   
   private void setListner() {
@@ -124,9 +118,7 @@ public class DynamicFragment extends Fragment {
         tab.setText(fileName + "*");
       }
       isModified = true;
-      
     });
-    
   }
   
   public DocumentFile getFile() {
@@ -154,7 +146,6 @@ public class DynamicFragment extends Fragment {
     if (removeCoontent) {
       contents.remove(fileList.indexOf(file));
     }
-    
   }
   
   public void Undo() {
@@ -174,13 +165,11 @@ public class DynamicFragment extends Fragment {
   }
   
   private void ensureTextmateTheme() {
-    
     var editorColorScheme = editor.getColorScheme();
     var themeRegistry = ThemeRegistry.getInstance();
     
     boolean darkMode = SettingsData.isDarkMode(ctx);
     try {
-      
       if (darkMode) {
         String path;
         if (SettingsData.isOled(ctx)) {
@@ -201,12 +190,10 @@ public class DynamicFragment extends Fragment {
         String path = ctx.getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
         if (!new File(path).exists()) {
           BaseActivityKt.runOnUi(() -> rkUtils.toast(ctx, getResources().getString(R.string.theme_not_found_err)));
-          
         }
         themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
         editorColorScheme = TextMateColorScheme.create(themeRegistry);
       }
-      
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -220,6 +207,4 @@ public class DynamicFragment extends Fragment {
     
     editor.setColorScheme(editorColorScheme);
   }
-  
 }
-
