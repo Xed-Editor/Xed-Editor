@@ -62,13 +62,13 @@ public class MainActivity extends BaseActivity {
   NavigationView navigationView;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
-  
+  public static MainActivity activity;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-   // SettingsData.applyPrefs(this);
+    activity = this;
     
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
@@ -286,6 +286,7 @@ public class MainActivity extends BaseActivity {
   @Override
   protected void onDestroy() {
     StaticData.clear();
+    activity = null;
     super.onDestroy();
     
     //close the application

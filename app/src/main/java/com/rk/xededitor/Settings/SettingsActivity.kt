@@ -23,6 +23,7 @@ import com.rk.xededitor.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.DynamicFragment
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
 import kotlin.system.exitProcess
@@ -215,37 +216,9 @@ class SettingsActivity : BaseActivity() {
   
   
   private fun doRestart(c: Context?) {
-    val tag = "doRestart"
-    try {
-      if (c != null) {
-        val pm = c.packageManager
-        if (pm != null) {
-          val mStartActivity = pm.getLaunchIntentForPackage(
-            c.packageName
-          )
-          if (mStartActivity != null) {
-            mStartActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            val mPendingIntentId = 223344
-            val mPendingIntent = PendingIntent
-              .getActivity(
-                c, mPendingIntentId, mStartActivity,
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-              )
-            val mgr = c.getSystemService(ALARM_SERVICE) as AlarmManager
-            mgr[AlarmManager.RTC, System.currentTimeMillis() + 100] = mPendingIntent
-            exitProcess(0)
-          } else {
-            Log.e(tag, "Was not able to restart application, mStartActivity null")
-          }
-        } else {
-          Log.e(tag, "Was not able to restart application, PM null")
-        }
-      } else {
-        Log.e(tag, "Was not able to restart application, Context null")
-      }
-    } catch (ex: Exception) {
-      Log.e(tag, "Was not able to restart application")
-    }
+    MainActivity.activity.finish()
+    finishAffinity()
+    exitProcess(0)
   }
   
   
