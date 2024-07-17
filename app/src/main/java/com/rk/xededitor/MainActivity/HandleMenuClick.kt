@@ -9,7 +9,6 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.Async
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.DynamicFragment
 import com.rk.xededitor.MainActivity.MainActivity
@@ -76,7 +75,7 @@ class HandleMenuClick {
     }
     
     private fun saveNewFile(activity: MainActivity, fragment: DynamicFragment) {
-      Async.run {
+      Thread {
         try {
           val outputStream = File(activity.externalCacheDir, "newfile.txt").outputStream()
           ContentIO.writeTo(fragment.editor.text, outputStream, true)
@@ -92,11 +91,11 @@ class HandleMenuClick {
         } catch (e: Exception) {
           e.printStackTrace()
         }
-      }
+      }.start()
     }
     
     private fun saveExistingFile(activity: MainActivity, index: Int) {
-      Async.run {
+      Thread{
       val content = StaticData.contents[index]
         try {
           val outputStream = activity.contentResolver.openOutputStream(StaticData.fileList[index].uri, "wt")
@@ -113,7 +112,7 @@ class HandleMenuClick {
             rkUtils.toast(activity, "Error: ${e.message}")
           }
         }
-      }
+      }.start()
     }
     
     private fun startSettingsActivity(activity: MainActivity): Boolean {
@@ -137,7 +136,7 @@ class HandleMenuClick {
     }
     
     private fun saveFile(activity: MainActivity, index: Int) {
-      Async.run {
+      Thread {
       var outputStream: OutputStream? = null
         val content = StaticData.contents[index]
         try {
@@ -152,7 +151,7 @@ class HandleMenuClick {
             e.printStackTrace()
           }
         }
-      }
+      }.start()
     }
     
     private fun handleSearch(activity: MainActivity): Boolean {

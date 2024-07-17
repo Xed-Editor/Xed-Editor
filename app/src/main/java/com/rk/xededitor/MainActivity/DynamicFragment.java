@@ -1,7 +1,5 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.StaticData.contents;
-import static com.rk.xededitor.MainActivity.StaticData.fileList;
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 
@@ -46,9 +44,10 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 public class DynamicFragment extends Fragment {
   
   public final String fileName;
-  private final DocumentFile file;
+  public final DocumentFile file;
   private final Context ctx;
   public CodeEditor editor;
+  public Content content;
   public boolean isModified = false;
   MenuItem undo;
   MenuItem redo;
@@ -56,7 +55,7 @@ public class DynamicFragment extends Fragment {
   
   public DynamicFragment(DocumentFile file, Context ctx, boolean isNewFile) {
     this.isNewFile = isNewFile;
-    fileName = file.getName();
+    this.fileName = file.getName();
     this.ctx = ctx;
     this.file = file;
     editor = new CodeEditor(ctx);
@@ -64,11 +63,6 @@ public class DynamicFragment extends Fragment {
       ensureTextmateTheme();
     } else {
       new Thread(this::ensureTextmateTheme).start();
-    }
-    
-    
-    if (contents == null) {
-      contents = new ArrayList<>();
     }
     
     final boolean wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false);
@@ -83,8 +77,7 @@ public class DynamicFragment extends Fragment {
           InputStream inputStream;
           inputStream = ctx.getContentResolver().openInputStream(file.getUri());
           assert inputStream != null;
-          Content content = ContentIO.createFrom(inputStream);
-          contents.add(content);
+          content = ContentIO.createFrom(inputStream);
           inputStream.close();
           BaseActivityKt.runOnUi(() -> editor.setText(content));
           if (wordwrap) {
@@ -143,9 +136,7 @@ public class DynamicFragment extends Fragment {
   public void releaseEditor(boolean removeCoontent) {
     editor.release();
     editor = null;
-    if (removeCoontent) {
-      contents.remove(fileList.indexOf(file));
-    }
+    content = null;
   }
   
   public void Undo() {

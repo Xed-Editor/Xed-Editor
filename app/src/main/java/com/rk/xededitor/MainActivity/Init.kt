@@ -8,7 +8,6 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-import com.rk.xededitor.Async
 import com.rk.xededitor.Decompress
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
@@ -18,7 +17,7 @@ import java.io.File
 
 class Init(activity: MainActivity) {
   init {
-    Async.run{
+    Thread{
       Thread.currentThread().priority = 10
       with(activity) {
         
@@ -68,7 +67,7 @@ class Init(activity: MainActivity) {
               for (i in 0 until StaticData.mTabLayout.tabCount) {
                 val tab = StaticData.mTabLayout.getTabAt(i)
                 if (tab != null) {
-                  val name = StaticData.titles[i]
+                  val name = StaticData.fragments[i].fileName
                   if (name != null) {
                     tab.setText(name)
                   }
@@ -88,7 +87,7 @@ class Init(activity: MainActivity) {
         
         //todo use shared prefs instead of files
         if (!File(getExternalFilesDir(null).toString() + "/unzip").exists()) {
-          Async.run{
+          Thread {
             try {
               Decompress.unzipFromAssets(
                 this@with, "files.zip", getExternalFilesDir(null).toString() + "/unzip"
@@ -99,9 +98,9 @@ class Init(activity: MainActivity) {
             } catch (e: Exception) {
               e.printStackTrace()
             }
-          }
+          }.start()
           
-         
+          
         }
         
         
@@ -129,6 +128,6 @@ class Init(activity: MainActivity) {
       }
       
       
-    }
+    }.start()
   }
 }

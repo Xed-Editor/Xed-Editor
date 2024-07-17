@@ -20,14 +20,14 @@ public class StaticData {
   public static final int REQUEST_CODE_CREATE_FILE = 3849;
   public static final int REQUEST_DIRECTORY_SELECTION = 2937;
   public static ArrayList<DynamicFragment> fragments;
-  public static ArrayList<String> titles;
+ // public static ArrayList<String> titles;
   
   public static List<Node<DocumentFile>> nodes;
   
-  public static ArrayList<Uri> uris;
-  public static List<Content> contents;
+  //public static ArrayList<Uri> uris;
+  //public static List<Content> contents;
   public static TabLayout mTabLayout;
-  public static List<DocumentFile> fileList;
+  //public static List<DocumentFile> fileList;
   public static Menu menu;
   public static DocumentFile rootFolder;
   
@@ -37,16 +37,12 @@ public class StaticData {
     nodes = null;
     menu = null;
     fragments = null;
-    titles = null;
-    uris = null;
-    contents = null;
     mTabLayout = null;
-    fileList = null;
     rootFolder = null;
     
     
     //run the garbage collector
-    Log.d("Data", "Cleaning State Data...");
+    Log.d("Data", "Cleaning Static Data...");
     System.gc();
   }
   

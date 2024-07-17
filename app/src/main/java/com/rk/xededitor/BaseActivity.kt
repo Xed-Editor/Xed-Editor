@@ -16,7 +16,7 @@ abstract class BaseActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     
-    Async.run {
+    Thread {
       val loadedPlugins = PluginServer.loadedPlugins
       if (!loadedPlugins.isNullOrEmpty()) {
         for (pluginInstance in loadedPlugins) {
@@ -24,44 +24,44 @@ abstract class BaseActivity : AppCompatActivity() {
         }
       }
       
-    }
+    }.start()
   }
   
   override fun onDestroy() {
-    Async.run {
+    Thread {
       val loadedPlugins = PluginServer.loadedPlugins
       if (!loadedPlugins.isNullOrEmpty()) {
         for (pluginInstance in loadedPlugins) {
           pluginInstance.onActivityDestroy(this@BaseActivity)
         }
       }
-    }
+    }.start()
     super.onDestroy()
   }
   
   override fun onPause() {
     super.onPause()
-    Async.run {
+    Thread {
       val loadedPlugins = PluginServer.loadedPlugins
       if (!loadedPlugins.isNullOrEmpty()) {
         for (pluginInstance in loadedPlugins) {
           pluginInstance.onActivityPause(this@BaseActivity)
         }
       }
-    }
+    }.start()
   }
   
   override fun onResume() {
     super.onResume()
     
-    Async.run {
+    Thread {
       val loadedPlugins = PluginServer.loadedPlugins
       if (!loadedPlugins.isNullOrEmpty()) {
         for (pluginInstance in loadedPlugins) {
           pluginInstance.onActivityResume(this@BaseActivity)
         }
       }
-    }
+    }.start()
   }
   
 }

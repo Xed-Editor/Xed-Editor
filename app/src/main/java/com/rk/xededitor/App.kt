@@ -11,7 +11,7 @@ class App : Application() {
     super.onCreate()
     CrashHandler.INSTANCE.init(this)
     val start = System.currentTimeMillis()
-    Async.run {
+    Thread{
       val apkpath = PluginManager.getApkPath(this@App, packageName)
       val md5 = SettingsData.getSetting(this@App, "selfmd5", "")
       if (md5.isEmpty()) {
@@ -25,7 +25,7 @@ class App : Application() {
       }
       println(System.currentTimeMillis()-start)
       
-    }
+    }.start()
     
   }
 }
