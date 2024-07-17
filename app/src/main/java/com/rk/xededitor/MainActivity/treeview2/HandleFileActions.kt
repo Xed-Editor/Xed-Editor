@@ -132,7 +132,7 @@ class HandleFileActions(
         for (i in 0 until StaticData.mTabLayout.tabCount) {
           val tab = StaticData.mTabLayout.getTabAt(i)
           if (tab != null) {
-            val name = StaticData.titles[i]
+            val name = StaticData.fragments[i].fileName
             if (name != null) {
               tab.setText(name)
             }
@@ -158,13 +158,13 @@ class HandleFileActions(
     fun createFolder() {
       val popupView: View = LayoutInflater.from(mContext).inflate(R.layout.popup_new, null)
       val editText = popupView.findViewById<EditText>(R.id.name)
-      editText.hint = "Name eg. Test"
-      MaterialAlertDialogBuilder(mContext).setTitle("New Folder").setView(popupView)
-        .setNegativeButton("Cancel", null).setPositiveButton(
-          "Create"
+      editText.hint = mContext.getString(R.string.dir_example)
+      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.new_folder)).setView(popupView)
+        .setNegativeButton(mContext.getString(R.string.cancel), null).setPositiveButton(
+          mContext.getString(R.string.create)
         ) { _: DialogInterface?, _: Int ->
           if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast(mContext, "please enter name")
+            rkUtils.toast(mContext, mContext.getString(R.string.ask_enter_name))
             return@setPositiveButton
           }
           
@@ -174,7 +174,7 @@ class HandleFileActions(
           val fileName = editText.getText().toString()
           for (xfile in file.listFiles()) {
             if (xfile.name == fileName) {
-              rkUtils.toast(mContext, "Error : a file/folder already exist with this name")
+              rkUtils.toast(mContext, mContext.getString(R.string.already_exists))
               return@setPositiveButton
             }
           }
@@ -201,12 +201,12 @@ class HandleFileActions(
       } else {
         mimeTypeU
       }
-      MaterialAlertDialogBuilder(mContext).setTitle("New File").setView(popupView)
-        .setNegativeButton("Cancel", null).setPositiveButton(
-          "Create"
+      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.new_file)).setView(popupView)
+        .setNegativeButton(mContext.getString(R.string.cancel), null).setPositiveButton(
+          mContext.getString(R.string.create)
         ) { _: DialogInterface?, _: Int ->
           if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast(mContext, "please enter name")
+            rkUtils.toast(mContext, mContext.getString(R.string.ask_enter_name))
             return@setPositiveButton
           }
           
@@ -215,11 +215,11 @@ class HandleFileActions(
           val fileName = editText.getText().toString()
           for (xfile in file.listFiles()) {
             if (xfile.name == fileName) {
-              rkUtils.toast(mContext, "Error : a file/folder already exist with this name")
+              rkUtils.toast(mContext, mContext.getString(R.string.already_exists))
               return@setPositiveButton
             }
           }
-          val child = file.createFile(mimeType, "file")
+          val child = file.createFile(mimeType, "newfiletmp")
           child!!.renameTo(fileName)
           TreeView(
             mContext, rootFolder
@@ -232,9 +232,9 @@ class HandleFileActions(
     }
     
     fun delete() {
-      MaterialAlertDialogBuilder(mContext).setTitle("Attention")
-        .setMessage("Are you sure you want to delete " + file.name).setNegativeButton(
-          "Delete"
+      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.attention))
+        .setMessage(mContext.getString(R.string.ask_del) + file.name).setNegativeButton(
+          mContext.getString(R.string.delete)
         ) { _: DialogInterface?, _: Int ->
           
           val loading = LoadingPopup(mContext, null).show()
@@ -277,7 +277,7 @@ class HandleFileActions(
                     mContext, "lastOpenedUri", "null"
                   )
                 }
-                rkUtils.toast(mContext, "Please reselect the directory")
+                rkUtils.toast(mContext, mContext.getString(R.string.redir))
               }
               //recreate the tree
               TreeView(mContext, rootFolder)
@@ -293,14 +293,14 @@ class HandleFileActions(
       val editText = popupView.findViewById<EditText>(R.id.name)
       editText.setText(file.name)
       if (file.isDirectory) {
-        editText.hint = "Name eg. Test"
+        editText.hint = mContext.getString(R.string.dir_example)
       }
-      MaterialAlertDialogBuilder(mContext).setTitle("Rename").setView(popupView)
-        .setNegativeButton("Cancel", null).setPositiveButton(
-          "Rename"
+      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.rename)).setView(popupView)
+        .setNegativeButton(mContext.getString(R.string.cancel), null).setPositiveButton(
+          mContext.getString(R.string.rename)
         ) { _: DialogInterface?, _: Int ->
           if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast(mContext, "please enter name")
+            rkUtils.toast(mContext, mContext.getString(R.string.ask_enter_name))
             return@setPositiveButton
           }
           
@@ -309,7 +309,7 @@ class HandleFileActions(
           val fileName = editText.getText().toString()
           for (xfile in file.listFiles()) {
             if (xfile.name == fileName) {
-              rkUtils.toast(mContext, "Error : a file/folder already exist with this name")
+              rkUtils.toast(mContext, mContext.getString(R.string.already_exists))
               return@setPositiveButton
             }
           }
@@ -346,7 +346,7 @@ class HandleFileActions(
                 mContext, "lastOpenedUri", "null"
               )
             }
-            rkUtils.toast(mContext, "Please reselect the directory")
+            rkUtils.toast(mContext, mContext.getString(R.string.redir))
           } else {
             //recreate the tree
             TreeView(mContext, rootFolder)
@@ -372,7 +372,7 @@ class HandleFileActions(
       if (intent.resolveActivity(mContext.packageManager) != null) {
         mContext.startActivity(intent)
       } else {
-        rkUtils.toast(mContext, "No app found to handle the file")
+        rkUtils.toast(mContext, mContext.getString(R.string.canthandle))
       }
     }
     
@@ -408,7 +408,7 @@ class HandleFileActions(
               TreeView(mContext, rootFolder)
             }
           } else {
-            rkUtils.toast(mContext, "Clipboard is empty")
+            rkUtils.toast(mContext, mContext.getString(R.string.clipboardempty))
           }
         }
         

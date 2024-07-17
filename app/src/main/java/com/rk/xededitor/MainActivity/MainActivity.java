@@ -1,18 +1,14 @@
 package com.rk.xededitor.MainActivity;
 
 import static com.rk.xededitor.MainActivity.StaticData.REQUEST_DIRECTORY_SELECTION;
-import static com.rk.xededitor.MainActivity.StaticData.fileList;
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 import static com.rk.xededitor.MainActivity.StaticData.menu;
 import static com.rk.xededitor.MainActivity.StaticData.rootFolder;
-import static com.rk.xededitor.MainActivity.StaticData.titles;
-import static com.rk.xededitor.MainActivity.StaticData.uris;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriPermission;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -22,7 +18,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.core.view.GravityCompat;
@@ -54,6 +49,7 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 
 public class MainActivity extends BaseActivity {
   
+  public static MainActivity activity;
   final int REQUEST_FILE_SELECTION = 123;
   public ActivityMainBinding binding;
   public mAdapter adapter;
@@ -62,7 +58,21 @@ public class MainActivity extends BaseActivity {
   NavigationView navigationView;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
-  public static MainActivity activity;
+  
+  public static void updateMenuItems() {
+    final boolean visible = !(fragments == null || fragments.isEmpty());
+    menu.findItem(R.id.batchrep).setVisible(visible);
+    menu.findItem(R.id.search).setVisible(visible);
+    menu.findItem(R.id.action_save).setVisible(visible);
+    menu.findItem(R.id.action_print).setVisible(visible);
+    menu.findItem(R.id.action_all).setVisible(visible);
+    menu.findItem(R.id.batchrep).setVisible(visible);
+    menu.findItem(R.id.search).setVisible(visible);
+    menu.findItem(R.id.share).setVisible(visible);
+    menu.findItem(R.id.undo).setVisible(visible);
+    menu.findItem(R.id.redo).setVisible(visible);
+    menu.findItem(R.id.insertdate).setVisible(visible);
+  }
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -89,17 +99,32 @@ public class MainActivity extends BaseActivity {
         @Override
         public void handleOnBackPressed() {
           boolean shouldExit = true;
+          boolean hasNewFiles = false;
+          boolean isModified = false;
           if (fragments != null) {
             for (DynamicFragment fragment : fragments) {
+              if (!hasNewFiles && fragment.isNewFile) {
+                hasNewFiles = true;
+              }
               if (fragment.isModified) {
-                shouldExit = false;
-                new MaterialAlertDialogBuilder(MainActivity.this).setTitle(getResources().getString(R.string.unsaved)).setMessage(getResources().getString(R.string.unsavedfiles)).setNegativeButton(getResources().getString(R.string.cancel), null).setNeutralButton(getResources().getString(R.string.saveexit), (dialog, which) -> {
+                isModified = true;
+              }
+            }
+            if (isModified) {
+              shouldExit = false;
+              var dialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle(getResources().getString(R.string.unsaved)).setMessage(getResources().getString(R.string.unsavedfiles)).setNegativeButton(getResources().getString(R.string.cancel), null).setPositiveButton(getResources().getString(R.string.exit), (dialogInterface, i) -> finish());
+              
+              if (!hasNewFiles) {
+                dialog.setNeutralButton(getResources().getString(R.string.saveexit), (xdialog, which) -> {
                   onOptionsItemSelected(menu.findItem(R.id.action_all));
                   finish();
-                }).setPositiveButton(getResources().getString(R.string.exit), (dialogInterface, i) -> finish()).show();
+                });
               }
-              break;
+              
+              
+              dialog.show();
             }
+            
           }
           if (shouldExit) {
             finish();
@@ -121,11 +146,11 @@ public class MainActivity extends BaseActivity {
     String type = intent.getType();
     
     if (Intent.ACTION_SEND.equals(action) && type != null) {
-      if(type.startsWith("text")){
+      if (type.startsWith("text")) {
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
           var file = new File(getExternalCacheDir(), "newfile.txt");
-          newEditor(DocumentFile.fromFile(file), true,sharedText);
+          newEditor(DocumentFile.fromFile(file), true, sharedText);
           new After(150, () -> {
             MainActivity.this.runOnUiThread(this::onNewEditor);
           });
@@ -234,32 +259,30 @@ public class MainActivity extends BaseActivity {
   public void newEditor(DocumentFile file, boolean isNewFile, String text) {
     if (adapter == null) {
       fragments = new ArrayList<>();
-      titles = new ArrayList<>();
-      uris = new ArrayList<>();
       adapter = new mAdapter(getSupportFragmentManager());
       viewPager.setAdapter(adapter);
-      fileList = new ArrayList<>();
     }
     
     final String file_name = file.getName();
     
-    if (fileList.contains(file)) {
-      rkUtils.toast(this, "File already opened!");
-      return;
-    } else {
-      var dynamicfragment = new DynamicFragment(file, this, isNewFile);
-      if (text != null) {
-        dynamicfragment.editor.setText(text);
+    for (DynamicFragment f : fragments) {
+      if (f.file.equals(file)) {
+        rkUtils.toast(this, "File already opened!");
+        return;
       }
-      adapter.addFragment(dynamicfragment, file_name, file);
     }
     
-    fileList.add(file);
+    
+    var dynamicfragment = new DynamicFragment(file, this, isNewFile);
+    if (text != null) {
+      dynamicfragment.editor.setText(text);
+    }
+    adapter.addFragment(dynamicfragment, file_name, file);
     
     for (int i = 0; i < mTabLayout.getTabCount(); i++) {
       TabLayout.Tab tab = mTabLayout.getTabAt(i);
       if (tab != null) {
-        String name = titles.get(tab.getPosition());
+        String name = fragments.get(tab.getPosition()).fileName;
         if (name != null) {
           tab.setText(name);
         }
@@ -362,20 +385,5 @@ public class MainActivity extends BaseActivity {
       }
       return HandleMenuClick.handle(this, item);
     }
-  }
-  
-  public static void updateMenuItems() {
-    final boolean visible = !(fragments == null || fragments.isEmpty());
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.action_save).setVisible(visible);
-    menu.findItem(R.id.action_print).setVisible(visible);
-    menu.findItem(R.id.action_all).setVisible(visible);
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.share).setVisible(visible);
-    menu.findItem(R.id.undo).setVisible(visible);
-    menu.findItem(R.id.redo).setVisible(visible);
-    menu.findItem(R.id.insertdate).setVisible(visible);
   }
 }

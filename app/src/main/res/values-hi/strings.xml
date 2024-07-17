@@ -77,5 +77,15 @@
     <string name="mp">प्लगइन्स प्रबंधित करें</string>
     <string name="ap">उपलब्ध प्लगइन्स</string>
     <string name="nip">कोई स्थापित प्लगइन्स नहीं</string>
+    <string name="refresh">रिफ्रेश</string>
+    <string name="dir_example">नाम उदाहरण: टेस्ट</string>
+    <string name="create">बनाएं</string>
+    <string name="ask_enter_name">कृपया एक नाम दर्ज करें</string>
+    <string name="already_exists">"त्रुटि: इस नाम से पहले से ही एक फ़ाइल/फ़ोल्डर मौजूद है"</string>
+    <string name="attention">ध्यान दें</string>
+    <string name="ask_del">क्या आप वाकई इसे हटाना चाहते हैं</string>
+    <string name="redir">कृपया निर्देशिका को फिर से चुनें</string>
+    <string name="canthandle">फ़ाइल को संभालने के लिए कोई ऐप नहीं मिला</string>
+    <string name="clipboardempty">क्लिपबोर्ड खाली है</string>
 
 </resources>

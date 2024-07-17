@@ -1,12 +1,9 @@
 package com.rk.xededitor.MainActivity;
 
-import static com.rk.xededitor.MainActivity.StaticData.contents;
-import static com.rk.xededitor.MainActivity.StaticData.fileList;
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 import static com.rk.xededitor.MainActivity.StaticData.menu;
-import static com.rk.xededitor.MainActivity.StaticData.titles;
-import static com.rk.xededitor.MainActivity.StaticData.uris;
+
 
 import android.net.Uri;
 import android.view.MenuItem;
@@ -61,12 +58,17 @@ public class mAdapter extends FragmentStatePagerAdapter {
   }
   
   public boolean addFragment(DynamicFragment frag, String title, DocumentFile file) {
-    if (fragments.contains(frag) || uris.contains(file.getUri())) {
+    if (fragments.contains(frag)) {
       return true;
+    }else {
+      var uri = file.getUri();
+      for(DynamicFragment f : fragments){
+        if (f.file.getUri().equals(uri)){
+          return true;
+        }
+      }
     }
-    uris.add(file.getUri());
     fragments.add(frag);
-    titles.add(title);
     notifyDataSetChanged();
     return false;
   }
@@ -87,15 +89,9 @@ public class mAdapter extends FragmentStatePagerAdapter {
   public void removeFragment(int position) {
     onEditorRemove(fragments.get(position));
     fragments.remove(position);
-    titles.remove(position);
-    fileList.remove(position);
     removing = true;
-    if (!contents.isEmpty()) {
-      contents.remove(position);
-    }
     notifyDataSetChanged();
     removing = false;
-    uris.remove(position);
   }
   
   
@@ -106,21 +102,8 @@ public class mAdapter extends FragmentStatePagerAdapter {
         onEditorRemove(fragment);
       }
     }
-    DocumentFile selectedFile = fileList.get(index);
-    fileList.clear();
-    fileList.add(selectedFile);
     fragments.clear();
     fragments.add(selectedObj);
-    String title = titles.get(index);
-    titles.clear();
-    titles.add(title);
-    Uri suri = uris.get(index);
-    uris.clear();
-    uris.add(suri);
-    Content content = contents.get(index);
-    contents.clear();
-    contents.add(content);
-    
     notifyDataSetChanged();
   }
   
@@ -129,10 +112,6 @@ public class mAdapter extends FragmentStatePagerAdapter {
       onEditorRemove(fragment);
     }
     fragments.clear();
-    titles.clear();
-    uris.clear();
-    fileList.clear();
-    contents.clear();
     notifyDataSetChanged();
   }
 }

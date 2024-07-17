@@ -77,5 +77,16 @@
     <string name="mp">管理插件</string>
     <string name="ap">可用插件</string>
     <string name="nip">没有安装的插件</string>
+    <string name="refresh">刷新</string>
+    <string name="dir_example">名称例如：测试</string>
+    <string name="create">创建</string>
+    <string name="ask_enter_name">请输入一个名称</string>
+    <string name="already_exists">"错误：具有此名称的文件/文件夹已存在"</string>
+    <string name="attention">注意</string>
+    <string name="ask_del">您确定要删除吗</string>
+    <string name="redir">请重新选择目录</string>
+    <string name="canthandle">未找到处理文件的应用程序</string>
+    <string name="clipboardempty">剪贴板为空</string>
+
 
 </resources>

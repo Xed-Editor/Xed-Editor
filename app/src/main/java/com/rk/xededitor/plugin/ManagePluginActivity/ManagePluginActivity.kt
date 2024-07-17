@@ -1,23 +1,28 @@
 package com.rk.xededitor.plugin.ManagePluginActivity
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.divider.MaterialDivider
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityManagePluginBinding
 import com.rk.xededitor.plugin.PluginServer
 import com.rk.xededitor.rkUtils
 
 class ManagePluginActivity : BaseActivity() {
   lateinit var binding: ActivityManagePluginBinding
+  
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityManagePluginBinding.inflate(layoutInflater)
@@ -27,57 +32,26 @@ class ManagePluginActivity : BaseActivity() {
     supportActionBar?.setDisplayShowTitleEnabled(true)
     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     
-    
-    val v: View = LayoutInflater.from(this).inflate(R.layout.settings_activity_card, null)
-    val textView = v.findViewById<TextView>(R.id.textView)
-    textView.text = resources.getString(R.string.ap)
-    val imageView = v.findViewById<ImageView>(R.id.imageView)
-    imageView.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.extension))
-    
-    
-    val view = View(this)
-    val layoutParams = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, 25)
-    view.layoutParams = layoutParams
-    
-    binding.mainBody.addView(view)
-    binding.mainBody.addView(v)
-    
-    val view2 = View(this)
-    view2.layoutParams = layoutParams
-    
-    binding.mainBody.addView(view2)
-    
-    val divider = MaterialDivider(this)
-    
-    
-    binding.mainBody.addView(divider)
-    
-    v.setOnClickListener {
-      rkUtils.ni(this)
+    if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
+      binding.appbar.setBackgroundColor(Color.BLACK)
+      binding.toolbar.setBackgroundColor(Color.BLACK)
+      binding.mainBody.setBackgroundColor(Color.BLACK)
+      binding.root.setBackgroundColor(Color.BLACK)
+      val window = window
+      window.navigationBarColor = Color.BLACK
+      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+      window.statusBarColor = Color.BLACK
     }
     
-    
-    val view3 = View(this)
-    view3.layoutParams = layoutParams
-    
-    val listView = NonScrollListView(this)
-    listView.adapter = listAdapter(
-      this, PluginServer.arrayOfPluginNames, PluginServer.arrayOfPluginPackageNames,
-      PluginServer.arrayOfPluginIcons
-    )
-    
-    
-    binding.mainBody.addView(view3)
-    if (PluginServer.arrayOfPluginNames.isEmpty()) {
-      val textView = TextView(this)
-      textView.text = resources.getString(R.string.nip)
-      textView.gravity = Gravity.CENTER
-      binding.mainBody.addView(textView)
-    } else {
+    if (PluginServer.arrayOfPluginNames.isNotEmpty()) {
+      binding.nip.visibility = View.GONE
+      val listView = NonScrollListView(this)
+      listView.adapter = listAdapter(
+        this, PluginServer.arrayOfPluginNames, PluginServer.arrayOfPluginPackageNames,
+        PluginServer.arrayOfPluginIcons
+      )
       binding.mainBody.addView(listView)
     }
-    
-    
   }
   
   override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -1,6 +1,5 @@
 package com.rk.xededitor.MainActivity
 
-import com.rk.xededitor.R
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -9,14 +8,13 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.xededitor.After
 import com.rk.xededitor.BatchReplacement.BatchReplacement
-import com.rk.xededitor.MainActivity.DynamicFragment
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.REQUEST_CODE_CREATE_FILE
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.Printer
+import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsActivity
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
@@ -53,13 +51,15 @@ class HandleMenuClick {
       }
     }
     
-    private fun insertDate(activity: MainActivity) : Boolean{
-      activity.currentEditor.pasteText(" "+SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))+" ")
+    private fun insertDate(activity: MainActivity): Boolean {
+      activity.currentEditor.pasteText(
+        " " + SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis())) + " "
+      )
       return true
     }
     
     private fun handleSave(activity: MainActivity): Boolean {
-      if (StaticData.fileList.isEmpty()) return true
+      if (fragments.isEmpty()) return true
       
       val index = mTabLayout.selectedTabPosition
       val fragment = fragments[index]
@@ -95,10 +95,11 @@ class HandleMenuClick {
     }
     
     private fun saveExistingFile(activity: MainActivity, index: Int) {
-      Thread{
-      val content = StaticData.contents[index]
+      Thread {
+        val content = fragments[index].content
         try {
-          val outputStream = activity.contentResolver.openOutputStream(StaticData.fileList[index].uri, "wt")
+          val outputStream =
+            activity.contentResolver.openOutputStream(fragments[index].file.uri, "wt")
           outputStream?.let {
             ContentIO.writeTo(content, it, true)
             it.close()
@@ -131,16 +132,30 @@ class HandleMenuClick {
         }
         saveFile(activity, index)
       }
-      rkUtils.toast(activity, activity.getString(R.string.saveAll))
+      After(100) {
+        activity.runOnUiThread {
+          rkUtils.toast(activity, activity.getString(R.string.saveAll))
+        }
+      }
       return true
     }
     
     private fun saveFile(activity: MainActivity, index: Int) {
       Thread {
-      var outputStream: OutputStream? = null
-        val content = StaticData.contents[index]
+        var outputStream: OutputStream? = null
+        if (fragments[index].isNewFile) {
+          activity.runOnUiThread {
+            rkUtils.toast(
+              activity,
+              "file : " + fragments[index].fileName + " needs to be saved manually"
+            )
+          }
+          return@Thread
+        }
+        val content = fragments[index].content
         try {
-          outputStream = activity.contentResolver.openOutputStream(StaticData.fileList[index].uri, "wt")
+          outputStream =
+            activity.contentResolver.openOutputStream(fragments[index].file.uri, "wt")
           ContentIO.writeTo(content, outputStream!!, true)
         } catch (e: IOException) {
           e.printStackTrace()
@@ -161,11 +176,8 @@ class HandleMenuClick {
         searchBox.text = searchText
       }
       
-      MaterialAlertDialogBuilder(activity)
-        .setTitle("Search")
-        .setView(popupView)
-        .setNegativeButton("Cancel", null)
-        .setPositiveButton("Search") { _, _ ->
+      MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.search)).setView(popupView)
+        .setNegativeButton(activity.getString(R.string.cancel), null).setPositiveButton(activity.getString(R.string.search)) { _, _ ->
           initiateSearch(activity, searchBox, popupView)
         }.show()
       return true
@@ -179,7 +191,10 @@ class HandleMenuClick {
       val editor = fragments[mTabLayout.selectedTabPosition].editor
       val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
       searchText = searchBox.text.toString()
-      editor.searcher.search(searchText!!, SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked))
+      editor.searcher.search(
+        searchText!!,
+        SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked)
+      )
       showSearchMenuItems()
     }
     
@@ -223,18 +238,16 @@ class HandleMenuClick {
     
     private fun handleReplace(activity: MainActivity): Boolean {
       val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
-      MaterialAlertDialogBuilder(activity)
-        .setTitle("Replace")
-        .setView(popupView)
-        .setNegativeButton("Cancel", null)
-        .setPositiveButton("Replace All") { _, _ ->
+      MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace)).setView(popupView)
+        .setNegativeButton(activity.getString(R.string.cancel), null).setPositiveButton(activity.getString(R.string.sora_editor_replaceAll)) { _, _ ->
           replaceAll(activity, popupView)
         }.show()
       return true
     }
     
     private fun replaceAll(activity: MainActivity, popupView: View) {
-      val replacementText = popupView.findViewById<TextView>(R.id.replace_replacement).text.toString()
+      val replacementText =
+        popupView.findViewById<TextView>(R.id.replace_replacement).text.toString()
       fragments[mTabLayout.selectedTabPosition].editor.searcher.replaceAll(replacementText)
     }
     

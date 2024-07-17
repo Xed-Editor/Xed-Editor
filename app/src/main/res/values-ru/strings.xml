@@ -77,5 +77,16 @@
     <string name="mp">Управление плагинами</string>
     <string name="ap">Доступные плагины</string>
     <string name="nip">Нет установленных плагинов</string>
+    <string name="refresh">Обновить</string>
+    <string name="dir_example">Имя, например: Тест</string>
+    <string name="create">Создать</string>
+    <string name="ask_enter_name">Пожалуйста, введите имя</string>
+    <string name="already_exists">"Ошибка: файл/папка с таким именем уже существует"</string>
+    <string name="attention">Внимание</string>
+    <string name="ask_del">Вы уверены, что хотите удалить</string>
+    <string name="redir">Пожалуйста, выберите директорию заново</string>
+    <string name="canthandle">Приложение для обработки файла не найдено</string>
+    <string name="clipboardempty">Буфер обмена пуст</string>
+
 
 </resources>

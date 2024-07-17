@@ -2,7 +2,7 @@
     <string name="app_name" translatable="false">Xed Editor</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="title_activity_batch_replacement">BatchReplacement</string>
     <string name="sora_editor_last">Last</string>
     <string name="sora_editor_next">Next</string>
@@ -70,7 +70,7 @@
     <string name="rr">Restart Required</string>
     <string name="rapply">Please restart to apply settings</string>
     <string name="oled">Black Night Theme</string>
-    <string name="ww">Word wrap</string>
+    <string name="ww">Word Wrap</string>
     <string name="keepdl">Keep Drawer Locked</string>
     <string name="restart">Restart</string>
     <string name="plugin">Plugins</string>
@@ -78,5 +78,15 @@
     <string name="ap">Available Plugins</string>
     <string name="nip">No Installed Plugins</string>
     <string name="refresh">Refresh</string>
+    <string name="dir_example">Name eg. Test</string>
+    <string name="create">Create</string>
+    <string name="ask_enter_name">Please enter a name</string>
+    <string name="already_exists">\"Error : a file/folder already exist with this name\"</string>
+    <string name="attention">Attention</string>
+    <string name="ask_del">Are you sure you want to delete</string>
+    <string name="redir">Please reselect the directory</string>
+    <string name="canthandle">No app found to handle the file</string>
+    <string name="clipboardempty">Clipboard is empty</string>
+
 
 </resources>

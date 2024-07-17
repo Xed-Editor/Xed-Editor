@@ -77,5 +77,16 @@
     <string name="mp">Eklentileri Yönet</string>
     <string name="ap">Mevcut Eklentiler</string>
     <string name="nip">Yüklü Eklenti Yok</string>
+    <string name="refresh">Yenile</string>
+    <string name="dir_example">Ad örn. Test</string>
+    <string name="create">Oluştur</string>
+    <string name="ask_enter_name">Lütfen bir ad girin</string>
+    <string name="already_exists">"Hata: Bu adla zaten bir dosya/klasör var"</string>
+    <string name="attention">Dikkat</string>
+    <string name="ask_del">Silmek istediğinize emin misiniz</string>
+    <string name="redir">Lütfen dizini yeniden seçin</string>
+    <string name="canthandle">Dosyayı işleyebilecek bir uygulama bulunamadı</string>
+    <string name="clipboardempty">Pano boş</string>
+
 
 </resources>

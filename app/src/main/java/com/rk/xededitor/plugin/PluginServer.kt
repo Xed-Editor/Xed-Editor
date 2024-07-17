@@ -70,14 +70,14 @@ class PluginServer(private val ctx: Application) : Thread() {
   
   override fun run() {
     if (isRunning) {
-      err("plugin server is already running trying to clean start a new thread")
+      err("plugin server is already running trying to override server")
       lock.lock()
       loadedPlugins = ArrayList()
       lock.unlock()
-      arrayOfPluginNames = ArrayList<String>()
-      arrayOfPluginIcons = ArrayList<Drawable>()
-      arrayOfPluginPackageNames = ArrayList<String>()
-      pluginsinfo = mutableListOf<ApplicationInfo>()
+      arrayOfPluginNames = ArrayList()
+      arrayOfPluginIcons = ArrayList()
+      arrayOfPluginPackageNames = ArrayList()
+      pluginsinfo = mutableListOf()
       
     }
     
@@ -109,14 +109,15 @@ class PluginServer(private val ctx: Application) : Thread() {
     
     
     for (app in apps) {
-      
-      val metaData = pm.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA).metaData
+      val appinfo = pm.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA)
+      val metaData = appinfo.metaData
       if (metaData != null && metaData.containsKey(pluginKey) && metaData.containsKey(entryPointKey)) {
+        err("detected plugin : " + app.packageName)
         entryPointClassName = metaData.getString(entryPointKey, "")
         
         if (entryPointClassName.isNotEmpty()) {
           
-          info("detected plugin : " + app.packageName)
+         
           val pluginApiVersion = metaData.getInt(pluginKey, 0)
           if (pluginApiVersion in minApiVersion..apiVersion) {
             pluginsinfo.add(app)
@@ -175,6 +176,7 @@ class PluginServer(private val ctx: Application) : Thread() {
               if (!methodNames.contains(method.name)) {
                 shouldContinue = false
                 err("plugin does not implement plugin API properly : " + plugininfo.packageName)
+                break
               }
             }
             

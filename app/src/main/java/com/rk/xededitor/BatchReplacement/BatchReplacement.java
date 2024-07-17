@@ -54,6 +54,7 @@ public class BatchReplacement extends BaseActivity {
       Window window = getWindow();
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
       window.setStatusBarColor(Color.BLACK);
+      window.setNavigationBarColor(Color.BLACK);
     }
     
     
