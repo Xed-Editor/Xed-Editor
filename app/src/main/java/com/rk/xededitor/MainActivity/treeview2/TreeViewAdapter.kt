@@ -43,7 +43,7 @@ class TreeViewAdapter(
   
   private var listener: OnItemClickListener? = null
   private var cachedViews = Stack<View>()
-  private val cacheList = CacheList()
+  private val cacheList = FileCacheMap<DocumentFile,List<Node<DocumentFile>>>()
   
   init {
     

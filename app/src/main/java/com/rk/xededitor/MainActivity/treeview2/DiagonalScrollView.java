@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.rk.xededitor.MainActivity;
+package com.rk.xededitor.MainActivity.treeview2;
 
 import android.content.Context;
 import android.graphics.Rect;

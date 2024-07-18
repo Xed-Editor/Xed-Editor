@@ -53,8 +53,7 @@
         </activity>
         <activity
             android:name=".MainActivity.MainActivity"
-            android:configChanges="uiMode|screenSize|orientation|screenLayout|smallestScreenSize"
-            android:exported="true"
+                android:exported="true"
 
              
             android:theme="@style/Theme.Fragments"

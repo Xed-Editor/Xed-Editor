@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +19,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivityKt;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
@@ -43,15 +47,28 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 public class DynamicFragment extends Fragment {
   
-  public final String fileName;
-  public final DocumentFile file;
-  private final Context ctx;
+  public String fileName;
+  public DocumentFile file;
+  private Context ctx;
   public CodeEditor editor;
   public Content content;
   public boolean isModified = false;
   MenuItem undo;
   MenuItem redo;
   public boolean isNewFile;
+  
+  public DynamicFragment(){
+    Log.e("DynamicFragment","empty constructor");
+    new After(100, () -> DynamicFragment.this.getActivity().runOnUiThread(() -> {
+      FragmentManager fragmentManager = DynamicFragment.this.getActivity().getSupportFragmentManager();
+      FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+      
+      for (Fragment fragment : fragmentManager.getFragments()) {
+        fragmentTransaction.remove(fragment);
+      }
+      fragmentTransaction.commitNowAllowingStateLoss();
+    }));
+  }
   
   public DynamicFragment(DocumentFile file, Context ctx, boolean isNewFile) {
     this.isNewFile = isNewFile;

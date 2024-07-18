@@ -12,14 +12,9 @@ import com.rk.xededitor.Settings.SettingsData
 
 class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
   init {
-    
+    ctx.binding.recyclerView.visibility = View.GONE
+    ctx.binding.progressBar.visibility = View.VISIBLE
     Thread {
-    ctx.runOnUiThread {
-        ctx.binding.recyclerView.visibility = View.GONE
-        ctx.binding.progressBar.visibility = View.VISIBLE
-      }
-      
-      
       nodes = TreeViewAdapter.merge(StaticData.rootFolder)
       
       
@@ -29,16 +24,11 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
           
           layoutManager = LinearLayoutManager(ctx)
           setItemViewCacheSize(100)
-          
-          
-          //itemAnimator = null
-          
-          
+
           adapter = TreeViewAdapter(this, ctx).apply {
             submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
               override fun onItemClick(v: View, node: Node<DocumentFile>) {
-                // if (node.value.isFile) {
                 ctx.newEditor(node.value, false)
                 ctx.onNewEditor()
                 if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
@@ -46,12 +36,10 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
                     ctx.binding.drawerLayout.close()
                   }
                 }
-                // }
               }
               
               
               override fun onItemLongClick(v: View, node: Node<DocumentFile>) {
-                
                 TreeViewAdapter.nodemap?.get(node)?.let {
                   HandleFileActions(ctx, rootFolder, node.value, it)
                 }

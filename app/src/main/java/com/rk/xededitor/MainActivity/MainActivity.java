@@ -9,6 +9,7 @@ import static com.rk.xededitor.MainActivity.StaticData.rootFolder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.UriPermission;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -18,11 +19,16 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -76,9 +82,19 @@ public class MainActivity extends BaseActivity {
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    StaticData.clear();
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    
+    for (Fragment fragment : fragmentManager.getFragments()) {
+      fragmentTransaction.remove(fragment);
+    }
+    fragmentTransaction.commitNowAllowingStateLoss();
+    
     super.onCreate(savedInstanceState);
     
     activity = this;
+    
     
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
@@ -296,6 +312,15 @@ public class MainActivity extends BaseActivity {
   protected void onDestroy() {
     StaticData.clear();
     activity = null;
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    
+    for (Fragment fragment : fragmentManager.getFragments()) {
+      fragmentTransaction.remove(fragment);
+    }
+    fragmentTransaction.commitNowAllowingStateLoss();
+    
+   
     super.onDestroy();
   }
   
@@ -356,6 +381,14 @@ public class MainActivity extends BaseActivity {
     newEditor(DocumentFile.fromFile(new File(getExternalCacheDir(), "newfile.txt")), true);
     onNewEditor();
     new After(500, () -> drawerLayout.close());
+  }
+  
+  
+  
+  @Override
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    rkUtils.toast(this,"yo");
   }
   
   @Override

@@ -154,7 +154,7 @@
             android:layout_marginBottom="15dp"
             android:orientation="vertical"
             android:visibility="gone">
-            <com.rk.xededitor.MainActivity.DiagonalScrollView
+            <com.rk.xededitor.MainActivity.treeview2.DiagonalScrollView
                 android:layout_width="match_parent"
                 android:layout_marginTop="10dp"
                 android:layout_height="fill_parent">
@@ -171,7 +171,7 @@
                         android:visibility="gone" />
                 </LinearLayout>
 
-            </com.rk.xededitor.MainActivity.DiagonalScrollView>
+            </com.rk.xededitor.MainActivity.treeview2.DiagonalScrollView>
         </LinearLayout>
 
     </com.google.android.material.navigation.NavigationView>
