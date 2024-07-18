@@ -61,11 +61,18 @@ class SettingsActivity : BaseActivity() {
     }
     
     
+    
+    
+    
+    
+    
+    
+    
     var switch: MaterialSwitch? = null
     var shouldAsk: Boolean = true
     var isProgrammaticChange = false
     
-    var d = MaterialAlertDialogBuilder(this@SettingsActivity)
+    val d = MaterialAlertDialogBuilder(this@SettingsActivity)
       .setTitle(resources.getString(R.string.rr))
       .setMessage(resources.getString(R.string.rapply))
       .setNegativeButton(resources.getString(R.string.cancel)) { _, _ ->
@@ -75,7 +82,7 @@ class SettingsActivity : BaseActivity() {
       .setPositiveButton(resources.getString(R.string.restart)) { _, _ ->
         SettingsData.setSetting(this@SettingsActivity, "isOled", switch?.isChecked!!.toString())
         
-        doRestart(this)
+        doRestart()
         
       }
       .setOnDismissListener {
@@ -137,7 +144,7 @@ class SettingsActivity : BaseActivity() {
     var shouldAsk1: Boolean = true
     var isProgrammaticChange1 = false
     
-    var d1 = MaterialAlertDialogBuilder(this@SettingsActivity)
+    val d1 = MaterialAlertDialogBuilder(this@SettingsActivity)
       .setTitle(resources.getString(R.string.rr))
       .setMessage(resources.getString(R.string.rapply))
       .setNegativeButton(resources.getString(R.string.cancel)) { _, _ ->
@@ -146,7 +153,7 @@ class SettingsActivity : BaseActivity() {
       }
       .setPositiveButton(resources.getString(R.string.restart)) { _, _ ->
         SettingsData.setBoolean(this, "enablePlugins", switch1?.isChecked!!)
-        doRestart(this)
+        doRestart()
       }
       .setOnDismissListener {
         shouldAsk1 = true
@@ -215,7 +222,7 @@ class SettingsActivity : BaseActivity() {
   }
   
   
-  private fun doRestart(c: Context?) {
+  private fun doRestart() {
     MainActivity.activity.finish()
     finishAffinity()
     exitProcess(0)

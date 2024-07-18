@@ -46,8 +46,6 @@ class TreeViewAdapter(
   private val cacheList = FileCacheMap<DocumentFile,List<Node<DocumentFile>>>()
   
   init {
-    
-    
     thread = Thread {
       nodemap = HashMap()
       val lock = ReentrantLock()
