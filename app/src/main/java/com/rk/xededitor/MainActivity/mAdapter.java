@@ -22,10 +22,12 @@ public class mAdapter extends FragmentPagerAdapter {
   
   private boolean removing = false;
   private final FragmentManager fragmentManager;
+  private final LiveData data;
   
-  public mAdapter(@NonNull FragmentManager fm) {
+  public mAdapter(@NonNull FragmentManager fm,LiveData data) {
     super(fm);
     fragmentManager = fm;
+    this.data = data;
   }
   
   public static CodeEditor getCurrentEditor() {
@@ -57,7 +59,7 @@ public class mAdapter extends FragmentPagerAdapter {
     }
   }
   
-  public void addFragment(DynamicFragment frag, String title, DocumentFile file) {
+  public void addFragment(DynamicFragment frag, DocumentFile file) {
     if (fragments.contains(frag)) {
       return;
     } else {
@@ -68,6 +70,7 @@ public class mAdapter extends FragmentPagerAdapter {
         }
       }
     }
+    data.addFile(file,frag.isNewFile);
     fragments.add(frag);
     notifyDataSetChanged();
   }
@@ -88,12 +91,14 @@ public class mAdapter extends FragmentPagerAdapter {
     DynamicFragment fragment = fragments.get(position);
     onEditorRemove(fragment);
     fragmentTransaction.remove(fragment);
-    fragmentTransaction.commitNowAllowingStateLoss();
+    fragmentTransaction.commitNow();
     fragments.remove(position);
     
     removing = true;
     notifyDataSetChanged();
     removing = false;
+    
+    data.getOpenedFiles().remove(position);
   }
   
   public void closeOthers(int index) {
@@ -105,10 +110,13 @@ public class mAdapter extends FragmentPagerAdapter {
       if (!fragment.equals(selectedObj)) {
         onEditorRemove(fragment);
         fragmentTransaction.remove(fragment);
+        
       }
     }
-    fragmentTransaction.commitNowAllowingStateLoss();
+    fragmentTransaction.commitNow();
     
+    data.getOpenedFiles().clear();
+    data.addFile(selectedObj.file,selectedObj.isNewFile);
     fragments.clear();
     fragments.add(selectedObj);
     
@@ -123,8 +131,9 @@ public class mAdapter extends FragmentPagerAdapter {
       onEditorRemove(fragment);
       fragmentTransaction.remove(fragment);
     }
-    fragmentTransaction.commitNowAllowingStateLoss();
+    fragmentTransaction.commitNow();
     
+    data.getOpenedFiles().clear();
     fragments.clear();
     notifyDataSetChanged();
   }

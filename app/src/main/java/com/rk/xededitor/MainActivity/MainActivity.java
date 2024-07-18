@@ -28,6 +28,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -63,39 +64,45 @@ public class MainActivity extends BaseActivity {
   NavigationView navigationView;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
+  public static LiveData data;
   
   public static void updateMenuItems() {
-    final boolean visible = !(fragments == null || fragments.isEmpty());
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.action_save).setVisible(visible);
-    menu.findItem(R.id.action_print).setVisible(visible);
-    menu.findItem(R.id.action_all).setVisible(visible);
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.share).setVisible(visible);
-    menu.findItem(R.id.undo).setVisible(visible);
-    menu.findItem(R.id.redo).setVisible(visible);
-    menu.findItem(R.id.insertdate).setVisible(visible);
+    if(!data.isLooping()){
+      final boolean visible = !(fragments == null || fragments.isEmpty());
+      menu.findItem(R.id.batchrep).setVisible(visible);
+      menu.findItem(R.id.search).setVisible(visible);
+      menu.findItem(R.id.action_save).setVisible(visible);
+      menu.findItem(R.id.action_print).setVisible(visible);
+      menu.findItem(R.id.action_all).setVisible(visible);
+      menu.findItem(R.id.batchrep).setVisible(visible);
+      menu.findItem(R.id.search).setVisible(visible);
+      menu.findItem(R.id.share).setVisible(visible);
+      menu.findItem(R.id.undo).setVisible(visible);
+      menu.findItem(R.id.redo).setVisible(visible);
+      menu.findItem(R.id.insertdate).setVisible(visible);
+    }
+    
   }
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     StaticData.clear();
-    FragmentManager fragmentManager = getSupportFragmentManager();
+    /*FragmentManager fragmentManager = getSupportFragmentManager();
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     
     for (Fragment fragment : fragmentManager.getFragments()) {
       fragmentTransaction.remove(fragment);
     }
     fragmentTransaction.commitNowAllowingStateLoss();
-    
+    */
     
     super.onCreate(savedInstanceState);
     activity = this;
     
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
+    
+    data = new ViewModelProvider(this).get(LiveData.class);
     
     setSupportActionBar(binding.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -173,6 +180,8 @@ public class MainActivity extends BaseActivity {
         
       }
     }
+    
+    //todo: generate fragments useing livedata
     
     
   }
@@ -253,17 +262,7 @@ public class MainActivity extends BaseActivity {
     binding.openBtn.setVisibility(View.GONE);
     binding.tabs.setVisibility(View.VISIBLE);
     binding.mainView.setVisibility(View.VISIBLE);
-    final boolean visible = !(fragments == null || fragments.isEmpty());
-    menu.findItem(R.id.search).setVisible(visible);
-    menu.findItem(R.id.action_save).setVisible(visible);
-    menu.findItem(R.id.action_print).setVisible(visible);
-    menu.findItem(R.id.action_all).setVisible(visible);
-    menu.findItem(R.id.batchrep).setVisible(visible);
-    menu.findItem(R.id.share).setVisible(visible);
-    MenuItem undo = menu.findItem(R.id.undo);
-    MenuItem redo = menu.findItem(R.id.redo);
-    undo.setVisible(visible);
-    redo.setVisible(visible);
+    updateMenuItems();
   }
   
   public void newEditor(DocumentFile file, boolean isNewFile) {
@@ -273,11 +272,9 @@ public class MainActivity extends BaseActivity {
   public void newEditor(DocumentFile file, boolean isNewFile, String text) {
     if (adapter == null) {
       fragments = new ArrayList<>();
-      adapter = new mAdapter(getSupportFragmentManager());
+      adapter = new mAdapter(getSupportFragmentManager(),data);
       viewPager.setAdapter(adapter);
     }
-    
-    final String file_name = file.getName();
     
     for (DynamicFragment f : fragments) {
       if (f.file.equals(file)) {
@@ -291,7 +288,7 @@ public class MainActivity extends BaseActivity {
     if (text != null) {
       dynamicfragment.editor.setText(text);
     }
-    adapter.addFragment(dynamicfragment, file_name, file);
+    adapter.addFragment(dynamicfragment, file);
     
     for (int i = 0; i < mTabLayout.getTabCount(); i++) {
       TabLayout.Tab tab = mTabLayout.getTabAt(i);
@@ -385,7 +382,25 @@ public class MainActivity extends BaseActivity {
     StaticData.menu = menu;
     menu.findItem(R.id.search).setVisible(!(fragments == null || fragments.isEmpty()));
     menu.findItem(R.id.batchrep).setVisible(!(fragments == null || fragments.isEmpty()));
+    /*
+    data.setLooping(true);
+    var files = data.getOpenedFiles();
+    var map = data.getNewFileMap();
+    for(int i=0;i<files.size();i++){
+      DocumentFile file = files.get(i);
+      Boolean isNewFile = map.get(file);
+      if (isNewFile == null){
+        isNewFile = false;
+      }
+      newEditor(file,isNewFile);
+      onNewEditor();
+    }
     
+    
+    data.setLooping(false);
+    updateMenuItems();
+    
+    */
     return true;
   }
   

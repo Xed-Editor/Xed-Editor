@@ -58,16 +58,15 @@ public class DynamicFragment extends Fragment {
   public boolean isNewFile;
   
   public DynamicFragment(){
-    Log.e("DynamicFragment","empty constructor");
-    new After(100, () -> DynamicFragment.this.getActivity().runOnUiThread(() -> {
-      FragmentManager fragmentManager = DynamicFragment.this.getActivity().getSupportFragmentManager();
-      FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-      
-      for (Fragment fragment : fragmentManager.getFragments()) {
-        fragmentTransaction.remove(fragment);
-      }
-      fragmentTransaction.commitNowAllowingStateLoss();
-    }));
+   new After(100, () ->{
+      MainActivity.activity.runOnUiThread(() -> {
+        FragmentManager fragmentManager = MainActivity.activity.getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.remove(this);
+        fragmentTransaction.commitNowAllowingStateLoss();
+        
+      });
+    });
   }
   
   public DynamicFragment(DocumentFile file, Context ctx, boolean isNewFile) {
@@ -116,8 +115,10 @@ public class DynamicFragment extends Fragment {
     editor.setTypefaceText(Typeface.createFromAsset(ctx.getAssets(), "JetBrainsMono-Regular.ttf"));
     editor.setTextSize(14);
     editor.setWordwrap(wordwrap);
+    
     undo = StaticData.menu.findItem(R.id.undo);
     redo = StaticData.menu.findItem(R.id.redo);
+    
   }
   
   private void setListner() {
@@ -142,8 +143,11 @@ public class DynamicFragment extends Fragment {
   }
   
   public void updateUndoRedo() {
-    redo.setEnabled(editor.canRedo());
-    undo.setEnabled(editor.canUndo());
+    if (undo != null && redo != null){
+      redo.setEnabled(editor.canRedo());
+      undo.setEnabled(editor.canUndo());
+    }
+    
   }
   
   public void releaseEditor() {
@@ -212,7 +216,9 @@ public class DynamicFragment extends Fragment {
     } else {
       themeRegistry.setTheme("quietlight");
     }
+    synchronized (editor){
+      editor.setColorScheme(editorColorScheme);
+    }
     
-    editor.setColorScheme(editorColorScheme);
   }
 }
