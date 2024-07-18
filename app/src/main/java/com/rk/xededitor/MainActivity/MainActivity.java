@@ -22,7 +22,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.view.GravityCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -91,10 +90,9 @@ public class MainActivity extends BaseActivity {
     }
     fragmentTransaction.commitNowAllowingStateLoss();
     
+    
     super.onCreate(savedInstanceState);
-    
     activity = this;
-    
     
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
@@ -312,15 +310,6 @@ public class MainActivity extends BaseActivity {
   protected void onDestroy() {
     StaticData.clear();
     activity = null;
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    
-    for (Fragment fragment : fragmentManager.getFragments()) {
-      fragmentTransaction.remove(fragment);
-    }
-    fragmentTransaction.commitNowAllowingStateLoss();
-    
-   
     super.onDestroy();
   }
   
@@ -384,11 +373,10 @@ public class MainActivity extends BaseActivity {
   }
   
   
-  
   @Override
   public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
-    rkUtils.toast(this,"yo");
+    rkUtils.toast(this, "yo");
   }
   
   @Override

@@ -13,7 +13,7 @@ asynclayoutinflater = "1.0.0"
 navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 coreKtx = "1.13.1"
-activity = "1.8.0"
+activity = "1.9.0"
 
 [libraries]
 kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -33,6 +33,6 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "1.9.10" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "1.9.22" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 
