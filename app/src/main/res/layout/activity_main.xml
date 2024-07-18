@@ -106,6 +106,8 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+
         <LinearLayout
             android:id="@+id/safbuttons"
             android:layout_width="wrap_content"
@@ -152,21 +154,24 @@
             android:layout_marginBottom="15dp"
             android:orientation="vertical"
             android:visibility="gone">
+            <com.rk.xededitor.MainActivity.DiagonalScrollView
+                android:layout_width="match_parent"
+                android:layout_marginTop="10dp"
+                android:layout_height="fill_parent">
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:paddingEnd="54dp"
+                    android:paddingBottom="60dp"
+                    android:layout_height="wrap_content">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/recycler_view"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:visibility="gone" />
+                </LinearLayout>
 
-            <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone" />
-
-            </HorizontalScrollView>
-
+            </com.rk.xededitor.MainActivity.DiagonalScrollView>
         </LinearLayout>
 
     </com.google.android.material.navigation.NavigationView>
