@@ -24,13 +24,16 @@ class TerminalSessionClient(
   
   override fun onCopyTextToClipboard(session: TerminalSession?, text: String?) {
     rkUtils.ni(terminalActivity)
+    
   }
   
   override fun onPasteTextFromClipboard(session: TerminalSession?) {
     rkUtils.ni(terminalActivity)
   }
   
-  override fun onBell(session: TerminalSession?) {}
+  override fun onBell(session: TerminalSession?) {
+  
+  }
   
   override fun onColorsChanged(session: TerminalSession?) {}
   

@@ -48,13 +48,16 @@ class HandleMenuClick {
         R.id.action_print -> handlePrint(activity)
         R.id.share -> handleShare(activity)
         R.id.insertdate -> insertDate(activity)
-        
+        R.id.terminal -> launch_terminal(activity)
         else -> false
       }
     }
     
-    private fun launch_terminal(){
+    private fun launch_terminal(activity: MainActivity) : Boolean{
+      
       activity.startActivity(Intent(activity, Terminal::class.java))
+      
+      return true
     }
     
     private fun insertDate(activity: MainActivity): Boolean {

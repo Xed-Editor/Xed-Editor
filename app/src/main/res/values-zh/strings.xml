@@ -87,6 +87,7 @@
     <string name="redir">请重新选择目录</string>
     <string name="canthandle">未找到处理文件的应用程序</string>
     <string name="clipboardempty">剪贴板为空</string>
+    <string name="terminal">终端</string>
 
 
 </resources>

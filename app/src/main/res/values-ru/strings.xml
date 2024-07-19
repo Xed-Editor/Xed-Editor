@@ -87,6 +87,7 @@
     <string name="redir">Пожалуйста, выберите директорию заново</string>
     <string name="canthandle">Приложение для обработки файла не найдено</string>
     <string name="clipboardempty">Буфер обмена пуст</string>
+    <string name="terminal">Терминал</string>
 
 
 </resources>

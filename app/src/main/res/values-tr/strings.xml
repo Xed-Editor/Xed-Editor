@@ -87,6 +87,7 @@
     <string name="redir">Lütfen dizini yeniden seçin</string>
     <string name="canthandle">Dosyayı işleyebilecek bir uygulama bulunamadı</string>
     <string name="clipboardempty">Pano boş</string>
+    <string name="terminal">Terminal</string>
 
 
 </resources>

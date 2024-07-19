@@ -87,6 +87,7 @@
     <string name="redir">Будь ласка, виберіть каталог знову</string>
     <string name="canthandle">Не знайдено додаток для обробки файлу</string>
     <string name="clipboardempty">Буфер обміну порожній</string>
+    <string name="terminal">Термінал</string>
 
 
 </resources>

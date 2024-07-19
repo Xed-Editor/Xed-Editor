@@ -87,5 +87,6 @@
     <string name="redir">कृपया निर्देशिका को फिर से चुनें</string>
     <string name="canthandle">फ़ाइल को संभालने के लिए कोई ऐप नहीं मिला</string>
     <string name="clipboardempty">क्लिपबोर्ड खाली है</string>
+    <string name="terminal">टर्मिनल</string>
 
 </resources>

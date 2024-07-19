@@ -5,6 +5,7 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:name=".App"
@@ -74,11 +75,14 @@
         <activity
             android:name=".terminal.Terminal"
             android:exported="true"
+            android:windowSoftInputMode="adjustResize"
             android:label="Terminal">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service android:name=".terminal.TerminalService" />
 
     </application>
 
