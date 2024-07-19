@@ -87,6 +87,7 @@
     <string name="redir">Please reselect the directory</string>
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
+    <string name="terminal">Terminal</string>
 
 
 </resources>

@@ -70,6 +70,16 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name=".terminal.Terminal"
+            android:exported="true"
+            android:label="Terminal">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

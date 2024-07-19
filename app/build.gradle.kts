@@ -9,14 +9,12 @@ android {
   namespace = "com.rk.xededitor"
   compileSdk = 34
   
+  
   dependenciesInfo {
     includeInApk = false
     includeInBundle = false
   }
   
-  lint {
-    disable += "MissingTranslation"
-  }
   
   
   val filePath = "/home/rohit/signing.properties"
@@ -64,6 +62,11 @@ android {
     targetSdk = 34
     versionCode = 25
     versionName = "2.3.0"
+   /* externalNativeBuild {
+      cmake {
+        cppFlags += ""
+      }
+    }*/
   }
   
   compileOptions {
@@ -79,6 +82,13 @@ android {
   kotlinOptions {
     jvmTarget = "17"
   }
+  /*externalNativeBuild {
+    cmake {
+      path = file("src/main/cpp/CMakeLists.txt")
+      version = "3.22.1"
+    }
+    
+  }*/
 }
 
 dependencies {
@@ -91,6 +101,7 @@ dependencies {
   implementation(libs.navigation.fragment.ktx)
   implementation(libs.navigation.ui.ktx)
   implementation(project(":xedPlugin"))
+  
   implementation(libs.activity)
   coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
   implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
@@ -98,6 +109,13 @@ dependencies {
   implementation("androidx.collection:collection:1.4.0")
   //  implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
   implementation("io.github.Rosemoe.sora-editor:language-textmate")
+  
+  
+  implementation(libs.terminal.view)
+  //implementation(libs.terminal.shared)
+  implementation(libs.terminal.emulator)
+  implementation(libs.utilcode)
+  
   
   
 }

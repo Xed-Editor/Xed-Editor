@@ -17,6 +17,7 @@ import com.rk.xededitor.Printer
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsActivity
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.io.File
@@ -47,8 +48,13 @@ class HandleMenuClick {
         R.id.action_print -> handlePrint(activity)
         R.id.share -> handleShare(activity)
         R.id.insertdate -> insertDate(activity)
+        
         else -> false
       }
+    }
+    
+    private fun launch_terminal(){
+      activity.startActivity(Intent(activity, Terminal::class.java))
     }
     
     private fun insertDate(activity: MainActivity): Boolean {

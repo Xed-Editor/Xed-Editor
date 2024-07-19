@@ -34,6 +34,12 @@
         android:icon="@drawable/settings"
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/terminal"
+        android:icon="@drawable/terminal"
+        android:title="@string/terminal"
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_print"
         android:title="@string/print"
