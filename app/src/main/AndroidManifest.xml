@@ -82,8 +82,6 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".terminal.TerminalService" />
-
     </application>
 
 </manifest>

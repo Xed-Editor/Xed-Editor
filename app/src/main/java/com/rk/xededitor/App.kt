@@ -7,6 +7,7 @@ import com.rk.xededitor.plugin.PluginManager
 import java.io.File
 
 class App : Application() {
+  
   override fun onCreate() {
     super.onCreate()
     CrashHandler.INSTANCE.init(this)

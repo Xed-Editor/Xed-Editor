@@ -62,11 +62,11 @@ android {
     targetSdk = 34
     versionCode = 25
     versionName = "2.3.0"
-   /* externalNativeBuild {
-      cmake {
-        cppFlags += ""
-      }
-    }*/
+    /* externalNativeBuild {
+         cmake {
+           cppFlags += ""
+         }
+       }*/
   }
   
   compileOptions {
@@ -82,13 +82,14 @@ android {
   kotlinOptions {
     jvmTarget = "17"
   }
+ 
   /*externalNativeBuild {
-    cmake {
-      path = file("src/main/cpp/CMakeLists.txt")
-      version = "3.22.1"
-    }
-    
-  }*/
+     cmake {
+       path = file("src/main/cpp/CMakeLists.txt")
+       version = "3.22.1"
+     }
+     
+   }*/
 }
 
 dependencies {
@@ -115,6 +116,7 @@ dependencies {
   //implementation(libs.terminal.shared)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
+  implementation("de.maxr1998:modernandroidpreferences:2.4.0-beta1")
   
   
   

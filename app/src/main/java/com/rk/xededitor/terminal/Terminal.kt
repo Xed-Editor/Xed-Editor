@@ -34,12 +34,10 @@ class Terminal : BaseActivity() {
     terminal.setBackgroundColor(Color.BLACK)
     
     
-    
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
         rkUtils.toast(this@Terminal,"type 'exit' to exit from terminal")
       }
-      
     })
   }
   
