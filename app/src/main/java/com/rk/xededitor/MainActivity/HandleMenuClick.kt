@@ -15,7 +15,9 @@ import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.Printer
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.SettingsActivity
+import com.rk.xededitor.Settings.SettingsApp
+import com.rk.xededitor.Settings.SettingsBaseActivity
+import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.text.ContentIO
@@ -126,7 +128,7 @@ class HandleMenuClick {
     }
     
     private fun startSettingsActivity(activity: MainActivity): Boolean {
-      activity.startActivity(Intent(activity, SettingsActivity::class.java))
+      activity.startActivity(Intent(activity, SettingsMainActivity::class.java))
       return true
     }
     

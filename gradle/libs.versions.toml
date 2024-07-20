@@ -34,6 +34,6 @@ terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-e
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "1.9.10" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "2.0.0" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 

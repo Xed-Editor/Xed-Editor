@@ -5,7 +5,7 @@
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".App"
@@ -24,16 +24,14 @@
             android:name=".BatchReplacement.BatchReplacement"
             android:exported="false"
             android:label="@string/title_activity_batch_replacement"
-             
+
             android:theme="@style/Theme.Fragments.NoActionBar" />
         <activity
             android:name=".plugin.ManagePluginActivity.ManagePluginActivity"
-            android:exported="true"
-              />
+            android:exported="true" />
         <activity
             android:name=".SimpleEditor.SimpleEditor"
-            android:exported="true"
-             >
+            android:exported="true">
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
@@ -44,19 +42,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Settings.SettingsActivity"
-            android:exported="true"
-            android:label="@string/title_activity_settings"
-             >
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".MainActivity.MainActivity"
-                android:exported="true"
+            android:exported="true"
 
-             
+
             android:theme="@style/Theme.Fragments"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -75,13 +64,22 @@
         <activity
             android:name=".terminal.Terminal"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize"
-            android:label="Terminal">
+            android:label="Terminal"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".Settings.SettingsApp"
+            android:exported="true" />
+        <activity
+            android:name=".Settings.SettingsMainActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Settings.SettingsEditor"
+            android:exported="true" />
     </application>
 
 </manifest>

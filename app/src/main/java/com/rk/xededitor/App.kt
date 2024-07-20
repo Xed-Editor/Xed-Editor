@@ -11,6 +11,7 @@ class App : Application() {
   override fun onCreate() {
     super.onCreate()
     CrashHandler.INSTANCE.init(this)
+    rkUtils.initUi()
     Thread{
       val apkpath = PluginManager.getApkPath(this@App, packageName)
       val md5 = SettingsData.getSetting(this@App, "selfmd5", "")

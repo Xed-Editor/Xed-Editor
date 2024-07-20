@@ -12,7 +12,7 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.rk.xededitor.R
 
 
-class Toggle(val ctx: SettingsActivity, val enabled: Boolean) {
+class Toggle(val ctx: SettingsBaseActivity, val enabled: Boolean) {
   private var name = ""
   private var listener: CompoundButton.OnCheckedChangeListener? = null
   private val inflater: LayoutInflater = LayoutInflater.from(ctx)

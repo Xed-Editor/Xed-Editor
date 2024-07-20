@@ -2,6 +2,8 @@ package com.rk.xededitor;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -16,6 +18,15 @@ import java.io.OutputStreamWriter;
 import java.security.MessageDigest;
 
 public class rkUtils {
+  static Handler mHandler;
+  public static void initUi(){
+    mHandler = new Handler(Looper.getMainLooper());
+  }
+  
+  public static void runOnUiThread(Runnable runnable) {
+    mHandler.post(runnable);
+  }
+ 
   
   public static void writeToFile(File file, String data) {
     BufferedWriter bufferedWriter = null;

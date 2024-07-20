@@ -65,3 +65,6 @@ abstract class BaseActivity : AppCompatActivity() {
   }
   
 }
+
+class ActivityAboutUs : BaseActivity() {
+}
