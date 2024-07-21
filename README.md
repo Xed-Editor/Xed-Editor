@@ -11,7 +11,7 @@
 </div>
 </p>
 
-<span style="color: orange;">Notice: </span>
+<span style="color: orange;">Notice: App Name will be changed from 'Xed-Editor' to 'Karbon Editor' because xed named text editor already exists for Linux</span>
 
 </div>Xed Editor is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
 
