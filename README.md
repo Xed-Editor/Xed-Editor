@@ -17,9 +17,8 @@
 
 
 ```
-Notice: App Name will be changed from
- 'Xed-Editor' to 'Karbon Editor'
- because xed named text editor already exists for Linux.
+Notice: App Name will be changed from 'Xed-Editor' to 'Karbon Editor'
+because xed named text editor already exists for Linux.
 if you have any suggestions for app name or logo please create a discussion
 ```
 
