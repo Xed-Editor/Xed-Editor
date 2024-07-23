@@ -4,6 +4,7 @@ import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 import static com.rk.xededitor.MainActivity.StaticData.menu;
 
+import android.os.Parcelable;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -42,6 +43,17 @@ public class mAdapter extends FragmentStatePagerAdapter {
   @Override
   public int getCount() {
     return fragments.size();
+  }
+  
+  @Override
+  public Parcelable saveState() {
+    // Prevent saving state
+    return null;
+  }
+  
+  @Override
+  public void restoreState(Parcelable state, ClassLoader loader) {
+    // Do not restore state
   }
   
   @Override
