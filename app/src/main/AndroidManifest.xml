@@ -88,6 +88,8 @@
         <activity
             android:name=".Settings.SettingsApp"
             android:exported="true" />
+        <activity android:name=".Settings.SettingsBaseActivity"
+            android:exported="true"/>
         <activity
             android:name=".Settings.SettingsMainActivity"
             android:exported="true" />
