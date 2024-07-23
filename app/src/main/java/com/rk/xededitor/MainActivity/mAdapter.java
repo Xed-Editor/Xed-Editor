@@ -1,4 +1,5 @@
 package com.rk.xededitor.MainActivity;
+
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 import static com.rk.xededitor.MainActivity.StaticData.menu;
@@ -6,10 +7,8 @@ import static com.rk.xededitor.MainActivity.StaticData.menu;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.PagerAdapter;
@@ -20,16 +19,14 @@ import java.io.File;
 
 import io.github.rosemoe.sora.widget.CodeEditor;
 
-public class mAdapter extends FragmentPagerAdapter {
+public class mAdapter extends FragmentStatePagerAdapter {
   
   private boolean removing = false;
   private final FragmentManager fragmentManager;
   
-  
   public mAdapter(@NonNull FragmentManager fm) {
-    super(fm);
+    super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
     fragmentManager = fm;
-   
   }
   
   public static CodeEditor getCurrentEditor() {
@@ -99,12 +96,9 @@ public class mAdapter extends FragmentPagerAdapter {
     removing = true;
     notifyDataSetChanged();
     removing = false;
-    
-    
   }
   
   public void closeOthers(int index) {
-    
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     
     DynamicFragment selectedObj = fragments.get(index);
@@ -112,12 +106,10 @@ public class mAdapter extends FragmentPagerAdapter {
       if (!fragment.equals(selectedObj)) {
         onEditorRemove(fragment);
         fragmentTransaction.remove(fragment);
-        
       }
     }
     fragmentTransaction.commitNow();
     
-   
     fragments.clear();
     fragments.add(selectedObj);
     
@@ -125,7 +117,6 @@ public class mAdapter extends FragmentPagerAdapter {
   }
   
   public void clear() {
-    
     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     
     for (DynamicFragment fragment : fragments) {
@@ -134,7 +125,6 @@ public class mAdapter extends FragmentPagerAdapter {
     }
     fragmentTransaction.commitNow();
     
-   
     fragments.clear();
     notifyDataSetChanged();
   }

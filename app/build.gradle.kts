@@ -61,8 +61,8 @@ android {
     applicationId = "com.rk.xededitor"
     minSdk = 26
     targetSdk = 34
-    versionCode = 26
-    versionName = "2.4.1"
+    versionCode = 27
+    versionName = "2.4.2"
     /* externalNativeBuild {
             cmake {
               cppFlags += ""
