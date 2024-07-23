@@ -29,7 +29,6 @@ activity = { group = "androidx.activity", name = "activity", version.ref = "acti
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
 
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
-terminal-shared = { group = "com.github.termux.termux-app", name = "terminal-shared", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
 
 [plugins]

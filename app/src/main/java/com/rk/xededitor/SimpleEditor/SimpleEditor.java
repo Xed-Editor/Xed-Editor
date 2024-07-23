@@ -27,8 +27,8 @@ import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
 import com.rk.xededitor.R;
-import com.rk.xededitor.Settings.SettingsBaseActivity;
 import com.rk.xededitor.Settings.SettingsData;
+import com.rk.xededitor.Settings.SettingsMainActivity;
 import com.rk.xededitor.rkUtils;
 
 import org.eclipse.tm4e.core.registry.IThemeSource;
@@ -133,7 +133,7 @@ public class SimpleEditor extends BaseActivity {
       onBackPressed();
       return true;
     } else if (id == R.id.action_settings) {
-      startActivity(new Intent(this, SettingsBaseActivity.class));
+      startActivity(new Intent(this, SettingsMainActivity.class));
     } else if (id == R.id.action_save) {
       save();
       return true;
