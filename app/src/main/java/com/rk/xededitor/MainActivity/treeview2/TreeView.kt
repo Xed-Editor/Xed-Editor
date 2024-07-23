@@ -9,13 +9,22 @@ import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.Settings.SettingsData
+import java.io.File
 
-class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
+class TreeView(val ctx: MainActivity, rootFolder: File) {
+  
+  companion object{
+    var opened_file_path = ""
+  }
+  
   init {
     ctx.binding.recyclerView.visibility = View.GONE
     ctx.binding.progressBar.visibility = View.VISIBLE
+    
+    opened_file_path = rootFolder.absolutePath
+    SettingsData.setSetting(ctx,"lastOpenedPath",rootFolder.absolutePath)
     Thread {
-      nodes = TreeViewAdapter.merge(StaticData.rootFolder)
+      nodes = TreeViewAdapter.merge(rootFolder)
       
       
       ctx.runOnUiThread {
@@ -28,7 +37,7 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
           adapter = TreeViewAdapter(this, ctx).apply {
             submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
-              override fun onItemClick(v: View, node: Node<DocumentFile>) {
+              override fun onItemClick(v: View, node: Node<File>) {
                 ctx.newEditor(node.value, false)
                 ctx.onNewEditor()
                 if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
@@ -39,9 +48,9 @@ class TreeView(val ctx: MainActivity, rootFolder: DocumentFile) {
               }
               
               
-              override fun onItemLongClick(v: View, node: Node<DocumentFile>) {
+              override fun onItemLongClick(v: View, node: Node<File>) {
                 TreeViewAdapter.nodemap?.get(node)?.let {
-                  HandleFileActions(ctx, rootFolder, node.value, it)
+                 HandleFileActions(ctx, rootFolder, node.value, it)
                 }
               }
             })

@@ -7,6 +7,7 @@ import android.view.WindowManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
+import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.helpers.onClickView
 import de.Maxr1998.modernpreferences.helpers.pref
@@ -16,6 +17,10 @@ class SettingsMainActivity : SettingsBaseActivity() {
   private lateinit var recyclerView: RecyclerView
   private lateinit var binding: ActivitySettingsMainBinding
   
+  companion object{
+    var settingsMain:SettingsMainActivity? = null
+  }
+  
   override fun get_recycler_view(): RecyclerView {
     binding = ActivitySettingsMainBinding.inflate(layoutInflater)
     recyclerView = binding.recyclerView
@@ -23,6 +28,7 @@ class SettingsMainActivity : SettingsBaseActivity() {
   }
   
   override fun onCreate(savedInstanceState: Bundle?) {
+    settingsMain = this
     super.onCreate(savedInstanceState)
     setContentView(binding.root)
     binding.toolbar.title = "Settings"
@@ -38,6 +44,11 @@ class SettingsMainActivity : SettingsBaseActivity() {
       window.statusBarColor = Color.BLACK
       window.navigationBarColor = Color.BLACK
     }
+  }
+  
+  override fun onDestroy() {
+    settingsMain = null
+    super.onDestroy()
   }
   
   override fun getScreen(): PreferenceScreen {
@@ -56,6 +67,16 @@ class SettingsMainActivity : SettingsBaseActivity() {
         iconRes = R.drawable.edit
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
+        }
+      }
+      if(SettingsData.getBoolean(this@SettingsMainActivity,"enablePlugins",false)){
+        pref("ManagePlugins") {
+          title = "Manage Plugins"
+          summary = "Enable/Disable installed plugins"
+          iconRes = R.drawable.extension
+          onClickView {
+            startActivity(Intent(this@SettingsMainActivity, ManagePluginActivity::class.java))
+          }
         }
       }
     }

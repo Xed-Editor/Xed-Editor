@@ -1,10 +1,15 @@
 package com.rk.xededitor.Settings
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
+import android.view.WindowManager
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.R
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 

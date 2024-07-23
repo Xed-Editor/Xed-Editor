@@ -32,6 +32,7 @@ import com.rk.xededitor.rkUtils;
 import org.eclipse.tm4e.core.registry.IThemeSource;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -48,7 +49,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 public class DynamicFragment extends Fragment {
   
   public String fileName;
-  public DocumentFile file;
+  public File file;
   private Context ctx;
   public CodeEditor editor;
   public Content content;
@@ -69,7 +70,7 @@ public class DynamicFragment extends Fragment {
     });
   }
   
-  public DynamicFragment(DocumentFile file, Context ctx, boolean isNewFile) {
+  public DynamicFragment(File file, Context ctx, boolean isNewFile) {
     this.isNewFile = isNewFile;
     this.fileName = file.getName();
     this.ctx = ctx;
@@ -91,8 +92,7 @@ public class DynamicFragment extends Fragment {
       new Thread(() -> {
         try {
           InputStream inputStream;
-          inputStream = ctx.getContentResolver().openInputStream(file.getUri());
-          assert inputStream != null;
+          inputStream = new FileInputStream(file);
           content = ContentIO.createFrom(inputStream);
           inputStream.close();
           BaseActivityKt.runOnUi(() -> editor.setText(content));
@@ -132,7 +132,7 @@ public class DynamicFragment extends Fragment {
     });
   }
   
-  public DocumentFile getFile() {
+  public File getFile() {
     return file;
   }
   

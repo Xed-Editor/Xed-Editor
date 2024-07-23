@@ -110,31 +110,42 @@
 
         <LinearLayout
             android:id="@+id/safbuttons"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:padding="50dp"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/openFile_btn"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="openFile"
                 android:text="@string/open_file" />
 
             <Button
                 android:id="@+id/openDir_btn"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="openDir"
                 android:text="@string/open_directory" />
 
             <Button
-                android:id="@+id/newFile"
-                android:layout_width="fill_parent"
+                android:id="@+id/openFromPath"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="newFile"
-                android:text="@string/new_file" />
+                android:onClick="open_from_path"
+                android:text="@string/open_from_path" />
+
+            <Button
+                android:id="@+id/privateDir"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:onClick="privateDir"
+                android:text="@string/app_private_directory" />
+
+
 
         </LinearLayout>
 

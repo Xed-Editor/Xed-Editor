@@ -1,17 +1,18 @@
 package com.rk.xededitor
 
 import androidx.documentfile.provider.DocumentFile
+import java.io.File
 
 class FileClipboard private constructor() {
   companion object {
     @Volatile
-    private var fileClipboard: DocumentFile? = null
+    private var fileClipboard: File? = null
     
     @Volatile
     private var isPasted: Boolean = true
     
     @JvmStatic
-    fun setFile(file: DocumentFile?) {
+    fun setFile(file: File?) {
       synchronized(this) {
         fileClipboard = file
         isPasted = false
@@ -27,7 +28,7 @@ class FileClipboard private constructor() {
     }
     
     @JvmStatic
-    fun getFile(): DocumentFile? {
+    fun getFile(): File? {
       synchronized(this) {
         val file = fileClipboard
         if (isPasted) {

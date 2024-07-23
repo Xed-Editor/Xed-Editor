@@ -68,6 +68,7 @@ class SettingsApp : SettingsBaseActivity() {
           SettingsData.setBoolean(this@SettingsApp, "enablePlugins", newValue)
           LoadingPopup(this@SettingsApp, 180)
           MainActivity.activity?.recreate()
+          SettingsMainActivity.settingsMain?.recreate()
           return@onCheckedChange true
         }
       }

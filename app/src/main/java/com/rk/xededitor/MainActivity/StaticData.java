@@ -9,6 +9,7 @@ import androidx.documentfile.provider.DocumentFile;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.MainActivity.treeview2.Node;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,14 +23,14 @@ public class StaticData {
   public static ArrayList<DynamicFragment> fragments;
  // public static ArrayList<String> titles;
   
-  public static List<Node<DocumentFile>> nodes;
+  public static List<Node<File>> nodes;
   
   //public static ArrayList<Uri> uris;
   //public static List<Content> contents;
   public static TabLayout mTabLayout;
   //public static List<DocumentFile> fileList;
   public static Menu menu;
-  public static DocumentFile rootFolder;
+  public static File rootFolder;
   
   
   public static void clear() {

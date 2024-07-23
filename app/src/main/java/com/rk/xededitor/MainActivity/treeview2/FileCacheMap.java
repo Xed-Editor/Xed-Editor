@@ -1,9 +1,11 @@
 package com.rk.xededitor.MainActivity.treeview2;
 
 import androidx.documentfile.provider.DocumentFile;
+
+import java.io.File;
 import java.security.MessageDigest;
 
-public class FileCacheMap<K extends DocumentFile, V>{
+public class FileCacheMap<K extends File, V>{
     private static final int INITIAL_CAPACITY = 1 << 4;
     private static final int MAXIMUM_CAPACITY = 1 << 30;
 

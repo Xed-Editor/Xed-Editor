@@ -9,13 +9,14 @@ android {
   namespace = "com.rk.xededitor"
   compileSdk = 34
   
+  lintOptions {
+    disable("MissingTranslation")
+  }
   
   dependenciesInfo {
     includeInApk = false
     includeInBundle = false
   }
-  
-  
   
   val filePath = "/home/rohit/signing.properties"
   val file = File(filePath)
@@ -60,13 +61,13 @@ android {
     applicationId = "com.rk.xededitor"
     minSdk = 26
     targetSdk = 34
-    versionCode = 25
-    versionName = "2.3.0"
+    versionCode = 26
+    versionName = "2.4.0"
     /* externalNativeBuild {
-         cmake {
-           cppFlags += ""
-         }
-       }*/
+            cmake {
+              cppFlags += ""
+            }
+          }*/
   }
   
   compileOptions {
@@ -83,6 +84,7 @@ android {
     jvmTarget = "17"
   }
  
+  
   /*externalNativeBuild {
      cmake {
        path = file("src/main/cpp/CMakeLists.txt")

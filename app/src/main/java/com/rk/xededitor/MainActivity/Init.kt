@@ -9,6 +9,7 @@ import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.xededitor.Decompress
+import com.rk.xededitor.MainActivity.treeview2.HandleFileActions
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
@@ -103,9 +104,27 @@ class Init(activity: MainActivity) {
           
         }
         
+        val last_opened_path = SettingsData.getSetting(this,"lastOpenedPath","")
+        if (last_opened_path.isNotEmpty()){
+          binding.mainView.visibility = View.VISIBLE
+          binding.safbuttons.visibility = View.GONE
+          binding.maindrawer.visibility = View.VISIBLE
+          binding.drawerToolbar.visibility = View.VISIBLE
+          
+          StaticData.rootFolder = File(last_opened_path)
+          
+          runOnUiThread { TreeView(this, StaticData.rootFolder) }
+          
+          var name = StaticData.rootFolder.name!!
+          if (name.length > 18) {
+            name = StaticData.rootFolder.name!!.substring(0, 15) + "..."
+          }
+          binding.rootDirLabel.text = name
+        }
         
-        val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
-        if (uriString != "null") {
+        
+       // val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
+       /* if (uriString != "null") {
           val uri = Uri.parse(uriString)
           if (hasUriPermission(uri)) {
             StaticData.rootFolder = DocumentFile.fromTreeUri(this, uri)
@@ -123,7 +142,7 @@ class Init(activity: MainActivity) {
             }
             binding.rootDirLabel.text = name
           }
-        }
+        }*/
         
       }
       

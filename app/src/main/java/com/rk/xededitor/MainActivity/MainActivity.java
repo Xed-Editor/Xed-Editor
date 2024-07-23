@@ -6,24 +6,30 @@ import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 import static com.rk.xededitor.MainActivity.StaticData.menu;
 import static com.rk.xededitor.MainActivity.StaticData.rootFolder;
 
-import android.content.Context;
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
+import android.widget.EditText;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
@@ -46,13 +52,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import io.github.rosemoe.sora.widget.CodeEditor;
 
 public class MainActivity extends BaseActivity {
   
+  private static final int REQUEST_CODE_STORAGE_PERMISSIONS = 38386;
   public static MainActivity activity;
   final int REQUEST_FILE_SELECTION = 123;
+  private final int REQUEST_CODE_MANAGE_EXTERNAL_STORAGE = 36169;
   public ActivityMainBinding binding;
   public mAdapter adapter;
   public ViewPager viewPager;
@@ -60,7 +69,6 @@ public class MainActivity extends BaseActivity {
   NavigationView navigationView;
   private ActionBarDrawerToggle drawerToggle;
   private boolean isReselecting = false;
-  
   
   public static void updateMenuItems() {
     final boolean visible = !(fragments == null || fragments.isEmpty());
@@ -75,8 +83,6 @@ public class MainActivity extends BaseActivity {
     menu.findItem(R.id.undo).setVisible(visible);
     menu.findItem(R.id.redo).setVisible(visible);
     menu.findItem(R.id.insertdate).setVisible(visible);
-    
-    
   }
   
   @Override
@@ -100,6 +106,9 @@ public class MainActivity extends BaseActivity {
     drawerLayout.addDrawerListener(drawerToggle);
     drawerToggle.syncState();
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    
+    
+    verifyStoragePermission();
     
     //run async init
     new Init(this);
@@ -157,7 +166,7 @@ public class MainActivity extends BaseActivity {
         String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
           var file = new File(getExternalCacheDir(), "newfile.txt");
-          newEditor(DocumentFile.fromFile(file), true, sharedText);
+          newEditor(file, true, sharedText);
           new After(150, () -> {
             MainActivity.this.runOnUiThread(this::onNewEditor);
           });
@@ -166,10 +175,49 @@ public class MainActivity extends BaseActivity {
         
       }
     }
+  }
+  
+  public void verifyStoragePermission() {
+    var shouldAsk = false;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      if (!Environment.isExternalStorageManager()) {
+        shouldAsk = true;
+      }
+    } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+      shouldAsk = true;
+    }
     
-    //todo: generate fragments useing livedata
+    if (shouldAsk) {
+      new MaterialAlertDialogBuilder(this).setTitle("Manage Storage").setMessage("App needs access to edit files in your storage. Please allow the access in the upcoming system setting.").setNegativeButton("Exit App", (dialog, which) -> {
+        finishAffinity();
+      }).setPositiveButton("OK", (dialog, which) -> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+          Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+          intent.setData(Uri.parse("package:" + getPackageName()));
+          startActivityForResult(intent, REQUEST_CODE_MANAGE_EXTERNAL_STORAGE);
+        } else {
+          //below 11
+          // Request permissions
+          String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+          ActivityCompat.requestPermissions(this, perms, REQUEST_CODE_STORAGE_PERMISSIONS);
+          
+        }
+      }).setCancelable(false).show();
+    }
     
+  }
+  
+  @Override
+  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     
+    //check permission for old devices
+    if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
+      if (!(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+        // permssion denied
+        verifyStoragePermission();
+      }
+    }
   }
   
   public CodeEditor getCurrentEditor() {
@@ -186,12 +234,23 @@ public class MainActivity extends BaseActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    if (requestCode == REQUEST_FILE_SELECTION && resultCode == RESULT_OK && data != null) {
+    if (requestCode == REQUEST_CODE_MANAGE_EXTERNAL_STORAGE) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (!Environment.isExternalStorageManager()) {
+          // Permission still not granted
+          verifyStoragePermission();
+        }
+      }
+    } else if (requestCode == REQUEST_FILE_SELECTION && resultCode == RESULT_OK && data != null) {
       Uri selectedFileUri = data.getData();
+      assert selectedFileUri != null;
+      String path = Objects.requireNonNull(selectedFileUri.getPath()).replace("/document/primary:", "/storage/emulated/0/");
+      File file = new File(path);
+      
       binding.tabs.setVisibility(View.VISIBLE);
       binding.mainView.setVisibility(View.VISIBLE);
       binding.openBtn.setVisibility(View.GONE);
-      newEditor(DocumentFile.fromSingleUri(this, selectedFileUri), false);
+      newEditor(file, false);
     } else if (requestCode == REQUEST_DIRECTORY_SELECTION && resultCode == RESULT_OK && data != null) {
       binding.mainView.setVisibility(View.VISIBLE);
       binding.safbuttons.setVisibility(View.GONE);
@@ -200,9 +259,13 @@ public class MainActivity extends BaseActivity {
       
       Uri treeUri = data.getData();
       persistUriPermission(treeUri);
-      rootFolder = DocumentFile.fromTreeUri(this, treeUri);
       
-      new TreeView(MainActivity.this, rootFolder);
+      String path = treeUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
+      File file = new File(path);
+      
+      rootFolder = file;
+      
+      new TreeView(MainActivity.this, file);
       
       //use new file browser
       String name = rootFolder.getName();
@@ -212,17 +275,28 @@ public class MainActivity extends BaseActivity {
       
       binding.rootDirLabel.setText(name);
       
-    } else if (requestCode == HandleFileActions.getREQUEST_CODE_OPEN_DIRECTORY() && resultCode == RESULT_OK) {
+    }
+    /*else if (requestCode == HandleFileActions.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
       Uri directoryUri = data.getData();
       
       if (directoryUri != null) {
         // Save a file in the selected directory
-        HandleFileActions.saveFile(this, directoryUri);
+        String path = directoryUri.getPath().replace("/tree/primary:","/storage/emulated/0/");
+        File file = new File(path);
+        
+        try {
+          Files.move(FileClipboard.getFile().toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        
+        
       } else {
         Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
       }
       
-    } else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
+    }*/
+    else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
       if (data != null) {
         Uri uri = data.getData();
         if (uri != null) {
@@ -251,11 +325,11 @@ public class MainActivity extends BaseActivity {
     updateMenuItems();
   }
   
-  public void newEditor(DocumentFile file, boolean isNewFile) {
+  public void newEditor(File file, boolean isNewFile) {
     newEditor(file, isNewFile, null);
   }
   
-  public void newEditor(DocumentFile file, boolean isNewFile, String text) {
+  public void newEditor(File file, boolean isNewFile, String text) {
     if (adapter == null) {
       fragments = new ArrayList<>();
       adapter = new mAdapter(getSupportFragmentManager());
@@ -337,30 +411,82 @@ public class MainActivity extends BaseActivity {
     new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v);
   }
   
-  public void hideKeyboard() {
-    View view = getCurrentFocus();
-    if (view != null) {
-      InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-      imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-  }
   
   public void openDrawer(View v) {
     drawerLayout.open();
   }
   
-  public void newFile(View v) {
-    newEditor(DocumentFile.fromFile(new File(getExternalCacheDir(), "newfile.txt")), true);
-    onNewEditor();
-    new After(500, () -> drawerLayout.close());
+  public void open_from_path(View v) {
+    var popupView = LayoutInflater.from(this).inflate(R.layout.popup_new, null);
+    var editText = (EditText) popupView.findViewById(R.id.name);
+    
+    editText.setText("/storage/emulated/0/");
+    editText.setHint("file or folder path");
+    
+    new MaterialAlertDialogBuilder(this).setView(popupView).setTitle("Path").setNegativeButton(getString(R.string.cancel), null).setPositiveButton("Open", new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        String path = editText.getText().toString();
+        if (path.isEmpty()) {
+          rkUtils.toast(MainActivity.this, "Please enter a path");
+          return;
+        }
+        File file = new File(path);
+        if (!file.exists()) {
+          rkUtils.toast(MainActivity.this, "Path does not exist");
+          return;
+        }
+        
+        if (!file.canRead() && file.canWrite()){
+          rkUtils.toast(MainActivity.this, "Permission Denied");
+        }
+        
+        if (file.isDirectory()) {
+          binding.mainView.setVisibility(View.VISIBLE);
+          binding.safbuttons.setVisibility(View.GONE);
+          binding.maindrawer.setVisibility(View.VISIBLE);
+          binding.drawerToolbar.setVisibility(View.VISIBLE);
+          
+          rootFolder = file;
+          
+          new TreeView(MainActivity.this, file);
+          
+          //use new file browser
+          String name = rootFolder.getName();
+          if (name.length() > 18) {
+            name = rootFolder.getName().substring(0, 15) + "...";
+          }
+          
+          binding.rootDirLabel.setText(name);
+        } else {
+          newEditor(file, false);
+        }
+      }
+    }).show();
+    
   }
   
-  
-  @Override
-  public void onConfigurationChanged(@NonNull Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    rkUtils.toast(this, "yo");
+  public void privateDir(View v){
+    binding.mainView.setVisibility(View.VISIBLE);
+    binding.safbuttons.setVisibility(View.GONE);
+    binding.maindrawer.setVisibility(View.VISIBLE);
+    binding.drawerToolbar.setVisibility(View.VISIBLE);
+    
+    File file = getFilesDir().getParentFile();
+    
+    rootFolder = file;
+    
+    new TreeView(MainActivity.this, file);
+    
+    //use new file browser
+    String name = rootFolder.getName();
+    if (name.length() > 18) {
+      name = rootFolder.getName().substring(0, 15) + "...";
+    }
+    
+    binding.rootDirLabel.setText(name);
   }
+
   
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -405,7 +531,7 @@ public class MainActivity extends BaseActivity {
       if (drawerToggle.onOptionsItemSelected(item)) {
         return true;
       }
-      return HandleMenuClick.handle(this, item);
+      return MenuClickHandler.Companion.handle(this, item);
     }
   }
 }

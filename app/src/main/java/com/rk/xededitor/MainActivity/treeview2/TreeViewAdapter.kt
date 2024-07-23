@@ -8,25 +8,25 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
-import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.R
+import java.io.File
 import java.util.LinkedList
 import java.util.Queue
 import java.util.Stack
 import java.util.concurrent.locks.ReentrantLock
 
 interface OnItemClickListener {
-  fun onItemClick(v: View, node: Node<DocumentFile>)
-  fun onItemLongClick(v: View, node: Node<DocumentFile>)
+  fun onItemClick(v: View, node: Node<File>)
+  fun onItemLongClick(v: View, node: Node<File>)
 }
 
 class TreeViewAdapter(
   val recyclerView: RecyclerView,
   val context: Context
-) : ListAdapter<Node<DocumentFile>, TreeViewAdapter.ViewHolder>(NodeDiffCallback()) {
+) : ListAdapter<Node<File>, TreeViewAdapter.ViewHolder>(NodeDiffCallback()) {
   
   private val icFile = ResourcesCompat.getDrawable(
     context.resources, R.drawable.outline_insert_drive_file_24, context.theme
@@ -43,7 +43,7 @@ class TreeViewAdapter(
   
   private var listener: OnItemClickListener? = null
   private var cachedViews = Stack<View>()
-  private val cacheList = FileCacheMap<DocumentFile,List<Node<DocumentFile>>>()
+  private val cacheList = FileCacheMap<File,List<Node<File>>>()
   
   init {
     thread = Thread {
@@ -57,18 +57,23 @@ class TreeViewAdapter(
         lock.unlock()
       }
       
-      val queue: Queue<List<Node<DocumentFile>>> = LinkedList()
+      val queue: Queue<List<Node<File>>> = LinkedList()
       queue.add(currentList)
       while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
         queue.poll()?.forEach { node ->
           if (!Thread.currentThread().isInterrupted) {
             val file = node.value
             if (file.isDirectory) {
-              val childList = merge(file)
-              lock.lock()
-              cacheList.put(file, childList)
-              lock.unlock()
-              queue.add(childList)
+              try {
+                val childList = merge(file)
+                lock.lock()
+                cacheList.put(file, childList)
+                lock.unlock()
+                queue.add(childList)
+              }catch (e:Exception){
+                e.printStackTrace()
+              }
+              
             }
           }
         }
@@ -86,7 +91,7 @@ class TreeViewAdapter(
   
   companion object {
     @JvmStatic
-    fun merge(root: DocumentFile): MutableList<Node<DocumentFile>> {
+    fun merge(root: File): MutableList<Node<File>> {
       val list = root.listFiles().toMutableList()
       val dirs = list.filter { it.isDirectory }.sortedBy { it.name }
       val files = (list - dirs.toSet()).sortedBy { it.name }
@@ -102,7 +107,7 @@ class TreeViewAdapter(
     }
     
     @JvmStatic
-    var nodemap: HashMap<Node<DocumentFile>, View>? = null
+    var nodemap: HashMap<Node<File>, View>? = null
   }
   
   fun setOnItemClickListener(listener: OnItemClickListener?) {
@@ -227,17 +232,17 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val textView: TextView = v.findViewById(R.id.text_view)
   }
   
-  class NodeDiffCallback : DiffUtil.ItemCallback<Node<DocumentFile>>() {
+  class NodeDiffCallback : DiffUtil.ItemCallback<Node<File>>() {
     override fun areItemsTheSame(
-      oldItem: Node<DocumentFile>,
-      newItem: Node<DocumentFile>
+      oldItem: Node<File>,
+      newItem: Node<File>
     ): Boolean {
-      return oldItem.value.uri == newItem.value.uri
+      return oldItem.value.path == newItem.value.path
     }
     
     override fun areContentsTheSame(
-      oldItem: Node<DocumentFile>,
-      newItem: Node<DocumentFile>
+      oldItem: Node<File>,
+      newItem: Node<File>
     ): Boolean {
       return oldItem == newItem
     }

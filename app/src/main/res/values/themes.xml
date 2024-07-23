@@ -6,7 +6,6 @@
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>
-
     <style name="Theme.Fragments" parent="Base.Theme.Fragments" />
 
     <style name="Theme.Fragments.NoActionBar">

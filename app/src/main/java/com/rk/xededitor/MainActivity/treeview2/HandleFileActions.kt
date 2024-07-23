@@ -5,480 +5,328 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.EditText
-import androidx.appcompat.widget.PopupMenu
+import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.core.app.ActivityCompat.startActivityForResult
-import androidx.documentfile.provider.DocumentFile
+import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.FileClipboard
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.StaticData.fragments
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.Locale
 
 class HandleFileActions(
-  val mContext: MainActivity, rootFolder: DocumentFile, file: DocumentFile, anchorView: View
+  private val context: MainActivity,
+  val rootFolder: File,
+  val file: File,
+  private val anchorView: View
 ) {
-  companion object {
-    
-    @JvmStatic
-    val REQUEST_CODE_OPEN_DIRECTORY = 1
-    
-    @JvmStatic
-    private lateinit var to_save_file: DocumentFile
-    
-    @JvmStatic
-    fun saveFile(ctx: MainActivity, destination: Uri) {
-      val loading = LoadingPopup(ctx, null).show()
-      Thread {
-        fun copyDocumentFile(source: DocumentFile, target: DocumentFile): Boolean? {
-          fun copyStream(input: InputStream, output: OutputStream) {
-            val buffer = ByteArray(4096)
-            var bytesRead: Int
-            while (input.read(buffer).also { bytesRead = it } != -1) {
-              output.write(buffer, 0, bytesRead)
-            }
-            output.flush()
-          }
-          return try {
-            ctx.contentResolver.openInputStream(source.uri)?.use { inputStream ->
-              ctx.contentResolver.openOutputStream(target.uri)?.use { outputStream ->
-                copyStream(inputStream, outputStream)
-                true
-              }
-            } ?: false
-          } catch (e: IOException) {
-            e.printStackTrace()
-            false
-          }
-        }
-        
-        val pickedDir = DocumentFile.fromTreeUri(ctx, destination)
-        
-        if (pickedDir != null && pickedDir.canWrite()) {
-          val newFile = pickedDir.createFile(
-            to_save_file.type ?: "application/octet-stream", to_save_file.name!!
-          )
-          copyDocumentFile(to_save_file, newFile!!)
-        }
-        ctx.runOnUiThread {
-          TreeView(ctx, StaticData.rootFolder)
-        }
-        loading.hide()
-      }.start()
-      
-    }
-  }
-  
   
   init {
-    val popupMenu = PopupMenu(mContext, anchorView)
-    val inflater = popupMenu.menuInflater
+    showPopupMenu()
+  }
+  
+  companion object {
+    const val REQUEST_CODE_OPEN_DIRECTORY = 17618
+    var to_save_file: File? = null
+  }
+  
+  private fun showPopupMenu() {
+    val popupMenu = PopupMenu(context, anchorView)
+    val inflater: MenuInflater = popupMenu.menuInflater
     inflater.inflate(R.menu.root_file_options, popupMenu.menu)
-    
-    if (file.isDirectory) {
-      popupMenu.menu.findItem(R.id.save_as).setVisible(false)
-      popupMenu.menu.findItem(R.id.ceateFolder).setVisible(true)
-      popupMenu.menu.findItem(R.id.createFile).setVisible(true)
-      val copy = popupMenu.menu.findItem(R.id.copy)
-      copy.setVisible(true)
-      if (!FileClipboard.isEmpty()) {
-        copy.setTitle("Copy (Override)")
-      }
-      popupMenu.menu.findItem(R.id.paste).setVisible(true)
-      
-      popupMenu.menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
-      
-    } else {
-      popupMenu.menu.findItem(R.id.save_as).setVisible(true)
-      val copy = popupMenu.menu.findItem(R.id.copy)
-      copy.setVisible(true)
-      if (!FileClipboard.isEmpty()) {
-        copy.setTitle("Copy (Override)")
-      }
-    }
-    
-    if (file == rootFolder) {
-      popupMenu.menu.findItem(R.id.reselect).setVisible(true)
-      popupMenu.menu.findItem(R.id.close).setVisible(true)
-      popupMenu.menu.findItem(R.id.openFile).setVisible(true)
-      popupMenu.menu.findItem(R.id.refresh).setVisible(true)
-      popupMenu.menu.findItem(R.id.paste).setVisible(true)
-      popupMenu.menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
-      
-    }
-    
-    
-    
-    //menu functions
-    fun save_as() {
-      to_save_file = file
-      val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-      startActivityForResult(mContext, intent, REQUEST_CODE_OPEN_DIRECTORY, null)
-    }
-    
-    fun close() {
-      if (file == rootFolder) {
-        
-        mContext.adapter?.clear()
-        for (i in 0 until StaticData.mTabLayout.tabCount) {
-          val tab = StaticData.mTabLayout.getTabAt(i)
-          if (tab != null) {
-            val name = StaticData.fragments[i].fileName
-            if (name != null) {
-              tab.setText(name)
-            }
-          }
-        }
-        if (StaticData.mTabLayout.tabCount < 1) {
-          mContext.binding.tabs.visibility = View.GONE
-          mContext.binding.mainView.visibility = View.GONE
-          mContext.binding.openBtn.visibility = View.VISIBLE
-        }
-        MainActivity.updateMenuItems()
-        mContext.binding.maindrawer.visibility = View.GONE
-        mContext.binding.safbuttons.visibility = View.VISIBLE
-        mContext.binding.drawerToolbar.visibility = View.GONE
-        val uriString = SettingsData.getSetting(mContext, "lastOpenedUri", "null")
-        runCatching {
-          val uri = Uri.parse(uriString)
-          mContext.revokeUriPermission(uri)
-        }
-      }
-    }
-    
-    fun createFolder() {
-      val popupView: View = LayoutInflater.from(mContext).inflate(R.layout.popup_new, null)
-      val editText = popupView.findViewById<EditText>(R.id.name)
-      editText.hint = mContext.getString(R.string.dir_example)
-      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.new_folder)).setView(popupView)
-        .setNegativeButton(mContext.getString(R.string.cancel), null).setPositiveButton(
-          mContext.getString(R.string.create)
-        ) { _: DialogInterface?, _: Int ->
-          if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast(mContext, mContext.getString(R.string.ask_enter_name))
-            return@setPositiveButton
-          }
-          
-          val loading = LoadingPopup(mContext, null)
-          
-          loading.show()
-          val fileName = editText.getText().toString()
-          for (xfile in file.listFiles()) {
-            if (xfile.name == fileName) {
-              rkUtils.toast(mContext, mContext.getString(R.string.already_exists))
-              return@setPositiveButton
-            }
-          }
-          file.createDirectory(fileName)
-          TreeView(
-            mContext, rootFolder
-          )
-          
-          loading.hide()
-          
-          
-        }.show()
-    }
-    
-    fun createFile() {
-      val popupView: View = LayoutInflater.from(mContext).inflate(R.layout.popup_new, null)
-      val editText = popupView.findViewById<EditText>(R.id.name)
-      val editText1 = popupView.findViewById<EditText>(R.id.mime)
-      popupView.findViewById<View>(R.id.mimeTypeEditor).visibility = View.VISIBLE
-      val mimeType: String
-      val mimeTypeU = editText1.getText().toString()
-      mimeType = if (mimeTypeU.isEmpty()) {
-        "text/plain"
-      } else {
-        mimeTypeU
-      }
-      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.new_file)).setView(popupView)
-        .setNegativeButton(mContext.getString(R.string.cancel), null).setPositiveButton(
-          mContext.getString(R.string.create)
-        ) { _: DialogInterface?, _: Int ->
-          if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast(mContext, mContext.getString(R.string.ask_enter_name))
-            return@setPositiveButton
-          }
-          
-          val loading = LoadingPopup(mContext, null).show()
-          
-          val fileName = editText.getText().toString()
-          for (xfile in file.listFiles()) {
-            if (xfile.name == fileName) {
-              rkUtils.toast(mContext, mContext.getString(R.string.already_exists))
-              return@setPositiveButton
-            }
-          }
-          val child = file.createFile(mimeType, "newfiletmp")
-          child!!.renameTo(fileName)
-          TreeView(
-            mContext, rootFolder
-          )
-          
-          loading.hide()
-          
-          
-        }.show()
-    }
-    
-    fun delete() {
-      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.attention))
-        .setMessage(mContext.getString(R.string.ask_del) + file.name).setNegativeButton(
-          mContext.getString(R.string.delete)
-        ) { _: DialogInterface?, _: Int ->
-          
-          val loading = LoadingPopup(mContext, null).show()
-          Thread {
-            //delete file
-            if (file != rootFolder) {
-              file.delete()
-            }
-            
-            mContext.runOnUiThread {
-              
-              if (file == rootFolder) {
-                rootFolder.delete()
-                mContext.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
-                if (mContext.adapter != null) {
-                  mContext.adapter.clear()
-                }
-                
-                if (StaticData.mTabLayout.tabCount < 1) {
-                  mContext.binding.tabs.visibility = View.GONE
-                  mContext.binding.mainView.visibility = View.GONE
-                  mContext.binding.openBtn.visibility = View.VISIBLE
-                }
-                MainActivity.updateMenuItems()
-                
-                mContext.binding.mainView.visibility = View.GONE
-                mContext.binding.safbuttons.visibility = View.VISIBLE
-                mContext.binding.maindrawer.visibility = View.GONE
-                mContext.binding.drawerToolbar.visibility = View.GONE
-                stopThread()
-                val uriString = SettingsData.getSetting(
-                  mContext, "lastOpenedUri", "null"
-                )
-                if (uriString != "null") {
-                  val uri = Uri.parse(uriString)
-                  if (mContext.hasUriPermission(uri)) {
-                    mContext.revokeUriPermission(uri)
-                  }
-                  SettingsData.setSetting(
-                    mContext, "lastOpenedUri", "null"
-                  )
-                }
-                rkUtils.toast(mContext, mContext.getString(R.string.redir))
-              }
-              //recreate the tree
-              TreeView(mContext, rootFolder)
-              
-              loading.hide()
-            }
-          }.start()
-        }.setPositiveButton("Cancel", null).show()
-    }
-    
-    fun rename() {
-      val popupView: View = LayoutInflater.from(mContext).inflate(R.layout.popup_new, null)
-      val editText = popupView.findViewById<EditText>(R.id.name)
-      editText.setText(file.name)
-      if (file.isDirectory) {
-        editText.hint = mContext.getString(R.string.dir_example)
-      }
-      MaterialAlertDialogBuilder(mContext).setTitle(mContext.getString(R.string.rename)).setView(popupView)
-        .setNegativeButton(mContext.getString(R.string.cancel), null).setPositiveButton(
-          mContext.getString(R.string.rename)
-        ) { _: DialogInterface?, _: Int ->
-          if (editText.getText().toString().isEmpty()) {
-            rkUtils.toast(mContext, mContext.getString(R.string.ask_enter_name))
-            return@setPositiveButton
-          }
-          
-          val loading = LoadingPopup(mContext, null).show()
-          
-          val fileName = editText.getText().toString()
-          for (xfile in file.listFiles()) {
-            if (xfile.name == fileName) {
-              rkUtils.toast(mContext, mContext.getString(R.string.already_exists))
-              return@setPositiveButton
-            }
-          }
-          file.renameTo(fileName)
-          
-          if (file == rootFolder) {
-            
-            mContext.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
-            if (mContext.adapter != null) {
-              mContext.adapter.clear()
-            }
-            
-            if (StaticData.mTabLayout.tabCount < 1) {
-              mContext.binding.tabs.visibility = View.GONE
-              mContext.binding.mainView.visibility = View.GONE
-              mContext.binding.openBtn.visibility = View.VISIBLE
-            }
-            MainActivity.updateMenuItems()
-            
-            mContext.binding.mainView.visibility = View.GONE
-            mContext.binding.safbuttons.visibility = View.VISIBLE
-            mContext.binding.maindrawer.visibility = View.GONE
-            mContext.binding.drawerToolbar.visibility = View.GONE
-            stopThread()
-            val uriString = SettingsData.getSetting(
-              mContext, "lastOpenedUri", "null"
-            )
-            if (uriString != "null") {
-              val uri = Uri.parse(uriString)
-              if (mContext.hasUriPermission(uri)) {
-                mContext.revokeUriPermission(uri)
-              }
-              SettingsData.setSetting(
-                mContext, "lastOpenedUri", "null"
-              )
-            }
-            rkUtils.toast(mContext, mContext.getString(R.string.redir))
-          } else {
-            //recreate the tree
-            TreeView(mContext, rootFolder)
-          }
-          
-          loading.hide()
-        }.show()
-      
-    }
-    
-    fun openWith() {
-      val uri = file.uri
-      val mimeType = rkUtils.getMimeType(mContext, file)
-      println(mimeType)
-      val intent = Intent(Intent.ACTION_VIEW)
-      intent.setDataAndType(uri, mimeType)
-      intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-      intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-      intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-      intent.addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-      
-      // Check if there's an app to handle this intent
-      if (intent.resolveActivity(mContext.packageManager) != null) {
-        mContext.startActivity(intent)
-      } else {
-        rkUtils.toast(mContext, mContext.getString(R.string.canthandle))
-      }
-    }
-    
-    
-    popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-      val id = item.itemId
-      when (id) {
-        R.id.save_as -> {
-          save_as()
-        }
-        
-        R.id.close -> {
-          close()
-        }
-        
-        R.id.createFile -> {
-          createFile()
-        }
-        
-        R.id.ceateFolder -> {
-          createFolder()
-        }
-        
-        R.id.delete -> {
-          delete()
-        }
-        
-        R.id.paste -> {
-          val fileToPaste = FileClipboard.getFile()
-          if (fileToPaste != null) {
-            if (file.isDirectory) {
-              copyDocumentFile(mContext, fileToPaste.uri, file)
-              TreeView(mContext, rootFolder)
-            }
-          } else {
-            rkUtils.toast(mContext, mContext.getString(R.string.clipboardempty))
-          }
-        }
-        
-        R.id.copy -> {
-          FileClipboard.setFile(file)
-        }
-        
-        R.id.openWith -> {
-          openWith()
-        }
-        
-        R.id.reselect -> {
-          mContext.reselctDir(null)
-        }
-        
-        R.id.openFile -> {
-          mContext.openFile(null);stopThread()
-        }
-        
-        R.id.rename -> {
-          rename()
-        }
-        
-        R.id.refresh -> {
-          TreeView(mContext, rootFolder)
-        }
-      }
-      true
+    handleMenuVisibilty(popupMenu.menu)
+    popupMenu.setOnMenuItemClickListener { menuItem ->
+      handleMenuItemClick(menuItem)
     }
     popupMenu.show()
   }
   
-  
-  private fun copyDocumentFile(context: Context, sourceUri: Uri, destinationDir: DocumentFile) {
-    val loading = LoadingPopup(mContext, null).show()
-    Thread{
-      val sourceFile = DocumentFile.fromSingleUri(context, sourceUri)
-      if (sourceFile == null || !sourceFile.exists()) {
-        return@Thread
+  private fun handleMenuVisibilty(menu: Menu) {
+    if (file.isDirectory) {
+      menu.findItem(R.id.save_as).setVisible(false)
+      menu.findItem(R.id.ceateFolder).setVisible(true)
+      menu.findItem(R.id.createFile).setVisible(true)
+      val copy = menu.findItem(R.id.copy)
+      copy.setVisible(true)
+      if (!FileClipboard.isEmpty()) {
+        copy.setTitle("Copy (Override)")
       }
-      
-      val fileName = sourceFile.name ?: return@Thread
-      val destinationFile =
-        destinationDir.createFile(sourceFile.type ?: "application/octet-stream", fileName)
-          ?: return@Thread
-      
-      var inputStream: InputStream? = null
-      var outputStream: OutputStream? = null
-      try {
-        inputStream = context.contentResolver.openInputStream(sourceUri)
-        outputStream = context.contentResolver.openOutputStream(destinationFile.uri)
-        if (inputStream != null && outputStream != null) {
-          val buffer = ByteArray(1024)
-          var read: Int
-          while (inputStream.read(buffer).also { read = it } != -1) {
-            outputStream.write(buffer, 0, read)
-          }
-          inputStream.close()
-          outputStream.close()
-        }
-      } catch (e: Exception) {
-        e.printStackTrace()
-      } finally {
-        inputStream?.close()
-        outputStream?.close()
-        loading.hide()
+      menu.findItem(R.id.paste).setVisible(true)
+      menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
+    } else {
+      menu.findItem(R.id.save_as).setVisible(true)
+      val copy = menu.findItem(R.id.copy)
+      copy.setVisible(true)
+      if (!FileClipboard.isEmpty()) {
+        copy.setTitle("Copy (Override)")
       }
-      
-    }.start()
-    
+    }
+    if (rootFolder == file) {
+      menu.findItem(R.id.reselect).setVisible(true)
+      menu.findItem(R.id.close).setVisible(true)
+      menu.findItem(R.id.openFile).setVisible(true)
+      menu.findItem(R.id.refresh).setVisible(true)
+      menu.findItem(R.id.paste).setVisible(true)
+      menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
+    }
   }
+  
+  private fun handleMenuItemClick(menuItem: MenuItem): Boolean {
+    return when (menuItem.itemId) {
+      R.id.refresh -> {
+        // Handle refresh action
+        TreeView(context, rootFolder)
+        true
+      }
+      
+      R.id.reselect -> {
+        // Handle reselect action
+        context.reselctDir(null)
+        true
+      }
+      
+      R.id.openFile -> {
+        // Handle openFile action
+        context.openFile(null)
+        stopThread()
+        true
+      }
+      
+      R.id.ceateFolder -> {
+        // Handle createFolder action
+        new(false)
+        true
+      }
+      
+      R.id.createFile -> {
+        // Handle createFile action
+        new(true)
+        true
+      }
+      
+      R.id.rename -> {
+        // Handle rename action
+        rename()
+        true
+      }
+      
+      R.id.openWith -> {
+        // Handle openWith action
+        openWith(context, file)
+        true
+      }
+      
+      R.id.save_as -> {
+        // Handle save_as action
+        to_save_file = file
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        startActivityForResult(context, intent, REQUEST_CODE_OPEN_DIRECTORY, null)
+        true
+      }
+      
+      R.id.copy -> {
+        // Handle copy action
+        FileClipboard.setFile(file)
+        true
+      }
+      
+      R.id.paste -> {
+        // Handle paste action
+        if (!FileClipboard.isEmpty()) {
+          if (file.isDirectory) {
+            Files.move(
+              FileClipboard.getFile()?.toPath(),
+              file.toPath(),
+              StandardCopyOption.REPLACE_EXISTING
+            )
+          }
+          TreeView(context, rootFolder)
+        }
+        true
+      }
+      
+      R.id.delete -> {
+        // Handle delete action
+        if(file == rootFolder){
+          context.binding.mainView.setVisibility(View.GONE)
+          context.binding.safbuttons.setVisibility(View.VISIBLE)
+          context.binding.maindrawer.setVisibility(View.GONE)
+          context.binding.drawerToolbar.setVisibility(View.GONE)
+          context.adapter?.clear()
+          
+        }else{
+          file.delete()
+          TreeView(context, rootFolder)
+        }
+       
+        true
+      }
+      
+      R.id.close -> {
+        // Handle close action
+        SettingsData.setSetting(context, "lastOpenedPath", "")
+        close()
+        
+        true
+      }
+      
+      else -> false
+    }
+  }
+  
+  fun getMimeType(context: Context, file: File): String? {
+    val uri: Uri = Uri.fromFile(file)
+    val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+    return if (extension != null) {
+      MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.lowercase(Locale.getDefault()))
+    } else {
+      context.contentResolver.getType(uri)
+    }
+  }
+  
+  private fun openWith(context: Context, file: File) {
+    val uri: Uri = FileProvider.getUriForFile(
+      context,
+      context.applicationContext.packageName + ".fileprovider",
+      file
+    )
+    val mimeType = getMimeType(context, file)
+    
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+      setDataAndType(uri, mimeType)
+      addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+      addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+      addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+      addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+    }
+    
+    // Check if there's an app to handle this intent
+    if (intent.resolveActivity(context.packageManager) != null) {
+      context.startActivity(intent)
+    } else {
+      Toast.makeText(context, context.getString(R.string.canthandle), Toast.LENGTH_SHORT).show()
+    }
+  }
+  
+  private fun close() {
+    context.adapter?.clear()
+    for (i in 0 until mTabLayout.tabCount) {
+      val tab = mTabLayout.getTabAt(i)
+      if (tab != null) {
+        val name = fragments[i].fileName
+        if (name != null) {
+          tab.setText(name)
+        }
+      }
+    }
+    if (mTabLayout.tabCount < 1) {
+      context.binding.tabs.visibility = View.GONE
+      context.binding.mainView.visibility = View.GONE
+      context.binding.openBtn.visibility = View.VISIBLE
+    }
+    MainActivity.updateMenuItems()
+    context.binding.maindrawer.visibility = View.GONE
+    context.binding.safbuttons.visibility = View.VISIBLE
+    context.binding.drawerToolbar.visibility = View.GONE
+  }
+  
+  private fun new(createFile: Boolean) {
+    val popupView: View = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
+    val editText = popupView.findViewById<EditText>(R.id.name)
+    
+    if (createFile) {
+      editText.hint = context.getString(R.string.newFile_hint)
+    } else {
+      editText.hint = context.getString(R.string.dir_example)
+    }
+    
+    MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.new_folder))
+      .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
+      .setPositiveButton(
+        context.getString(R.string.create)
+      ) { _: DialogInterface?, _: Int ->
+        if (editText.getText().toString().isEmpty()) {
+          rkUtils.toast(context, context.getString(R.string.ask_enter_name))
+          return@setPositiveButton
+        }
+        
+        val loading = LoadingPopup(context, null)
+        
+        loading.show()
+        val fileName = editText.getText().toString()
+        for (xfile in file.listFiles()!!) {
+          if (xfile.name == fileName) {
+            rkUtils.toast(context, context.getString(R.string.already_exists))
+            return@setPositiveButton
+          }
+        }
+        
+        if (createFile) {
+          File(file, fileName).createNewFile()
+        } else {
+          File(file, fileName).mkdir()
+        }
+        
+        TreeView(
+          context, rootFolder
+        )
+        loading.hide()
+      }.show()
+  }
+  
+  private fun rename() {
+    val popupView: View = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
+    val editText = popupView.findViewById<EditText>(R.id.name)
+    
+    editText.setText(file.name)
+    editText.hint = "file name"
+    
+    MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.new_folder))
+      .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
+      .setPositiveButton(
+        context.getString(R.string.rename)
+      ) { _: DialogInterface?, _: Int ->
+        if (editText.getText().toString().isEmpty()) {
+          rkUtils.toast(context, context.getString(R.string.ask_enter_name))
+          return@setPositiveButton
+        }
+        
+        val loading = LoadingPopup(context, null)
+        
+        loading.show()
+        val fileName = editText.getText().toString()
+        for (xfile in file.parentFile?.listFiles()!!) {
+          if (xfile.name == fileName) {
+            rkUtils.toast(context, context.getString(R.string.already_exists))
+            loading.hide()
+            return@setPositiveButton
+          }
+        }
+        
+        file.renameTo(File(file.parentFile, fileName))
+        
+        TreeView(
+          context, rootFolder
+        )
+        loading.hide()
+      }.show()
+  }
+  
   
 }

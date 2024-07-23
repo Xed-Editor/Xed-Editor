@@ -16,6 +16,8 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.rk.xededitor.R;
 
+import java.io.File;
+
 import io.github.rosemoe.sora.widget.CodeEditor;
 
 public class mAdapter extends FragmentPagerAdapter {
@@ -59,13 +61,13 @@ public class mAdapter extends FragmentPagerAdapter {
     }
   }
   
-  public void addFragment(DynamicFragment frag, DocumentFile file) {
+  public void addFragment(DynamicFragment frag, File file) {
     if (fragments.contains(frag)) {
       return;
     } else {
-      var uri = file.getUri();
+      var uri = file.getPath();
       for (DynamicFragment f : fragments) {
-        if (f.file.getUri().equals(uri)) {
+        if (f.file.getPath().equals(uri)) {
           return;
         }
       }

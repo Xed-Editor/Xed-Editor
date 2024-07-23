@@ -1,8 +1,11 @@
 package com.rk.xededitor.terminal
 
+import android.content.Context
 import android.content.DialogInterface
+import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
 import android.view.KeyEvent
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
@@ -12,19 +15,22 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysInfo
+import com.rk.xededitor.terminal.virtualkeys.ivirtualkeys
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
+import java.io.File
 
 
 class Terminal : BaseActivity() {
   private lateinit var terminal: TerminalView
-  private lateinit var binding: ActivityTerminalBinding
+  lateinit var binding: ActivityTerminalBinding
   private lateinit var session: TerminalSession
   
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,13 +47,28 @@ class Terminal : BaseActivity() {
     val params = LinearLayout.LayoutParams(-1, 0)
     params.weight = 1f
     binding.root.addView(terminal, 0, params)
+    binding.extraKeys.virtualKeysViewClient = ivirtualkeys(session)
     binding.extraKeys.reload(VirtualKeysInfo(VIRTUAL_KEYS, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES))
     
     window.statusBarColor = ContextCompat.getColor(this, R.color.dark)
     window.decorView.systemUiVisibility = 0
     window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
     
+    onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+      override fun handleOnBackPressed() {
+        //do nothing
+      }
+    })
     
+    
+    
+    
+    
+  }
+  
+  override fun onDestroy() {
+    session.finishIfRunning()
+    super.onDestroy()
   }
   
   val VIRTUAL_KEYS =
@@ -88,8 +109,16 @@ class Terminal : BaseActivity() {
     return super.onKeyUp(keyCode, event)
   }
   
+
+  
   private fun createSession(): TerminalSession {
-    val workingDir = filesDir.absolutePath
+    var workingDir = filesDir.absolutePath
+    
+    if (TreeView.opened_file_path.isNotEmpty()){
+      workingDir = TreeView.opened_file_path
+    }
+    
+    
     val shell = "/system/bin/sh"
     val args = arrayOf("")
     val env = arrayOf(

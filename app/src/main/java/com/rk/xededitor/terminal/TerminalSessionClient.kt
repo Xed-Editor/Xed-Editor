@@ -1,5 +1,6 @@
 package com.rk.xededitor.terminal
 
+import com.blankj.utilcode.util.ClipboardUtils
 import com.rk.xededitor.rkUtils
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -19,16 +20,7 @@ class TerminalSessionClient(
   override fun onTitleChanged(changedSession: TerminalSession?) {}
   
   override fun onSessionFinished(finishedSession: TerminalSession?) {
-    terminalActivity.finish()
-  }
-  
-  override fun onCopyTextToClipboard(session: TerminalSession?, text: String?) {
-    rkUtils.ni(terminalActivity)
-    
-  }
-  
-  override fun onPasteTextFromClipboard(session: TerminalSession?) {
-    rkUtils.ni(terminalActivity)
+    //terminalActivity.finish()
   }
   
   override fun onBell(session: TerminalSession?) {
@@ -69,4 +61,15 @@ class TerminalSessionClient(
   override fun logStackTrace(tag: String?, e: Exception?) {
     e?.printStackTrace()
   }
+  override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
+    ClipboardUtils.copyText("Terminal", text)
+  }
+  
+  override fun onPasteTextFromClipboard(session: TerminalSession) {
+    val clip = ClipboardUtils.getText().toString()
+    if (clip.trim { it <= ' ' }.isNotEmpty() && terminal.mEmulator != null) {
+      terminal.mEmulator.paste(clip)
+    }
+  }
+  
 }

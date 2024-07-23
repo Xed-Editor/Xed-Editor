@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
@@ -67,19 +68,31 @@ class TerminalClient(
   }
   
   override fun readControlKey(): Boolean {
-    return false
+   val state: Boolean =
+     terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.CTRL, true)
+       ?: return false
+    return state
   }
   
   override fun readAltKey(): Boolean {
-    return false
+    val state: Boolean =
+      terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.ALT, true)
+        ?: return false
+    return state
   }
   
   override fun readShiftKey(): Boolean {
-    return false
+    val state: Boolean =
+      terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.SHIFT, true)
+        ?: return false
+    return state
   }
   
   override fun readFnKey(): Boolean {
-    return false
+    val state: Boolean =
+      terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.FN, true)
+        ?: return false
+    return state
   }
   
   override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
@@ -116,4 +129,6 @@ class TerminalClient(
   override fun logStackTrace(tag: String?, e: Exception?) {
   
   }
+  
+  
 }

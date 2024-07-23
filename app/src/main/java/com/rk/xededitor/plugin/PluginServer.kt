@@ -112,7 +112,7 @@ class PluginServer(private val ctx: Application) : Thread() {
       val appinfo = pm.getApplicationInfo(app.packageName, PackageManager.GET_META_DATA)
       val metaData = appinfo.metaData
       if (metaData != null && metaData.containsKey(pluginKey) && metaData.containsKey(entryPointKey)) {
-        err("detected plugin : " + app.packageName)
+        info("detected plugin : " + app.packageName)
         entryPointClassName = metaData.getString(entryPointKey, "")
         
         if (entryPointClassName.isNotEmpty()) {

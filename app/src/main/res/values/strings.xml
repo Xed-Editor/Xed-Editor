@@ -88,6 +88,8 @@
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
     <string name="terminal">Terminal</string>
+    <string name="open_from_path">Open From Path</string>
+    <string name="app_private_directory">App Data Files</string>
 
 
 </resources>
