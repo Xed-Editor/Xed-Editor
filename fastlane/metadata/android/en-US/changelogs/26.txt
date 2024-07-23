@@ -1,0 +1,8 @@
+Pre-Release v2.4.0 (26)
+
+- Added Terminal
+- Improved File Browser (60% faster)
+- Completely revamped Settings
+- Fixed AMOLED Theme issue
+- Added ability to access Xed's private data
+- Added ability to access internal storage or files directly via path

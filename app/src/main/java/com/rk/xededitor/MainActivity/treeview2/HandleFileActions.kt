@@ -145,22 +145,48 @@ class HandleFileActions(
         FileClipboard.setFile(file)
         true
       }
-      
+
       R.id.paste -> {
         // Handle paste action
-        if (!FileClipboard.isEmpty()) {
-          if (file.isDirectory) {
-            Files.move(
-              FileClipboard.getFile()?.toPath(),
-              file.toPath(),
-              StandardCopyOption.REPLACE_EXISTING
-            )
+        val loadingpopup = LoadingPopup(context,350)
+        Thread{
+          if (!FileClipboard.isEmpty()) {
+            val sourceFile = FileClipboard.getFile()
+            if (file.isDirectory && sourceFile != null) {
+              try {
+                val targetPath = file.toPath().resolve(sourceFile.name)
+
+                // Move the source file to the target directory
+                Files.copy(
+                  sourceFile.toPath(),
+                  targetPath,
+                  StandardCopyOption.REPLACE_EXISTING
+                )
+
+                // Update the TreeView to reflect the changes
+                rkUtils.runOnUiThread {
+                  TreeView(context, rootFolder)
+                }
+
+
+                // Optionally, clear the clipboard after pasting
+                FileClipboard.clear()
+
+              } catch (e: Exception) {
+                e.printStackTrace()
+                rkUtils.runOnUiThread {
+                  Toast.makeText(context, "Failed to move file: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+
+              }
+            }
           }
-          TreeView(context, rootFolder)
-        }
+        }.start()
+
         true
       }
-      
+
+
       R.id.delete -> {
         // Handle delete action
         if(file == rootFolder){

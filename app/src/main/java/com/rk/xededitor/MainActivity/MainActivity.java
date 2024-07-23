@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -38,6 +39,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
+import com.rk.xededitor.FileClipboard;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
 import com.rk.xededitor.MainActivity.treeview2.TreeView;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
@@ -48,8 +50,11 @@ import com.rk.xededitor.rkUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -274,28 +279,50 @@ public class MainActivity extends BaseActivity {
       }
       
       binding.rootDirLabel.setText(name);
-      
     }
-    /*else if (requestCode == HandleFileActions.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
+    else if (requestCode == HandleFileActions.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
       Uri directoryUri = data.getData();
       
       if (directoryUri != null) {
         // Save a file in the selected directory
-        String path = directoryUri.getPath().replace("/tree/primary:","/storage/emulated/0/");
-        File file = new File(path);
-        
-        try {
-          Files.move(FileClipboard.getFile().toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
+        String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
+        File directory = new File(path);
+
+        if (directory.isDirectory()) {
+          // Ensure the directory exists
+          if (!directory.exists()) {
+            directory.mkdirs();
+          }
+
+          // Create a new file within the directory
+          File newFile = new File(directory, HandleFileActions.Companion.getTo_save_file().getName());
+
+          try {
+            // Copy the file to the new file path within the directory
+            Files.copy(
+                    HandleFileActions.Companion.getTo_save_file().toPath(),
+                    newFile.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+            // Optionally, clear the clipboard after copying
+            FileClipboard.clear();
+
+          } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save file: " + e.getMessage());
+          }
+        } else {
+          throw new RuntimeException("Selected path is not a directory");
         }
-        
-        
+
+
+
       } else {
         Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
       }
       
-    }*/
+    }
     else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
       if (data != null) {
         Uri uri = data.getData();
