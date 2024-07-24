@@ -1,4 +1,9 @@
 -dontobfuscate
+-keep class org.apache.hadoop.** { *; }
+-dontwarn org.apache.hadoop.**
+-keep class org.apache.commons.logging.** { *; }
+-dontwarn org.apache.commons.logging.**
+
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
 # proguardFiles setting in build.gradle.
