@@ -112,7 +112,8 @@ dependencies {
   implementation("androidx.collection:collection:1.4.0")
   //  implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
   implementation("io.github.Rosemoe.sora-editor:language-textmate")
-  
+  implementation("org.apache.commons:commons-vfs2:2.9.0")
+  implementation("com.github.mwiede:jsch:0.2.8")
   
   implementation(libs.terminal.view)
   //implementation(libs.terminal.shared)
@@ -120,6 +121,8 @@ dependencies {
   implementation(libs.utilcode)
   implementation("de.maxr1998:modernandroidpreferences:2.4.0-beta1")
   
+  implementation("com.hierynomus:sshj:0.38.0")
+  implementation("commons-net:commons-net:3.9.0")
   
   
 }

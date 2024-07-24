@@ -46,6 +46,7 @@ import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.databinding.ActivityMainBinding;
+import com.rk.xededitor.MainActivity.network.SFTPClient;
 import com.rk.xededitor.rkUtils;
 
 import java.io.File;
@@ -100,6 +101,7 @@ public class MainActivity extends BaseActivity {
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     
+    new After(1000, () -> new SFTPClient());
     
     setSupportActionBar(binding.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);

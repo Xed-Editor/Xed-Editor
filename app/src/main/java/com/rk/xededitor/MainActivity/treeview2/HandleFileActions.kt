@@ -197,7 +197,12 @@ class HandleFileActions(
           context.adapter?.clear()
           
         }else{
-          file.delete()
+          if (file.isFile){
+            file.delete()
+          }else{
+            file.deleteRecursively()
+          }
+          
           TreeView(context, rootFolder)
         }
        
