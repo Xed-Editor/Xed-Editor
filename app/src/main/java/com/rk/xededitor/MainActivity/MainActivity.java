@@ -101,7 +101,7 @@ public class MainActivity extends BaseActivity {
     binding = ActivityMainBinding.inflate(getLayoutInflater());
     setContentView(binding.getRoot());
     
-    new After(1000, () -> new SFTPClient());
+    //new After(1000, () -> new SFTPClient());
     
     setSupportActionBar(binding.toolbar);
     getSupportActionBar().setDisplayHomeAsUpEnabled(true);
