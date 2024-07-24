@@ -122,7 +122,7 @@ dependencies {
   implementation("de.maxr1998:modernandroidpreferences:2.4.0-beta1")
   
   implementation("com.hierynomus:sshj:0.38.0")
-  implementation("commons-net:commons-net:3.9.0")
+  //implementation("commons-net:commons-net:3.9.0")
   
   
 }
