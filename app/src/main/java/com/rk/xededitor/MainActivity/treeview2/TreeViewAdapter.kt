@@ -59,14 +59,11 @@ class TreeViewAdapter(
       val queue: Queue<List<Node<File>>> = LinkedList()
       queue.add(currentList)
       
-      outer@ while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
+      while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
         val list = queue.poll() ?: continue
-        inner@ for (node in list) {
+        for (node in list) {
           if (!Thread.currentThread().isInterrupted) {
             val file = node.value
-            if ((file.parentFile?.absolutePath.toString() == "/storage/emulated/0/Android")) {
-              continue@inner
-            }
             if (file.isDirectory) {
               try {
                 val childList = merge(file)
@@ -84,7 +81,7 @@ class TreeViewAdapter(
         
       }
       val inflater = LayoutInflater.from(context)
-      for (i in 0 until 100) {
+      for (i in 0 until 200) {
         if (Thread.currentThread().isInterrupted) {
           break
         }
@@ -200,6 +197,7 @@ class TreeViewAdapter(
     val expandView = holder.expandView
     val fileView = holder.fileView
     nodemap?.putIfAbsent(node, holder.textView)
+    
     //nodemap!![node] = holder.textView
     // Reset padding and margins to avoid accumulation
     holder.itemView.setPadding(0, 0, 0, 0)
@@ -208,7 +206,7 @@ class TreeViewAdapter(
     fileView.layoutParams = layoutParams
     
     // Set padding based on node level
-    holder.itemView.setPadding(node.level * 35, 0, 0, 0)
+    holder.itemView.setPadding(node.level * dpToPx(17f), dpToPx(5f), 0, 0)
     
     if (isDir) {
       expandView.visibility = View.VISIBLE
@@ -228,7 +226,9 @@ class TreeViewAdapter(
       
     }
     
-    holder.textView.text = " ${node.value.name}          "
+   // holder.textView.text = " ${node.value.name}          "
+    holder.textView.text = "  ${node.value.name}  "
+
   }
   
   class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {

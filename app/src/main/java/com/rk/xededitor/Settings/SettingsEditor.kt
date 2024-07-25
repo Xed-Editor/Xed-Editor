@@ -7,7 +7,9 @@ import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.DynamicFragment
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
@@ -85,6 +87,46 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.lock
         onCheckedChange { isChecked ->
           SettingsData.setBoolean(this@SettingsEditor, "keepDrawerLocked", isChecked)
+          return@onCheckedChange true
+        }
+      }
+      switch("diagnolScroll"){
+        title = "Diagnol Scrolling"
+        summary = "Enable Diagnol Scrolling in File Browser"
+        iconRes = R.drawable.diagonal_scroll
+        defaultValue = false
+        onCheckedChange { isChecked ->
+          SettingsData.setBoolean(this@SettingsEditor, "diagonalScroll", isChecked)
+          LoadingPopup(this@SettingsEditor, 180)
+          MainActivity.activity?.recreate()
+          return@onCheckedChange true
+        }
+      }
+      switch("showlinenumbers"){
+        title = "Show Line Numbers"
+        summary = "Show Line Numbers in Editor"
+        iconRes = R.drawable.linenumbers
+        defaultValue = true
+        onCheckedChange { isChecked ->
+          if (StaticData.fragments?.isNotEmpty() == true) {
+            StaticData.fragments.forEach { fragment ->
+              fragment.editor.isLineNumberEnabled = isChecked
+            }
+          }
+          return@onCheckedChange true
+        }
+      }
+      switch("pinlinenumbers"){
+        title = "Pin Line Numbers"
+        summary = "Pin Line Numbers in Editor"
+        iconRes = R.drawable.linenumbers
+        defaultValue = false
+        onCheckedChange { isChecked ->
+          if (StaticData.fragments?.isNotEmpty() == true) {
+            StaticData.fragments.forEach { fragment ->
+              fragment.editor.setPinLineNumber(isChecked)
+            }
+          }
           return@onCheckedChange true
         }
       }

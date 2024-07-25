@@ -73,7 +73,7 @@ public class SimpleEditor extends BaseActivity {
       actionBar.setDisplayHomeAsUpEnabled(true);
     }
     
-    SettingsData.applyPrefs(this);
+    
     
     if (!SettingsData.isDarkMode(this)) {
       //light mode

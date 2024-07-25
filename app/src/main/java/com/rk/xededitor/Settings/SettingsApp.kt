@@ -70,7 +70,7 @@ class SettingsApp : BaseActivity() {
         titleRes = R.string.oled
         summary = "Pure Black theme for amoled devices"
         iconRes = R.drawable.dark_mode
-        defaultValue = true
+        defaultValue = false
         onCheckedChange { newValue ->
           SettingsData.setBoolean(this@SettingsApp, "isOled", newValue)
           LoadingPopup(this@SettingsApp, 180)

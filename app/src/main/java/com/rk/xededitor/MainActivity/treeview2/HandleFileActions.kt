@@ -189,22 +189,40 @@ class HandleFileActions(
 
       R.id.delete -> {
         // Handle delete action
-        if(file == rootFolder){
-          context.binding.mainView.setVisibility(View.GONE)
-          context.binding.safbuttons.setVisibility(View.VISIBLE)
-          context.binding.maindrawer.setVisibility(View.GONE)
-          context.binding.drawerToolbar.setVisibility(View.GONE)
-          context.adapter?.clear()
-          
-        }else{
-          if (file.isFile){
-            file.delete()
-          }else{
-            file.deleteRecursively()
-          }
-          
-          TreeView(context, rootFolder)
-        }
+        
+        MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.delete))
+          .setMessage(context.getString(R.string.ask_del)+" this file?")
+         .setNegativeButton(context.getString(R.string.cancel), null)
+          .setPositiveButton(
+            context.getString(R.string.delete)
+          ) { _: DialogInterface?, _: Int ->
+            
+            
+            if(file == rootFolder){
+              context.binding.mainView.visibility = View.GONE
+              context.binding.safbuttons.visibility = View.VISIBLE
+              context.binding.maindrawer.visibility = View.GONE
+              context.binding.drawerToolbar.visibility = View.GONE
+              context.adapter?.clear()
+              
+            }else{
+              if (file.isFile){
+                file.delete()
+              }else{
+                file.deleteRecursively()
+              }
+              
+              TreeView(context, rootFolder)
+            }
+            
+            
+          }.show()
+        
+        
+        
+        
+        
+        
        
         true
       }
@@ -281,13 +299,15 @@ class HandleFileActions(
     val popupView: View = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
     val editText = popupView.findViewById<EditText>(R.id.name)
     
+    var title = context.getString(R.string.new_folder)
     if (createFile) {
       editText.hint = context.getString(R.string.newFile_hint)
+      title = context.getString(R.string.new_file)
     } else {
       editText.hint = context.getString(R.string.dir_example)
     }
     
-    MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.new_folder))
+    MaterialAlertDialogBuilder(context).setTitle(title)
       .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
       .setPositiveButton(
         context.getString(R.string.create)
@@ -328,7 +348,7 @@ class HandleFileActions(
     editText.setText(file.name)
     editText.hint = "file name"
     
-    MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.new_folder))
+    MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.rename))
       .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
       .setPositiveButton(
         context.getString(R.string.rename)

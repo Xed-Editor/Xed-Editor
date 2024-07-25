@@ -10,43 +10,7 @@ import org.json.JSONObject;
 import java.util.Iterator;
 
 public class SettingsData {
-  public static void addToapplyPrefsOnRestart(Context ctx, String key, String value) {
-    String jsonString = getSetting(ctx, "applyOnBoot", "{}");
-    try {
-      JSONObject jsonObject = new JSONObject(jsonString);
-      jsonObject.put(key, value);
-      String updatedJsonString = jsonObject.toString();
-      setSetting(ctx, "applyOnBoot", updatedJsonString);
-      
-    } catch (JSONException e) {
-      e.printStackTrace();
-    }
-  }
-  
-  public static void applyPrefs(Context ctx) {
-    String jsonString = getSetting(ctx, "applyOnBoot", "{}");
-    try {
-      JSONObject jsonObject = new JSONObject(jsonString);
-      Iterator<String> keys = jsonObject.keys();
-      
-      // Loop through the keys
-      while (keys.hasNext()) {
-        String key = keys.next();
-        String value = (String) jsonObject.get(key);
-        setSetting(ctx, key, value);
-        jsonObject.remove(key);
-      }
-      String updatedJsonString = jsonObject.toString();
-      
-      // Update the preferences with the modified JSON string
-      setSetting(ctx, "applyOnBoot", updatedJsonString);
-      
-      
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-    
-  }
+ 
   
   public static boolean isDarkMode(Context ctx) {
     return (ctx.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
@@ -54,7 +18,7 @@ public class SettingsData {
   }
   
   public static boolean isOled(Context ctx) {
-    return Boolean.parseBoolean(getSetting(ctx, "isOled", "true"));
+    return Boolean.parseBoolean(getSetting(ctx, "isOled", "false"));
   }
   
   public static boolean getBoolean(Context ctx, String key, Boolean Default) {

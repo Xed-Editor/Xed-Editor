@@ -1,24 +1,32 @@
 package com.rk.xededitor.MainActivity
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.LinearLayout
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.PopupMenu
-import androidx.documentfile.provider.DocumentFile
+import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.rk.xededitor.After
 import com.rk.xededitor.Decompress
-import com.rk.xededitor.MainActivity.treeview2.HandleFileActions
+import com.rk.xededitor.MainActivity.treeview2.DiagonalScrollView
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.plugin.PluginServer
+import com.rk.xededitor.rkUtils
 import java.io.File
 
 class Init(activity: MainActivity) {
   init {
-    Thread{
+    Thread {
       Thread.currentThread().priority = 10
       with(activity) {
         
@@ -104,8 +112,8 @@ class Init(activity: MainActivity) {
           
         }
         
-        val last_opened_path = SettingsData.getSetting(this,"lastOpenedPath","")
-        if (last_opened_path.isNotEmpty()){
+        val last_opened_path = SettingsData.getSetting(this, "lastOpenedPath", "")
+        if (last_opened_path.isNotEmpty()) {
           binding.mainView.visibility = View.VISIBLE
           binding.safbuttons.visibility = View.GONE
           binding.maindrawer.visibility = View.VISIBLE
@@ -115,36 +123,125 @@ class Init(activity: MainActivity) {
           
           runOnUiThread { TreeView(this, StaticData.rootFolder) }
           
-          var name = StaticData.rootFolder.name!!
+          var name = StaticData.rootFolder.name
           if (name.length > 18) {
-            name = StaticData.rootFolder.name!!.substring(0, 15) + "..."
+            name = StaticData.rootFolder.name.substring(0, 15) + "..."
           }
           binding.rootDirLabel.text = name
         }
         
         
-       // val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
-       /* if (uriString != "null") {
-          val uri = Uri.parse(uriString)
-          if (hasUriPermission(uri)) {
-            StaticData.rootFolder = DocumentFile.fromTreeUri(this, uri)
-            //binding.tabs.setVisibility(View.VISIBLE);
-            binding.mainView.visibility = View.VISIBLE
-            binding.safbuttons.visibility = View.GONE
-            binding.maindrawer.visibility = View.VISIBLE
-            binding.drawerToolbar.visibility = View.VISIBLE
-            
-            runOnUiThread { TreeView(this, StaticData.rootFolder) }
-            
-            var name = StaticData.rootFolder.name!!
-            if (name.length > 18) {
-              name = StaticData.rootFolder.name!!.substring(0, 15) + "..."
-            }
-            binding.rootDirLabel.text = name
-          }
-        }*/
+        // val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
+        /* if (uriString != "null") {
+           val uri = Uri.parse(uriString)
+           if (hasUriPermission(uri)) {
+             StaticData.rootFolder = DocumentFile.fromTreeUri(this, uri)
+             //binding.tabs.setVisibility(View.VISIBLE);
+             binding.mainView.visibility = View.VISIBLE
+             binding.safbuttons.visibility = View.GONE
+             binding.maindrawer.visibility = View.VISIBLE
+             binding.drawerToolbar.visibility = View.VISIBLE
+             
+             runOnUiThread { TreeView(this, StaticData.rootFolder) }
+             
+             var name = StaticData.rootFolder.name!!
+             if (name.length > 18) {
+               name = StaticData.rootFolder.name!!.substring(0, 15) + "..."
+             }
+             binding.rootDirLabel.text = name
+           }
+         }*/
         
       }
+      
+      After(
+        1000
+      ) {
+        rkUtils.runOnUiThread {
+          activity.onBackPressedDispatcher.addCallback(activity,
+            object : OnBackPressedCallback(true) {
+              override fun handleOnBackPressed() {
+                
+                
+                //close drawer if opened
+               if(activity.drawerLayout.isDrawerOpen(GravityCompat.START)){
+                 activity.drawerLayout.closeDrawer(GravityCompat.START)
+                 return
+               }
+
+
+
+
+
+                var shouldExit = true
+                var hasNewFiles = false
+                var isModified = false
+                if (StaticData.fragments != null) {
+                  for (fragment in StaticData.fragments) {
+                    if (!hasNewFiles && fragment.isNewFile) {
+                      hasNewFiles = true
+                    }
+                    if (fragment.isModified) {
+                      isModified = true
+                    }
+                  }
+                  if (isModified) {
+                    shouldExit = false
+                    val dialog: MaterialAlertDialogBuilder =
+                      MaterialAlertDialogBuilder(activity).setTitle(
+                        activity.getString(R.string.unsaved)
+                      ).setMessage(activity.getString(R.string.unsavedfiles))
+                        .setNegativeButton(activity.getString(R.string.cancel), null)
+                        .setPositiveButton(
+                          activity.getString(R.string.exit)
+                        ) { dialogInterface: DialogInterface?, i: Int -> activity.finish() }
+                    
+                    if (!hasNewFiles) {
+                      dialog.setNeutralButton(
+                        activity.getString(R.string.saveexit)
+                      ) { xdialog: DialogInterface?, which: Int ->
+                        activity.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
+                        activity.finish()
+                      }
+                    }
+                    
+                    
+                    dialog.show()
+                  }
+                }
+                if (shouldExit) {
+                  activity.finish()
+                }
+              }
+            })
+        }
+      }
+      
+      val intent: Intent = activity.intent
+      val type = intent.type
+      
+      if (Intent.ACTION_SEND == intent.action && type != null) {
+        if (type.startsWith("text")) {
+          val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
+          if (sharedText != null) {
+            val file = File(activity.externalCacheDir, "newfile.txt")
+            
+            rkUtils.runOnUiThread {
+              activity.newEditor(file, true, sharedText)
+            }
+            
+            
+            After(
+              150
+            ) {
+              rkUtils.runOnUiThread { activity.onNewEditor() }
+            }
+          }
+        }
+      }
+      
+     
+     
       
       
     }.start()

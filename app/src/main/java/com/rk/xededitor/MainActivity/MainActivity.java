@@ -1,5 +1,6 @@
 package com.rk.xededitor.MainActivity;
 
+import static android.content.res.Resources.getSystem;
 import static com.rk.xededitor.MainActivity.StaticData.REQUEST_DIRECTORY_SELECTION;
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
@@ -11,7 +12,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -37,7 +36,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.FileClipboard;
 import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
@@ -46,7 +44,6 @@ import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.databinding.ActivityMainBinding;
-import com.rk.xededitor.MainActivity.network.SFTPClient;
 import com.rk.xededitor.rkUtils;
 
 import java.io.File;
@@ -109,79 +106,33 @@ public class MainActivity extends BaseActivity {
     
     drawerLayout = binding.drawerLayout;
     navigationView = binding.navView;
+    navigationView.getLayoutParams().width = (int) (getSystem().getDisplayMetrics().widthPixels * 0.87);
+
+
+
     drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer);
     drawerLayout.addDrawerListener(drawerToggle);
     drawerToggle.syncState();
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     
+    new PrepareRecyclerView(this);
     
     verifyStoragePermission();
     
     //run async init
     new Init(this);
     
-    new After(4000, () -> MainActivity.this.runOnUiThread(() -> {
-      getOnBackPressedDispatcher().addCallback(MainActivity.this, new OnBackPressedCallback(true) {
-        @Override
-        public void handleOnBackPressed() {
-          boolean shouldExit = true;
-          boolean hasNewFiles = false;
-          boolean isModified = false;
-          if (fragments != null) {
-            for (DynamicFragment fragment : fragments) {
-              if (!hasNewFiles && fragment.isNewFile) {
-                hasNewFiles = true;
-              }
-              if (fragment.isModified) {
-                isModified = true;
-              }
-            }
-            if (isModified) {
-              shouldExit = false;
-              var dialog = new MaterialAlertDialogBuilder(MainActivity.this).setTitle(getResources().getString(R.string.unsaved)).setMessage(getResources().getString(R.string.unsavedfiles)).setNegativeButton(getResources().getString(R.string.cancel), null).setPositiveButton(getResources().getString(R.string.exit), (dialogInterface, i) -> finish());
-              
-              if (!hasNewFiles) {
-                dialog.setNeutralButton(getResources().getString(R.string.saveexit), (xdialog, which) -> {
-                  onOptionsItemSelected(menu.findItem(R.id.action_all));
-                  finish();
-                });
-              }
-              
-              
-              dialog.show();
-            }
-            
-          }
-          if (shouldExit) {
-            finish();
-          }
-        }
-      });
-    }));
+    
     
     viewPager = binding.viewpager;
     mTabLayout = binding.tabs;
     viewPager.setOffscreenPageLimit(15);
     mTabLayout.setupWithViewPager(viewPager);
     
-    Intent intent = getIntent();
-    String action = intent.getAction();
-    String type = intent.getType();
     
-    if (Intent.ACTION_SEND.equals(action) && type != null) {
-      if (type.startsWith("text")) {
-        String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
-        if (sharedText != null) {
-          var file = new File(getExternalCacheDir(), "newfile.txt");
-          newEditor(file, true, sharedText);
-          new After(150, () -> {
-            MainActivity.this.runOnUiThread(this::onNewEditor);
-          });
-          
-        }
-        
-      }
-    }
+    
+    
+    
   }
   
   public void verifyStoragePermission() {

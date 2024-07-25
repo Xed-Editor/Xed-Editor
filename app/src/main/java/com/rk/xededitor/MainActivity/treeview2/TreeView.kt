@@ -1,15 +1,14 @@
 package com.rk.xededitor.MainActivity.treeview2
 
 import android.view.View
-import androidx.documentfile.provider.DocumentFile
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.After
-import com.rk.xededitor.MainActivity.StaticData
 
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.PrepareRecyclerView
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.rkUtils
 import java.io.File
 
 class TreeView(val ctx: MainActivity, rootFolder: File) {
@@ -19,52 +18,52 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
   }
   
   init {
-    ctx.binding.recyclerView.visibility = View.GONE
+
+    val recyclerView = ctx.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
+      setItemViewCacheSize(100)
+      visibility = View.GONE
+
+    }
+
     ctx.binding.progressBar.visibility = View.VISIBLE
     
-    opened_file_path = rootFolder.absolutePath
-    SettingsData.setSetting(ctx,"lastOpenedPath",rootFolder.absolutePath)
+    
     Thread {
+      opened_file_path = rootFolder.absolutePath
+      SettingsData.setSetting(ctx,"lastOpenedPath",rootFolder.absolutePath)
+      
       nodes = TreeViewAdapter.merge(rootFolder)
+
+      val adapter = TreeViewAdapter(recyclerView,ctx).apply {
+        setOnItemClickListener(object : OnItemClickListener {
+          override fun onItemClick(v: View, node: Node<File>) {
+            ctx.newEditor(node.value, false)
+            ctx.onNewEditor()
+            if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
+              After(500) {
+                ctx.binding.drawerLayout.close()
+              }
+            }
+          }
+          
+          
+          override fun onItemLongClick(v: View, node: Node<File>) {
+            TreeViewAdapter.nodemap?.get(node)?.let {
+              HandleFileActions(ctx, rootFolder, node.value, it)
+            }
+          }
+        })
+        submitList(nodes)
+      }
       
       
       ctx.runOnUiThread {
-        
-        with(ctx.binding.recyclerView) {
-          
-          layoutManager = LinearLayoutManager(ctx)
-          setItemViewCacheSize(100)
-
-          adapter = TreeViewAdapter(this, ctx).apply {
-            submitList(nodes)
-            setOnItemClickListener(object : OnItemClickListener {
-              override fun onItemClick(v: View, node: Node<File>) {
-                if ((node.value.parentFile?.absolutePath.toString() == "/storage/emulated/0/Android")){
-                  rkUtils.toast(ctx,"Permission Denied")
-                  return
-                }
-                ctx.newEditor(node.value, false)
-                ctx.onNewEditor()
-                if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
-                  After(500) {
-                    ctx.binding.drawerLayout.close()
-                  }
-                }
-              }
-              
-              
-              override fun onItemLongClick(v: View, node: Node<File>) {
-                TreeViewAdapter.nodemap?.get(node)?.let {
-                 HandleFileActions(ctx, rootFolder, node.value, it)
-                }
-              }
-            })
-          }
-        }
+        recyclerView.layoutManager = LinearLayoutManager(ctx)
         ctx.binding.progressBar.visibility = View.GONE
-        ctx.binding.recyclerView.visibility = View.VISIBLE
-        
+        recyclerView.visibility = View.VISIBLE
+        recyclerView.adapter = adapter
       }
+      
     }.start()
     
     
