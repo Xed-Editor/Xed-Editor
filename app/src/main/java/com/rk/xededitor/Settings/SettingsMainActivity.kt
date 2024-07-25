@@ -87,16 +87,7 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
         }
       }
-      if (SettingsData.getBoolean(this@SettingsMainActivity, "enablePlugins", false)) {
-        pref("ManagePlugins") {
-          title = "Manage Plugins"
-          summary = "Enable/Disable installed plugins"
-          iconRes = R.drawable.extension
-          onClickView {
-            startActivity(Intent(this@SettingsMainActivity, ManagePluginActivity::class.java))
-          }
-        }
-      }
+      
     }
   }
   

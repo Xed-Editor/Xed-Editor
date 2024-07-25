@@ -1,5 +1,6 @@
 package com.rk.xededitor.Settings
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
@@ -12,9 +13,12 @@ import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
+import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
+import de.Maxr1998.modernpreferences.helpers.onClickView
+import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.screen
 import de.Maxr1998.modernpreferences.helpers.switch
 
@@ -85,10 +89,21 @@ class SettingsApp : BaseActivity() {
         iconRes = R.drawable.extension
         onCheckedChange { newValue ->
           SettingsData.setBoolean(this@SettingsApp, "enablePlugins", newValue)
-          LoadingPopup(this@SettingsApp, 180)
+          LoadingPopup(this@SettingsApp, 220)
+          this@SettingsApp.recreate()
           MainActivity.activity?.recreate()
-          SettingsMainActivity.settingsMain?.recreate()
+          //SettingsMainActivity.settingsMain?.recreate()
           return@onCheckedChange true
+        }
+      }
+      if (SettingsData.getBoolean(this@SettingsApp, "enablePlugins", false)) {
+        pref("ManagePlugins") {
+          title = "Manage Plugins"
+          summary = "Enable/Disable installed plugins"
+          iconRes = R.drawable.extension
+          onClickView {
+            startActivity(Intent(this@SettingsApp, ManagePluginActivity::class.java))
+          }
         }
       }
       
