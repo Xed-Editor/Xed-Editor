@@ -9,6 +9,7 @@ import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.rkUtils
 import java.io.File
 
 class TreeView(val ctx: MainActivity, rootFolder: File) {
@@ -38,6 +39,10 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
             submitList(nodes)
             setOnItemClickListener(object : OnItemClickListener {
               override fun onItemClick(v: View, node: Node<File>) {
+                if ((node.value.parentFile?.absolutePath.toString() == "/storage/emulated/0/Android")){
+                  rkUtils.toast(ctx,"Permission Denied")
+                  return
+                }
                 ctx.newEditor(node.value, false)
                 ctx.onNewEditor()
                 if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {

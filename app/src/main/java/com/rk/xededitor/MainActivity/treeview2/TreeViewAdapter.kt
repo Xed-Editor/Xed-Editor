@@ -24,8 +24,7 @@ interface OnItemClickListener {
 }
 
 class TreeViewAdapter(
-  val recyclerView: RecyclerView,
-  val context: Context
+  val recyclerView: RecyclerView, val context: Context
 ) : ListAdapter<Node<File>, TreeViewAdapter.ViewHolder>(NodeDiffCallback()) {
   
   private val icFile = ResourcesCompat.getDrawable(
@@ -43,7 +42,7 @@ class TreeViewAdapter(
   
   private var listener: OnItemClickListener? = null
   private var cachedViews = Stack<View>()
-  private val cacheList = FileCacheMap<File,List<Node<File>>>()
+  private val cacheList = FileCacheMap<File, List<Node<File>>>()
   
   init {
     thread = Thread {
@@ -59,10 +58,15 @@ class TreeViewAdapter(
       
       val queue: Queue<List<Node<File>>> = LinkedList()
       queue.add(currentList)
-      while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
-        queue.poll()?.forEach { node ->
+      
+      outer@ while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
+        val list = queue.poll() ?: continue
+        inner@ for (node in list) {
           if (!Thread.currentThread().isInterrupted) {
             val file = node.value
+            if ((file.parentFile?.absolutePath.toString() == "/storage/emulated/0/Android")) {
+              continue@inner
+            }
             if (file.isDirectory) {
               try {
                 val childList = merge(file)
@@ -70,13 +74,14 @@ class TreeViewAdapter(
                 cacheList.put(file, childList)
                 lock.unlock()
                 queue.add(childList)
-              }catch (e:Exception){
+              } catch (e: Exception) {
                 e.printStackTrace()
               }
               
             }
           }
         }
+        
       }
       val inflater = LayoutInflater.from(context)
       for (i in 0 until 100) {
@@ -117,8 +122,7 @@ class TreeViewAdapter(
   
   override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
     val view: View = if (cachedViews.isEmpty()) {
-      LayoutInflater.from(context)
-        .inflate(R.layout.recycler_view_item, parent, false)
+      LayoutInflater.from(context).inflate(R.layout.recycler_view_item, parent, false)
     } else {
       cachedViews.pop()
     }
@@ -182,49 +186,50 @@ class TreeViewAdapter(
     return holder
   }
   
-  fun dpToPx(dpValue: Float): Int {
+  private fun dpToPx(dpValue: Float): Int {
     val scale: Float = context.resources.displayMetrics.density
     return (dpValue * scale + 0.5f).toInt()
   }
   
-  val animator = recyclerView.itemAnimator
+  private val animator = recyclerView.itemAnimator
   
   @SuppressLint("SetTextI18n")
-override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
     val node = getItem(position)
     val isDir = node.value.isDirectory
     val expandView = holder.expandView
     val fileView = holder.fileView
-    nodemap!![node] = holder.textView
+    nodemap?.putIfAbsent(node, holder.textView)
+    //nodemap!![node] = holder.textView
     // Reset padding and margins to avoid accumulation
     holder.itemView.setPadding(0, 0, 0, 0)
     val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
     layoutParams.setMargins(0, 0, 0, 0)
     fileView.layoutParams = layoutParams
-
+    
     // Set padding based on node level
     holder.itemView.setPadding(node.level * 35, 0, 0, 0)
-
+    
     if (isDir) {
-        expandView.visibility = View.VISIBLE
-        if (!node.isExpand) {
-            expandView.setImageDrawable(icChevronRight)
-        } else {
-            expandView.setImageDrawable(icExpandMore)
-        }
-        fileView.setImageDrawable(icFolder)
+      expandView.visibility = View.VISIBLE
+      if (!node.isExpand) {
+        expandView.setImageDrawable(icChevronRight)
+      } else {
+        expandView.setImageDrawable(icExpandMore)
+      }
+      fileView.setImageDrawable(icFolder)
     } else {
-        // Set margins for files
-        layoutParams.setMargins(icChevronRight!!.intrinsicWidth+dpToPx(10f), 0, 0, 0)
-        fileView.layoutParams = layoutParams
-        expandView.visibility = View.GONE
-        /*fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)*/
-        fileView.setImageDrawable(icFile)
-        
+      // Set margins for files
+      layoutParams.setMargins(icChevronRight!!.intrinsicWidth + dpToPx(10f), 0, 0, 0)
+      fileView.layoutParams = layoutParams
+      expandView.visibility =
+        View.GONE/*fileView.setPadding(icChevronRight!!.intrinsicWidth, 0, 0, 0)*/
+      fileView.setImageDrawable(icFile)
+      
     }
-
+    
     holder.textView.text = " ${node.value.name}          "
-}
+  }
   
   class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
@@ -234,15 +239,13 @@ override fun onBindViewHolder(holder: ViewHolder, position: Int) {
   
   class NodeDiffCallback : DiffUtil.ItemCallback<Node<File>>() {
     override fun areItemsTheSame(
-      oldItem: Node<File>,
-      newItem: Node<File>
+      oldItem: Node<File>, newItem: Node<File>
     ): Boolean {
       return oldItem.value.path == newItem.value.path
     }
     
     override fun areContentsTheSame(
-      oldItem: Node<File>,
-      newItem: Node<File>
+      oldItem: Node<File>, newItem: Node<File>
     ): Boolean {
       return oldItem == newItem
     }
