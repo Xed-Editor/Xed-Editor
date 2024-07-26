@@ -15,6 +15,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
+import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -83,6 +84,19 @@ class SettingsApp : BaseActivity() {
         }
         
       }
+      
+      pref("privateData"){
+        title = "Private App Files"
+        summary = "Access private app files"
+        iconRes = R.drawable.android
+        onClickView {
+          MainActivity.activity?.privateDir(null)
+          rkUtils.toast(this@SettingsApp,"Opened in File Browser")
+        }
+      }
+      
+      
+      
       switch("plugin") {
         titleRes = R.string.plugin
         summary = "Enable/Disable Plugins"
@@ -113,6 +127,7 @@ class SettingsApp : BaseActivity() {
           }
         }
       }
+      
       
     }
   }

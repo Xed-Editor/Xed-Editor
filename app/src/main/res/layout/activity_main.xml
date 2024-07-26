@@ -113,7 +113,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:padding="50dp"
+            android:padding="68dp"
             android:orientation="vertical">
 
             <Button
@@ -136,16 +136,6 @@
                 android:layout_height="wrap_content"
                 android:onClick="open_from_path"
                 android:text="@string/open_from_path" />
-
-            <Button
-                android:id="@+id/privateDir"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:onClick="privateDir"
-                android:text="@string/app_private_directory" />
-
-
 
         </LinearLayout>
 

@@ -8,6 +8,7 @@ import static com.rk.xededitor.MainActivity.StaticData.menu;
 import static com.rk.xededitor.MainActivity.StaticData.rootFolder;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
@@ -27,6 +28,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
@@ -466,12 +468,19 @@ public class MainActivity extends BaseActivity {
     
     binding.rootDirLabel.setText(name);
   }
-
   
+  @SuppressLint("RestrictedApi")
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_main, menu);
     StaticData.menu = menu;
+    
+    if(menu instanceof MenuBuilder){
+      MenuBuilder m = (MenuBuilder) menu;
+      //noinspection RestrictedApi
+      m.setOptionalIconsVisible(true);
+    }
+    
     menu.findItem(R.id.search).setVisible(!(fragments == null || fragments.isEmpty()));
     menu.findItem(R.id.batchrep).setVisible(!(fragments == null || fragments.isEmpty()));
     /*
