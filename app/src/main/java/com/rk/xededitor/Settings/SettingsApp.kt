@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.WindowManager
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.After
@@ -39,6 +40,7 @@ class SettingsApp : BaseActivity() {
     
     padapter = PreferencesAdapter(getScreen())
     
+    
     savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
       ?.let(padapter::loadSavedState)
     
@@ -54,7 +56,6 @@ class SettingsApp : BaseActivity() {
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
     
-    
     if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
       binding.root.setBackgroundColor(Color.BLACK)
       binding.toolbar.setBackgroundColor(Color.BLACK)
@@ -67,8 +68,7 @@ class SettingsApp : BaseActivity() {
     }
   }
   
-  
-  fun getScreen(): PreferenceScreen {
+  private fun getScreen(): PreferenceScreen {
     return screen(this) {
       switch("oled") {
         titleRes = R.string.oled
@@ -89,9 +89,16 @@ class SettingsApp : BaseActivity() {
         iconRes = R.drawable.extension
         onCheckedChange { newValue ->
           SettingsData.setBoolean(this@SettingsApp, "enablePlugins", newValue)
-          LoadingPopup(this@SettingsApp, 220)
-          this@SettingsApp.recreate()
-          MainActivity.activity?.recreate()
+          
+          val loading = LoadingPopup(this@SettingsApp,null).show()
+          After(800){
+            runOnUiThread {
+              padapter.setRootScreen(getScreen())
+              MainActivity.activity?.recreate()
+              loading.hide()
+            }
+          }
+          
           //SettingsMainActivity.settingsMain?.recreate()
           return@onCheckedChange true
         }
@@ -109,6 +116,7 @@ class SettingsApp : BaseActivity() {
       
     }
   }
+  
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     // Save the padapter state as a parcelable into the Android-managed instance state
