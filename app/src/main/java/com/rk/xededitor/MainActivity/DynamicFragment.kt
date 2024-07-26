@@ -22,8 +22,8 @@ import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.dsl.languages
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
+import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -34,10 +34,11 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 class DynamicFragment : Fragment {
-  var fileName: String? = null
+  lateinit var fileName: String
   var file: File? = null
   private var ctx: Context? = null
   lateinit var editor: CodeEditor
+  var editorx: CodeEditor? = null
   var content: Content? = null
   var isModified: Boolean = false
   var undo: MenuItem? = null
@@ -60,6 +61,23 @@ class DynamicFragment : Fragment {
     this.ctx = ctx
     this.file = file
     editor = CodeEditor(ctx)
+    editorx = editor
+    
+    
+    when(fileName.substringAfterLast('.', "")){
+      "java" -> {setLanguage("source.java")}
+      "html" -> {setLanguage("text.html.basic")}
+      "kt" -> {setLanguage("source.kotlin")}
+      "py" -> {setLanguage("source.python")}
+      "xml" -> {setLanguage("text.xml")}
+      "js" -> {setLanguage("source.js")}
+      "md" -> {setLanguage("text.html.markdown")}
+    }
+    
+    
+    
+    
+    
     
     if (SettingsData.isDarkMode(ctx)) {
       ensureTextmateTheme()
@@ -69,11 +87,7 @@ class DynamicFragment : Fragment {
     
     val wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false)
     
-    //loadLanguage()
-   // val language = TextMateLanguage.create(
-    //  "html", true /* true for enabling auto-completion */
-    //)
-    //editor.setEditorLanguage(language as Language)
+    
     
     Thread {
       try {
@@ -103,7 +117,7 @@ class DynamicFragment : Fragment {
       } catch (e: Exception) {
         e.printStackTrace()
       }
-      setListner()
+      setListener()
     }.start()
     
     
@@ -115,7 +129,7 @@ class DynamicFragment : Fragment {
     redo = StaticData.menu.findItem(R.id.redo)
   }
   
-  private fun setListner() {
+  private fun setListener() {
     editor.subscribeAlways(
       ContentChangeEvent::class.java
     ) { event: ContentChangeEvent? ->
@@ -131,7 +145,7 @@ class DynamicFragment : Fragment {
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
-    return editor
+    return editorx
   }
   
   fun updateUndoRedo() {
@@ -224,17 +238,18 @@ class DynamicFragment : Fragment {
     }
   }
   
-  
-  
-  private fun loadLanguage(){
-    GrammarRegistry.getInstance().loadGrammars(
-      languages {
-        language("html") {
-          grammar = "/sdcard/textmate/html/html.tmLanguage.json"
-          defaultScopeName()
-          languageConfiguration = "/sdcard/textmate/html/html.language-configuration.json"
-        }
-      }
+  fun setLanguage(languageScopeName:String){
+    FileProviderRegistry.getInstance().addFileProvider(
+      AssetsFileResolver(
+        ctx?.applicationContext?.assets
+      )
     )
+    
+    GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
+    
+    val language = TextMateLanguage.create(
+      languageScopeName, true /* true for enabling auto-completion */
+    )
+    editor.setEditorLanguage(language as Language)
   }
 }

@@ -109,9 +109,9 @@ dependencies {
   coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
   implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
   //implementation("io.github.Rosemoe.sora-editor:editor")
-  implementation("androidx.collection:collection:1.4.0")
+  implementation("androidx.collection:collection:1.4.2")
   //  implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
-  implementation("io.github.Rosemoe.sora-editor:language-textmate")
+  //implementation("io.github.Rosemoe.sora-editor:language-textmate")
   implementation("org.apache.commons:commons-vfs2:2.9.0")
   implementation("com.github.mwiede:jsch:0.2.8")
   
@@ -123,8 +123,13 @@ dependencies {
   
   implementation("com.hierynomus:sshj:0.38.0")
   implementation("commons-net:commons-net:3.9.0")
- 
   
+  implementation(libs.gson)
+  implementation(libs.jcodings)
+  implementation(libs.joni)
+  
+  implementation(libs.snakeyaml.engine)
+  implementation(libs.jdt.annotation)
   
   
   

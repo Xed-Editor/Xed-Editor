@@ -30,6 +30,11 @@ utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
 
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
+gson = { module = "com.google.code.gson:gson", version = "2.10.1" }
+jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.58" }
+joni = { module = "org.jruby.joni:joni", version = "2.2.1" }
+snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.7" }
+jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.0" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

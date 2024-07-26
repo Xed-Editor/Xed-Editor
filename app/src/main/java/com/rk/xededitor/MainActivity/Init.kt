@@ -56,6 +56,8 @@ class Init(activity: MainActivity) {
           }
           
         }
+        
+        
         StaticData.mTabLayout.setOnTabSelectedListener(object : OnTabSelectedListener {
           override fun onTabSelected(tab: TabLayout.Tab) {
             viewPager.setCurrentItem(tab.position)
@@ -161,8 +163,7 @@ class Init(activity: MainActivity) {
         1000
       ) {
         rkUtils.runOnUiThread {
-          activity.onBackPressedDispatcher.addCallback(
-            activity,
+          activity.onBackPressedDispatcher.addCallback(activity,
             object : OnBackPressedCallback(true) {
               override fun handleOnBackPressed() {
                 
@@ -196,12 +197,12 @@ class Init(activity: MainActivity) {
                         ) { dialogInterface: DialogInterface?, i: Int -> activity.finish() }
                     
                     
-                      dialog.setNeutralButton(
-                        activity.getString(R.string.saveexit)
-                      ) { xdialog: DialogInterface?, which: Int ->
-                        activity.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
-                        activity.finish()
-                      }
+                    dialog.setNeutralButton(
+                      activity.getString(R.string.saveexit)
+                    ) { xdialog: DialogInterface?, which: Int ->
+                      activity.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
+                      activity.finish()
+                    }
                     
                     
                     
