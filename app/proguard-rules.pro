@@ -3,6 +3,8 @@
 -dontwarn org.apache.hadoop.**
 -keep class org.apache.commons.logging.** { *; }
 -dontwarn org.apache.commons.logging.**
+-keep class kotlin.ResultKt { *; }
+-keep class com.rk.xededitor.MainActivity.** { *; }
 
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
