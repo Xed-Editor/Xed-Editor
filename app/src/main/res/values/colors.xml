@@ -3,7 +3,7 @@
     <color name="dark">#1C1B20</color>
     <color name="invert_dull">@color/dark</color>
     <color name="berry">#485D91</color>
-    <color name="defaultSymbolInputBackgroundColor">@android:color/background_light</color>
+    <color name="defaultSymbolInputBackgroundColor">@android:color/transparent</color>
     <color name="defaultSymbolInputTextColor">@android:color/black</color>
     <color name="bg">@android:color/white</color>
 </resources>

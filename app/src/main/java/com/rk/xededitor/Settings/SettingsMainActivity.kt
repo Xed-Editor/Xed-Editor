@@ -61,6 +61,9 @@ class SettingsMainActivity : BaseActivity() {
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
       window.statusBarColor = Color.BLACK
       window.navigationBarColor = Color.BLACK
+    }else if (SettingsData.isDarkMode(this)){
+      val window = window
+      window.navigationBarColor = Color.parseColor("#141118")
     }
   }
   

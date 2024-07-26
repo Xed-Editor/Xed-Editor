@@ -6,6 +6,7 @@ import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
 import static com.rk.xededitor.MainActivity.StaticData.menu;
 import static com.rk.xededitor.MainActivity.StaticData.rootFolder;
+import static com.rk.xededitor.rkUtils.dpToPx;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -23,6 +24,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -88,6 +91,21 @@ public class MainActivity extends BaseActivity {
     menu.findItem(R.id.undo).setVisible(visible);
     menu.findItem(R.id.redo).setVisible(visible);
     menu.findItem(R.id.insertdate).setVisible(visible);
+    if (visible && SettingsData.getBoolean(MainActivity.activity, "show_arrows", false)) {
+      MainActivity.activity.binding.divider.setVisibility(View.VISIBLE);
+      MainActivity.activity.binding.mainBottomBar.setVisibility(View.VISIBLE);
+      var vp =MainActivity.activity.binding.viewpager;
+      RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
+      layoutParams.bottomMargin = dpToPx(40,MainActivity.activity);  // Convert dp to pixels as needed
+      vp.setLayoutParams(layoutParams);
+    } else {
+      MainActivity.activity.binding.divider.setVisibility(View.GONE);
+      MainActivity.activity.binding.mainBottomBar.setVisibility(View.GONE);
+      var vp =MainActivity.activity.binding.viewpager;
+      RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
+      layoutParams.bottomMargin = dpToPx(0,MainActivity.activity);  // Convert dp to pixels as needed
+      vp.setLayoutParams(layoutParams);
+    }
   }
   
   @Override
@@ -109,9 +127,8 @@ public class MainActivity extends BaseActivity {
     drawerLayout = binding.drawerLayout;
     navigationView = binding.navView;
     navigationView.getLayoutParams().width = (int) (getSystem().getDisplayMetrics().widthPixels * 0.87);
-
-
-
+    
+    
     drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer);
     drawerLayout.addDrawerListener(drawerToggle);
     drawerToggle.syncState();
@@ -125,14 +142,10 @@ public class MainActivity extends BaseActivity {
     new Init(this);
     
     
-    
     viewPager = binding.viewpager;
     mTabLayout = binding.tabs;
     viewPager.setOffscreenPageLimit(15);
     mTabLayout.setupWithViewPager(viewPager);
-    
-    
-    
     
     
   }
@@ -234,35 +247,30 @@ public class MainActivity extends BaseActivity {
       }
       
       binding.rootDirLabel.setText(name);
-    }
-    else if (requestCode == HandleFileActions.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
+    } else if (requestCode == HandleFileActions.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
       Uri directoryUri = data.getData();
       
       if (directoryUri != null) {
         // Save a file in the selected directory
         String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
         File directory = new File(path);
-
+        
         if (directory.isDirectory()) {
           // Ensure the directory exists
           if (!directory.exists()) {
             directory.mkdirs();
           }
-
+          
           // Create a new file within the directory
           File newFile = new File(directory, HandleFileActions.Companion.getTo_save_file().getName());
-
+          
           try {
             // Copy the file to the new file path within the directory
-            Files.copy(
-                    HandleFileActions.Companion.getTo_save_file().toPath(),
-                    newFile.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING
-            );
-
+            Files.copy(HandleFileActions.Companion.getTo_save_file().toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            
             // Optionally, clear the clipboard after copying
             FileClipboard.clear();
-
+            
           } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to save file: " + e.getMessage());
@@ -270,15 +278,13 @@ public class MainActivity extends BaseActivity {
         } else {
           throw new RuntimeException("Selected path is not a directory");
         }
-
-
-
+        
+        
       } else {
         Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
       }
       
-    }
-    else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
+    } else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
       if (data != null) {
         Uri uri = data.getData();
         if (uri != null) {
@@ -319,14 +325,14 @@ public class MainActivity extends BaseActivity {
     }
     
     for (DynamicFragment f : fragments) {
-      if (f.file.equals(file)) {
+      if (f.getFile().equals(file)) {
         rkUtils.toast(this, "File already opened!");
         return;
       }
     }
     
     
-    var dynamicfragment = new DynamicFragment(file, this, isNewFile);
+    var dynamicfragment = new DynamicFragment(file, this);
     if (text != null) {
       dynamicfragment.editor.setText(text);
     }
@@ -335,7 +341,7 @@ public class MainActivity extends BaseActivity {
     for (int i = 0; i < mTabLayout.getTabCount(); i++) {
       TabLayout.Tab tab = mTabLayout.getTabAt(i);
       if (tab != null) {
-        String name = fragments.get(tab.getPosition()).fileName;
+        String name = fragments.get(tab.getPosition()).getFileName();
         if (name != null) {
           tab.setText(name);
         }
@@ -419,7 +425,7 @@ public class MainActivity extends BaseActivity {
           return;
         }
         
-        if (!file.canRead() && file.canWrite()){
+        if (!file.canRead() && file.canWrite()) {
           rkUtils.toast(MainActivity.this, "Permission Denied");
         }
         
@@ -448,7 +454,7 @@ public class MainActivity extends BaseActivity {
     
   }
   
-  public void privateDir(View v){
+  public void privateDir(View v) {
     binding.mainView.setVisibility(View.VISIBLE);
     binding.safbuttons.setVisibility(View.GONE);
     binding.maindrawer.setVisibility(View.VISIBLE);
@@ -475,8 +481,7 @@ public class MainActivity extends BaseActivity {
     getMenuInflater().inflate(R.menu.menu_main, menu);
     StaticData.menu = menu;
     
-    if(menu instanceof MenuBuilder){
-      MenuBuilder m = (MenuBuilder) menu;
+    if (menu instanceof MenuBuilder m) {
       //noinspection RestrictedApi
       m.setOptionalIconsVisible(true);
     }

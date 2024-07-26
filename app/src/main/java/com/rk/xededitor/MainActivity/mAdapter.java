@@ -76,7 +76,7 @@ public class mAdapter extends FragmentStatePagerAdapter {
     } else {
       var uri = file.getPath();
       for (DynamicFragment f : fragments) {
-        if (f.file.getPath().equals(uri)) {
+        if (f.getFile().getPath().equals(uri)) {
           return;
         }
       }
