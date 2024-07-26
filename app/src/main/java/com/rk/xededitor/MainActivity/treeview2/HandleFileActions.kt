@@ -83,6 +83,7 @@ class HandleFileActions(
       menu.findItem(R.id.openFile).setVisible(true)
       menu.findItem(R.id.refresh).setVisible(true)
       menu.findItem(R.id.paste).setVisible(true)
+      menu.findItem(R.id.openWith).setVisible(false)
       menu.findItem(R.id.paste).setEnabled(!FileClipboard.isEmpty())
     }
   }

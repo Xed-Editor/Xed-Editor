@@ -3,10 +3,7 @@ package com.rk.xededitor.Settings
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
 import android.view.WindowManager
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
@@ -16,7 +13,6 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -64,7 +60,7 @@ class SettingsEditor : BaseActivity() {
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
       window.statusBarColor = Color.BLACK
       window.navigationBarColor = Color.BLACK
-    }else if (SettingsData.isDarkMode(this)){
+    } else if (SettingsData.isDarkMode(this)) {
       val window = window
       window.navigationBarColor = Color.parseColor("#141118")
     }
@@ -97,7 +93,7 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
-      switch("diagnolScroll"){
+      switch("diagnolScroll") {
         title = "Diagnol Scrolling"
         summary = "Enable Diagnol Scrolling in File Browser"
         iconRes = R.drawable.diagonal_scroll
@@ -109,7 +105,7 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
-      switch("showlinenumbers"){
+      switch("showlinenumbers") {
         title = "Show Line Numbers"
         summary = "Show Line Numbers in Editor"
         iconRes = R.drawable.linenumbers
@@ -123,7 +119,7 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
-      switch("pinlinenumbers"){
+      switch("pinlinenumbers") {
         title = "Pin Line Numbers"
         summary = "Pin Line Numbers in Editor"
         iconRes = R.drawable.linenumbers
@@ -137,43 +133,44 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
-      switch("arrow_keys"){
-        title = "Arrow Keys"
-        summary = "Show arrow keys in the editor"
-        iconRes = R.drawable.double_arrows
-        defaultValue = false
-        onCheckedChange { isChecked ->
-          SettingsData.setBoolean(this@SettingsEditor, "show_arrows", isChecked)
-          
-          if (StaticData.fragments == null || StaticData.fragments.isEmpty()){
-            return@onCheckedChange true
-          }
-          
-          if(isChecked){
-            MainActivity.activity?.binding?.divider?.visibility = View.VISIBLE
-            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.VISIBLE
-            val vp = MainActivity.activity.binding.viewpager
-            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
-            layoutParams.bottomMargin =
-              rkUtils.dpToPx(40f, MainActivity.activity) // Convert dp to pixels as needed
-            vp.setLayoutParams(layoutParams)
-          }else{
-            MainActivity.activity?.binding?.divider?.visibility = View.GONE
-            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.GONE
-            val vp = MainActivity.activity.binding.viewpager
-            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
-            layoutParams.bottomMargin =
-              rkUtils.dpToPx(0f, MainActivity.activity) // Convert dp to pixels as needed
-            vp.setLayoutParams(layoutParams)
-          }
-          
-          return@onCheckedChange true
-        }
-      }
+//      switch("arrow_keys"){
+//        title = "Arrow Keys"
+//        summary = "Show arrow keys in the editor"
+//        iconRes = R.drawable.double_arrows
+//        defaultValue = false
+//        onCheckedChange { isChecked ->
+//          SettingsData.setBoolean(this@SettingsEditor, "show_arrows", isChecked)
+//
+//          if (StaticData.fragments == null || StaticData.fragments.isEmpty()){
+//            return@onCheckedChange true
+//          }
+//
+//          if(isChecked){
+//            MainActivity.activity?.binding?.divider?.visibility = View.VISIBLE
+//            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.VISIBLE
+//            val vp = MainActivity.activity.binding.viewpager
+//            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
+//            layoutParams.bottomMargin =
+//              rkUtils.dpToPx(40f, MainActivity.activity) // Convert dp to pixels as needed
+//            vp.setLayoutParams(layoutParams)
+//          }else{
+//            MainActivity.activity?.binding?.divider?.visibility = View.GONE
+//            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.GONE
+//            val vp = MainActivity.activity.binding.viewpager
+//            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
+//            layoutParams.bottomMargin =
+//              rkUtils.dpToPx(0f, MainActivity.activity) // Convert dp to pixels as needed
+//            vp.setLayoutParams(layoutParams)
+//          }
+//
+//          return@onCheckedChange true
+//        }
+//      }
     }
     
     
   }
+  
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     // Save the padapter state as a parcelable into the Android-managed instance state
