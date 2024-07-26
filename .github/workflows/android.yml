@@ -2,11 +2,11 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
     paths-ignore:
       - '**/*.md'  
   pull_request:
-    branches: [ "main" ]
+    branches: [ "**" ]
   
 
 jobs:

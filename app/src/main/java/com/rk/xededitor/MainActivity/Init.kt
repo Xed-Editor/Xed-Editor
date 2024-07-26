@@ -4,19 +4,15 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.xededitor.After
 import com.rk.xededitor.Decompress
-import com.rk.xededitor.MainActivity.treeview2.DiagonalScrollView
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
@@ -39,20 +35,29 @@ class Init(activity: MainActivity) {
           var flags = decorView.systemUiVisibility
           flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
           decorView.systemUiVisibility = flags
+        } else if (SettingsData.isDarkMode(this)) {
+          
+          if (SettingsData.isOled(this)) {
+            
+            binding.drawerLayout.setBackgroundColor(Color.BLACK)
+            binding.navView.setBackgroundColor(Color.BLACK)
+            binding.main.setBackgroundColor(Color.BLACK)
+            binding.appbar.setBackgroundColor(Color.BLACK)
+            binding.toolbar.setBackgroundColor(Color.BLACK)
+            binding.tabs.setBackgroundColor(Color.BLACK)
+            binding.mainView.setBackgroundColor(Color.BLACK)
+            val window = window
+            window.navigationBarColor = Color.BLACK
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = Color.BLACK
+          } else {
+            val window = window
+            window.navigationBarColor = Color.parseColor("#141118")
+          }
+          
         }
-        if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
-          binding.drawerLayout.setBackgroundColor(Color.BLACK)
-          binding.navView.setBackgroundColor(Color.BLACK)
-          binding.main.setBackgroundColor(Color.BLACK)
-          binding.appbar.setBackgroundColor(Color.BLACK)
-          binding.toolbar.setBackgroundColor(Color.BLACK)
-          binding.tabs.setBackgroundColor(Color.BLACK)
-          binding.mainView.setBackgroundColor(Color.BLACK)
-          val window = window
-          window.navigationBarColor = Color.BLACK
-          window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-          window.statusBarColor = Color.BLACK
-        }
+        
+        
         StaticData.mTabLayout.setOnTabSelectedListener(object : OnTabSelectedListener {
           override fun onTabSelected(tab: TabLayout.Tab) {
             viewPager.setCurrentItem(tab.position)
@@ -164,23 +169,18 @@ class Init(activity: MainActivity) {
                 
                 
                 //close drawer if opened
-               if(activity.drawerLayout.isDrawerOpen(GravityCompat.START)){
-                 activity.drawerLayout.closeDrawer(GravityCompat.START)
-                 return
-               }
-
-
-
-
-
+                if (activity.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                  activity.drawerLayout.closeDrawer(GravityCompat.START)
+                  return
+                }
+                
+                
                 var shouldExit = true
-                var hasNewFiles = false
+                
                 var isModified = false
                 if (StaticData.fragments != null) {
                   for (fragment in StaticData.fragments) {
-                    if (!hasNewFiles && fragment.isNewFile) {
-                      hasNewFiles = true
-                    }
+                    
                     if (fragment.isModified) {
                       isModified = true
                     }
@@ -196,14 +196,14 @@ class Init(activity: MainActivity) {
                           activity.getString(R.string.exit)
                         ) { dialogInterface: DialogInterface?, i: Int -> activity.finish() }
                     
-                    if (!hasNewFiles) {
-                      dialog.setNeutralButton(
-                        activity.getString(R.string.saveexit)
-                      ) { xdialog: DialogInterface?, which: Int ->
-                        activity.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
-                        activity.finish()
-                      }
+                    
+                    dialog.setNeutralButton(
+                      activity.getString(R.string.saveexit)
+                    ) { xdialog: DialogInterface?, which: Int ->
+                      activity.onOptionsItemSelected(StaticData.menu.findItem(R.id.action_all))
+                      activity.finish()
                     }
+                    
                     
                     
                     dialog.show()
@@ -240,8 +240,21 @@ class Init(activity: MainActivity) {
         }
       }
       
-     
-     
+      
+      rkUtils.runOnUiThread {
+        val arrows = MainActivity.activity.binding.mainBottomBar
+        for (i in 0 until arrows.childCount) {
+          val button = arrows.getChildAt(i)
+          button.setOnClickListener { v ->
+            when (v.id) {
+              R.id.left_arrow -> {}
+              R.id.right_arrow -> {}
+              R.id.up_arrow -> {}
+              R.id.down_arrow -> {}
+            }
+          }
+        }
+      }
       
       
     }.start()

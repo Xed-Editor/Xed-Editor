@@ -25,7 +25,7 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="20dp"
     android:height="20dp"
-    android:tint="@android:color/tertiary_text_light"
+    android:tint="?attr/colorControlNormal"
     android:viewportWidth="20"
     android:viewportHeight="20">
     <path

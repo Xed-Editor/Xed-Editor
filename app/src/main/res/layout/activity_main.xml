@@ -30,8 +30,8 @@
                 android:visibility="gone"
                 app:tabGravity="fill"
                 app:tabIndicatorHeight="4dp"
-                app:tabTextAppearance="@style/tab_text"
-                app:tabMode="scrollable" />
+                app:tabMode="scrollable"
+                app:tabTextAppearance="@style/tab_text" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -45,7 +45,57 @@
             <com.rk.xededitor.MainActivity.NoSwipeViewPager
                 android:id="@+id/viewpager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:visibility="gone"
+                android:id="@+id/divider"
+                android:layout_alignTop="@+id/main_bottom_bar"
+                android:background="@color/invert_dull" />
+
+            <LinearLayout
+                android:id="@+id/main_bottom_bar"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:visibility="gone"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/left_arrow"
+                    android:textColor="@color/invert_dull"
+                    android:background="@android:color/transparent"
+                    android:text="←"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/up_arrow"
+                    android:textColor="@color/invert_dull"
+                    android:background="@android:color/transparent"
+                    android:text="↑"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/right_arrow"
+                    android:textColor="@color/invert_dull"
+                    android:background="@android:color/transparent"
+                    android:text="→"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/down_arrow"
+                    android:textColor="@color/invert_dull"
+                    android:background="@android:color/transparent"
+                    android:text="↓"/>
+
+
+            </LinearLayout>
 
         </RelativeLayout>
 
@@ -107,14 +157,13 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
         <LinearLayout
             android:id="@+id/safbuttons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:padding="50dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="68dp">
 
             <Button
                 android:id="@+id/openFile_btn"
@@ -136,16 +185,6 @@
                 android:layout_height="wrap_content"
                 android:onClick="open_from_path"
                 android:text="@string/open_from_path" />
-
-            <Button
-                android:id="@+id/privateDir"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:onClick="privateDir"
-                android:text="@string/app_private_directory" />
-
-
 
         </LinearLayout>
 

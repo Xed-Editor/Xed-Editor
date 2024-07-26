@@ -6,6 +6,7 @@
     <item
         android:id="@+id/action_all"
         android:title="@string/save_all"
+        android:icon="@drawable/save"
         android:visible="false"
         app:showAsAction="never" />
     <item
@@ -44,10 +45,12 @@
         android:id="@+id/action_print"
         android:title="@string/print"
         android:visible="false"
+        android:icon="@drawable/print"
         app:showAsAction="never" />
     <item
         android:id="@+id/batchrep"
         android:title="@string/batch_replacement"
+        android:icon="@drawable/find_replace"
         app:showAsAction="never" />
     <item
         android:id="@+id/search"
@@ -82,10 +85,12 @@
         android:id="@+id/share"
         android:title="@string/share"
         android:visible="false"
+        android:icon="@drawable/send"
         app:showAsAction="never" />
     <item
         android:id="@+id/insertdate"
         android:title="@string/insertdate"
+        android:icon="@drawable/calendar_month"
         android:visible="false"
         app:showAsAction="never" />
 

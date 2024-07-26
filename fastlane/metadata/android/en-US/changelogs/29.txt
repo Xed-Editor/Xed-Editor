@@ -1,0 +1,11 @@
+v2.5.0 (29)
+
+- Moved manage plugins to Applications tab
+- Moved private data directory in settings
+- Added icons to overflow menu
+- Bug fixes
+- Added syntax highlighting for common Languages
+- Updated Logo
+- Added 'show line numbers' toggle
+- Added 'pin line numbers' toggle
+- Added 'diagonal scrolling' toggle

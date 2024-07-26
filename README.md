@@ -2,7 +2,7 @@
   <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Xed Editor" width="90" height="90"/>
 </p>
 
-<h2 align="center"><b>Xed Editor</b></h2>
+<h2 align="center"><b>Karbon</b></h2>
 
 <div align="center"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=views%20(today/total)&edge_flat=false" alt="Hits">
 <img src="https://img.shields.io/github/downloads/RohitKushvaha01/Xed-Editor/total?label=Downloads" alt="Download Count"><a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"></a>
@@ -69,10 +69,14 @@ height="80">](https://github.com/RohitKushvaha01/Xed-Editor/releases/latest)
 ## Screenshots
 
 <div >
-<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
+<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" />
+<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" />
+<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
 </div>
 <div >
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/04.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.jpg" width="32%" /> <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/07.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/08.jpg" width="32%" />
 </div>
 
 ## To contribute

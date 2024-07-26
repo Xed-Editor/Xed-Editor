@@ -246,7 +246,9 @@ class MenuClickHandler {
       
       Thread {
         val outputStream = FileOutputStream(file, false)
-        ContentIO.writeTo(content, outputStream, true)
+        if (content != null) {
+          ContentIO.writeTo(content, outputStream, true)
+        }
       }.start()
       
       rkUtils.toast(activity, activity.getString(R.string.save))
