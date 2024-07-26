@@ -56,8 +56,10 @@ if you have any suggestions for app name or logo please create a discussion
 
 </div>
 
-Download latest build
+Download latest stable build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
+
+Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xed-Editor/actions/)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
