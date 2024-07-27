@@ -3,6 +3,23 @@
 -dontwarn org.apache.hadoop.**
 -keep class org.apache.commons.logging.** { *; }
 -dontwarn org.apache.commons.logging.**
+-keepclassmembers class org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfiguration {
+    <init>(...);
+}
+# Keep all classes and their members (fields and methods)
+-keep class * { *; }
+
+# Keep all annotation attributes
+-keepattributes *Annotation*
+
+# Keep all signatures, which are used for generics
+-keepattributes Signature
+
+# Keep all
+-keepclassmembers class *
+
+-dontoptimize
+
 
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the

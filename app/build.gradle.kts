@@ -36,7 +36,7 @@ android {
     
     buildTypes {
       getByName("release") {
-        isMinifyEnabled = true
+        isMinifyEnabled = false
         isCrunchPngs = false
         proguardFiles(
           getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
@@ -48,7 +48,7 @@ android {
     println("Not a local environment, skipping signing")
     buildTypes {
       getByName("release") {
-        isMinifyEnabled = true
+        isMinifyEnabled = false
         isCrunchPngs = false
         proguardFiles(
           getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
