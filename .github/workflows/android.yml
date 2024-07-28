@@ -4,8 +4,10 @@ on:
   push:
     branches: [ "**" ]
     paths-ignore:
-      - '**/*.md'  
-  pull_request:
+      - '**/*.md'
+  pull_request_review:
+    types:
+      - submitted
     branches: [ "**" ]
   
 
