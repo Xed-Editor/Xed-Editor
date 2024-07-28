@@ -37,7 +37,6 @@ if you have any suggestions for app name or logo please create a discussion
 - [x] Batch Replacement
 - [x] Word Wrap
 - [x] File Browser
-- [x] Plugins using javascript
 - [x] Creating files and folders
 - [x] Copy Pasting files and Folders
 - [x] Rename, Delete files and folders
