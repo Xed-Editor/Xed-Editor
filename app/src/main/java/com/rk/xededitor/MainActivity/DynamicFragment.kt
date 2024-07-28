@@ -14,7 +14,6 @@ import com.rk.xededitor.After
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.runOnUi
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
@@ -47,7 +46,7 @@ class DynamicFragment : Fragment {
   
   constructor() {
     After(100) {
-      MainActivity.activity.runOnUiThread {
+      rkUtils.runOnUiThread {
         val fragmentManager = MainActivity.activity.supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
         fragmentTransaction.remove(this)
@@ -94,20 +93,20 @@ class DynamicFragment : Fragment {
         val inputStream: InputStream = FileInputStream(file)
         content = ContentIO.createFrom(inputStream)
         inputStream.close()
-        runOnUi { editor.setText(content) }
+        rkUtils.runOnUiThread { editor.setText(content) }
         if (wordwrap) {
           val length = content.toString().length
           if (length > 700 && content.toString().split("\\R".toRegex())
               .dropLastWhile { it.isEmpty() }.toTypedArray().size < 100
           ) {
-            runOnUi {
+            rkUtils.runOnUiThread {
               rkUtils.toast(
                 ctx, resources.getString(R.string.ww_wait)
               )
             }
           }
           if (length > 1500) {
-            runOnUi {
+            rkUtils.runOnUiThread {
               Toast.makeText(
                 ctx, resources.getString(R.string.ww_wait), Toast.LENGTH_LONG
               ).show()
@@ -186,7 +185,7 @@ class DynamicFragment : Fragment {
           ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
         }
         if (!File(path).exists()) {
-          runOnUi {
+          rkUtils.runOnUiThread {
             rkUtils.toast(
               ctx, resources.getString(R.string.theme_not_found_err)
             )
@@ -208,7 +207,7 @@ class DynamicFragment : Fragment {
         val path =
           ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
         if (!File(path).exists()) {
-          runOnUi {
+          rkUtils.runOnUiThread {
             rkUtils.toast(
               ctx, resources.getString(R.string.theme_not_found_err)
             )

@@ -34,7 +34,8 @@ class HandleFileActions(
   private val context: MainActivity,
   val rootFolder: File,
   val file: File,
-  private val anchorView: View
+  private val anchorView: View,
+  private val adapter: TreeViewAdapter?
 ) {
   
   init {
@@ -146,74 +147,76 @@ class HandleFileActions(
         FileClipboard.setFile(file)
         true
       }
-
+      
       R.id.paste -> {
         // Handle paste action
-        val loadingpopup = LoadingPopup(context,350)
-        Thread{
+        val loadingpopup = LoadingPopup(context, 350)
+        Thread {
           if (!FileClipboard.isEmpty()) {
             val sourceFile = FileClipboard.getFile()
             if (file.isDirectory && sourceFile != null) {
               try {
                 val targetPath = file.toPath().resolve(sourceFile.name)
-
+                
                 // Move the source file to the target directory
                 Files.copy(
-                  sourceFile.toPath(),
-                  targetPath,
-                  StandardCopyOption.REPLACE_EXISTING
+                  sourceFile.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING
                 )
-
+                
                 // Update the TreeView to reflect the changes
                 rkUtils.runOnUiThread {
                   TreeView(context, rootFolder)
                 }
-
-
+                
+                
                 // Optionally, clear the clipboard after pasting
                 FileClipboard.clear()
-
+                
               } catch (e: Exception) {
                 e.printStackTrace()
                 rkUtils.runOnUiThread {
-                  Toast.makeText(context, "Failed to move file: ${e.message}", Toast.LENGTH_SHORT).show()
+                  Toast.makeText(context, "Failed to move file: ${e.message}", Toast.LENGTH_SHORT)
+                    .show()
                 }
-
+                
               }
             }
           }
         }.start()
-
+        
         true
       }
-
-
+      
+      
       R.id.delete -> {
         // Handle delete action
         
         MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.delete))
-          .setMessage(context.getString(R.string.ask_del)+" this file?")
-         .setNegativeButton(context.getString(R.string.cancel), null)
-          .setPositiveButton(
+          .setMessage(context.getString(R.string.ask_del) + " this file?")
+          .setNegativeButton(context.getString(R.string.cancel), null).setPositiveButton(
             context.getString(R.string.delete)
           ) { _: DialogInterface?, _: Int ->
             
             
-            if(file == rootFolder){
+            if (file == rootFolder) {
               context.binding.mainView.visibility = View.GONE
               context.binding.safbuttons.visibility = View.VISIBLE
               context.binding.maindrawer.visibility = View.GONE
               context.binding.drawerToolbar.visibility = View.GONE
               context.adapter?.clear()
               
-            }else{
-              if (file.isFile){
+            } else {
+              if (file.isFile) {
+                
                 file.delete()
-              }else{
+              } else {
+                
                 file.deleteRecursively()
               }
               
-              TreeView(context, rootFolder)
+              // TreeView(context, rootFolder)
+              adapter?.removeFile(file)
+              
             }
             
             
@@ -224,7 +227,7 @@ class HandleFileActions(
         
         
         
-       
+        
         true
       }
       
@@ -252,9 +255,7 @@ class HandleFileActions(
   
   private fun openWith(context: Context, file: File) {
     val uri: Uri = FileProvider.getUriForFile(
-      context,
-      context.applicationContext.packageName + ".fileprovider",
-      file
+      context, context.applicationContext.packageName + ".fileprovider", file
     )
     val mimeType = getMimeType(context, file)
     
@@ -308,9 +309,8 @@ class HandleFileActions(
       editText.hint = context.getString(R.string.dir_example)
     }
     
-    MaterialAlertDialogBuilder(context).setTitle(title)
-      .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
-      .setPositiveButton(
+    MaterialAlertDialogBuilder(context).setTitle(title).setView(popupView)
+      .setNegativeButton(context.getString(R.string.cancel), null).setPositiveButton(
         context.getString(R.string.create)
       ) { _: DialogInterface?, _: Int ->
         if (editText.getText().toString().isEmpty()) {
@@ -335,9 +335,8 @@ class HandleFileActions(
           File(file, fileName).mkdir()
         }
         
-        TreeView(
-          context, rootFolder
-        )
+        //TreeView(context, rootFolder)
+        adapter?.newFile(file,File(file, fileName))
         loading.hide()
       }.show()
   }
@@ -373,9 +372,8 @@ class HandleFileActions(
         
         file.renameTo(File(file.parentFile, fileName))
         
-        TreeView(
-          context, rootFolder
-        )
+        //TreeView(context, rootFolder)
+        adapter?.renameFile(file,fileName)
         loading.hide()
       }.show()
   }

@@ -14,7 +14,6 @@ import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
 import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
@@ -97,41 +96,6 @@ class SettingsApp : BaseActivity() {
           rkUtils.toast(this@SettingsApp,"Opened in File Browser")
         }
       }
-      
-      
-      
-      switch("plugin") {
-        titleRes = R.string.plugin
-        summary = "Enable/Disable Plugins"
-        iconRes = R.drawable.extension
-        onCheckedChange { newValue ->
-          SettingsData.setBoolean(this@SettingsApp, "enablePlugins", newValue)
-          
-          val loading = LoadingPopup(this@SettingsApp,null).show()
-          After(800){
-            runOnUiThread {
-              padapter.setRootScreen(getScreen())
-              MainActivity.activity?.recreate()
-              loading.hide()
-            }
-          }
-          
-          //SettingsMainActivity.settingsMain?.recreate()
-          return@onCheckedChange true
-        }
-      }
-      if (SettingsData.getBoolean(this@SettingsApp, "enablePlugins", false)) {
-        pref("ManagePlugins") {
-          title = "Manage Plugins"
-          summary = "Enable/Disable installed plugins"
-          iconRes = R.drawable.extension
-          onClickView {
-            startActivity(Intent(this@SettingsApp, ManagePluginActivity::class.java))
-          }
-        }
-      }
-      
-      
     }
   }
   

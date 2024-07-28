@@ -207,6 +207,7 @@ public class MainActivity extends BaseActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    
     if (requestCode == REQUEST_CODE_MANAGE_EXTERNAL_STORAGE) {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         if (!Environment.isExternalStorageManager()) {
@@ -396,7 +397,7 @@ public class MainActivity extends BaseActivity {
   }
   
   public void fileOptions(View v) {
-    new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v);
+    new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v,null);
   }
   
   

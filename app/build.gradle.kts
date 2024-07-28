@@ -103,7 +103,6 @@ dependencies {
   implementation(libs.asynclayoutinflater)
   implementation(libs.navigation.fragment.ktx)
   implementation(libs.navigation.ui.ktx)
-  implementation(project(":xedPlugin"))
   
   implementation(libs.activity)
   coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
@@ -131,6 +130,7 @@ dependencies {
   implementation(libs.snakeyaml.engine)
   implementation(libs.jdt.annotation)
   
+  implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
   
   
 }

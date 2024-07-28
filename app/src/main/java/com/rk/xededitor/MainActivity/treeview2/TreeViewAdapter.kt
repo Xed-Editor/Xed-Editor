@@ -11,7 +11,9 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.rk.xededitor.After
 import com.rk.xededitor.R
+import com.rk.xededitor.rkUtils
 import java.io.File
 import java.util.LinkedList
 import java.util.Queue
@@ -89,6 +91,75 @@ class TreeViewAdapter(
         localViews.push(view)
       }
     }.also { it.start() }
+  }
+  
+  //testing
+  fun removeFile(file: File){
+    //todo handle folders
+    val tempData = currentList.toMutableList()
+    var nodetoremove:Node<File>? = null
+    
+    for (node in tempData){
+      if (node.value == file){
+        nodetoremove = node
+        break
+      }
+    }
+    
+    if (file.isFile){
+      tempData.removeAt(tempData.indexOf(nodetoremove))
+    }else{
+      val children = TreeViewModel.getChildren(nodetoremove!!)
+      tempData.removeAll(children.toSet())
+      TreeViewModel.remove(nodetoremove, nodetoremove.child)
+      nodetoremove.isExpand = false
+      tempData.removeAt(tempData.indexOf(nodetoremove))
+    }
+    
+    submitList(tempData)
+  }
+  fun renameFile(file: File, newName: String){
+    val tempData = currentList.toMutableList()
+    var nodetorename:Node<File>? = null
+    
+    for (node in tempData){
+      if (node.value == file){
+        nodetorename = node
+        break
+      }
+    }
+    tempData[tempData.indexOf(nodetorename)] = Node(File(file.parentFile, newName))
+    submitList(tempData)
+  }
+  fun newFile(file: File,child:File){
+    val tempData = currentList.toMutableList()
+    var xnode:Node<File>? = null
+    
+    for (node in tempData){
+      if (node.value == file){
+        xnode= node
+        break
+      }
+    }
+    
+    val index = tempData.indexOf(xnode)
+   // val cachedChild = cacheList.get(xnode?.value)
+    //val xchildren = cachedChild ?: merge(xnode?.value!!).also {
+      //cacheList.put(xnode.value, it)
+    //}
+    //val children = xchildren.toMutableList()
+    //children.add(Node(file))
+    
+    tempData.add(index+1, Node(child).apply {
+      this.parent = xnode
+      if (xnode != null) {
+        this.level = xnode.level+1
+      }
+    })
+    //TreeViewModel.add(xnode!!, children)
+    //xnode.isExpand = true
+    
+    submitList(tempData)
   }
   
   companion object {

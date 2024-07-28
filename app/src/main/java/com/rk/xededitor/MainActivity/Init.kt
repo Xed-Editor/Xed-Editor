@@ -1,5 +1,7 @@
 package com.rk.xededitor.MainActivity
 
+import android.app.ActivityManager
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
@@ -16,7 +18,6 @@ import com.rk.xededitor.Decompress
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.plugin.PluginServer
 import com.rk.xededitor.rkUtils
 import java.io.File
 
@@ -26,7 +27,7 @@ class Init(activity: MainActivity) {
       Thread.currentThread().priority = 10
       with(activity) {
         
-        PluginServer(application).start()
+        
         
         if (!SettingsData.isDarkMode(this)) {
           //light mode

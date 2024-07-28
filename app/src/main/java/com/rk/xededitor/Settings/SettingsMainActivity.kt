@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onClickView

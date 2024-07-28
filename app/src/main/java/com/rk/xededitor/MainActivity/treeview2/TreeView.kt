@@ -4,37 +4,38 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.After
-
-import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.PrepareRecyclerView
+import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.Settings.SettingsData
 import java.io.File
 
 class TreeView(val ctx: MainActivity, rootFolder: File) {
   
-  companion object{
+  companion object {
     var opened_file_path = ""
   }
   
   init {
-
+    
     val recyclerView = ctx.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
       setItemViewCacheSize(100)
       visibility = View.GONE
-
+      
     }
-
+    
     ctx.binding.progressBar.visibility = View.VISIBLE
     
     
     Thread {
       opened_file_path = rootFolder.absolutePath
-      SettingsData.setSetting(ctx,"lastOpenedPath",rootFolder.absolutePath)
+      SettingsData.setSetting(ctx, "lastOpenedPath", rootFolder.absolutePath)
       
       nodes = TreeViewAdapter.merge(rootFolder)
-
-      val adapter = TreeViewAdapter(recyclerView,ctx).apply {
+      
+      val adapter = TreeViewAdapter(recyclerView, ctx)
+      
+      adapter.apply {
         setOnItemClickListener(object : OnItemClickListener {
           override fun onItemClick(v: View, node: Node<File>) {
             ctx.newEditor(node.value, false)
@@ -49,7 +50,7 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
           
           override fun onItemLongClick(v: View, node: Node<File>) {
             TreeViewAdapter.nodemap?.get(node)?.let {
-              HandleFileActions(ctx, rootFolder, node.value, it)
+              HandleFileActions(ctx, rootFolder, node.value, it, adapter)
             }
           }
         })

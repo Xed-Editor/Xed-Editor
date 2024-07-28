@@ -1,6 +1,5 @@
 package com.rk.xededitor
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -9,13 +8,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.plugin.PluginServer
 
-private val handler: Handler = Handler(Looper.getMainLooper())
-
-fun runOnUi(runnable: Runnable?) {
-  handler.post(runnable!!)
-}
 
 abstract class BaseActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,56 +29,8 @@ abstract class BaseActivity : AppCompatActivity() {
       window.statusBarColor = Color.BLACK
     }
     
-    Thread {
-      val loadedPlugins = PluginServer.loadedPlugins
-      if (!loadedPlugins.isNullOrEmpty()) {
-        for (pluginInstance in loadedPlugins) {
-          pluginInstance.onActivityCreate(this@BaseActivity)
-        }
-      }
-      
-    }.start()
-  }
-  
-  
-  override fun onDestroy() {
-    Thread {
-      val loadedPlugins = PluginServer.loadedPlugins
-      if (!loadedPlugins.isNullOrEmpty()) {
-        for (pluginInstance in loadedPlugins) {
-          pluginInstance.onActivityDestroy(this@BaseActivity)
-        }
-      }
-    }.start()
-    super.onDestroy()
-  }
-  
-  override fun onPause() {
-    super.onPause()
-    Thread {
-      val loadedPlugins = PluginServer.loadedPlugins
-      if (!loadedPlugins.isNullOrEmpty()) {
-        for (pluginInstance in loadedPlugins) {
-          pluginInstance.onActivityPause(this@BaseActivity)
-        }
-      }
-    }.start()
-  }
-  
-  override fun onResume() {
-    super.onResume()
     
-    Thread {
-      val loadedPlugins = PluginServer.loadedPlugins
-      if (!loadedPlugins.isNullOrEmpty()) {
-        for (pluginInstance in loadedPlugins) {
-          pluginInstance.onActivityResume(this@BaseActivity)
-        }
-      }
-    }.start()
   }
   
-}
-
-class ActivityAboutUs : BaseActivity() {
+  
 }
