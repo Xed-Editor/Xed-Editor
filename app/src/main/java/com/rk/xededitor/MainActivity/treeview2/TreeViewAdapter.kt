@@ -11,9 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.xededitor.After
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
 import java.io.File
 import java.util.LinkedList
 import java.util.Queue
@@ -26,7 +24,7 @@ interface OnItemClickListener {
 }
 
 class TreeViewAdapter(
-  val recyclerView: RecyclerView, val context: Context
+  val recyclerView: RecyclerView, val context: Context, val root: File
 ) : ListAdapter<Node<File>, TreeViewAdapter.ViewHolder>(NodeDiffCallback()) {
   
   private val icFile = ResourcesCompat.getDrawable(
@@ -47,8 +45,10 @@ class TreeViewAdapter(
   private val cacheList = FileCacheMap<File, List<Node<File>>>()
   
   init {
+    
+    
     thread = Thread {
-      nodemap = HashMap()
+      
       val lock = ReentrantLock()
       val localViews = Stack<View>()
       
@@ -94,21 +94,21 @@ class TreeViewAdapter(
   }
   
   //testing
-  fun removeFile(file: File){
+  fun removeFile(file: File) {
     //todo handle folders
     val tempData = currentList.toMutableList()
-    var nodetoremove:Node<File>? = null
+    var nodetoremove: Node<File>? = null
     
-    for (node in tempData){
-      if (node.value == file){
+    for (node in tempData) {
+      if (node.value == file) {
         nodetoremove = node
         break
       }
     }
     
-    if (file.isFile){
+    if (file.isFile) {
       tempData.removeAt(tempData.indexOf(nodetoremove))
-    }else{
+    } else {
       val children = TreeViewModel.getChildren(nodetoremove!!)
       tempData.removeAll(children.toSet())
       TreeViewModel.remove(nodetoremove, nodetoremove.child)
@@ -118,46 +118,68 @@ class TreeViewAdapter(
     
     submitList(tempData)
   }
-  fun renameFile(file: File, newName: String){
+  
+  fun renameFile(child: File) {
+    val file = child.parentFile
     val tempData = currentList.toMutableList()
-    var nodetorename:Node<File>? = null
+    var nodetorename: Node<File>? = null
     
-    for (node in tempData){
-      if (node.value == file){
+    for (node in tempData) {
+      if (node.value == file) {
         nodetorename = node
         break
       }
     }
-    tempData[tempData.indexOf(nodetorename)] = Node(File(file.parentFile, newName))
+    
+    val cache = merge(file)
+    cacheList.put(file, cache)
+    val children1 = TreeViewModel.getChildren(nodetorename!!)
+    tempData.removeAll(children1.toSet())
+    TreeViewModel.remove(nodetorename, nodetorename.child)
+    nodetorename.isExpand = false
+    
+    
+    
+    val index = tempData.indexOf(nodetorename)
+    
+    //val children = merge(clickedNode.value)
+    tempData.addAll(index + 1, cache)
+    TreeViewModel.add(nodetorename, cache)
+    nodetorename.isExpand = true
+    
+    
     submitList(tempData)
+    
   }
-  fun newFile(file: File,child:File){
+  
+  fun newFile(file: File, child: File) {
+    //List<Node<File>>
     val tempData = currentList.toMutableList()
     var xnode:Node<File>? = null
-    
-    for (node in tempData){
-      if (node.value == file){
-        xnode= node
+    for (node in tempData) {
+      if (node.value == file) {
+        xnode = node
         break
       }
     }
     
-    val index = tempData.indexOf(xnode)
-   // val cachedChild = cacheList.get(xnode?.value)
-    //val xchildren = cachedChild ?: merge(xnode?.value!!).also {
-      //cacheList.put(xnode.value, it)
-    //}
-    //val children = xchildren.toMutableList()
-    //children.add(Node(file))
+    val cache = merge(file)
+    cacheList.put(file, cache)
     
-    tempData.add(index+1, Node(child).apply {
-      this.parent = xnode
-      if (xnode != null) {
-        this.level = xnode.level+1
-      }
-    })
-    //TreeViewModel.add(xnode!!, children)
-    //xnode.isExpand = true
+    val children1 = TreeViewModel.getChildren(xnode!!)
+    tempData.removeAll(children1.toSet())
+    TreeViewModel.remove(xnode, xnode.child)
+    xnode.isExpand = false
+    
+    
+    
+    val index = tempData.indexOf(xnode)
+    
+    //val children = merge(clickedNode.value)
+    tempData.addAll(index + 1, cache)
+    TreeViewModel.add(xnode, cache)
+    xnode.isExpand = true
+    
     
     submitList(tempData)
   }
@@ -179,8 +201,6 @@ class TreeViewAdapter(
       thread?.interrupt()
     }
     
-    @JvmStatic
-    var nodemap: HashMap<Node<File>, View>? = null
   }
   
   fun setOnItemClickListener(listener: OnItemClickListener?) {
@@ -213,6 +233,7 @@ class TreeViewAdapter(
             val children = cachedChild ?: merge(clickedNode.value).also {
               cacheList.put(clickedNode.value, it)
             }
+            //val children = merge(clickedNode.value)
             tempData.addAll(index + 1, children)
             TreeViewModel.add(clickedNode, children)
             clickedNode.isExpand = true
@@ -267,7 +288,7 @@ class TreeViewAdapter(
     val isDir = node.value.isDirectory
     val expandView = holder.expandView
     val fileView = holder.fileView
-    nodemap?.putIfAbsent(node, holder.textView)
+    
     
     //nodemap!![node] = holder.textView
     // Reset padding and margins to avoid accumulation
@@ -297,9 +318,9 @@ class TreeViewAdapter(
       
     }
     
-   // holder.textView.text = " ${node.value.name}          "
+    // holder.textView.text = " ${node.value.name}          "
     holder.textView.text = "  ${node.value.name}  "
-
+    
   }
   
   class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {

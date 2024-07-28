@@ -21,7 +21,7 @@ data class Node<T>(
   var parent: Node<T>? = null,
   var child: List<Node<T>>? = null,
   var isExpand: Boolean = false,
-  var level: Int = 0
+  var level: Int = 0,
 ) {
   
   override fun equals(other: Any?): Boolean {

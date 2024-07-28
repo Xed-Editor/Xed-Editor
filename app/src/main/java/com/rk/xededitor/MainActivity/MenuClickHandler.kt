@@ -14,8 +14,6 @@ import com.rk.xededitor.After
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.treeview2.HandleFileActions
-import com.rk.xededitor.MainActivity.treeview2.HandleFileActions.Companion.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.Printer
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity

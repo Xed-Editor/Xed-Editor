@@ -33,7 +33,7 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
       
       nodes = TreeViewAdapter.merge(rootFolder)
       
-      val adapter = TreeViewAdapter(recyclerView, ctx)
+      val adapter = TreeViewAdapter(recyclerView, ctx,rootFolder)
       
       adapter.apply {
         setOnItemClickListener(object : OnItemClickListener {
@@ -49,9 +49,7 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
           
           
           override fun onItemLongClick(v: View, node: Node<File>) {
-            TreeViewAdapter.nodemap?.get(node)?.let {
-              HandleFileActions(ctx, rootFolder, node.value, it, adapter)
-            }
+            FileAction(ctx, rootFolder, node.value, adapter)
           }
         })
         submitList(nodes)

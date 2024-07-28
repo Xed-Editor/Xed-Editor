@@ -43,7 +43,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.FileClipboard;
-import com.rk.xededitor.MainActivity.treeview2.HandleFileActions;
+import com.rk.xededitor.MainActivity.treeview2.FileAction;
 import com.rk.xededitor.MainActivity.treeview2.TreeView;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
@@ -248,7 +248,7 @@ public class MainActivity extends BaseActivity {
       }
       
       binding.rootDirLabel.setText(name);
-    } else if (requestCode == HandleFileActions.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
+    } else if (requestCode == FileAction.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
       Uri directoryUri = data.getData();
       
       if (directoryUri != null) {
@@ -263,11 +263,11 @@ public class MainActivity extends BaseActivity {
           }
           
           // Create a new file within the directory
-          File newFile = new File(directory, HandleFileActions.Companion.getTo_save_file().getName());
+          File newFile = new File(directory, FileAction.Companion.getTo_save_file().getName());
           
           try {
             // Copy the file to the new file path within the directory
-            Files.copy(HandleFileActions.Companion.getTo_save_file().toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(FileAction.Companion.getTo_save_file().toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             
             // Optionally, clear the clipboard after copying
             FileClipboard.clear();
@@ -397,7 +397,7 @@ public class MainActivity extends BaseActivity {
   }
   
   public void fileOptions(View v) {
-    new HandleFileActions(MainActivity.this, rootFolder, rootFolder, v,null);
+    new FileAction(MainActivity.this, rootFolder, rootFolder,null);
   }
   
   
