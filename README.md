@@ -37,7 +37,6 @@ if you have any suggestions for logo please create a discussion
 - [x] Batch Replacement
 - [x] Word Wrap
 - [x] File Browser
-- [x] Plugins (Read [CREATE_PLUGIN.md](https://github.com/RohitKushvaha01/Xed-Editor/blob/main/CREATE_PLUGIN.md) to create a plugin)
 - [x] Creating files and folders
 - [x] Copy Pasteing files and Folders
 - [x] Rename, Delete files and folders
