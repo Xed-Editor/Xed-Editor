@@ -69,7 +69,7 @@ class DynamicFragment : Fragment {
     setupEditor(editor, ctx).setupLanguage(fileName)
 
 
-editor.setSelection(editor.cursor.leftLine, editor.cursor.leftColum)
+editor.setSelection(editor.cursor.leftLine, editor.cursor.leftColumn)
 
 
 
