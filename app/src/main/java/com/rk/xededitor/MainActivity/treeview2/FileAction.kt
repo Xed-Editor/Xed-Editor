@@ -40,7 +40,7 @@ class FileAction(
     var to_save_file: File? = null
   }
   
-  private lateinit var popupView: View
+  private var popupView: View
   
   init {
     val inflater = context.layoutInflater
@@ -316,7 +316,6 @@ class FileAction(
   }
   
   private fun new(createFile: Boolean) {
-    rkUtils.toast(context,"new")
     val popupView: View = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
     val editText = popupView.findViewById<EditText>(R.id.name)
     

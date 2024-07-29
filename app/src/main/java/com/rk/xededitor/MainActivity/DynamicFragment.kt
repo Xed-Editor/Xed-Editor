@@ -62,16 +62,20 @@ class DynamicFragment : Fragment {
     editor = CodeEditor(ctx)
     editorx = editor
     
-    
-    when(fileName.substringAfterLast('.', "")){
-      "java" -> {setLanguage("source.java")}
-      "html" -> {setLanguage("text.html.basic")}
-      "kt" -> {setLanguage("source.kotlin")}
-      "py" -> {setLanguage("source.python")}
-      "xml" -> {setLanguage("text.xml")}
-      "js" -> {setLanguage("source.js")}
-      "md" -> {setLanguage("text.html.markdown")}
+    After(1200){
+      rkUtils.runOnUiThread {
+        when(fileName.substringAfterLast('.', "")){
+          "java" -> {setLanguage("source.java")}
+          "html" -> {setLanguage("text.html.basic")}
+          "kt" -> {setLanguage("source.kotlin")}
+          "py" -> {setLanguage("source.python")}
+          "xml" -> {setLanguage("text.xml")}
+          "js" -> {setLanguage("source.js")}
+          "md" -> {setLanguage("text.html.markdown")}
+        }
+      }
     }
+   
     
     
     
