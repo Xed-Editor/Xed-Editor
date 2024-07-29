@@ -14,6 +14,7 @@ import com.rk.xededitor.After
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.setupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
@@ -37,7 +38,7 @@ class DynamicFragment : Fragment {
   var file: File? = null
   private var ctx: Context? = null
   lateinit var editor: CodeEditor
-  var editorx: CodeEditor? = null
+  private var editorx: CodeEditor? = null
   var content: Content? = null
   var isModified: Boolean = false
   var undo: MenuItem? = null
@@ -64,15 +65,7 @@ class DynamicFragment : Fragment {
     
     After(1200){
       rkUtils.runOnUiThread {
-        when(fileName.substringAfterLast('.', "")){
-          "java" -> {setLanguage("source.java")}
-          "html" -> {setLanguage("text.html.basic")}
-          "kt" -> {setLanguage("source.kotlin")}
-          "py" -> {setLanguage("source.python")}
-          "xml" -> {setLanguage("text.xml")}
-          "js" -> {setLanguage("source.js")}
-          "md" -> {setLanguage("text.html.markdown")}
-        }
+        setupEditor(editor,ctx).setupLanguage(fileName)
       }
     }
    
@@ -83,9 +76,9 @@ class DynamicFragment : Fragment {
     
     
     if (SettingsData.isDarkMode(ctx)) {
-      ensureTextmateTheme()
+      setupEditor(editor,ctx).ensureTextmateTheme()
     } else {
-      Thread { this.ensureTextmateTheme() }.start()
+      Thread { setupEditor(editor,ctx).ensureTextmateTheme() }.start()
     }
     
     val wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false)
@@ -176,83 +169,7 @@ class DynamicFragment : Fragment {
     }
   }
   
-  private fun ensureTextmateTheme() {
-    var editorColorScheme = editor.colorScheme
-    val themeRegistry = ThemeRegistry.getInstance()
-    
-    val darkMode = SettingsData.isDarkMode(ctx)
-    try {
-      if (darkMode) {
-        val path = if (SettingsData.isOled(ctx)) {
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
-        } else {
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
-        }
-        if (!File(path).exists()) {
-          rkUtils.runOnUiThread {
-            rkUtils.toast(
-              ctx, resources.getString(R.string.theme_not_found_err)
-            )
-          }
-        }
-        
-        themeRegistry.loadTheme(
-          ThemeModel(
-            IThemeSource.fromInputStream(
-              FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-            ), "darcula"
-          )
-        )
-        editorColorScheme = TextMateColorScheme.create(themeRegistry)
-        if (SettingsData.isOled(ctx)) {
-          editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
-        }
-      } else {
-        val path =
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
-        if (!File(path).exists()) {
-          rkUtils.runOnUiThread {
-            rkUtils.toast(
-              ctx, resources.getString(R.string.theme_not_found_err)
-            )
-          }
-        }
-        themeRegistry.loadTheme(
-          ThemeModel(
-            IThemeSource.fromInputStream(
-              FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-            ), "quitelight"
-          )
-        )
-        editorColorScheme = TextMateColorScheme.create(themeRegistry)
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    }
-    
-    if (darkMode) {
-      val pref = ctx!!.applicationContext.getSharedPreferences("MyPref", 0)
-      themeRegistry.setTheme("darcula")
-    } else {
-      themeRegistry.setTheme("quietlight")
-    }
-    synchronized(editor) {
-      editor.colorScheme = editorColorScheme
-    }
-  }
+ 
   
-  fun setLanguage(languageScopeName:String){
-    FileProviderRegistry.getInstance().addFileProvider(
-      AssetsFileResolver(
-        ctx?.applicationContext?.assets
-      )
-    )
-    
-    GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-    
-    val language = TextMateLanguage.create(
-      languageScopeName, true /* true for enabling auto-completion */
-    )
-    editor.setEditorLanguage(language as Language)
-  }
+  
 }

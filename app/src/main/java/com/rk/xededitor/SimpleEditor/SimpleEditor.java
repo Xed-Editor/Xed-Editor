@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
 import com.rk.xededitor.Decompress;
@@ -30,6 +31,7 @@ import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.Settings.SettingsMainActivity;
 import com.rk.xededitor.rkUtils;
+import com.rk.xededitor.setupEditor;
 
 import org.eclipse.tm4e.core.registry.IThemeSource;
 
@@ -107,14 +109,16 @@ public class SimpleEditor extends BaseActivity {
     boolean wordwrap = SettingsData.getBoolean(this, "wordwrap", false);
     editor.setWordwrap(wordwrap);
     
-    new Thread(this::ensureTextmateTheme).start();
-    
+    new Thread(() -> new setupEditor(editor,SimpleEditor.this).ensureTextmateTheme()).start();
+   
     editor.subscribeAlways(ContentChangeEvent.class, (event) -> {
       updateUndoRedo();
     });
     
     handleIntent(getIntent());
   }
+  
+  
   
   public void updateUndoRedo() {
     if (redo != null) {
@@ -232,6 +236,8 @@ public class SimpleEditor extends BaseActivity {
           e.printStackTrace();
         }
         
+        new setupEditor(editor,SimpleEditor.this).setupLanguage(displayName);
+        
         if (displayName != null) {
           if (displayName.length() > 13) {
             displayName = displayName.substring(0, 10) + "...";
@@ -277,46 +283,5 @@ public class SimpleEditor extends BaseActivity {
         rkUtils.toast(SimpleEditor.this, toast);
       });
     }).start();
-  }
-  
-  private void ensureTextmateTheme() {
-    var editorColorScheme = editor.getColorScheme();
-    var themeRegistry = ThemeRegistry.getInstance();
-    
-    boolean darkMode = SettingsData.isDarkMode(this);
-    try {
-      if (darkMode) {
-        String path;
-        if (SettingsData.isOled(this)) {
-          path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/black/darcula.json";
-        } else {
-          path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/darcula.json";
-        }
-        if (!new File(path).exists()) {
-          rkUtils.toast(this, "Error : theme file not found");
-        }
-        
-        themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "darcula"));
-        editorColorScheme = TextMateColorScheme.create(themeRegistry);
-      } else {
-        String path = getExternalFilesDir(null).getAbsolutePath() + "/unzip/textmate/quietlight.json";
-        if (!new File(path).exists()) {
-          rkUtils.toast(this, "theme file not found");
-        }
-        themeRegistry.loadTheme(new ThemeModel(IThemeSource.fromInputStream(FileProviderRegistry.getInstance().tryGetInputStream(path), path, null), "quitelight"));
-        editorColorScheme = TextMateColorScheme.create(themeRegistry);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    
-    if (darkMode) {
-      SharedPreferences pref = getApplicationContext().getSharedPreferences("MyPref", 0);
-      themeRegistry.setTheme("darcula");
-    } else {
-      themeRegistry.setTheme("quietlight");
-    }
-    
-    editor.setColorScheme(editorColorScheme);
   }
 }
