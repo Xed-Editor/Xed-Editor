@@ -168,7 +168,7 @@ public class MainActivity extends BaseActivity {
       new MaterialAlertDialogBuilder(this).setTitle("Manage Storage").setMessage("App needs access to edit files in your storage. Please allow the access in the upcoming system setting.").setNegativeButton("Exit App", (dialog, which) -> {
         finishAffinity();
       }).setPositiveButton("OK", (dialog, which) -> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
           Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
           intent.setData(Uri.parse("package:" + getPackageName()));
           startActivityForResult(intent, REQUEST_CODE_MANAGE_EXTERNAL_STORAGE);

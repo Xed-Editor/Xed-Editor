@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.rk.xededitor.After
+import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
@@ -57,17 +58,17 @@ class DynamicFragment : Fragment {
   }
   
   constructor(file: File, ctx: Context) {
+    
+    
+    
+    
     this.fileName = file.name
     this.ctx = ctx
     this.file = file
     editor = CodeEditor(ctx)
     editorx = editor
     
-    After(1200){
-      rkUtils.runOnUiThread {
-        setupEditor(editor,ctx).setupLanguage(fileName)
-      }
-    }
+    setupEditor(editor,ctx).setupLanguage(fileName)
     
     
     if (SettingsData.isDarkMode(ctx)) {
@@ -118,6 +119,8 @@ class DynamicFragment : Fragment {
     
     undo = StaticData.menu.findItem(R.id.undo)
     redo = StaticData.menu.findItem(R.id.redo)
+    
+    
   }
   
   private fun setListener() {

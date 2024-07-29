@@ -3,7 +3,9 @@ package com.rk.xededitor.Settings
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.view.WindowManager
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
@@ -13,6 +15,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
+import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -133,39 +136,45 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
-//      switch("arrow_keys"){
-//        title = "Arrow Keys"
-//        summary = "Show arrow keys in the editor"
-//        iconRes = R.drawable.double_arrows
-//        defaultValue = false
-//        onCheckedChange { isChecked ->
-//          SettingsData.setBoolean(this@SettingsEditor, "show_arrows", isChecked)
-//
-//          if (StaticData.fragments == null || StaticData.fragments.isEmpty()){
-//            return@onCheckedChange true
-//          }
-//
-//          if(isChecked){
-//            MainActivity.activity?.binding?.divider?.visibility = View.VISIBLE
-//            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.VISIBLE
-//            val vp = MainActivity.activity.binding.viewpager
-//            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
-//            layoutParams.bottomMargin =
-//              rkUtils.dpToPx(40f, MainActivity.activity) // Convert dp to pixels as needed
-//            vp.setLayoutParams(layoutParams)
-//          }else{
-//            MainActivity.activity?.binding?.divider?.visibility = View.GONE
-//            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.GONE
-//            val vp = MainActivity.activity.binding.viewpager
-//            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
-//            layoutParams.bottomMargin =
-//              rkUtils.dpToPx(0f, MainActivity.activity) // Convert dp to pixels as needed
-//            vp.setLayoutParams(layoutParams)
-//          }
-//
-//          return@onCheckedChange true
-//        }
-//      }
+      switch("arrow_keys"){
+        title = "Arrow Keys"
+        summary = "Show arrow keys in the editor"
+        iconRes = R.drawable.double_arrows
+        defaultValue = false
+        onCheckedChange { isChecked ->
+          
+          if (true){
+            rkUtils.ni(this@SettingsEditor)
+            return@onCheckedChange true
+          }
+          
+          SettingsData.setBoolean(this@SettingsEditor, "show_arrows", isChecked)
+
+          if (StaticData.fragments == null || StaticData.fragments.isEmpty()){
+            return@onCheckedChange true
+          }
+
+          if(isChecked){
+            MainActivity.activity?.binding?.divider?.visibility = View.VISIBLE
+            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.VISIBLE
+            val vp = MainActivity.activity.binding.viewpager
+            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
+            layoutParams.bottomMargin =
+              rkUtils.dpToPx(40f, MainActivity.activity) // Convert dp to pixels as needed
+            vp.setLayoutParams(layoutParams)
+          }else{
+            MainActivity.activity?.binding?.divider?.visibility = View.GONE
+            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.GONE
+            val vp = MainActivity.activity.binding.viewpager
+            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
+            layoutParams.bottomMargin =
+              rkUtils.dpToPx(0f, MainActivity.activity) // Convert dp to pixels as needed
+            vp.setLayoutParams(layoutParams)
+          }
+
+          return@onCheckedChange true
+        }
+      }
     }
     
     

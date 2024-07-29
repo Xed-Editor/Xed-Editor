@@ -4,10 +4,12 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.After
+import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.PrepareRecyclerView
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.rkUtils
 import java.io.File
 
 class TreeView(val ctx: MainActivity, rootFolder: File) {
@@ -38,13 +40,23 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
       adapter.apply {
         setOnItemClickListener(object : OnItemClickListener {
           override fun onItemClick(v: View, node: Node<File>) {
-            ctx.newEditor(node.value, false)
-            ctx.onNewEditor()
-            if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
-              After(500) {
-                ctx.binding.drawerLayout.close()
+            val loading = LoadingPopup(ctx, null).show()
+            
+            After(150){
+              rkUtils.runOnUiThread {
+                ctx.newEditor(node.value, false)
+                ctx.onNewEditor()
+                if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
+                  After(500) {
+                    ctx.binding.drawerLayout.close()
+                  }
+                }
+                loading.hide()
               }
             }
+            
+            
+           
           }
           
           

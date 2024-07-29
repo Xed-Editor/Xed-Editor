@@ -15,6 +15,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.xededitor.After
 import com.rk.xededitor.Decompress
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
@@ -251,7 +252,11 @@ class Init(activity: MainActivity) {
               R.id.left_arrow -> {}
               R.id.right_arrow -> {}
               R.id.up_arrow -> {}
-              R.id.down_arrow -> {}
+              R.id.down_arrow -> {
+                val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
+               fragment.editor.cursor.setLeft(fragment.editor.cursor.leftLine-1,fragment.editor.cursor.leftColumn)
+                
+              }
             }
           }
         }
