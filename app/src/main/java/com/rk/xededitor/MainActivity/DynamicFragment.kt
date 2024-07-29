@@ -68,11 +68,6 @@ class DynamicFragment : Fragment {
         setupEditor(editor,ctx).setupLanguage(fileName)
       }
     }
-   
-    
-    
-    
-    
     
     
     if (SettingsData.isDarkMode(ctx)) {

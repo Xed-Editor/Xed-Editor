@@ -62,6 +62,7 @@ class PrepareRecyclerView(val activity: MainActivity) {
         layoutParams = ViewGroup.MarginLayoutParams(
           ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        isHorizontalScrollBarEnabled = false
       }
       return hsv
     }
