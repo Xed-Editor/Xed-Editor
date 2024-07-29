@@ -96,7 +96,7 @@ public class MainActivity extends BaseActivity {
             MainActivity.activity.binding.mainBottomBar.setVisibility(View.VISIBLE);
             var vp = MainActivity.activity.binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(40, MainActivity.activity);  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(50, MainActivity.activity);  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
         } else {
             MainActivity.activity.binding.divider.setVisibility(View.GONE);

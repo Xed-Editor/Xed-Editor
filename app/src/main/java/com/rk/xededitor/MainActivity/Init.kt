@@ -249,7 +249,7 @@ class Init(activity: MainActivity) {
 
 
       rkUtils.runOnUiThread {
-        val arrows = MainActivity.activity.binding.mainBottomBar
+        val arrows = MainActivity.activity.binding.childs
         for (i in 0 until arrows.childCount) {
           val button = arrows.getChildAt(i)
           button.setOnClickListener { v ->
@@ -320,6 +320,14 @@ class Init(activity: MainActivity) {
                     columm
                   )
                 }
+              }
+              R.id.tab -> {fragment.editor.insertText("    ",4)}
+              R.id.home -> {
+                fragment.editor.setSelection(cursor.leftLine, 0)
+              }
+              R.id.end -> {
+                val line = fragment.content!!.getLine(cursor.leftLine)
+                fragment.editor.setSelection(cursor.leftLine, line.length)
               }
             }
           }

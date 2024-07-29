@@ -58,43 +58,89 @@
             <LinearLayout
                 android:id="@+id/main_bottom_bar"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentBottom="true"
                 android:orientation="horizontal"
                 android:visibility="gone">
 
-                <Button
-                    android:id="@+id/left_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:text="←"
-                    android:textColor="@color/invert_dull" />
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:scrollbars="none"
+                    android:layout_height="match_parent">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:id="@+id/childs"
+                        android:orientation="horizontal"
+                        android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/up_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:text="↑"
-                    android:textColor="@color/invert_dull" />
+                        <Button
+                            android:id="@+id/tab"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="TAB"
+                            android:textColor="@color/invert_dull" />
 
-                <Button
-                    android:id="@+id/right_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:text="→"
-                    android:textColor="@color/invert_dull" />
+                        <Button
+                            android:id="@+id/left_arrow"
+                            android:textSize="23sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="←"
+                            android:textColor="@color/invert_dull" />
 
-                <Button
-                    android:id="@+id/down_arrow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/selectableItemBackground"
-                    android:text="↓"
-                    android:textColor="@color/invert_dull" />
+                        <Button
+                            android:id="@+id/up_arrow"
+                            android:textSize="23sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="↑"
+                            android:textColor="@color/invert_dull" />
+
+                        <Button
+                            android:id="@+id/right_arrow"
+                            android:textSize="23sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="→"
+                            android:textColor="@color/invert_dull" />
+
+                        <Button
+                            android:id="@+id/down_arrow"
+                            android:textSize="23sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="↓"
+                            android:textColor="@color/invert_dull" />
+
+                        <Button
+                            android:id="@+id/home"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="HOME"
+                            android:textColor="@color/invert_dull" />
+
+                        <Button
+                            android:id="@+id/end"
+                            android:textStyle="bold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:text="END"
+                            android:textColor="@color/invert_dull" />
+
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+
 
 
             </LinearLayout>
