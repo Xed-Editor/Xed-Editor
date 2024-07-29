@@ -69,6 +69,10 @@ class DynamicFragment : Fragment {
     setupEditor(editor, ctx).setupLanguage(fileName)
 
 
+editor.setSelectionRegion(editor.cursor.leftLine, editor.cursor.leftColumn, editor.cursor.rightLine, editor.cursor.rightColumn)
+
+
+
     if (SettingsData.isDarkMode(ctx)) {
       setupEditor(editor, ctx).ensureTextmateTheme()
     } else {
