@@ -9,7 +9,7 @@
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fadeScrollbars="false"
+        android:scrollbarFadeDuration="@integer/material_motion_duration_long_2"
         android:orientation="vertical">
 
         <LinearLayout
@@ -45,14 +45,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Refresh"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Reload File Browser"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -83,14 +84,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Reselect"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Reselect a folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -121,14 +123,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Open File"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="open a file directly into the editor"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -159,14 +162,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="New Folder"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Create a new folder under selected folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -197,14 +201,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="New File"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Create a new file under selected folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -239,14 +244,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Save as"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Save the selected file somewhere else"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -282,14 +288,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Rename"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rename the selected file/folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -320,14 +327,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Open With..."
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Open the selected file with other applications"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -358,14 +366,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Copy"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Copy selected file/folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -396,14 +405,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Paste"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Paste copied file into selected folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -434,14 +444,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Delete"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Delete selected file/folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
@@ -472,14 +483,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:textStyle="bold"
                         android:text="Close"
-                        android:textSize="22sp" />
+                          />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Close the current folder"
-                        android:textSize="14sp" />
+                          />
                 </LinearLayout>
             </LinearLayout>
 
