@@ -98,17 +98,14 @@ class Terminal : BaseActivity() {
         "\n    \"PGDN\"" +
         "\n  ]" +
         "\n]")
-  override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-    terminal.onKeyDown(keyCode, event)
-    return super.onKeyDown(keyCode, event)
+  
+  override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    
+    terminal.dispatchKeyEvent(event)
+    return super.dispatchKeyEvent(event)
   }
   
-  override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
-    terminal.updateSize()
-    terminal.onScreenUpdated()
-    return super.onKeyUp(keyCode, event)
-  }
-  
+
 
   
   private fun createSession(): TerminalSession {
