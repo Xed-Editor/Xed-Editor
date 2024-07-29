@@ -51,71 +51,57 @@ public class DiagonalScrollView extends FrameLayout {
     private static final int ANIMATED_SCROLL_GAP = 250;
 
     private static final float MAX_SCROLL_FACTOR = 0.5f;
-
-    private long mLastScroll;
-
+    /**
+     * Sentinel value for no current active pointer.
+     * Used by {@link #mActivePointerId}.
+     */
+    private static final int INVALID_POINTER = -1;
     private final Rect mTempRect = new Rect();
-    private OverScroller mScroller;
-
     private final List<OnScrollListener> listeners = new ArrayList<>();
-
+    private long mLastScroll;
+    private OverScroller mScroller;
     /**
      * Position of the last motion event.
      */
     private float mLastMotionX;
     private float mLastMotionY;
-
     /**
      * True when the layout has changed but the traversal has not come through yet.
      * Ideally the view hierarchy would keep track of this for us.
      */
     private boolean mIsLayoutDirty = true;
-
     /**
      * The child to give focus to in the event that a child has requested focus while the
      * layout is dirty. This prevents the scroll from being wrong if the child has not been
      * laid out before requesting focus.
      */
     private View mChildToScrollTo = null;
-
     /**
      * True if the user is currently dragging this ScrollView around. This is
      * not the same as 'is being flinged', which can be checked by
      * mScroller.isFinished() (flinging begins when the user lifts his finger).
      */
     private boolean mIsBeingDragged = false;
-
     /**
      * Determines speed during touch scrolling
      */
     private VelocityTracker mVelocityTracker;
-
     /**
      * When set to true, the scroll view measure its child to make it fill the currently
      * visible area.
      */
     @ViewDebug.ExportedProperty(category = "layout")
     private boolean mFillViewport;
-
     private int mTouchSlop;
     private int mMinimumVelocity;
     private int mMaximumVelocity;
-
     private int mOverscrollDistance;
     private int mOverflingDistance;
-
     /**
      * ID of the active pointer. This is used to retain consistency during
      * drags/flings if multiple pointers are used.
      */
     private int mActivePointerId = INVALID_POINTER;
-
-    /**
-     * Sentinel value for no current active pointer.
-     * Used by {@link #mActivePointerId}.
-     */
-    private static final int INVALID_POINTER = -1;
-
     private SavedState mSavedState;
 
     public DiagonalScrollView(Context context) {
@@ -199,7 +185,7 @@ public class DiagonalScrollView extends FrameLayout {
      * the viewport or not.
      *
      * @param fillViewport True to stretch the content's height to the viewport's
-     *        boundaries, false otherwise.
+     *                     boundaries, false otherwise.
      */
     public void setFillViewport(boolean fillViewport) {
         if (fillViewport != mFillViewport) {
@@ -306,10 +292,10 @@ public class DiagonalScrollView extends FrameLayout {
          */
 
         /*
-        * Shortcut the most recurring case: the user is in the dragging
-        * state and he is moving his finger.  We want to intercept this
-        * motion.
-        */
+         * Shortcut the most recurring case: the user is in the dragging
+         * state and he is moving his finger.  We want to intercept this
+         * motion.
+         */
         final int action = ev.getAction();
         if ((action == MotionEvent.ACTION_MOVE) && (mIsBeingDragged)) {
             return true;
@@ -323,9 +309,9 @@ public class DiagonalScrollView extends FrameLayout {
                  */
 
                 /*
-                * Locally do absolute value. mLastMotionY is set to the y value
-                * of the down event.
-                */
+                 * Locally do absolute value. mLastMotionY is set to the y value
+                 * of the down event.
+                 */
                 final int activePointerId = mActivePointerId;
                 if (activePointerId == INVALID_POINTER) {
                     // If we don't have a valid id, the touch down wasn't on content.
@@ -367,10 +353,10 @@ public class DiagonalScrollView extends FrameLayout {
                 initOrResetVelocityTracker();
                 mVelocityTracker.addMovement(ev);
                 /*
-                * If being flinged and user touches the screen, initiate drag;
-                * otherwise don't.  mScroller.isFinished should be false when
-                * being flinged.
-                */
+                 * If being flinged and user touches the screen, initiate drag;
+                 * otherwise don't.  mScroller.isFinished should be false when
+                 * being flinged.
+                 */
                 mIsBeingDragged = !mScroller.isFinished();
                 break;
             }
@@ -391,9 +377,9 @@ public class DiagonalScrollView extends FrameLayout {
         }
 
         /*
-        * The only time we want to intercept motion events is if we are in the
-        * drag mode.
-        */
+         * The only time we want to intercept motion events is if we are in the
+         * drag mode.
+         */
         return mIsBeingDragged;
     }
 
@@ -552,7 +538,7 @@ public class DiagonalScrollView extends FrameLayout {
 
     @Override
     protected void onOverScrolled(int scrollX, int scrollY,
-            boolean clampedX, boolean clampedY) {
+                                  boolean clampedX, boolean clampedY) {
         // Treat animating scrolls differently; see #computeScroll() for why.
         if (mScroller.isFinished()) {
             super.scrollTo(scrollX, scrollY);
@@ -601,7 +587,7 @@ public class DiagonalScrollView extends FrameLayout {
 
     /**
      * @return whether the descendant of this scroll view is scrolled off
-     *  screen.
+     * screen.
      */
     private boolean isOffScreen(View descendant) {
         return !isWithinDeltaOfScreen(descendant, getWidth(), getHeight());
@@ -609,7 +595,7 @@ public class DiagonalScrollView extends FrameLayout {
 
     /**
      * @return whether the descendant of this scroll view is within delta
-     *  pixels of being on the screen.
+     * pixels of being on the screen.
      */
     private boolean isWithinDeltaOfScreen(View descendant, int width, int height) {
         descendant.getDrawingRect(mTempRect);
@@ -627,7 +613,7 @@ public class DiagonalScrollView extends FrameLayout {
      */
     private void doScroll(int deltaX, int deltaY) {
         if (deltaX != 0 && deltaY != 0) {
-                smoothScrollBy(deltaX, deltaY);
+            smoothScrollBy(deltaX, deltaY);
         }
     }
 
@@ -728,7 +714,7 @@ public class DiagonalScrollView extends FrameLayout {
 
     @Override
     protected void measureChildWithMargins(View child, int parentWidthMeasureSpec, int widthUsed,
-            int parentHeightMeasureSpec, int heightUsed) {
+                                           int parentHeightMeasureSpec, int heightUsed) {
         final MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
 
         final int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
@@ -967,13 +953,13 @@ public class DiagonalScrollView extends FrameLayout {
     /**
      * When looking for focus in children of a scroll view, need to be a little
      * more careful not to give focus to something that is scrolled off screen.
-     *
+     * <p>
      * This is more expensive than the default {@link android.view.ViewGroup}
      * implementation, otherwise this behavior might have been made the default.
      */
     @Override
     protected boolean onRequestFocusInDescendants(int direction,
-            Rect previouslyFocusedRect) {
+                                                  Rect previouslyFocusedRect) {
 
         // convert from forward / backward notation to up / down / left / right
         // (ugh).
@@ -994,7 +980,7 @@ public class DiagonalScrollView extends FrameLayout {
 
     @Override
     public boolean requestChildRectangleOnScreen(View child, Rect rectangle,
-            boolean immediate) {
+                                                 boolean immediate) {
         // offset into coordinate space of this scroll view
         rectangle.offset(child.getLeft() - child.getScrollX(),
                 child.getTop() - child.getScrollY());
@@ -1089,7 +1075,7 @@ public class DiagonalScrollView extends FrameLayout {
             int bottom = getChildAt(0).getHeight();
 
             mScroller.fling(getScrollX(), getScrollY(), velocityX, velocityY, 0, Math.max(0, right - width), 0,
-                    Math.max(0, bottom - height), width/2, height/2);
+                    Math.max(0, bottom - height), width / 2, height / 2);
 
             invalidate();
         }
@@ -1138,13 +1124,13 @@ public class DiagonalScrollView extends FrameLayout {
              */
             return 0;
         }
-        if ((my+n) > child) {
+        if ((my + n) > child) {
             /* this case:
              *                    |------ me ------|
              *     |------ child ------|
              *     |-- getScrollX() --|
              */
-            return child-my;
+            return child - my;
         }
         return n;
     }
@@ -1177,7 +1163,21 @@ public class DiagonalScrollView extends FrameLayout {
         return ss;
     }
 
+    public interface OnScrollListener {
+        void onScrollChanged(int left, int top, int oldLeft, int oldTop);
+    }
+
     static class SavedState extends BaseSavedState {
+        public static final Parcelable.Creator<SavedState> CREATOR
+                = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
         int scrollXOffsetFromStart;
         int scrollYOffsetFromStart;
 
@@ -1206,20 +1206,5 @@ public class DiagonalScrollView extends FrameLayout {
                     + " scrollYPosition=" + scrollYOffsetFromStart
                     + "}";
         }
-
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
-            public SavedState createFromParcel(Parcel in) {
-                return new SavedState(in);
-            }
-
-            public SavedState[] newArray(int size) {
-                return new SavedState[size];
-            }
-        };
-    }
-
-    public interface OnScrollListener {
-        void onScrollChanged(int left, int top, int oldLeft, int oldTop);
     }
 }

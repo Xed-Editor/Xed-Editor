@@ -32,12 +32,12 @@ class Terminal : BaseActivity() {
   private lateinit var terminal: TerminalView
   lateinit var binding: ActivityTerminalBinding
   private lateinit var session: TerminalSession
-  
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityTerminalBinding.inflate(layoutInflater)
     setContentView(binding.getRoot())
-    terminal = TerminalView(this,null)
+    terminal = TerminalView(this, null)
     terminal.setTerminalViewClient(TerminalClient(terminal, this))
     terminal.keepScreenOn = true
     terminal.setTextSize(rkUtils.dpToPx(13.5f, this))
@@ -48,29 +48,32 @@ class Terminal : BaseActivity() {
     params.weight = 1f
     binding.root.addView(terminal, 0, params)
     binding.extraKeys.virtualKeysViewClient = ivirtualkeys(session)
-    binding.extraKeys.reload(VirtualKeysInfo(VIRTUAL_KEYS, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES))
-    
+    binding.extraKeys.reload(
+      VirtualKeysInfo(
+        VIRTUAL_KEYS,
+        "",
+        VirtualKeysConstants.CONTROL_CHARS_ALIASES
+      )
+    )
+
     window.statusBarColor = ContextCompat.getColor(this, R.color.dark)
     window.decorView.systemUiVisibility = 0
     window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
-    
+
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
         //do nothing
       }
     })
-    
-    
-    
-    
-    
+
+
   }
-  
+
   override fun onDestroy() {
     session.finishIfRunning()
     super.onDestroy()
   }
-  
+
   val VIRTUAL_KEYS =
     ("[" +
         "\n  [" +
@@ -98,24 +101,22 @@ class Terminal : BaseActivity() {
         "\n    \"PGDN\"" +
         "\n  ]" +
         "\n]")
-  
+
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-    
+
     terminal.dispatchKeyEvent(event)
     return super.dispatchKeyEvent(event)
   }
-  
 
 
-  
   private fun createSession(): TerminalSession {
     var workingDir = filesDir.absolutePath
-    
-    if (TreeView.opened_file_path.isNotEmpty()){
+
+    if (TreeView.opened_file_path.isNotEmpty()) {
       workingDir = TreeView.opened_file_path
     }
-    
-    
+
+
     val shell = "/system/bin/sh"
     val args = arrayOf("")
     val env = arrayOf(

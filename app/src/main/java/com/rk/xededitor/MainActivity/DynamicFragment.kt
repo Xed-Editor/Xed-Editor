@@ -44,8 +44,8 @@ class DynamicFragment : Fragment {
   var isModified: Boolean = false
   var undo: MenuItem? = null
   var redo: MenuItem? = null
-  
-  
+
+
   constructor() {
     After(100) {
       rkUtils.runOnUiThread {
@@ -56,31 +56,29 @@ class DynamicFragment : Fragment {
       }
     }
   }
-  
+
   constructor(file: File, ctx: Context) {
-    
-    
-    
-    
+
+
     this.fileName = file.name
     this.ctx = ctx
     this.file = file
     editor = CodeEditor(ctx)
     editorx = editor
-    
-    setupEditor(editor,ctx).setupLanguage(fileName)
-    
-    
+
+    setupEditor(editor, ctx).setupLanguage(fileName)
+
+
     if (SettingsData.isDarkMode(ctx)) {
-      setupEditor(editor,ctx).ensureTextmateTheme()
+      setupEditor(editor, ctx).ensureTextmateTheme()
     } else {
-      Thread { setupEditor(editor,ctx).ensureTextmateTheme() }.start()
+      Thread { setupEditor(editor, ctx).ensureTextmateTheme() }.start()
     }
-    
+
     val wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false)
-    
-    
-    
+
+
+
     Thread {
       try {
         val inputStream: InputStream = FileInputStream(file)
@@ -111,18 +109,18 @@ class DynamicFragment : Fragment {
       }
       setListener()
     }.start()
-    
-    
+
+
     editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
     editor.setTextSize(14f)
     editor.isWordwrap = wordwrap
-    
+
     undo = StaticData.menu.findItem(R.id.undo)
     redo = StaticData.menu.findItem(R.id.redo)
-    
-    
+
+
   }
-  
+
   private fun setListener() {
     editor.subscribeAlways(
       ContentChangeEvent::class.java
@@ -135,39 +133,37 @@ class DynamicFragment : Fragment {
       isModified = true
     }
   }
-  
+
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
     return editorx
   }
-  
+
   fun updateUndoRedo() {
     if (undo != null && redo != null) {
       redo!!.setEnabled(editor.canRedo())
       undo!!.setEnabled(editor.canUndo())
     }
   }
-  
+
   @JvmOverloads
   fun releaseEditor(removeCoontent: Boolean = false) {
     editor.release()
     content = null
   }
-  
+
   fun Undo() {
     if (editor.canUndo()) {
       editor.undo()
     }
   }
-  
+
   fun Redo() {
     if (editor.canRedo()) {
       editor.redo()
     }
   }
-  
- 
-  
-  
+
+
 }

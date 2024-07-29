@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2023 Vegard IT GmbH and others.
- *
+ * <p>
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Sebastian Thomschke (Vegard IT) - initial implementation
  */
@@ -23,17 +23,17 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 
 public final class TMParserYAML extends TMParserJSON {
 
-	public static final TMParserYAML INSTANCE = new TMParserYAML();
+    public static final TMParserYAML INSTANCE = new TMParserYAML();
 
-	private static final LoadSettings LOAD_SETTINGS = LoadSettings.builder()
-			.setDefaultList(ArrayList::new)
-			.setDefaultMap(HashMap::new)
-			.setDefaultSet(HashSet::new)
-			.build();
+    private static final LoadSettings LOAD_SETTINGS = LoadSettings.builder()
+            .setDefaultList(ArrayList::new)
+            .setDefaultMap(HashMap::new)
+            .setDefaultSet(HashSet::new)
+            .build();
 
-	@Override
-	@SuppressWarnings({ "null", "unchecked" })
-	protected Map<String, Object> loadRaw(final Reader source) {
-		return (Map<String, Object>) new Load(LOAD_SETTINGS).loadFromReader(source);
-	}
+    @Override
+    @SuppressWarnings({"null", "unchecked"})
+    protected Map<String, Object> loadRaw(final Reader source) {
+        return (Map<String, Object>) new Load(LOAD_SETTINGS).loadFromReader(source);
+    }
 }

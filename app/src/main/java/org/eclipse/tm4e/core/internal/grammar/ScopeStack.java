@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Sebastian Thomschke - translation and adaptation to Java
@@ -29,90 +29,90 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public final class ScopeStack {
 
-	@Nullable
-	static ScopeStack push(@Nullable ScopeStack path, final List<String> scopeNames) {
-		for (final var name : scopeNames) {
-			path = new ScopeStack(path, name);
-		}
-		return path;
-	}
+    @Nullable
+    public final ScopeStack parent;
+    public final String scopeName;
 
-	public static ScopeStack from(final String first) {
-		return new ScopeStack(null, first);
-	}
+    public ScopeStack(@Nullable final ScopeStack parent, final String scopeName) {
+        this.parent = parent;
+        this.scopeName = scopeName;
+    }
 
-	@Nullable
-	public static ScopeStack from(final String... segments) {
-		ScopeStack result = null;
-		for (var i = 0; i < segments.length; i++) {
-			result = new ScopeStack(result, segments[i]);
-		}
-		return result;
-	}
+    @Nullable
+    static ScopeStack push(@Nullable ScopeStack path, final List<String> scopeNames) {
+        for (final var name : scopeNames) {
+            path = new ScopeStack(path, name);
+        }
+        return path;
+    }
 
-	@Nullable
-	public static ScopeStack from(final List<String> segments) {
-		ScopeStack result = null;
-		for (var i = 0; i < segments.size(); i++) {
-			result = new ScopeStack(result, segments.get(i));
-		}
-		return result;
-	}
+    public static ScopeStack from(final String first) {
+        return new ScopeStack(null, first);
+    }
 
-	@Nullable
-	public final ScopeStack parent;
-	public final String scopeName;
+    @Nullable
+    public static ScopeStack from(final String... segments) {
+        ScopeStack result = null;
+        for (var i = 0; i < segments.length; i++) {
+            result = new ScopeStack(result, segments[i]);
+        }
+        return result;
+    }
 
-	public ScopeStack(@Nullable final ScopeStack parent, final String scopeName) {
-		this.parent = parent;
-		this.scopeName = scopeName;
-	}
+    @Nullable
+    public static ScopeStack from(final List<String> segments) {
+        ScopeStack result = null;
+        for (var i = 0; i < segments.size(); i++) {
+            result = new ScopeStack(result, segments.get(i));
+        }
+        return result;
+    }
 
-	public ScopeStack push(final String scopeName) {
-		return new ScopeStack(this, scopeName);
-	}
+    public ScopeStack push(final String scopeName) {
+        return new ScopeStack(this, scopeName);
+    }
 
-	public List<String> getSegments() {
-		@Nullable
-		ScopeStack item = this;
-		final var result = new ArrayList<String>();
-		while (item != null) {
-			result.add(item.scopeName);
-			item = item.parent;
-		}
-		Collections.reverse(result);
-		return result;
-	}
+    public List<String> getSegments() {
+        @Nullable
+        ScopeStack item = this;
+        final var result = new ArrayList<String>();
+        while (item != null) {
+            result.add(item.scopeName);
+            item = item.parent;
+        }
+        Collections.reverse(result);
+        return result;
+    }
 
-	@Override
-	public String toString() {
-		return String.join(" ", getSegments());
-	}
+    @Override
+    public String toString() {
+        return String.join(" ", getSegments());
+    }
 
-	public boolean isExtending(final ScopeStack other) {
-		if (this == other) {
-			return true;
-		}
+    public boolean isExtending(final ScopeStack other) {
+        if (this == other) {
+            return true;
+        }
 
-		final var parent = this.parent;
-		if (parent == null) {
-			return false;
-		}
-		return parent.isExtending(other);
-	}
+        final var parent = this.parent;
+        if (parent == null) {
+            return false;
+        }
+        return parent.isExtending(other);
+    }
 
-	public List<String> getExtensionIfDefined(@Nullable final ScopeStack base) {
-		final var result = new ArrayList<String>();
-		@Nullable
-		ScopeStack item = this;
-		while (item != null && item != base) {
-			result.add(item.scopeName);
-			item = item.parent;
-		}
-		if (item == base) {
-			Collections.reverse(result);
-			return result;
-		}
-		return Collections.emptyList();
-	}
+    public List<String> getExtensionIfDefined(@Nullable final ScopeStack base) {
+        final var result = new ArrayList<String>();
+        @Nullable
+        ScopeStack item = this;
+        while (item != null && item != base) {
+            result.add(item.scopeName);
+            item = item.parent;
+        }
+        if (item == base) {
+            Collections.reverse(result);
+            return result;
+        }
+        return Collections.emptyList();
+    }
 }

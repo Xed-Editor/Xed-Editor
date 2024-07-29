@@ -6,6 +6,7 @@
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>
+
     <style name="Theme.Fragments" parent="Base.Theme.Fragments" />
 
     <style name="Theme.Fragments.NoActionBar">
@@ -22,10 +23,10 @@
         <item name="android:windowEnterAnimation">@anim/anim_diagnostic_tooltip_window_enter</item>
         <item name="android:windowExitAnimation">@anim/anim_diagnostic_tooltip_window_exit</item>
     </style>
+
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>
-
 
 
 </resources>

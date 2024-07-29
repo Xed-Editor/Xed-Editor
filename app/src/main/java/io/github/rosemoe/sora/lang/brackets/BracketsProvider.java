@@ -34,15 +34,15 @@ import io.github.rosemoe.sora.text.Content;
  * @author Rosemoe
  */
 public interface BracketsProvider {
-  
-  /**
-   * Get left and right brackets position in text
-   *
-   * @param text  The text in editor
-   * @param index Index of cursor in text
-   * @return Paired positions or null if not matched
-   */
-  @Nullable
-  PairedBracket getPairedBracketAt(@NonNull Content text, int index);
-  
+
+    /**
+     * Get left and right brackets position in text
+     *
+     * @param text  The text in editor
+     * @param index Index of cursor in text
+     * @return Paired positions or null if not matched
+     */
+    @Nullable
+    PairedBracket getPairedBracketAt(@NonNull Content text, int index);
+
 }

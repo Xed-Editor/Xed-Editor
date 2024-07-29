@@ -29,7 +29,6 @@ import org.eclipse.tm4e.core.registry.IThemeSource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel;
 
@@ -43,17 +42,16 @@ public class ThemeRegistry {
 
     private ThemeModel currentThemeModel;
 
+    public ThemeRegistry() {
+        currentThemeModel = ThemeModel.EMPTY;
+    }
+
     public synchronized static ThemeRegistry getInstance() {
         if (instance == null) {
             instance = new ThemeRegistry();
         }
         return instance;
     }
-
-    public ThemeRegistry() {
-        currentThemeModel = ThemeModel.EMPTY;
-    }
-
 
     public void loadTheme(IThemeSource themeSource) throws Exception {
         loadTheme(themeSource, true);

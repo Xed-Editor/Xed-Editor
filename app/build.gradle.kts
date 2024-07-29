@@ -8,19 +8,19 @@ plugins {
 android {
   namespace = "com.rk.xededitor"
   compileSdk = 34
-  
+
   lintOptions {
     disable("MissingTranslation")
   }
-  
+
   dependenciesInfo {
     includeInApk = false
     includeInBundle = false
   }
-  
+
   val filePath = "/home/rohit/signing.properties"
   val file = File(filePath)
-  
+
   if (file.exists()) {
     signingConfigs {
       create("release") {
@@ -33,7 +33,7 @@ android {
         storePassword = properties["storePassword"] as String
       }
     }
-    
+
     buildTypes {
       getByName("release") {
         isMinifyEnabled = false
@@ -56,7 +56,7 @@ android {
       }
     }
   }
-  
+
   defaultConfig {
     applicationId = "com.rk.xededitor"
     minSdk = 26
@@ -69,22 +69,22 @@ android {
             }
           }*/
   }
-  
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
     isCoreLibraryDesugaringEnabled = true
   }
-  
+
   buildFeatures {
     viewBinding = true
-    
+
   }
   kotlinOptions {
     jvmTarget = "17"
   }
- 
-  
+
+
   /*externalNativeBuild {
      cmake {
        path = file("src/main/cpp/CMakeLists.txt")
@@ -103,7 +103,7 @@ dependencies {
   implementation(libs.asynclayoutinflater)
   implementation(libs.navigation.fragment.ktx)
   implementation(libs.navigation.ui.ktx)
-  
+
   implementation(libs.activity)
   coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
   implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
@@ -113,24 +113,24 @@ dependencies {
   //implementation("io.github.Rosemoe.sora-editor:language-textmate")
   implementation("org.apache.commons:commons-vfs2:2.9.0")
   implementation("com.github.mwiede:jsch:0.2.8")
-  
+
   implementation(libs.terminal.view)
   //implementation(libs.terminal.shared)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
   implementation("de.maxr1998:modernandroidpreferences:2.4.0-beta1")
-  
+
   implementation("com.hierynomus:sshj:0.38.0")
   implementation("commons-net:commons-net:3.9.0")
-  
+
   implementation(libs.gson)
   implementation(libs.jcodings)
   implementation(libs.joni)
-  
+
   implementation(libs.snakeyaml.engine)
   implementation(libs.jdt.annotation)
-  
+
   implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
-  
-  
+
+
 }

@@ -32,13 +32,6 @@ import java.io.InputStream;
 
 @FunctionalInterface
 public interface FileResolver {
-    @Nullable
-    InputStream resolveStreamByPath(String path);
-
-    default void dispose() {
-
-    }
-
     FileResolver DEFAULT = path -> {
         var file = new File(path);
         if (file.isFile()) {
@@ -52,4 +45,11 @@ public interface FileResolver {
         }
 
     };
+
+    @Nullable
+    InputStream resolveStreamByPath(String path);
+
+    default void dispose() {
+
+    }
 }

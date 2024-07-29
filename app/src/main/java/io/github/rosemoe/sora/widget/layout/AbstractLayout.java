@@ -41,104 +41,104 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Rosemoe
  */
 public abstract class AbstractLayout implements Layout {
-  
-  protected static final int SUBTASK_COUNT = 8;
-  protected static final int MIN_LINE_COUNT_FOR_SUBTASK = 3000;
-  protected static final BidiLayoutHelper BidiLayout = BidiLayoutHelper.INSTANCE;
-  private static final ThreadPoolExecutor executor;
-  
-  static {
-    int maximumPoolSize = Math.max(2, Runtime.getRuntime().availableProcessors()); // available processor count changes during runtime
-    final int corePoolSize = 2;
-    executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(128));
-  }
-  
-  protected CodeEditor editor;
-  protected Content text;
-  
-  public AbstractLayout(@NonNull CodeEditor editor, @NonNull Content text) {
-    this.editor = editor;
-    this.text = text;
-  }
-  
-  protected List<Span> getSpans(int line) {
-    return editor.getSpansForLine(line);
-  }
-  
-  @Override
-  public void afterDelete(@NonNull Content content, int startLine, int startColumn, int endLine, int endColumn, @NonNull CharSequence deletedContent) {
-  
-  }
-  
-  @Override
-  public void afterInsert(@NonNull Content content, int startLine, int startColumn, int endLine, int endColumn, @NonNull CharSequence insertedContent) {
-  
-  }
-  
-  @Override
-  public void destroyLayout() {
-    editor = null;
-    text = null;
-  }
-  
-  protected void submitTask(LayoutTask<?> task) {
-    executor.submit(task);
-  }
-  
-  protected static class TaskMonitor {
-    
-    private final int taskCount;
-    private final Object[] results;
-    private final Callback callback;
-    private int completedCount = 0;
-    private int cancelledCount = 0;
-    
-    public TaskMonitor(int totalTask, Callback callback) {
-      taskCount = totalTask;
-      results = new Object[totalTask];
-      this.callback = callback;
+
+    protected static final int SUBTASK_COUNT = 8;
+    protected static final int MIN_LINE_COUNT_FOR_SUBTASK = 3000;
+    protected static final BidiLayoutHelper BidiLayout = BidiLayoutHelper.INSTANCE;
+    private static final ThreadPoolExecutor executor;
+
+    static {
+        int maximumPoolSize = Math.max(2, Runtime.getRuntime().availableProcessors()); // available processor count changes during runtime
+        final int corePoolSize = 2;
+        executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>(128));
     }
-    
-    public synchronized void reportCompleted(Object result) {
-      results[completedCount++] = result;
-      if (completedCount == taskCount) {
-        callback.onCompleted(results, cancelledCount);
-      }
+
+    protected CodeEditor editor;
+    protected Content text;
+
+    public AbstractLayout(@NonNull CodeEditor editor, @NonNull Content text) {
+        this.editor = editor;
+        this.text = text;
     }
-    
-    public synchronized void reportCancelled() {
-      cancelledCount++;
-      reportCompleted(null);
+
+    protected List<Span> getSpans(int line) {
+        return editor.getSpansForLine(line);
     }
-    
-    public interface Callback {
-      void onCompleted(Object[] results, int cancelledCount);
-    }
-    
-  }
-  
-  protected abstract class LayoutTask<T> implements Runnable {
-    private final TaskMonitor monitor;
-    
-    protected LayoutTask(TaskMonitor monitor) {
-      this.monitor = monitor;
-    }
-    
-    protected boolean shouldRun() {
-      return editor != null;
-    }
-    
+
     @Override
-    public void run() {
-      if (shouldRun()) {
-        var result = compute();
-        monitor.reportCompleted(result);
-      } else {
-        monitor.reportCancelled();
-      }
+    public void afterDelete(@NonNull Content content, int startLine, int startColumn, int endLine, int endColumn, @NonNull CharSequence deletedContent) {
+
     }
-    
-    protected abstract T compute();
-  }
-  
+
+    @Override
+    public void afterInsert(@NonNull Content content, int startLine, int startColumn, int endLine, int endColumn, @NonNull CharSequence insertedContent) {
+
+    }
+
+    @Override
+    public void destroyLayout() {
+        editor = null;
+        text = null;
+    }
+
+    protected void submitTask(LayoutTask<?> task) {
+        executor.submit(task);
+    }
+
+    protected static class TaskMonitor {
+
+        private final int taskCount;
+        private final Object[] results;
+        private final Callback callback;
+        private int completedCount = 0;
+        private int cancelledCount = 0;
+
+        public TaskMonitor(int totalTask, Callback callback) {
+            taskCount = totalTask;
+            results = new Object[totalTask];
+            this.callback = callback;
+        }
+
+        public synchronized void reportCompleted(Object result) {
+            results[completedCount++] = result;
+            if (completedCount == taskCount) {
+                callback.onCompleted(results, cancelledCount);
+            }
+        }
+
+        public synchronized void reportCancelled() {
+            cancelledCount++;
+            reportCompleted(null);
+        }
+
+        public interface Callback {
+            void onCompleted(Object[] results, int cancelledCount);
+        }
+
+    }
+
+    protected abstract class LayoutTask<T> implements Runnable {
+        private final TaskMonitor monitor;
+
+        protected LayoutTask(TaskMonitor monitor) {
+            this.monitor = monitor;
+        }
+
+        protected boolean shouldRun() {
+            return editor != null;
+        }
+
+        @Override
+        public void run() {
+            if (shouldRun()) {
+                var result = compute();
+                monitor.reportCompleted(result);
+            } else {
+                monitor.reportCancelled();
+            }
+        }
+
+        protected abstract T compute();
+    }
+
 }

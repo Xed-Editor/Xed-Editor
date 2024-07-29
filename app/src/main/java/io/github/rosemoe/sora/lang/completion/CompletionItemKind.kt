@@ -60,8 +60,8 @@ enum class CompletionItemKind(
   TypeParameter(24, 0xfff1c883),
   User(25),
   Issue(26);
-  
+
   private val displayString = name[0].toString()
-  
+
   fun getDisplayChar(): String = displayString
 }

@@ -24,8 +24,8 @@ import org.eclipse.tm4e.core.internal.oniguruma.OnigCaptureIndex;
 
 /**
  * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/utils.ts#L59">
- *      github.com/microsoft/vscode-textmate/blob/main/src/utils.ts</a>
+ * "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/utils.ts#L59">
+ * github.com/microsoft/vscode-textmate/blob/main/src/utils.ts</a>
  */
 public final class RegexSource {
 
@@ -38,8 +38,14 @@ public final class RegexSource {
 
 
     /**
+     * Helper class, access members statically
+     */
+    private RegexSource() {
+    }
+
+    /**
      * Escapes/prefixes RegEx meta characters with a backslash in the given string.
-     *
+     * <p>
      * It is a non-regex based faster alternative to the <a href=
      * "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/utils.ts#L159">TypeScript
      * implementation</a>:
@@ -58,7 +64,8 @@ public final class RegexSource {
         for (int i = 0; i < valueLen; i++) {
             final char ch = value.charAt(i);
             switch (ch) {
-                case '-', '\\', '{', '}', '*', '+', '?', '|', '^', '$', '.', ',', '[', ']', '(', ')', '#':
+                case '-', '\\', '{', '}', '*', '+', '?', '|', '^', '$', '.', ',', '[', ']', '(',
+                     ')', '#':
 					/* escaping white space chars is actually not necessary:
 					' ', '\t', '\n', '\f', '\r',
 					0x0B: // vertical tab \v
@@ -118,11 +125,5 @@ public final class RegexSource {
             return result.toString();
         }
         return match;
-    }
-
-    /**
-     * Helper class, access members statically
-     */
-    private RegexSource() {
     }
 }

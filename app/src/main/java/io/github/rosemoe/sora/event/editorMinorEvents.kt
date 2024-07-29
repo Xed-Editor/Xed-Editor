@@ -140,7 +140,7 @@ class TextSizeChangeEvent(
  * @author Rosemoe
  */
 class PublishSearchResultEvent(editor: CodeEditor) : Event(editor) {
-  
+
   fun getSearcher() = editor.searcher
-  
+
 }

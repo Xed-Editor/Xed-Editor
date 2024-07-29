@@ -9,19 +9,19 @@
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scrollbarFadeDuration="@integer/material_motion_duration_long_2"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:scrollbarFadeDuration="@integer/material_motion_duration_long_2">
 
         <LinearLayout
-            android:layout_width="wrap_content"
             android:id="@+id/root"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/refresh"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -45,23 +45,21 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Refresh"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Reload File Browser"
-                          />
+                        android:text="Reload File Browser" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/reselect"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/reselect"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
@@ -84,23 +82,21 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Reselect"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Reselect a folder"
-                          />
+                        android:text="Reselect a folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/openFile"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/openFile"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
@@ -123,22 +119,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Open File"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="open a file directly into the editor"
-                          />
+                        android:text="open a file directly into the editor" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/createFolder"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -162,22 +156,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="New Folder"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Create a new folder under selected folder"
-                          />
+                        android:text="Create a new folder under selected folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/createFile"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -201,26 +193,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="New File"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Create a new file under selected folder"
-                          />
+                        android:text="Create a new file under selected folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
-
-
-
-
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/save_as"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -244,27 +230,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Save as"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Save the selected file somewhere else"
-                          />
+                        android:text="Save the selected file somewhere else" />
                 </LinearLayout>
             </LinearLayout>
 
 
-
-
-
-
-
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/rename"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -288,22 +267,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Rename"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Rename the selected file/folder"
-                          />
+                        android:text="Rename the selected file/folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/openWith"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -327,22 +304,20 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Open With..."
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Open the selected file with other applications"
-                          />
+                        android:text="Open the selected file with other applications" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
-                android:layout_width="match_parent"
                 android:id="@+id/copy"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
@@ -366,23 +341,21 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Copy"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Copy selected file/folder"
-                          />
+                        android:text="Copy selected file/folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/paste"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/paste"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
@@ -405,26 +378,24 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Paste"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Paste copied file into selected folder"
-                          />
+                        android:text="Paste copied file into selected folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/delete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
-                android:id="@+id/delete"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
@@ -444,27 +415,25 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Delete"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Delete selected file/folder"
-                          />
+                        android:text="Delete selected file/folder" />
                 </LinearLayout>
             </LinearLayout>
 
 
             <LinearLayout
+                android:id="@+id/close"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
-                android:id="@+id/close"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 android:padding="20dp">
@@ -483,15 +452,13 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textStyle="bold"
                         android:text="Close"
-                          />
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Close the current folder"
-                          />
+                        android:text="Close the current folder" />
                 </LinearLayout>
             </LinearLayout>
 

@@ -34,44 +34,44 @@ import io.github.rosemoe.sora.text.CharPosition;
  * @author Rosemoe
  */
 public class PlainTextSpans implements Spans {
-  
-  private int lineCount;
-  
-  public PlainTextSpans(int lineCount) {
-    this.lineCount = lineCount;
-  }
-  
-  @Override
-  public void adjustOnInsert(CharPosition start, CharPosition end) {
-    lineCount += end.line - start.line;
-  }
-  
-  @Override
-  public void adjustOnDelete(CharPosition start, CharPosition end) {
-    lineCount -= end.line - start.line;
-  }
-  
-  @Override
-  public Reader read() {
-    return EmptyReader.getInstance();
-  }
-  
-  @Override
-  public boolean supportsModify() {
-    return false;
-  }
-  
-  @Override
-  public Modifier modify() {
-    throw new UnsupportedOperationException();
-  }
-  
-  @Override
-  public int getLineCount() {
-    return lineCount;
-  }
-  
-  public void setLineCount(int lineCount) {
-    this.lineCount = lineCount;
-  }
+
+    private int lineCount;
+
+    public PlainTextSpans(int lineCount) {
+        this.lineCount = lineCount;
+    }
+
+    @Override
+    public void adjustOnInsert(CharPosition start, CharPosition end) {
+        lineCount += end.line - start.line;
+    }
+
+    @Override
+    public void adjustOnDelete(CharPosition start, CharPosition end) {
+        lineCount -= end.line - start.line;
+    }
+
+    @Override
+    public Reader read() {
+        return EmptyReader.getInstance();
+    }
+
+    @Override
+    public boolean supportsModify() {
+        return false;
+    }
+
+    @Override
+    public Modifier modify() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int getLineCount() {
+        return lineCount;
+    }
+
+    public void setLineCount(int lineCount) {
+        this.lineCount = lineCount;
+    }
 }

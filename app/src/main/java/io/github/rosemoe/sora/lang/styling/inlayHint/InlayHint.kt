@@ -59,13 +59,13 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  * @author Rosemoe
  */
 abstract class InlayHint(val type: InlayHintLayoutType) {
-  
+
   var measuredWidth: Float = 0f
     private set
-  
+
   var measureTimestamp: Long = 0
     private set
-  
+
   fun measure(
     paint: Paint,
     textMetrics: FontMetricsInt,
@@ -76,7 +76,7 @@ abstract class InlayHint(val type: InlayHintLayoutType) {
     measureTimestamp = System.nanoTime()
     return measuredWidth
   }
-  
+
   fun render(
     canvas: Canvas,
     paint: Paint,
@@ -85,7 +85,7 @@ abstract class InlayHint(val type: InlayHintLayoutType) {
     lineHeight: Int,
     baseline: Float
   ) = onRender(canvas, paint, textMetrics, colorScheme, lineHeight, baseline, measuredWidth)
-  
+
   /**
    * Measure the width of this inlay hint so that editor can properly place all the elements.
    * Be careful that the given objects should not be modified, especially [paint] and [textMetrics]. They
@@ -108,7 +108,7 @@ abstract class InlayHint(val type: InlayHintLayoutType) {
     lineHeight: Int,
     baseline: Float
   ): Float
-  
+
   /**
    * Render the inlay hint on the given canvas. The [Canvas.translate] is called in advance so you do
    * not need to consider the exact line index. The left of the given canvas is where you should start render
@@ -133,5 +133,5 @@ abstract class InlayHint(val type: InlayHintLayoutType) {
     baseline: Float,
     measuredWidth: Float
   )
-  
+
 }

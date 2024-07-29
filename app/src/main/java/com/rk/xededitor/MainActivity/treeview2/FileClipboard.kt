@@ -7,10 +7,10 @@ class FileClipboard private constructor() {
   companion object {
     @Volatile
     private var fileClipboard: File? = null
-    
+
     @Volatile
     private var isPasted: Boolean = true
-    
+
     @JvmStatic
     fun setFile(file: File?) {
       synchronized(this) {
@@ -18,7 +18,7 @@ class FileClipboard private constructor() {
         isPasted = false
       }
     }
-    
+
     @JvmStatic
     fun clear() {
       synchronized(this) {
@@ -26,7 +26,7 @@ class FileClipboard private constructor() {
         isPasted = true
       }
     }
-    
+
     @JvmStatic
     fun getFile(): File? {
       synchronized(this) {
@@ -38,14 +38,14 @@ class FileClipboard private constructor() {
         return file
       }
     }
-    
+
     @JvmStatic
     fun isEmpty(): Boolean {
       synchronized(this) {
         return fileClipboard == null
       }
     }
-    
+
     @JvmStatic
     fun markAsPasted() {
       synchronized(this) {

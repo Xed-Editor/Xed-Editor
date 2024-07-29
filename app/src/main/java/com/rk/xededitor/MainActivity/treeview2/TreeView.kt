@@ -13,36 +13,36 @@ import com.rk.xededitor.rkUtils
 import java.io.File
 
 class TreeView(val ctx: MainActivity, rootFolder: File) {
-  
+
   companion object {
     var opened_file_path = ""
   }
-  
+
   init {
-    
+
     val recyclerView = ctx.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
       setItemViewCacheSize(100)
       visibility = View.GONE
-      
+
     }
-    
+
     ctx.binding.progressBar.visibility = View.VISIBLE
-    
-    
+
+
     Thread {
       opened_file_path = rootFolder.absolutePath
       SettingsData.setSetting(ctx, "lastOpenedPath", rootFolder.absolutePath)
-      
+
       nodes = TreeViewAdapter.merge(rootFolder)
-      
-      val adapter = TreeViewAdapter(recyclerView, ctx,rootFolder)
-      
+
+      val adapter = TreeViewAdapter(recyclerView, ctx, rootFolder)
+
       adapter.apply {
         setOnItemClickListener(object : OnItemClickListener {
           override fun onItemClick(v: View, node: Node<File>) {
             val loading = LoadingPopup(ctx, null).show()
-            
-            After(150){
+
+            After(150) {
               rkUtils.runOnUiThread {
                 ctx.newEditor(node.value, false)
                 ctx.onNewEditor()
@@ -54,29 +54,28 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
                 loading.hide()
               }
             }
-            
-            
-           
+
+
           }
-          
-          
+
+
           override fun onItemLongClick(v: View, node: Node<File>) {
             FileAction(ctx, rootFolder, node.value, adapter)
           }
         })
         submitList(nodes)
       }
-      
-      
+
+
       ctx.runOnUiThread {
         recyclerView.layoutManager = LinearLayoutManager(ctx)
         ctx.binding.progressBar.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         recyclerView.adapter = adapter
       }
-      
+
     }.start()
-    
-    
+
+
   }
 }

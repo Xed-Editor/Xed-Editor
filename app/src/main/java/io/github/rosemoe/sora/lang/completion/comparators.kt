@@ -38,39 +38,39 @@ fun defaultComparator(a: CompletionItem, b: CompletionItem): Int {
   // check score
   val p1Score = (a.extra as? SortedCompletionItem)?.score?.score ?: 0
   val p2Score = (b.extra as? SortedCompletionItem)?.score?.score ?: 0
-  
+
   // if score biggest, it better similar to input text
   if (p1Score < p2Score) {
     return 1
   } else if (p1Score > p2Score) {
     return -1
   }
-  
+
   var p1 = a.sortText.asString()
   var p2 = b.sortText.asString()
-  
+
   // check with 'sortText'
-  
+
   if (p1 < p2) {
     return -1
   } else if (p1 > p2) {
     return 1
   }
-  
+
   p1 = a.label.asString()
   p2 = b.label.asString()
-  
+
   // check with 'label'
   if (p1 < p2) {
     return -1
   } else if (p1 > p2) {
     return 1
   }
-  
+
   // check with 'kind'
   // if kind biggest, it better important
   val kind = (b.kind?.value ?: 0) - (a.kind?.value ?: 0)
-  
+
   return kind
 }
 
@@ -91,18 +91,18 @@ fun getCompletionItemComparator(
   cursorPosition: CharPosition,
   completionItemList: Collection<CompletionItem>
 ): Comparator<CompletionItem> {
-  
+
   source.validateAccess()
-  
+
   val sourceLine = source.reference.getLine(cursorPosition.line)
-  
+
   var word = ""
   var wordLow = ""
-  
+
   // picks a score function based on the number of
   // items that we have to score/filter and based on the
   // user-configuration
-  
+
   val scoreFn = FuzzyScorer { pattern,
                               lowPattern,
                               patternPos,
@@ -123,13 +123,13 @@ fun getCompletionItemComparator(
         options
       )
     }
-    
+
   }
-  
+
   for (originItem in completionItemList) {
-    
+
     source.validateAccess()
-    
+
     val overwriteBefore = originItem.prefixLength
     val wordLen = overwriteBefore
     if (word.length != wordLen) {
@@ -138,10 +138,10 @@ fun getCompletionItemComparator(
       )
       wordLow = word.lowercase()
     }
-    
-    
+
+
     val item = SortedCompletionItem(originItem, FuzzyScore.default)
-    
+
     // when there is nothing to score against, don't
     // event try to do. Use a const rank and rely on
     // the fallback-sort using the initial sort order.
@@ -166,7 +166,7 @@ fun getCompletionItemComparator(
           break
         }
       }
-      
+
       if (wordPos >= wordLen) {
         // the wordPos at which scoring starts is the whole word
         // and therefore the same rules as not having a word apply
@@ -186,7 +186,7 @@ fun getCompletionItemComparator(
           0,
           FuzzyScoreOptions.default
         ) ?: continue // NO match
-        
+
         // compareIgnoreCase(item.completion.filterText, item.textLabel) === 0
         if (originItem.sortText === originItem.label) {
           // filterText and label are actually the same -> use good highlights
@@ -206,7 +206,7 @@ fun getCompletionItemComparator(
           item.score = labelMatch
           labelMatch.matches[0] = match.matches[0]
         }
-        
+
       } else {
         // by default match `word` against the `label`
         val match = scoreFn.calculateScore(
@@ -220,12 +220,12 @@ fun getCompletionItemComparator(
         ) ?: continue // NO match
         item.score = match
       }
-      
+
       originItem.extra = item
-      
+
     }
   }
-  
+
   return Comparator { o1, o2 ->
     snippetUpComparator(o1, o2)
   }

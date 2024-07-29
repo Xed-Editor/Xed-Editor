@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Main content -->
+<?xml version="1.0" encoding="utf-8"?><!-- Main content -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
@@ -20,7 +19,7 @@
             android:id="@+id/mainBody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
+            android:orientation="vertical" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -28,17 +27,17 @@
         android:id="@+id/nip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/nip"
+        android:layout_above="@id/fab"
         android:layout_below="@id/appbar"
-        android:layout_above="@id/fab"/>
+        android:gravity="center"
+        android:text="@string/nip" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
         android:contentDescription="sfjhggui"
         app:srcCompat="@drawable/add" />

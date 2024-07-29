@@ -39,10 +39,10 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Rosemoe
  */
 public class ClickEvent extends EditorMotionEvent {
-  
-  public ClickEvent(@NonNull CodeEditor editor, @NonNull CharPosition position, @NonNull MotionEvent event,
-                    @Nullable Span span, @Nullable TextRange spanRange) {
-    super(editor, position, event, span, spanRange);
-  }
-  
+
+    public ClickEvent(@NonNull CodeEditor editor, @NonNull CharPosition position, @NonNull MotionEvent event,
+                      @Nullable Span span, @Nullable TextRange spanRange) {
+        super(editor, position, event, span, spanRange);
+    }
+
 }

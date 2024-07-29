@@ -42,9 +42,8 @@ import io.github.rosemoe.sora.util.Logger;
  * The registry that will hold all grammars.
  *
  * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/main.ts#L54">
- *      github.com/microsoft/vscode-textmate/blob/main/src/main.ts</a>
- *
+ * "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/main.ts#L54">
+ * github.com/microsoft/vscode-textmate/blob/main/src/main.ts</a>
  */
 public final class Registry {
 

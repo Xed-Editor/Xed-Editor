@@ -29,8 +29,8 @@ package io.github.rosemoe.sora.widget.style;
  * @author Rosemoe
  */
 public enum DiagnosticIndicatorStyle {
-  NONE,
-  LINE,
-  DOUBLE_LINE,
-  WAVY_LINE
+    NONE,
+    LINE,
+    DOUBLE_LINE,
+    WAVY_LINE
 }

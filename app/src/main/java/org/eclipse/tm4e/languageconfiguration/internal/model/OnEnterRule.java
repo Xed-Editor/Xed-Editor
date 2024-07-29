@@ -3,9 +3,9 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  * Sebastian Thomschke (Vegard IT GmbH) - add previousLineText support
@@ -25,54 +25,54 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  */
 public final class OnEnterRule {
 
-	/**
-	 * This rule will only execute if the text before the cursor matches this regular expression.
-	 */
-	public final RegExPattern beforeText;
+    /**
+     * This rule will only execute if the text before the cursor matches this regular expression.
+     */
+    public final RegExPattern beforeText;
 
-	/**
-	 * This rule will only execute if the text after the cursor matches this regular expression.
-	 */
-	public final @Nullable RegExPattern afterText;
+    /**
+     * This rule will only execute if the text after the cursor matches this regular expression.
+     */
+    public final @Nullable RegExPattern afterText;
 
-	/**
-	 * This rule will only execute if the text above the current line matches this regular expression.
-	 */
+    /**
+     * This rule will only execute if the text above the current line matches this regular expression.
+     */
 
-	public final @Nullable RegExPattern previousLineText;
+    public final @Nullable RegExPattern previousLineText;
 
-	/**
-	 * The action to execute.
-	 */
-	public final EnterAction action;
+    /**
+     * The action to execute.
+     */
+    public final EnterAction action;
 
-	public OnEnterRule(final RegExPattern beforeText, final @Nullable RegExPattern afterText, final @Nullable RegExPattern previousLineText,
-			final EnterAction action) {
-		this.beforeText = beforeText;
-		this.afterText = afterText;
-		this.previousLineText = previousLineText;
-		this.action = action;
-	}
+    public OnEnterRule(final RegExPattern beforeText, final @Nullable RegExPattern afterText, final @Nullable RegExPattern previousLineText,
+                       final EnterAction action) {
+        this.beforeText = beforeText;
+        this.afterText = afterText;
+        this.previousLineText = previousLineText;
+        this.action = action;
+    }
 
-	/**
-	 * Only for unit tests
-	 *
-	 * @throws TMException if beforeText, afterText or previousLineText contain invalid regex pattern
-	 */
-	OnEnterRule(final String beforeText, final @Nullable String afterText, final @Nullable String previousLineText,
-			final EnterAction action) {
-		this.beforeText = RegExPattern.of(beforeText);
-		this.afterText = afterText == null ? null : RegExPattern.of(afterText);
-		this.previousLineText = previousLineText == null ? null : RegExPattern.of(previousLineText);
-		this.action = action;
-	}
+    /**
+     * Only for unit tests
+     *
+     * @throws TMException if beforeText, afterText or previousLineText contain invalid regex pattern
+     */
+    OnEnterRule(final String beforeText, final @Nullable String afterText, final @Nullable String previousLineText,
+                final EnterAction action) {
+        this.beforeText = RegExPattern.of(beforeText);
+        this.afterText = afterText == null ? null : RegExPattern.of(afterText);
+        this.previousLineText = previousLineText == null ? null : RegExPattern.of(previousLineText);
+        this.action = action;
+    }
 
-	@Override
-	public String toString() {
-		return StringUtils.toString(this, sb -> sb
-				.append("beforeText=").append(beforeText).append(", ")
-				.append("afterText=").append(afterText).append(", ")
-				.append("previousLineText=").append(previousLineText).append(", ")
-				.append("action=").append(action));
-	}
+    @Override
+    public String toString() {
+        return StringUtils.toString(this, sb -> sb
+                .append("beforeText=").append(beforeText).append(", ")
+                .append("afterText=").append(afterText).append(", ")
+                .append("previousLineText=").append(previousLineText).append(", ")
+                .append("action=").append(action));
+    }
 }

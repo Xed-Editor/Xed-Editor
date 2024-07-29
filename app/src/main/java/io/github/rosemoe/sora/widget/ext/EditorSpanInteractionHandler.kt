@@ -54,9 +54,9 @@ import io.github.rosemoe.sora.widget.resolveTouchRegion
  * @author Rosemoe
  */
 open class EditorSpanInteractionHandler(val editor: CodeEditor) {
-  
+
   val eventManager = editor.createSubEventManager()
-  
+
   init {
     eventManager.subscribeAlways<ClickEvent> { event ->
       if (!event.isFromMouse || (event.isFromMouse && editor.keyMetaStates.isCtrlPressed)) {
@@ -85,7 +85,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
       )
     }
   }
-  
+
   private fun handleInteractionEvent(
     event: EditorMotionEvent,
     predicate: (interactionInfo: SpanInteractionInfo) -> Boolean,
@@ -110,7 +110,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
       }
     }
   }
-  
+
   open fun handleSpanClick(
     span: Span,
     interactionInfo: SpanInteractionInfo,
@@ -118,7 +118,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
   ): Boolean {
     return false
   }
-  
+
   open fun handleSpanDoubleClick(
     span: Span,
     interactionInfo: SpanInteractionInfo,
@@ -138,7 +138,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
     }
     return false
   }
-  
+
   open fun handleSpanLongClick(
     span: Span,
     interactionInfo: SpanInteractionInfo,
@@ -146,12 +146,12 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
   ): Boolean {
     return false
   }
-  
+
   fun isEnabled() = eventManager.isEnabled
-  
+
   fun setEnabled(enabled: Boolean) {
     eventManager.isEnabled = enabled
   }
-  
-  
+
+
 }

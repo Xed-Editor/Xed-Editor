@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/atom/node-oniguruma
  * Initial copyright Copyright (c) 2013 GitHub Inc.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -24,38 +24,38 @@ import org.joni.Region;
  */
 public final class OnigResult {
 
-	private int indexInScanner;
-	private final Region region;
+    private final Region region;
+    private int indexInScanner;
 
-	OnigResult(final Region region, final int indexInScanner) {
-		this.region = region;
-		this.indexInScanner = indexInScanner;
-	}
+    OnigResult(final Region region, final int indexInScanner) {
+        this.region = region;
+        this.indexInScanner = indexInScanner;
+    }
 
-	public int getIndex() {
-		return indexInScanner;
-	}
+    public int getIndex() {
+        return indexInScanner;
+    }
 
-	void setIndex(final int index) {
-		indexInScanner = index;
-	}
+    void setIndex(final int index) {
+        indexInScanner = index;
+    }
 
-	public int locationAt(final int index) {
-		final int bytes = region.getBeg(index);
-		return bytes > 0 ? bytes : 0;
-	}
+    public int locationAt(final int index) {
+        final int bytes = region.getBeg(index);
+        return bytes > 0 ? bytes : 0;
+    }
 
-	public int count() {
-		return region.getNumRegs();
-	}
+    public int count() {
+        return region.getNumRegs();
+    }
 
-	public int lengthAt(final int index) {
-		final int bytes = region.getEnd(index) - region.getBeg(index);
-		return bytes > 0 ? bytes : 0;
-	}
+    public int lengthAt(final int index) {
+        final int bytes = region.getEnd(index) - region.getBeg(index);
+        return bytes > 0 ? bytes : 0;
+    }
 
-	@Override
-	public String toString() {
-		return "OnigResult [indexInScanner=" + indexInScanner + ", region=" + region + "]";
-	}
+    @Override
+    public String toString() {
+        return "OnigResult [indexInScanner=" + indexInScanner + ", region=" + region + "]";
+    }
 }

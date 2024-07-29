@@ -41,81 +41,81 @@ import androidx.annotation.NonNull;
  * @author Rosemoe
  */
 public class TextLayoutHelper {
-  
-  private static final ThreadLocal<TextLayoutHelper> sLocal;
-  private final static int CHAR_FACTOR = 64;
-  
-  static {
-    sLocal = new ThreadLocal<>();
-  }
 
-  private final Editable text = Editable.Factory.getInstance().newEditable("");
-  private final DynamicLayout layout;
-  
-  private TextLayoutHelper() {
-    if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-      layout = new DynamicLayout(text, new TextPaint(), Integer.MAX_VALUE / 2,
-          Layout.Alignment.ALIGN_NORMAL, 0, 0, true);
-      try {
-        @SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
-        var field = Layout.class.getDeclaredField("mTextDir");
-        field.setAccessible(true);
-        field.set(layout, TextDirectionHeuristics.LTR);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    } else {
-      layout = DynamicLayout.Builder.obtain(text, new TextPaint(), Integer.MAX_VALUE / 2)
-          .setIncludePad(true)
-          .setLineSpacing(0, 0)
-          .setTextDirection(TextDirectionHeuristics.LTR)
-          .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-          .build();
+    private static final ThreadLocal<TextLayoutHelper> sLocal;
+    private final static int CHAR_FACTOR = 64;
+
+    static {
+        sLocal = new ThreadLocal<>();
     }
-  }
-  
-  /**
-   * Get TextLayoutHelper for current thread
-   */
-  public static TextLayoutHelper get() {
-    var v = sLocal.get();
-    if (v == null) {
-      v = new TextLayoutHelper();
-      sLocal.set(v);
+
+    private final Editable text = Editable.Factory.getInstance().newEditable("");
+    private final DynamicLayout layout;
+
+    private TextLayoutHelper() {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            layout = new DynamicLayout(text, new TextPaint(), Integer.MAX_VALUE / 2,
+                    Layout.Alignment.ALIGN_NORMAL, 0, 0, true);
+            try {
+                @SuppressLint({"DiscouragedPrivateApi", "SoonBlockedPrivateApi"})
+                var field = Layout.class.getDeclaredField("mTextDir");
+                field.setAccessible(true);
+                field.set(layout, TextDirectionHeuristics.LTR);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            layout = DynamicLayout.Builder.obtain(text, new TextPaint(), Integer.MAX_VALUE / 2)
+                    .setIncludePad(true)
+                    .setLineSpacing(0, 0)
+                    .setTextDirection(TextDirectionHeuristics.LTR)
+                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                    .build();
+        }
     }
-    return v;
-  }
-  
-  /**
-   * Get cursor position after moving left
-   */
-  public int getCurPosLeft(int offset, @NonNull CharSequence s) {
-    int left = Math.max(0, offset - CHAR_FACTOR);
-    int index = offset - left;
-    text.append(s, left, Math.min(s.length(), offset + CHAR_FACTOR + 1));
-    index = Math.min(index, text.length());
-    Selection.setSelection(text, index);
-    Selection.moveLeft(text, layout);
-    index = Selection.getSelectionStart(text);
-    text.clear();
-    Selection.removeSelection(text);
-    return left + index;
-  }
-  
-  /**
-   * Get cursor position after moving right
-   */
-  public int getCurPosRight(int offset, @NonNull CharSequence s) {
-    int left = Math.max(0, offset - CHAR_FACTOR);
-    int index = offset - left;
-    text.append(s, left, Math.min(s.length(), offset + CHAR_FACTOR + 1));
-    index = Math.min(index, text.length());
-    Selection.setSelection(text, index);
-    Selection.moveRight(text, layout);
-    index = Selection.getSelectionStart(text);
-    text.clear();
-    Selection.removeSelection(text);
-    return left + index;
-  }
-  
+
+    /**
+     * Get TextLayoutHelper for current thread
+     */
+    public static TextLayoutHelper get() {
+        var v = sLocal.get();
+        if (v == null) {
+            v = new TextLayoutHelper();
+            sLocal.set(v);
+        }
+        return v;
+    }
+
+    /**
+     * Get cursor position after moving left
+     */
+    public int getCurPosLeft(int offset, @NonNull CharSequence s) {
+        int left = Math.max(0, offset - CHAR_FACTOR);
+        int index = offset - left;
+        text.append(s, left, Math.min(s.length(), offset + CHAR_FACTOR + 1));
+        index = Math.min(index, text.length());
+        Selection.setSelection(text, index);
+        Selection.moveLeft(text, layout);
+        index = Selection.getSelectionStart(text);
+        text.clear();
+        Selection.removeSelection(text);
+        return left + index;
+    }
+
+    /**
+     * Get cursor position after moving right
+     */
+    public int getCurPosRight(int offset, @NonNull CharSequence s) {
+        int left = Math.max(0, offset - CHAR_FACTOR);
+        int index = offset - left;
+        text.append(s, left, Math.min(s.length(), offset + CHAR_FACTOR + 1));
+        index = Math.min(index, text.length());
+        Selection.setSelection(text, index);
+        Selection.moveRight(text, layout);
+        index = Selection.getSelectionStart(text);
+        text.clear();
+        Selection.removeSelection(text);
+        return left + index;
+    }
+
 }

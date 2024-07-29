@@ -27,6 +27,8 @@ import java.util.regex.Pattern;
 
 public class StringUtils {
 
+    private static final Pattern MATCH_PATTERN = Pattern.compile(".*/|\\..*");
+
     public static boolean checkSurrogate(String text) {
         for (int i = 0; i < text.length(); i++) {
             if (Character.isSurrogate(text.charAt(i))) {
@@ -52,9 +54,6 @@ public class StringUtils {
         }
         return offset;
     }
-
-
-    private static final Pattern MATCH_PATTERN = Pattern.compile(".*/|\\..*");
 
     public static String getFileNameWithoutExtension(String filePath) {
         return MATCH_PATTERN.matcher(filePath).replaceAll("");

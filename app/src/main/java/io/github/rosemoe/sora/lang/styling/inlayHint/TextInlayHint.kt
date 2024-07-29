@@ -58,7 +58,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  * @author Rosemoe
  */
 class TextInlayHint(val text: String) : InlayHint(InlayHintLayoutType.IN_LINE) {
-  
+
   override fun onMeasure(
     paint: Paint,
     textMetrics: android.graphics.Paint.FontMetricsInt,
@@ -72,7 +72,7 @@ class TextInlayHint(val text: String) : InlayHint(InlayHintLayoutType.IN_LINE) {
     paint.setTextSizeWrapped(textSize)
     return width
   }
-  
+
   override fun onRender(
     canvas: Canvas,
     paint: Paint,
@@ -85,7 +85,7 @@ class TextInlayHint(val text: String) : InlayHint(InlayHintLayoutType.IN_LINE) {
     val margin = paint.spaceWidth * 0.8f
     val textSize = paint.textSize
     paint.setTextSizeWrapped(textSize * 0.75f)
-    
+
     val myLineHeight = paint.descent() - paint.ascent()
     val myBaseline = lineHeight / 2f - myLineHeight / 2f + paint.descent()
     paint.color = colorScheme.getColor(EditorColorScheme.TEXT_INLAY_HINT_BACKGROUND)
@@ -100,8 +100,8 @@ class TextInlayHint(val text: String) : InlayHint(InlayHintLayoutType.IN_LINE) {
     )
     paint.color = colorScheme.getColor(EditorColorScheme.TEXT_INLAY_HINT_FOREGROUND)
     canvas.drawText(text, margin * 1.5f, myBaseline, paint)
-    
+
     paint.setTextSizeWrapped(textSize)
   }
-  
+
 }

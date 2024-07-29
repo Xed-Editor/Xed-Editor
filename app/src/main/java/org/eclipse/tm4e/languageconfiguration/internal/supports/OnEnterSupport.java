@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * On enter support.
  *
  * @see <a href="https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/onEnter.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/onEnter.ts</a>
+ * github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/supports/onEnter.ts</a>
  */
 public class OnEnterSupport {
 
@@ -107,14 +107,6 @@ public class OnEnterSupport {
             closeRegExp = createCloseBracketRegExp(charPair.close);
         }
 
-        private boolean matchOpen(final String beforeEnterText) {
-            return openRegExp != null && openRegExp.matcher(beforeEnterText).find();
-        }
-
-        private boolean matchClose(final String afterEnterText) {
-            return closeRegExp != null && closeRegExp.matcher(afterEnterText).find();
-        }
-
         private static @Nullable Pattern createOpenBracketRegExp(final String bracket) {
             final var str = new StringBuilder(RegExpUtils.escapeRegExpCharacters(bracket));
             final var c = String.valueOf(str.charAt(0));
@@ -133,6 +125,14 @@ public class OnEnterSupport {
             }
             str.insert(0, "^\\s*"); //$NON-NLS-1$
             return RegExpUtils.create(str.toString());
+        }
+
+        private boolean matchOpen(final String beforeEnterText) {
+            return openRegExp != null && openRegExp.matcher(beforeEnterText).find();
+        }
+
+        private boolean matchClose(final String afterEnterText) {
+            return closeRegExp != null && closeRegExp.matcher(afterEnterText).find();
         }
     }
 }

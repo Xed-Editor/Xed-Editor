@@ -39,16 +39,26 @@ import io.github.rosemoe.sora.util.Logger;
  * The language configuration interface defines the contract between extensions and various editor features, like
  * automatic bracket insertion, automatic indentation etc.
  *
- * @see <a href=
- *      "https://code.visualstudio.com/api/language-extensions/language-configuration-guide">code.visualstudio.com/api/language-extensions/language-configuration-guide</a>
- * @see <a href=
- *      "https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts">
- *      github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts</a>
  * @noinspection Convert2MethodRef
+ * @see <a href=
+ * "https://code.visualstudio.com/api/language-extensions/language-configuration-guide">code.visualstudio.com/api/language-extensions/language-configuration-guide</a>
+ * @see <a href=
+ * "https://github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts">
+ * github.com/microsoft/vscode/blob/main/src/vs/editor/common/languages/languageConfiguration.ts</a>
  */
 public class LanguageConfiguration {
 
     private static final Logger log = Logger.instance(LanguageConfiguration.class.getName());
+    private @Nullable CommentRule comments;
+    private List<CharacterPair> brackets = lazyNonNull();
+    private @Nullable String wordPattern;
+    private @Nullable IndentationRules indentationRules;
+    private List<OnEnterRule> onEnterRules = lazyNonNull();
+    private List<AutoClosingPairConditional> autoClosingPairs = lazyNonNull();
+    private List<AutoClosingPair> surroundingPairs = lazyNonNull();
+    private List<CharacterPair> colorizedBracketPairs = lazyNonNull();
+    private @Nullable String autoCloseBefore;
+    private @Nullable FoldingRules folding;
 
     private static String removeTrailingCommas(String jsonString) {
         /* matches:
@@ -71,7 +81,7 @@ public class LanguageConfiguration {
      * See JSON format at https://code.visualstudio.com/api/language-extensions/language-configuration-guide
      *
      * @return an instance of {@link LanguageConfiguration} loaded from the VSCode language-configuration.json file
-     *         reader.
+     * reader.
      */
     @NonNullByDefault({})
     public static @Nullable LanguageConfiguration load(@NonNull final Reader reader) {
@@ -352,8 +362,6 @@ public class LanguageConfiguration {
         return null;
     }
 
-    private @Nullable CommentRule comments;
-
     /**
      * Returns the language's comments. The comments are used by {@link AutoClosingPairConditional} when
      * <code>notIn</code> contains <code>comment</code>
@@ -364,8 +372,6 @@ public class LanguageConfiguration {
         return comments;
     }
 
-    private List<CharacterPair> brackets = lazyNonNull();
-
     /**
      * Returns the language's brackets. This configuration implicitly affects pressing Enter around these brackets.
      *
@@ -374,8 +380,6 @@ public class LanguageConfiguration {
     public List<CharacterPair> getBrackets() {
         return brackets;
     }
-
-    private @Nullable String wordPattern;
 
     /**
      * Returns the language's definition of a word. This is the regex used when referring to a word.
@@ -386,16 +390,12 @@ public class LanguageConfiguration {
         return wordPattern;
     }
 
-    private @Nullable IndentationRules indentationRules;
-
     /**
      * The language's indentation settings.
      */
     public @Nullable IndentationRules getIndentationRules() {
         return indentationRules;
     }
-
-    private List<OnEnterRule> onEnterRules = lazyNonNull();
 
     /**
      * Returns the language's rules to be evaluated when pressing Enter.
@@ -405,8 +405,6 @@ public class LanguageConfiguration {
     public List<OnEnterRule> getOnEnterRules() {
         return onEnterRules;
     }
-
-    private List<AutoClosingPairConditional> autoClosingPairs = lazyNonNull();
 
     /**
      * Returns the language's auto closing pairs. The 'close' character is automatically inserted with the 'open'
@@ -418,8 +416,6 @@ public class LanguageConfiguration {
         return autoClosingPairs;
     }
 
-    private List<AutoClosingPair> surroundingPairs = lazyNonNull();
-
     /**
      * Returns the language's surrounding pairs. When the 'open' character is typed on a selection, the selected string
      * is surrounded by the open and close characters. If not set, the autoclosing pairs settings will be used.
@@ -430,8 +426,6 @@ public class LanguageConfiguration {
         return surroundingPairs;
     }
 
-    private List<CharacterPair> colorizedBracketPairs = lazyNonNull();
-
     /**
      * Defines a list of bracket pairs that are colorized depending on their nesting level.
      * If not set, the configured brackets will be used.
@@ -440,13 +434,9 @@ public class LanguageConfiguration {
         return colorizedBracketPairs;
     }
 
-    private @Nullable String autoCloseBefore;
-
     public @Nullable String getAutoCloseBefore() {
         return autoCloseBefore;
     }
-
-    private @Nullable FoldingRules folding;
 
     /**
      * Returns the language's folding rules.

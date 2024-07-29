@@ -35,7 +35,7 @@ import io.github.rosemoe.sora.text.TextRange
  * @author Akash Yadav
  */
 object Chars {
-  
+
   /**
    * Find the previous word and get its start position.
    */
@@ -43,7 +43,7 @@ object Chars {
   fun prevWordStart(position: CharPosition, text: Content): CharPosition {
     return findWord(position, text, true).start
   }
-  
+
   /**
    * Find the next word and get its end position.
    */
@@ -51,7 +51,7 @@ object Chars {
   fun nextWordEnd(position: CharPosition, text: Content): CharPosition {
     return findWord(position, text).end
   }
-  
+
   /**
    * Find the previous/next word from the given [character position][position] in the given [text].
    *
@@ -68,16 +68,16 @@ object Chars {
       val pos = CharPosition(l, text.getLine(l).length)
       return TextRange(pos, pos)
     }
-    
+
     if (text.getColumnCount(position.line) == position.column && position.line < text.lineCount - 1 && !reverse) {
       val pos = CharPosition(position.line + 1, 0)
       return TextRange(pos, pos)
     }
-    
+
     val column = skipWs(text.getLine(position.line), position.column, reverse)
     return getWordRange(text, position.line, column, false)
   }
-  
+
   /**
    * Get the range of the word at given character position.
    *
@@ -118,7 +118,7 @@ object Chars {
       CharPosition(endLine, endColumn, endOffset)
     )
   }
-  
+
   /**
    * Find the next/previous offset after/before [offset] skipping all the whitespaces.
    *
@@ -134,7 +134,7 @@ object Chars {
       if ((reverse && i < 0) || (!reverse && i == text.length)) {
         break
       }
-      
+
       val c = text[i]
       if (!c.isWhitespace() || (i == 0 && reverse)) break
       else {

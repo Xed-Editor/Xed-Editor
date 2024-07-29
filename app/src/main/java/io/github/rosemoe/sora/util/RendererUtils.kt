@@ -35,7 +35,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  * @author Akash Yadav
  */
 object RendererUtils {
-  
+
   /**
    * Get the background color for the given span.
    */
@@ -43,13 +43,13 @@ object RendererUtils {
   fun getBackgroundColor(span: Span, colorScheme: EditorColorScheme): Int {
     val resolver = span.getSpanExt<SpanColorResolver>(SpanExtAttrs.EXT_COLOR_RESOLVER)
       ?: return colorScheme.getColor(span.backgroundColorId)
-    
+
     val color = resolver.getBackgroundColor(span)
       ?: return colorScheme.getColor(span.backgroundColorId)
-    
+
     return color.resolve(colorScheme)
   }
-  
+
   /**
    * Get the foreground color for the given span.
    */
@@ -57,10 +57,10 @@ object RendererUtils {
   fun getForegroundColor(span: Span, colorScheme: EditorColorScheme): Int {
     val resolver = span.getSpanExt<SpanColorResolver>(SpanExtAttrs.EXT_COLOR_RESOLVER)
       ?: return colorScheme.getColor(span.foregroundColorId)
-    
+
     val color = resolver.getForegroundColor(span)
       ?: return colorScheme.getColor(span.foregroundColorId)
-    
+
     return color.resolve(colorScheme)
   }
 }

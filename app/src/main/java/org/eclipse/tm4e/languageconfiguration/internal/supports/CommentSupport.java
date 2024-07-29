@@ -26,19 +26,19 @@ public final class CommentSupport {
         this.comments = comments;
     }
 
-	private boolean isInComment(final Content text, final int offset) {
-		try {
-			if (isInBlockComment(text.subSequence(0, offset).toString())) {
-				return true;
-			}
-			var indexer = text.getIndexer();
-			final int line = indexer.getCharLine(offset);
-			final int lineOffset = indexer.getCharIndex(line,0);
-			return isInLineComment(text.subSequence(lineOffset, offset - lineOffset).toString());
-		} catch (final Exception e) {
-			return false;
-		}
-	}
+    private boolean isInComment(final Content text, final int offset) {
+        try {
+            if (isInBlockComment(text.subSequence(0, offset).toString())) {
+                return true;
+            }
+            var indexer = text.getIndexer();
+            final int line = indexer.getCharLine(offset);
+            final int lineOffset = indexer.getCharIndex(line, 0);
+            return isInLineComment(text.subSequence(lineOffset, offset - lineOffset).toString());
+        } catch (final Exception e) {
+            return false;
+        }
+    }
 
     @Nullable
     public String getLineComment() {

@@ -60,6 +60,23 @@ public class DefaultGrammarDefinition implements GrammarDefinition {
         this.embeddedLanguages = embeddedLanguages;
     }
 
+    public static DefaultGrammarDefinition withGrammarSource(IGrammarSource grammarSource) {
+        var languageNameByPath = StringUtils.getFileNameWithoutExtension(grammarSource.getFilePath());
+        return withGrammarSource(grammarSource, languageNameByPath, "source." + languageNameByPath);
+    }
+
+    public static DefaultGrammarDefinition withLanguageConfiguration(IGrammarSource grammarSource, String languageConfigurationPath) {
+        var languageNameByPath = StringUtils.getFileNameWithoutExtension(grammarSource.getFilePath());
+        return withLanguageConfiguration(grammarSource, languageConfigurationPath, languageNameByPath, "source." + languageNameByPath);
+    }
+
+    public static DefaultGrammarDefinition withLanguageConfiguration(IGrammarSource grammarSource, String languageConfigurationPath, String languageName, String scopeName) {
+        return new DefaultGrammarDefinition(languageName, scopeName, grammarSource, languageConfigurationPath);
+    }
+
+    public static DefaultGrammarDefinition withGrammarSource(IGrammarSource grammarSource, String languageName, String scopeName) {
+        return new DefaultGrammarDefinition(languageName, scopeName, grammarSource, null);
+    }
 
     @Override
     public String getName() {
@@ -86,7 +103,6 @@ public class DefaultGrammarDefinition implements GrammarDefinition {
         return embeddedLanguages == null ? Collections.emptyMap() : embeddedLanguages;
     }
 
-
     public GrammarDefinition withEmbeddedLanguages(Map<String, String> embeddedLanguages) {
         if (embeddedLanguages == null) {
             return this;
@@ -94,26 +110,6 @@ public class DefaultGrammarDefinition implements GrammarDefinition {
         return new DefaultGrammarDefinition(this.name, this.scopeName,
                 this.grammarSource, this.languageConfigurationPath,
                 embeddedLanguages);
-    }
-
-    public static DefaultGrammarDefinition withGrammarSource(IGrammarSource grammarSource) {
-        var languageNameByPath = StringUtils.getFileNameWithoutExtension(grammarSource.getFilePath());
-        return withGrammarSource(grammarSource, languageNameByPath, "source." + languageNameByPath);
-    }
-
-    public static DefaultGrammarDefinition withLanguageConfiguration(IGrammarSource grammarSource, String languageConfigurationPath) {
-        var languageNameByPath = StringUtils.getFileNameWithoutExtension(grammarSource.getFilePath());
-        return withLanguageConfiguration(grammarSource, languageConfigurationPath, languageNameByPath, "source." + languageNameByPath);
-    }
-
-
-    public static DefaultGrammarDefinition withLanguageConfiguration(IGrammarSource grammarSource, String languageConfigurationPath, String languageName, String scopeName) {
-        return new DefaultGrammarDefinition(languageName, scopeName, grammarSource, languageConfigurationPath);
-    }
-
-
-    public static DefaultGrammarDefinition withGrammarSource(IGrammarSource grammarSource, String languageName, String scopeName) {
-        return new DefaultGrammarDefinition(languageName, scopeName, grammarSource, null);
     }
 
 

@@ -35,7 +35,7 @@ import android.inputmethodservice.InputMethodService
  * @author Akash Yadav
  */
 object KeyboardUtils {
-  
+
   /**
    * Check if hardware keyboard is connected.
    * Based on default implementation of [InputMethodService.onEvaluateInputViewShown].

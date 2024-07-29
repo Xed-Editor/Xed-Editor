@@ -29,7 +29,6 @@ import android.util.Pair;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-
 import org.eclipse.tm4e.languageconfiguration.internal.model.CompleteEnterAction;
 import org.eclipse.tm4e.languageconfiguration.internal.model.EnterAction;
 import org.eclipse.tm4e.languageconfiguration.internal.model.LanguageConfiguration;
@@ -48,12 +47,9 @@ import io.github.rosemoe.sora.text.Content;
 
 public class TextMateNewlineHandler implements NewlineHandler {
 
-    private OnEnterSupport enterSupport = null;
-
-    private IndentRulesSupport indentRulesSupport = null;
-
     private final TextMateLanguage language;
-
+    private OnEnterSupport enterSupport = null;
+    private IndentRulesSupport indentRulesSupport = null;
     private CompleteEnterAction enterAction;
 
     private boolean isEnabled = true;
@@ -470,6 +466,12 @@ public class TextMateNewlineHandler implements NewlineHandler {
     }
 
 
+    private interface WrapperContent {
+        Content getOrigin();
+
+        String getLineContent(int line);
+    }
+
     static class InheritIndentResult {
         String indentation;
         EnterAction.IndentAction action;
@@ -533,12 +535,6 @@ public class TextMateNewlineHandler implements NewlineHandler {
                 return content.getLineString(line);
             }
         }
-    }
-
-    private interface WrapperContent {
-        Content getOrigin();
-
-        String getLineContent(int line);
     }
 
 }

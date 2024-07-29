@@ -33,11 +33,11 @@ import io.github.rosemoe.sora.widget.CodeEditor
  *  @author Rosemoe
  */
 class ColorSchemeUpdateEvent(editor: CodeEditor) : Event(editor) {
-  
+
   /**
    * Updated color scheme (the new one if new color scheme is set)
    */
   val colorScheme
     get() = editor.colorScheme
-  
+
 }

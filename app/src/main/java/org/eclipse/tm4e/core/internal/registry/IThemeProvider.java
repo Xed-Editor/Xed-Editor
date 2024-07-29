@@ -3,9 +3,9 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
@@ -22,8 +22,8 @@ import org.eclipse.tm4e.core.internal.theme.StyleAttributes;
  */
 public interface IThemeProvider {
 
-	@Nullable
-	StyleAttributes themeMatch(ScopeStack scopePath);
+    @Nullable
+    StyleAttributes themeMatch(ScopeStack scopePath);
 
-	StyleAttributes getDefaults();
+    StyleAttributes getDefaults();
 }

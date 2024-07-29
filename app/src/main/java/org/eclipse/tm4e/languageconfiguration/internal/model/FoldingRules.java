@@ -3,9 +3,9 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Lucas Bullen (Red Hat Inc.) - initial API and implementation
  */
@@ -22,26 +22,26 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  */
 public final class FoldingRules {
 
-	/**
-	 * Used by the indentation based strategy to decide whether empty lines belong to the previous or the next block.
-	 * A language adheres to the off-side rule if blocks in that language are expressed by their indentation.
-	 * See [wikipedia](https://en.wikipedia.org/wiki/Off-side_rule) for more information.
-	 */
-	public final boolean offSide;
-	public final RegExPattern markersStart;
-	public final RegExPattern markersEnd;
+    /**
+     * Used by the indentation based strategy to decide whether empty lines belong to the previous or the next block.
+     * A language adheres to the off-side rule if blocks in that language are expressed by their indentation.
+     * See [wikipedia](https://en.wikipedia.org/wiki/Off-side_rule) for more information.
+     */
+    public final boolean offSide;
+    public final RegExPattern markersStart;
+    public final RegExPattern markersEnd;
 
-	public FoldingRules(final boolean offSide, final RegExPattern markersStart, final RegExPattern markersEnd) {
-		this.offSide = offSide;
-		this.markersStart = markersStart;
-		this.markersEnd = markersEnd;
-	}
+    public FoldingRules(final boolean offSide, final RegExPattern markersStart, final RegExPattern markersEnd) {
+        this.offSide = offSide;
+        this.markersStart = markersStart;
+        this.markersEnd = markersEnd;
+    }
 
-	@Override
-	public String toString() {
-		return StringUtils.toString(this, sb -> sb
-				.append("markersStart=").append(markersStart).append(", ")
-				.append("markersEnd=").append(markersEnd).append(", ")
-				.append("offSide=").append(offSide));
-	}
+    @Override
+    public String toString() {
+        return StringUtils.toString(this, sb -> sb
+                .append("markersStart=").append(markersStart).append(", ")
+                .append("markersEnd=").append(markersEnd).append(", ")
+                .append("offSide=").append(offSide));
+    }
 }

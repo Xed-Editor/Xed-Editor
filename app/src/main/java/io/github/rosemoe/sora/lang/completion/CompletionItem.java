@@ -46,105 +46,105 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  */
 @SuppressWarnings("CanBeFinal")
 public abstract class CompletionItem {
-  
-  /**
-   * Icon for displaying in adapter
-   */
-  @Nullable
-  public Drawable icon;
-  
-  /**
-   * Text to display as title in adapter
-   */
-  public CharSequence label;
-  
-  /**
-   * Text to display as description in adapter
-   */
-  public CharSequence desc;
-  /**
-   * Use for default sort
-   */
-  public int prefixLength = 0;
-  /**
-   * A string that should be used when comparing this item
-   * with other items. When null the {@link #label label}
-   * is used.
-   */
-  @Nullable
-  public String sortText;
-  /**
-   * The kind of this completion item. Based on the kind
-   * an icon is chosen by the editor.
-   */
-  @Nullable
-  protected CompletionItemKind kind;
-  @Nullable
-  protected Object extra;
-  
-  public CompletionItem(CharSequence label) {
-    this(label, null);
-  }
-  
-  public CompletionItem(CharSequence label, CharSequence desc) {
-    this(label, desc, null);
-  }
-  
-  public CompletionItem(CharSequence label, CharSequence desc, Drawable icon) {
-    this.label = label;
-    this.desc = desc;
-    this.icon = icon;
-  }
-  
-  public CompletionItem label(CharSequence label) {
-    this.label = label;
-    return this;
-  }
-  
-  public CompletionItem desc(CharSequence desc) {
-    this.desc = desc;
-    return this;
-  }
-  
-  public CompletionItem kind(CompletionItemKind kind) {
-    this.kind = kind;
-    return this;
-  }
-  
-  public CompletionItem icon(Drawable icon) {
-    this.icon = icon;
-    return this;
-  }
-  
-  /**
-   * Perform this completion.
-   * You can implement custom logic to make your completion better(by updating selection and text
-   * from here).
-   * To make it considered as a single action, the editor will enter batch edit state before invoking
-   * this method. Feel free to update the text by multiple calls to {@code text}.
-   *
-   * @param editor   The editor. You can set cursor position with that.
-   * @param text     The text in editor. You can make modifications to it.
-   * @param position The requested completion position (the one passed to completion thread)
-   */
-  public void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, @NonNull CharPosition position) {
-    performCompletion(editor, text, position.line, position.column);
-  }
-  
-  /**
-   * Perform this completion.
-   * You can implement custom logic to make your completion better(by updating selection and text
-   * from here).
-   * To make it considered as a single action, the editor will enter batch edit state before invoking
-   * this method. Feel free to update the text by multiple calls to {@code text}.
-   *
-   * @param editor The editor. You can set cursor position with that.
-   * @param text   The text in editor. You can make modifications to it.
-   * @param line   The auto-completion line
-   * @param column The auto-completion column
-   * @see #performCompletion(CodeEditor, Content, CharPosition) Editor calls this method to do completion
-   */
-  public abstract void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, int line, int column);
-  
+
+    /**
+     * Icon for displaying in adapter
+     */
+    @Nullable
+    public Drawable icon;
+
+    /**
+     * Text to display as title in adapter
+     */
+    public CharSequence label;
+
+    /**
+     * Text to display as description in adapter
+     */
+    public CharSequence desc;
+    /**
+     * Use for default sort
+     */
+    public int prefixLength = 0;
+    /**
+     * A string that should be used when comparing this item
+     * with other items. When null the {@link #label label}
+     * is used.
+     */
+    @Nullable
+    public String sortText;
+    /**
+     * The kind of this completion item. Based on the kind
+     * an icon is chosen by the editor.
+     */
+    @Nullable
+    protected CompletionItemKind kind;
+    @Nullable
+    protected Object extra;
+
+    public CompletionItem(CharSequence label) {
+        this(label, null);
+    }
+
+    public CompletionItem(CharSequence label, CharSequence desc) {
+        this(label, desc, null);
+    }
+
+    public CompletionItem(CharSequence label, CharSequence desc, Drawable icon) {
+        this.label = label;
+        this.desc = desc;
+        this.icon = icon;
+    }
+
+    public CompletionItem label(CharSequence label) {
+        this.label = label;
+        return this;
+    }
+
+    public CompletionItem desc(CharSequence desc) {
+        this.desc = desc;
+        return this;
+    }
+
+    public CompletionItem kind(CompletionItemKind kind) {
+        this.kind = kind;
+        return this;
+    }
+
+    public CompletionItem icon(Drawable icon) {
+        this.icon = icon;
+        return this;
+    }
+
+    /**
+     * Perform this completion.
+     * You can implement custom logic to make your completion better(by updating selection and text
+     * from here).
+     * To make it considered as a single action, the editor will enter batch edit state before invoking
+     * this method. Feel free to update the text by multiple calls to {@code text}.
+     *
+     * @param editor   The editor. You can set cursor position with that.
+     * @param text     The text in editor. You can make modifications to it.
+     * @param position The requested completion position (the one passed to completion thread)
+     */
+    public void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, @NonNull CharPosition position) {
+        performCompletion(editor, text, position.line, position.column);
+    }
+
+    /**
+     * Perform this completion.
+     * You can implement custom logic to make your completion better(by updating selection and text
+     * from here).
+     * To make it considered as a single action, the editor will enter batch edit state before invoking
+     * this method. Feel free to update the text by multiple calls to {@code text}.
+     *
+     * @param editor The editor. You can set cursor position with that.
+     * @param text   The text in editor. You can make modifications to it.
+     * @param line   The auto-completion line
+     * @param column The auto-completion column
+     * @see #performCompletion(CodeEditor, Content, CharPosition) Editor calls this method to do completion
+     */
+    public abstract void performCompletion(@NonNull CodeEditor editor, @NonNull Content text, int line, int column);
+
 }
 

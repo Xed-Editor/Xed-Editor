@@ -33,14 +33,14 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
  */
 class ConstColor : ResolvableColor {
   private val color: Int
-  
+
   /**
    * @param color Color int
    */
   constructor(color: Int) {
     this.color = color
   }
-  
+
   /**
    * @param color Hex color string
    * @see Color.parseColor
@@ -48,7 +48,7 @@ class ConstColor : ResolvableColor {
   constructor(color: String) {
     this.color = Color.parseColor(color)
   }
-  
+
   override fun resolve(colorScheme: EditorColorScheme): Int {
     return color
   }

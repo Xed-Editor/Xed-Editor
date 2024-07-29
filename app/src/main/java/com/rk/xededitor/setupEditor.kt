@@ -16,42 +16,62 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
 
-class setupEditor(val editor: CodeEditor,val ctx: Context) {
-  
-  
-  fun setupLanguage(fileName: String){
-    when(fileName.substringAfterLast('.', "")){
-      "java" -> {setLanguage("source.java")}
-      "html" -> {setLanguage("text.html.basic")}
-      "kt" -> {setLanguage("source.kotlin")}
-      "py" -> {setLanguage("source.python")}
-      "xml" -> {setLanguage("text.xml")}
-      "js" -> {setLanguage("source.js")}
-      "md" -> {setLanguage("text.html.markdown")}
+class setupEditor(val editor: CodeEditor, val ctx: Context) {
+
+
+  fun setupLanguage(fileName: String) {
+    when (fileName.substringAfterLast('.', "")) {
+      "java" -> {
+        setLanguage("source.java")
+      }
+
+      "html" -> {
+        setLanguage("text.html.basic")
+      }
+
+      "kt" -> {
+        setLanguage("source.kotlin")
+      }
+
+      "py" -> {
+        setLanguage("source.python")
+      }
+
+      "xml" -> {
+        setLanguage("text.xml")
+      }
+
+      "js" -> {
+        setLanguage("source.js")
+      }
+
+      "md" -> {
+        setLanguage("text.html.markdown")
+      }
+
     }
   }
-  
-  private fun setLanguage(languageScopeName:String){
+
+  private fun setLanguage(languageScopeName: String) {
     FileProviderRegistry.getInstance().addFileProvider(
       AssetsFileResolver(
         ctx?.applicationContext?.assets
       )
     )
-    
+
     GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-    
+
     val language = TextMateLanguage.create(
       languageScopeName, true /* true for enabling auto-completion */
     )
     editor.setEditorLanguage(language as Language)
   }
-  
-  
-  
+
+
   fun ensureTextmateTheme() {
     var editorColorScheme = editor.colorScheme
     val themeRegistry = ThemeRegistry.getInstance()
-    
+
     val darkMode = SettingsData.isDarkMode(ctx)
     try {
       if (darkMode) {
@@ -67,7 +87,7 @@ class setupEditor(val editor: CodeEditor,val ctx: Context) {
             )
           }
         }
-        
+
         themeRegistry.loadTheme(
           ThemeModel(
             IThemeSource.fromInputStream(
@@ -101,7 +121,7 @@ class setupEditor(val editor: CodeEditor,val ctx: Context) {
     } catch (e: Exception) {
       e.printStackTrace()
     }
-    
+
     if (darkMode) {
       val pref = ctx!!.applicationContext.getSharedPreferences("MyPref", 0)
       themeRegistry.setTheme("darcula")

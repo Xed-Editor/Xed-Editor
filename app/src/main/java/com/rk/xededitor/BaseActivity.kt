@@ -13,7 +13,7 @@ import com.rk.xededitor.Settings.SettingsData
 abstract class BaseActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    
+
     if (!SettingsData.isDarkMode(this)) {
       //light mode
       window.navigationBarColor = Color.parseColor("#FEF7FF")
@@ -28,9 +28,9 @@ abstract class BaseActivity : AppCompatActivity() {
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
       window.statusBarColor = Color.BLACK
     }
-    
-    
+
+
   }
-  
-  
+
+
 }

@@ -8,7 +8,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
   private var dialog: AlertDialog? = null
-  
+
   init {
     // Create the dialog on the UI thread
     ctx.runOnUiThread {
@@ -16,7 +16,7 @@ class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
       val dialogView: View = inflater1.inflate(R.layout.progress_dialog, null)
       dialog = MaterialAlertDialogBuilder(ctx).setView(dialogView)
         .setCancelable(false).create()
-      
+
       if (hide_after_millis != null) {
         show()
         After(hide_after_millis) {
@@ -27,14 +27,14 @@ class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
       }
     }
   }
-  
+
   fun show(): LoadingPopup {
     ctx.runOnUiThread {
       dialog?.show()
     }
     return this
   }
-  
+
   fun hide() {
     ctx.runOnUiThread {
       if (dialog != null && dialog?.isShowing == true) {
@@ -42,7 +42,7 @@ class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
       }
     }
   }
-  
+
   fun getDialog(): AlertDialog? {
     return dialog
   }

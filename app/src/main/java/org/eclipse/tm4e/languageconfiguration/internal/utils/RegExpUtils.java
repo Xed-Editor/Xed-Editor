@@ -25,6 +25,9 @@ public final class RegExpUtils {
 
     private static final Logger log = Logger.instance(RegExpUtils.class.getName());
 
+    private RegExpUtils() {
+    }
+
     /**
      * Escapes regular expression characters in a given string
      */
@@ -45,8 +48,5 @@ public final class RegExpUtils {
             log.e("Failed to parse pattern: " + regex, ex);
             return null;
         }
-    }
-
-    private RegExpUtils() {
     }
 }

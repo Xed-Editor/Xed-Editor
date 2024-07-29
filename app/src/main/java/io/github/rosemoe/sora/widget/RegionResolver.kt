@@ -52,7 +52,7 @@ fun CodeEditor.resolveTouchRegion(event: MotionEvent, pointerIndex: Int = -1): L
     x in lineNumberWidth + iconWidth..lineNumberWidth + iconWidth + dividerMarginLeft
         || x in (lineNumberWidth + iconWidth + dividerMarginLeft + dividerWidth)..(lineNumberWidth + iconWidth + dividerMarginLeft + dividerMarginRight + dividerWidth)
     -> REGION_DIVIDER_MARGIN
-    
+
     x in lineNumberWidth + iconWidth + dividerMarginLeft..lineNumberWidth + iconWidth + dividerMarginLeft + dividerWidth -> REGION_DIVIDER
     x in textOffset..(scrollMaxX + width).toFloat() -> REGION_TEXT
     else -> if (isWordwrap && x in 0f..width.toFloat()) REGION_TEXT else REGION_OUTBOUND

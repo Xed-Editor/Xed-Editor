@@ -16,8 +16,8 @@ import com.termux.view.TerminalViewClient
 class TerminalClient(
   private val terminal: TerminalView, private val terminalActivity: Terminal
 ) : TerminalViewClient {
-  
-  
+
+
   override fun onScale(scale: Float): Float {
     return TypedValue.applyDimension(
       TypedValue.COMPLEX_UNIT_DIP,
@@ -25,32 +25,32 @@ class TerminalClient(
       terminalActivity.getResources().displayMetrics
     )
   }
-  
+
   override fun onSingleTapUp(e: MotionEvent?) {
     terminal.requestFocus()
     KeyboardUtils.showSoftInput()
   }
-  
+
   override fun shouldBackButtonBeMappedToEscape(): Boolean {
     return false
   }
-  
+
   override fun shouldEnforceCharBasedInput(): Boolean {
     return true
   }
-  
+
   override fun shouldUseCtrlSpaceWorkaround(): Boolean {
     return false
   }
-  
+
   override fun isTerminalViewSelected(): Boolean {
     return true
   }
-  
+
   override fun copyModeChanged(copyMode: Boolean) {
-  
+
   }
-  
+
   override fun onKeyDown(keyCode: Int, e: KeyEvent?, session: TerminalSession?): Boolean {
     if (keyCode == KeyEvent.KEYCODE_ENTER && !session?.isRunning!!) {
       terminalActivity.finish()
@@ -58,77 +58,77 @@ class TerminalClient(
     }
     return false
   }
-  
+
   override fun onKeyUp(keyCode: Int, e: KeyEvent?): Boolean {
     return false
   }
-  
+
   override fun onLongPress(event: MotionEvent?): Boolean {
     return false
   }
-  
+
   override fun readControlKey(): Boolean {
-   val state: Boolean =
-     terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.CTRL, true)
-       ?: return false
+    val state: Boolean =
+      terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.CTRL, true)
+        ?: return false
     return state
   }
-  
+
   override fun readAltKey(): Boolean {
     val state: Boolean =
       terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.ALT, true)
         ?: return false
     return state
   }
-  
+
   override fun readShiftKey(): Boolean {
     val state: Boolean =
       terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.SHIFT, true)
         ?: return false
     return state
   }
-  
+
   override fun readFnKey(): Boolean {
     val state: Boolean =
       terminalActivity.binding.extraKeys.readSpecialButton(SpecialButton.FN, true)
         ?: return false
     return state
   }
-  
+
   override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession?): Boolean {
     return false
   }
-  
+
   override fun onEmulatorSet() {
   }
-  
+
   override fun logError(tag: String?, message: String?) {
-  
+
   }
-  
+
   override fun logWarn(tag: String?, message: String?) {
-  
+
   }
-  
+
   override fun logInfo(tag: String?, message: String?) {
-  
+
   }
-  
+
   override fun logDebug(tag: String?, message: String?) {
-  
+
   }
-  
+
   override fun logVerbose(tag: String?, message: String?) {
-  
+
   }
-  
+
   override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
-  
+
   }
-  
+
   override fun logStackTrace(tag: String?, e: Exception?) {
-  
+
   }
-  
-  
+
+
 }

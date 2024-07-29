@@ -41,51 +41,51 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Rosemoe
  */
 public class SnippetEvent extends Event {
-  
-  /**
-   * Called before controller shifts to any tab stop
-   */
-  public final static int ACTION_START = 1;
-  /**
-   * Called when controller shifted to a tab stop
-   */
-  public final static int ACTION_SHIFT = 2;
-  /**
-   * Called when controller <strong>has exited</strong> a snippet
-   */
-  public final static int ACTION_STOP = 3;
-  
-  private final int action;
-  private final int currentTabStop;
-  private final int totalTabStop;
-  
-  public SnippetEvent(@NonNull CodeEditor editor, int action, int currentTabStop, int totalTabStop) {
-    super(editor);
-    this.action = action;
-    this.currentTabStop = currentTabStop;
-    this.totalTabStop = totalTabStop;
-  }
-  
-  /**
-   * @see #ACTION_START
-   * @see #ACTION_SHIFT
-   * @see #ACTION_STOP
-   */
-  public int getAction() {
-    return action;
-  }
-  
-  /**
-   * Get the current index of tab stops
-   */
-  public int getCurrentTabStop() {
-    return currentTabStop;
-  }
-  
-  /**
-   * Get the count of tab stops
-   */
-  public int getTotalTabStop() {
-    return totalTabStop;
-  }
+
+    /**
+     * Called before controller shifts to any tab stop
+     */
+    public final static int ACTION_START = 1;
+    /**
+     * Called when controller shifted to a tab stop
+     */
+    public final static int ACTION_SHIFT = 2;
+    /**
+     * Called when controller <strong>has exited</strong> a snippet
+     */
+    public final static int ACTION_STOP = 3;
+
+    private final int action;
+    private final int currentTabStop;
+    private final int totalTabStop;
+
+    public SnippetEvent(@NonNull CodeEditor editor, int action, int currentTabStop, int totalTabStop) {
+        super(editor);
+        this.action = action;
+        this.currentTabStop = currentTabStop;
+        this.totalTabStop = totalTabStop;
+    }
+
+    /**
+     * @see #ACTION_START
+     * @see #ACTION_SHIFT
+     * @see #ACTION_STOP
+     */
+    public int getAction() {
+        return action;
+    }
+
+    /**
+     * Get the current index of tab stops
+     */
+    public int getCurrentTabStop() {
+        return currentTabStop;
+    }
+
+    /**
+     * Get the count of tab stops
+     */
+    public int getTotalTabStop() {
+        return totalTabStop;
+    }
 }
