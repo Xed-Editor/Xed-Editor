@@ -1,13 +1,18 @@
 package com.rk.xededitor.MainActivity
 
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Rect
+import android.view.Surface
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.GravityCompat
+import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
@@ -334,6 +339,26 @@ class Init(activity: MainActivity) {
         }
       }
 
+
+      rkUtils.runOnUiThread {
+        val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val rotation = windowManager.defaultDisplay.rotation
+        activity.binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+          override fun onGlobalLayout() {
+            val r = Rect()
+            activity.binding.root.getWindowVisibleDisplayFrame(r)
+            val screenHeight = activity.binding.root.rootView.height
+            val keypadHeight = screenHeight - r.bottom
+
+            if (keypadHeight > screenHeight * 0.20) {
+             if(rotation != Surface.ROTATION_0 && rotation != Surface.ROTATION_180){
+                KeyboardUtils.hideSoftInput(activity)
+                rkUtils.toast(activity,"can't open keyboard in horizontal mode")
+             }
+            }
+          }
+        })
+      }
 
     }.start()
   }

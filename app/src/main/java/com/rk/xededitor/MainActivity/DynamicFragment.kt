@@ -68,16 +68,13 @@ class DynamicFragment : Fragment {
 
     setupEditor(editor, ctx).setupLanguage(fileName)
 
-
-editor.setSelection(editor.cursor.leftLine, editor.cursor.leftColumn)
-
-
-
     if (SettingsData.isDarkMode(ctx)) {
       setupEditor(editor, ctx).ensureTextmateTheme()
     } else {
       Thread { setupEditor(editor, ctx).ensureTextmateTheme() }.start()
     }
+
+    
 
     val wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false)
 

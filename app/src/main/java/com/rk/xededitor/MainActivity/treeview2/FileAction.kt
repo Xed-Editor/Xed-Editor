@@ -343,6 +343,7 @@ class FileAction(
         for (xfile in file.listFiles()!!) {
           if (xfile.name == fileName) {
             rkUtils.toast(context, context.getString(R.string.already_exists))
+            loading.hide()
             return@setPositiveButton
           }
         }

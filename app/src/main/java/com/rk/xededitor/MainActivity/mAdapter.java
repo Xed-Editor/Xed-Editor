@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.rk.xededitor.R;
+import com.rk.xededitor.rkUtils;
 
 import java.io.File;
 
@@ -42,6 +43,12 @@ public class mAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
+
+        if (fragments == null) {
+            rkUtils.toast(MainActivity.activity,"Error : fragment array is null");
+            return 0;
+
+        }
         return fragments.size();
     }
 
