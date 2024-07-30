@@ -5,12 +5,12 @@ import android.widget.Button
 import com.termux.terminal.TerminalSession
 
 class ivirtualkeys(val session: TerminalSession) : VirtualKeysView.IVirtualKeysView {
-
+  
   override fun onVirtualKeyButtonClick(
     view: View?, buttonInfo: VirtualKeyButton?, button: Button?
   ) {
-
-
+    
+    
     val key = buttonInfo?.key ?: return
     val writeable: String = when (key) {
       "UP" -> "\u001B[A"  // Escape sequence for Up Arrow
@@ -26,12 +26,14 @@ class ivirtualkeys(val session: TerminalSession) : VirtualKeysView.IVirtualKeysV
       "ESC" -> "\u001B"  // Escape
       else -> key
     }
-
+    
     session.write(writeable)
-
-
+    
+    
+    
+    
   }
-
+  
   override fun performVirtualKeyButtonHapticFeedback(
     view: View?, buttonInfo: VirtualKeyButton?, button: Button?
   ): Boolean {

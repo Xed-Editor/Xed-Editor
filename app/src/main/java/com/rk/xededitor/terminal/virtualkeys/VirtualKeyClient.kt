@@ -26,14 +26,14 @@ class VirtualKeyClient(val session: TerminalSession) : IVirtualKeysView {
       "END" -> session.write("\u001B[4~")   // End (ANSI escape code, may vary)
       else -> session.write(buttonInfo.key)
     }
-
-
+    
+    
   }
-
+  
   override fun performVirtualKeyButtonHapticFeedback(
     view: View?, buttonInfo: VirtualKeyButton?, button: Button?
   ): Boolean {
     return false
   }
-
+  
 }
