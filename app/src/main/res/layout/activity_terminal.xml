@@ -9,6 +9,6 @@
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:background="@color/dark" />
+        android:background="#1C1B20" />
 
 </LinearLayout>
