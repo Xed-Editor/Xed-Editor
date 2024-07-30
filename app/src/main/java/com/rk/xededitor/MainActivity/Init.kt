@@ -350,7 +350,7 @@ class Init(activity: MainActivity) {
             val screenHeight = activity.binding.root.rootView.height
             val keypadHeight = screenHeight - r.bottom
 
-            if (keypadHeight > screenHeight * 0.20) {
+            if (keypadHeight > screenHeight * 0.30) {
              if(rotation != Surface.ROTATION_0 && rotation != Surface.ROTATION_180){
                 KeyboardUtils.hideSoftInput(activity)
                 rkUtils.toast(activity,"can't open keyboard in horizontal mode")
