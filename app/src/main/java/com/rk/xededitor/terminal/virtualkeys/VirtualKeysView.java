@@ -229,7 +229,7 @@ public final class VirtualKeysView extends GridLayout {
     @NonNull
     public Map<SpecialButton, SpecialButtonState> getDefaultSpecialButtons(
             VirtualKeysView extraKeysView) {
-        return new HashMap<SpecialButton, SpecialButtonState>() {
+        return new HashMap<>() {
             {
                 put(SpecialButton.CTRL, new SpecialButtonState(extraKeysView));
                 put(SpecialButton.ALT, new SpecialButtonState(extraKeysView));
