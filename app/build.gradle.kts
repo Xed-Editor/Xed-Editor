@@ -22,6 +22,7 @@ android {
   val file = File(filePath)
 
   if (file.exists()) {
+    println("signed with : "+file.absolutePath)
     signingConfigs {
       create("release") {
         val propertiesFile = rootProject.file("/home/rohit/signing.properties")
@@ -33,27 +34,19 @@ android {
         storePassword = properties["storePassword"] as String
       }
     }
+  }
 
-    buildTypes {
-      getByName("release") {
-        isMinifyEnabled = false
-        isCrunchPngs = false
-        proguardFiles(
-          getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-        )
+  buildTypes {
+    getByName("release") {
+      isMinifyEnabled = false
+      isCrunchPngs = false
+      proguardFiles(
+        getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+      )
+      if(file.exists()){
         signingConfig = signingConfigs.getByName("release")
       }
-    }
-  } else {
-    println("Not a local environment, skipping signing")
-    buildTypes {
-      getByName("release") {
-        isMinifyEnabled = false
-        isCrunchPngs = false
-        proguardFiles(
-          getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-        )
-      }
+
     }
   }
 
@@ -90,7 +83,7 @@ android {
        path = file("src/main/cpp/CMakeLists.txt")
        version = "3.22.1"
      }
-     
+
    }*/
 }
 
@@ -118,10 +111,10 @@ dependencies {
   //implementation(libs.terminal.shared)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
-  implementation("de.maxr1998:modernandroidpreferences:2.4.0-beta1")
+  implementation(libs.modernandroidpreferences)
 
-  implementation("com.hierynomus:sshj:0.38.0")
-  implementation("commons-net:commons-net:3.9.0")
+  implementation(libs.sshj)
+  implementation(libs.commons.net)
 
   implementation(libs.gson)
   implementation(libs.jcodings)
@@ -130,7 +123,7 @@ dependencies {
   implementation(libs.snakeyaml.engine)
   implementation(libs.jdt.annotation)
 
-  implementation("androidx.javascriptengine:javascriptengine:1.0.0-beta01")
+  implementation(libs.nb.javac.android)
 
 
 }

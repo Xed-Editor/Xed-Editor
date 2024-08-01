@@ -59,6 +59,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -220,42 +221,31 @@ public class MainActivity extends BaseActivity {
                 }
             }
         } else if (requestCode == REQUEST_FILE_SELECTION && resultCode == RESULT_OK && data != null) {
-            Uri selectedFileUri = data.getData();
-            assert selectedFileUri != null;
-            String path = Objects.requireNonNull(selectedFileUri.getPath()).replace("/document/primary:", "/storage/emulated/0/");
-            File file = new File(path);
-
             binding.tabs.setVisibility(View.VISIBLE);
             binding.mainView.setVisibility(View.VISIBLE);
             binding.openBtn.setVisibility(View.GONE);
-            newEditor(file, false);
+            newEditor(getFile(data), false);
+
         } else if (requestCode == REQUEST_DIRECTORY_SELECTION && resultCode == RESULT_OK && data != null) {
             binding.mainView.setVisibility(View.VISIBLE);
             binding.safbuttons.setVisibility(View.GONE);
             binding.maindrawer.setVisibility(View.VISIBLE);
             binding.drawerToolbar.setVisibility(View.VISIBLE);
 
-            Uri treeUri = data.getData();
-            persistUriPermission(treeUri);
-
-            String path = treeUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
-            File file = new File(path);
-
+            File file = getFile(data);
             rootFolder = file;
-
-            new TreeView(MainActivity.this, file);
-
-            //use new file browser
             String name = rootFolder.getName();
             if (name.length() > 18) {
                 name = rootFolder.getName().substring(0, 15) + "...";
             }
-
             binding.rootDirLabel.setText(name);
+            new TreeView(MainActivity.this, file);
+
         } else if (requestCode == FileAction.REQUEST_CODE_OPEN_DIRECTORY && resultCode == RESULT_OK) {
             Uri directoryUri = data.getData();
 
             if (directoryUri != null) {
+
                 // Save a file in the selected directory
                 String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
                 File directory = new File(path);
@@ -311,6 +301,26 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private static @NonNull File getFile(@NonNull Intent data) {
+        Uri treeUri = data.getData();
+
+        assert treeUri != null;
+        var uriPath = Objects.requireNonNull(treeUri.getPath()).split("/");
+
+        var type = uriPath[uriPath.length-1].split(":")[0];
+
+        String path;
+        if(type.equals("primary")){
+
+            path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/primary:", "/storage/emulated/0/");
+        }else{
+            path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/emulated/"+type+"/");
+        }
+
+
+        return new File(path);
+    }
+
     public void onNewEditor() {
         binding.openBtn.setVisibility(View.GONE);
         binding.tabs.setVisibility(View.VISIBLE);
@@ -330,7 +340,7 @@ public class MainActivity extends BaseActivity {
         }
 
         for (DynamicFragment f : fragments) {
-            if (f.getFile().equals(file)) {
+            if (Objects.equals(f.getFile(), file)) {
                 rkUtils.toast(this, "File already opened!");
                 return;
             }
