@@ -132,6 +132,7 @@ class SettingsApp : BaseActivity() {
 
           MaterialAlertDialogBuilder(this@SettingsApp).setView(scrollView).setTitle("Themes").setNegativeButton("Cancel",null).setPositiveButton("Apply"){ dialog,which ->
               ThemeManager.setTheme(this@SettingsApp,radioGroup.checkedRadioButtonId)
+              ThemeManager.setSelectedTheme(this@SettingsApp,radioGroup.checkedRadioButtonId)
           }.show()
         }
       }

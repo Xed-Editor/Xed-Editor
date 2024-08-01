@@ -11,6 +11,11 @@ object ThemeManager {
   fun getSelectedTheme(context: Context) : Int{
     return SettingsData.getSetting(context,"selected_theme",R.style.selectable_Berry.toString()).toInt()
   }
+
+  fun setSelectedTheme(context: Context,themeId: Int){
+    SettingsData.setSetting(context,"selected_theme",themeId.toString())
+  }
+
   fun applyTheme(context: Context){
     setTheme(context, getSelectedTheme(context))
   }
