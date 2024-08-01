@@ -326,19 +326,30 @@ class Init(activity: MainActivity) {
                   )
                 }
               }
-              R.id.tab -> {fragment.editor.insertText("    ",4)}
+              R.id.tab -> {
+                fragment.editor.insertText("\t\u200C",1)}
+
               R.id.untab -> {
-                fragment.editor.deleteText()
-                fragment.editor.deleteText()
-                fragment.editor.deleteText()
-                fragment.editor.deleteText()
+
+                if (cursor.leftColumn == 0){
+                  return@setOnClickListener
+                }
+
+                val char = fragment.content?.getLine(cursor.leftLine).toString()[cursor.leftColumn-1]
+                if (char == '\t'){
+                  fragment.editor.deleteText()
+                }
+
               }
               R.id.home -> {
-                fragment.editor.setSelection(cursor.leftLine, 0)
+                fragment.editor.setSelection(
+                  cursor.leftLine,0
+                )
               }
               R.id.end -> {
-                val line = fragment.content!!.getLine(cursor.leftLine)
-                fragment.editor.setSelection(cursor.leftLine, line.length)
+                fragment.editor.setSelection(
+                  cursor.leftLine, fragment.content?.getLine(cursor.leftLine)?.length ?: 0
+                )
               }
             }
           }
