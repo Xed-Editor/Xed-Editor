@@ -327,6 +327,12 @@ class Init(activity: MainActivity) {
                 }
               }
               R.id.tab -> {fragment.editor.insertText("    ",4)}
+              R.id.untab -> {
+                fragment.editor.deleteText()
+                fragment.editor.deleteText()
+                fragment.editor.deleteText()
+                fragment.editor.deleteText()
+              }
               R.id.home -> {
                 fragment.editor.setSelection(cursor.leftLine, 0)
               }

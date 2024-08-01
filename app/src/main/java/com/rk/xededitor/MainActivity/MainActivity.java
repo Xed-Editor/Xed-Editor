@@ -301,7 +301,7 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private static @NonNull File getFile(@NonNull Intent data) {
+    private @NonNull File getFile(@NonNull Intent data) {
         Uri treeUri = data.getData();
 
         assert treeUri != null;
@@ -317,6 +317,8 @@ public class MainActivity extends BaseActivity {
             path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/emulated/"+type+"/");
         }
 
+
+        rkUtils.toast(this,path);
 
         return new File(path);
     }
