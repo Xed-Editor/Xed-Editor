@@ -2,12 +2,19 @@ package com.rk.xededitor.Settings
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.WindowManager
+import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
+import android.widget.ScrollView
+import androidx.core.view.get
 import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
@@ -15,6 +22,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.theme.ThemeManager
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -96,6 +104,38 @@ class SettingsApp : BaseActivity() {
           rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }
+      pref("Themes"){
+        title = "Themes"
+        summary = "Change themes"
+        iconRes = R.drawable.dark_mode
+        onClickView {
+          val themes = ThemeManager.getThemes(this@SettingsApp)
+          val scrollView = ScrollView(this@SettingsApp)
+          val radioGroup = RadioGroup(this@SettingsApp)
+          scrollView.addView(radioGroup)
+
+          var isFirstRadioButton = true
+          themes.forEach { theme ->
+            val radioButton = RadioButton(this@SettingsApp).apply {
+              text = theme.first
+              id = theme.second
+              setTypeface(null, Typeface.NORMAL)
+              if (isFirstRadioButton) {
+                isChecked = true
+                radioGroup.check(theme.second)
+                isFirstRadioButton = false
+              }
+            }
+            radioGroup.addView(radioButton)
+
+          }
+
+          MaterialAlertDialogBuilder(this@SettingsApp).setView(scrollView).setTitle("Themes").setNegativeButton("Cancel",null).setPositiveButton("Apply"){ dialog,which ->
+              ThemeManager.setTheme(this@SettingsApp,radioGroup.checkedRadioButtonId)
+          }.show()
+        }
+      }
+
     }
   }
 

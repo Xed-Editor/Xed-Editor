@@ -50,6 +50,7 @@ import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.databinding.ActivityMainBinding;
 import com.rk.xededitor.rkUtils;
+import com.rk.xededitor.theme.ThemeManager;
 
 import java.io.File;
 import java.io.FileInputStream;

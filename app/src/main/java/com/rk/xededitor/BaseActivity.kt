@@ -1,5 +1,6 @@
 package com.rk.xededitor
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.theme.ThemeManager
 
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -30,6 +32,10 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
 
+  }
+  override fun attachBaseContext(newBase: Context?) {
+    super.attachBaseContext(newBase)
+    newBase?.let { ThemeManager.applyTheme(it) }
   }
 
 
