@@ -314,7 +314,7 @@ public class MainActivity extends BaseActivity {
 
             path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/primary:", "/storage/emulated/0/");
         }else{
-            path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/emulated/"+type+"/");
+            path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/"+type+"/");
         }
 
 
