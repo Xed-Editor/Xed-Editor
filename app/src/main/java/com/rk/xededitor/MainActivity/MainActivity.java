@@ -225,7 +225,9 @@ public class MainActivity extends BaseActivity {
             binding.tabs.setVisibility(View.VISIBLE);
             binding.mainView.setVisibility(View.VISIBLE);
             binding.openBtn.setVisibility(View.GONE);
-            newEditor(getFile(data), false);
+            var file = getFile(data);
+            Toast.makeText(this,file.getAbsolutePath(),Toast.LENGTH_LONG).show();
+            newEditor(file, false);
 
         } else if (requestCode == REQUEST_DIRECTORY_SELECTION && resultCode == RESULT_OK && data != null) {
             binding.mainView.setVisibility(View.VISIBLE);
@@ -248,8 +250,8 @@ public class MainActivity extends BaseActivity {
             if (directoryUri != null) {
 
                 // Save a file in the selected directory
-                String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
-                File directory = new File(path);
+                //String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
+                File directory = getFile(data);
 
                 if (directory.isDirectory()) {
                     // Ensure the directory exists
@@ -280,25 +282,6 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
             }
 
-        } else if (requestCode == StaticData.REQUEST_CODE_CREATE_FILE && resultCode == RESULT_OK) {
-            if (data != null) {
-                Uri uri = data.getData();
-                if (uri != null) {
-                    new Thread(() -> {
-                        File cacheFile = new File(getExternalCacheDir(), "newfile.txt");
-                        try (InputStream inputStream = new FileInputStream(cacheFile); OutputStream outputStream = getContentResolver().openOutputStream(uri, "wt")) {
-                            byte[] buffer = new byte[1024];
-                            int length;
-                            while ((length = inputStream.read(buffer)) > 0) {
-                                outputStream.write(buffer, 0, length);
-                            }
-                            cacheFile.delete();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }).start();
-                }
-            }
         }
     }
 
