@@ -9,8 +9,9 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.PrepareRecyclerView
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.runOnUiThread
 import java.io.File
+
 
 class TreeView(val ctx: MainActivity, rootFolder: File) {
 
@@ -19,7 +20,6 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
   }
 
   init {
-
     val recyclerView = ctx.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
       setItemViewCacheSize(100)
       visibility = View.GONE
@@ -43,7 +43,7 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
             val loading = LoadingPopup(ctx, null).show()
 
             After(150) {
-              rkUtils.runOnUiThread {
+              runOnUiThread {
                 ctx.newEditor(node.value, false)
                 ctx.onNewEditor()
                 if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
@@ -75,7 +75,6 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
       }
 
     }.start()
-
 
   }
 }

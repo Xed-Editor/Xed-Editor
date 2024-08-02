@@ -12,14 +12,13 @@ asynclayoutinflater = "1.0.0"
 navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 coreKtx = "1.13.1"
-activity = "1.9.0"
+activity = "1.9.1"
 nbJavacAndroid = "17.0.0.3"
 sshj = "0.38.0"
 terminalView = "0.118.0"
 
 [libraries]
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
-kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -43,7 +42,6 @@ jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.58" }
 joni = { module = "org.jruby.joni:joni", version = "2.2.1" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.7" }
 jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.0" }
-
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "2.0.0" }

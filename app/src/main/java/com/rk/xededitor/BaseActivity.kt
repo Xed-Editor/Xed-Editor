@@ -14,6 +14,7 @@ import com.rk.xededitor.theme.ThemeManager
 
 abstract class BaseActivity : AppCompatActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
+    ThemeManager.applyTheme(this)
     super.onCreate(savedInstanceState)
 
     if (!SettingsData.isDarkMode(this)) {
@@ -32,10 +33,6 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
 
-  }
-  override fun attachBaseContext(newBase: Context?) {
-    super.attachBaseContext(newBase)
-    newBase?.let { ThemeManager.applyTheme(it) }
   }
 
   override fun onPause() {

@@ -8,6 +8,7 @@ import android.view.WindowManager
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.DynamicFragment
@@ -136,6 +137,7 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
+
       switch("arrow_keys") {
         title = "Extra Keys"
         summary = "Show extra keys in the editor"
@@ -156,8 +158,7 @@ class SettingsEditor : BaseActivity() {
             val vp = MainActivity.activity.binding.viewpager
             val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
             layoutParams.bottomMargin = rkUtils.dpToPx(
-              40f,
-              MainActivity.activity
+              40f, MainActivity.activity
             ) // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams)
           } else {
@@ -166,8 +167,7 @@ class SettingsEditor : BaseActivity() {
             val vp = MainActivity.activity.binding.viewpager
             val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
             layoutParams.bottomMargin = rkUtils.dpToPx(
-              0f,
-              MainActivity.activity
+              0f, MainActivity.activity
             ) // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams)
           }

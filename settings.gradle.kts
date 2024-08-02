@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 rootProject.name = "Xed Editor"
 include(":app")
 
+

@@ -98,6 +98,7 @@ dependencies {
   implementation(libs.navigation.ui.ktx)
 
   implementation(libs.activity)
+//  implementation(project(":filetree"))
   coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
   implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
   //implementation("io.github.Rosemoe.sora-editor:editor")
@@ -124,6 +125,6 @@ dependencies {
   implementation(libs.jdt.annotation)
 
   implementation(libs.nb.javac.android)
-
+ // implementation(libs.zyron.filetree)
 
 }

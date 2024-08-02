@@ -1,17 +1,16 @@
 package com.rk.xededitor.Settings
 
-import android.content.Intent
 import android.graphics.Color
-import android.graphics.Typeface
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
-import android.widget.ScrollView
-import androidx.core.view.get
-import androidx.fragment.app.FragmentManager
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -22,7 +21,6 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.theme.ThemeActivity
 import com.rk.xededitor.theme.ThemeManager
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
@@ -47,6 +45,9 @@ class SettingsApp : BaseActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
+
+
+
     padapter = PreferencesAdapter(getScreen())
 
 
@@ -61,6 +62,7 @@ class SettingsApp : BaseActivity() {
     }
 
     setContentView(binding.root)
+    binding.toggleButton.visibility = View.VISIBLE
     binding.toolbar.title = "Application"
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -78,6 +80,46 @@ class SettingsApp : BaseActivity() {
       val window = window
       window.navigationBarColor = Color.parseColor("#141118")
     }
+
+
+    val listner = View.OnClickListener {
+      when (binding.toggleButton.checkedButtonId) {
+        binding.auto.id -> {
+          LoadingPopup(this@SettingsApp, 200)
+          After(200) {
+            runOnUiThread {
+              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+          }
+
+        }
+
+        binding.light.id -> {
+          LoadingPopup(this@SettingsApp, 200)
+          After(200) {
+            runOnUiThread {
+              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            }
+          }
+
+        }
+
+        binding.dark.id -> {
+          LoadingPopup(this@SettingsApp, 200)
+          After(200) {
+            runOnUiThread {
+              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }
+          }
+
+        }
+      }
+    }
+
+    binding.light.setOnClickListener(listner)
+    binding.dark.setOnClickListener(listner)
+    binding.auto.setOnClickListener(listner)
+
   }
 
   private fun getScreen(): PreferenceScreen {
@@ -105,12 +147,62 @@ class SettingsApp : BaseActivity() {
           rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }
-      pref("Themes"){
+      pref("Themes") {
         title = "Themes"
         summary = "Change themes"
-        iconRes = R.drawable.dark_mode
+        iconRes = R.drawable.palette
         onClickView {
-          startActivity(Intent(this@SettingsApp,ThemeActivity::class.java))
+          val themes = ThemeManager.getThemes(this@SettingsApp)
+
+          val linearLayout = LinearLayout(this@SettingsApp)
+          linearLayout.orientation = LinearLayout.VERTICAL
+          linearLayout.setPadding(20.dp, 8.dp, 0, 0)
+
+
+          val radioGroup = RadioGroup(this@SettingsApp).apply {
+            orientation = RadioGroup.VERTICAL
+          }
+
+
+          themes.forEach { theme ->
+            val radioButton = RadioButton(this@SettingsApp).apply {
+              text = theme.first
+            }
+            radioGroup.addView(radioButton)
+          }
+
+          linearLayout.addView(radioGroup)
+          if (ThemeManager.getSelectedTheme(this@SettingsApp) != 0) {
+            radioGroup.check(radioGroup.getChildAt(themes.indexOfFirst {
+              it.second == ThemeManager.getSelectedTheme(
+                this@SettingsApp
+              )
+            }).id)
+          } else {
+            radioGroup.check(radioGroup.getChildAt(0).id)
+
+          }
+
+          var checkID = radioGroup.checkedRadioButtonId
+
+          radioGroup.setOnCheckedChangeListener { group, checkedId ->
+            checkID = checkedId
+          }
+
+          val dialog =
+            MaterialAlertDialogBuilder(this@SettingsApp).setView(linearLayout).setTitle("Themes")
+              .setNegativeButton("Cancel", null).setPositiveButton("Apply") { dialog, which ->
+
+                val selectedTheme =
+                  themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
+                // Handle theme change here
+                ThemeManager.setTheme(this@SettingsApp, selectedTheme.second)
+              }.show()
+
+          dialog.window?.setLayout(
+            resources.getDimensionPixelSize(R.dimen.dialog_width), // Set your desired width here
+            ViewGroup.LayoutParams.WRAP_CONTENT
+          )
         }
       }
 
@@ -122,6 +214,11 @@ class SettingsApp : BaseActivity() {
     // Save the padapter state as a parcelable into the Android-managed instance state
     outState.putParcelable("padapter", padapter.getSavedState())
   }
+
+  val Int.dp: Int
+    get() = TypedValue.applyDimension(
+      TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), resources.displayMetrics
+    ).toInt()
 
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     // Handle action bar item clicks here
