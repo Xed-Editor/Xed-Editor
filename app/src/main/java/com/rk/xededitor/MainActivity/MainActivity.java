@@ -297,7 +297,7 @@ public class MainActivity extends BaseActivity {
             path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/primary:", "/storage/emulated/0/");
         }else{
             path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/"+type+"/");
-            Toast.makeText(this,path, Toast.LENGTH_LONG);
+            Toast.makeText(this,path, Toast.LENGTH_LONG).show();
         }
 
 
