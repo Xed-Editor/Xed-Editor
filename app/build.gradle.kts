@@ -112,7 +112,8 @@ dependencies {
   //implementation(libs.terminal.shared)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
-  implementation(libs.modernandroidpreferences)
+ //implementation(libs.modernandroidpreferences)
+  implementation(project(":libsettings"))
 
   implementation(libs.sshj)
   implementation(libs.commons.net)

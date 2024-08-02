@@ -16,8 +16,10 @@ activity = "1.9.1"
 nbJavacAndroid = "17.0.0.3"
 sshj = "0.38.0"
 terminalView = "0.118.0"
+kotlinPlugin = "1.8.10"
 
 [libraries]
+
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
@@ -46,4 +48,4 @@ jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", versio
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "2.0.0" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-
+kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlinPlugin"  }

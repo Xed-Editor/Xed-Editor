@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="mapAccentTextColor" format="color" />
+    <attr name="expandableTextBackgroundColor" format="color" />
+    <color name="expandableTextBackgroundColorDefault">#0c000000</color>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/map_ic_collapse_24dp">
+    <target android:name="path">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="@android:integer/config_shortAnimTime"
+                    android:propertyName="pathData"
+                    android:valueFrom="@string/path_ic_collapse"
+                    android:valueTo="@string/path_ic_expand"
+                    android:valueType="pathType" />
+            </set>
+        </aapt:attr>
+    </target>
+</animated-vector>

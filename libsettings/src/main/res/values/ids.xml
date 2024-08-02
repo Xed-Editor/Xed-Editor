@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="map_icon_frame" type="id" />
+    <item name="map_widget_frame" type="id" />
+    <item name="map_bottom_barrier" type="id" />
+</resources>

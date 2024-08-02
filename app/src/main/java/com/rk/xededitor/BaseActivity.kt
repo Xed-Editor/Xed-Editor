@@ -24,6 +24,7 @@ abstract class BaseActivity : AppCompatActivity() {
       var flags = decorView.systemUiVisibility
       flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
       decorView.systemUiVisibility = flags
+      window.statusBarColor = Color.parseColor("#FEF7FF")
     }
     if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
       val window = window

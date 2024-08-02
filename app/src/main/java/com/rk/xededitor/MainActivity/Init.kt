@@ -39,6 +39,7 @@ class Init(activity: MainActivity) {
           var flags = decorView.systemUiVisibility
           flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
           decorView.systemUiVisibility = flags
+          window.statusBarColor = Color.parseColor("#FEF7FF")
         } else if (SettingsData.isDarkMode(this)) {
 
           if (SettingsData.isOled(this)) {
@@ -57,6 +58,7 @@ class Init(activity: MainActivity) {
           } else {
             val window = window
             window.navigationBarColor = Color.parseColor("#141118")
+
           }
 
         }
@@ -348,7 +350,8 @@ class Init(activity: MainActivity) {
               }
               R.id.end -> {
                 fragment.editor.setSelection(
-                  cursor.leftLine, fragment.content?.getLine(cursor.leftLine)?.length ?: 0
+                  cursor.leftLine, fragment.content?.getLine(cursor.leftLine)?.length
+                    ?: 0
                 )
               }
             }
