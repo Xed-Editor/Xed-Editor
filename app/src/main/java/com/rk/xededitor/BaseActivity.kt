@@ -38,5 +38,8 @@ abstract class BaseActivity : AppCompatActivity() {
     newBase?.let { ThemeManager.applyTheme(it) }
   }
 
-
+  override fun onPause() {
+    super.onPause()
+    ThemeManager.applyTheme(this)
+  }
 }

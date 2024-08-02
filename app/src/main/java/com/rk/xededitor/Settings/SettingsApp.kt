@@ -22,6 +22,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.theme.ThemeActivity
 import com.rk.xededitor.theme.ThemeManager
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
@@ -109,31 +110,7 @@ class SettingsApp : BaseActivity() {
         summary = "Change themes"
         iconRes = R.drawable.dark_mode
         onClickView {
-          val themes = ThemeManager.getThemes(this@SettingsApp)
-          val scrollView = ScrollView(this@SettingsApp)
-          val radioGroup = RadioGroup(this@SettingsApp)
-          scrollView.addView(radioGroup)
-
-          var isFirstRadioButton = true
-          themes.forEach { theme ->
-            val radioButton = RadioButton(this@SettingsApp).apply {
-              text = theme.first
-              id = theme.second
-              setTypeface(null, Typeface.NORMAL)
-              if (isFirstRadioButton) {
-                isChecked = true
-                radioGroup.check(theme.second)
-                isFirstRadioButton = false
-              }
-            }
-            radioGroup.addView(radioButton)
-
-          }
-
-          MaterialAlertDialogBuilder(this@SettingsApp).setView(scrollView).setTitle("Themes").setNegativeButton("Cancel",null).setPositiveButton("Apply"){ dialog,which ->
-              ThemeManager.setTheme(this@SettingsApp,radioGroup.checkedRadioButtonId)
-              ThemeManager.setSelectedTheme(this@SettingsApp,radioGroup.checkedRadioButtonId)
-          }.show()
+          startActivity(Intent(this@SettingsApp,ThemeActivity::class.java))
         }
       }
 

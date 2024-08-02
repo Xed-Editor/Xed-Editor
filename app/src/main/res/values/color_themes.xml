@@ -2,18 +2,9 @@
 <resources>
 
     <style name="selectable_Berry" parent="Base.Theme.Fragments">
-        <!-- Customize your Berry theme here. -->
-        <item name="colorPrimary">#485D91</item>
-        <item name="colorPrimaryDark">#5C007A</item>
-        <item name="colorAccent">#D81B60</item>
+
     </style>
 
-    <style name="selectable_PurpleBerry" parent="Base.Theme.Fragments">
-        <!-- Customize your Berry theme here. -->
-        <item name="colorPrimary">#8E24AA</item>
-        <item name="colorPrimaryDark">#5C007A</item>
-        <item name="colorAccent">#D81B60</item>
-    </style>
 
     <style name="selectable_Orange" parent="Base.Theme.Fragments">
         <!-- Customize your Orange theme here. -->

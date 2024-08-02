@@ -8,6 +8,7 @@ import com.rk.xededitor.Settings.SettingsData
 
 object ThemeManager {
 
+
   fun getSelectedTheme(context: Context) : Int{
     return SettingsData.getSetting(context,"selected_theme",R.style.selectable_Berry.toString()).toInt()
   }
@@ -22,9 +23,13 @@ object ThemeManager {
 
   fun setTheme(context: Context, themeId: Int) {
     context.setTheme(themeId)
+    setSelectedTheme(context,themeId)
   }
 
-  val theme_prefix = "selectable_"
+  private const val theme_prefix = "selectable_"
+
+  val idMap = HashMap<String,Int>()
+
 
   fun getThemes(context: Context): List<Pair<String, Int>> {
     val stylesClass = R.style::class.java
@@ -38,7 +43,11 @@ object ThemeManager {
         if (!resourceName.startsWith(theme_prefix)) {
           continue
         }
-        themes.add(Pair(resourceName.removePrefix(theme_prefix), resourceId))
+        val finalname = resourceName.removePrefix(theme_prefix)
+
+        idMap[finalname] = resourceId
+
+        themes.add(Pair(finalname, resourceId))
       } catch (e: IllegalAccessException) {
         e.printStackTrace()
       }

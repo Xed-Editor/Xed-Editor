@@ -90,6 +90,8 @@
         <activity
             android:name=".Settings.SettingsEditor"
             android:exported="true" />
+        <activity android:name=".theme.ThemeActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>
