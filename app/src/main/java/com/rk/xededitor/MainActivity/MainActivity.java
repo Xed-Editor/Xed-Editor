@@ -225,9 +225,7 @@ public class MainActivity extends BaseActivity {
             binding.tabs.setVisibility(View.VISIBLE);
             binding.mainView.setVisibility(View.VISIBLE);
             binding.openBtn.setVisibility(View.GONE);
-            var file = getFile(data);
-            Toast.makeText(this,file.getAbsolutePath(),Toast.LENGTH_LONG).show();
-            newEditor(file, false);
+            newEditor(getFile(data), false);
 
         } else if (requestCode == REQUEST_DIRECTORY_SELECTION && resultCode == RESULT_OK && data != null) {
             binding.mainView.setVisibility(View.VISIBLE);
@@ -299,6 +297,7 @@ public class MainActivity extends BaseActivity {
             path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/primary:", "/storage/emulated/0/");
         }else{
             path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/"+type+"/");
+            Toast.makeText(this,path, Toast.LENGTH_LONG);
         }
 
 
