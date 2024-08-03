@@ -1,0 +1,29 @@
+<lint-module
+    format="1"
+    dir="/home/rohit/Android/AndroidStudioProjects/Xed-Editor/libsettings"
+    name=":libsettings"
+    type="LIBRARY"
+    maven="Xed Editor:libsettings:unspecified"
+    agpVersion="8.5.1"
+    buildFolder="build"
+    bootClassPath="/home/rohit/Android/Sdk/platforms/android-34/android.jar:/home/rohit/Android/Sdk/build-tools/34.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-34"
+    neverShrinking="true">
+  <lintOptions
+      disable="MissingTranslation,ExtraTranslation"
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="ExtraTranslation"
+        severity="IGNORE" />
+      <severity
+        id="MissingTranslation"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="debug"/>
+</lint-module>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Inspired by https://android.googlesource.com/
+    platform/frameworks/base/+/master/core/res/res/layout/preference_material.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:baselineAligned="false"
+    android:clickable="true"
+    android:clipToPadding="false"
+    android:focusable="true"
+    android:minHeight="?listPreferredItemHeightSmall"
+    android:paddingStart="?android:listPreferredItemPaddingStart"
+    android:paddingEnd="?android:listPreferredItemPaddingEnd">
+
+    <LinearLayout
+        android:id="@id/map_icon_frame"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:paddingStart="0dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_max="?listPreferredItemHeight"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@android:id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tint="?android:textColorPrimary"
+            tools:src="@drawable/map_ic_expand_24dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@android:id/title"
+        style="@style/TextAppearance.AppCompat.Widget.Button.Borderless.Colored"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/map_icon_frame"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Title" />
+</androidx.constraintlayout.widget.ConstraintLayout>

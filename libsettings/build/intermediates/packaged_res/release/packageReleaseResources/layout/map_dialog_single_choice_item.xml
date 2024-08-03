@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="?listPreferredItemHeightSmall"
+    android:paddingStart="?android:listPreferredItemPaddingStart"
+    android:paddingEnd="?android:listPreferredItemPaddingEnd">
+
+    <RadioButton
+        android:id="@+id/map_selector"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@null"
+        android:clickable="false"
+        android:translationX="2.5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:background="@drawable/map_badge_background"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:textAllCaps="true"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="pro" />
+
+    <TextView
+        android:id="@android:id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:ellipsize="marquee"
+        android:singleLine="true"
+        android:textAppearance="?textAppearanceListItem"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toTopOf="@android:id/summary"
+        app:layout_constraintEnd_toStartOf="@id/badge"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/map_selector"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_goneMarginBottom="12dp"
+        tools:text="Title" />
+
+    <TextView
+        android:id="@android:id/summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="12dp"
+        android:ellipsize="end"
+        android:maxLines="5"
+        android:textAppearance="?textAppearanceListItemSecondary"
+        android:textColor="?android:textColorSecondary"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/badge"
+        app:layout_constraintStart_toStartOf="@android:id/title"
+        app:layout_constraintTop_toBottomOf="@android:id/title"
+        tools:text="Summary" />
+</androidx.constraintlayout.widget.ConstraintLayout>

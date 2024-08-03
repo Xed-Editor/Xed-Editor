@@ -1,0 +1,29 @@
+/home/rohit/Android/AndroidStudioProjects/Xed-Editor/libsettings/src/main/res/layout/map_accent_button_preference.xml:8: Warning: Possible overdraw: Root element paints background ?selectableItemBackground with a theme that also paints a background (inferred theme is @android:style/Theme.Holo) [Overdraw]
+    android:background="?selectableItemBackground"
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/rohit/Android/AndroidStudioProjects/Xed-Editor/libsettings/src/main/res/layout/map_preference.xml:8: Warning: Possible overdraw: Root element paints background ?selectableItemBackground with a theme that also paints a background (inferred theme is @android:style/Theme.Holo) [Overdraw]
+    android:background="?selectableItemBackground"
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "Overdraw":
+   If you set a background drawable on a root view, then you should use a
+   custom theme where the theme background is null. Otherwise, the theme
+   background will be painted first, only to have your custom background
+   completely cover it; this is called "overdraw".
+
+   NOTE: This detector relies on figuring out which layouts are associated
+   with which activities based on scanning the Java code, and it's currently
+   doing that using an inexact pattern matching algorithm. Therefore, it can
+   incorrectly conclude which activity the layout is associated with and then
+   wrongly complain that a background-theme is hidden.
+
+   If you want your custom background on multiple pages, then you should
+   consider making a custom theme with your custom background and just using
+   that theme instead of a root element background.
+
+   Of course it's possible that your custom drawable is translucent and you
+   want it to be mixed with the background. However, you will get better
+   performance if you pre-mix the background with your drawable and use that
+   resulting image or color as a custom theme background instead.
+
+0 errors, 2 warnings

@@ -1,0 +1,2 @@
+attr expandableTextBackgroundColor
+string pref_advanced

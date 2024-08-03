@@ -1,0 +1,46 @@
+[
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/m3_side_sheet_enter_from_right.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/m3_side_sheet_enter_from_right.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/m3_bottom_sheet_slide_out.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/m3_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/mtrl_bottom_sheet_slide_out.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/mtrl_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/m3_side_sheet_exit_to_left.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/m3_side_sheet_exit_to_left.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/m3_bottom_sheet_slide_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/m3_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/design_bottom_sheet_slide_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/design_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/fragment_fast_out_extra_slow_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-fragment-1.5.4-29:/anim-v21/fragment_fast_out_extra_slow_in.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/design_bottom_sheet_slide_out.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/design_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/m3_side_sheet_enter_from_left.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/m3_side_sheet_enter_from_left.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/mtrl_bottom_sheet_slide_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/mtrl_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim-v21/m3_side_sheet_exit_to_right.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim-v21/m3_side_sheet_exit_to_right.xml"
+    }
+]

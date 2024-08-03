@@ -1,0 +1,36 @@
+{
+    "logs": [
+        {
+            "outputFile": "de.Maxr1998.modernpreferences.libsettings-mergeReleaseResources-38:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "/home/rohit/.gradle/caches/transforms-4/5b290a90c5c2701e943dd8bc61918282/transformed/appcompat-1.7.0/res/values-watch-v20/values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "de.Maxr1998.modernpreferences.libsettings-release-40:/values-watch-v20/values-watch-v20.xml",
+            "map": [
+                {
+                    "source": "/home/rohit/.gradle/caches/transforms-4/5b290a90c5c2701e943dd8bc61918282/transformed/appcompat-1.7.0/res/values-watch-v20/values-watch-v20.xml",
+                    "from": {
+                        "startLines": "2,5,8",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,214,385",
+                        "endLines": "4,7,10",
+                        "endColumns": "12,12,12",
+                        "endOffsets": "209,380,553"
+                    }
+                }
+            ]
+        }
+    ]
+}

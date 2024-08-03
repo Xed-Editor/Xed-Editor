@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatCheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="24dp"
+    android:layout_height="24dp"
+    android:background="@null"
+    android:button="@drawable/map_expand_animated_selector"
+    android:buttonTint="?android:textColorPrimary"
+    android:clickable="false" />

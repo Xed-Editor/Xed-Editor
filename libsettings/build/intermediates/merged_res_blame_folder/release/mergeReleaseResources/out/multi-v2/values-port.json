@@ -1,0 +1,34 @@
+{
+    "logs": [
+        {
+            "outputFile": "de.Maxr1998.modernpreferences.libsettings-release-40:/values-port/values-port.xml",
+            "map": [
+                {
+                    "source": "/home/rohit/.gradle/caches/transforms-4/5b290a90c5c2701e943dd8bc61918282/transformed/appcompat-1.7.0/res/values-port/values-port.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "55",
+                        "endOffsets": "106"
+                    }
+                }
+            ]
+        },
+        {
+            "outputFile": "de.Maxr1998.modernpreferences.libsettings-mergeReleaseResources-38:/values-port/values-port.xml",
+            "map": [
+                {
+                    "source": "/home/rohit/.gradle/caches/transforms-4/5b290a90c5c2701e943dd8bc61918282/transformed/appcompat-1.7.0/res/values-port/values-port.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "55",
+                        "endOffsets": "106"
+                    }
+                }
+            ]
+        }
+    ]
+}

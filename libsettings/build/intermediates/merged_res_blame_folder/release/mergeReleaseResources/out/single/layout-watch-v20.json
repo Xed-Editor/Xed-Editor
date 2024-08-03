@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/layout-watch-v20/abc_alert_dialog_title_material.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/layout-watch-v20/abc_alert_dialog_title_material.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/layout-watch-v20/abc_alert_dialog_button_bar_material.xml"
+    }
+]

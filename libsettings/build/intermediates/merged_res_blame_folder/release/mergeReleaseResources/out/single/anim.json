@@ -1,0 +1,150 @@
+[
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_slide_out_bottom.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_slide_out_bottom.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/m3_motion_fade_exit.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/m3_motion_fade_exit.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_shrink_fade_out_from_bottom.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_shrink_fade_out_from_bottom.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/nav_default_enter_anim.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-navigation-ui-2.7.7-17:/anim/nav_default_enter_anim.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_grow_fade_in_from_bottom.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_grow_fade_in_from_bottom.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_checkbox_to_unchecked_icon_null_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_checkbox_to_unchecked_icon_null_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/linear_indeterminate_line1_tail_interpolator.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/linear_indeterminate_line1_tail_interpolator.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_radio_to_on_mtrl_dot_group_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_radio_to_on_mtrl_dot_group_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_slide_in_bottom.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_slide_in_bottom.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/nav_default_pop_exit_anim.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-navigation-ui-2.7.7-17:/anim/nav_default_pop_exit_anim.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_fade_out.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_fade_out.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_tooltip_exit.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_tooltip_exit.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_slide_in_top.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_slide_in_top.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/linear_indeterminate_line1_head_interpolator.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/linear_indeterminate_line1_head_interpolator.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/nav_default_pop_enter_anim.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-navigation-ui-2.7.7-17:/anim/nav_default_pop_enter_anim.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_fade_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_fade_in.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_radio_to_on_mtrl_ring_outer_path_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_radio_to_on_mtrl_ring_outer_path_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/design_snackbar_out.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/design_snackbar_out.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_tooltip_enter.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_tooltip_enter.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/linear_indeterminate_line2_tail_interpolator.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/linear_indeterminate_line2_tail_interpolator.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_popup_exit.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_popup_exit.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/nav_default_exit_anim.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-navigation-ui-2.7.7-17:/anim/nav_default_exit_anim.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/linear_indeterminate_line2_head_interpolator.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/linear_indeterminate_line2_head_interpolator.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/design_snackbar_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/design_snackbar_in.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_checkbox_to_checked_icon_null_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_checkbox_to_checked_icon_null_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/btn_radio_to_off_mtrl_dot_group_animation.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/btn_radio_to_off_mtrl_dot_group_animation.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/mtrl_card_lowers_interpolator.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/mtrl_card_lowers_interpolator.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_popup_enter.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_popup_enter.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/m3_motion_fade_enter.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/anim/m3_motion_fade_enter.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/anim/abc_slide_out_top.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/anim/abc_slide_out_top.xml"
+    }
+]

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/map_btn_checked"
+        android:drawable="@drawable/map_ic_collapse_24dp"
+        android:state_checked="true" />
+    <item
+        android:id="@+id/map_btn_unchecked"
+        android:drawable="@drawable/map_ic_expand_24dp" />
+    <transition
+        android:drawable="@drawable/map_expand_to_collapse_animation"
+        android:fromId="@id/map_btn_unchecked"
+        android:toId="@id/map_btn_checked" />
+    <transition
+        android:drawable="@drawable/map_collapse_to_expand_animation"
+        android:fromId="@id/map_btn_checked"
+        android:toId="@id/map_btn_unchecked" />
+</animated-selector>

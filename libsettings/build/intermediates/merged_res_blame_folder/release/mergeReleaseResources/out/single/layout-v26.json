@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/layout-v26/mtrl_calendar_month.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/layout-v26/mtrl_calendar_month.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/layout-v26/abc_screen_toolbar.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/layout-v26/abc_screen_toolbar.xml"
+    }
+]

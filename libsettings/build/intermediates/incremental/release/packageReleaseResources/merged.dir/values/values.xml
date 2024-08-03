@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr format="color" name="expandableTextBackgroundColor"/>
+    <attr format="color" name="mapAccentTextColor"/>
+    <color name="expandableTextBackgroundColorDefault">#0c000000</color>
+    <item name="map_bottom_barrier" type="id"/>
+    <item name="map_icon_frame" type="id"/>
+    <item name="map_widget_frame" type="id"/>
+    <string name="path_ic_collapse">M6,14 12,8 18,14 16.59,15.41 12,10.83 7.41,15.41z</string>
+    <string name="path_ic_expand">M7.41,8.59 12,13.17 16.59,8.59 18,10 12,16 6,10z</string>
+    <string name="pref_advanced_block">Advanced</string>
+</resources>

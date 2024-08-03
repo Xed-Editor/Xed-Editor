@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/mtrl_linear.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-material-1.12.0-33:/interpolator/mtrl_linear.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "de.Maxr1998.modernpreferences.libsettings-release-40:/interpolator/fast_out_slow_in.xml",
+        "source": "de.Maxr1998.modernpreferences.libsettings-appcompat-1.7.0-11:/interpolator/fast_out_slow_in.xml"
+    }
+]
