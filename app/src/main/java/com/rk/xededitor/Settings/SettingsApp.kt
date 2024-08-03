@@ -245,13 +245,12 @@ class SettingsApp : BaseActivity() {
 
                 val loading = LoadingPopup(this@SettingsApp,null).show()
 
-               // val selectedTheme =
-                  //themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
+                val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
 
 
                 for (activity in activityMap.values) {
                   if (activity != null) {
-                    ThemeManager.applyTheme(activity)
+                    ThemeManager.setTheme(activity,selectedTheme.second)
                   }
                 }
 
