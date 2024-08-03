@@ -1,21 +1,46 @@
 package com.rk.xededitor
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.theme.ThemeManager
+import java.util.WeakHashMap
 
 
 abstract class BaseActivity : AppCompatActivity() {
+
+  companion object {
+    val activityMap = WeakHashMap<Class<out BaseActivity>, Activity>()
+
+    @Suppress("UNCHECKED_CAST")
+    fun <T : BaseActivity> getActivity(activityClass: Class<T>): T? {
+      return activityMap[activityClass] as? T
+    }
+
+  }
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     ThemeManager.applyTheme(this)
     super.onCreate(savedInstanceState)
+
+    activityMap[javaClass] = this
+
+    val settingDefaultNightMode = SettingsData.getSetting(
+      this,
+      "default_night_mode",
+      AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+    ).toInt()
+
+    if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
+      AppCompatDelegate.setDefaultNightMode(settingDefaultNightMode)
+    }
+
 
     if (!SettingsData.isDarkMode(this)) {
       //light mode

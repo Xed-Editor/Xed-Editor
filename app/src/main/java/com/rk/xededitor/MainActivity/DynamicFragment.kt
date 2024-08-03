@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.rk.xededitor.After
+import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
@@ -49,10 +50,10 @@ class DynamicFragment : Fragment {
   constructor() {
     After(100) {
       rkUtils.runOnUiThread {
-        val fragmentManager = MainActivity.activity.supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.remove(this)
-        fragmentTransaction.commitNowAllowingStateLoss()
+        val fragmentManager = BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
+        val fragmentTransaction = fragmentManager?.beginTransaction()
+        fragmentTransaction?.remove(this)
+        fragmentTransaction?.commitNowAllowingStateLoss()
       }
     }
   }

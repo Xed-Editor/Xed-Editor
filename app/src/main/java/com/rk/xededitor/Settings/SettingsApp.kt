@@ -82,11 +82,44 @@ class SettingsApp : BaseActivity() {
     }
 
 
+    fun getCheckedBtnIdfromSettings(): Int {
+      val settingDefaultNightMode = SettingsData.getSetting(
+        this, "default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+      ).toInt()
+
+      when (settingDefaultNightMode) {
+        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> {
+          return binding.auto.id
+        }
+
+        AppCompatDelegate.MODE_NIGHT_NO -> {
+          return binding.light.id
+        }
+
+        AppCompatDelegate.MODE_NIGHT_YES -> {
+          return binding.dark.id
+        }
+
+        else -> {
+          throw RuntimeException("Illegal default night mode state")
+        }
+      }
+    }
+
+    binding.toggleButton.check(getCheckedBtnIdfromSettings())
+
     val listner = View.OnClickListener {
       when (binding.toggleButton.checkedButtonId) {
         binding.auto.id -> {
           LoadingPopup(this@SettingsApp, 200)
-          After(200) {
+          After(300) {
+
+            SettingsData.setSetting(
+              this,
+              "default_night_mode",
+              AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+            )
+
             runOnUiThread {
               AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             }
@@ -96,7 +129,14 @@ class SettingsApp : BaseActivity() {
 
         binding.light.id -> {
           LoadingPopup(this@SettingsApp, 200)
-          After(200) {
+          After(300) {
+
+            SettingsData.setSetting(
+              this,
+              "default_night_mode",
+              AppCompatDelegate.MODE_NIGHT_NO.toString()
+            )
+
             runOnUiThread {
               AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
@@ -106,7 +146,15 @@ class SettingsApp : BaseActivity() {
 
         binding.dark.id -> {
           LoadingPopup(this@SettingsApp, 200)
-          After(200) {
+          After(300) {
+
+
+            SettingsData.setSetting(
+              this,
+              "default_night_mode",
+              AppCompatDelegate.MODE_NIGHT_YES.toString()
+            )
+
             runOnUiThread {
               AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
@@ -120,6 +168,7 @@ class SettingsApp : BaseActivity() {
     binding.dark.setOnClickListener(listner)
     binding.auto.setOnClickListener(listner)
 
+
   }
 
   private fun getScreen(): PreferenceScreen {
@@ -132,7 +181,7 @@ class SettingsApp : BaseActivity() {
         onCheckedChange { newValue ->
           SettingsData.setBoolean(this@SettingsApp, "isOled", newValue)
           LoadingPopup(this@SettingsApp, 180)
-          MainActivity.activity?.recreate()
+          getActivity(MainActivity::class.java)?.recreate()
           return@onCheckedChange true
         }
 
@@ -143,7 +192,7 @@ class SettingsApp : BaseActivity() {
         summary = "Access private app files"
         iconRes = R.drawable.android
         onClickView {
-          MainActivity.activity?.privateDir(null)
+          getActivity(MainActivity::class.java)?.privateDir(null)
           rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }
@@ -193,10 +242,21 @@ class SettingsApp : BaseActivity() {
             MaterialAlertDialogBuilder(this@SettingsApp).setView(linearLayout).setTitle("Themes")
               .setNegativeButton("Cancel", null).setPositiveButton("Apply") { dialog, which ->
 
-                val selectedTheme =
-                  themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
-                // Handle theme change here
-                ThemeManager.setTheme(this@SettingsApp, selectedTheme.second)
+
+                val loading = LoadingPopup(this@SettingsApp,null).show()
+
+               // val selectedTheme =
+                  //themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
+
+
+                for (activity in activityMap.values) {
+                  if (activity != null) {
+                    ThemeManager.applyTheme(activity)
+                  }
+                }
+
+                loading.hide()
+
               }.show()
 
           dialog.window?.setLayout(

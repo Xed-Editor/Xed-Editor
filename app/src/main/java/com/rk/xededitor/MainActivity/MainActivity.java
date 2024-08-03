@@ -38,6 +38,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
@@ -69,7 +70,6 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 public class MainActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_STORAGE_PERMISSIONS = 38386;
-    public static MainActivity activity;
     final int REQUEST_FILE_SELECTION = 123;
     private final int REQUEST_CODE_MANAGE_EXTERNAL_STORAGE = 36169;
     public ActivityMainBinding binding;
@@ -93,19 +93,20 @@ public class MainActivity extends BaseActivity {
         menu.findItem(R.id.undo).setVisible(visible);
         menu.findItem(R.id.redo).setVisible(visible);
         menu.findItem(R.id.insertdate).setVisible(visible);
-        if (visible && SettingsData.getBoolean(MainActivity.activity, "show_arrows", false)) {
-            MainActivity.activity.binding.divider.setVisibility(View.VISIBLE);
-            MainActivity.activity.binding.mainBottomBar.setVisibility(View.VISIBLE);
-            var vp = MainActivity.activity.binding.viewpager;
+        if (visible && SettingsData.getBoolean( BaseActivity.Companion.getActivity(MainActivity.class), "show_arrows", false)) {
+             BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.VISIBLE);
+             BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.VISIBLE);
+            var vp =  BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(50, MainActivity.activity);  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(50,  BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
+           
         } else {
-            MainActivity.activity.binding.divider.setVisibility(View.GONE);
-            MainActivity.activity.binding.mainBottomBar.setVisibility(View.GONE);
-            var vp = MainActivity.activity.binding.viewpager;
+             BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.GONE);
+             BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.GONE);
+            var vp =  BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(0, MainActivity.activity);  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(0,  BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
         }
     }
@@ -114,7 +115,7 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         StaticData.clear();
         super.onCreate(savedInstanceState);
-        activity = this;
+        
 
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -354,7 +355,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         StaticData.clear();
-        activity = null;
         super.onDestroy();
     }
 

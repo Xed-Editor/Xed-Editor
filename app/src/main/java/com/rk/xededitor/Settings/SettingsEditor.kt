@@ -105,7 +105,7 @@ class SettingsEditor : BaseActivity() {
         onCheckedChange { isChecked ->
           SettingsData.setBoolean(this@SettingsEditor, "diagonalScroll", isChecked)
           LoadingPopup(this@SettingsEditor, 180)
-          MainActivity.activity?.recreate()
+          getActivity(MainActivity::class.java)?.recreate()
           return@onCheckedChange true
         }
       }
@@ -153,21 +153,21 @@ class SettingsEditor : BaseActivity() {
           }
 
           if (isChecked) {
-            MainActivity.activity?.binding?.divider?.visibility = View.VISIBLE
-            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.VISIBLE
-            val vp = MainActivity.activity.binding.viewpager
-            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
+            getActivity(MainActivity::class.java)?.binding?.divider?.visibility = View.VISIBLE
+            getActivity(MainActivity::class.java)?.binding?.mainBottomBar?.visibility = View.VISIBLE
+            val vp = getActivity(MainActivity::class.java)?.binding?.viewpager
+            val layoutParams = vp?.layoutParams as RelativeLayout.LayoutParams
             layoutParams.bottomMargin = rkUtils.dpToPx(
-              40f, MainActivity.activity
+              40f, getActivity(MainActivity::class.java)
             ) // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams)
           } else {
-            MainActivity.activity?.binding?.divider?.visibility = View.GONE
-            MainActivity.activity?.binding?.mainBottomBar?.visibility = View.GONE
-            val vp = MainActivity.activity.binding.viewpager
-            val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
+            getActivity(MainActivity::class.java)?.binding?.divider?.visibility = View.GONE
+            getActivity(MainActivity::class.java)?.binding?.mainBottomBar?.visibility = View.GONE
+            val vp = getActivity(MainActivity::class.java)?.binding?.viewpager
+            val layoutParams = vp?.layoutParams as RelativeLayout.LayoutParams
             layoutParams.bottomMargin = rkUtils.dpToPx(
-              0f, MainActivity.activity
+              0f, getActivity(MainActivity::class.java)
             ) // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams)
           }

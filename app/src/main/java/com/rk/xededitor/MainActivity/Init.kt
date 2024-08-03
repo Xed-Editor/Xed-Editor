@@ -256,7 +256,7 @@ class Init(activity: MainActivity) {
 
 
       rkUtils.runOnUiThread {
-        val arrows = MainActivity.activity.binding.childs
+        val arrows = activity.binding.childs
         for (i in 0 until arrows.childCount) {
           val button = arrows.getChildAt(i)
           button.setOnClickListener { v ->
