@@ -25,7 +25,7 @@ import de.Maxr1998.modernpreferences.Preference
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.R
 import de.Maxr1998.modernpreferences.helpers.onSeek
-import de.Maxr1998.modernpreferences.views.ModernSeekBar
+import de.Maxr1998.modernpreferences.views.SeekBar
 
 class SeekBarPreference(key: String) : Preference(key) {
 
@@ -85,7 +85,7 @@ class SeekBarPreference(key: String) : Preference(key) {
             bottomMargin = 0
         }
         val widget = holder.widget as Space
-        val sb = widget.tag as? ModernSeekBar ?: run {
+        val sb = widget.tag as? SeekBar ?: run {
             val inflater = LayoutInflater.from(widget.context)
             inflater.inflate(R.layout.map_preference_widget_seekbar, holder.root).findViewById(android.R.id.progress)
         }

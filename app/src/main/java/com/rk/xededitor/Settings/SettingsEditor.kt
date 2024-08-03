@@ -2,9 +2,12 @@ package com.rk.xededitor.Settings
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.EditText
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,8 +23,13 @@ import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
+import de.Maxr1998.modernpreferences.helpers.onClick
+import de.Maxr1998.modernpreferences.helpers.onClickView
+import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.screen
+import de.Maxr1998.modernpreferences.helpers.seekBar
 import de.Maxr1998.modernpreferences.helpers.switch
+import de.Maxr1998.modernpreferences.preferences.SeekBarPreference
 
 class SettingsEditor : BaseActivity() {
 
@@ -138,6 +146,8 @@ class SettingsEditor : BaseActivity() {
         }
       }
 
+
+
       switch("arrow_keys") {
         title = "Extra Keys"
         summary = "Show extra keys in the editor"
@@ -175,7 +185,46 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
+      pref("tabsize"){
+        title = "Tab Size"
+        summary = "Set tab size"
+        iconRes = R.drawable.double_arrows
+        onClick {
+          val view = LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new,null)
+          val edittext = view.findViewById<EditText>(R.id.name).apply {
+            hint = "Tab Size"
+            setText(SettingsData.getSetting(this@SettingsEditor,"tabsize","4"))
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+          }
+          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Tab Size")
+            .setView(view).setNegativeButton("Cancel",null).setPositiveButton("Apply"){
+              dialog,which ->
+              val text = edittext.text.toString()
+              for (c in text){
+                if (!c.isDigit()){
+                  rkUtils.toast(this@SettingsEditor,"invalid value")
+                  return@setPositiveButton
+                }
+              }
+              if(text.toInt() > 16){
+                rkUtils.toast(this@SettingsEditor,"Value too large")
+                return@setPositiveButton
+              }
+              SettingsData.setSetting(this@SettingsEditor,"tabsize",text)
+
+              for (f in StaticData.fragments){
+                f.editor.tabWidth = text.toInt()
+              }
+
+            }.show()
+
+          return@onClick true
+
+        }
+      }
+
     }
+
 
 
   }

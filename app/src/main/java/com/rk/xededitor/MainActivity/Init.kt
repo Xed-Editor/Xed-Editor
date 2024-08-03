@@ -329,17 +329,33 @@ class Init(activity: MainActivity) {
                 }
               }
               R.id.tab -> {
-                fragment.editor.insertText("\t\u200C",1)}
+                val tabsize = SettingsData.getSetting(activity,"tabsize","4").toInt()
+                val sb = StringBuilder()
+                for (i in 0 until tabsize){
+                  sb.append(" ")
+                }
+                fragment.editor.insertText(sb.toString(),tabsize)}
 
               R.id.untab -> {
 
-                if (cursor.leftColumn == 0){
+                if (cursor.leftColumn == 0) {
                   return@setOnClickListener
                 }
 
-                val char = fragment.content?.getLine(cursor.leftLine).toString()[cursor.leftColumn-1]
-                if (char == '\t'){
+                // Retrieve tab size setting
+                val tabSize = SettingsData.getSetting(activity, "tabsize", "4").toInt()
+
+                // Create a string with spaces equal to tab size
+                val spaceString = " ".repeat(tabSize)
+
+                // Get the line content where the cursor is located
+                val lineContent = fragment.content?.getLine(cursor.leftLine).toString()
+
+                // Check if there are enough characters before the cursor to match the tab size
+                if (cursor.leftColumn >= tabSize) {
+
                   fragment.editor.deleteText()
+
                 }
 
               }
