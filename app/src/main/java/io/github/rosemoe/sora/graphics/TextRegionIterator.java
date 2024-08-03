@@ -39,93 +39,93 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
  * @author Rosemoe
  */
 class TextRegionIterator extends RegionIterator {
-  
-  private final List<Span> spans;
-  
-  public TextRegionIterator(int length, @NonNull List<Span> spans, @Nullable List<Integer> softBreaks) {
-    super(length, new SpansPoints(spans), new SoftBreaksPoints(softBreaks));
-    this.spans = spans;
-  }
-  
-  /**
-   * Move to next region, until the end index of that region is bigger than {@code index}.
-   * And set region start index to {@code index}.
-   */
-  public void requireStartOffset(int index) {
-    if (index > getMax()) {
-      throw new IllegalArgumentException();
-    }
-    if (getStartIndex() != 0) {
-      throw new IllegalStateException();
-    }
-    do {
-      nextRegion();
-    } while (getEndIndex() <= index && hasNextRegion());
-    startIndex = index;
-  }
-  
-  /**
-   * Get current {@link Span} for current region
-   */
-  public Span getSpan() {
-    var idx = getRegionSourcePointer(0) - 1;
-    if (idx < 0) {
-      return SpanFactory.obtain(0, EditorColorScheme.TEXT_NORMAL);
-    }
-    return spans.get(idx);
-  }
-  
-  /**
-   * Get start index of current {@link Span}
-   */
-  public int getSpanStart() {
-    return getPointerValue(0, getRegionSourcePointer(0) - 1);
-  }
-  
-  /**
-   * Get end index of current {@link Span}
-   */
-  public int getSpanEnd() {
-    return getPointerValue(0, getRegionSourcePointer(0));
-  }
-  
-  private static class SpansPoints implements RegionProvider {
-    
+
     private final List<Span> spans;
-    
-    public SpansPoints(List<Span> spans) {
-      this.spans = spans;
+
+    public TextRegionIterator(int length, @NonNull List<Span> spans, @Nullable List<Integer> softBreaks) {
+        super(length, new SpansPoints(spans), new SoftBreaksPoints(softBreaks));
+        this.spans = spans;
     }
-    
-    @Override
-    public int getPointCount() {
-      return spans == null ? 0 : spans.size();
+
+    /**
+     * Move to next region, until the end index of that region is bigger than {@code index}.
+     * And set region start index to {@code index}.
+     */
+    public void requireStartOffset(int index) {
+        if (index > getMax()) {
+            throw new IllegalArgumentException();
+        }
+        if (getStartIndex() != 0) {
+            throw new IllegalStateException();
+        }
+        do {
+            nextRegion();
+        } while (getEndIndex() <= index && hasNextRegion());
+        startIndex = index;
     }
-    
-    @Override
-    public int getPointAt(int index) {
-      return spans.get(index).getColumn();
+
+    /**
+     * Get current {@link Span} for current region
+     */
+    public Span getSpan() {
+        var idx = getRegionSourcePointer(0) - 1;
+        if (idx < 0) {
+            return SpanFactory.obtain(0, EditorColorScheme.TEXT_NORMAL);
+        }
+        return spans.get(idx);
     }
-    
-  }
-  
-  private static class SoftBreaksPoints implements RegionProvider {
-    
-    private final List<Integer> points;
-    
-    public SoftBreaksPoints(List<Integer> points) {
-      this.points = points;
+
+    /**
+     * Get start index of current {@link Span}
+     */
+    public int getSpanStart() {
+        return getPointerValue(0, getRegionSourcePointer(0) - 1);
     }
-    
-    @Override
-    public int getPointCount() {
-      return points == null ? 0 : points.size();
+
+    /**
+     * Get end index of current {@link Span}
+     */
+    public int getSpanEnd() {
+        return getPointerValue(0, getRegionSourcePointer(0));
     }
-    
-    @Override
-    public int getPointAt(int index) {
-      return points.get(index);
+
+    private static class SpansPoints implements RegionProvider {
+
+        private final List<Span> spans;
+
+        public SpansPoints(List<Span> spans) {
+            this.spans = spans;
+        }
+
+        @Override
+        public int getPointCount() {
+            return spans == null ? 0 : spans.size();
+        }
+
+        @Override
+        public int getPointAt(int index) {
+            return spans.get(index).getColumn();
+        }
+
     }
-  }
-  
+
+    private static class SoftBreaksPoints implements RegionProvider {
+
+        private final List<Integer> points;
+
+        public SoftBreaksPoints(List<Integer> points) {
+            this.points = points;
+        }
+
+        @Override
+        public int getPointCount() {
+            return points == null ? 0 : points.size();
+        }
+
+        @Override
+        public int getPointAt(int index) {
+            return points.get(index);
+        }
+    }
+
 }

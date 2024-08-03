@@ -34,132 +34,132 @@ import io.github.rosemoe.sora.widget.style.CursorAnimator;
  * @author Dmitry Rubtsov
  */
 public class ScaleCursorAnimator implements CursorAnimator, ValueAnimator.AnimatorUpdateListener {
-  
-  private final CodeEditor editor;
-  private final long duration;
-  
-  private ValueAnimator scaleAnimator;
-  private long lastAnimateTime;
-  private float lineHeight, lineBottom;
-  private float startX, startY, endX, endY;
-  
-  public ScaleCursorAnimator(CodeEditor editor) {
-    this.editor = editor;
-    this.scaleAnimator = new ValueAnimator();
-    this.duration = 180;
-  }
-  
-  @Override
-  public void markStartPos() {
-    int line = editor.getCursor().getLeftLine();
-    lineHeight = editor.getLayout().getRowCountForLine(line) * editor.getRowHeight();
-    lineBottom = editor.getLayout().getCharLayoutOffset(line, editor.getText().getColumnCount(line))[0];
-    
-    float[] pos = editor.getLayout().getCharLayoutOffset(
-        editor.getCursor().getLeftLine(),
-        editor.getCursor().getLeftColumn()
-    );
-    startX = pos[1] + editor.measureTextRegionOffset();
-    startY = pos[0];
-  }
-  
-  @Override
-  public boolean isRunning() {
-    return scaleAnimator.isRunning();
-  }
-  
-  @Override
-  public void cancel() {
-    scaleAnimator.cancel();
-  }
-  
-  @Override
-  public void markEndPos() {
-    if (!editor.isCursorAnimationEnabled()) {
-      return;
+
+    private final CodeEditor editor;
+    private final long duration;
+
+    private ValueAnimator scaleAnimator;
+    private long lastAnimateTime;
+    private float lineHeight, lineBottom;
+    private float startX, startY, endX, endY;
+
+    public ScaleCursorAnimator(CodeEditor editor) {
+        this.editor = editor;
+        this.scaleAnimator = new ValueAnimator();
+        this.duration = 180;
     }
-    if (isRunning()) {
-      cancel();
+
+    @Override
+    public void markStartPos() {
+        int line = editor.getCursor().getLeftLine();
+        lineHeight = editor.getLayout().getRowCountForLine(line) * editor.getRowHeight();
+        lineBottom = editor.getLayout().getCharLayoutOffset(line, editor.getText().getColumnCount(line))[0];
+
+        float[] pos = editor.getLayout().getCharLayoutOffset(
+                editor.getCursor().getLeftLine(),
+                editor.getCursor().getLeftColumn()
+        );
+        startX = pos[1] + editor.measureTextRegionOffset();
+        startY = pos[0];
     }
-    if (System.currentTimeMillis() - lastAnimateTime < 100) {
-      return;
+
+    @Override
+    public boolean isRunning() {
+        return scaleAnimator.isRunning();
     }
-    scaleAnimator.removeAllUpdateListeners();
-    
-    int line = editor.getCursor().getLeftLine();
-    lineHeight = editor.getLayout().getRowCountForLine(line) * editor.getRowHeight();
-    lineBottom = editor.getLayout().getCharLayoutOffset(line, editor.getText().getColumnCount(line))[0];
-    
-    float[] pos = editor.getLayout().getCharLayoutOffset(
-        editor.getCursor().getLeftLine(),
-        editor.getCursor().getLeftColumn()
-    );
-    endX = pos[1] + editor.measureTextRegionOffset();
-    endY = pos[0];
-    
-    if (editor.getInsertHandleDescriptor().position.isEmpty()) {
-      scaleAnimator = ValueAnimator.ofFloat(0f, 1.0f);
-      scaleAnimator.setDuration(duration);
-    } else {
-      scaleAnimator = ValueAnimator.ofFloat(1.0f, 0f, 1.0f);
-      scaleAnimator.setDuration(duration * 2);
+
+    @Override
+    public void cancel() {
+        scaleAnimator.cancel();
     }
-    scaleAnimator.addUpdateListener(this);
-  }
-  
-  @Override
-  public void start() {
-    if (!editor.isCursorAnimationEnabled() || System.currentTimeMillis() - lastAnimateTime < 100 || editor.getInsertHandleDescriptor().position.isEmpty()) {
-      lastAnimateTime = System.currentTimeMillis();
-      return;
+
+    @Override
+    public void markEndPos() {
+        if (!editor.isCursorAnimationEnabled()) {
+            return;
+        }
+        if (isRunning()) {
+            cancel();
+        }
+        if (System.currentTimeMillis() - lastAnimateTime < 100) {
+            return;
+        }
+        scaleAnimator.removeAllUpdateListeners();
+
+        int line = editor.getCursor().getLeftLine();
+        lineHeight = editor.getLayout().getRowCountForLine(line) * editor.getRowHeight();
+        lineBottom = editor.getLayout().getCharLayoutOffset(line, editor.getText().getColumnCount(line))[0];
+
+        float[] pos = editor.getLayout().getCharLayoutOffset(
+                editor.getCursor().getLeftLine(),
+                editor.getCursor().getLeftColumn()
+        );
+        endX = pos[1] + editor.measureTextRegionOffset();
+        endY = pos[0];
+
+        if (editor.getInsertHandleDescriptor().position.isEmpty()) {
+            scaleAnimator = ValueAnimator.ofFloat(0f, 1.0f);
+            scaleAnimator.setDuration(duration);
+        } else {
+            scaleAnimator = ValueAnimator.ofFloat(1.0f, 0f, 1.0f);
+            scaleAnimator.setDuration(duration * 2);
+        }
+        scaleAnimator.addUpdateListener(this);
     }
-    if (startX == endX && startY == endY && !editor.getInsertHandleDescriptor().position.isEmpty()) {
-      return;
+
+    @Override
+    public void start() {
+        if (!editor.isCursorAnimationEnabled() || System.currentTimeMillis() - lastAnimateTime < 100 || editor.getInsertHandleDescriptor().position.isEmpty()) {
+            lastAnimateTime = System.currentTimeMillis();
+            return;
+        }
+        if (startX == endX && startY == endY && !editor.getInsertHandleDescriptor().position.isEmpty()) {
+            return;
+        }
+        scaleAnimator.start();
+        lastAnimateTime = System.currentTimeMillis();
     }
-    scaleAnimator.start();
-    lastAnimateTime = System.currentTimeMillis();
-  }
-  
-  private boolean shouldReturnEndValue() {
-    if (!scaleAnimator.isRunning() || editor.getInsertHandleDescriptor().position.isEmpty()) {
-      return true;
+
+    private boolean shouldReturnEndValue() {
+        if (!scaleAnimator.isRunning() || editor.getInsertHandleDescriptor().position.isEmpty()) {
+            return true;
+        }
+        if (scaleAnimator.getDuration() == duration) {
+            return true;
+        } else {
+            return scaleAnimator.getCurrentPlayTime() > duration;
+        }
     }
-    if (scaleAnimator.getDuration() == duration) {
-      return true;
-    } else {
-      return scaleAnimator.getCurrentPlayTime() > duration;
+
+    @Override
+    public float animatedX() {
+        if (shouldReturnEndValue()) {
+            return endX;
+        }
+        return startX;
     }
-  }
-  
-  @Override
-  public float animatedX() {
-    if (shouldReturnEndValue()) {
-      return endX;
+
+    @Override
+    public float animatedY() {
+        if (shouldReturnEndValue()) {
+            return endY;
+        }
+        return startY;
     }
-    return startX;
-  }
-  
-  @Override
-  public float animatedY() {
-    if (shouldReturnEndValue()) {
-      return endY;
+
+    @Override
+    public float animatedLineHeight() {
+        return lineHeight;
     }
-    return startY;
-  }
-  
-  @Override
-  public float animatedLineHeight() {
-    return lineHeight;
-  }
-  
-  @Override
-  public float animatedLineBottom() {
-    return lineBottom;
-  }
-  
-  @Override
-  public void onAnimationUpdate(ValueAnimator animation) {
-    editor.getHandleStyle().setScale((float) animation.getAnimatedValue());
-    editor.postInvalidateOnAnimation();
-  }
+
+    @Override
+    public float animatedLineBottom() {
+        return lineBottom;
+    }
+
+    @Override
+    public void onAnimationUpdate(ValueAnimator animation) {
+        editor.getHandleStyle().setScale((float) animation.getAnimatedValue());
+        editor.postInvalidateOnAnimation();
+    }
 }

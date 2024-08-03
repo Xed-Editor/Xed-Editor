@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2022 Sebastian Thomschke and others.
- *
+ * <p>
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Sebastian Thomschke - translation and adaptation to Java
@@ -24,39 +24,39 @@ package org.eclipse.tm4e.core.internal.grammar.dependencies;
  */
 public abstract class AbsoluteRuleReference {
 
-	/**
-	 * References the top level rule of a grammar with the given scope name.
-	 */
-	static final class TopLevelRuleReference extends AbsoluteRuleReference {
-		TopLevelRuleReference(final String scopeName) {
-			super(scopeName);
-		}
-	}
+    public final String scopeName;
 
-	/**
-	 * References a rule of a grammar in the top level repository section with the given name.
-	 */
-	static final class TopLevelRepositoryRuleReference extends AbsoluteRuleReference {
-		final String ruleName;
+    private AbsoluteRuleReference(final String scopeName) {
+        this.scopeName = scopeName;
+    }
 
-		TopLevelRepositoryRuleReference(final String scopeName, final String ruleName) {
-			super(scopeName);
-			this.ruleName = ruleName;
-		}
+    String toKey() {
+        return this.scopeName;
+    }
 
-		@Override
-		String toKey() {
-			return this.scopeName + '#' + this.ruleName;
-		}
-	}
+    /**
+     * References the top level rule of a grammar with the given scope name.
+     */
+    static final class TopLevelRuleReference extends AbsoluteRuleReference {
+        TopLevelRuleReference(final String scopeName) {
+            super(scopeName);
+        }
+    }
 
-	public final String scopeName;
+    /**
+     * References a rule of a grammar in the top level repository section with the given name.
+     */
+    static final class TopLevelRepositoryRuleReference extends AbsoluteRuleReference {
+        final String ruleName;
 
-	private AbsoluteRuleReference(final String scopeName) {
-		this.scopeName = scopeName;
-	}
+        TopLevelRepositoryRuleReference(final String scopeName, final String ruleName) {
+            super(scopeName);
+            this.ruleName = ruleName;
+        }
 
-	String toKey() {
-		return this.scopeName;
-	}
+        @Override
+        String toKey() {
+            return this.scopeName + '#' + this.ruleName;
+        }
+    }
 }

@@ -31,58 +31,58 @@ import io.github.rosemoe.sora.util.IntPair;
  * Indicates a folding region
  */
 public class FoldingRegion {
-  
-  private final long start;
-  private final long end;
-  private boolean collapsed;
-  private List<FoldingRegion> children;
-  
-  public FoldingRegion(int startLine, int startColumn, int endLine, int endColumn) {
-    this(IntPair.pack(startLine, startColumn), IntPair.pack(endLine, endColumn));
-    if (startLine > endLine || (startLine == endLine && startColumn > endColumn)) {
-      throw new IllegalArgumentException("start > end");
+
+    private final long start;
+    private final long end;
+    private boolean collapsed;
+    private List<FoldingRegion> children;
+
+    public FoldingRegion(int startLine, int startColumn, int endLine, int endColumn) {
+        this(IntPair.pack(startLine, startColumn), IntPair.pack(endLine, endColumn));
+        if (startLine > endLine || (startLine == endLine && startColumn > endColumn)) {
+            throw new IllegalArgumentException("start > end");
+        }
     }
-  }
-  
-  FoldingRegion(long start, long end) {
-    this.start = start;
-    this.end = end;
-  }
-  
-  public boolean isCollapsed() {
-    return collapsed;
-  }
-  
-  public void setCollapsed(boolean collapsed) {
-    this.collapsed = collapsed;
-  }
-  
-  public int getStartLine() {
-    return IntPair.getFirst(start);
-  }
-  
-  public int getStartColumn() {
-    return IntPair.getSecond(start);
-  }
-  
-  public int getEndLine() {
-    return IntPair.getFirst(end);
-  }
-  
-  public int getEndColumn() {
-    return IntPair.getSecond(end);
-  }
-  
-  public FoldingRegion createChild(int startLine, int startColumn, int endLine, int endColumn) {
-    if (startLine < getStartLine() || (startLine == getStartLine() && startColumn < getStartColumn())) {
-      throw new IllegalArgumentException("child start is before parent start");
+
+    FoldingRegion(long start, long end) {
+        this.start = start;
+        this.end = end;
     }
-    if (endLine > getEndLine() || (endLine == getEndLine() && endColumn > getEndColumn())) {
-      throw new IllegalArgumentException("child end is beyond parent end");
+
+    public boolean isCollapsed() {
+        return collapsed;
     }
-    var child = new FoldingRegion(startLine, startColumn, endLine, endColumn);
-    children.add(child);
-    return child;
-  }
-  
+
+    public void setCollapsed(boolean collapsed) {
+        this.collapsed = collapsed;
+    }
+
+    public int getStartLine() {
+        return IntPair.getFirst(start);
+    }
+
+    public int getStartColumn() {
+        return IntPair.getSecond(start);
+    }
+
+    public int getEndLine() {
+        return IntPair.getFirst(end);
+    }
+
+    public int getEndColumn() {
+        return IntPair.getSecond(end);
+    }
+
+    public FoldingRegion createChild(int startLine, int startColumn, int endLine, int endColumn) {
+        if (startLine < getStartLine() || (startLine == getStartLine() && startColumn < getStartColumn())) {
+            throw new IllegalArgumentException("child start is before parent start");
+        }
+        if (endLine > getEndLine() || (endLine == getEndLine() && endColumn > getEndColumn())) {
+            throw new IllegalArgumentException("child end is beyond parent end");
+        }
+        var child = new FoldingRegion(startLine, startColumn, endLine, endColumn);
+        children.add(child);
+        return child;
+    }
+
 }

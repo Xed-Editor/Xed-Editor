@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -29,22 +29,22 @@ import org.eclipse.tm4e.core.internal.rule.RuleId;
  */
 final class Injection {
 
-	final String debugSelector;
-	private final Matcher<List<String>> matcher;
-	final int priority; // -1 | 0 | 1; // 0 is the default. -1 for 'L' and 1 for 'R'
-	final RuleId ruleId;
-	final IRawGrammar grammar;
+    final String debugSelector;
+    final int priority; // -1 | 0 | 1; // 0 is the default. -1 for 'L' and 1 for 'R'
+    final RuleId ruleId;
+    final IRawGrammar grammar;
+    private final Matcher<List<String>> matcher;
 
-	Injection(final String debugSelector, final Matcher<List<String>> matcher, final RuleId ruleId, final IRawGrammar grammar,
-			final int priority) {
-		this.debugSelector = debugSelector;
-		this.matcher = matcher;
-		this.ruleId = ruleId;
-		this.grammar = grammar;
-		this.priority = priority;
-	}
+    Injection(final String debugSelector, final Matcher<List<String>> matcher, final RuleId ruleId, final IRawGrammar grammar,
+              final int priority) {
+        this.debugSelector = debugSelector;
+        this.matcher = matcher;
+        this.ruleId = ruleId;
+        this.grammar = grammar;
+        this.priority = priority;
+    }
 
-	boolean matches(final List<String> states) {
-		return matcher.matches(states);
-	}
+    boolean matches(final List<String> states) {
+        return matcher.matches(states);
+    }
 }

@@ -36,12 +36,15 @@ import io.github.rosemoe.sora.util.Logger;
 
 /**
  * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/rule.ts#L381">
- *      github.com/microsoft/vscode-textmate/blob/main/src/rule.ts</a>
+ * "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/rule.ts#L381">
+ * github.com/microsoft/vscode-textmate/blob/main/src/rule.ts</a>
  */
 public final class RuleFactory {
 
     private static final Logger LOGGER = Logger.instance(RuleFactory.class.getName());
+
+    private RuleFactory() {
+    }
 
     private static CaptureRule createCaptureRule(final IRuleFactoryHelper helper, @Nullable final String name,
                                                  @Nullable final String contentName, final RuleId retokenizeCapturedWithRuleId) {
@@ -248,8 +251,5 @@ public final class RuleFactory {
         }
 
         return new CompilePatternsResult(r.toArray(new RuleId[0]), patterns.size() != r.size());
-    }
-
-    private RuleFactory() {
     }
 }

@@ -10,7 +10,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/xedPlugin" />
+            <option value="$PROJECT_DIR$/libsettings" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

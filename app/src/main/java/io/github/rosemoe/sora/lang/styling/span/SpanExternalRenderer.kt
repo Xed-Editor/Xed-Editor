@@ -55,9 +55,9 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 @Experimental
 interface SpanExternalRenderer : SpanExt {
   fun requirePreDraw(): Boolean
-  
+
   fun requirePostDraw(): Boolean
-  
+
   /**
    * Called when the editor draws the given region.
    *

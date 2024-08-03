@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_advanced_block">Advanced</string>
+    <string name="path_ic_expand">M7.41,8.59 12,13.17 16.59,8.59 18,10 12,16 6,10z</string>
+    <string name="path_ic_collapse">M6,14 12,8 18,14 16.59,15.41 12,10.83 7.41,15.41z</string>
+</resources>

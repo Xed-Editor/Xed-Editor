@@ -24,18 +24,15 @@
 package io.github.rosemoe.sora.langs.textmate;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.tm4e.core.internal.theme.Theme;
 import org.eclipse.tm4e.core.internal.theme.raw.IRawTheme;
 import org.eclipse.tm4e.core.internal.theme.raw.RawTheme;
 import org.eclipse.tm4e.core.registry.IThemeSource;
+
+import java.util.List;
 
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry;
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel;
@@ -44,16 +41,12 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 public class TextMateColorScheme extends EditorColorScheme implements ThemeRegistry.ThemeChangeListener {
 
+    private final ThemeRegistry themeRegistry;
     private Theme theme;
-
     private IRawTheme rawTheme;
-
     @Deprecated
     private IThemeSource themeSource;
-
     private ThemeModel currentTheme;
-
-    private final ThemeRegistry themeRegistry;
 
     public TextMateColorScheme(ThemeRegistry themeRegistry, ThemeModel themeModel) throws Exception {
         this.themeRegistry = themeRegistry;

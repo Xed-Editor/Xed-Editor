@@ -28,13 +28,13 @@ package io.github.rosemoe.sora.lang.styling.span
  * Interaction attributes for a [Span].
  */
 interface SpanInteractionInfo : SpanExt {
-  
+
   fun isClickable(): Boolean
-  
+
   fun isLongClickable(): Boolean
-  
+
   fun isDoubleClickable(): Boolean
-  
+
   fun getData(): Any?
-  
+
 }

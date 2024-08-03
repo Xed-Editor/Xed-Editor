@@ -3,9 +3,9 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
@@ -26,32 +26,32 @@ import java.util.Objects;
  */
 public class CharacterPair {
 
-	public final String open;
-	public final String close;
+    public final String open;
+    public final String close;
 
-	public CharacterPair(final String opening, final String closing) {
-		this.open = opening;
-		this.close = closing;
-	}
+    public CharacterPair(final String opening, final String closing) {
+        this.open = opening;
+        this.close = closing;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		CharacterPair that = (CharacterPair) o;
-		return Objects.equals(open, that.open) && Objects.equals(close, that.close);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CharacterPair that = (CharacterPair) o;
+        return Objects.equals(open, that.open) && Objects.equals(close, that.close);
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(open, close);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(open, close);
+    }
 
-	@NonNull
-	@Override
-	public String toString() {
-		return StringUtils.toString(this, sb -> sb
-				.append("open=").append(open).append(", ")
-				.append("close=").append(close));
-	}
+    @NonNull
+    @Override
+    public String toString() {
+        return StringUtils.toString(this, sb -> sb
+                .append("open=").append(open).append(", ")
+                .append("close=").append(close));
+    }
 }

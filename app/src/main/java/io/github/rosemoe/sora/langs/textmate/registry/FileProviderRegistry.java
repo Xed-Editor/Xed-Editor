@@ -34,9 +34,8 @@ import io.github.rosemoe.sora.langs.textmate.registry.provider.FileResolver;
 public class FileProviderRegistry {
 
 
-    private final List<FileResolver> allFileResolvers = new ArrayList<>();
-
     private static FileProviderRegistry fileProviderRegistry;
+    private final List<FileResolver> allFileResolvers = new ArrayList<>();
 
     private FileProviderRegistry() {
         allFileResolvers.add(FileResolver.DEFAULT);

@@ -56,12 +56,12 @@ import io.github.rosemoe.sora.widget.subscribeEvent
  * @author Rosemoe
  */
 class SnippetController(private val editor: CodeEditor) {
-  
+
   /**
    * Language based variable resolver. User should set valid values when change language.
    */
   val commentVariableResolver = CommentBasedSnippetVariableResolver(null)
-  
+
   /**
    * File based variable resolver. User should implement this class and set it when opening a new file in editor
    */
@@ -76,7 +76,7 @@ class SnippetController(private val editor: CodeEditor) {
         variableResolver.addResolver(value)
       }
     }
-  
+
   /**
    * Workspace based variable resolver. User should implement this class and set it when workspace is updated
    */
@@ -91,13 +91,13 @@ class SnippetController(private val editor: CodeEditor) {
         variableResolver.addResolver(value)
       }
     }
-  
+
   private var currentSnippet: CodeSnippet? = null
   var snippetIndex = -1
   private var tabStops: MutableList<PlaceholderItem>? = null
   private var currentTabStopIndex = -1
   private var inSequenceEdits = false
-  
+
   private val variableResolver = CompositeSnippetVariableResolver().also {
     it.addResolver(ClipboardBasedSnippetVariableResolver(editor.clipboardManager))
     it.addResolver(EditorBasedSnippetVariableResolver(editor))
@@ -105,7 +105,7 @@ class SnippetController(private val editor: CodeEditor) {
     it.addResolver(TimeBasedSnippetVariableResolver())
     it.addResolver(commentVariableResolver)
   }
-  
+
   init {
     editor.subscribeEvent<SelectionChangeEvent> { event, _ ->
       if (isInSnippet()) {
@@ -213,12 +213,12 @@ class SnippetController(private val editor: CodeEditor) {
       }
     }
   }
-  
+
   private fun checkIndex(index: Int): Boolean {
     val editing = getEditingTabStop()!!
     return index >= editing.startIndex && index <= editing.endIndex
   }
-  
+
   /**
    * Start a new snippet editing. The given [CodeSnippet] must pass the checks in [CodeSnippet.checkContent].
    * Otherwise, the snippet editing will not be started.
@@ -340,7 +340,7 @@ class SnippetController(private val editor: CodeEditor) {
       if (snippetItem is PlainTextItem && snippetItem.text.contains(lineSeparatorRegex)) {
         var first = true
         val sb = StringBuilder()
-        
+
         snippetItem.text.split(lineSeparatorRegex).forEach {
           if (first) {
             sb.append(it)
@@ -360,7 +360,7 @@ class SnippetController(private val editor: CodeEditor) {
         if (definition.elements.isEmpty()) {
           continue
         }
-        
+
         val sb = StringBuilder()
         var deltaIndex = 0
         for (element in snippetItem.definition.elements) {
@@ -374,7 +374,7 @@ class SnippetController(private val editor: CodeEditor) {
               element.defaultValue != null -> element.defaultValue
               else -> null
             }
-            
+
             if (value != null) {
               value = TransformApplier.doTransform(value, element.transform)
               sb.append(value)
@@ -385,7 +385,7 @@ class SnippetController(private val editor: CodeEditor) {
             }
           }
         }
-        
+
         definition.text = sb.toString()
         snippetItem.setIndex(snippetItem.startIndex, snippetItem.endIndex + deltaIndex)
         shiftItemsFrom(i + 1, deltaIndex)
@@ -441,18 +441,18 @@ class SnippetController(private val editor: CodeEditor) {
     }
     shiftToTabStop(0)
   }
-  
+
   /**
    * Check whether the editor in snippet editing
    */
   fun isInSnippet() = snippetIndex != -1 && currentTabStopIndex != -1
-  
+
   fun getEditingTabStop() = if (snippetIndex == -1) null else tabStops!![currentTabStopIndex]
-  
+
   fun getTabStopAt(index: Int) = tabStops?.get(index)
-  
+
   fun getTabStopCount() = tabStops?.size ?: 0
-  
+
   fun getEditingRelatedTabStops(): List<SnippetItem> {
     val editing = getEditingTabStop()
     if (editing != null) {
@@ -460,7 +460,7 @@ class SnippetController(private val editor: CodeEditor) {
     }
     return emptyList()
   }
-  
+
   fun isEditingRelated(it: SnippetItem): Boolean {
     val editing = getEditingTabStop()
     if (editing != null) {
@@ -468,7 +468,7 @@ class SnippetController(private val editor: CodeEditor) {
     }
     return false
   }
-  
+
   fun getInactiveTabStops(): List<SnippetItem> {
     val editing = getEditingTabStop()
     if (editing != null) {
@@ -476,19 +476,19 @@ class SnippetController(private val editor: CodeEditor) {
     }
     return emptyList()
   }
-  
+
   fun shiftToPreviousTabStop() {
     if (snippetIndex != -1 && currentTabStopIndex > 0) {
       shiftToTabStop(currentTabStopIndex - 1)
     }
   }
-  
+
   fun shiftToNextTabStop() {
     if (snippetIndex != -1 && currentTabStopIndex < tabStops!!.size - 1) {
       shiftToTabStop(currentTabStopIndex + 1)
     }
   }
-  
+
   private fun shiftToTabStop(index: Int) {
     if (snippetIndex == -1) {
       return
@@ -527,7 +527,7 @@ class SnippetController(private val editor: CodeEditor) {
       stopSnippet()
     }
   }
-  
+
   private fun shiftItemsFrom(itemIndex: Int, deltaIndex: Int) {
     if (deltaIndex == 0) {
       return
@@ -537,7 +537,7 @@ class SnippetController(private val editor: CodeEditor) {
       items[i].shiftIndex(deltaIndex)
     }
   }
-  
+
   /**
    * Stop snippet editing
    */
@@ -552,10 +552,10 @@ class SnippetController(private val editor: CodeEditor) {
     editor.dispatchEvent(SnippetEvent(editor, SnippetEvent.ACTION_STOP, currentTabStopIndex, 0))
     editor.invalidate()
   }
-  
+
   companion object {
     private val lineSeparatorRegex = Regex("\\r|\\n|\\r\\n")
   }
-  
-  
+
+
 }

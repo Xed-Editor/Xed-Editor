@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -27,41 +27,40 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public final class MatchRule extends Rule {
 
-	private final RegExpSource match;
-	public final List<@Nullable CaptureRule> captures;
+    public final List<@Nullable CaptureRule> captures;
+    private final RegExpSource match;
+    @Nullable
+    private RegExpSourceList cachedCompiledPatterns;
 
-	@Nullable
-	private RegExpSourceList cachedCompiledPatterns;
+    MatchRule(final RuleId id, @Nullable final String name, final String match, final List<@Nullable CaptureRule> captures) {
+        super(id, name, null);
+        this.match = new RegExpSource(match, this.id);
+        this.captures = captures;
+    }
 
-	MatchRule(final RuleId id, @Nullable final String name, final String match, final List<@Nullable CaptureRule> captures) {
-		super(id, name, null);
-		this.match = new RegExpSource(match, this.id);
-		this.captures = captures;
-	}
+    @Override
+    public void collectPatterns(final IRuleRegistry grammar, final RegExpSourceList out) {
+        out.add(this.match);
+    }
 
-	@Override
-	public void collectPatterns(final IRuleRegistry grammar, final RegExpSourceList out) {
-		out.add(this.match);
-	}
+    @Override
+    public CompiledRule compile(final IRuleRegistry grammar, @Nullable final String endRegexSource) {
+        return getCachedCompiledPatterns(grammar).compile();
+    }
 
-	@Override
-	public CompiledRule compile(final IRuleRegistry grammar, @Nullable final String endRegexSource) {
-		return getCachedCompiledPatterns(grammar).compile();
-	}
+    @Override
+    public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource,
+                                  final boolean allowA, final boolean allowG) {
+        return getCachedCompiledPatterns(grammar).compileAG(allowA, allowG);
+    }
 
-	@Override
-	public CompiledRule compileAG(final IRuleRegistry grammar, @Nullable final String endRegexSource,
-			final boolean allowA, final boolean allowG) {
-		return getCachedCompiledPatterns(grammar).compileAG(allowA, allowG);
-	}
-
-	private RegExpSourceList getCachedCompiledPatterns(final IRuleRegistry grammar) {
-		var cachedCompiledPatterns = this.cachedCompiledPatterns;
-		if (cachedCompiledPatterns == null) {
-			cachedCompiledPatterns = new RegExpSourceList();
-			this.collectPatterns(grammar, cachedCompiledPatterns);
-			this.cachedCompiledPatterns = cachedCompiledPatterns;
-		}
-		return cachedCompiledPatterns;
-	}
+    private RegExpSourceList getCachedCompiledPatterns(final IRuleRegistry grammar) {
+        var cachedCompiledPatterns = this.cachedCompiledPatterns;
+        if (cachedCompiledPatterns == null) {
+            cachedCompiledPatterns = new RegExpSourceList();
+            this.collectPatterns(grammar, cachedCompiledPatterns);
+            this.cachedCompiledPatterns = cachedCompiledPatterns;
+        }
+        return cachedCompiledPatterns;
+    }
 }

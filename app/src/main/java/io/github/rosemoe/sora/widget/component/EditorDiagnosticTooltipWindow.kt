@@ -56,7 +56,7 @@ import kotlin.math.abs
 open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
   EditorPopupWindow(editor, FEATURE_HIDE_WHEN_FAST_SCROLL or FEATURE_SHOW_OUTSIDE_VIEW_ALLOWED),
   EditorBuiltinComponent {
-  
+
   protected val eventManager = editor.createSubEventManager()
   private val rootView: View =
     LayoutInflater.from(editor.context).inflate(R.layout.diagnostic_tooltip_window, null)
@@ -81,16 +81,16 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
   private var lastHoverPos = 0f to 0f
   private var menuShown = false
   private var popupHovered = false
-  
+
   override fun isEnabled() = eventManager.isEnabled
-  
+
   override fun setEnabled(enabled: Boolean) {
     eventManager.isEnabled = enabled
     if (!enabled) {
       dismiss()
     }
   }
-  
+
   init {
     super.setContentView(rootView)
     popup.animationStyle = R.style.diagnostic_popup_animation
@@ -137,7 +137,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
     popupMenu.setOnDismissListener { menuShown = false }
     applyColorScheme()
   }
-  
+
   private fun registerEditorEvents() {
     eventManager.subscribeEvent<SelectionChangeEvent> { event, _ ->
       if (!isEnabled || editor.isInMouseMode) {
@@ -171,7 +171,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
         pos?.let { updateDiagnostic(it) }
       }
     }
-    
+
     fun postUpdate(delay: Long = ViewUtils.HOVER_TOOLTIP_SHOW_TIMEOUT) {
       editor.removeCallbacks(callback)
       editor.postDelayedInLifecycle(callback, delay)
@@ -187,7 +187,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
             updateDiagnostic(null, null)
             updateLastHover()
           }
-          
+
           MotionEvent.ACTION_HOVER_EXIT -> {
             hoverPosition = null
             if (!(popupHovered || menuShown)) {
@@ -195,7 +195,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
               updateLastHover()
             }
           }
-          
+
           MotionEvent.ACTION_HOVER_MOVE -> {
             if (!(popupHovered || menuShown)) {
               if (editor.isScreenPointOnText(e.x, e.y)) {
@@ -232,14 +232,14 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
       isEnabled = false
     }
   }
-  
+
   override fun dismiss() {
     if (isShowing) {
       Thread.dumpStack()
       super.dismiss()
     }
   }
-  
+
   protected open fun updateDiagnostic(pos: CharPosition) {
     val diagnostics = editor.diagnostics
     if (diagnostics != null) {
@@ -269,7 +269,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
       updateDiagnostic(null, null)
     }
   }
-  
+
   protected open fun applyColorScheme() {
     val colorScheme = editor.colorScheme
     briefMessageText.setTextColor(colorScheme.getColor(EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG))
@@ -281,13 +281,13 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
     background.setColor(colorScheme.getColor(EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND))
     rootView.background = background
   }
-  
+
   protected open fun isSelectionVisible(): Boolean {
     val selection = editor.cursor.left()
     editor.layout.getCharLayoutOffset(selection.line, selection.column, buffer)
     return buffer[0] >= editor.offsetY && buffer[0] - editor.rowHeight <= editor.offsetY + editor.height && buffer[1] >= editor.offsetX && buffer[1] - 100f /* larger than a single character */ <= editor.offsetX + editor.width
   }
-  
+
   protected open fun updateDiagnostic(diagnostic: DiagnosticDetail?, position: CharPosition?) {
     if (!isEnabled) {
       return
@@ -323,7 +323,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
     updateWindowSize()
     updateWindowPosition()
   }
-  
+
   protected open fun updateWindowSize() {
     val width = (editor.width * 0.9).toInt()
     // First, measure the bottom bar
@@ -351,7 +351,7 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
     val dialogHeight = bottomBarHeight + messageHeight
     setSize(dialogWidth, dialogHeight)
   }
-  
+
   protected open fun updateWindowPosition() {
     val selection = memorizedPosition ?: return
     val charX = editor.getCharOffsetX(selection.line, selection.column)
@@ -372,5 +372,5 @@ open class EditorDiagnosticTooltipWindow(editor: CodeEditor) :
     val windowX = (charX - width / 2).coerceAtLeast(0f)
     setLocationAbsolutely(windowX.toInt(), windowY.toInt())
   }
-  
+
 }

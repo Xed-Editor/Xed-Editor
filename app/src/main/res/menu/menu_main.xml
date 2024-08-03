@@ -5,8 +5,8 @@
 
     <item
         android:id="@+id/action_all"
-        android:title="@string/save_all"
         android:icon="@drawable/save"
+        android:title="@string/save_all"
         android:visible="false"
         app:showAsAction="never" />
     <item
@@ -43,14 +43,14 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_print"
+        android:icon="@drawable/print"
         android:title="@string/print"
         android:visible="false"
-        android:icon="@drawable/print"
         app:showAsAction="never" />
     <item
         android:id="@+id/batchrep"
-        android:title="@string/batch_replacement"
         android:icon="@drawable/find_replace"
+        android:title="@string/batch_replacement"
         app:showAsAction="never" />
     <item
         android:id="@+id/search"
@@ -83,14 +83,14 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/share"
+        android:icon="@drawable/send"
         android:title="@string/share"
         android:visible="false"
-        android:icon="@drawable/send"
         app:showAsAction="never" />
     <item
         android:id="@+id/insertdate"
-        android:title="@string/insertdate"
         android:icon="@drawable/calendar_month"
+        android:title="@string/insertdate"
         android:visible="false"
         app:showAsAction="never" />
 

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -13,10 +14,45 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize" />
-        <androidx.recyclerview.widget.RecyclerView
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/toggleButton"
+            android:gravity="center_horizontal"
+            android:visibility="gone"
+            app:selectionRequired="true"
+            app:checkedButton="@id/auto"
+            app:singleSelection="true"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                style="?attr/materialButtonOutlinedStyle"
+                android:id="@+id/light"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Light"
+                />
+            <Button
+                style="?attr/materialButtonOutlinedStyle"
+                android:id="@+id/dark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark"
+                />
+            <Button
+                style="?attr/materialButtonOutlinedStyle"
+                android:id="@+id/auto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auto"
+                />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
+
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
-            android:layout_height="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

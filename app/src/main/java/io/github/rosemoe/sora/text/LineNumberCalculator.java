@@ -31,85 +31,85 @@ import androidx.annotation.NonNull;
  * @author Rose
  */
 public class LineNumberCalculator {
-  
-  private final CharSequence target;
-  private final int length;
-  private int offset;
-  private int line;
-  private int column;
-  
-  /**
-   * Create a new helper for the given text and set offset to start
-   *
-   * @param target Target text
-   */
-  public LineNumberCalculator(@NonNull CharSequence target) {
-    this.target = target;
-    offset = line = column = 0;
-    length = this.target.length();
-  }
-  
-  /**
-   * Update line and column for the given advance
-   *
-   * @param length Advance
-   */
-  public void update(int length) {
-    for (int i = 0; i < length; i++) {
-      if (offset + i == this.length) {
-        break;
-      }
-      if (target.charAt(offset + i) == '\n') {
-        line++;
-        column = 0;
-      } else {
-        column++;
-      }
+
+    private final CharSequence target;
+    private final int length;
+    private int offset;
+    private int line;
+    private int column;
+
+    /**
+     * Create a new helper for the given text and set offset to start
+     *
+     * @param target Target text
+     */
+    public LineNumberCalculator(@NonNull CharSequence target) {
+        this.target = target;
+        offset = line = column = 0;
+        length = this.target.length();
     }
-    offset = offset + length;
-  }
-  
-  /**
-   * Get line start index
-   *
-   * @return line start index
-   */
-  public int findLineStart() {
-    return offset - column;
-  }
-  
-  /**
-   * Get line end index
-   *
-   * @return line end index
-   */
-  public int findLineEnd() {
-    int i = 0;
-    for (; i + offset < length; i++) {
-      if (target.charAt(offset + i) == '\n') {
-        break;
-      }
+
+    /**
+     * Update line and column for the given advance
+     *
+     * @param length Advance
+     */
+    public void update(int length) {
+        for (int i = 0; i < length; i++) {
+            if (offset + i == this.length) {
+                break;
+            }
+            if (target.charAt(offset + i) == '\n') {
+                line++;
+                column = 0;
+            } else {
+                column++;
+            }
+        }
+        offset = offset + length;
     }
-    return offset + i;
-  }
-  
-  /**
-   * Get current line position
-   *
-   * @return line
-   */
-  public int getLine() {
-    return line;
-  }
-  
-  /**
-   * Get current column position
-   *
-   * @return column
-   */
-  public int getColumn() {
-    return column;
-  }
-  
+
+    /**
+     * Get line start index
+     *
+     * @return line start index
+     */
+    public int findLineStart() {
+        return offset - column;
+    }
+
+    /**
+     * Get line end index
+     *
+     * @return line end index
+     */
+    public int findLineEnd() {
+        int i = 0;
+        for (; i + offset < length; i++) {
+            if (target.charAt(offset + i) == '\n') {
+                break;
+            }
+        }
+        return offset + i;
+    }
+
+    /**
+     * Get current line position
+     *
+     * @return line
+     */
+    public int getLine() {
+        return line;
+    }
+
+    /**
+     * Get current column position
+     *
+     * @return column
+     */
+    public int getColumn() {
+        return column;
+    }
+
 }
 

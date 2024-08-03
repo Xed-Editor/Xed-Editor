@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2023 Vegard IT GmbH and others.
- *
+ * <p>
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Sebastian Thomschke (Vegard IT) - initial implementation
  */
@@ -18,53 +18,53 @@ import java.util.Map;
 
 public interface TMParser {
 
-	interface ObjectFactory<T extends PropertySettable<?>> {
+    <T extends PropertySettable<?>> T parse(Reader source, ObjectFactory<T> factory) throws Exception;
 
-		T createRoot();
+    interface ObjectFactory<T extends PropertySettable<?>> {
 
-		/**
-		 * @param sourceType {@link Map} | {@link List}
-		 */
-		PropertySettable<?> createChild(PropertyPath path, final Class<?> sourceType);
-	}
+        T createRoot();
 
-	/**
-	 * Represents the hierarchical path of a property, e.g.
-	 * <li><code>/fileTypes</code>
-	 * <li><code>/fileTypes/0</code>
-	 * <li><code>/scopeName</code>
-	 * <li><code>/patterns/0/captures/0/name</code>
-	 * <li><code>/repository/constants/patterns/0/name</code>
-	 * <li><code>/repository/statements/patterns/3/include</code>
-	 * <li><code>/repository/variable/patterns/1/captures/1/name</code>
-	 */
-	interface PropertyPath extends Iterable<Object> {
+        /**
+         * @param sourceType {@link Map} | {@link List}
+         */
+        PropertySettable<?> createChild(PropertyPath path, final Class<?> sourceType);
+    }
 
-		/**
-		 * @return {@link String} | {@link Integer}
-		 *
-		 * @throw NoSuchElementException
-		 */
-		Object first();
+    /**
+     * Represents the hierarchical path of a property, e.g.
+     * <li><code>/fileTypes</code>
+     * <li><code>/fileTypes/0</code>
+     * <li><code>/scopeName</code>
+     * <li><code>/patterns/0/captures/0/name</code>
+     * <li><code>/repository/constants/patterns/0/name</code>
+     * <li><code>/repository/statements/patterns/3/include</code>
+     * <li><code>/repository/variable/patterns/1/captures/1/name</code>
+     */
+    interface PropertyPath extends Iterable<Object> {
 
-		/**
-		 * @param index 0-based
-		 *
-		 * @return {@link String} | {@link Integer}
-		 *
-		 * @throws IndexOutOfBoundsException
-		 */
-		Object get(int index);
+        /**
+         * @return {@link String} | {@link Integer}
+         *
+         * @throw NoSuchElementException
+         */
+        Object first();
 
-		/**
-		 * @return {@link String} | {@link Integer}
-		 *
-		 * @throw NoSuchElementException
-		 */
-		Object last();
+        /**
+         * @param index 0-based
+         *
+         * @return {@link String} | {@link Integer}
+         *
+         * @throws IndexOutOfBoundsException
+         */
+        Object get(int index);
 
-		int depth();
-	}
+        /**
+         * @return {@link String} | {@link Integer}
+         *
+         * @throw NoSuchElementException
+         */
+        Object last();
 
-	<T extends PropertySettable<?>> T parse(Reader source, ObjectFactory<T> factory) throws Exception;
+        int depth();
+    }
 }

@@ -1,8 +1,10 @@
 [versions]
 agp = "8.5.1"
 appcompat = "1.7.0"
+commonsNet = "3.9.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
+modernandroidpreferences = "2.4.0-beta1"
 navigationFragment = "2.7.7"
 navigationUi = "2.7.7"
 kotlin = "2.0.0"
@@ -10,14 +12,19 @@ asynclayoutinflater = "1.0.0"
 navigationFragmentKtx = "2.7.7"
 navigationUiKtx = "2.7.7"
 coreKtx = "1.13.1"
-activity = "1.9.0"
+activity = "1.9.1"
+nbJavacAndroid = "17.0.0.3"
+sshj = "0.38.0"
 terminalView = "0.118.0"
+kotlinPlugin = "1.8.10"
 
 [libraries]
-kotlinStdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
+
+commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+modernandroidpreferences = { module = "de.maxr1998:modernandroidpreferences", version.ref = "modernandroidpreferences" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 asynclayoutinflater = { group = "androidx.asynclayoutinflater", name = "asynclayoutinflater", version.ref = "asynclayoutinflater" }
@@ -26,6 +33,8 @@ navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx",
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
+nb-javac-android = { module = "io.github.itsaky:nb-javac-android", version.ref = "nbJavacAndroid" }
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
 
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
@@ -35,9 +44,8 @@ jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.58" }
 joni = { module = "org.jruby.joni:joni", version = "2.2.1" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.7" }
 jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.0" }
-
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "2.0.0" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-
+kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlinPlugin"  }

@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -38,97 +38,97 @@ import org.eclipse.tm4e.core.internal.utils.ScopeNames;
  */
 public class SyncRegistry implements IGrammarRepository, IThemeProvider {
 
-	private final Map<String, Grammar> _grammars = new HashMap<>();
-	private final Map<String, @Nullable IRawGrammar> _rawGrammars = new HashMap<>();
-	private final Map<String, Collection<String>> _injectionGrammars = new HashMap<>();
-	private Theme _theme;
+    private final Map<String, Grammar> _grammars = new HashMap<>();
+    private final Map<String, @Nullable IRawGrammar> _rawGrammars = new HashMap<>();
+    private final Map<String, Collection<String>> _injectionGrammars = new HashMap<>();
+    private Theme _theme;
 
-	public SyncRegistry(final Theme theme) {
-		this._theme = theme;
-	}
+    public SyncRegistry(final Theme theme) {
+        this._theme = theme;
+    }
 
-	public void setTheme(final Theme theme) {
-		this._theme = theme;
-	}
+    public void setTheme(final Theme theme) {
+        this._theme = theme;
+    }
 
-	public List<String> getColorMap() {
-		return this._theme.getColorMap();
-	}
+    public List<String> getColorMap() {
+        return this._theme.getColorMap();
+    }
 
-	/**
-	 * Add `grammar` to registry and return a list of referenced scope names
-	 */
-	public void addGrammar(final IRawGrammar grammar, @Nullable final Collection<String> injectionScopeNames) {
-		this._rawGrammars.put(grammar.getScopeName(), grammar);
+    /**
+     * Add `grammar` to registry and return a list of referenced scope names
+     */
+    public void addGrammar(final IRawGrammar grammar, @Nullable final Collection<String> injectionScopeNames) {
+        this._rawGrammars.put(grammar.getScopeName(), grammar);
 
-		if (injectionScopeNames != null) {
-			this._injectionGrammars.put(grammar.getScopeName(), injectionScopeNames);
-		}
-	}
+        if (injectionScopeNames != null) {
+            this._injectionGrammars.put(grammar.getScopeName(), injectionScopeNames);
+        }
+    }
 
-	@Override
-	public @Nullable IRawGrammar lookup(final String scopeName) {
-		IRawGrammar grammar = this._rawGrammars.get(scopeName);
-		if (grammar == null) {
-			// this code is specific to the tm4e project and not from upstream:
-			// if no grammar was found for the given scopeName, check if the scopeName is qualified, e.g. "source.mylang@com.example.mylang.plugin"
-			// and if so try the unqualified scopeName "source.mylang" as fallback. See org.eclipse.tm4e.registry.internal.TMScope and
-			// for more details org.eclipse.tm4e.registry.internal.AbstractGrammarRegistryManager.getGrammarFor(IContentType...)
-			final var scopeNameWithoutContributor = ScopeNames.withoutContributor(scopeName);
-			if (!scopeNameWithoutContributor.equals(scopeName))
-				grammar = this._rawGrammars.get(scopeNameWithoutContributor);
-		}
-		return grammar;
-	}
+    @Override
+    public @Nullable IRawGrammar lookup(final String scopeName) {
+        IRawGrammar grammar = this._rawGrammars.get(scopeName);
+        if (grammar == null) {
+            // this code is specific to the tm4e project and not from upstream:
+            // if no grammar was found for the given scopeName, check if the scopeName is qualified, e.g. "source.mylang@com.example.mylang.plugin"
+            // and if so try the unqualified scopeName "source.mylang" as fallback. See org.eclipse.tm4e.registry.internal.TMScope and
+            // for more details org.eclipse.tm4e.registry.internal.AbstractGrammarRegistryManager.getGrammarFor(IContentType...)
+            final var scopeNameWithoutContributor = ScopeNames.withoutContributor(scopeName);
+            if (!scopeNameWithoutContributor.equals(scopeName))
+                grammar = this._rawGrammars.get(scopeNameWithoutContributor);
+        }
+        return grammar;
+    }
 
-	@Override
-	@Nullable
-	public Collection<String> injections(final String targetScope) {
-		return this._injectionGrammars.get(targetScope);
-	}
+    @Override
+    @Nullable
+    public Collection<String> injections(final String targetScope) {
+        return this._injectionGrammars.get(targetScope);
+    }
 
-	/**
-	 * Get the default theme settings
-	 */
-	@Override
-	public StyleAttributes getDefaults() {
-		return this._theme.getDefaults();
-	}
+    /**
+     * Get the default theme settings
+     */
+    @Override
+    public StyleAttributes getDefaults() {
+        return this._theme.getDefaults();
+    }
 
-	/**
-	 * Match a scope in the theme.
-	 */
-	@Nullable
-	@Override
-	public StyleAttributes themeMatch(final ScopeStack scopePath) {
-		return this._theme.match(scopePath);
-	}
+    /**
+     * Match a scope in the theme.
+     */
+    @Nullable
+    @Override
+    public StyleAttributes themeMatch(final ScopeStack scopePath) {
+        return this._theme.match(scopePath);
+    }
 
-	/**
-	 * Lookup a grammar.
-	 */
-	@Nullable
-	public IGrammar grammarForScopeName(
-			final String scopeName,
-			final int initialLanguage,
-			@Nullable final Map<String, Integer> embeddedLanguages,
-			@Nullable final Map<String, Integer> tokenTypes,
-			@Nullable final BalancedBracketSelectors balancedBracketSelectors) {
-		if (!this._grammars.containsKey(scopeName)) {
-			final var rawGrammar = lookup(scopeName);
-			if (rawGrammar == null) {
-				return null;
-			}
-			this._grammars.put(scopeName, new Grammar(
-					scopeName,
-					rawGrammar,
-					initialLanguage,
-					embeddedLanguages,
-					tokenTypes,
-					balancedBracketSelectors,
-					this,
-					this));
-		}
-		return this._grammars.get(scopeName);
-	}
+    /**
+     * Lookup a grammar.
+     */
+    @Nullable
+    public IGrammar grammarForScopeName(
+            final String scopeName,
+            final int initialLanguage,
+            @Nullable final Map<String, Integer> embeddedLanguages,
+            @Nullable final Map<String, Integer> tokenTypes,
+            @Nullable final BalancedBracketSelectors balancedBracketSelectors) {
+        if (!this._grammars.containsKey(scopeName)) {
+            final var rawGrammar = lookup(scopeName);
+            if (rawGrammar == null) {
+                return null;
+            }
+            this._grammars.put(scopeName, new Grammar(
+                    scopeName,
+                    rawGrammar,
+                    initialLanguage,
+                    embeddedLanguages,
+                    tokenTypes,
+                    balancedBracketSelectors,
+                    this,
+                    this));
+        }
+        return this._grammars.get(scopeName);
+    }
 }

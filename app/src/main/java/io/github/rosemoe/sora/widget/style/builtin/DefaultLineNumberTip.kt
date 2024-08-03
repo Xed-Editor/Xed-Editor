@@ -28,7 +28,7 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.style.LineNumberTipTextProvider
 
 object DefaultLineNumberTip : LineNumberTipTextProvider {
-  
+
   override fun getCurrentText(editor: CodeEditor) = "L${editor.firstVisibleLine + 1}"
-  
+
 }

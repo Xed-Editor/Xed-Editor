@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -28,29 +28,30 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public interface IRawGrammar {
 
-	IRawRepository getRepository();
+    IRawRepository getRepository();
 
-	String getScopeName();
+    void setRepository(IRawRepository repository);
 
-	@Nullable // TODO non-null in upstream project
-	Collection<IRawRule> getPatterns();
+    String getScopeName();
 
-	@Nullable
-	Map<String, IRawRule> getInjections();
+    @Nullable
+        // TODO non-null in upstream project
+    Collection<IRawRule> getPatterns();
 
-	@Nullable
-	String getInjectionSelector();
+    @Nullable
+    Map<String, IRawRule> getInjections();
 
-	Collection<String> getFileTypes();
+    @Nullable
+    String getInjectionSelector();
 
-	@Nullable
-	String getName();
+    Collection<String> getFileTypes();
 
-	@Nullable
-	String getFirstLineMatch();
+    @Nullable
+    String getName();
 
-	void setRepository(IRawRepository repository);
+    @Nullable
+    String getFirstLineMatch();
 
-	IRawRule toRawRule();
+    IRawRule toRawRule();
 
 }

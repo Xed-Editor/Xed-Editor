@@ -53,26 +53,17 @@ import io.github.rosemoe.sora.util.MyCharacter;
 
 public class TextMateLanguage extends EmptyLanguage {
 
-    private int tabSize = 4;
-
-    private boolean useTab = false;
-
+    final boolean createIdentifiers;
     private final IdentifierAutoComplete autoComplete = new IdentifierAutoComplete();
     boolean autoCompleteEnabled;
-    final boolean createIdentifiers;
-
     TextMateAnalyzer textMateAnalyzer;
-
     GrammarRegistry grammarRegistry;
-
     ThemeRegistry themeRegistry;
-
     LanguageConfiguration languageConfiguration;
-
     TextMateNewlineHandler[] newlineHandlers;
-
     TextMateSymbolPairMatch symbolPairMatch;
-
+    private int tabSize = 4;
+    private boolean useTab = false;
     private TextMateNewlineHandler newlineHandler;
 
     protected TextMateLanguage(IGrammar grammar,
@@ -246,17 +237,16 @@ public class TextMateLanguage extends EmptyLanguage {
         super.destroy();
     }
 
+    public int getTabSize() {
+        return tabSize;
+    }
+
     /**
      * Set tab size. The tab size is used to compute code blocks.
      */
     public void setTabSize(int tabSize) {
         this.tabSize = tabSize;
     }
-
-    public int getTabSize() {
-        return tabSize;
-    }
-
 
     @Override
     public boolean useTab() {

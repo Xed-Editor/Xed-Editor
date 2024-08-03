@@ -35,12 +35,12 @@ import kotlin.concurrent.withLock
  * @author Rosemoe
  */
 class RenderCache {
-  
+
   private val lock = ReentrantLock()
   private val lines = MutableIntList()
   private val cache = mutableListOf<MeasureCacheItem>()
   private var maxCacheCount = 75
-  
+
   fun getOrCreateMeasureCache(line: Int): MeasureCacheItem {
     return queryMeasureCache(line) ?: run {
       lock.withLock {
@@ -53,7 +53,7 @@ class RenderCache {
       }
     }
   }
-  
+
   fun queryMeasureCache(line: Int) =
     lock.withLock {
       cache.firstOrNull { it.line == line }.also {
@@ -63,13 +63,13 @@ class RenderCache {
         }
       }
     }
-  
+
   fun getStyleHash(line: Int) = lines[line]
-  
+
   fun setStyleHash(line: Int, hash: Int) {
     lines[line] = hash
   }
-  
+
   fun updateForInsertion(startLine: Int, endLine: Int) {
     if (startLine != endLine) {
       if (endLine - startLine == 1) {
@@ -86,7 +86,7 @@ class RenderCache {
       }
     }
   }
-  
+
   fun updateForDeletion(startLine: Int, endLine: Int) {
     if (startLine != endLine) {
       lines.removeRange(startLine, endLine)
@@ -100,7 +100,7 @@ class RenderCache {
       }
     }
   }
-  
+
   fun reset(lineCount: Int) {
     if (lines.size > lineCount) {
       lines.removeRange(lineCount, lines.size)
@@ -114,5 +114,5 @@ class RenderCache {
       cache.clear()
     }
   }
-  
+
 }

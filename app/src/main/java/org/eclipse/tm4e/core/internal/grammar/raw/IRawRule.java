@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -28,50 +28,50 @@ import org.eclipse.tm4e.core.internal.rule.RuleId;
  */
 public interface IRawRule {
 
-	/** This is not part of the spec only used internally */
-	@Nullable
-	RuleId getId();
+    /** This is not part of the spec only used internally */
+    @Nullable
+    RuleId getId();
 
-	void setId(RuleId id);
+    void setId(RuleId id);
 
-	@Nullable
-	String getInclude();
+    @Nullable
+    String getInclude();
 
-	@Nullable
-	String getName();
+    @Nullable
+    String getName();
 
-	@Nullable
-	String getContentName();
+    @Nullable
+    String getContentName();
 
-	@Nullable
-	String getMatch();
+    @Nullable
+    String getMatch();
 
-	@Nullable
-	IRawCaptures getCaptures();
+    @Nullable
+    IRawCaptures getCaptures();
 
-	@Nullable
-	String getBegin();
+    @Nullable
+    String getBegin();
 
-	@Nullable
-	IRawCaptures getBeginCaptures();
+    @Nullable
+    IRawCaptures getBeginCaptures();
 
-	@Nullable
-	String getEnd();
+    @Nullable
+    String getEnd();
 
-	@Nullable
-	String getWhile();
+    @Nullable
+    String getWhile();
 
-	@Nullable
-	IRawCaptures getEndCaptures();
+    @Nullable
+    IRawCaptures getEndCaptures();
 
-	@Nullable
-	IRawCaptures getWhileCaptures();
+    @Nullable
+    IRawCaptures getWhileCaptures();
 
-	@Nullable
-	Collection<IRawRule> getPatterns();
+    @Nullable
+    Collection<IRawRule> getPatterns();
 
-	@Nullable
-	IRawRepository getRepository();
+    @Nullable
+    IRawRepository getRepository();
 
-	boolean isApplyEndPatternLast();
+    boolean isApplyEndPatternLast();
 }

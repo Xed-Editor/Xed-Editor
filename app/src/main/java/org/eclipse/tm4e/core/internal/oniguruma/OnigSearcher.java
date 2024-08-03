@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/atom/node-oniguruma
  * Initial copyright Copyright (c) 2013 GitHub Inc.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -27,37 +27,37 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 final class OnigSearcher {
 
-	private final List<OnigRegExp> regExps;
+    private final List<OnigRegExp> regExps;
 
-	OnigSearcher(final List<String> regExps) {
-		this.regExps = regExps.stream().map(OnigRegExp::new).collect(Collectors.toList());
-	}
+    OnigSearcher(final List<String> regExps) {
+        this.regExps = regExps.stream().map(OnigRegExp::new).collect(Collectors.toList());
+    }
 
-	@Nullable
-	OnigResult search(final OnigString source, final int charOffset) {
-		final int byteOffset = source.getByteIndexOfChar(charOffset);
+    @Nullable
+    OnigResult search(final OnigString source, final int charOffset) {
+        final int byteOffset = source.getByteIndexOfChar(charOffset);
 
-		int bestLocation = 0;
-		OnigResult bestResult = null;
-		int index = 0;
+        int bestLocation = 0;
+        OnigResult bestResult = null;
+        int index = 0;
 
-		for (final OnigRegExp regExp : regExps) {
-			final OnigResult result = regExp.search(source, byteOffset);
-			if (result != null && result.count() > 0) {
-				final int location = result.locationAt(0);
+        for (final OnigRegExp regExp : regExps) {
+            final OnigResult result = regExp.search(source, byteOffset);
+            if (result != null && result.count() > 0) {
+                final int location = result.locationAt(0);
 
-				if (bestResult == null || location < bestLocation) {
-					bestLocation = location;
-					bestResult = result;
-					bestResult.setIndex(index);
-				}
+                if (bestResult == null || location < bestLocation) {
+                    bestLocation = location;
+                    bestResult = result;
+                    bestResult.setIndex(index);
+                }
 
-				if (location == byteOffset) {
-					break;
-				}
-			}
-			index++;
-		}
-		return bestResult;
-	}
+                if (location == byteOffset) {
+                    break;
+                }
+            }
+            index++;
+        }
+        return bestResult;
+    }
 }

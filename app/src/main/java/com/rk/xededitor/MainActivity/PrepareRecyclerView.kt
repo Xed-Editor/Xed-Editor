@@ -10,44 +10,44 @@ import com.rk.xededitor.Settings.SettingsData
 
 class PrepareRecyclerView(val activity: MainActivity) {
 
-  companion object{
+  companion object {
     val recyclerViewId = 428699
   }
 
   init {
 
-    
+
     with(activity) {
       val holder = holder(this)
-      
+
       val linearLayout = LinearLayout(this).apply {
         layoutParams = ViewGroup.LayoutParams(
           ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         ).apply {
-          if (!SettingsData.getBoolean(activity,"diagonalScroll",false)){
+          if (!SettingsData.getBoolean(activity, "diagonalScroll", false)) {
             setPadding(0, 0, dpToPx(54), dpToPx(5))
-          }else{
+          } else {
             setPadding(0, 0, dpToPx(54), dpToPx(60))
           }
 
         }
       }
-      
+
       val recyclerView = RecyclerView(this).apply {
         id = recyclerViewId
         layoutParams = ViewGroup.MarginLayoutParams(
           ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         ).apply {
-          if (!SettingsData.getBoolean(activity,"diagonalScroll",false)){
+          if (!SettingsData.getBoolean(activity, "diagonalScroll", false)) {
             setMargins(0, dpToPx(10), 0, 0)
-          }else{
+          } else {
             setMargins(0, dpToPx(10), 0, dpToPx(60))
           }
 
         }
         visibility = View.GONE
       }
-      
+
       linearLayout.addView(recyclerView)
       holder.addView(linearLayout)
       activity.binding.maindrawer.addView(holder)
@@ -55,23 +55,24 @@ class PrepareRecyclerView(val activity: MainActivity) {
   }
 
 
-  fun holder(activity: MainActivity) : ViewGroup{
+  fun holder(activity: MainActivity): ViewGroup {
 
-    if (!SettingsData.getBoolean(activity,"diagonalScroll",false)){
+    if (!SettingsData.getBoolean(activity, "diagonalScroll", false)) {
       val hsv = HorizontalScrollView(activity).apply {
         layoutParams = ViewGroup.MarginLayoutParams(
           ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        isHorizontalScrollBarEnabled = false
       }
       return hsv
     }
 
 
-   val dsv = DiagonalScrollView(activity).apply {
+    val dsv = DiagonalScrollView(activity).apply {
       layoutParams = ViewGroup.MarginLayoutParams(
         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
       ).apply {
-        setMargins(0, dpToPx(10),0, 0)
+        setMargins(0, dpToPx(10), 0, 0)
       }
     }
     return dsv

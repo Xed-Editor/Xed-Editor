@@ -17,34 +17,34 @@ import io.github.rosemoe.sora.text.Content;
 
 
 public class StaticData {
-  
-  public static final int REQUEST_CODE_CREATE_FILE = 3849;
-  public static final int REQUEST_DIRECTORY_SELECTION = 2937;
-  public static ArrayList<DynamicFragment> fragments;
- // public static ArrayList<String> titles;
-  
-  public static List<Node<File>> nodes;
-  
-  //public static ArrayList<Uri> uris;
-  //public static List<Content> contents;
-  public static TabLayout mTabLayout;
-  //public static List<DocumentFile> fileList;
-  public static Menu menu;
-  public static File rootFolder;
-  
-  
-  public static void clear() {
-    
-    nodes = null;
-    menu = null;
-    fragments = null;
-    mTabLayout = null;
-    rootFolder = null;
-    
-    
-    //run the garbage collector
-    Log.d("Data", "Cleaning Static Data...");
-    System.gc();
-  }
-  
+
+    public static final int REQUEST_CODE_CREATE_FILE = 3849;
+    public static final int REQUEST_DIRECTORY_SELECTION = 2937;
+    public static ArrayList<DynamicFragment> fragments;
+    // public static ArrayList<String> titles;
+
+    public static List<Node<File>> nodes;
+
+    //public static ArrayList<Uri> uris;
+    //public static List<Content> contents;
+    public static TabLayout mTabLayout;
+    //public static List<DocumentFile> fileList;
+    public static Menu menu;
+    public static File rootFolder;
+
+
+    public static void clear() {
+
+        nodes = null;
+        menu = null;
+        fragments = null;
+        mTabLayout = null;
+        rootFolder = null;
+
+
+        //run the garbage collector
+        Log.d("Data", "Cleaning Static Data...");
+        System.gc();
+    }
+
 }

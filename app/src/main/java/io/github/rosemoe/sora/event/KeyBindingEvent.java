@@ -48,29 +48,29 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @author Akash Yadav
  */
 public class KeyBindingEvent extends EditorKeyEvent {
-  
-  private final boolean editorAbleToHandle;
-  
-  /**
-   * Creates a new {@code KeyBindingEvent} instance.
-   *
-   * @param editor             The editor.
-   * @param src                The source {@link KeyEvent}.
-   * @param type               The key event type.
-   * @param editorAbleToHandle <code>true</code> if the editor can handle this event, <code>false</code> otherwise.
-   */
-  public KeyBindingEvent(@NonNull CodeEditor editor, @NonNull KeyEvent src, Type type, boolean editorAbleToHandle) {
-    super(editor, src, type);
-    this.editorAbleToHandle = editorAbleToHandle;
-  }
-  
-  /**
-   * Is the editor capable of handling this key binding event?
-   *
-   * @return <code>true</code> if the editor can handle this event. <code>false</code> otherwise.
-   */
-  public boolean canEditorHandle() {
-    return this.editorAbleToHandle;
-  }
-  
+
+    private final boolean editorAbleToHandle;
+
+    /**
+     * Creates a new {@code KeyBindingEvent} instance.
+     *
+     * @param editor             The editor.
+     * @param src                The source {@link KeyEvent}.
+     * @param type               The key event type.
+     * @param editorAbleToHandle <code>true</code> if the editor can handle this event, <code>false</code> otherwise.
+     */
+    public KeyBindingEvent(@NonNull CodeEditor editor, @NonNull KeyEvent src, Type type, boolean editorAbleToHandle) {
+        super(editor, src, type);
+        this.editorAbleToHandle = editorAbleToHandle;
+    }
+
+    /**
+     * Is the editor capable of handling this key binding event?
+     *
+     * @return <code>true</code> if the editor can handle this event. <code>false</code> otherwise.
+     */
+    public boolean canEditorHandle() {
+        return this.editorAbleToHandle;
+    }
+
 }

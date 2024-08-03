@@ -24,19 +24,19 @@
 package io.github.rosemoe.sora.lang.completion.snippet;
 
 public class NoFormat implements FormatString {
-  
-  private String text;
-  
-  public NoFormat(String text) {
-    setText(text);
-  }
-  
-  public String getText() {
-    return text;
-  }
-  
-  public void setText(String text) {
-    this.text = text;
-  }
-  
+
+    private String text;
+
+    public NoFormat(String text) {
+        setText(text);
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
 }

@@ -3,9 +3,9 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Lucas Bullen (Red Hat Inc.) - initial API and implementation
  */
@@ -23,27 +23,27 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  */
 public final class CommentRule {
 
-	/**
-	 * The line comment token, like `// this is a comment`
-	 */
-	@Nullable
-	public final String lineComment;
+    /**
+     * The line comment token, like `// this is a comment`
+     */
+    @Nullable
+    public final String lineComment;
 
-	/**
-	 * The block comment character pair, like `/* block comment *&#47;`
-	 */
-	@Nullable
-	public final CharacterPair blockComment;
+    /**
+     * The block comment character pair, like `/* block comment *&#47;`
+     */
+    @Nullable
+    public final CharacterPair blockComment;
 
-	public CommentRule(@Nullable final String lineComment, @Nullable final CharacterPair blockComment) {
-		this.lineComment = lineComment;
-		this.blockComment = blockComment;
-	}
+    public CommentRule(@Nullable final String lineComment, @Nullable final CharacterPair blockComment) {
+        this.lineComment = lineComment;
+        this.blockComment = blockComment;
+    }
 
-	@Override
-	public String toString() {
-		return StringUtils.toString(this, sb -> sb
-				.append("lineComment=").append(lineComment).append(", ")
-				.append("blockComment=").append(blockComment));
-	}
+    @Override
+    public String toString() {
+        return StringUtils.toString(this, sb -> sb
+                .append("lineComment=").append(lineComment).append(", ")
+                .append("blockComment=").append(blockComment));
+    }
 }

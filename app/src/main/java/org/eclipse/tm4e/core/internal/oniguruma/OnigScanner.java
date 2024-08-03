@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/atom/node-oniguruma
  * Initial copyright Copyright (c) 2013 GitHub Inc.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -26,18 +26,18 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public final class OnigScanner {
 
-	private final OnigSearcher searcher;
+    private final OnigSearcher searcher;
 
-	public OnigScanner(final List<String> regexps) {
-		searcher = new OnigSearcher(regexps);
-	}
+    public OnigScanner(final List<String> regexps) {
+        searcher = new OnigSearcher(regexps);
+    }
 
-	@Nullable
-	public OnigScannerMatch findNextMatch(final OnigString source, final int startPosition) {
-		final OnigResult bestResult = searcher.search(source, startPosition);
-		if (bestResult != null) {
-			return new OnigScannerMatch(bestResult, source);
-		}
-		return null;
-	}
+    @Nullable
+    public OnigScannerMatch findNextMatch(final OnigString source, final int startPosition) {
+        final OnigResult bestResult = searcher.search(source, startPosition);
+        if (bestResult != null) {
+            return new OnigScannerMatch(bestResult, source);
+        }
+        return null;
+    }
 }

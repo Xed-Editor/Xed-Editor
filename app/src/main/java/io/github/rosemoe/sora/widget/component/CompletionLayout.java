@@ -40,49 +40,49 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
  */
 @SuppressWarnings("rawtypes")
 public interface CompletionLayout {
-  
-  /**
-   * Color scheme changed
-   */
-  void onApplyColorScheme(@NonNull EditorColorScheme colorScheme);
-  
-  /**
-   * Attach the {@link EditorAutoCompletion}.
-   * This is called first before other methods are called.
-   */
-  void setEditorCompletion(@NonNull EditorAutoCompletion completion);
-  
-  /**
-   * Inflate the layout, return the view root.
-   */
-  @NonNull
-  View inflate(@NonNull Context context);
-  
-  /**
-   * Get the {@link AdapterView} to display completion items
-   */
-  @NonNull
-  AdapterView getCompletionList();
-  
-  /**
-   * Set loading state.
-   * You may update your layout to show other contents
-   */
-  void setLoading(boolean loading);
-  
-  /**
-   * Make the given position visible
-   *
-   * @param position        Item index
-   * @param incrementPixels If you scroll the layout, this is a recommended value of each scroll. {@link EditorCompletionAdapter#getItemHeight()}
-   */
-  void ensureListPositionVisible(int position, int incrementPixels);
-  
-  /**
-   * Some layout may support to display more animations,
-   * this method provides control over the animation of the layout.
-   */
-  default void setEnabledAnimation(boolean enabledAnimation) {
-    //ignore
-  }
+
+    /**
+     * Color scheme changed
+     */
+    void onApplyColorScheme(@NonNull EditorColorScheme colorScheme);
+
+    /**
+     * Attach the {@link EditorAutoCompletion}.
+     * This is called first before other methods are called.
+     */
+    void setEditorCompletion(@NonNull EditorAutoCompletion completion);
+
+    /**
+     * Inflate the layout, return the view root.
+     */
+    @NonNull
+    View inflate(@NonNull Context context);
+
+    /**
+     * Get the {@link AdapterView} to display completion items
+     */
+    @NonNull
+    AdapterView getCompletionList();
+
+    /**
+     * Set loading state.
+     * You may update your layout to show other contents
+     */
+    void setLoading(boolean loading);
+
+    /**
+     * Make the given position visible
+     *
+     * @param position        Item index
+     * @param incrementPixels If you scroll the layout, this is a recommended value of each scroll. {@link EditorCompletionAdapter#getItemHeight()}
+     */
+    void ensureListPositionVisible(int position, int incrementPixels);
+
+    /**
+     * Some layout may support to display more animations,
+     * this method provides control over the animation of the layout.
+     */
+    default void setEnabledAnimation(boolean enabledAnimation) {
+        //ignore
+    }
 }

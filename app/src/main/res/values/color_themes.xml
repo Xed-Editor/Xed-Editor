@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="selectable_Berry" parent="Base.Theme.Fragments">
+
+    </style>
+
+
+    <style name="selectable_Orange" parent="Base.Theme.Fragments">
+        <!-- Customize your Orange theme here. -->
+        <item name="colorPrimary">#FF5722</item>
+        <item name="colorPrimaryDark">#E64A19</item>
+        <item name="colorAccent">#FF7043</item>
+    </style>
+
+    <style name="selectable_Blue" parent="Base.Theme.Fragments">
+        <!-- Customize your Blue theme here. -->
+        <item name="colorPrimary">#2196F3</item>
+        <item name="colorPrimaryDark">#1976D2</item>
+        <item name="colorAccent">#03A9F4</item>
+    </style>
+
+    <style name="selectable_Green" parent="Base.Theme.Fragments">
+        <!-- Customize your Green theme here. -->
+        <item name="colorPrimary">#4CAF50</item>
+        <item name="colorPrimaryDark">#388E3C</item>
+        <item name="colorAccent">#8BC34A</item>
+    </style>
+
+    <style name="selectable_Red" parent="Base.Theme.Fragments">
+        <!-- Customize your Red theme here. -->
+        <item name="colorPrimary">#F44336</item>
+        <item name="colorPrimaryDark">#D32F2F</item>
+        <item name="colorAccent">#FF5252</item>
+    </style>
+
+    <style name="selectable_Purple" parent="Base.Theme.Fragments">
+        <!-- Customize your Purple theme here. -->
+        <item name="colorPrimary">#9C27B0</item>
+        <item name="colorPrimaryDark">#7B1FA2</item>
+        <item name="colorAccent">#E040FB</item>
+    </style>
+
+</resources>

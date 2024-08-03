@@ -81,7 +81,7 @@
     <string name="dir_example">Name eg. Test</string>
     <string name="create">Create</string>
     <string name="ask_enter_name">Please enter a name</string>
-    <string name="already_exists">\"Error : a file/folder already exist with this name\"</string>
+    <string name="already_exists">A file/folder already exist with this name</string>
     <string name="attention">Attention</string>
     <string name="ask_del">Are you sure you want to delete</string>
     <string name="redir">Please reselect the directory</string>

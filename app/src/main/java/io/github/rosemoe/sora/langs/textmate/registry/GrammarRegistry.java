@@ -50,18 +50,19 @@ import io.github.rosemoe.sora.langs.textmate.registry.reader.LanguageDefinitionR
 public class GrammarRegistry {
 
     private static GrammarRegistry instance;
-
+    private final Map</* scopeName */String, LanguageConfiguration> languageConfigurationMap = new LinkedHashMap<>();
+    private final Map<String/* */, Integer> scopeName2GrammarId = new LinkedHashMap<>();
+    private final Map</* name */String, String /* scopeName */> grammarFileName2ScopeName = new LinkedHashMap<>();
+    private final Map<String, GrammarDefinition> scopeName2GrammarDefinition = new LinkedHashMap<>();
     private Registry registry = new Registry();
-
     private GrammarRegistry parent;
 
-    private final Map</* scopeName */String, LanguageConfiguration> languageConfigurationMap = new LinkedHashMap<>();
+    private GrammarRegistry() {
+    }
 
-    private final Map<String/* */, Integer> scopeName2GrammarId = new LinkedHashMap<>();
-
-    private final Map</* name */String, String /* scopeName */> grammarFileName2ScopeName = new LinkedHashMap<>();
-
-    private final Map<String, GrammarDefinition> scopeName2GrammarDefinition = new LinkedHashMap<>();
+    public GrammarRegistry(GrammarRegistry parent) {
+        this.parent = parent;
+    }
 
     public synchronized static GrammarRegistry getInstance() {
         if (instance == null) {
@@ -69,13 +70,6 @@ public class GrammarRegistry {
             instance.initThemeListener();
         }
         return instance;
-    }
-
-    private GrammarRegistry() {
-    }
-
-    public GrammarRegistry(GrammarRegistry parent) {
-        this.parent = parent;
     }
 
     private void initThemeListener() {

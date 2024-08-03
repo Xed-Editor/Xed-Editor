@@ -21,15 +21,15 @@ import org.eclipse.tm4e.core.TMException;
 
 /**
  * @see <a href=
- *      "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/theme.ts#L385">
- *      github.com/microsoft/vscode-textmate/blob/main/src/theme.ts</a>
+ * "https://github.com/microsoft/vscode-textmate/blob/88baacf1a6637c5ec08dce18cea518d935fcf0a0/src/theme.ts#L385">
+ * github.com/microsoft/vscode-textmate/blob/main/src/theme.ts</a>
  */
 public final class ColorMap {
 
     private final boolean _isFrozen;
-    private int _lastColorId = -1; // -1 and not 0 as in upstream project on purpose
     private final List<String> _id2color = new ArrayList<>();
     private final Map<String /*color*/, @Nullable Integer /*ID color*/> _color2id = new LinkedHashMap<>();
+    private int _lastColorId = -1; // -1 and not 0 as in upstream project on purpose
 
     public ColorMap() {
         this(null);

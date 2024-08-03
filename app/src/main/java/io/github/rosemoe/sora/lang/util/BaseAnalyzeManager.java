@@ -39,54 +39,54 @@ import io.github.rosemoe.sora.text.ContentReference;
  * @author Rosemoe
  */
 public abstract class BaseAnalyzeManager implements AnalyzeManager {
-  
-  private StyleReceiver receiver;
-  private ContentReference contentRef;
-  private Bundle extraArguments;
-  
-  /**
-   * Get current receiver, maybe null
-   */
-  @Nullable
-  public StyleReceiver getReceiver() {
-    return receiver;
-  }
-  
-  @Override
-  public void setReceiver(@Nullable StyleReceiver receiver) {
-    this.receiver = receiver;
-  }
-  
-  /**
-   * Get current extra arguments, maybe null
-   */
-  @Nullable
-  public Bundle getExtraArguments() {
-    return extraArguments;
-  }
-  
-  /**
-   * Get current content reference, maybe null
-   */
-  @Nullable
-  public ContentReference getContentRef() {
-    return contentRef;
-  }
-  
-  @Override
-  @CallSuper
-  public void reset(@NonNull ContentReference content, @NonNull Bundle extraArguments) {
-    this.extraArguments = extraArguments;
-    this.contentRef = content;
-    rerun();
-  }
-  
-  @Override
-  @CallSuper
-  public void destroy() {
-    this.receiver = null;
-    this.contentRef = null;
-    this.extraArguments = null;
-  }
-  
+
+    private StyleReceiver receiver;
+    private ContentReference contentRef;
+    private Bundle extraArguments;
+
+    /**
+     * Get current receiver, maybe null
+     */
+    @Nullable
+    public StyleReceiver getReceiver() {
+        return receiver;
+    }
+
+    @Override
+    public void setReceiver(@Nullable StyleReceiver receiver) {
+        this.receiver = receiver;
+    }
+
+    /**
+     * Get current extra arguments, maybe null
+     */
+    @Nullable
+    public Bundle getExtraArguments() {
+        return extraArguments;
+    }
+
+    /**
+     * Get current content reference, maybe null
+     */
+    @Nullable
+    public ContentReference getContentRef() {
+        return contentRef;
+    }
+
+    @Override
+    @CallSuper
+    public void reset(@NonNull ContentReference content, @NonNull Bundle extraArguments) {
+        this.extraArguments = extraArguments;
+        this.contentRef = content;
+        rerun();
+    }
+
+    @Override
+    @CallSuper
+    public void destroy() {
+        this.receiver = null;
+        this.contentRef = null;
+        this.extraArguments = null;
+    }
+
 }

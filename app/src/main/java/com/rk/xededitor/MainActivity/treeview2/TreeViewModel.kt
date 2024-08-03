@@ -21,25 +21,25 @@ data class Node<T>(
   var parent: Node<T>? = null,
   var child: List<Node<T>>? = null,
   var isExpand: Boolean = false,
-  var level: Int = 0
+  var level: Int = 0,
 ) {
-  
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (javaClass != other?.javaClass) return false
-    
+
     other as Node<*>
-    
+
     return value == other.value && parent == other.parent && child == other.child && isExpand == other.isExpand && level == other.level
   }
-  
+
   override fun hashCode(): Int {
     return value.hashCode()
   }
 }
 
 object TreeViewModel {
-  
+
   // add child node
   fun <T> add(
     parent: Node<T>, child: List<Node<T>>? = null
@@ -50,23 +50,23 @@ object TreeViewModel {
         parent.isExpand = true
       }
     }
-    
+
     parent.parent?.let {
       val nodes = it.child
       if (nodes != null && nodes.size == 1 && ((child != null && child.isEmpty()) || child == null)) {
         parent.isExpand = true
       }
     }
-    
+
     // parent associate with child
     parent.child = child
-    
+
     child?.forEach {
       it.parent = parent
       it.level = parent.level + 1
     }
   }
-  
+
   // remove child node
   fun <T> remove(
     parent: Node<T>, child: List<Node<T>>? = null
@@ -77,7 +77,7 @@ object TreeViewModel {
       }
     }
     parent.child = null
-    
+
     child?.forEach { childNode ->
       childNode.parent = null
       childNode.level = 0
@@ -89,13 +89,13 @@ object TreeViewModel {
       }
     }
   }
-  
+
   // Get all child nodes of the parent node
   private fun <T> getChildren(
     parent: Node<T>, result: MutableList<Node<T>>
   ): List<Node<T>> {
     parent.child?.let { result.addAll(it) }
-    
+
     parent.child?.forEach {
       if (it.isExpand) {
         getChildren(it, result)
@@ -103,6 +103,6 @@ object TreeViewModel {
     }
     return result
   }
-  
+
   fun <T> getChildren(parent: Node<T>) = getChildren(parent, mutableListOf())
 }

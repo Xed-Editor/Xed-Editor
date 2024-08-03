@@ -3,13 +3,13 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/atom/node-oniguruma
  * Initial copyright Copyright (c) 2013 GitHub Inc.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - GitHub Inc.: Initial code, written in JavaScript, licensed under MIT license
  * - Angelo Zerr <angelo.zerr@gmail.com> - translation and adaptation to Java
@@ -24,41 +24,41 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public final class OnigCaptureIndex {
 
-	static final OnigCaptureIndex EMPTY = new OnigCaptureIndex(0, 0);
+    static final OnigCaptureIndex EMPTY = new OnigCaptureIndex(0, 0);
 
-	public final int start;
-	public final int end;
+    public final int start;
+    public final int end;
 
-	OnigCaptureIndex(final int start, final int end) {
-		this.start = start >= 0 ? start : 0;
-		this.end = end >= 0 ? end : 0;
-	}
+    OnigCaptureIndex(final int start, final int end) {
+        this.start = start >= 0 ? start : 0;
+        this.end = end >= 0 ? end : 0;
+    }
 
-	@Override
-	public boolean equals(@Nullable final Object obj) {
-		if (this == obj)
-			return true;
-		if (obj instanceof final OnigCaptureIndex other)
-			return end == other.end
-					&& start == other.start;
-		return false;
-	}
+    @Override
+    public boolean equals(@Nullable final Object obj) {
+        if (this == obj)
+            return true;
+        if (obj instanceof final OnigCaptureIndex other)
+            return end == other.end
+                    && start == other.start;
+        return false;
+    }
 
-	public int getLength() {
-		return end - start;
-	}
+    public int getLength() {
+        return end - start;
+    }
 
-	@Override
-	public int hashCode() {
-		return 31 * (31 + end) + start;
-	}
+    @Override
+    public int hashCode() {
+        return 31 * (31 + end) + start;
+    }
 
-	@Override
-	public String toString() {
-		return "{"
-				+ ", \"start\": " + start
-				+ ", \"end\": " + end
-				+ ", \"length\": " + getLength()
-				+ "}";
-	}
+    @Override
+    public String toString() {
+        return "{"
+                + ", \"start\": " + start
+                + ", \"end\": " + end
+                + ", \"length\": " + getLength()
+                + "}";
+    }
 }

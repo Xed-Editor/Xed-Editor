@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2024 Vegard IT GmbH and others.
- *
+ * <p>
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Sebastian Thomschke - translation and adaptation to Java
@@ -28,18 +28,18 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  */
 public class IndentForEnter {
 
-	public final String beforeEnter;
-	public final String afterEnter;
+    public final String beforeEnter;
+    public final String afterEnter;
 
-	public IndentForEnter(final String beforeEnter, final String afterEnter) {
-		this.beforeEnter = beforeEnter;
-		this.afterEnter = afterEnter;
-	}
+    public IndentForEnter(final String beforeEnter, final String afterEnter) {
+        this.beforeEnter = beforeEnter;
+        this.afterEnter = afterEnter;
+    }
 
-	@Override
-	public String toString() {
-		return StringUtils.toString(this, sb -> sb
-				.append("beforeEnter=").append(beforeEnter).append(", ")
-				.append("afterEnter=").append(afterEnter));
-	}
+    @Override
+    public String toString() {
+        return StringUtils.toString(this, sb -> sb
+                .append("beforeEnter=").append(beforeEnter).append(", ")
+                .append("afterEnter=").append(afterEnter));
+    }
 }

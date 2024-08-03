@@ -28,7 +28,7 @@
 - [x] Word Wrap
 - [x] File Browser
 - [x] Creating files and folders
-- [x] Copy Pasteing files and Folders
+- [x] Copy Pasting files and Folders
 - [x] Rename, Delete files and folders
 - [x] Print text
 
@@ -45,8 +45,10 @@
 
 </div>
 
-Download latest build
+Download latest stable build
 from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
+
+Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xed-Editor/actions/)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"

@@ -3,9 +3,9 @@
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Contributors:
  * Angelo Zerr <angelo.zerr@gmail.com> - initial API and implementation
  */
@@ -32,173 +32,173 @@ import org.eclipse.tm4e.core.internal.utils.StringUtils;
  */
 public final class AttributedScopeStack {
 
-	@NonNullByDefault({}) // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/233
-	record Frame(int encodedTokenAttributes, List<String> scopeNames) {
-	}
+    final int tokenAttributes;
+    private final @Nullable AttributedScopeStack parent;
+    private final ScopeStack scopePath;
 
-	@Nullable
-	static AttributedScopeStack fromExtension(final @Nullable AttributedScopeStack namesScopeList,
-			final List<AttributedScopeStack.Frame> contentNameScopesList) {
-		var current = namesScopeList;
-		@Nullable
-		ScopeStack scopeNames = namesScopeList != null ? namesScopeList.scopePath : null;
-		for (final var frame : contentNameScopesList) {
-			scopeNames = ScopeStack.push(scopeNames, frame.scopeNames);
-			current = new AttributedScopeStack(current, castNonNull(scopeNames), frame.encodedTokenAttributes);
-		}
-		return current;
-	}
+    public AttributedScopeStack(
+            final @Nullable AttributedScopeStack parent,
+            final ScopeStack scopePath,
+            final int tokenAttributes) {
+        this.parent = parent;
+        this.scopePath = scopePath;
+        this.tokenAttributes = tokenAttributes;
+    }
 
-	public static AttributedScopeStack createRoot(final String scopeName,
-			final int /*EncodedTokenAttributes*/ tokenAttributes) {
-		return new AttributedScopeStack(null, new ScopeStack(null, scopeName), tokenAttributes);
-	}
+    @Nullable
+    static AttributedScopeStack fromExtension(final @Nullable AttributedScopeStack namesScopeList,
+                                              final List<AttributedScopeStack.Frame> contentNameScopesList) {
+        var current = namesScopeList;
+        @Nullable
+        ScopeStack scopeNames = namesScopeList != null ? namesScopeList.scopePath : null;
+        for (final var frame : contentNameScopesList) {
+            scopeNames = ScopeStack.push(scopeNames, frame.scopeNames);
+            current = new AttributedScopeStack(current, castNonNull(scopeNames), frame.encodedTokenAttributes);
+        }
+        return current;
+    }
 
-	public static AttributedScopeStack createRootAndLookUpScopeName(final String scopeName, final int encodedTokenAttributes,
-			final Grammar grammar) {
-		final var rawRootMetadata = grammar.getMetadataForScope(scopeName);
-		final var scopePath = new ScopeStack(null, scopeName);
-		final var rootStyle = grammar.themeProvider.themeMatch(scopePath);
+    public static AttributedScopeStack createRoot(final String scopeName,
+                                                  final int /*EncodedTokenAttributes*/ tokenAttributes) {
+        return new AttributedScopeStack(null, new ScopeStack(null, scopeName), tokenAttributes);
+    }
 
-		final var resolvedTokenAttributes = AttributedScopeStack.mergeAttributes(
-				encodedTokenAttributes,
-				rawRootMetadata,
-				rootStyle);
+    public static AttributedScopeStack createRootAndLookUpScopeName(final String scopeName, final int encodedTokenAttributes,
+                                                                    final Grammar grammar) {
+        final var rawRootMetadata = grammar.getMetadataForScope(scopeName);
+        final var scopePath = new ScopeStack(null, scopeName);
+        final var rootStyle = grammar.themeProvider.themeMatch(scopePath);
 
-		return new AttributedScopeStack(null, scopePath, resolvedTokenAttributes);
-	}
+        final var resolvedTokenAttributes = AttributedScopeStack.mergeAttributes(
+                encodedTokenAttributes,
+                rawRootMetadata,
+                rootStyle);
 
-	public String scopeName() {
-		return this.scopePath.scopeName;
-	}
+        return new AttributedScopeStack(null, scopePath, resolvedTokenAttributes);
+    }
 
-	private final @Nullable AttributedScopeStack parent;
-	private final ScopeStack scopePath;
-	final int tokenAttributes;
+    public static boolean equals(
+            @Nullable AttributedScopeStack a,
+            @Nullable AttributedScopeStack b) {
+        do {
+            if (a == b) {
+                return true;
+            }
 
-	public AttributedScopeStack(
-			final @Nullable AttributedScopeStack parent,
-			final ScopeStack scopePath,
-			final int tokenAttributes) {
-		this.parent = parent;
-		this.scopePath = scopePath;
-		this.tokenAttributes = tokenAttributes;
-	}
+            if (a == null && b == null) {
+                // End of list reached for both
+                return true;
+            }
 
-	@Override
-	public String toString() {
-		return String.join(" ", this.getScopeNames());
-	}
+            if (a == null || b == null) {
+                // End of list reached only for one
+                return false;
+            }
 
-	public boolean equals(final AttributedScopeStack other) {
-		return equals(this, other);
-	}
+            if (a.tokenAttributes != b.tokenAttributes
+                    || !Objects.equals(a.scopeName(), b.scopeName())) {
+                return false;
+            }
 
-	public static boolean equals(
-			@Nullable AttributedScopeStack a,
-			@Nullable AttributedScopeStack b) {
-		do {
-			if (a == b) {
-				return true;
-			}
+            // Go to previous pair
+            a = a.parent;
+            b = b.parent;
+        } while (true);
+    }
 
-			if (a == null && b == null) {
-				// End of list reached for both
-				return true;
-			}
+    public static int mergeAttributes(
+            final int existingTokenAttributes,
+            final BasicScopeAttributes basicScopeAttributes,
+            final @Nullable StyleAttributes styleAttributes) {
+        var fontStyle = FontStyle.NotSet;
+        var foreground = 0;
+        var background = 0;
 
-			if (a == null || b == null) {
-				// End of list reached only for one
-				return false;
-			}
+        if (styleAttributes != null) {
+            fontStyle = styleAttributes.fontStyle;
+            foreground = styleAttributes.foregroundId;
+            background = styleAttributes.backgroundId;
+        }
 
-			if (a.tokenAttributes != b.tokenAttributes
-					|| !Objects.equals(a.scopeName(), b.scopeName())) {
-				return false;
-			}
+        return EncodedTokenAttributes.set(
+                existingTokenAttributes,
+                basicScopeAttributes.languageId,
+                basicScopeAttributes.tokenType,
+                null,
+                fontStyle,
+                foreground,
+                background);
+    }
 
-			// Go to previous pair
-			a = a.parent;
-			b = b.parent;
-		} while (true);
-	}
+    public String scopeName() {
+        return this.scopePath.scopeName;
+    }
 
-	public static int mergeAttributes(
-			final int existingTokenAttributes,
-			final BasicScopeAttributes basicScopeAttributes,
-			final @Nullable StyleAttributes styleAttributes) {
-		var fontStyle = FontStyle.NotSet;
-		var foreground = 0;
-		var background = 0;
+    @Override
+    public String toString() {
+        return String.join(" ", this.getScopeNames());
+    }
 
-		if (styleAttributes != null) {
-			fontStyle = styleAttributes.fontStyle;
-			foreground = styleAttributes.foregroundId;
-			background = styleAttributes.backgroundId;
-		}
+    public boolean equals(final AttributedScopeStack other) {
+        return equals(this, other);
+    }
 
-		return EncodedTokenAttributes.set(
-				existingTokenAttributes,
-				basicScopeAttributes.languageId,
-				basicScopeAttributes.tokenType,
-				null,
-				fontStyle,
-				foreground,
-				background);
-	}
+    AttributedScopeStack pushAttributed(final @Nullable String scopePath, final Grammar grammar) {
+        if (scopePath == null) {
+            return this;
+        }
 
-	AttributedScopeStack pushAttributed(final @Nullable String scopePath, final Grammar grammar) {
-		if (scopePath == null) {
-			return this;
-		}
+        if (scopePath.indexOf(' ') == -1) {
+            // This is the common case and much faster
+            return _pushAttributed(this, scopePath, grammar);
+        }
 
-		if (scopePath.indexOf(' ') == -1) {
-			// This is the common case and much faster
-			return _pushAttributed(this, scopePath, grammar);
-		}
+        final var scopes = StringUtils.splitToArray(scopePath, ' ');
+        var result = this;
+        for (final var scope : scopes) {
+            result = _pushAttributed(result, scope, grammar);
+        }
+        return result;
+    }
 
-		final var scopes = StringUtils.splitToArray(scopePath, ' ');
-		var result = this;
-		for (final var scope : scopes) {
-			result = _pushAttributed(result, scope, grammar);
-		}
-		return result;
-	}
+    private AttributedScopeStack _pushAttributed(
+            final AttributedScopeStack target,
+            final String scopeName,
+            final Grammar grammar) {
+        final var rawMetadata = grammar.getMetadataForScope(scopeName);
 
-	private AttributedScopeStack _pushAttributed(
-			final AttributedScopeStack target,
-			final String scopeName,
-			final Grammar grammar) {
-		final var rawMetadata = grammar.getMetadataForScope(scopeName);
+        final var newPath = target.scopePath.push(scopeName);
+        final var scopeThemeMatchResult = grammar.themeProvider.themeMatch(newPath);
+        final var metadata = mergeAttributes(
+                target.tokenAttributes,
+                rawMetadata,
+                scopeThemeMatchResult);
+        return new AttributedScopeStack(target, newPath, metadata);
+    }
 
-		final var newPath = target.scopePath.push(scopeName);
-		final var scopeThemeMatchResult = grammar.themeProvider.themeMatch(newPath);
-		final var metadata = mergeAttributes(
-				target.tokenAttributes,
-				rawMetadata,
-				scopeThemeMatchResult);
-		return new AttributedScopeStack(target, newPath, metadata);
-	}
+    List<String> getScopeNames() {
+        return this.scopePath.getSegments();
+    }
 
-	List<String> getScopeNames() {
-		return this.scopePath.getSegments();
-	}
+    public List<AttributedScopeStack.Frame> getExtensionIfDefined(final @Nullable AttributedScopeStack base) {
+        final var result = new ArrayList<AttributedScopeStack.Frame>();
+        var self = this;
 
-	public List<AttributedScopeStack.Frame> getExtensionIfDefined(final @Nullable AttributedScopeStack base) {
-		final var result = new ArrayList<AttributedScopeStack.Frame>();
-		var self = this;
+        while (self != null && self != base) {
+            final var parent = self.parent;
+            result.add(new AttributedScopeStack.Frame(
+                    self.tokenAttributes,
+                    self.scopePath.getExtensionIfDefined(parent != null ? parent.scopePath : null)));
+            self = self.parent;
+        }
+        if (self == base) {
+            Collections.reverse(result);
+            return result;
+        }
+        return Collections.emptyList();
+    }
 
-		while (self != null && self != base) {
-			final var parent = self.parent;
-			result.add(new AttributedScopeStack.Frame(
-					self.tokenAttributes,
-					self.scopePath.getExtensionIfDefined(parent != null ? parent.scopePath : null)));
-			self = self.parent;
-		}
-		if (self == base) {
-			Collections.reverse(result);
-			return result;
-		}
-		return Collections.emptyList();
-	}
+    @NonNullByDefault({}) // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/233
+    record Frame(int encodedTokenAttributes, List<String> scopeNames) {
+    }
 }

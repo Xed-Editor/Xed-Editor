@@ -45,193 +45,193 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  * @param <V> The shared object type that we get for auto-completion.
  */
 public abstract class SimpleAnalyzeManager<V> implements AnalyzeManager {
-  
-  private final static String LOG_TAG = "SimpleAnalyzeManager";
-  private static int sThreadId = 0;
-  private final Object lock = new Object();
-  private StyleReceiver receiver;
-  private volatile ContentReference ref;
-  private Bundle extraArguments;
-  private volatile long newestRequestId;
-  private AnalyzeThread thread;
-  private V data;
-  
-  private synchronized static int nextThreadId() {
-    sThreadId++;
-    return sThreadId;
-  }
-  
-  @Override
-  public void setReceiver(@Nullable StyleReceiver receiver) {
-    this.receiver = receiver;
-  }
-  
-  @Override
-  public void reset(@NonNull ContentReference content, @NonNull Bundle extraArguments) {
-    this.ref = content;
-    this.extraArguments = extraArguments;
-    rerun();
-  }
-  
-  @Override
-  public void insert(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence insertedContent) {
-    rerun();
-  }
-  
-  @Override
-  public void delete(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence deletedContent) {
-    rerun();
-  }
-  
-  @Override
-  public synchronized void rerun() {
-    newestRequestId++;
-    if (thread == null || !thread.isAlive()) {
-      // Create new thread
-      Log.v(LOG_TAG, "Starting a new thread for analysis");
-      thread = new AnalyzeThread();
-      thread.setDaemon(true);
-      thread.setName("SplAnalyzer-" + nextThreadId());
-      thread.start();
+
+    private final static String LOG_TAG = "SimpleAnalyzeManager";
+    private static int sThreadId = 0;
+    private final Object lock = new Object();
+    private StyleReceiver receiver;
+    private volatile ContentReference ref;
+    private Bundle extraArguments;
+    private volatile long newestRequestId;
+    private AnalyzeThread thread;
+    private V data;
+
+    private synchronized static int nextThreadId() {
+        sThreadId++;
+        return sThreadId;
     }
-    synchronized (lock) {
-      lock.notify();
-    }
-  }
-  
-  @Override
-  public void destroy() {
-    ref = null;
-    extraArguments = null;
-    newestRequestId = 0;
-    data = null;
-    if (thread != null && thread.isAlive()) {
-      thread.interrupt();
-    }
-    thread = null;
-    receiver = null;
-  }
-  
-  /**
-   * Get extra arguments set by {@link CodeEditor#setText(CharSequence, Bundle)}
-   */
-  public Bundle getExtraArguments() {
-    return extraArguments;
-  }
-  
-  /**
-   * Get data set by analyze thread
-   */
-  @Nullable
-  public V getData() {
-    return data;
-  }
-  
-  /**
-   * Analyze the given input.
-   *
-   * @param text     A {@link StringBuilder} instance containing the text in editor. DO NOT SAVE THE INSTANCE OR
-   *                 UPDATE IT. It is continuously used by this analyzer.
-   * @param delegate A delegate used to check whether this invocation is outdated. You should stop your logic
-   *                 if {@link Delegate#isCancelled()} returns true.
-   * @return Styles created according to the text.
-   */
-  protected abstract Styles analyze(StringBuilder text, Delegate<V> delegate);
-  
-  /**
-   * Analyze thread.
-   * <p>
-   * The thread will keep alive unless there is any exception or {@link AnalyzeManager#destroy()}
-   * is called.
-   */
-  private class AnalyzeThread extends Thread {
-    
-    /**
-     * Single instance for text storing
-     */
-    private final StringBuilder textContainer = new StringBuilder();
-    
+
     @Override
-    public void run() {
-      Log.v(LOG_TAG, "Analyze thread started");
-      try {
-        while (!isInterrupted()) {
-          var text = ref;
-          if (text != null) {
-            var requestId = 0L;
-            Styles result = null;
-            V newData = null;
-            // Do the analysis, until the requestId matches
-            do {
-              text = ref;
-              if (text == null) {
-                break;
-              }
-              requestId = newestRequestId;
-              var delegate = new Delegate<V>(requestId);
-              
-              // Collect line contents
-              textContainer.setLength(0);
-              textContainer.ensureCapacity(text.length());
-              for (int i = 0; i < text.getLineCount() && requestId == newestRequestId; i++) {
-                if (i != 0) {
-                  textContainer.append(text.getLineSeparator(i - 1));
-                }
-                text.appendLineTo(textContainer, i);
-              }
-              
-              // Invoke the implementation
-              result = analyze(textContainer, delegate);
-              newData = delegate.data;
-            } while (requestId != newestRequestId);
-            // Send result
-            final var receiver = SimpleAnalyzeManager.this.receiver;
-            if (receiver != null && result != null) {
-              receiver.setStyles(SimpleAnalyzeManager.this, result);
-            }
-            data = newData;
-          }
-          // Wait for next time
-          synchronized (lock) {
-            lock.wait();
-          }
+    public void setReceiver(@Nullable StyleReceiver receiver) {
+        this.receiver = receiver;
+    }
+
+    @Override
+    public void reset(@NonNull ContentReference content, @NonNull Bundle extraArguments) {
+        this.ref = content;
+        this.extraArguments = extraArguments;
+        rerun();
+    }
+
+    @Override
+    public void insert(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence insertedContent) {
+        rerun();
+    }
+
+    @Override
+    public void delete(@NonNull CharPosition start, @NonNull CharPosition end, @NonNull CharSequence deletedContent) {
+        rerun();
+    }
+
+    @Override
+    public synchronized void rerun() {
+        newestRequestId++;
+        if (thread == null || !thread.isAlive()) {
+            // Create new thread
+            Log.v(LOG_TAG, "Starting a new thread for analysis");
+            thread = new AnalyzeThread();
+            thread.setDaemon(true);
+            thread.setName("SplAnalyzer-" + nextThreadId());
+            thread.start();
         }
-      } catch (InterruptedException e) {
-        Log.v(LOG_TAG, "Thread is interrupted.");
-      } catch (Exception e) {
-        Log.e(LOG_TAG, "Unexpected exception is thrown in the thread.", e);
-      }
+        synchronized (lock) {
+            lock.notify();
+        }
     }
-    
-  }
-  
-  /**
-   * Delegate between manager and analysis implementation
-   */
-  public final class Delegate<T> {
-    
-    private final long myRequestId;
-    private T data;
-    
-    public Delegate(long requestId) {
-      myRequestId = requestId;
+
+    @Override
+    public void destroy() {
+        ref = null;
+        extraArguments = null;
+        newestRequestId = 0;
+        data = null;
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+        }
+        thread = null;
+        receiver = null;
     }
-    
+
     /**
-     * Set shared data
+     * Get extra arguments set by {@link CodeEditor#setText(CharSequence, Bundle)}
      */
-    public void setData(T value) {
-      data = value;
+    public Bundle getExtraArguments() {
+        return extraArguments;
     }
-    
+
     /**
-     * Check whether the operation is cancelled
+     * Get data set by analyze thread
      */
-    public boolean isCancelled() {
-      return myRequestId != newestRequestId;
+    @Nullable
+    public V getData() {
+        return data;
     }
-    
-  }
-  
-  
+
+    /**
+     * Analyze the given input.
+     *
+     * @param text     A {@link StringBuilder} instance containing the text in editor. DO NOT SAVE THE INSTANCE OR
+     *                 UPDATE IT. It is continuously used by this analyzer.
+     * @param delegate A delegate used to check whether this invocation is outdated. You should stop your logic
+     *                 if {@link Delegate#isCancelled()} returns true.
+     * @return Styles created according to the text.
+     */
+    protected abstract Styles analyze(StringBuilder text, Delegate<V> delegate);
+
+    /**
+     * Analyze thread.
+     * <p>
+     * The thread will keep alive unless there is any exception or {@link AnalyzeManager#destroy()}
+     * is called.
+     */
+    private class AnalyzeThread extends Thread {
+
+        /**
+         * Single instance for text storing
+         */
+        private final StringBuilder textContainer = new StringBuilder();
+
+        @Override
+        public void run() {
+            Log.v(LOG_TAG, "Analyze thread started");
+            try {
+                while (!isInterrupted()) {
+                    var text = ref;
+                    if (text != null) {
+                        var requestId = 0L;
+                        Styles result = null;
+                        V newData = null;
+                        // Do the analysis, until the requestId matches
+                        do {
+                            text = ref;
+                            if (text == null) {
+                                break;
+                            }
+                            requestId = newestRequestId;
+                            var delegate = new Delegate<V>(requestId);
+
+                            // Collect line contents
+                            textContainer.setLength(0);
+                            textContainer.ensureCapacity(text.length());
+                            for (int i = 0; i < text.getLineCount() && requestId == newestRequestId; i++) {
+                                if (i != 0) {
+                                    textContainer.append(text.getLineSeparator(i - 1));
+                                }
+                                text.appendLineTo(textContainer, i);
+                            }
+
+                            // Invoke the implementation
+                            result = analyze(textContainer, delegate);
+                            newData = delegate.data;
+                        } while (requestId != newestRequestId);
+                        // Send result
+                        final var receiver = SimpleAnalyzeManager.this.receiver;
+                        if (receiver != null && result != null) {
+                            receiver.setStyles(SimpleAnalyzeManager.this, result);
+                        }
+                        data = newData;
+                    }
+                    // Wait for next time
+                    synchronized (lock) {
+                        lock.wait();
+                    }
+                }
+            } catch (InterruptedException e) {
+                Log.v(LOG_TAG, "Thread is interrupted.");
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Unexpected exception is thrown in the thread.", e);
+            }
+        }
+
+    }
+
+    /**
+     * Delegate between manager and analysis implementation
+     */
+    public final class Delegate<T> {
+
+        private final long myRequestId;
+        private T data;
+
+        public Delegate(long requestId) {
+            myRequestId = requestId;
+        }
+
+        /**
+         * Set shared data
+         */
+        public void setData(T value) {
+            data = value;
+        }
+
+        /**
+         * Check whether the operation is cancelled
+         */
+        public boolean isCancelled() {
+            return myRequestId != newestRequestId;
+        }
+
+    }
+
+
 }

@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.tm4e.core.registry.IGrammarSource;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 public interface GrammarDefinition {
@@ -41,7 +40,7 @@ public interface GrammarDefinition {
     @Nullable
     String getScopeName();
 
-    default Map<String,String> getEmbeddedLanguages() {
+    default Map<String, String> getEmbeddedLanguages() {
         return Collections.emptyMap();
     }
 

@@ -44,11 +44,11 @@ import java.util.Stack
 class RenderNodeHolder(private val editor: CodeEditor) {
   private val cache: ArrayList<TextRenderNode> = ArrayList(64)
   private val pool = Stack<TextRenderNode>()
-  
+
   fun shouldUpdateCache(): Boolean {
     return !editor.isWordwrap && editor.isHardwareAcceleratedDrawAllowed
   }
-  
+
   fun invalidateInRegion(range: StyleUpdateRange): Boolean {
     var res = false
     val itr = cache.iterator()
@@ -63,7 +63,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
     }
     return res
   }
-  
+
   /**
    * Called by editor when text style changes.
    * Such as text size/typeface.
@@ -72,7 +72,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
   fun invalidate() {
     cache.forEach { it.isDirty = true }
   }
-  
+
   fun getNode(line: Int): TextRenderNode {
     val size = cache.size
     for (i in 0 until size) {
@@ -88,7 +88,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
     cache.add(0, node)
     return node
   }
-  
+
   fun keepCurrentInDisplay(start: Int, end: Int) {
     val itr = cache.iterator()
     while (itr.hasNext()) {
@@ -99,7 +99,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
       }
     }
   }
-  
+
   fun drawLineHardwareAccelerated(
     canvas: Canvas,
     line: Int,
@@ -134,7 +134,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
     canvas.restore()
     return node.renderNode.width
   }
-  
+
   fun afterInsert(startLine: Int, endLine: Int) {
     cache.forEach { node ->
       if (node.line == startLine) {
@@ -144,7 +144,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
       }
     }
   }
-  
+
   fun afterDelete(startLine: Int, endLine: Int) {
     val garbage: MutableList<TextRenderNode> = ArrayList()
     cache.forEach { node ->
@@ -160,7 +160,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
     cache.removeAll(garbage.toSet())
     pool.addAll(garbage)
   }
-  
+
   class TextRenderNode(
     /**
      * The target line of this node.
@@ -170,7 +170,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
   ) {
     var renderNode: RenderNode = RenderNode("editorRenderNode")
     var isDirty: Boolean = true
-    
+
     fun needsRecord(): Boolean {
       return isDirty || !renderNode.hasDisplayList()
     }

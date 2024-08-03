@@ -10,16 +10,16 @@ import io.github.rosemoe.sora.event.subscribeAlways
 import io.github.rosemoe.sora.widget.CodeEditor
 
 open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinComponent {
-  
+
   val eventManager = editor.createSubEventManager()
-  
+
   init {
     eventManager.subscribeAlways(::onCreateContextMenu)
   }
-  
+
   open fun onCreateContextMenu(event: CreateContextMenuEvent) {
     buildMenu(event.menu) {
-      
+
       item {
         titleRes = android.R.string.copy
         isEnabled = editor.isTextSelected
@@ -27,7 +27,7 @@ open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinCompo
           editor.copyText()
         }
       }
-      
+
       item {
         titleRes = android.R.string.cut
         isEnabled = editor.isTextSelected
@@ -35,7 +35,7 @@ open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinCompo
           editor.cutText()
         }
       }
-      
+
       item {
         titleRes = android.R.string.paste
         isEnabled = editor.hasClip()
@@ -43,79 +43,79 @@ open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinCompo
           editor.pasteText()
         }
       }
-      
+
     }
   }
-  
+
   override fun setEnabled(enabled: Boolean) {
     eventManager.isEnabled = enabled
   }
-  
+
   override fun isEnabled() = eventManager.isEnabled
-  
+
   @DslMarker
   annotation class MenuDslMarker
-  
+
   @MenuDslMarker
   open class MenuBuilder(val context: Context, val menu: Menu) {
-    
+
     private val items = mutableListOf<MenuItemBuilder>()
-    
+
     fun item(builder: MenuItemBuilder.() -> Unit) {
       items.add(MenuItemBuilder(context).also { it.builder() })
     }
-    
+
     fun subMenu(builder: SubMenuBuilder.() -> Unit) {
       items.add(SubMenuBuilder(context).also { it.builder() })
     }
-    
+
     internal open fun build() {
       items.forEach {
         it.build(menu)
       }
     }
-    
+
   }
-  
+
   @MenuDslMarker
   open class ContextMenuBuilder(context: Context, val contextMenu: ContextMenu) :
     MenuBuilder(context, contextMenu) {
-    
+
     var headerTitle: CharSequence? = null
-    
+
     var headerTitleRes: Int = 0
       set(value) {
         headerTitle = context.getString(value)
       }
-    
+
     override fun build() {
       super.build()
       if (headerTitle != null)
         contextMenu.setHeaderTitle(headerTitle)
     }
-    
+
   }
-  
+
   @MenuDslMarker
   open class SubMenuBuilder(context: Context) : MenuItemBuilder(context) {
-    
+
     var headerTitle: CharSequence? = null
-    
+
     var headerTitleRes: Int = 0
       set(value) {
         headerTitle = context.getString(value)
       }
-    
+
     private val items = mutableListOf<MenuItemBuilder>()
-    
+
     fun item(builder: MenuItemBuilder.() -> Unit) {
       items.add(MenuItemBuilder(context).also { it.builder() })
     }
-    
+
     fun subMenu(builder: SubMenuBuilder.() -> Unit) {
       items.add(SubMenuBuilder(context).also { it.builder() })
     }
-    
+
     override fun build(menu: Menu) {
       val subMenu = menu.addSubMenu(groupId, itemId, order, title)
         .also {
@@ -132,9 +132,9 @@ open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinCompo
         it.build(subMenu)
       }
     }
-    
+
   }
-  
+
   @MenuDslMarker
   open class MenuItemBuilder(val context: Context) {
     var groupId = 0
@@ -149,14 +149,14 @@ open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinCompo
         title = context.getString(value)
       }
     var onClick: MenuItem.OnMenuItemClickListener? = null
-    
+
     fun onClick(listener: () -> Unit) {
       onClick = MenuItem.OnMenuItemClickListener {
         listener()
         true
       }
     }
-    
+
     internal open fun build(menu: Menu) {
       menu.add(groupId, itemId, order, title)
         .setEnabled(isEnabled)
@@ -169,11 +169,11 @@ open class EditorContextMenuCreator(val editor: CodeEditor) : EditorBuiltinCompo
         }
     }
   }
-  
+
   fun buildMenu(menu: ContextMenu, builder: ContextMenuBuilder.() -> Unit) {
     ContextMenuBuilder(editor.context, menu).also {
       it.builder()
     }.build()
   }
-  
+
 }

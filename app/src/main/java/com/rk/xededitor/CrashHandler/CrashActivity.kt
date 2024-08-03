@@ -36,16 +36,16 @@ import java.util.Date
 
 class CrashActivity : AppCompatActivity() {
   private lateinit var error_editor: CodeEditor
-  
-  
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     setContentView(R.layout.activity_error)
-    if(SettingsData.isDarkMode(this) && SettingsData.isOled(this)){
+    if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
       findViewById<Toolbar>(R.id.toolbar).setBackgroundColor(Color.BLACK)
     }
-    
+
     ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
       val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
       v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -58,14 +58,17 @@ class CrashActivity : AppCompatActivity() {
     supportActionBar!!.setDisplayShowTitleEnabled(true)
     error_editor = findViewById(R.id.error_editor)
     ensureTextmateTheme()
-    
-    
-    
-    
+
+
+
+
     try {
       val sb = StringBuilder()
-      sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("'\nUnix Time : ").append(System.currentTimeMillis()).append("\n")
-      sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).append("\n\n")
+      sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread"))
+        .append("'\nUnix Time : ").append(System.currentTimeMillis()).append("\n")
+      sb.append("LocalTime : ")
+        .append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis())))
+        .append("\n\n")
       sb.append(intent.getStringExtra("info")).append("\n\n")
       sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
       sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).append("\n")
@@ -90,8 +93,8 @@ class CrashActivity : AppCompatActivity() {
       window.statusBarColor = Color.BLACK
     }
   }
-  
-  
+
+
   private fun ensureTextmateTheme() {
     var editorColorScheme: EditorColorScheme = error_editor.colorScheme
     val themeRegistry = ThemeRegistry.getInstance()
@@ -154,27 +157,27 @@ class CrashActivity : AppCompatActivity() {
     }
     error_editor.setColorScheme(editorColorScheme)
   }
-  
-  
+
+
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
     menuInflater.inflate(R.menu.crash_menu, menu)
     return true
   }
-  
+
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     // Handle action bar item clicks here
     val id = item.itemId
-    
+
     when (id) {
       android.R.id.home -> {
         onBackPressed()
         return true
       }
-      
+
       R.id.copy_error -> {
         copyToClipboard(this, error_editor.text.toString())
       }
-      
+
       R.id.report_issue -> {
         val browserIntent = Intent(
           Intent.ACTION_VIEW,
@@ -188,15 +191,15 @@ class CrashActivity : AppCompatActivity() {
         startActivity(browserIntent)
       }
     }
-    
-    
+
+
     return super.onOptionsItemSelected(item)
   }
-  
+
   fun copyToClipboard(context: Context, text: String) {
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clip = ClipData.newPlainText("label", text)
     clipboard.setPrimaryClip(clip)
   }
-  
+
 }

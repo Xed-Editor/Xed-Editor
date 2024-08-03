@@ -26,15 +26,6 @@ import org.eclipse.jdt.annotation.Nullable;
 
 public interface IThemeSource {
 
-    /**
-     * Supported theme content types
-     */
-    enum ContentType {
-        JSON,
-        YAML,
-        XML
-    }
-
     private static ContentType guessFileFormat(final String fileName) {
         final String extension = fileName.substring(fileName.lastIndexOf('.') + 1).trim().toLowerCase();
 
@@ -86,7 +77,6 @@ public interface IThemeSource {
 
 
     }
-
 
     static IThemeSource fromFile(final File file) {
         return fromFile(file, null, null);
@@ -176,4 +166,13 @@ public interface IThemeSource {
     String getFilePath();
 
     Reader getReader() throws IOException;
+
+    /**
+     * Supported theme content types
+     */
+    enum ContentType {
+        JSON,
+        YAML,
+        XML
+    }
 }

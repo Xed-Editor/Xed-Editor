@@ -66,19 +66,18 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 
 public class TextMateAnalyzer extends AsyncIncrementalAnalyzeManager<MyState, Span> implements FoldingHelper, ThemeRegistry.ThemeChangeListener {
 
+    final IdentifierAutoComplete.SyncIdentifiers syncIdentifiers = new IdentifierAutoComplete.SyncIdentifiers();
     private final IGrammar grammar;
-    private Theme theme;
     private final TextMateLanguage language;
     private final LanguageConfiguration configuration;
 
     //private final GrammarRegistry grammarRegistry;
 
     private final ThemeRegistry themeRegistry;
-
+    private Theme theme;
     private OnigRegExp cachedRegExp;
     private boolean foldingOffside;
     private BracketsProvider bracketsProvider;
-    final IdentifierAutoComplete.SyncIdentifiers syncIdentifiers = new IdentifierAutoComplete.SyncIdentifiers();
 
 
     public TextMateAnalyzer(TextMateLanguage language, IGrammar grammar, LanguageConfiguration languageConfiguration,/* GrammarRegistry grammarRegistry,*/ ThemeRegistry themeRegistry) {

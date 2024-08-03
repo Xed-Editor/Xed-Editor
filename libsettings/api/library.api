@@ -1,0 +1,499 @@
+public abstract class de/Maxr1998/modernpreferences/AbstractPreference {
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBadge ()Ljava/lang/CharSequence;
+	public final fun getBadgeInfo ()Lde/Maxr1998/modernpreferences/preferences/Badge;
+	public final fun getBadgeRes ()I
+	public final fun getIcon ()Landroid/graphics/drawable/Drawable;
+	public final fun getIconRes ()I
+	public final fun getKey ()Ljava/lang/String;
+	public final fun getSummary ()Ljava/lang/CharSequence;
+	public final fun getSummaryDisabled ()Ljava/lang/CharSequence;
+	public final fun getSummaryDisabledRes ()I
+	public final fun getSummaryRes ()I
+	public final fun getTitle ()Ljava/lang/CharSequence;
+	public final fun getTitleRes ()I
+	public final fun getVisible ()Z
+	public fun hashCode ()I
+	public final fun setBadge (Ljava/lang/CharSequence;)V
+	public final fun setBadgeInfo (Lde/Maxr1998/modernpreferences/preferences/Badge;)V
+	public final fun setBadgeRes (I)V
+	public final fun setIcon (Landroid/graphics/drawable/Drawable;)V
+	public final fun setIconRes (I)V
+	public final fun setSummary (Ljava/lang/CharSequence;)V
+	public final fun setSummaryDisabled (Ljava/lang/CharSequence;)V
+	public final fun setSummaryDisabledRes (I)V
+	public final fun setSummaryRes (I)V
+	public final fun setTitle (Ljava/lang/CharSequence;)V
+	public final fun setTitleRes (I)V
+	public final fun setVisible (Z)V
+}
+
+public class de/Maxr1998/modernpreferences/Preference : de/Maxr1998/modernpreferences/AbstractPreference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun bindViews (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun commitBoolean (Z)V
+	public final fun commitInt (I)V
+	public final fun commitString (Ljava/lang/String;)V
+	public final fun commitStringSet (Ljava/util/Set;)V
+	public final fun getBoolean (Z)Z
+	public final fun getClickListener ()Lde/Maxr1998/modernpreferences/Preference$OnClickListener;
+	public final fun getDependency ()Ljava/lang/String;
+	public final fun getEnabled ()Z
+	public final fun getIncludeInCollapseSummary ()Z
+	public final fun getInt (I)I
+	public final fun getParent ()Lde/Maxr1998/modernpreferences/PreferenceScreen;
+	public final fun getPersistent ()Z
+	public final fun getPreBindListener ()Lde/Maxr1998/modernpreferences/Preference$OnPreBindListener;
+	public final fun getScreenPosition ()I
+	public final fun getString ()Ljava/lang/String;
+	public final fun getStringSet ()Ljava/util/Set;
+	public fun getWidgetLayoutResource ()I
+	public final fun hasParent (Ljava/lang/String;)Z
+	public final fun hasValue ()Z
+	public fun onClick (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun requestRebind ()V
+	public final fun requestRebindAndHighlight ()V
+	protected fun resolveSummary (Landroid/content/Context;)Ljava/lang/CharSequence;
+	public final fun setClickListener (Lde/Maxr1998/modernpreferences/Preference$OnClickListener;)V
+	public final fun setDependency (Ljava/lang/String;)V
+	public final fun setEnabled (Z)V
+	public final fun setIncludeInCollapseSummary (Z)V
+	public final fun setPersistent (Z)V
+	public final fun setPreBindListener (Lde/Maxr1998/modernpreferences/Preference$OnPreBindListener;)V
+}
+
+public final class de/Maxr1998/modernpreferences/Preference$Config {
+	public static final field INSTANCE Lde/Maxr1998/modernpreferences/Preference$Config;
+	public final fun getDialogBuilderFactory ()Lkotlin/jvm/functions/Function1;
+	public final fun getSummaryMaxLines ()I
+	public final fun getTitleMaxLines ()I
+	public final fun setDialogBuilderFactory (Lkotlin/jvm/functions/Function1;)V
+	public final fun setSummaryMaxLines (I)V
+	public final fun setTitleMaxLines (I)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/Preference$OnClickListener {
+	public abstract fun onClick (Lde/Maxr1998/modernpreferences/Preference;Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)Z
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/Preference$OnPreBindListener {
+	public abstract fun onPreBind (Lde/Maxr1998/modernpreferences/Preference;Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+}
+
+public final class de/Maxr1998/modernpreferences/PreferenceScreen : de/Maxr1998/modernpreferences/Preference {
+	public synthetic fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun contains (Ljava/lang/String;)Z
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun get (I)Lde/Maxr1998/modernpreferences/Preference;
+	public final fun get (Ljava/lang/String;)Lde/Maxr1998/modernpreferences/Preference;
+	public final fun getScrollOffset ()I
+	public final fun getScrollPosition ()I
+	public fun hashCode ()I
+	public final fun indexOf (Ljava/lang/String;)I
+	public final fun requestRebind (Ljava/lang/String;)V
+	public final fun setScrollOffset (I)V
+	public final fun setScrollPosition (I)V
+	public final fun size ()I
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/PreferenceScreen$Appendable {
+	public abstract fun addPreferenceItem (Lde/Maxr1998/modernpreferences/Preference;)V
+	public abstract fun plusAssign (Lde/Maxr1998/modernpreferences/Preference;)V
+	public abstract fun unaryPlus (Lde/Maxr1998/modernpreferences/Preference;)Lde/Maxr1998/modernpreferences/Preference;
+}
+
+public final class de/Maxr1998/modernpreferences/PreferenceScreen$Appendable$DefaultImpls {
+	public static fun plusAssign (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Lde/Maxr1998/modernpreferences/Preference;)V
+	public static fun unaryPlus (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Lde/Maxr1998/modernpreferences/Preference;)Lde/Maxr1998/modernpreferences/Preference;
+}
+
+public final class de/Maxr1998/modernpreferences/PreferenceScreen$Builder : de/Maxr1998/modernpreferences/AbstractPreference, de/Maxr1998/modernpreferences/PreferenceScreen$Appendable {
+	public fun <init> (Landroid/content/Context;)V
+	public fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;)V
+	public synthetic fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lde/Maxr1998/modernpreferences/preferences/CollapsePreference;Ljava/lang/String;)V
+	public synthetic fun <init> (Lde/Maxr1998/modernpreferences/preferences/CollapsePreference;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun addPreferenceItem (Lde/Maxr1998/modernpreferences/Preference;)V
+	public final fun build ()Lde/Maxr1998/modernpreferences/PreferenceScreen;
+	public final fun getCenterIcon ()Z
+	public final fun getCollapseIcon ()Z
+	public final fun getPreferenceFileName ()Ljava/lang/String;
+	public fun plusAssign (Lde/Maxr1998/modernpreferences/Preference;)V
+	public final fun setCenterIcon (Z)V
+	public final fun setCollapseIcon (Z)V
+	public final fun setPreferenceFileName (Ljava/lang/String;)V
+	public fun unaryPlus (Lde/Maxr1998/modernpreferences/Preference;)Lde/Maxr1998/modernpreferences/Preference;
+}
+
+public final class de/Maxr1998/modernpreferences/PreferencesAdapter : androidx/recyclerview/widget/RecyclerView$Adapter, androidx/lifecycle/LifecycleEventObserver {
+	public fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen;)V
+	public synthetic fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen;Z)V
+	public synthetic fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getBeforeScreenChangeListener ()Lde/Maxr1998/modernpreferences/PreferencesAdapter$BeforeScreenChangeListener;
+	public final fun getCurrentScreen ()Lde/Maxr1998/modernpreferences/PreferenceScreen;
+	public fun getItemCount ()I
+	public fun getItemId (I)J
+	public fun getItemViewType (I)I
+	public final fun getOnScreenChangeListener ()Lde/Maxr1998/modernpreferences/PreferencesAdapter$OnScreenChangeListener;
+	public final fun getSavedState ()Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;
+	public final fun getSecondScreenAdapter ()Lde/Maxr1998/modernpreferences/PreferencesAdapter;
+	public final fun getStateListAnimator ()Landroid/animation/StateListAnimator;
+	public final fun goBack ()Z
+	public final fun isInSubScreen ()Z
+	public final fun loadSavedState (Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;)Z
+	public fun onAttachedToRecyclerView (Landroidx/recyclerview/widget/RecyclerView;)V
+	public synthetic fun onBindViewHolder (Landroidx/recyclerview/widget/RecyclerView$ViewHolder;I)V
+	public fun onBindViewHolder (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;I)V
+	public synthetic fun onCreateViewHolder (Landroid/view/ViewGroup;I)Landroidx/recyclerview/widget/RecyclerView$ViewHolder;
+	public fun onCreateViewHolder (Landroid/view/ViewGroup;I)Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;
+	public fun onStateChanged (Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$Event;)V
+	public final fun restoreAndObserveScrollPosition (Landroidx/recyclerview/widget/RecyclerView;)V
+	public final fun setBeforeScreenChangeListener (Lde/Maxr1998/modernpreferences/PreferencesAdapter$BeforeScreenChangeListener;)V
+	public final fun setOnScreenChangeListener (Lde/Maxr1998/modernpreferences/PreferencesAdapter$OnScreenChangeListener;)V
+	public final fun setRootScreen (Lde/Maxr1998/modernpreferences/PreferenceScreen;)V
+	public final fun setSecondScreenAdapter (Lde/Maxr1998/modernpreferences/PreferencesAdapter;)V
+	public final fun setStateListAnimator (Landroid/animation/StateListAnimator;)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/PreferencesAdapter$BeforeScreenChangeListener {
+	public abstract fun beforeScreenChange (Lde/Maxr1998/modernpreferences/PreferenceScreen;)Z
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/PreferencesAdapter$OnScreenChangeListener {
+	public abstract fun onScreenChanged (Lde/Maxr1998/modernpreferences/PreferenceScreen;Z)V
+}
+
+public final class de/Maxr1998/modernpreferences/PreferencesAdapter$SavedState : android/os/Parcelable {
+	public static final field CREATOR Landroid/os/Parcelable$Creator;
+	public fun <init> ([I)V
+	public final fun component1 ()[I
+	public final fun copy ([I)Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;
+	public static synthetic fun copy$default (Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;[IILjava/lang/Object;)Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;
+	public fun describeContents ()I
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getScreenPath ()[I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public fun writeToParcel (Landroid/os/Parcel;I)V
+}
+
+public final class de/Maxr1998/modernpreferences/PreferencesAdapter$SavedState$Creator : android/os/Parcelable$Creator {
+	public fun <init> ()V
+	public final fun createFromParcel (Landroid/os/Parcel;)Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;
+	public synthetic fun createFromParcel (Landroid/os/Parcel;)Ljava/lang/Object;
+	public final fun newArray (I)[Lde/Maxr1998/modernpreferences/PreferencesAdapter$SavedState;
+	public synthetic fun newArray (I)[Ljava/lang/Object;
+}
+
+public final class de/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder : androidx/recyclerview/widget/RecyclerView$ViewHolder {
+	public final fun getBadge ()Landroid/widget/TextView;
+	public final fun getIcon ()Landroid/widget/ImageView;
+	public final fun getIconFrame ()Landroid/view/View;
+	public final fun getRoot ()Landroid/view/ViewGroup;
+	public final fun getSummary ()Landroid/widget/TextView;
+	public final fun getTitle ()Landroid/widget/TextView;
+	public final fun getWidget ()Landroid/view/View;
+	public final fun getWidgetFrame ()Landroid/view/ViewGroup;
+}
+
+public final class de/Maxr1998/modernpreferences/helpers/PreferencesDslKt {
+	public static final fun accentButtonPref (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/Preference;
+	public static final fun categoryHeader (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static final fun checkBox (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/CheckBoxPreference;
+	public static final fun collapse (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/CollapsePreference;
+	public static synthetic fun collapse$default (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lde/Maxr1998/modernpreferences/preferences/CollapsePreference;
+	public static final fun defaultOnCheckedChange (Lde/Maxr1998/modernpreferences/preferences/TwoStatePreference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun defaultOnClick (Lde/Maxr1998/modernpreferences/Preference;Lkotlin/jvm/functions/Function0;)V
+	public static final fun defaultOnSelectionChange (Lde/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun defaultOnSelectionChange (Lde/Maxr1998/modernpreferences/preferences/choice/SingleChoiceDialogPreference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun editText (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/EditTextPreference;
+	public static final fun expandText (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/ExpandableTextPreference;
+	public static final fun image (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/ImagePreference;
+	public static final fun multiChoice (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference;
+	public static final fun onCheckedChange (Lde/Maxr1998/modernpreferences/preferences/TwoStatePreference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun onClick (Lde/Maxr1998/modernpreferences/Preference;Lkotlin/jvm/functions/Function0;)V
+	public static final fun onClickView (Lde/Maxr1998/modernpreferences/Preference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun onSelectionChange (Lde/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun onSelectionChange (Lde/Maxr1998/modernpreferences/preferences/choice/SingleChoiceDialogPreference;Lkotlin/jvm/functions/Function1;)V
+	public static final fun pref (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/Preference;
+	public static final fun screen (Landroid/content/Context;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/PreferenceScreen;
+	public static final fun seekBar (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/SeekBarPreference;
+	public static final fun singleChoice (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/choice/SingleChoiceDialogPreference;
+	public static final fun singleChoice (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Ljava/util/List;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/choice/SingleIntChoiceDialogPreference;
+	public static final fun subScreen (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/PreferenceScreen;
+	public static final fun subScreen (Lde/Maxr1998/modernpreferences/preferences/CollapsePreference;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun subScreen$default (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)Lde/Maxr1998/modernpreferences/PreferenceScreen;
+	public static synthetic fun subScreen$default (Lde/Maxr1998/modernpreferences/preferences/CollapsePreference;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun switch (Lde/Maxr1998/modernpreferences/PreferenceScreen$Appendable;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)Lde/Maxr1998/modernpreferences/preferences/SwitchPreference;
+}
+
+public final class de/Maxr1998/modernpreferences/helpers/UtilsKt {
+	public static final field DEFAULT_RES_ID I
+	public static final field KEY_ROOT_SCREEN Ljava/lang/String;
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/AccentButtonPreference : de/Maxr1998/modernpreferences/Preference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun getWidgetLayoutResource ()I
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/Badge {
+	public fun <init> ()V
+	public fun <init> (ILandroid/content/res/ColorStateList;)V
+	public synthetic fun <init> (ILandroid/content/res/ColorStateList;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/CharSequence;Landroid/content/res/ColorStateList;)V
+	public synthetic fun <init> (Ljava/lang/CharSequence;Landroid/content/res/ColorStateList;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/CharSequence;
+	public final fun component3 ()Landroid/content/res/ColorStateList;
+	public final fun copy (ILjava/lang/CharSequence;Landroid/content/res/ColorStateList;)Lde/Maxr1998/modernpreferences/preferences/Badge;
+	public static synthetic fun copy$default (Lde/Maxr1998/modernpreferences/preferences/Badge;ILjava/lang/CharSequence;Landroid/content/res/ColorStateList;ILjava/lang/Object;)Lde/Maxr1998/modernpreferences/preferences/Badge;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBadgeColor ()Landroid/content/res/ColorStateList;
+	public final fun getText ()Ljava/lang/CharSequence;
+	public final fun getTextRes ()I
+	public fun hashCode ()I
+	public final fun isVisible ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/CategoryHeader : de/Maxr1998/modernpreferences/Preference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun getWidgetLayoutResource ()I
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/CheckBoxPreference : de/Maxr1998/modernpreferences/preferences/TwoStatePreference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun getWidgetLayoutResource ()I
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/CollapsePreference : de/Maxr1998/modernpreferences/Preference, de/Maxr1998/modernpreferences/PreferenceScreen$Appendable {
+	public fun <init> (Lde/Maxr1998/modernpreferences/PreferenceScreen$Builder;Ljava/lang/String;)V
+	public fun addPreferenceItem (Lde/Maxr1998/modernpreferences/Preference;)V
+	public fun bindViews (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun clearContext ()V
+	public fun getWidgetLayoutResource ()I
+	public fun onClick (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public fun plusAssign (Lde/Maxr1998/modernpreferences/Preference;)V
+	public final fun reset ()V
+	public fun unaryPlus (Lde/Maxr1998/modernpreferences/Preference;)Lde/Maxr1998/modernpreferences/Preference;
+}
+
+public abstract class de/Maxr1998/modernpreferences/preferences/DialogPreference : de/Maxr1998/modernpreferences/Preference, androidx/lifecycle/LifecycleEventObserver {
+	public fun <init> (Ljava/lang/String;)V
+	public abstract fun createDialog (Landroid/content/Context;)Landroid/app/Dialog;
+	public final fun dismiss ()Lkotlin/Unit;
+	public fun onClick (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public fun onStateChanged (Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$Event;)V
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/EditTextPreference : de/Maxr1998/modernpreferences/preferences/DialogPreference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun createDialog (Landroid/content/Context;)Landroid/app/Dialog;
+	public final fun getCurrentInput ()Ljava/lang/CharSequence;
+	public final fun getDefaultValue ()Ljava/lang/String;
+	public final fun getSummaryProvider ()Lkotlin/jvm/functions/Function1;
+	public final fun getTextChangeListener ()Lde/Maxr1998/modernpreferences/preferences/EditTextPreference$OnTextChangeListener;
+	public final fun getTextInputHint ()Ljava/lang/CharSequence;
+	public final fun getTextInputHintRes ()I
+	public final fun getTextInputType ()I
+	public final fun setDefaultValue (Ljava/lang/String;)V
+	public final fun setSummaryProvider (Lkotlin/jvm/functions/Function1;)V
+	public final fun setTextChangeListener (Lde/Maxr1998/modernpreferences/preferences/EditTextPreference$OnTextChangeListener;)V
+	public final fun setTextInputHint (Ljava/lang/CharSequence;)V
+	public final fun setTextInputHintRes (I)V
+	public final fun setTextInputType (I)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/preferences/EditTextPreference$OnTextChangeListener {
+	public abstract fun onTextChange (Lde/Maxr1998/modernpreferences/preferences/EditTextPreference;Ljava/lang/CharSequence;)Z
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/ExpandableTextPreference : de/Maxr1998/modernpreferences/Preference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun bindViews (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun getMonospace ()Z
+	public final fun getText ()Ljava/lang/CharSequence;
+	public final fun getTextRes ()I
+	public fun getWidgetLayoutResource ()I
+	public fun onClick (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun setMonospace (Z)V
+	public final fun setText (Ljava/lang/CharSequence;)V
+	public final fun setTextRes (I)V
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/ImagePreference : de/Maxr1998/modernpreferences/Preference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun bindViews (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun getImageDrawable ()Landroid/graphics/drawable/Drawable;
+	public final fun getImageRes ()I
+	public final fun getLazyImage ()Lkotlin/jvm/functions/Function0;
+	public final fun getMaxImageHeight ()I
+	public final fun getShowScrim ()Z
+	public final fun getTint ()Landroid/graphics/ColorFilter;
+	public fun getWidgetLayoutResource ()I
+	public final fun setImageDrawable (Landroid/graphics/drawable/Drawable;)V
+	public final fun setImageRes (I)V
+	public final fun setLazyImage (Lkotlin/jvm/functions/Function0;)V
+	public final fun setMaxImageHeight (I)V
+	public final fun setShowScrim (Z)V
+	public final fun setTint (Landroid/graphics/ColorFilter;)V
+	public final fun setTintColor (ILandroid/graphics/PorterDuff$Mode;)V
+	public static synthetic fun setTintColor$default (Lde/Maxr1998/modernpreferences/preferences/ImagePreference;ILandroid/graphics/PorterDuff$Mode;ILjava/lang/Object;)V
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/SeekBarPreference : de/Maxr1998/modernpreferences/Preference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun bindViews (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun getDefault ()Ljava/lang/Integer;
+	public final fun getFormatter ()Lkotlin/jvm/functions/Function1;
+	public final fun getMax ()I
+	public final fun getMin ()I
+	public final fun getSeekListener ()Lde/Maxr1998/modernpreferences/preferences/SeekBarPreference$OnSeekListener;
+	public final fun getShowTickMarks ()Z
+	public final fun getStep ()I
+	public final fun getValue ()I
+	public fun getWidgetLayoutResource ()I
+	public final fun setDefault (Ljava/lang/Integer;)V
+	public final fun setFormatter (Lkotlin/jvm/functions/Function1;)V
+	public final fun setMax (I)V
+	public final fun setMin (I)V
+	public final fun setSeekListener (Lde/Maxr1998/modernpreferences/preferences/SeekBarPreference$OnSeekListener;)V
+	public final fun setShowTickMarks (Z)V
+	public final fun setStep (I)V
+	public final fun setValue (I)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/preferences/SeekBarPreference$OnSeekListener {
+	public abstract fun onSeek (Lde/Maxr1998/modernpreferences/preferences/SeekBarPreference;Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;I)Z
+}
+
+public abstract class de/Maxr1998/modernpreferences/preferences/StatefulPreference : de/Maxr1998/modernpreferences/Preference {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/SwitchPreference : de/Maxr1998/modernpreferences/preferences/TwoStatePreference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun getWidgetLayoutResource ()I
+}
+
+public abstract class de/Maxr1998/modernpreferences/preferences/TwoStatePreference : de/Maxr1998/modernpreferences/preferences/StatefulPreference {
+	public fun <init> (Ljava/lang/String;)V
+	public fun bindViews (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	public final fun getChecked ()Z
+	public final fun getCheckedChangeListener ()Lde/Maxr1998/modernpreferences/preferences/TwoStatePreference$OnCheckedChangeListener;
+	public final fun getDefaultValue ()Z
+	public final fun getDisableDependents ()Z
+	public final fun getSummaryOn ()Ljava/lang/CharSequence;
+	public final fun getSummaryOnRes ()I
+	public fun onClick (Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;)V
+	protected fun resolveSummary (Landroid/content/Context;)Ljava/lang/CharSequence;
+	public final fun setChecked (Z)V
+	public final fun setCheckedChangeListener (Lde/Maxr1998/modernpreferences/preferences/TwoStatePreference$OnCheckedChangeListener;)V
+	public final fun setDefaultValue (Z)V
+	public final fun setDisableDependents (Z)V
+	public final fun setSummaryOn (Ljava/lang/CharSequence;)V
+	public final fun setSummaryOnRes (I)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/preferences/TwoStatePreference$OnCheckedChangeListener {
+	public abstract fun onCheckedChanged (Lde/Maxr1998/modernpreferences/preferences/TwoStatePreference;Lde/Maxr1998/modernpreferences/PreferencesAdapter$ViewHolder;Z)Z
+}
+
+public abstract class de/Maxr1998/modernpreferences/preferences/choice/AbstractChoiceDialogPreference : de/Maxr1998/modernpreferences/preferences/DialogPreference {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Z)V
+	public fun createDialog (Landroid/content/Context;)Landroid/app/Dialog;
+	public final fun getAutoGeneratedSummary ()Z
+	protected final fun getItems ()Ljava/util/List;
+	public final fun getOnItemClickListener ()Lde/Maxr1998/modernpreferences/preferences/choice/OnItemClickListener;
+	public abstract fun isSelected (Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;)Z
+	public fun onStateChanged (Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$Event;)V
+	protected abstract fun persistSelection ()V
+	protected abstract fun resetSelection ()V
+	public final fun setAutoGeneratedSummary (Z)V
+	public final fun setOnItemClickListener (Lde/Maxr1998/modernpreferences/preferences/choice/OnItemClickListener;)V
+}
+
+public abstract class de/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference : de/Maxr1998/modernpreferences/preferences/choice/AbstractChoiceDialogPreference {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun getCurrentSelection ()Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;
+	public final fun getInitialSelection ()Ljava/lang/Object;
+	public final fun getSelectionChangeListener ()Lde/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference$OnSelectionChangeListener;
+	public fun isSelected (Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;)Z
+	protected fun persistSelection ()V
+	protected fun resetSelection ()V
+	protected fun resolveSummary (Landroid/content/Context;)Ljava/lang/CharSequence;
+	public final fun setInitialSelection (Ljava/lang/Object;)V
+	public final fun setSelectionChangeListener (Lde/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference$OnSelectionChangeListener;)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference$OnSelectionChangeListener {
+	public abstract fun onSelectionChange (Lde/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference;Ljava/lang/Object;)Z
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference : de/Maxr1998/modernpreferences/preferences/choice/AbstractChoiceDialogPreference {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public final fun getCurrentSelections ()Ljava/util/Set;
+	public final fun getInitialSelections ()Ljava/util/Set;
+	public final fun getSelectionChangeListener ()Lde/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference$OnSelectionChangeListener;
+	public fun isSelected (Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;)Z
+	public final fun setInitialSelections (Ljava/util/Set;)V
+	public final fun setSelectionChangeListener (Lde/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference$OnSelectionChangeListener;)V
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference$OnSelectionChangeListener {
+	public abstract fun onSelectionChange (Lde/Maxr1998/modernpreferences/preferences/choice/MultiChoiceDialogPreference;Ljava/util/Set;)Z
+}
+
+public abstract interface class de/Maxr1998/modernpreferences/preferences/choice/OnItemClickListener {
+	public abstract fun onItemSelected (Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;)Z
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/choice/SelectionItem {
+	public fun <init> (Ljava/lang/Object;IILde/Maxr1998/modernpreferences/preferences/Badge;)V
+	public synthetic fun <init> (Ljava/lang/Object;IILde/Maxr1998/modernpreferences/preferences/Badge;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/Object;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lde/Maxr1998/modernpreferences/preferences/Badge;)V
+	public synthetic fun <init> (Ljava/lang/Object;Ljava/lang/CharSequence;Ljava/lang/CharSequence;Lde/Maxr1998/modernpreferences/preferences/Badge;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Object;
+	public final fun component2 ()I
+	public final fun component3 ()Ljava/lang/CharSequence;
+	public final fun component4 ()I
+	public final fun component5 ()Ljava/lang/CharSequence;
+	public final fun component6 ()Lde/Maxr1998/modernpreferences/preferences/Badge;
+	public final fun copy (Ljava/lang/Object;ILjava/lang/CharSequence;ILjava/lang/CharSequence;Lde/Maxr1998/modernpreferences/preferences/Badge;)Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;
+	public static synthetic fun copy$default (Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;Ljava/lang/Object;ILjava/lang/CharSequence;ILjava/lang/CharSequence;Lde/Maxr1998/modernpreferences/preferences/Badge;ILjava/lang/Object;)Lde/Maxr1998/modernpreferences/preferences/choice/SelectionItem;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBadgeInfo ()Lde/Maxr1998/modernpreferences/preferences/Badge;
+	public final fun getKey ()Ljava/lang/Object;
+	public final fun getSummary ()Ljava/lang/CharSequence;
+	public final fun getSummaryRes ()I
+	public final fun getTitle ()Ljava/lang/CharSequence;
+	public final fun getTitleRes ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/choice/SingleChoiceDialogPreference : de/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public synthetic fun loadKey$modernandroidpreferences (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun saveKey$modernandroidpreferences (Ljava/lang/Object;)V
+}
+
+public final class de/Maxr1998/modernpreferences/preferences/choice/SingleIntChoiceDialogPreference : de/Maxr1998/modernpreferences/preferences/choice/AbstractSingleChoiceDialogPreference {
+	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
+	public synthetic fun loadKey$modernandroidpreferences (Ljava/lang/Object;)Ljava/lang/Object;
+	public synthetic fun saveKey$modernandroidpreferences (Ljava/lang/Object;)V
+}
+
+public final class de/Maxr1998/modernpreferences/views/ModernSeekBar : androidx/appcompat/widget/AppCompatSeekBar {
+	public fun <init> (Landroid/content/Context;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
+	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
+	public final fun getDefault ()Ljava/lang/Integer;
+	public final fun getHasTickMarks ()Z
+	public fun jumpDrawablesToCurrentState ()V
+	public final fun setDefault (Ljava/lang/Integer;)V
+	public final fun setHasTickMarks (Z)V
+}
+

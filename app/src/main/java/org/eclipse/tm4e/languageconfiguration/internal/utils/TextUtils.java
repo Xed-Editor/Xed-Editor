@@ -17,6 +17,9 @@ import io.github.rosemoe.sora.util.IntPair;
 
 public final class TextUtils {
 
+    private TextUtils() {
+    }
+
     /**
      * @return true if text of the command is an enter and false otherwise.
      */
@@ -207,10 +210,6 @@ public final class TextUtils {
      */
     public static String getLeadingWhitespace(String str) {
         return getLeadingWhitespace(str, 0, str.length());
-    }
-
-
-    private TextUtils() {
     }
 
 }

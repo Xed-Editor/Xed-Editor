@@ -29,15 +29,15 @@ package io.github.rosemoe.sora.event;
  * @author Rosemoe
  */
 public interface InterceptTarget {
-  
-  /**
-   * Registered receivers in the event dispatching graph
-   */
-  int TARGET_RECEIVERS = 1;
-  
-  /**
-   * Editor built-in behavior
-   */
-  int TARGET_EDITOR = 1 << 1;
-  
+
+    /**
+     * Registered receivers in the event dispatching graph
+     */
+    int TARGET_RECEIVERS = 1;
+
+    /**
+     * Editor built-in behavior
+     */
+    int TARGET_EDITOR = 1 << 1;
+
 }

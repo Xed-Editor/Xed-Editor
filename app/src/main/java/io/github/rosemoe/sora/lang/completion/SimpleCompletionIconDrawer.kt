@@ -47,7 +47,7 @@ internal class CircleDrawable(kind: CompletionItemKind, circle: Boolean) :
   private val mTextPaint: Paint
   private val mKind: CompletionItemKind
   private val mCircle: Boolean
-  
+
   init {
     mKind = kind
     mCircle = circle
@@ -62,9 +62,9 @@ internal class CircleDrawable(kind: CompletionItemKind, circle: Boolean) :
         .displayMetrics.density * 14
       textAlign = Paint.Align.CENTER
     }
-    
+
   }
-  
+
   override fun draw(canvas: Canvas) {
     val width = bounds.right.toFloat()
     val height = bounds.bottom.toFloat()
@@ -79,16 +79,16 @@ internal class CircleDrawable(kind: CompletionItemKind, circle: Boolean) :
     canvas.drawText(mKind.getDisplayChar(), 0f, textCenter, mTextPaint)
     canvas.restore()
   }
-  
+
   override fun setAlpha(p1: Int) {
     mPaint.alpha = p1
     mTextPaint.alpha = p1
   }
-  
+
   override fun setColorFilter(colorFilter: ColorFilter?) {
     mTextPaint.colorFilter = colorFilter
   }
-  
+
   @Deprecated(
     "Deprecated in Java",
     ReplaceWith("PixelFormat.OPAQUE", "android.graphics.PixelFormat")
@@ -96,6 +96,6 @@ internal class CircleDrawable(kind: CompletionItemKind, circle: Boolean) :
   override fun getOpacity(): Int {
     return PixelFormat.OPAQUE
   }
-  
-  
+
+
 }

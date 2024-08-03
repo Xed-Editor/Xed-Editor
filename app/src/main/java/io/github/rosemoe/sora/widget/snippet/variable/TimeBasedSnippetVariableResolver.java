@@ -38,63 +38,63 @@ import java.util.Locale;
  * @author Rosemoe
  */
 public class TimeBasedSnippetVariableResolver implements ISnippetVariableResolver {
-  
-  private static String getDisplayName(int field, boolean shortType) {
-    var c = Calendar.getInstance();
-    var result = c.getDisplayName(field, shortType ? Calendar.SHORT : Calendar.LONG, Locale.getDefault());
-    if (result == null && shortType) {
-      result = c.getDisplayName(field, Calendar.LONG, Locale.getDefault());
+
+    private static String getDisplayName(int field, boolean shortType) {
+        var c = Calendar.getInstance();
+        var result = c.getDisplayName(field, shortType ? Calendar.SHORT : Calendar.LONG, Locale.getDefault());
+        if (result == null && shortType) {
+            result = c.getDisplayName(field, Calendar.LONG, Locale.getDefault());
+        }
+        if (result == null) {
+            result = c.getDisplayName(field, shortType ? Calendar.SHORT : Calendar.LONG, Locale.US);
+        }
+        if (result == null) {
+            // The very fallback
+            result = Integer.toString(c.get(field));
+        }
+        return result;
     }
-    if (result == null) {
-      result = c.getDisplayName(field, shortType ? Calendar.SHORT : Calendar.LONG, Locale.US);
+
+    @NonNull
+    @Override
+    public String[] getResolvableNames() {
+        return new String[]{
+                "CURRENT_YEAR", "CURRENT_YEAR_SHORT", "CURRENT_MONTH", "CURRENT_DATE",
+                "CURRENT_HOUR", "CURRENT_MINUTE", "CURRENT_SECOND", "CURRENT_DAY_NAME",
+                "CURRENT_DAY_NAME_SHORT", "CURRENT_MONTH_NAME", "CURRENT_MONTH_NAME_SHORT",
+                "CURRENT_SECONDS_UNIX"
+        };
     }
-    if (result == null) {
-      // The very fallback
-      result = Integer.toString(c.get(field));
+
+    @NonNull
+    @Override
+    public String resolve(@NonNull String name) {
+        switch (name) {
+            case "CURRENT_YEAR":
+                return Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+            case "CURRENT_YEAR_SHORT":
+                return padStart(Integer.toString(Calendar.getInstance().get(Calendar.YEAR) % 100), '0', 2);
+            case "CURRENT_MONTH":
+                return padStart(Integer.toString(Calendar.getInstance().get(Calendar.MONTH)), '0', 2);
+            case "CURRENT_DATE":
+                return SimpleDateFormat.getDateInstance().format(new Date());
+            case "CURRENT_HOUR":
+                return padStart(Integer.toString(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)), '0', 2);
+            case "CURRENT_MINUTE":
+                return padStart(Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)), '0', 2);
+            case "CURRENT_SECOND":
+                return padStart(Integer.toString(Calendar.getInstance().get(Calendar.SECOND)), '0', 2);
+            case "CURRENT_DAY_NAME":
+                return getDisplayName(Calendar.DAY_OF_WEEK, false);
+            case "CURRENT_DAY_NAME_SHORT":
+                return getDisplayName(Calendar.DAY_OF_WEEK, true);
+            case "CURRENT_MONTH_NAME":
+                return getDisplayName(Calendar.MONTH, false);
+            case "CURRENT_MONTH_NAME_SHORT":
+                return getDisplayName(Calendar.MONTH, true);
+            case "CURRENT_SECONDS_UNIX":
+                return Long.toString(Math.round(System.currentTimeMillis() / 1000.0));
+        }
+        throw new IllegalArgumentException("Unsupported variable name:" + name);
     }
-    return result;
-  }
-  
-  @NonNull
-  @Override
-  public String[] getResolvableNames() {
-    return new String[]{
-        "CURRENT_YEAR", "CURRENT_YEAR_SHORT", "CURRENT_MONTH", "CURRENT_DATE",
-        "CURRENT_HOUR", "CURRENT_MINUTE", "CURRENT_SECOND", "CURRENT_DAY_NAME",
-        "CURRENT_DAY_NAME_SHORT", "CURRENT_MONTH_NAME", "CURRENT_MONTH_NAME_SHORT",
-        "CURRENT_SECONDS_UNIX"
-    };
-  }
-  
-  @NonNull
-  @Override
-  public String resolve(@NonNull String name) {
-    switch (name) {
-      case "CURRENT_YEAR":
-        return Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
-      case "CURRENT_YEAR_SHORT":
-        return padStart(Integer.toString(Calendar.getInstance().get(Calendar.YEAR) % 100), '0', 2);
-      case "CURRENT_MONTH":
-        return padStart(Integer.toString(Calendar.getInstance().get(Calendar.MONTH)), '0', 2);
-      case "CURRENT_DATE":
-        return SimpleDateFormat.getDateInstance().format(new Date());
-      case "CURRENT_HOUR":
-        return padStart(Integer.toString(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)), '0', 2);
-      case "CURRENT_MINUTE":
-        return padStart(Integer.toString(Calendar.getInstance().get(Calendar.MINUTE)), '0', 2);
-      case "CURRENT_SECOND":
-        return padStart(Integer.toString(Calendar.getInstance().get(Calendar.SECOND)), '0', 2);
-      case "CURRENT_DAY_NAME":
-        return getDisplayName(Calendar.DAY_OF_WEEK, false);
-      case "CURRENT_DAY_NAME_SHORT":
-        return getDisplayName(Calendar.DAY_OF_WEEK, true);
-      case "CURRENT_MONTH_NAME":
-        return getDisplayName(Calendar.MONTH, false);
-      case "CURRENT_MONTH_NAME_SHORT":
-        return getDisplayName(Calendar.MONTH, true);
-      case "CURRENT_SECONDS_UNIX":
-        return Long.toString(Math.round(System.currentTimeMillis() / 1000.0));
-    }
-    throw new IllegalArgumentException("Unsupported variable name:" + name);
-  }
 }

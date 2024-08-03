@@ -37,22 +37,18 @@ import io.github.rosemoe.sora.util.Logger;
 
 /**
  * @see <a href="https://github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc">
- *      github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc</a>
+ * github.com/atom/node-oniguruma/blob/master/src/onig-reg-exp.cc</a>
  */
 public final class OnigRegExp {
 
-    @Nullable
-    private OnigString lastSearchString;
-
-    private int lastSearchPosition = -1;
-
-    @Nullable
-    private OnigResult lastSearchResult;
-
     private final String pattern;
     private final Regex regex;
-
     private final boolean hasGAnchor;
+    @Nullable
+    private OnigString lastSearchString;
+    private int lastSearchPosition = -1;
+    @Nullable
+    private OnigResult lastSearchResult;
 
     /**
      * @throws TMException if parsing fails

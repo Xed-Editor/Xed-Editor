@@ -30,7 +30,7 @@ import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.widget.CodeEditor
 
 object BidiLayoutHelper {
-  
+
   fun horizontalOffset(
     editor: CodeEditor,
     layout: AbstractLayout,
@@ -76,7 +76,7 @@ object BidiLayoutHelper {
     gtr.recycle()
     return offset
   }
-  
+
   fun horizontalIndex(
     editor: CodeEditor,
     layout: AbstractLayout,
@@ -148,5 +148,5 @@ object BidiLayoutHelper {
       dirs.getRunEnd(j).coerceIn(rowStart, rowEnd)
     }
   }
-  
+
 }

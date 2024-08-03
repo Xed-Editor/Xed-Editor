@@ -11,10 +11,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.rk.xededitor.After
+import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.runOnUi
+import com.rk.xededitor.setupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
@@ -38,76 +40,66 @@ class DynamicFragment : Fragment {
   var file: File? = null
   private var ctx: Context? = null
   lateinit var editor: CodeEditor
-  var editorx: CodeEditor? = null
+  private var editorx: CodeEditor? = null
   var content: Content? = null
   var isModified: Boolean = false
   var undo: MenuItem? = null
   var redo: MenuItem? = null
-  
-  
+
+
   constructor() {
     After(100) {
-      MainActivity.activity.runOnUiThread {
-        val fragmentManager = MainActivity.activity.supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.remove(this)
-        fragmentTransaction.commitNowAllowingStateLoss()
+      rkUtils.runOnUiThread {
+        val fragmentManager = BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
+        val fragmentTransaction = fragmentManager?.beginTransaction()
+        fragmentTransaction?.remove(this)
+        fragmentTransaction?.commitNowAllowingStateLoss()
       }
     }
   }
-  
+
   constructor(file: File, ctx: Context) {
+
+
     this.fileName = file.name
     this.ctx = ctx
     this.file = file
     editor = CodeEditor(ctx)
     editorx = editor
-    
-    
-    when(fileName.substringAfterLast('.', "")){
-      "java" -> {setLanguage("source.java")}
-      "html" -> {setLanguage("text.html.basic")}
-      "kt" -> {setLanguage("source.kotlin")}
-      "py" -> {setLanguage("source.python")}
-      "xml" -> {setLanguage("text.xml")}
-      "js" -> {setLanguage("source.js")}
-      "md" -> {setLanguage("text.html.markdown")}
-    }
-    
-    
-    
-    
-    
-    
+
+    setupEditor(editor, ctx).setupLanguage(fileName)
+
     if (SettingsData.isDarkMode(ctx)) {
-      ensureTextmateTheme()
+      setupEditor(editor, ctx).ensureTextmateTheme()
     } else {
-      Thread { this.ensureTextmateTheme() }.start()
+      Thread { setupEditor(editor, ctx).ensureTextmateTheme() }.start()
     }
+
     
+
     val wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false)
-    
-    
-    
+
+
+
     Thread {
       try {
         val inputStream: InputStream = FileInputStream(file)
         content = ContentIO.createFrom(inputStream)
         inputStream.close()
-        runOnUi { editor.setText(content) }
+        rkUtils.runOnUiThread { editor.setText(content) }
         if (wordwrap) {
           val length = content.toString().length
           if (length > 700 && content.toString().split("\\R".toRegex())
               .dropLastWhile { it.isEmpty() }.toTypedArray().size < 100
           ) {
-            runOnUi {
+            rkUtils.runOnUiThread {
               rkUtils.toast(
                 ctx, resources.getString(R.string.ww_wait)
               )
             }
           }
           if (length > 1500) {
-            runOnUi {
+            rkUtils.runOnUiThread {
               Toast.makeText(
                 ctx, resources.getString(R.string.ww_wait), Toast.LENGTH_LONG
               ).show()
@@ -119,16 +111,18 @@ class DynamicFragment : Fragment {
       }
       setListener()
     }.start()
-    
-    
+
+
     editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
     editor.setTextSize(14f)
     editor.isWordwrap = wordwrap
-    
+
     undo = StaticData.menu.findItem(R.id.undo)
     redo = StaticData.menu.findItem(R.id.redo)
+
+
   }
-  
+
   private fun setListener() {
     editor.subscribeAlways(
       ContentChangeEvent::class.java
@@ -141,115 +135,37 @@ class DynamicFragment : Fragment {
       isModified = true
     }
   }
-  
+
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
     return editorx
   }
-  
+
   fun updateUndoRedo() {
     if (undo != null && redo != null) {
       redo!!.setEnabled(editor.canRedo())
       undo!!.setEnabled(editor.canUndo())
     }
   }
-  
+
   @JvmOverloads
   fun releaseEditor(removeCoontent: Boolean = false) {
     editor.release()
     content = null
   }
-  
+
   fun Undo() {
     if (editor.canUndo()) {
       editor.undo()
     }
   }
-  
+
   fun Redo() {
     if (editor.canRedo()) {
       editor.redo()
     }
   }
-  
-  private fun ensureTextmateTheme() {
-    var editorColorScheme = editor.colorScheme
-    val themeRegistry = ThemeRegistry.getInstance()
-    
-    val darkMode = SettingsData.isDarkMode(ctx)
-    try {
-      if (darkMode) {
-        val path = if (SettingsData.isOled(ctx)) {
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
-        } else {
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
-        }
-        if (!File(path).exists()) {
-          runOnUi {
-            rkUtils.toast(
-              ctx, resources.getString(R.string.theme_not_found_err)
-            )
-          }
-        }
-        
-        themeRegistry.loadTheme(
-          ThemeModel(
-            IThemeSource.fromInputStream(
-              FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-            ), "darcula"
-          )
-        )
-        editorColorScheme = TextMateColorScheme.create(themeRegistry)
-        if (SettingsData.isOled(ctx)) {
-          editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
-        }
-      } else {
-        val path =
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
-        if (!File(path).exists()) {
-          runOnUi {
-            rkUtils.toast(
-              ctx, resources.getString(R.string.theme_not_found_err)
-            )
-          }
-        }
-        themeRegistry.loadTheme(
-          ThemeModel(
-            IThemeSource.fromInputStream(
-              FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-            ), "quitelight"
-          )
-        )
-        editorColorScheme = TextMateColorScheme.create(themeRegistry)
-      }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    }
-    
-    if (darkMode) {
-      val pref = ctx!!.applicationContext.getSharedPreferences("MyPref", 0)
-      themeRegistry.setTheme("darcula")
-    } else {
-      themeRegistry.setTheme("quietlight")
-    }
-    synchronized(editor) {
-      editor.colorScheme = editorColorScheme
-    }
-  }
-  
-  fun setLanguage(languageScopeName:String){
-    FileProviderRegistry.getInstance().addFileProvider(
-      AssetsFileResolver(
-        ctx?.applicationContext?.assets
-      )
-    )
-    
-    GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-    
-    val language = TextMateLanguage.create(
-      languageScopeName, true /* true for enabling auto-completion */
-    )
-    editor.setEditorLanguage(language as Language)
-  }
+
+
 }

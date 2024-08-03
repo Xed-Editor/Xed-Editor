@@ -2,10 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission
-        android:name="android.permission.QUERY_ALL_PACKAGES"
-        tools:ignore="QueryAllPackagesPermission" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -13,6 +10,7 @@
 
     <application
         android:name=".App"
+       android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -41,9 +39,6 @@
             android:label="@string/title_activity_batch_replacement"
 
             android:theme="@style/Theme.Fragments.NoActionBar" />
-        <activity
-            android:name=".plugin.ManagePluginActivity.ManagePluginActivity"
-            android:exported="true" />
         <activity
             android:name=".SimpleEditor.SimpleEditor"
             android:exported="true">
@@ -95,6 +90,8 @@
         <activity
             android:name=".Settings.SettingsEditor"
             android:exported="true" />
+        <activity android:name=".theme.ThemeActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>

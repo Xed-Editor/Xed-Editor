@@ -24,6 +24,7 @@
 package io.github.rosemoe.sora.langs.textmate;
 
 import org.eclipse.tm4e.core.internal.grammar.tokenattrs.StandardTokenType;
+import org.eclipse.tm4e.languageconfiguration.internal.model.AutoClosingPairConditional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,8 +35,6 @@ import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentLine;
 import io.github.rosemoe.sora.widget.CodeEditor;
 import io.github.rosemoe.sora.widget.SymbolPairMatch;
-
-import org.eclipse.tm4e.languageconfiguration.internal.model.AutoClosingPairConditional;
 
 public class TextMateSymbolPairMatch extends SymbolPairMatch {
 

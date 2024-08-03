@@ -1,16 +1,16 @@
 /**
  * Copyright (c) 2022 Sebastian Thomschke and others.
- *
+ * <p>
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- *
+ * <p>
  * SPDX-License-Identifier: EPL-2.0
- *
+ * <p>
  * Initial code from https://github.com/microsoft/vscode-textmate/
  * Initial copyright Copyright (C) Microsoft Corporation. All rights reserved.
  * Initial license: MIT
- *
+ * <p>
  * Contributors:
  * - Microsoft Corporation: Initial code, written in TypeScript, licensed under MIT license
  * - Sebastian Thomschke - translation and adaptation to Java
@@ -42,215 +42,212 @@ import org.eclipse.tm4e.core.internal.registry.IGrammarRepository;
  */
 public final class ScopeDependencyProcessor {
 
-	private static class ExternalReferenceCollector {
+    public final Set<String /*ScopeName*/> seenFullScopeRequests = new HashSet<>();
+    public final IGrammarRepository repo;
+    public final String initialScopeName;
+    final Set<String> seenPartialScopeRequests = new HashSet<>();
+    public Deque<AbsoluteRuleReference> Q = new ArrayDeque<>();
+    public ScopeDependencyProcessor(final IGrammarRepository repo, final String initialScopeName) {
+        this.repo = repo;
+        this.initialScopeName = initialScopeName;
+        this.seenFullScopeRequests.add(initialScopeName);
+        this.Q.add(new TopLevelRuleReference(initialScopeName));
+    }
 
-		final Deque<AbsoluteRuleReference> references = new ArrayDeque<>();
-		final Deque<String> seenReferenceKeys = new ArrayDeque<>();
+    public void processQueue() {
+        final var q = Q;
+        Q = new ArrayDeque<>();
 
-		final Set<IRawRule> visitedRule = new HashSet<>();
+        final var deps = new ExternalReferenceCollector();
+        for (final var dep : q) {
+            collectReferencesOfReference(dep, this.initialScopeName, this.repo, deps);
+        }
 
-		void add(final AbsoluteRuleReference reference) {
-			final var key = reference.toKey();
-			if (this.seenReferenceKeys.contains(key)) {
-				return;
-			}
-			this.seenReferenceKeys.push(key);
-			this.references.push(reference);
-		}
-	}
+        for (final var dep : deps.references) {
+            if (dep instanceof TopLevelRuleReference) {
+                if (this.seenFullScopeRequests.contains(dep.scopeName)) {
+                    // already processed
+                    continue;
+                }
+                this.seenFullScopeRequests.add(dep.scopeName);
+                this.Q.push(dep);
+            } else {
+                if (this.seenFullScopeRequests.contains(dep.scopeName)) {
+                    // already processed in full
+                    continue;
+                }
+                if (this.seenPartialScopeRequests.contains(dep.toKey())) {
+                    // already processed
+                    continue;
+                }
+                this.seenPartialScopeRequests.add(dep.toKey());
+                this.Q.push(dep);
+            }
+        }
+    }
 
-	public final Set<String /*ScopeName*/> seenFullScopeRequests = new HashSet<>();
-	final Set<String> seenPartialScopeRequests = new HashSet<>();
-	public Deque<AbsoluteRuleReference> Q = new ArrayDeque<>();
+    private void collectReferencesOfReference(
+            final AbsoluteRuleReference reference,
+            final String baseGrammarScopeName,
+            final IGrammarRepository repo,
+            final ExternalReferenceCollector result) {
 
-	public final IGrammarRepository repo;
-	public final String initialScopeName;
+        final var selfGrammar = repo.lookup(reference.scopeName);
+        if (selfGrammar == null) {
+            if (reference.scopeName.equals(baseGrammarScopeName)) {
+                throw new TMException("No grammar provided for <" + initialScopeName + ">");
+            }
+            return;
+        }
 
-	public ScopeDependencyProcessor(final IGrammarRepository repo, final String initialScopeName) {
-		this.repo = repo;
-		this.initialScopeName = initialScopeName;
-		this.seenFullScopeRequests.add(initialScopeName);
-		this.Q.add(new TopLevelRuleReference(initialScopeName));
-	}
+        final var baseGrammar = castNonNull(repo.lookup(baseGrammarScopeName));
 
-	public void processQueue() {
-		final var q = Q;
-		Q = new ArrayDeque<>();
+        if (reference instanceof TopLevelRuleReference) {
+            collectExternalReferencesInTopLevelRule(new Context(baseGrammar, selfGrammar), result);
+        } else if (reference instanceof final TopLevelRepositoryRuleReference ref) {
+            collectExternalReferencesInTopLevelRepositoryRule(
+                    ref.ruleName,
+                    new ContextWithRepository(baseGrammar, selfGrammar, selfGrammar.getRepository()),
+                    result);
+        }
 
-		final var deps = new ExternalReferenceCollector();
-		for (final var dep : q) {
-			collectReferencesOfReference(dep, this.initialScopeName, this.repo, deps);
-		}
+        final var injections = repo.injections(reference.scopeName);
+        if (injections != null) {
+            for (final var injection : injections) {
+                result.add(new TopLevelRuleReference(injection));
+            }
+        }
+    }
 
-		for (final var dep : deps.references) {
-			if (dep instanceof TopLevelRuleReference) {
-				if (this.seenFullScopeRequests.contains(dep.scopeName)) {
-					// already processed
-					continue;
-				}
-				this.seenFullScopeRequests.add(dep.scopeName);
-				this.Q.push(dep);
-			} else {
-				if (this.seenFullScopeRequests.contains(dep.scopeName)) {
-					// already processed in full
-					continue;
-				}
-				if (this.seenPartialScopeRequests.contains(dep.toKey())) {
-					// already processed
-					continue;
-				}
-				this.seenPartialScopeRequests.add(dep.toKey());
-				this.Q.push(dep);
-			}
-		}
-	}
+    private void collectExternalReferencesInTopLevelRepositoryRule(final String ruleName, final ContextWithRepository context,
+                                                                   final ExternalReferenceCollector result) {
 
-	private void collectReferencesOfReference(
-			final AbsoluteRuleReference reference,
-			final String baseGrammarScopeName,
-			final IGrammarRepository repo,
-			final ExternalReferenceCollector result) {
+        if (context.repository != null) {
+            final var rule = context.repository.getRule(ruleName);
+            if (rule != null) {
+                collectExternalReferencesInRules(List.of(rule), context, result);
+            }
+        }
+    }
 
-		final var selfGrammar = repo.lookup(reference.scopeName);
-		if (selfGrammar == null) {
-			if (reference.scopeName.equals(baseGrammarScopeName)) {
-				throw new TMException("No grammar provided for <" + initialScopeName + ">");
-			}
-			return;
-		}
+    private void collectExternalReferencesInTopLevelRule(final Context context, final ExternalReferenceCollector result) {
+        final var patterns = context.selfGrammar.getPatterns();
+        if (patterns != null) {
+            collectExternalReferencesInRules(patterns, new ContextWithRepository(context, context.selfGrammar.getRepository()), result);
+        }
+        final var injections = context.selfGrammar.getInjections();
+        if (injections != null) {
+            collectExternalReferencesInRules(
+                    injections.values(),
+                    new ContextWithRepository(context, context.selfGrammar.getRepository()),
+                    result);
+        }
+    }
 
-		final var baseGrammar = castNonNull(repo.lookup(baseGrammarScopeName));
+    private void collectExternalReferencesInRules(
+            final Collection<IRawRule> rules,
+            final ContextWithRepository context,
+            final ExternalReferenceCollector result) {
 
-		if (reference instanceof TopLevelRuleReference) {
-			collectExternalReferencesInTopLevelRule(new Context(baseGrammar, selfGrammar), result);
-		} else if (reference instanceof final TopLevelRepositoryRuleReference ref) {
-			collectExternalReferencesInTopLevelRepositoryRule(
-					ref.ruleName,
-					new ContextWithRepository(baseGrammar, selfGrammar, selfGrammar.getRepository()),
-					result);
-		}
+        for (final var rule : rules) {
+            if (result.visitedRule.contains(rule)) {
+                continue;
+            }
+            result.visitedRule.add(rule);
 
-		final var injections = repo.injections(reference.scopeName);
-		if (injections != null) {
-			for (final var injection : injections) {
-				result.add(new TopLevelRuleReference(injection));
-			}
-		}
-	}
+            final var patternRepository = rule.getRepository() == null
+                    ? context.repository
+                    : IRawRepository.merge(context.repository, rule.getRepository());
 
-	private static class Context {
-		final IRawGrammar baseGrammar;
-		final IRawGrammar selfGrammar;
+            final var patternPatterns = rule.getPatterns();
+            if (patternPatterns != null) {
+                collectExternalReferencesInRules(patternPatterns, new ContextWithRepository(context, patternRepository), result);
+            }
 
-		Context(final IRawGrammar baseGrammar, final IRawGrammar selfGrammar) {
-			this.baseGrammar = baseGrammar;
-			this.selfGrammar = selfGrammar;
-		}
-	}
+            final var include = rule.getInclude();
+            if (include == null) {
+                continue;
+            }
 
-	private static final class ContextWithRepository extends Context {
-		@Nullable
-		final IRawRepository repository;
+            final var reference = IncludeReference.parseInclude(include);
 
-		ContextWithRepository(final Context context, @Nullable final IRawRepository repository) {
-			super(context.baseGrammar, context.selfGrammar);
-			this.repository = repository;
-		}
+            switch (reference.kind) {
+                case Base:
+                    collectExternalReferencesInTopLevelRule(new Context(context.baseGrammar, context.baseGrammar), result);
+                    break;
+                case Self:
+                    collectExternalReferencesInTopLevelRule(context, result);
+                    break;
+                case RelativeReference:
+                    collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName,
+                            new ContextWithRepository(context, patternRepository), result);
+                    break;
+                case TopLevelReference:
+                case TopLevelRepositoryReference:
+                    @Nullable final IRawGrammar selfGrammar = reference.scopeName.equals(context.selfGrammar.getScopeName())
+                            ? context.selfGrammar
+                            : reference.scopeName.equals(context.baseGrammar.getScopeName())
+                            ? context.baseGrammar
+                            : null;
 
-		ContextWithRepository(final IRawGrammar baseGrammar, final IRawGrammar selfGrammar, @Nullable final IRawRepository repository) {
-			super(baseGrammar, selfGrammar);
-			this.repository = repository;
-		}
-	}
+                    if (selfGrammar != null) {
+                        final var newContext = new ContextWithRepository(context.baseGrammar, selfGrammar, patternRepository);
+                        if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
+                            collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName, newContext, result);
+                        } else {
+                            collectExternalReferencesInTopLevelRule(newContext, result);
+                        }
+                    } else {
+                        if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
+                            result.add(new TopLevelRepositoryRuleReference(reference.scopeName, reference.ruleName));
+                        } else {
+                            result.add(new TopLevelRuleReference(reference.scopeName));
+                        }
+                    }
+                    break;
+            }
+        }
+    }
 
-	private void collectExternalReferencesInTopLevelRepositoryRule(final String ruleName, final ContextWithRepository context,
-			final ExternalReferenceCollector result) {
+    private static class ExternalReferenceCollector {
 
-		if (context.repository != null) {
-			final var rule = context.repository.getRule(ruleName);
-			if (rule != null) {
-				collectExternalReferencesInRules(List.of(rule), context, result);
-			}
-		}
-	}
+        final Deque<AbsoluteRuleReference> references = new ArrayDeque<>();
+        final Deque<String> seenReferenceKeys = new ArrayDeque<>();
 
-	private void collectExternalReferencesInTopLevelRule(final Context context, final ExternalReferenceCollector result) {
-		final var patterns = context.selfGrammar.getPatterns();
-		if (patterns != null) {
-			collectExternalReferencesInRules(patterns, new ContextWithRepository(context, context.selfGrammar.getRepository()), result);
-		}
-		final var injections = context.selfGrammar.getInjections();
-		if (injections != null) {
-			collectExternalReferencesInRules(
-					injections.values(),
-					new ContextWithRepository(context, context.selfGrammar.getRepository()),
-					result);
-		}
-	}
+        final Set<IRawRule> visitedRule = new HashSet<>();
 
-	private void collectExternalReferencesInRules(
-			final Collection<IRawRule> rules,
-			final ContextWithRepository context,
-			final ExternalReferenceCollector result) {
+        void add(final AbsoluteRuleReference reference) {
+            final var key = reference.toKey();
+            if (this.seenReferenceKeys.contains(key)) {
+                return;
+            }
+            this.seenReferenceKeys.push(key);
+            this.references.push(reference);
+        }
+    }
 
-		for (final var rule : rules) {
-			if (result.visitedRule.contains(rule)) {
-				continue;
-			}
-			result.visitedRule.add(rule);
+    private static class Context {
+        final IRawGrammar baseGrammar;
+        final IRawGrammar selfGrammar;
 
-			final var patternRepository = rule.getRepository() == null
-					? context.repository
-					: IRawRepository.merge(context.repository, rule.getRepository());
+        Context(final IRawGrammar baseGrammar, final IRawGrammar selfGrammar) {
+            this.baseGrammar = baseGrammar;
+            this.selfGrammar = selfGrammar;
+        }
+    }
 
-			final var patternPatterns = rule.getPatterns();
-			if (patternPatterns != null) {
-				collectExternalReferencesInRules(patternPatterns, new ContextWithRepository(context, patternRepository), result);
-			}
+    private static final class ContextWithRepository extends Context {
+        @Nullable
+        final IRawRepository repository;
 
-			final var include = rule.getInclude();
-			if (include == null) {
-				continue;
-			}
+        ContextWithRepository(final Context context, @Nullable final IRawRepository repository) {
+            super(context.baseGrammar, context.selfGrammar);
+            this.repository = repository;
+        }
 
-			final var reference = IncludeReference.parseInclude(include);
-
-			switch (reference.kind) {
-				case Base:
-					collectExternalReferencesInTopLevelRule(new Context(context.baseGrammar, context.baseGrammar), result);
-					break;
-				case Self:
-					collectExternalReferencesInTopLevelRule(context, result);
-					break;
-				case RelativeReference:
-					collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName,
-							new ContextWithRepository(context, patternRepository), result);
-					break;
-				case TopLevelReference:
-				case TopLevelRepositoryReference:
-					@Nullable
-					final IRawGrammar selfGrammar = reference.scopeName.equals(context.selfGrammar.getScopeName())
-							? context.selfGrammar
-							: reference.scopeName.equals(context.baseGrammar.getScopeName())
-									? context.baseGrammar
-									: null;
-
-					if (selfGrammar != null) {
-						final var newContext = new ContextWithRepository(context.baseGrammar, selfGrammar, patternRepository);
-						if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
-							collectExternalReferencesInTopLevelRepositoryRule(reference.ruleName, newContext, result);
-						} else {
-							collectExternalReferencesInTopLevelRule(newContext, result);
-						}
-					} else {
-						if (reference.kind == IncludeReference.Kind.TopLevelRepositoryReference) {
-							result.add(new TopLevelRepositoryRuleReference(reference.scopeName, reference.ruleName));
-						} else {
-							result.add(new TopLevelRuleReference(reference.scopeName));
-						}
-					}
-					break;
-			}
-		}
-	}
+        ContextWithRepository(final IRawGrammar baseGrammar, final IRawGrammar selfGrammar, @Nullable final IRawRepository repository) {
+            super(baseGrammar, selfGrammar);
+            this.repository = repository;
+        }
+    }
 }

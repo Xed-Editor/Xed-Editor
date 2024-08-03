@@ -63,12 +63,12 @@ public class ThemeModel {
         theme = Theme.createFromRawTheme(null, null);
     }
 
-    public void setDark(boolean dark) {
-        isDark = dark;
-    }
-
     public boolean isDark() {
         return isDark;
+    }
+
+    public void setDark(boolean dark) {
+        isDark = dark;
     }
 
     public void load() throws Exception {

@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.plugin.ManagePluginActivity.ManagePluginActivity
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onClickView
@@ -22,32 +21,32 @@ class SettingsMainActivity : BaseActivity() {
   private lateinit var binding: ActivitySettingsMainBinding
   lateinit var padapter: PreferencesAdapter
   lateinit var playoutManager: LinearLayoutManager
-  
+
   companion object {
     var settingsMain: SettingsMainActivity? = null
   }
-  
+
   fun get_recycler_view(): RecyclerView {
     binding = ActivitySettingsMainBinding.inflate(layoutInflater)
     recyclerView = binding.recyclerView
     return recyclerView
   }
-  
+
   override fun onCreate(savedInstanceState: Bundle?) {
     settingsMain = this
     super.onCreate(savedInstanceState)
     padapter = PreferencesAdapter(getScreen())
     savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
       ?.let(padapter::loadSavedState)
-    
+
     playoutManager = LinearLayoutManager(this)
     get_recycler_view().apply {
       layoutManager = playoutManager
       adapter = padapter
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
     }
-    
-    
+
+
     setContentView(binding.root)
     binding.toolbar.title = "Settings"
     setSupportActionBar(binding.toolbar)
@@ -61,18 +60,18 @@ class SettingsMainActivity : BaseActivity() {
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
       window.statusBarColor = Color.BLACK
       window.navigationBarColor = Color.BLACK
-    }else if (SettingsData.isDarkMode(this)){
+    } else if (SettingsData.isDarkMode(this)) {
       val window = window
       window.navigationBarColor = Color.parseColor("#141118")
     }
   }
-  
+
   override fun onDestroy() {
     settingsMain = null
     super.onDestroy()
   }
-  
-   fun getScreen(): PreferenceScreen {
+
+  fun getScreen(): PreferenceScreen {
     return screen(this) {
       pref("Application") {
         title = "Application"
@@ -90,16 +89,16 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
         }
       }
-      
+
     }
   }
-  
+
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
     // Save the padapter state as a parcelable into the Android-managed instance state
     outState.putParcelable("padapter", padapter.getSavedState())
   }
-  
+
   override fun onOptionsItemSelected(item: MenuItem): Boolean {
     // Handle action bar item clicks here
     val id = item.itemId
@@ -110,6 +109,6 @@ class SettingsMainActivity : BaseActivity() {
     }
     return super.onOptionsItemSelected(item)
   }
-  
-  
+
+
 }

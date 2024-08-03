@@ -47,37 +47,37 @@ enum class SelectionMovement(
     val newPos = editor.layout.getUpPosition(pos.line, pos.column)
     editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
   }, MovingBasePosition.LEFT_SELECTION),
-  
+
   /** Move Down */
   DOWN({ editor, pos ->
     val newPos = editor.layout.getDownPosition(pos.line, pos.column)
     editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
   }, MovingBasePosition.RIGHT_SELECTION),
-  
+
   /** Move Left */
   LEFT({ editor, pos ->
     val newPos = editor.cursor.getLeftOf(pos.toIntPair())
     editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
   }, MovingBasePosition.LEFT_SELECTION),
-  
+
   /** Move Right */
   RIGHT({ editor, pos ->
     val newPos = editor.cursor.getRightOf(pos.toIntPair())
     editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
   }, MovingBasePosition.RIGHT_SELECTION),
-  
+
   /** Move To Previous Word Boundary */
   PREVIOUS_WORD_BOUNDARY({ editor, pos ->
     val newPos = Chars.prevWordStart(pos, editor.text)
     editor.text.indexer.getCharPosition(newPos.line, newPos.column)
   }),
-  
+
   /** Move To Next Word Boundary */
   NEXT_WORD_BOUNDARY({ editor, pos ->
     val newPos = Chars.nextWordEnd(pos, editor.text)
     editor.text.indexer.getCharPosition(newPos.line, newPos.column)
   }),
-  
+
   /** Move Page Up */
   PAGE_UP({ editor, pos ->
     val layout = editor.layout
@@ -91,7 +91,7 @@ enum class SelectionMovement(
       row.startColumn + Numbers.coerceIn(selOffset, 0, row.endColumn - row.startColumn)
     editor.text.indexer.getCharPosition(line, column)
   }),
-  
+
   /** Move Page Down */
   PAGE_DOWN({ editor, pos ->
     val layout = editor.layout
@@ -105,7 +105,7 @@ enum class SelectionMovement(
       row.startColumn + Numbers.coerceIn(selOffset, 0, row.endColumn - row.startColumn)
     editor.text.indexer.getCharPosition(line, column)
   }),
-  
+
   /** Move To Page Top */
   PAGE_TOP({ editor, pos ->
     val layout = editor.layout
@@ -118,7 +118,7 @@ enum class SelectionMovement(
       row.startColumn + Numbers.coerceIn(selOffset, 0, row.endColumn - row.startColumn)
     editor.text.indexer.getCharPosition(line, column)
   }),
-  
+
   /** Move To Page Bottom */
   PAGE_BOTTOM({ editor, pos ->
     val layout = editor.layout
@@ -131,7 +131,7 @@ enum class SelectionMovement(
       row.startColumn + Numbers.coerceIn(selOffset, 0, row.endColumn - row.startColumn)
     editor.text.indexer.getCharPosition(line, column)
   }),
-  
+
   /** Move To Line Start */
   LINE_START({ editor, pos ->
     if (editor.props.enhancedHomeAndEnd) {
@@ -149,7 +149,7 @@ enum class SelectionMovement(
       editor.text.indexer.getCharPosition(pos.line, 0)
     }
   }),
-  
+
   /** Move To Line End */
   LINE_END({ editor, pos ->
     val colNum = editor.text.getColumnCount(pos.line)
@@ -168,17 +168,17 @@ enum class SelectionMovement(
       editor.text.indexer.getCharPosition(pos.line, colNum)
     }
   }),
-  
+
   /** Move To Text Start */
   TEXT_START({ _, _ ->
     CharPosition().toBOF()
   }),
-  
+
   /** Move To Text End */
   TEXT_END({ editor, _ ->
     editor.text.indexer.getCharPosition(editor.text.length)
   });
-  
+
   /**
    * For [CodeEditor.moveSelection]
    */
@@ -187,7 +187,7 @@ enum class SelectionMovement(
     RIGHT_SELECTION,
     SELECTION_ANCHOR
   }
-  
+
   @UnsupportedUserUsage
   fun getPositionAfterMovement(editor: CodeEditor, pos: CharPosition): CharPosition {
     return this.computeFunc(editor, pos)
