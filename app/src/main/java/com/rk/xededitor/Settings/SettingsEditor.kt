@@ -212,9 +212,12 @@ class SettingsEditor : BaseActivity() {
               }
               SettingsData.setSetting(this@SettingsEditor,"tabsize",text)
 
-              for (f in StaticData.fragments){
-                f.editor.tabWidth = text.toInt()
+              if(StaticData.fragments != null){
+                for (f in StaticData.fragments){
+                  f.editor.tabWidth = text.toInt()
+                }
               }
+
 
             }.show()
 

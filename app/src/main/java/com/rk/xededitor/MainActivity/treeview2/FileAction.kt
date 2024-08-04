@@ -392,7 +392,7 @@ class FileAction(
         file.renameTo(File(file.parentFile, fileName))
 
         //TreeView(context, rootFolder)
-        adapter?.renameFile(file)
+        adapter?.renameFile(file,File(file.parentFile, fileName))
         loading.hide()
       }.show()
   }
