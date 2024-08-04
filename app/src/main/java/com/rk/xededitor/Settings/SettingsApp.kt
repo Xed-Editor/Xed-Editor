@@ -250,7 +250,7 @@ class SettingsApp : BaseActivity() {
 
                 for (activity in activityMap.values) {
                   if (activity != null) {
-                    ThemeManager.setTheme(activity,selectedTheme.second)
+                    activity.recreate()
                   }
                 }
 
