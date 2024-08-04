@@ -302,8 +302,6 @@ public class MainActivity extends BaseActivity {
         }
 
 
-        rkUtils.toast(this,path);
-
         return new File(path);
     }
 
