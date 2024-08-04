@@ -15,7 +15,7 @@
 
 
 
-</div>Xed Editor is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
+</div>Karbon is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
 
 
 ## Features
