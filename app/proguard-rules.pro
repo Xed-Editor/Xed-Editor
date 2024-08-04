@@ -18,6 +18,9 @@
 # Keep all
 -keepclassmembers class *
 
+-keep class org.joni.** { *; }
+-dontwarn org.joni.**
+
 -dontoptimize
 
 
