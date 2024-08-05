@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity;
+package com.rk.xededitor.MainActivity.fragment;
 
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.rk.xededitor.BaseActivity;
+import com.rk.xededitor.MainActivity.MainActivity;
 import com.rk.xededitor.R;
 import com.rk.xededitor.rkUtils;
 
@@ -22,12 +23,12 @@ import java.io.File;
 
 import io.github.rosemoe.sora.widget.CodeEditor;
 
-public class mAdapter extends FragmentStatePagerAdapter {
+public class TabAdapter extends FragmentStatePagerAdapter {
 
     private final FragmentManager fragmentManager;
     private boolean removing = false;
 
-    public mAdapter(@NonNull FragmentManager fm) {
+    public TabAdapter(@NonNull FragmentManager fm) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         fragmentManager = fm;
     }

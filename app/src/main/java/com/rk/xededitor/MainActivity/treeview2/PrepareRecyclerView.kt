@@ -1,11 +1,11 @@
-package com.rk.xededitor.MainActivity
+package com.rk.xededitor.MainActivity.treeview2
 
 import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.xededitor.MainActivity.treeview2.DiagonalScrollView
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.Settings.SettingsData
 
 class PrepareRecyclerView(val activity: MainActivity) {

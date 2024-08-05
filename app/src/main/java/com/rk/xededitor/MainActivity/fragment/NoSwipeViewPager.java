@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity;
+package com.rk.xededitor.MainActivity.fragment;
 
 import android.content.Context;
 import android.util.AttributeSet;
