@@ -46,6 +46,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.FileClipboard;
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment;
@@ -84,6 +85,12 @@ public class MainActivity extends BaseActivity {
 
     public static void updateMenuItems() {
         final boolean visible = !(fragments == null || fragments.isEmpty());
+        if (menu == null){
+            new After(200, () -> {
+                rkUtils.runOnUiThread(MainActivity::updateMenuItems);
+            });
+            return;
+        }
         menu.findItem(R.id.batchrep).setVisible(visible);
         menu.findItem(R.id.search).setVisible(visible);
         menu.findItem(R.id.action_save).setVisible(visible);

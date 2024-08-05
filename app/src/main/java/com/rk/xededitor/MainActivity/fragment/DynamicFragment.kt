@@ -16,6 +16,7 @@ import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.setupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
@@ -107,8 +108,17 @@ class DynamicFragment : Fragment {
     editor.setTextSize(14f)
     editor.isWordwrap = wordwrap
 
-    undo = StaticData.menu.findItem(R.id.undo)
-    redo = StaticData.menu.findItem(R.id.redo)
+    After(200){
+      runOnUiThread{
+        if (undo == null || redo == null){
+          return@runOnUiThread
+        }
+        undo = StaticData.menu.findItem(R.id.undo)
+        redo = StaticData.menu.findItem(R.id.redo)
+      }
+    }
+
+
 
 
   }
