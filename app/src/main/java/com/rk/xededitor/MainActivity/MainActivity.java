@@ -293,8 +293,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-   
-
     public void onNewEditor() {
         binding.openBtn.setVisibility(View.GONE);
         binding.tabs.setVisibility(View.VISIBLE);

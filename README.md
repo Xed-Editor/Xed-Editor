@@ -12,20 +12,7 @@
 
 
 
-
-
-
-```
-Notice: App Name will be changed from 'Xed-Editor' to 'Karbon Editor'
-because xed named text editor already exists for Linux.
-if you have any suggestions for app name or logo please create a discussion
-```
-
-
-
-
-
-</div>Xed Editor is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
+</div>Karbon is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
 
 
 ## Features
