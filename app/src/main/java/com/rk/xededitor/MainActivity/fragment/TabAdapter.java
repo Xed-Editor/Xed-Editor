@@ -93,6 +93,7 @@ public class TabAdapter extends FragmentStatePagerAdapter {
 
         fragments.add(frag);
         notifyDataSetChanged();
+        mTabLayout.getTabAt(fragments.size() - 1).select();
     }
 
     public void onEditorRemove(DynamicFragment fragment) {
