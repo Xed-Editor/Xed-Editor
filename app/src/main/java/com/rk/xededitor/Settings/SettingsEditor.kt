@@ -222,14 +222,48 @@ class SettingsEditor : BaseActivity() {
             }.show()
 
           return@onClick true
-
         }
       }
+      pref("textsize"){
+        title = "Text Size"
+        summary = "Set text size"
+        iconRes = R.drawable.double_arrows
+        onClick {
+          val view = LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new,null)
+          val edittext = view.findViewById<EditText>(R.id.name).apply {
+            hint = "Text size"
+            setText(SettingsData.getSetting(this@SettingsEditor,"textsize","14"))
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+          }
+          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Text Size")
+            .setView(view).setNegativeButton("Cancel",null).setPositiveButton("Apply"){
+              dialog,which ->
+              val text = edittext.text.toString()
+              for (c in text){
+                if (!c.isDigit()){
+                  rkUtils.toast(this@SettingsEditor,"invalid value")
+                  return@setPositiveButton
+                }
+              }
+              if(text.toInt() > 32){
+                rkUtils.toast(this@SettingsEditor,"Value too large")
+                return@setPositiveButton
+              }
+              SettingsData.setSetting(this@SettingsEditor,"textsize",text)
 
+              if(StaticData.fragments != null){
+                for (f in StaticData.fragments){
+                  f.editor.setTextSize(text.toFloat());
+                }
+              }
+
+
+            }.show()
+
+          return@onClick true
+        }
+      }
     }
-
-
-
   }
 
   override fun onSaveInstanceState(outState: Bundle) {

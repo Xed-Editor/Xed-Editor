@@ -104,7 +104,7 @@ public class SimpleEditor extends BaseActivity {
         }
 
         editor.setTypefaceText(Typeface.createFromAsset(getAssets(), "JetBrainsMono-Regular.ttf"));
-        editor.setTextSize(14);
+        editor.setTextSize(Float.parseFloat(SettingsData.getSetting(this, "textsize", "14")));
         boolean wordwrap = SettingsData.getBoolean(this, "wordwrap", false);
         editor.setWordwrap(wordwrap);
 
