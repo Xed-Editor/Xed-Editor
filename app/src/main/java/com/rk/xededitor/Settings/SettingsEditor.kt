@@ -222,14 +222,14 @@ class SettingsEditor : BaseActivity() {
             }.show()
 
           return@onClick true
-
         }
       }
-
+      pref("textsize"){
+        title = "Text Size"
+        summary = "Set text size"
+        iconRes = R.drawable.double_arrows
+      }
     }
-
-
-
   }
 
   override fun onSaveInstanceState(outState: Bundle) {
