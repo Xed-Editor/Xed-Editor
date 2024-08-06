@@ -13,11 +13,6 @@ android {
         disable("MissingTranslation")
     }
 
-packagingOptions {
-        resources {
-            excludes += "kotlin/coroutines/coroutines.kotlin_builtins"
-        }
-    }
 
     dependenciesInfo {
         includeInApk = false
