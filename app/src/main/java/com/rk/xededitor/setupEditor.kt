@@ -18,7 +18,6 @@ import java.io.File
 
 class setupEditor(val editor: CodeEditor, private val ctx: Context) {
 
-
   fun setupLanguage(fileName: String) {
     when (fileName.substringAfterLast('.', "")) {
       "java" -> {
@@ -53,6 +52,21 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
         setLanguage("source.kotlin")
       }
 
+      "c" -> {
+        setLanguage("source.c")
+      }
+
+      "cpp", "h" -> {
+        setLanguage("source.cpp")
+      }
+
+      "json" -> {
+        setLanguage("source.json")
+      }
+
+      "css" -> {
+        setLanguage("source.css")
+      }
     }
   }
 

@@ -82,7 +82,8 @@ public class TabAdapter extends FragmentStatePagerAdapter {
     public void addFragment(DynamicFragment frag, File file) {
         if (fragments.contains(frag)) {
             return;
-        } else {
+        }
+        else {
             var uri = file.getPath();
             for (DynamicFragment f : fragments) {
                 if (f.getFile().getPath().equals(uri)) {
@@ -93,6 +94,7 @@ public class TabAdapter extends FragmentStatePagerAdapter {
 
         fragments.add(frag);
         notifyDataSetChanged();
+        if (fragments.size() > 1) mTabLayout.getTabAt(fragments.size() - 1).select();
     }
 
     public void onEditorRemove(DynamicFragment fragment) {
