@@ -34,6 +34,8 @@ android {
         storePassword = properties["storePassword"] as String
       }
     }
+  }else if(System.getenv("RUNNING_IN_GITHUB_ACTIONS") == "true"){
+    println("running in github workflow")
   }
 
   buildTypes {
@@ -56,11 +58,6 @@ android {
     targetSdk = 34
     versionCode = 29
     versionName = "2.5.0"
-    /* externalNativeBuild {
-            cmake {
-              cppFlags += ""
-            }
-          }*/
   }
 
   compileOptions {
@@ -76,15 +73,6 @@ android {
   kotlinOptions {
     jvmTarget = "17"
   }
-
-
-  /*externalNativeBuild {
-     cmake {
-       path = file("src/main/cpp/CMakeLists.txt")
-       version = "3.22.1"
-     }
-
-   }*/
 }
 
 dependencies {
