@@ -35,7 +35,6 @@ android {
       }
     }
   }else if(System.getenv("GITHUB_ACTIONS") == "true"){
-    println("signed with : "+file.absolutePath)
     signingConfigs {
       create("release") {
         val propertiesFile = rootProject.file("/tmp/signing.properties")
