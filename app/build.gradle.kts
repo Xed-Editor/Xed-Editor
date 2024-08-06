@@ -15,6 +15,7 @@ android {
 
 packagingOptions {
         resources {
+            excludes += "kotlin/kotlin.kotlin_builtins"
             excludes += "kotlin/coroutines/coroutines.kotlin_builtins"
         }
     }
