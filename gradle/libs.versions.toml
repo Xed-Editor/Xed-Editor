@@ -2,7 +2,6 @@
 agp = "8.5.1"
 appcompat = "1.7.0"
 commonsNet = "3.9.0"
-groovy = "3.0.17"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 modernandroidpreferences = "2.4.0-beta1"
@@ -18,15 +17,16 @@ nbJavacAndroid = "17.0.0.3"
 sshj = "0.38.0"
 terminalView = "0.118.0"
 kotlinPlugin = "1.8.10"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
 
 [libraries]
 
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-groovy = { module = "org.codehaus.groovy:groovy", version.ref = "groovy" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-modernandroidpreferences = { module = "de.maxr1998:modernandroidpreferences", version.ref = "modernandroidpreferences" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 asynclayoutinflater = { group = "androidx.asynclayoutinflater", name = "asynclayoutinflater", version.ref = "asynclayoutinflater" }
@@ -46,6 +46,9 @@ jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.58" }
 joni = { module = "org.jruby.joni:joni", version = "2.2.1" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.7" }
 jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.0" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "2.0.0" }

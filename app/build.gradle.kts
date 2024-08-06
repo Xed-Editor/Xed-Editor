@@ -98,11 +98,16 @@ dependencies {
     implementation("androidx.collection:collection:1.4.2")
     implementation("org.apache.commons:commons-vfs2:2.9.0")
     implementation("com.github.mwiede:jsch:0.2.8")
-    implementation(libs.groovy)
+
+
+
+
+
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
     implementation(project(":libsettings"))
+    implementation(project(":libPlugin"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)
