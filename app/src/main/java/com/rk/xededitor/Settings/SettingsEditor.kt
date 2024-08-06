@@ -227,7 +227,7 @@ class SettingsEditor : BaseActivity() {
       pref("textsize"){
         title = "Text Size"
         summary = "Set text size"
-        iconRes = R.drawable.double_arrows
+        iconRes = R.drawable.reorder
         onClick {
           val view = LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new,null)
           val edittext = view.findViewById<EditText>(R.id.name).apply {
