@@ -126,9 +126,9 @@ class DynamicFragment : Fragment {
   private fun setListener() {
     editor.subscribeAlways(
       ContentChangeEvent::class.java
-    ) { event: ContentChangeEvent? ->
+    ) {
       updateUndoRedo()
-      val tab = StaticData.mTabLayout.getTabAt(StaticData.fragments.indexOf(this))
+      val tab = StaticData.mTabLayout.getTabAt(StaticData.mTabLayout.selectedTabPosition)
       if (isModified) {
         tab!!.setText("$fileName*")
       }

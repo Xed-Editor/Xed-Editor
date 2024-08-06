@@ -158,6 +158,7 @@ class SettingsEditor : BaseActivity() {
           if (StaticData.fragments == null || StaticData.fragments.isEmpty()) {
             return@onCheckedChange true
           }
+          LoadingPopup(this@SettingsEditor,200)
 
           if (isChecked) {
             getActivity(MainActivity::class.java)?.binding?.divider?.visibility = View.VISIBLE
@@ -178,6 +179,8 @@ class SettingsEditor : BaseActivity() {
             ) // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams)
           }
+
+          getActivity(MainActivity::class.java)?.recreate()
 
           return@onCheckedChange true
         }

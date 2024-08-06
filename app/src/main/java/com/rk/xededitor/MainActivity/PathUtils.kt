@@ -8,6 +8,12 @@ import android.provider.DocumentsContract
 object PathUtils {
     @JvmStatic
     fun convertUriToPath(context: Context, uri: Uri?): String {
+        val path = internal_convertUriToPath(context,uri)
+        return path.replace("/document","/storage").replace(":","/")
+    }
+
+
+    fun internal_convertUriToPath(context: Context, uri: Uri?): String {
         uri?.let {
             when {
                 DocumentsContract.isTreeUri(it) -> {
