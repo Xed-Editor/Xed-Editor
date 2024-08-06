@@ -20,7 +20,11 @@ android {
 
   signingConfigs {
     create("release") {
-      val propertiesFilePath = if (System.getenv("GITHUB_ACTIONS") == "true") {
+
+
+      val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
+
+      val propertiesFilePath = if (isGITHUB_ACTION) {
         "/tmp/signing.properties"
       } else {
         "/home/rohit/signing.properties"
@@ -32,7 +36,12 @@ android {
         properties.load(propertiesFile.inputStream())
         keyAlias = properties["keyAlias"] as String
         keyPassword = properties["keyPassword"] as String
-        storeFile = File(properties["storeFile"] as String)
+        if (isGITHUB_ACTION){
+          storeFile = File("/tmp/xed.keystore")
+        }else{
+          storeFile = File(properties["storeFile"] as String)
+        }
+
         storePassword = properties["storePassword"] as String
       } else {
         println("Signing properties file not found at $propertiesFilePath")
