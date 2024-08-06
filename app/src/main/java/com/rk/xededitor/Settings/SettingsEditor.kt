@@ -253,7 +253,7 @@ class SettingsEditor : BaseActivity() {
 
               if(StaticData.fragments != null){
                 for (f in StaticData.fragments){
-                  f.editor.setTextSize(text.toFloat);
+                  f.editor.setTextSize(text.toFloat());
                 }
               }
 
