@@ -232,7 +232,7 @@ class SettingsEditor : BaseActivity() {
           val view = LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new,null)
           val edittext = view.findViewById<EditText>(R.id.name).apply {
             hint = "Text size"
-            setText(SettingsData.getSetting(this@SettingsEditor,"textsize","4"))
+            setText(SettingsData.getSetting(this@SettingsEditor,"textsize","14"))
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
           }
           MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Text Size")

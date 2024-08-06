@@ -105,7 +105,7 @@ class DynamicFragment : Fragment {
 
 
     editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
-    editor.setTextSize(14f)
+    editor.setTextSize(SettingsData.getSetting(ctx, "textsize", "14"))
     editor.isWordwrap = wordwrap
 
     After(200){
