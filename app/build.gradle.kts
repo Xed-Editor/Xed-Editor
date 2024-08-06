@@ -43,7 +43,8 @@ android {
         }
 
         storePassword = properties["storePassword"] as String
-      } else {
+      }
+      else {
         println("Signing properties file not found at $propertiesFilePath")
       }
     }
