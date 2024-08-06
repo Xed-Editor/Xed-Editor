@@ -42,7 +42,7 @@
             android:visibility="gone"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <com.rk.xededitor.MainActivity.NoSwipeViewPager
+            <com.rk.xededitor.MainActivity.fragment.NoSwipeViewPager
                 android:id="@+id/viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
@@ -197,7 +197,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
-                android:textColor="@color/berry"
+                android:textColor="?attr/colorPrimary"
                 android:textSize="20sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/refreshButton"
@@ -234,6 +234,7 @@
                 android:id="@+id/openFile_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:textColor="@color/bg"
                 android:onClick="openFile"
                 android:text="@string/open_file" />
 
@@ -242,6 +243,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="openDir"
+                android:textColor="@color/bg"
                 android:text="@string/open_directory" />
 
             <Button
@@ -249,6 +251,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="open_from_path"
+                android:textColor="@color/bg"
                 android:text="@string/open_from_path" />
 
         </LinearLayout>

@@ -36,7 +36,7 @@ class SettingsApp : BaseActivity() {
   private lateinit var padapter: PreferencesAdapter
   private lateinit var playoutManager: LinearLayoutManager
 
-  fun get_recycler_view(): RecyclerView {
+  fun getRecyclerView(): RecyclerView {
     binding = ActivitySettingsMainBinding.inflate(layoutInflater)
     recyclerView = binding.recyclerView
     return recyclerView
@@ -45,17 +45,13 @@ class SettingsApp : BaseActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-
-
-
     padapter = PreferencesAdapter(getScreen())
-
 
     savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
       ?.let(padapter::loadSavedState)
 
     playoutManager = LinearLayoutManager(this)
-    get_recycler_view().apply {
+    getRecyclerView().apply {
       layoutManager = playoutManager
       adapter = padapter
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
@@ -81,39 +77,26 @@ class SettingsApp : BaseActivity() {
       window.navigationBarColor = Color.parseColor("#141118")
     }
 
-
-    fun getCheckedBtnIdfromSettings(): Int {
+    fun getCheckedBtnIdFromSettings(): Int {
       val settingDefaultNightMode = SettingsData.getSetting(
         this, "default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
       ).toInt()
 
-      when (settingDefaultNightMode) {
-        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> {
-          return binding.auto.id
-        }
-
-        AppCompatDelegate.MODE_NIGHT_NO -> {
-          return binding.light.id
-        }
-
-        AppCompatDelegate.MODE_NIGHT_YES -> {
-          return binding.dark.id
-        }
-
-        else -> {
-          throw RuntimeException("Illegal default night mode state")
-        }
+      return when (settingDefaultNightMode) {
+        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> binding.auto.id
+        AppCompatDelegate.MODE_NIGHT_NO -> binding.light.id
+        AppCompatDelegate.MODE_NIGHT_YES -> binding.dark.id
+        else -> throw RuntimeException("Illegal default night mode state")
       }
     }
 
-    binding.toggleButton.check(getCheckedBtnIdfromSettings())
+    binding.toggleButton.check(getCheckedBtnIdFromSettings())
 
-    val listner = View.OnClickListener {
+    val listener = View.OnClickListener {
       when (binding.toggleButton.checkedButtonId) {
         binding.auto.id -> {
           LoadingPopup(this@SettingsApp, 200)
           After(300) {
-
             SettingsData.setSetting(
               this,
               "default_night_mode",
@@ -124,13 +107,11 @@ class SettingsApp : BaseActivity() {
               AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
             }
           }
-
         }
 
         binding.light.id -> {
           LoadingPopup(this@SettingsApp, 200)
           After(300) {
-
             SettingsData.setSetting(
               this,
               "default_night_mode",
@@ -141,14 +122,11 @@ class SettingsApp : BaseActivity() {
               AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             }
           }
-
         }
 
         binding.dark.id -> {
           LoadingPopup(this@SettingsApp, 200)
           After(300) {
-
-
             SettingsData.setSetting(
               this,
               "default_night_mode",
@@ -159,16 +137,13 @@ class SettingsApp : BaseActivity() {
               AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
           }
-
         }
       }
     }
 
-    binding.light.setOnClickListener(listner)
-    binding.dark.setOnClickListener(listner)
-    binding.auto.setOnClickListener(listner)
-
-
+    binding.light.setOnClickListener(listener)
+    binding.dark.setOnClickListener(listener)
+    binding.auto.setOnClickListener(listener)
   }
 
   private fun getScreen(): PreferenceScreen {
@@ -184,7 +159,6 @@ class SettingsApp : BaseActivity() {
           getActivity(MainActivity::class.java)?.recreate()
           return@onCheckedChange true
         }
-
       }
 
       pref("privateData") {
@@ -203,15 +177,14 @@ class SettingsApp : BaseActivity() {
         onClickView {
           val themes = ThemeManager.getThemes(this@SettingsApp)
 
-          val linearLayout = LinearLayout(this@SettingsApp)
-          linearLayout.orientation = LinearLayout.VERTICAL
-          linearLayout.setPadding(20.dp, 8.dp, 0, 0)
-
+          val linearLayout = LinearLayout(this@SettingsApp).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(20.dp, 8.dp, 0, 0)
+          }
 
           val radioGroup = RadioGroup(this@SettingsApp).apply {
             orientation = RadioGroup.VERTICAL
           }
-
 
           themes.forEach { theme ->
             val radioButton = RadioButton(this@SettingsApp).apply {
@@ -221,41 +194,36 @@ class SettingsApp : BaseActivity() {
           }
 
           linearLayout.addView(radioGroup)
-          if (ThemeManager.getSelectedTheme(this@SettingsApp) != 0) {
-            radioGroup.check(radioGroup.getChildAt(themes.indexOfFirst {
-              it.second == ThemeManager.getSelectedTheme(
-                this@SettingsApp
-              )
-            }).id)
+          val selectedThemeName = ThemeManager.getSelectedTheme(this@SettingsApp)
+          val selectedThemeIndex = themes.indexOfFirst { it.first == selectedThemeName }
+          if (selectedThemeIndex != -1) {
+            radioGroup.check(radioGroup.getChildAt(selectedThemeIndex).id)
           } else {
             radioGroup.check(radioGroup.getChildAt(0).id)
-
           }
 
           var checkID = radioGroup.checkedRadioButtonId
 
-          radioGroup.setOnCheckedChangeListener { group, checkedId ->
+          radioGroup.setOnCheckedChangeListener { _, checkedId ->
             checkID = checkedId
           }
 
           val dialog =
-            MaterialAlertDialogBuilder(this@SettingsApp).setView(linearLayout).setTitle("Themes")
-              .setNegativeButton("Cancel", null).setPositiveButton("Apply") { dialog, which ->
-
-
-                val loading = LoadingPopup(this@SettingsApp,null).show()
+            MaterialAlertDialogBuilder(this@SettingsApp)
+              .setView(linearLayout)
+              .setTitle("Themes")
+              .setNegativeButton("Cancel", null)
+              .setPositiveButton("Apply") { _, _ ->
+                val loading = LoadingPopup(this@SettingsApp, null).show()
 
                 val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
+                ThemeManager.setSelectedTheme(this@SettingsApp, selectedTheme.first)
 
-
-                for (activity in activityMap.values) {
-                  if (activity != null) {
-                    ThemeManager.setTheme(activity,selectedTheme.second)
-                  }
+                activityMap.values.forEach { activity ->
+                  activity?.recreate()
                 }
 
                 loading.hide()
-
               }.show()
 
           dialog.window?.setLayout(
@@ -264,7 +232,6 @@ class SettingsApp : BaseActivity() {
           )
         }
       }
-
     }
   }
 

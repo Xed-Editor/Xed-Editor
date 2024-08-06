@@ -3,7 +3,7 @@
     <style name="Base.Theme.Fragments" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
-        <item name="colorPrimary">@color/berry</item>
+        <item name="colorPrimary">@color/berryX</item>
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>

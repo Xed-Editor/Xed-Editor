@@ -8,14 +8,10 @@
 <img src="https://img.shields.io/github/downloads/RohitKushvaha01/Xed-Editor/total?label=Downloads" alt="Download Count"><a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"></a>
 <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI"></a>
 </div>
-</p>
 
 
 
-
-
-
-</div>Karbon is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
+Karbon is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
 
 
 ## Features

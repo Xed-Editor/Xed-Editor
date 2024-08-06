@@ -10,7 +10,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.view.ViewCompat
 import de.Maxr1998.modernpreferences.R
 
-class ModernSeekBar(
+class SeekBar(
     context: Context,
     attrs: AttributeSet?,
     defStyleAttr: Int,

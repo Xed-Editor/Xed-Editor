@@ -2,16 +2,19 @@ package com.rk.xededitor.Settings
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import android.widget.EditText
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
-import com.rk.xededitor.MainActivity.DynamicFragment
+import com.rk.xededitor.MainActivity.fragment.DynamicFragment
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
@@ -20,6 +23,8 @@ import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
+import de.Maxr1998.modernpreferences.helpers.onClick
+import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.screen
 import de.Maxr1998.modernpreferences.helpers.switch
 
@@ -138,6 +143,8 @@ class SettingsEditor : BaseActivity() {
         }
       }
 
+
+
       switch("arrow_keys") {
         title = "Extra Keys"
         summary = "Show extra keys in the editor"
@@ -151,6 +158,7 @@ class SettingsEditor : BaseActivity() {
           if (StaticData.fragments == null || StaticData.fragments.isEmpty()) {
             return@onCheckedChange true
           }
+          LoadingPopup(this@SettingsEditor,200)
 
           if (isChecked) {
             getActivity(MainActivity::class.java)?.binding?.divider?.visibility = View.VISIBLE
@@ -172,10 +180,54 @@ class SettingsEditor : BaseActivity() {
             vp.setLayoutParams(layoutParams)
           }
 
+          getActivity(MainActivity::class.java)?.recreate()
+
           return@onCheckedChange true
         }
       }
+      pref("tabsize"){
+        title = "Tab Size"
+        summary = "Set tab size"
+        iconRes = R.drawable.double_arrows
+        onClick {
+          val view = LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new,null)
+          val edittext = view.findViewById<EditText>(R.id.name).apply {
+            hint = "Tab Size"
+            setText(SettingsData.getSetting(this@SettingsEditor,"tabsize","4"))
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+          }
+          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Tab Size")
+            .setView(view).setNegativeButton("Cancel",null).setPositiveButton("Apply"){
+              dialog,which ->
+              val text = edittext.text.toString()
+              for (c in text){
+                if (!c.isDigit()){
+                  rkUtils.toast(this@SettingsEditor,"invalid value")
+                  return@setPositiveButton
+                }
+              }
+              if(text.toInt() > 16){
+                rkUtils.toast(this@SettingsEditor,"Value too large")
+                return@setPositiveButton
+              }
+              SettingsData.setSetting(this@SettingsEditor,"tabsize",text)
+
+              if(StaticData.fragments != null){
+                for (f in StaticData.fragments){
+                  f.editor.tabWidth = text.toInt()
+                }
+              }
+
+
+            }.show()
+
+          return@onClick true
+
+        }
+      }
+
     }
+
 
 
   }

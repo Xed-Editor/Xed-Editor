@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -17,36 +17,35 @@
 
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/toggleButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:visibility="gone"
-            app:selectionRequired="true"
             app:checkedButton="@id/auto"
-            app:singleSelection="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/light"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Light"
-                />
-            <Button
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/dark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dark"
-                />
-            <Button
-                style="?attr/materialButtonOutlinedStyle"
-                android:id="@+id/auto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Auto"
-                />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+            app:selectionRequired="true"
+            app:singleSelection="true">
 
+            <Button
+                android:id="@+id/light"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Light" />
+
+            <Button
+                android:id="@+id/dark"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark" />
+
+            <Button
+                android:id="@+id/auto"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auto" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
 
 
         <androidx.recyclerview.widget.RecyclerView

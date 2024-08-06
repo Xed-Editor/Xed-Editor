@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity;
 
 import static android.content.res.Resources.getSystem;
+import static com.rk.xededitor.MainActivity.PathUtils.convertUriToPath;
 import static com.rk.xededitor.MainActivity.StaticData.REQUEST_DIRECTORY_SELECTION;
 import static com.rk.xededitor.MainActivity.StaticData.fragments;
 import static com.rk.xededitor.MainActivity.StaticData.mTabLayout;
@@ -10,21 +11,25 @@ import static com.rk.xededitor.rkUtils.dpToPx;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -38,30 +43,28 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.rk.xededitor.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.FileClipboard;
+import com.rk.xededitor.MainActivity.fragment.DynamicFragment;
+import com.rk.xededitor.MainActivity.fragment.TabAdapter;
 import com.rk.xededitor.MainActivity.treeview2.FileAction;
+import com.rk.xededitor.MainActivity.treeview2.PrepareRecyclerView;
 import com.rk.xededitor.MainActivity.treeview2.TreeView;
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.databinding.ActivityMainBinding;
 import com.rk.xededitor.rkUtils;
-import com.rk.xededitor.theme.ThemeManager;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,7 +76,7 @@ public class MainActivity extends BaseActivity {
     final int REQUEST_FILE_SELECTION = 123;
     private final int REQUEST_CODE_MANAGE_EXTERNAL_STORAGE = 36169;
     public ActivityMainBinding binding;
-    public mAdapter adapter;
+    public TabAdapter adapter;
     public ViewPager viewPager;
     public DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -82,6 +85,12 @@ public class MainActivity extends BaseActivity {
 
     public static void updateMenuItems() {
         final boolean visible = !(fragments == null || fragments.isEmpty());
+        if (menu == null){
+            new After(200, () -> {
+                rkUtils.runOnUiThread(MainActivity::updateMenuItems);
+            });
+            return;
+        }
         menu.findItem(R.id.batchrep).setVisible(visible);
         menu.findItem(R.id.search).setVisible(visible);
         menu.findItem(R.id.action_save).setVisible(visible);
@@ -226,7 +235,7 @@ public class MainActivity extends BaseActivity {
             binding.tabs.setVisibility(View.VISIBLE);
             binding.mainView.setVisibility(View.VISIBLE);
             binding.openBtn.setVisibility(View.GONE);
-            newEditor(getFile(data), false);
+            newEditor(new File(convertUriToPath(this, data.getData())), false);
 
         } else if (requestCode == REQUEST_DIRECTORY_SELECTION && resultCode == RESULT_OK && data != null) {
             binding.mainView.setVisibility(View.VISIBLE);
@@ -234,7 +243,7 @@ public class MainActivity extends BaseActivity {
             binding.maindrawer.setVisibility(View.VISIBLE);
             binding.drawerToolbar.setVisibility(View.VISIBLE);
 
-            File file = getFile(data);
+            File file = new File(convertUriToPath(this, data.getData()));
             rootFolder = file;
             String name = rootFolder.getName();
             if (name.length() > 18) {
@@ -250,7 +259,7 @@ public class MainActivity extends BaseActivity {
 
                 // Save a file in the selected directory
                 //String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
-                File directory = getFile(data);
+                File directory = new File(convertUriToPath(this, directoryUri));
 
                 if (directory.isDirectory()) {
                     // Ensure the directory exists
@@ -284,29 +293,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    private @NonNull File getFile(@NonNull Intent data) {
-        Uri treeUri = data.getData();
-
-        assert treeUri != null;
-        var uriPath = Objects.requireNonNull(treeUri.getPath()).split("/");
-
-        var type = uriPath[uriPath.length-1].split(":")[0];
-
-        String path;
-        if(type.equals("primary")){
-
-            path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/primary:", "/storage/emulated/0/");
-        }else{
-            path = Objects.requireNonNull(treeUri.getPath()).replace("/"+uriPath[1]+"/"+type+":","/storage/"+type+"/");
-            Toast.makeText(this,path, Toast.LENGTH_LONG).show();
-        }
-
-
-        rkUtils.toast(this,path);
-
-        return new File(path);
-    }
-
     public void onNewEditor() {
         binding.openBtn.setVisibility(View.GONE);
         binding.tabs.setVisibility(View.VISIBLE);
@@ -321,7 +307,7 @@ public class MainActivity extends BaseActivity {
     public void newEditor(File file, boolean isNewFile, String text) {
         if (adapter == null) {
             fragments = new ArrayList<>();
-            adapter = new mAdapter(getSupportFragmentManager());
+            adapter = new TabAdapter(getSupportFragmentManager());
             viewPager.setAdapter(adapter);
         }
 

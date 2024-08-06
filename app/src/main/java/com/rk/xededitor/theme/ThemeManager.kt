@@ -5,31 +5,30 @@ import android.content.res.Resources
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 
-
 object ThemeManager {
+  private const val THEME_PREFIX = "selectable_"
 
-
-  fun getSelectedTheme(context: Context) : Int{
-    return SettingsData.getSetting(context,"selected_theme",R.style.selectable_Berry.toString()).toInt()
+  fun getSelectedTheme(context: Context): String {
+    return SettingsData.getSetting(context, "selected_theme", "Berry")
   }
 
-  fun setSelectedTheme(context: Context,themeId: Int){
-    SettingsData.setSetting(context,"selected_theme",themeId.toString())
+  fun setSelectedTheme(context: Context, themeName: String) {
+    SettingsData.setSetting(context, "selected_theme", themeName)
   }
 
-  fun applyTheme(context: Context){
+  fun applyTheme(context: Context) {
     setTheme(context, getSelectedTheme(context))
   }
 
-  fun setTheme(context: Context, themeId: Int) {
-    context.setTheme(themeId)
-    setSelectedTheme(context,themeId)
+  fun setTheme(context: Context, themeName: String) {
+    context.setTheme(getThemeIdByName(context, themeName))
+    setSelectedTheme(context, themeName)
   }
 
-  private const val theme_prefix = "selectable_"
-
-  val idMap = HashMap<String,Int>()
-
+  private fun getThemeIdByName(context: Context, themeName: String): Int {
+    val themeResName = "$THEME_PREFIX$themeName"
+    return context.resources.getIdentifier(themeResName, "style", context.packageName)
+  }
 
   fun getThemes(context: Context): List<Pair<String, Int>> {
     val stylesClass = R.style::class.java
@@ -40,14 +39,11 @@ object ThemeManager {
       try {
         val resourceId = field.getInt(null)
         val resourceName = context.resources.getResourceEntryName(resourceId)
-        if (!resourceName.startsWith(theme_prefix)) {
+        if (!resourceName.startsWith(THEME_PREFIX)) {
           continue
         }
-        val finalname = resourceName.removePrefix(theme_prefix)
-
-        idMap[finalname] = resourceId
-
-        themes.add(Pair(finalname, resourceId))
+        val finalName = resourceName.removePrefix(THEME_PREFIX)
+        themes.add(Pair(finalName, resourceId))
       } catch (e: IllegalAccessException) {
         e.printStackTrace()
       }

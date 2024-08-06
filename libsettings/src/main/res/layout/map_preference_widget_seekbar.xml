@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-    <de.Maxr1998.modernpreferences.views.ModernSeekBar
+    <de.Maxr1998.modernpreferences.views.SeekBar
         android:id="@android:id/progress"
         android:layout_width="0dp"
         android:layout_height="48dp"

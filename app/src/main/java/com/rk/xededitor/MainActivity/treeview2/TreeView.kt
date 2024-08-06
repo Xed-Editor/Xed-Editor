@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.After
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.PrepareRecyclerView
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils.runOnUiThread

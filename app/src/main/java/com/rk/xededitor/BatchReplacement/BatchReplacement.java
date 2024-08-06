@@ -19,7 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 import com.rk.xededitor.BaseActivity;
-import com.rk.xededitor.MainActivity.mAdapter;
+import com.rk.xededitor.MainActivity.fragment.TabAdapter;
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.SimpleEditor.SimpleEditor;
@@ -153,7 +153,7 @@ public class BatchReplacement extends BaseActivity {
                     String replacement = editTextx.getText().toString();
 
                     if (fragments != null) {
-                        var editor = mAdapter.getCurrentEditor();
+                        var editor = TabAdapter.getCurrentEditor();
                         editor.setText(editor.getText().toString().replaceAll(keyword, replacement));
 
                     } else if (getIntent().getExtras().getBoolean("isExt", false)) {
