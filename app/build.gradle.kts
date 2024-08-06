@@ -15,9 +15,8 @@ android {
 
 packagingOptions {
         resources {
-            excludes += "kotlin/kotlin.kotlin_builtins"
-            excludes += "kotlin/coroutines/coroutines.kotlin_builtins"
-            excludes += "kotlin/reflect/reflect.kotlin_builtins"
+            excludes += "kotlin/**/kotlin_builtins"
+            excludes += "META-INF/*.kotlin_module"
         }
     }
 
