@@ -16,7 +16,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
 
-class setupEditor(val editor: CodeEditor, val ctx: Context) {
+class setupEditor(val editor: CodeEditor, private val ctx: Context) {
 
 
   fun setupLanguage(fileName: String) {
@@ -49,13 +49,17 @@ class setupEditor(val editor: CodeEditor, val ctx: Context) {
         setLanguage("text.html.markdown")
       }
 
+      "kts" -> {
+        setLanguage("source.kotlin")
+      }
+
     }
   }
 
   private fun setLanguage(languageScopeName: String) {
     FileProviderRegistry.getInstance().addFileProvider(
       AssetsFileResolver(
-        ctx?.applicationContext?.assets
+        ctx.applicationContext?.assets
       )
     )
 

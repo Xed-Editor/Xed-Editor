@@ -12,10 +12,12 @@
 
 <!-- Layout used by SwitchPreference for the switch widget style. This is inflated
      inside android.R.layout.preference. -->
-<androidx.appcompat.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.materialswitch.MaterialSwitch xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@android:id/checkbox"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@null"
+    app:thumbTint="@android:color/white"
     android:clickable="false"
     android:focusable="false" />
