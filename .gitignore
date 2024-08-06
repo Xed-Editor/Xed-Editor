@@ -16,3 +16,4 @@
 *.log
 local.properties
 Todo.md
+*/build
