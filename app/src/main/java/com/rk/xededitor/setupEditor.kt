@@ -60,6 +60,10 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
       "cpp", "h" -> {
         setLanguage("source.cpp")
       }
+
+      "json" -> {
+        setLanguage("source.json")
+      }
     }
   }
 
