@@ -18,7 +18,7 @@ android {
     includeInBundle = false
   }
 
-  signingConfigs {
+  /*signingConfigs {
     create("release") {
 
 
@@ -47,7 +47,7 @@ android {
         println("Signing properties file not found at $propertiesFilePath")
       }
     }
-  }
+  }*/
 
   buildTypes {
     getByName("release") {
