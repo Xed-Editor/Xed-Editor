@@ -35,7 +35,18 @@ android {
       }
     }
   }else if(System.getenv("GITHUB_ACTIONS") == "true"){
-    println("running in github workflow")
+    println("signed with : "+file.absolutePath)
+    signingConfigs {
+      create("release") {
+        val propertiesFile = rootProject.file("/tmp/signing.properties")
+        val properties = Properties()
+        properties.load(propertiesFile.inputStream())
+        keyAlias = properties["keyAlias"] as String
+        keyPassword = properties["keyPassword"] as String
+        storeFile = file("/tmp/xed.keystore")
+        storePassword = properties["storePassword"] as String
+      }
+    }
   }
 
   buildTypes {
