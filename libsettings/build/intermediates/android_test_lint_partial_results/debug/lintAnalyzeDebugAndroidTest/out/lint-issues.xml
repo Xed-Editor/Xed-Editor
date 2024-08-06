@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<incidents format="6" by="lint 8.5.1" type="configured_issues">
-    <config id="ExtraTranslation" severity="ignore"/>
-    <config id="MissingTranslation" severity="ignore"/>
-
-</incidents>

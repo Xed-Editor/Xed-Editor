@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<incidents format="6" by="lint 8.5.1" type="partial_results">
-    <map id="UnusedResources">
-        <entry
-            name="model"
-            string="attr[colorAccent(R),selectableItemBackground(R),listPreferredItemHeightSmall(R),listPreferredItemHeight(R),textAppearanceListItem(R),textAppearanceListItemSecondary(R),textAppearanceListItemSmall(R),expandableTextBackgroundColor(DRP),mapAccentTextColor(U),seekBarStyle(R)],color[expandableTextBackgroundColorDefault(U)],drawable[map_badge_background(U),map_collapse_to_expand_animation(U),map_ic_collapse_24dp(U),map_collapse_to_expand_animation_1(R),map_expand_animated_selector(U),map_ic_expand_24dp(U),map_expand_to_collapse_animation(U),map_expand_to_collapse_animation_1(R),map_scrim(U),map_seekbar_default_marker(U),map_seekbar_tick_mark(U)],id[map_btn_checked(U),map_btn_unchecked(U),map_icon_frame(U),map_selector(U),badge(U),map_image(U),map_image_scrim(U),map_bottom_barrier(U),map_badge(U),map_widget_frame(U),progress_text(U)],layout[map_accent_button_preference(U),map_dialog_multi_choice_item(U),map_dialog_single_choice_item(U),map_image_preference(U),map_preference(U),map_preference_category(U),map_preference_expand_text(U),map_preference_widget_checkbox(U),map_preference_widget_expand_arrow(U),map_preference_widget_seekbar(U),map_preference_widget_seekbar_stub(U),map_preference_widget_switch(U)],string[path_ic_collapse(U),path_ic_expand(U),pref_advanced(DRP),pref_advanced_block(U)],style[TextAppearance_AppCompat_Widget_Button_Borderless_Colored(R),TextAppearance_AppCompat_Body2(R)],sample[backgrounds/scenic(R)];c^d^e^2d^2e,d^2d,f^d^10^11^17^16^c,10^2e,11^10^12^2e^2d,14^0,15^0,21^1^2^18^3^10^31,22^1^2^b^4^1a^19^5,23^1^2^b^4^1a^19^5,24^2^18^33^13^1b^6,25^1^2^1d^18^3^10^4^1e^5^1f^b,26^18^32,27^1d,29^f,2a^1d^0;;;"/>
-    </map>
-
-</incidents>
