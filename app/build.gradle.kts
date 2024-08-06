@@ -34,7 +34,7 @@ android {
         storePassword = properties["storePassword"] as String
       }
     }
-  }else if(System.getenv("RUNNING_IN_GITHUB_ACTIONS") == "true"){
+  }else if(System.getenv("GITHUB_ACTIONS") == "true"){
     println("running in github workflow")
   }
 
