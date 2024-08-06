@@ -18,32 +18,24 @@ android {
     includeInBundle = false
   }
 
-  val filePath = "/home/rohit/signing.properties"
-  val file = File(filePath)
-
-  if (file.exists()) {
-    println("signed with : "+file.absolutePath)
-    signingConfigs {
-      create("release") {
-        val propertiesFile = rootProject.file("/home/rohit/signing.properties")
-        val properties = Properties()
-        properties.load(propertiesFile.inputStream())
-        keyAlias = properties["keyAlias"] as String
-        keyPassword = properties["keyPassword"] as String
-        storeFile = file(properties["storeFile"] as String)
-        storePassword = properties["storePassword"] as String
+  signingConfigs {
+    create("release") {
+      val propertiesFilePath = if (System.getenv("GITHUB_ACTIONS") == "true") {
+        "/tmp/signing.properties"
+      } else {
+        "/home/rohit/signing.properties"
       }
-    }
-  }else if(System.getenv("GITHUB_ACTIONS") == "true"){
-    signingConfigs {
-      create("release") {
-        val propertiesFile = File("/tmp/signing.properties")
+
+      val propertiesFile = File(propertiesFilePath)
+      if (propertiesFile.exists()) {
         val properties = Properties()
         properties.load(propertiesFile.inputStream())
         keyAlias = properties["keyAlias"] as String
         keyPassword = properties["keyPassword"] as String
-        storeFile = File("/tmp/xed.keystore")
+        storeFile = File(properties["storeFile"] as String)
         storePassword = properties["storePassword"] as String
+      } else {
+        println("Signing properties file not found at $propertiesFilePath")
       }
     }
   }
@@ -55,10 +47,7 @@ android {
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
       )
-      if(file.exists()){
-        signingConfig = signingConfigs.getByName("release")
-      }
-
+      signingConfig = signingConfigs.getByName("release")
     }
   }
 
@@ -78,8 +67,8 @@ android {
 
   buildFeatures {
     viewBinding = true
-
   }
+
   kotlinOptions {
     jvmTarget = "17"
   }
@@ -125,5 +114,4 @@ dependencies {
 
   implementation(libs.nb.javac.android)
  // implementation(libs.zyron.filetree)
-
 }
