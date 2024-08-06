@@ -34,7 +34,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*apk app/karbon.apk
+        run: ./gradlew assembleDebug && mv app/build/outputs/apk/release/*apk app/karbon.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
