@@ -12,4 +12,4 @@ Ensure your pull request includes:
 
    - A clear description of the problem or feature.
    - References to any related issues.
-   - Relevant tests or documentation updates.
+   - documentation updates.
