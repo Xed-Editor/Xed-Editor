@@ -80,9 +80,9 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
     try {
       if (darkMode) {
         val path = if (SettingsData.isOled(ctx)) {
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
+          ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
         } else {
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
+          ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
         }
         if (!File(path).exists()) {
           rkUtils.runOnUiThread {
@@ -105,7 +105,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
         }
       } else {
         val path =
-          ctx!!.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
+          ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
         if (!File(path).exists()) {
           rkUtils.runOnUiThread {
             rkUtils.toast(
@@ -127,7 +127,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
     }
 
     if (darkMode) {
-      val pref = ctx!!.applicationContext.getSharedPreferences("MyPref", 0)
+      val pref = ctx.applicationContext.getSharedPreferences("MyPref", 0)
       themeRegistry.setTheme("darcula")
     } else {
       themeRegistry.setTheme("quietlight")
