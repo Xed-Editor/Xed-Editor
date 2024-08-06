@@ -18,7 +18,7 @@ android {
     includeInBundle = false
   }
 
-  /*signingConfigs {
+  signingConfigs {
     create("release") {
 
 
@@ -32,7 +32,7 @@ android {
 
       val propertiesFile = File(propertiesFilePath)
       if (propertiesFile.exists()) {
-        val properties = Properties()
+        /*val properties = Properties()
         properties.load(propertiesFile.inputStream())
         keyAlias = properties["keyAlias"] as String
         keyPassword = properties["keyPassword"] as String
@@ -42,12 +42,12 @@ android {
           storeFile = File(properties["storeFile"] as String)
         }
 
-        storePassword = properties["storePassword"] as String
+        storePassword = properties["storePassword"] as String*/
       } else {
         println("Signing properties file not found at $propertiesFilePath")
       }
     }
-  }*/
+  }
 
   buildTypes {
     getByName("release") {
@@ -56,7 +56,7 @@ android {
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
       )
-      //signingConfig = signingConfigs.getByName("release")
+      signingConfig = signingConfigs.getByName("release")
     }
   }
 
