@@ -13,12 +13,6 @@ android {
         disable("MissingTranslation")
     }
 
-packagingOptions {
-        resources {
-            excludes += "kotlin/**/kotlin_builtins"
-            excludes += "META-INF/*.kotlin_module"
-        }
-    }
 
     dependenciesInfo {
         includeInApk = false
@@ -114,7 +108,7 @@ dependencies {
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
     implementation(project(":libsettings"))
-    implementation(project(":libPlugin"))
+    //implementation(project(":libPlugin"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)
