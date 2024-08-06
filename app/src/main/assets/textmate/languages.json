@@ -46,7 +46,7 @@
       "languageConfiguration": "textmate/cpp/language-configuration.json"
     },
     {
-      "grammar": "textmate/cpp/syntaxes/cpp.tmLanguage.json",
+      "grammar": "textmate/cpp/syntaxes/c.tmLanguage.json",
       "name": "c",
       "scopeName": "source.c",
       "languageConfiguration": "textmate/cpp/language-configuration.json"
