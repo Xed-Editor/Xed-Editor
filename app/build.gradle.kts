@@ -14,7 +14,9 @@ android {
     }
 
 packagingOptions {
-        exclude 'kotlin/coroutines/coroutines.kotlin_builtins'
+        resources {
+            excludes += "kotlin/coroutines/coroutines.kotlin_builtins"
+        }
     }
 
     dependenciesInfo {
