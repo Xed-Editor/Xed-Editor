@@ -40,6 +40,18 @@
       "languageConfiguration": "textmate/javascript/language-configuration.json"
     },
     {
+      "grammar": "textmate/cpp/syntaxes/cpp.tmLanguage.json",
+      "name": "cpp",
+      "scopeName": "source.cpp",
+      "languageConfiguration": "textmate/cpp/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/cpp/syntaxes/cpp.tmLanguage.json",
+      "name": "c",
+      "scopeName": "source.c",
+      "languageConfiguration": "textmate/cpp/language-configuration.json"
+    },
+    {
       "name": "markdown",
       "scopeName": "text.html.markdown",
       "grammar": "textmate/markdown/syntaxes/markdown.tmLanguage.json",

@@ -53,6 +53,13 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
         setLanguage("source.kotlin")
       }
 
+      "c" -> {
+        setLanguage("source.c")
+      }
+
+      "cpp", "h" -> {
+        setLanguage("source.cpp")
+      }
     }
   }
 
