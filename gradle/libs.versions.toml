@@ -1,6 +1,7 @@
 [versions]
 agp = "8.5.1"
 appcompat = "1.7.0"
+bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.9.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
@@ -23,6 +24,7 @@ espressoCore = "3.6.1"
 
 [libraries]
 
+bsh = { module = "org.beanshell:bsh", version.ref = "bsh" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }

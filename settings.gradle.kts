@@ -10,6 +10,8 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven { url = uri("https://jitpack.io")}
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+
     }
 }
 dependencyResolutionManagement {
@@ -18,9 +20,12 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io")}
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+
     }
 }
 
 rootProject.name = "Xed Editor"
 include(":app")
 include(":libsettings")
+include(":libPlugin")
