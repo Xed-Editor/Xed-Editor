@@ -67,6 +67,10 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
       "css" -> {
         setLanguage("source.css")
       }
+
+      "cs" -> {
+        setLanguage("source.cs")
+      }
     }
   }
 

@@ -64,6 +64,12 @@
       "languageConfiguration": "textmate/css/language-configuration.json"
     },
     {
+      "grammar": "textmate/csharp/syntaxes/csharp.tmLanguage.json",
+      "name": "csharp",
+      "scopeName": "source.cs",
+      "languageConfiguration": "textmate/csharp/language-configuration.json"
+    },
+    {
       "name": "markdown",
       "scopeName": "text.html.markdown",
       "grammar": "textmate/markdown/syntaxes/markdown.tmLanguage.json",
