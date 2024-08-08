@@ -40,7 +40,7 @@ class DynamicFragment : Fragment {
 
   constructor() {
     After(100) {
-      rkUtils.runOnUiThread {
+      runOnUiThread {
         val fragmentManager = BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
         val fragmentTransaction = fragmentManager?.beginTransaction()
         fragmentTransaction?.remove(this)
@@ -60,6 +60,8 @@ class DynamicFragment : Fragment {
 
     setupEditor(editor, ctx).setupLanguage(fileName)
 
+    editor.setPinLineNumber(SettingsData.getBoolean(ctx,"pinline",false))
+
     if (SettingsData.isDarkMode(ctx)) {
       setupEditor(editor, ctx).ensureTextmateTheme()
     } else {
@@ -77,20 +79,20 @@ class DynamicFragment : Fragment {
         val inputStream: InputStream = FileInputStream(file)
         content = ContentIO.createFrom(inputStream)
         inputStream.close()
-        rkUtils.runOnUiThread { editor.setText(content) }
+        runOnUiThread { editor.setText(content) }
         if (wordwrap) {
           val length = content.toString().length
           if (length > 700 && content.toString().split("\\R".toRegex())
               .dropLastWhile { it.isEmpty() }.toTypedArray().size < 100
           ) {
-            rkUtils.runOnUiThread {
+            runOnUiThread {
               rkUtils.toast(
                 ctx, resources.getString(R.string.ww_wait)
               )
             }
           }
           if (length > 1500) {
-            rkUtils.runOnUiThread {
+            runOnUiThread {
               Toast.makeText(
                 ctx, resources.getString(R.string.ww_wait), Toast.LENGTH_LONG
               ).show()

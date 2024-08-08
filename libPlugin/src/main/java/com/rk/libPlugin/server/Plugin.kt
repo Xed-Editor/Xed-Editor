@@ -1,4 +1,4 @@
-package com.rk.libPlugin
+package com.rk.libPlugin.server
 
 import android.app.Application
 import android.os.Handler
@@ -7,7 +7,7 @@ import android.widget.Toast
 import bsh.Interpreter
 import java.io.File
 
-class Plugin(val info: Manifest,val pluginHome:String, val app: Application) : Thread() {
+class Plugin(val info: Manifest, val pluginHome:String, val app: Application) : Thread() {
     lateinit var interpreter: Interpreter
     val handler = Handler(Looper.getMainLooper())
     override fun run() {
@@ -22,7 +22,7 @@ class Plugin(val info: Manifest,val pluginHome:String, val app: Application) : T
                 handler.post {
                     Toast.makeText(
                         app,
-                        "an error occurred on plugin $name see logcat for more info",
+                        "an error occurred on plugin \"$name\" see logcat for more info",
                         Toast.LENGTH_LONG
                     ).show()
                 }

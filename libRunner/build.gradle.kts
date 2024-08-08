@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.libPlugin"
+    namespace = "com.rk.librunner"
     compileSdk = 34
 
     defaultConfig {
@@ -30,15 +30,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
+
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.bsh)
-    implementation(libs.gson)
 }

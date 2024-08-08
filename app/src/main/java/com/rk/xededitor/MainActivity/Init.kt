@@ -16,6 +16,7 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.rk.librunner.Runner
 import com.rk.xededitor.After
 import com.rk.xededitor.Decompress
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
@@ -67,7 +68,11 @@ class Init(activity: MainActivity) {
         mTabLayout.setOnTabSelectedListener(object : OnTabSelectedListener {
           override fun onTabSelected(tab: TabLayout.Tab) {
             viewPager.setCurrentItem(tab.position)
-            StaticData.fragments[mTabLayout.selectedTabPosition].updateUndoRedo()
+            val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
+            fragment.updateUndoRedo()
+            StaticData.menu?.findItem(R.id.run)?.setVisible(fragment.file != null && Runner.isRunnable(fragment.file!!))
+
+
           }
 
           override fun onTabUnselected(tab: TabLayout.Tab) {}

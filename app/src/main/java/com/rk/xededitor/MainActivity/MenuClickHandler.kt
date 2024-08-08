@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.core.app.ActivityCompat.startActivityForResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.librunner.Runner
 import com.rk.xededitor.After
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.StaticData.fragments
@@ -33,6 +34,12 @@ class MenuClickHandler {
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
       val id = menuItem.itemId
       when (id) {
+        
+        R.id.run -> {
+          Runner.run(fragments[mTabLayout.selectedTabPosition].file)
+          return true
+        }
+        
         R.id.action_all -> {
           // Handle action_all
           handleSaveAll(activity)

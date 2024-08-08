@@ -1,4 +1,4 @@
-package com.rk.libPlugin
+package com.rk.libPlugin.server
 
 import android.app.Application
 import android.content.Context
@@ -58,7 +58,7 @@ class Server(val app: Application) : Thread() {
         private val InstalledPlugins = ArrayList<Plugin>()
 
         @JvmStatic
-        fun getInstalledPlugins(){
+        fun getInstalledPlugins() : List<Plugin>{
             return synchronized(InstalledPlugins){ InstalledPlugins }
         }
 
@@ -69,7 +69,6 @@ class Server(val app: Application) : Thread() {
 
         @JvmStatic
         fun isPluginActive(context: Context, packageName: String,default:Boolean): Boolean {
-            return true
             val sharedPreferences = context.applicationContext.getSharedPreferences("PluginPrefs", Context.MODE_PRIVATE)
             return sharedPreferences.getBoolean(packageName, default)
         }

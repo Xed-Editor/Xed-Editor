@@ -29,3 +29,5 @@ rootProject.name = "Xed Editor"
 include(":app")
 include(":libsettings")
 include(":libPlugin")
+include(":libRunner")
+include(":app:libTreeView")

@@ -109,6 +109,7 @@ dependencies {
     implementation(libs.utilcode)
     implementation(project(":libsettings"))
     implementation(project(":libPlugin"))
+    implementation(project(":libRunner"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)

@@ -1,7 +1,7 @@
 package com.rk.xededitor
 
 import android.app.Application
-import com.rk.libPlugin.Server
+import com.rk.libPlugin.server.Server
 import com.rk.xededitor.CrashHandler.CrashHandler
 
 class App : Application() {

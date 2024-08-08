@@ -1,4 +1,4 @@
-package com.rk.libPlugin
+package com.rk.libPlugin.server
 
 data class Manifest(
     val name:String,
@@ -6,5 +6,6 @@ data class Manifest(
     val author:String,
     val version:String,
     val versionCode:Int,
-    val script:String
+    val script:String,
+    val icon:String
 )

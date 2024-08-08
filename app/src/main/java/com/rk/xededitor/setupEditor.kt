@@ -20,7 +20,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
 
   fun setupLanguage(fileName: String) {
     when (fileName.substringAfterLast('.', "")) {
-      "java" -> {
+      "java","bsh" -> {
         setLanguage("source.java")
       }
 
@@ -28,7 +28,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
         setLanguage("text.html.basic")
       }
 
-      "kt" -> {
+      "kt","kts" -> {
         setLanguage("source.kotlin")
       }
 
@@ -46,10 +46,6 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
 
       "md" -> {
         setLanguage("text.html.markdown")
-      }
-
-      "kts" -> {
-        setLanguage("source.kotlin")
       }
 
       "c" -> {
@@ -73,6 +69,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
       }
     }
   }
+
 
   private fun setLanguage(languageScopeName: String) {
     FileProviderRegistry.getInstance().addFileProvider(

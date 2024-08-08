@@ -93,5 +93,11 @@
         android:title="@string/insertdate"
         android:visible="false"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/run"
+        android:icon="@drawable/run"
+        android:title="@string/run"
+        android:visible="false"
+        app:showAsAction="always"/>
 
 </menu>

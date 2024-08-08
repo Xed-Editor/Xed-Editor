@@ -11,19 +11,14 @@ import static com.rk.xededitor.rkUtils.dpToPx;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -62,7 +57,6 @@ import com.rk.xededitor.rkUtils;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -86,10 +80,8 @@ public class MainActivity extends BaseActivity {
 
     public static void updateMenuItems() {
         final boolean visible = !(fragments == null || fragments.isEmpty());
-        if (menu == null){
-            new After(200, () -> {
-                rkUtils.runOnUiThread(MainActivity::updateMenuItems);
-            });
+        if (menu == null) {
+            new After(200, () -> rkUtils.runOnUiThread(MainActivity::updateMenuItems));
             return;
         }
         menu.findItem(R.id.batchrep).setVisible(visible);
@@ -103,20 +95,20 @@ public class MainActivity extends BaseActivity {
         menu.findItem(R.id.undo).setVisible(visible);
         menu.findItem(R.id.redo).setVisible(visible);
         menu.findItem(R.id.insertdate).setVisible(visible);
-        if (visible && SettingsData.getBoolean( BaseActivity.Companion.getActivity(MainActivity.class), "show_arrows", false)) {
-             BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.VISIBLE);
-             BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.VISIBLE);
-            var vp =  BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
+        if (visible && SettingsData.getBoolean(BaseActivity.Companion.getActivity(MainActivity.class), "show_arrows", false)) {
+            BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.VISIBLE);
+            BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.VISIBLE);
+            var vp = BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(50,  BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(50, BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
-           
+
         } else {
-             BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.GONE);
-             BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.GONE);
-            var vp =  BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
+            BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.GONE);
+            BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.GONE);
+            var vp = BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(0,  BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(0, BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
         }
     }
@@ -170,8 +162,7 @@ public class MainActivity extends BaseActivity {
                 shouldAsk = true;
             }
         } else {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 shouldAsk = true;
             }
         }

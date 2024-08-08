@@ -90,6 +90,7 @@
     <string name="terminal">Terminal</string>
     <string name="open_from_path">Open From Path</string>
     <string name="app_private_directory">App Data Files</string>
+    <string name="run">Run</string>
 
 
 </resources>

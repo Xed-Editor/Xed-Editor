@@ -134,6 +134,7 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.linenumbers
         defaultValue = false
         onCheckedChange { isChecked ->
+          SettingsData.setBoolean(this@SettingsEditor,"pinline",isChecked)
           if (StaticData.fragments?.isNotEmpty() == true) {
             StaticData.fragments.forEach { fragment ->
               fragment.editor.setPinLineNumber(isChecked)

@@ -1,5 +1,6 @@
 package com.rk.xededitor.Settings
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libPlugin.client.ManagePlugin
 import com.rk.xededitor.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
@@ -230,6 +232,31 @@ class SettingsApp : BaseActivity() {
             resources.getDimensionPixelSize(R.dimen.dialog_width), // Set your desired width here
             ViewGroup.LayoutParams.WRAP_CONTENT
           )
+        }
+      }
+      switch("plugins"){
+        title = "Enable Plugins"
+        summary = "Execute active plugins"
+        iconRes = R.drawable.extension
+        onCheckedChange { isChecked ->
+          SettingsData.setBoolean(this@SettingsApp,"enablePlugin",isChecked)
+          LoadingPopup(this@SettingsApp,200)
+          After(230){
+            runOnUiThread {
+              this@SettingsApp.recreate()
+            }
+          }
+          return@onCheckedChange true
+        }
+      }
+      if (SettingsData.getBoolean(this@SettingsApp,"enablePlugin",false)){
+        pref("managePlugin"){
+          title = "Manage Plugins"
+          summary = "on/off installed plugins"
+          iconRes = R.drawable.extension
+          onClickView {
+            startActivity(Intent(this@SettingsApp, ManagePlugin::class.java))
+          }
         }
       }
     }
