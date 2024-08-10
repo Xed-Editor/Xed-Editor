@@ -88,14 +88,14 @@ class Init(activity: MainActivity) {
                 adapter.closeOthers(viewPager.currentItem)
               } else if (id == R.id.close_all) {
                 adapter.clear()
+                StaticData.menu?.findItem(R.id.run)?.setVisible(false)
+
               }
               for (i in 0 until mTabLayout.tabCount) {
                 val tab = mTabLayout.getTabAt(i)
                 if (tab != null) {
                   val name = StaticData.fragments[i].fileName
-                  if (name != null) {
-                    tab.setText(name)
-                  }
+                  tab.setText(name)
                 }
               }
               if (mTabLayout.tabCount < 1) {

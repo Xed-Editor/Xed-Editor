@@ -42,6 +42,7 @@ public class CustomListAdapter extends ArrayAdapter<Plugin> {
 
 
         TextView title = convertView.findViewById(R.id.title);
+        assert plugin != null;
         title.setText(plugin.getInfo().getName());
 
         TextView pkg = convertView.findViewById(R.id.pkg);
@@ -59,7 +60,6 @@ public class CustomListAdapter extends ArrayAdapter<Plugin> {
         materialSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             Server.setPluginActive(context,plugin.getInfo().getPackageName(),isChecked);
         });
-
         return convertView;
     }
 

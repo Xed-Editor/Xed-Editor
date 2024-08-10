@@ -95,6 +95,7 @@ public class MainActivity extends BaseActivity {
         menu.findItem(R.id.undo).setVisible(visible);
         menu.findItem(R.id.redo).setVisible(visible);
         menu.findItem(R.id.insertdate).setVisible(visible);
+
         if (visible && SettingsData.getBoolean(BaseActivity.Companion.getActivity(MainActivity.class), "show_arrows", false)) {
             BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.VISIBLE);
             BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.VISIBLE);
