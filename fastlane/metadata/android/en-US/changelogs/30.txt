@@ -1,0 +1,11 @@
+v2.6.0 (30)
+- Fix tons of bugs from version 2.5.0
+- Added Better File Action Popup
+- Added multiple Themes
+- Added selectable day/night/auto buttons
+- Added Beanshell Plugin System
+- Removed old plugin system
+- Fixed crashes on Android 10 devices
+- Added support for Sdcard
+- Added extra keys panel
+- Added syntax highlighting for multiple programming languages
