@@ -46,4 +46,4 @@ rkUtils.runOnUiThread(myRunnable);
 ```
 
 10. lastly you have to enable your plugin from manage plugins activity (if your plugin is not visible in the manage plugin settings try force stopping the app)
-11. thats it if you want to learn how to code in beanshell i highly reccomend [beanshell quickstart](http://www.beanshell.org/manual/quickstart.html)
+11. thats it if you want to learn how to code in beanshell i highly recommend [beanshell quickstart](http://www.beanshell.org/manual/quickstart.html)
