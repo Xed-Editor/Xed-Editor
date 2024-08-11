@@ -30,7 +30,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.rk.xededitor.R;
+
+import com.rk.libeditor.R;
 
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme;
 

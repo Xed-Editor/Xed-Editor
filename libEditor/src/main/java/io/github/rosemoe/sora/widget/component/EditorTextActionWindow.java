@@ -25,6 +25,7 @@ package io.github.rosemoe.sora.widget.component;
 
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
@@ -34,8 +35,8 @@ import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 
-import com.rk.xededitor.R;
-import com.rk.xededitor.rkUtils;
+
+import com.rk.libeditor.R;
 
 import io.github.rosemoe.sora.event.EditorFocusChangeEvent;
 import io.github.rosemoe.sora.event.EditorReleaseEvent;
@@ -325,7 +326,13 @@ public class EditorTextActionWindow extends EditorPopupWindow implements View.On
         } else if (id == R.id.panel_btn_share) {
             var clip = editor.getText().substring(editor.getCursor().getLeft(), editor.getCursor().getRight());
             if (!clip.isEmpty()) {
-                rkUtils.shareText(editor.getContext(), clip);
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, clip);
+                sendIntent.setType("text/plain");
+
+                Intent shareIntent = Intent.createChooser(sendIntent, null);
+                editor.getContext().startActivity(shareIntent);
             }
 
         }

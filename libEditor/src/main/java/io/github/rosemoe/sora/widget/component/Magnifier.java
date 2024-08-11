@@ -44,7 +44,7 @@ import android.widget.PopupWindow;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
-import com.rk.xededitor.R;
+import com.rk.libeditor.R;
 
 import java.util.Objects;
 

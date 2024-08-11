@@ -32,7 +32,8 @@ import android.util.TypedValue;
 
 import androidx.annotation.NonNull;
 
-import com.rk.xededitor.R;
+
+import com.rk.libeditor.R;
 
 import io.github.rosemoe.sora.widget.style.SelectionHandleStyle;
 

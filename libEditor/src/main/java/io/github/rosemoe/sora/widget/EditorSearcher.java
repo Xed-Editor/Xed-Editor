@@ -30,7 +30,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.rk.xededitor.R;
+import com.rk.libeditor.R;
 
 import java.util.regex.Pattern;
 

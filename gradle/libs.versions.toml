@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.1"
+agp = "8.5.2"
 appcompat = "1.7.0"
 bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.9.0"

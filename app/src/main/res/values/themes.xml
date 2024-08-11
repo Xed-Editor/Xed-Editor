@@ -14,15 +14,8 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="text_action_popup_animation">
-        <item name="android:windowEnterAnimation">@anim/anim_text_action_popup_enter</item>
-        <item name="android:windowExitAnimation">@anim/anim_text_action_popup_exit</item>
-    </style>
 
-    <style name="diagnostic_popup_animation">
-        <item name="android:windowEnterAnimation">@anim/anim_diagnostic_tooltip_window_enter</item>
-        <item name="android:windowExitAnimation">@anim/anim_diagnostic_tooltip_window_exit</item>
-    </style>
+
 
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
         <item name="android:fontFamily">@font/outfit_regular</item>

@@ -153,7 +153,7 @@ class MenuClickHandler {
       val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
       MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace))
         .setView(popupView).setNegativeButton(activity.getString(R.string.cancel), null)
-        .setPositiveButton(activity.getString(R.string.sora_editor_replaceAll)) { _, _ ->
+        .setPositiveButton("replace All") { _, _ ->
           replaceAll(popupView)
         }.show()
       return true

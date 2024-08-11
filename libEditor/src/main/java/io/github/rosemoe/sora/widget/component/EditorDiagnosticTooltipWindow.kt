@@ -32,7 +32,7 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.TextView
-import com.rk.xededitor.R
+import com.rk.libeditor.R
 import io.github.rosemoe.sora.I18nConfig
 import io.github.rosemoe.sora.event.ColorSchemeUpdateEvent
 import io.github.rosemoe.sora.event.EditorFocusChangeEvent

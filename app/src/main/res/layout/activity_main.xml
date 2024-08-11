@@ -252,7 +252,7 @@
                 android:layout_height="wrap_content"
                 android:onClick="open_from_path"
                 android:textColor="@color/bg"
-                android:text="@string/open_from_path" />
+                android:text="Open from path" />
 
         </LinearLayout>
 

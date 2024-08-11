@@ -96,7 +96,7 @@
     <item
         android:id="@+id/run"
         android:icon="@drawable/run"
-        android:title="@string/run"
+        android:title="Run"
         android:visible="false"
         app:showAsAction="always"/>
 

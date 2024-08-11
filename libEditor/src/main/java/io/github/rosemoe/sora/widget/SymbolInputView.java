@@ -32,7 +32,8 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-import com.rk.xededitor.R;
+import com.rk.libeditor.R;
+
 
 /**
  * A simple symbol input view implementation for editor.

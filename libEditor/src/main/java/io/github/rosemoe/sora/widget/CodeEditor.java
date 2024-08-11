@@ -75,7 +75,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.UiThread;
 
-import com.rk.xededitor.R;
+
+import com.rk.libeditor.R;
 
 import java.util.ArrayList;
 import java.util.List;

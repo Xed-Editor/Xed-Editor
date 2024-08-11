@@ -4,18 +4,6 @@
     <string name="close_drawer">إغلاق</string>
     <string name="title_activity_settings">الإعدادات</string>
     <string name="title_activity_batch_replacement">استبدال دفعة</string>
-    <string name="sora_editor_last">الأخير</string>
-    <string name="sora_editor_next">التالي</string>
-    <string name="sora_editor_replace">استبدال</string>
-    <string name="sora_editor_replaceAll">استبدال الكل</string>
-    <string name="sora_editor_replacement">الاستبدال</string>
-    <string name="sora_editor_text_to_search">النص للبحث</string>
-    <string name="sora_editor_editor_search_replacing">استبدال النصوص…</string>
-    <string name="sora_editor_editor_search_busy">المحرر لا يزال يحضر…</string>
-    <string name="sora_editor_editor_formatting">تنسيق الرمز…</string>
-    <string name="sora_editor_diagnostics_more_actions">إجراءات إضافية…</string>
-    <string name="sora_editor_clip_text_length_too_large">النص طويل جدًا لنسخه</string>
-    <string name="sora_editor_long_select">اختيار طويل</string>
     <string name="ni">هذه الميزة غير متوفرة</string>
     <string name="unsupported_contnt">محتوى غير مدعوم</string>
     <string name="null_contnt">خطأ: المحتوى فارغ</string>
@@ -88,6 +76,4 @@
     <string name="canthandle">لم يتم العثور على تطبيق للتعامل مع الملف</string>
     <string name="clipboardempty">الحافظة فارغة</string>
     <string name="terminal">الوحدة الطرفية</string>
-    <string name="open_from_path">فتح من المسار</string>
-    <string name="app_private_directory">ملفات بيانات التطبيق</string>
 </resources>

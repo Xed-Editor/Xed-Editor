@@ -55,6 +55,7 @@ android {
         getByName("release") {
             isMinifyEnabled = false
             isCrunchPngs = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
@@ -95,11 +96,9 @@ dependencies {
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.activity)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    implementation(platform("io.github.Rosemoe.sora-editor:bom:0.23.4"))
-    implementation("androidx.collection:collection:1.4.2")
     implementation("org.apache.commons:commons-vfs2:2.9.0")
     implementation("com.github.mwiede:jsch:0.2.8")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
 
 
@@ -110,6 +109,7 @@ dependencies {
     implementation(project(":libsettings"))
     implementation(project(":libPlugin"))
     implementation(project(":libRunner"))
+    implementation(project(":libEditor"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)
