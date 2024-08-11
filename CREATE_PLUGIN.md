@@ -3,7 +3,7 @@
 2. now go back to main screen and open file browser
 3. open folder named **"files"** then create a folder named **"plugins"** if not already there
 4. create a folder **"MyPlugin"** inside that plugins folder
-5. create a new file named **"manifest.json"** inside **"MyPlugin"** folder and paste this
+5. create a new file named **"manifest.json"** inside **"MyPlugin"** folder and paste this you modify this if you want
 
 ```
 {
@@ -32,8 +32,11 @@ import com.rk.xededitor.rkUtils;
 //create a Runnable because plugins run on 
 //a background thread and to intract with ui you should
 // create a runnable and pass it to rkUtils.runOnUiThread method
+
 Runnable myRunnable = new Runnable() {
     public void run() {
+
+        //the 'app' variable is a instance of Application class this variable is passed by the plugin server
         rkUtils.toast(app,"yo");
     }
 };
