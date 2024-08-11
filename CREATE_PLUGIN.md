@@ -3,7 +3,7 @@
 2. now go back to main screen and open file browser
 3. open folder named **"files"** then create a folder named **"plugins"** if not already there
 4. create a folder **"MyPlugin"** inside that plugins folder
-5. create a new file named **"manifest.json"** paste this
+5. create a new file named **"manifest.json"** inside **"MyPlugin"** folder and paste this
 
 ```
 {
@@ -19,13 +19,26 @@
 
 ```
 
-6. now create a new file named **"main.bsh"**
+6. now create a new file named **"main.bsh"** inside **"MyPlugin"**
 7. and put a png file named **"icon.png"** for icon (currently on version v2.6.0 karbon does not support adding files on private directory you have to find a workaround to add icon.png into private app files you can use terminal to download stuff)
 8. open main.bsh
 9. and write some code to show a toast to check if everything is working
 
 ```
+//note : accessing kotlin classes is buggy and not supported
+//import classes from karbon or java
+import com.rk.xededitor.rkUtils;
 
+//create a Runnable because plugins run on 
+//a background thread and to intract with ui you should
+// create a runnable and pass it to rkUtils.runOnUiThread method
+Runnable myRunnable = new Runnable() {
+    public void run() {
+        rkUtils.toast(app,"yo");
+    }
+};
+
+rkUtils.runOnUiThread(myRunnable);
 
 ```
 
