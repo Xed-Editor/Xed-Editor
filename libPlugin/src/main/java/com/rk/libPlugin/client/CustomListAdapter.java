@@ -57,6 +57,9 @@ public class CustomListAdapter extends ArrayAdapter<Plugin> {
         }
 
         MaterialSwitch materialSwitch = convertView.findViewById(R.id.toggle);
+
+        materialSwitch.setChecked(Server.isPluginActive(context,plugin.getInfo().getPackageName(),false));
+
         materialSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             Server.setPluginActive(context,plugin.getInfo().getPackageName(),isChecked);
         });

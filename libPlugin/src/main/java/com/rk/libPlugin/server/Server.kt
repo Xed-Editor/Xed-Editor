@@ -3,12 +3,12 @@ package com.rk.libPlugin.server
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.google.gson.Gson
 import java.io.File
 
 
 class Server(val app: Application) : Thread() {
-
     override fun run() {
         app.indexPlugins()
         InstalledPlugins.forEach { plugin: Plugin ->
@@ -45,17 +45,22 @@ class Server(val app: Application) : Thread() {
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.e("Plugin Server","Invalid Manifest File of plugin ${plugin.name}")
+                Toast.makeText(app,"Invalid Manifest File of plugin ${plugin.name}",Toast.LENGTH_LONG).show()
             }
 
 
 
-
-            InstalledPlugins.add(Plugin(manifest!!,plugin.absolutePath,this))
+            val api = API(manifest)
+            noGCList.add(api)
+            InstalledPlugins.add(Plugin(api,manifest!!,plugin.absolutePath,this))
         }
     }
 
     companion object {
         private val InstalledPlugins = ArrayList<Plugin>()
+
+        @JvmStatic
+        private val noGCList = ArrayList<Any>()
 
         @JvmStatic
         fun getInstalledPlugins() : List<Plugin>{

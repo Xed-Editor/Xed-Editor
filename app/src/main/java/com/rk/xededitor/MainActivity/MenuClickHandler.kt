@@ -36,7 +36,7 @@ class MenuClickHandler {
       when (id) {
         
         R.id.run -> {
-          Runner.run(fragments[mTabLayout.selectedTabPosition].file,activity)
+          fragments[mTabLayout.selectedTabPosition].file?.let { Runner.run(it,activity) }
           return true
         }
         
