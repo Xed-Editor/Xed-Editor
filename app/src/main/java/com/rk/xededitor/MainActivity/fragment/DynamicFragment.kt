@@ -34,8 +34,6 @@ class DynamicFragment : Fragment {
   private var editorx: CodeEditor? = null
   var content: Content? = null
   var isModified: Boolean = false
-  var undo: MenuItem? = null
-  var redo: MenuItem? = null
 
 
   constructor() {
@@ -102,7 +100,6 @@ class DynamicFragment : Fragment {
       } catch (e: Exception) {
         e.printStackTrace()
       }
-      setListener()
     }.start()
 
 
@@ -110,19 +107,10 @@ class DynamicFragment : Fragment {
     editor.setTextSize(SettingsData.getSetting(ctx, "textsize", "14").toFloat())
     editor.isWordwrap = wordwrap
 
-    After(200){
-      runOnUiThread{
-        if (undo == null || redo == null){
-          return@runOnUiThread
-        }
-        undo = StaticData.menu.findItem(R.id.undo)
-        redo = StaticData.menu.findItem(R.id.redo)
-      }
-    }
 
 
 
-
+    setListener()
   }
 
   private fun setListener() {
@@ -145,10 +133,11 @@ class DynamicFragment : Fragment {
   }
 
   fun updateUndoRedo() {
-    if (undo != null && redo != null) {
-      redo!!.setEnabled(editor.canRedo())
-      undo!!.setEnabled(editor.canUndo())
-    }
+      if (StaticData.menu == null){
+        return
+      }
+      StaticData.menu.findItem(R.id.redo)?.setEnabled(editor.canRedo())
+      StaticData.menu.findItem(R.id.undo)?.setEnabled(editor.canUndo())
   }
 
   @JvmOverloads
