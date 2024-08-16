@@ -114,6 +114,23 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
+
+
+      switch("cursoranimation_") {
+        title = "Cursor Animation"
+        summary = "Enable Smooth Cursor Animations"
+        iconRes = R.drawable.animation
+        defaultValue = true
+        onCheckedChange { isChecked ->
+          SettingsData.setBoolean(this@SettingsEditor, "CursorAnimation", isChecked)
+          StaticData.fragments?.forEach { f ->
+              f.editor.isCursorAnimationEnabled = isChecked
+          }
+
+          return@onCheckedChange true
+        }
+      }
+
       switch("showlinenumbers") {
         title = "Show Line Numbers"
         summary = "Show Line Numbers in Editor"

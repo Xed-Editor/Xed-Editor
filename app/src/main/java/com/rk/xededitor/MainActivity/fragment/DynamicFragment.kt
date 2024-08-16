@@ -58,6 +58,7 @@ class DynamicFragment : Fragment {
     editorx = editor
 
     setupEditor(editor, ctx).setupLanguage(fileName)
+    editor.isCursorAnimationEnabled = SettingsData.getBoolean(ctx,"CursorAnimation",true)
 
     editor.setPinLineNumber(SettingsData.getBoolean(ctx,"pinline",false))
 
