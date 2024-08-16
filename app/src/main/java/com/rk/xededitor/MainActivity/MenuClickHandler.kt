@@ -186,8 +186,6 @@ class MenuClickHandler {
 
       hideSearchMenuItems()
       searchText = ""
-      StaticData.menu?.findItem(R.id.undo)?.setVisible(true)
-      StaticData.menu?.findItem(R.id.redo)?.setVisible(true)
       return true
     }
 
@@ -209,8 +207,6 @@ class MenuClickHandler {
     }
 
     private fun initiateSearch(searchBox: EditText, popupView: View) {
-      StaticData.menu?.findItem(R.id.undo)?.setVisible(false)
-      StaticData.menu?.findItem(R.id.redo)?.setVisible(false)
       val fragment = fragments[mTabLayout.selectedTabPosition]
       fragment.isSearching = true
       val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
@@ -267,12 +263,21 @@ class MenuClickHandler {
       StaticData.menu.findItem(R.id.search_previous).isVisible = true
       StaticData.menu.findItem(R.id.search_close).isVisible = true
       StaticData.menu.findItem(R.id.replace).isVisible = true
+
+      StaticData.menu?.findItem(R.id.undo)?.setVisible(false)
+      StaticData.menu?.findItem(R.id.redo)?.setVisible(false)
     }
     fun hideSearchMenuItems() {
       StaticData.menu.findItem(R.id.search_next).isVisible = false
       StaticData.menu.findItem(R.id.search_previous).isVisible = false
       StaticData.menu.findItem(R.id.search_close).isVisible = false
       StaticData.menu.findItem(R.id.replace).isVisible = false
+
+      if (mTabLayout.selectedTabPosition != -1){
+        StaticData.menu?.findItem(R.id.undo)?.setVisible(true)
+        StaticData.menu?.findItem(R.id.redo)?.setVisible(true)
+      }
+
     }
   }
 }
