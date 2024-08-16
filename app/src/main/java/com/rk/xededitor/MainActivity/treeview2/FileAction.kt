@@ -274,24 +274,29 @@ class FileAction(
   }
 
   private fun openWith(context: Context, file: File) {
-    val uri: Uri = FileProvider.getUriForFile(
-      context, context.applicationContext.packageName + ".fileprovider", file
-    )
-    val mimeType = getMimeType(context, file)
+    try {
+      val uri: Uri = FileProvider.getUriForFile(
+        context, context.applicationContext.packageName + ".fileprovider", file
+      )
+      val mimeType = getMimeType(context, file)
 
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-      setDataAndType(uri, mimeType)
-      addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-      addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-      addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-      addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-    }
+      val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, mimeType)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+      }
 
-    // Check if there's an app to handle this intent
-    if (intent.resolveActivity(context.packageManager) != null) {
-      context.startActivity(intent)
-    } else {
-      Toast.makeText(context, context.getString(R.string.canthandle), Toast.LENGTH_SHORT).show()
+      // Check if there's an app to handle this intent
+      if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+      } else {
+        Toast.makeText(context, context.getString(R.string.canthandle), Toast.LENGTH_SHORT).show()
+      }
+    }catch (e:Exception){
+      e.printStackTrace()
+      rkUtils.toast(context,"opening this file with other apps is not permitted")
     }
   }
 
