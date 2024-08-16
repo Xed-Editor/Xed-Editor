@@ -22,6 +22,7 @@ import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.EditorSearcher
+import kotlinx.coroutines.flow.combineTransform
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -177,26 +178,18 @@ class MenuClickHandler {
     }
 
     private fun handleSearchClose(): Boolean {
-      val editor = fragments[mTabLayout.selectedTabPosition].editor
-      editor.searcher.stopSearch()
+      if (mTabLayout.selectedTabPosition != -1){
+        val fragment = fragments[mTabLayout.selectedTabPosition]
+        fragment.isSearching = false
+        fragment.editor.searcher.stopSearch()
+      }
+
       hideSearchMenuItems()
       searchText = ""
-      showUndoRedoMenuItems()
+      StaticData.menu?.findItem(R.id.undo)?.setVisible(true)
+      StaticData.menu?.findItem(R.id.redo)?.setVisible(true)
       return true
     }
-
-    private fun hideSearchMenuItems() {
-      StaticData.menu.findItem(R.id.search_next).isVisible = false
-      StaticData.menu.findItem(R.id.search_previous).isVisible = false
-      StaticData.menu.findItem(R.id.search_close).isVisible = false
-      StaticData.menu.findItem(R.id.replace).isVisible = false
-    }
-
-    private fun showUndoRedoMenuItems() {
-      StaticData.menu.findItem(R.id.undo).isVisible = true
-      StaticData.menu.findItem(R.id.redo).isVisible = true
-    }
-
 
     private fun handleSearch(activity: MainActivity): Boolean {
       val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
@@ -216,14 +209,13 @@ class MenuClickHandler {
     }
 
     private fun initiateSearch(searchBox: EditText, popupView: View) {
-      val undo = StaticData.menu.findItem(R.id.undo)
-      val redo = StaticData.menu.findItem(R.id.redo)
-      undo.isVisible = false
-      redo.isVisible = false
-      val editor = fragments[mTabLayout.selectedTabPosition].editor
+      StaticData.menu?.findItem(R.id.undo)?.setVisible(false)
+      StaticData.menu?.findItem(R.id.redo)?.setVisible(false)
+      val fragment = fragments[mTabLayout.selectedTabPosition]
+      fragment.isSearching = true
       val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
       searchText = searchBox.text.toString()
-      editor.searcher.search(
+      fragment.editor.searcher.search(
         searchText!!,
         EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, !checkBox.isChecked)
       )
@@ -231,12 +223,7 @@ class MenuClickHandler {
     }
 
 
-    private fun showSearchMenuItems() {
-      StaticData.menu.findItem(R.id.search_next).isVisible = true
-      StaticData.menu.findItem(R.id.search_previous).isVisible = true
-      StaticData.menu.findItem(R.id.search_close).isVisible = true
-      StaticData.menu.findItem(R.id.replace).isVisible = true
-    }
+
 
     private fun saveFile(activity: MainActivity, index: Int) {
       val fragment = fragments[index]
@@ -274,6 +261,18 @@ class MenuClickHandler {
         }
       }
 
+    }
+    fun showSearchMenuItems() {
+      StaticData.menu.findItem(R.id.search_next).isVisible = true
+      StaticData.menu.findItem(R.id.search_previous).isVisible = true
+      StaticData.menu.findItem(R.id.search_close).isVisible = true
+      StaticData.menu.findItem(R.id.replace).isVisible = true
+    }
+    fun hideSearchMenuItems() {
+      StaticData.menu.findItem(R.id.search_next).isVisible = false
+      StaticData.menu.findItem(R.id.search_previous).isVisible = false
+      StaticData.menu.findItem(R.id.search_close).isVisible = false
+      StaticData.menu.findItem(R.id.replace).isVisible = false
     }
   }
 }

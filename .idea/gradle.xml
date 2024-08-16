@@ -10,7 +10,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/app/libTreeView" />
             <option value="$PROJECT_DIR$/libEditor" />
             <option value="$PROJECT_DIR$/libPlugin" />
             <option value="$PROJECT_DIR$/libRunner" />

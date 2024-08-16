@@ -18,7 +18,9 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.librunner.Runner
 import com.rk.xededitor.After
+import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.Decompress
+import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.handle
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
@@ -71,6 +73,14 @@ class Init(activity: MainActivity) {
             val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
             fragment.updateUndoRedo()
             StaticData.menu?.findItem(R.id.run)?.setVisible(fragment.file != null && Runner.isRunnable(fragment.file!!))
+
+            if(!fragment.isSearching){
+              MenuClickHandler.hideSearchMenuItems()
+            }else{
+              //show search buttons
+              MenuClickHandler.showSearchMenuItems()
+            }
+
 
 
           }

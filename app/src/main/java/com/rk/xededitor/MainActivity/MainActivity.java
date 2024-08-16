@@ -84,6 +84,19 @@ public class MainActivity extends BaseActivity {
             new After(200, () -> rkUtils.runOnUiThread(MainActivity::updateMenuItems));
             return;
         }
+
+        var activity = BaseActivity.Companion.getActivity(MainActivity.class);
+        assert activity != null;
+
+        if (mTabLayout == null || mTabLayout.getSelectedTabPosition() == -1){
+            MenuClickHandler.Companion.hideSearchMenuItems();
+        }else if(!fragments.get(mTabLayout.getSelectedTabPosition()).isSearching()){
+            MenuClickHandler.Companion.hideSearchMenuItems();
+        }else{
+            MenuClickHandler.Companion.showSearchMenuItems();
+        }
+
+
         menu.findItem(R.id.batchrep).setVisible(visible);
         menu.findItem(R.id.search).setVisible(visible);
         menu.findItem(R.id.action_save).setVisible(visible);
@@ -96,22 +109,25 @@ public class MainActivity extends BaseActivity {
         menu.findItem(R.id.redo).setVisible(visible);
         menu.findItem(R.id.insertdate).setVisible(visible);
 
+
         if (visible && SettingsData.getBoolean(BaseActivity.Companion.getActivity(MainActivity.class), "show_arrows", false)) {
-            BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.VISIBLE);
-            BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.VISIBLE);
-            var vp = BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
+           activity.binding.divider.setVisibility(View.VISIBLE);
+            activity.binding.mainBottomBar.setVisibility(View.VISIBLE);
+            var vp = activity.binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(50, BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(50, activity);  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
 
         } else {
-            BaseActivity.Companion.getActivity(MainActivity.class).binding.divider.setVisibility(View.GONE);
-            BaseActivity.Companion.getActivity(MainActivity.class).binding.mainBottomBar.setVisibility(View.GONE);
-            var vp = BaseActivity.Companion.getActivity(MainActivity.class).binding.viewpager;
+           activity.binding.divider.setVisibility(View.GONE);
+            activity.binding.mainBottomBar.setVisibility(View.GONE);
+            var vp = activity.binding.viewpager;
             RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) vp.getLayoutParams();
-            layoutParams.bottomMargin = dpToPx(0, BaseActivity.Companion.getActivity(MainActivity.class));  // Convert dp to pixels as needed
+            layoutParams.bottomMargin = dpToPx(0, activity);  // Convert dp to pixels as needed
             vp.setLayoutParams(layoutParams);
         }
+
+
     }
 
 

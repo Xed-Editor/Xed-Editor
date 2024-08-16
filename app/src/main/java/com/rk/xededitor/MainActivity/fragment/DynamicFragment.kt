@@ -34,6 +34,7 @@ class DynamicFragment : Fragment {
   private var editorx: CodeEditor? = null
   var content: Content? = null
   var isModified: Boolean = false
+  var isSearching = false
 
 
   constructor() {
