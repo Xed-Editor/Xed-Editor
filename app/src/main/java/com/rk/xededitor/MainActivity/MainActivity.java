@@ -343,14 +343,6 @@ public class MainActivity extends BaseActivity {
         startActivityForResult(intent, REQUEST_FILE_SELECTION);
     }
 
-    private void persistUriPermission(Uri uri) {
-        final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-        if ((getContentResolver().getPersistedUriPermissions().stream().noneMatch(p -> p.getUri().equals(uri)))) {
-            getContentResolver().takePersistableUriPermission(uri, takeFlags);
-        }
-        SettingsData.setSetting(this, "lastOpenedUri", uri.toString());
-    }
-
     public void revokeUriPermission(Uri uri) {
         final int releaseFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
         getContentResolver().releasePersistableUriPermission(uri, releaseFlags);
@@ -364,12 +356,7 @@ public class MainActivity extends BaseActivity {
 
     public void reselctDir(View v) {
         isReselecting = true;
-        String uriStr = SettingsData.getSetting(this, "lastOpenedUri", "null");
-        if (!uriStr.isEmpty() && !uriStr.equals("null")) {
-            revokeUriPermission(Uri.parse(uriStr));
-            SettingsData.setSetting(this, "lastOpenedUri", "null");
-        }
-
+        SettingsData.setSetting(this, "lastOpenedUri", "null");
         openDir(null);
     }
 
@@ -466,25 +453,7 @@ public class MainActivity extends BaseActivity {
 
         menu.findItem(R.id.search).setVisible(!(fragments == null || fragments.isEmpty()));
         menu.findItem(R.id.batchrep).setVisible(!(fragments == null || fragments.isEmpty()));
-    /*
-    data.setLooping(true);
-    var files = data.getOpenedFiles();
-    var map = data.getNewFileMap();
-    for(int i=0;i<files.size();i++){
-      DocumentFile file = files.get(i);
-      Boolean isNewFile = map.get(file);
-      if (isNewFile == null){
-        isNewFile = false;
-      }
-      newEditor(file,isNewFile);
-      onNewEditor();
-    }
-    
-    
-    data.setLooping(false);
-    updateMenuItems();
-    
-    */
+
         return true;
     }
 
