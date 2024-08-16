@@ -8,7 +8,7 @@
     <string name="unsupported_contnt">Unsupported content</string>
     <string name="null_contnt">Error: Content is null</string>
     <string name="restart_required">Restart Required</string>
-    <string name="save">file saved</string>
+    <string name="save">File saved</string>
     <string name="saveAll">saved all files</string>
     <string name="ww_wait">Please wait for word wrap to complete</string>
     <string name="theme_not_found_err">theme file not found please reinstall the Xed Editor or clear app data</string>

@@ -165,7 +165,7 @@ class FileAction(
         // Handle paste action
 
         if (FileClipboard.isEmpty()) {
-          rkUtils.toast(context, "FileClipboard is empty")
+          rkUtils.toast(context, "File Clipboard is empty")
           return false
         }
 

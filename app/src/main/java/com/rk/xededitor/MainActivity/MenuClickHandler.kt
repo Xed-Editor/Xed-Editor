@@ -207,10 +207,15 @@ class MenuClickHandler {
     }
 
     private fun initiateSearch(searchBox: EditText, popupView: View) {
+      searchText = searchBox.text.toString()
+
+      if (searchText?.isBlank() == true){
+        return
+      }
+
       val fragment = fragments[mTabLayout.selectedTabPosition]
       fragment.isSearching = true
       val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
-      searchText = searchBox.text.toString()
       fragment.editor.searcher.search(
         searchText!!,
         EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, !checkBox.isChecked)

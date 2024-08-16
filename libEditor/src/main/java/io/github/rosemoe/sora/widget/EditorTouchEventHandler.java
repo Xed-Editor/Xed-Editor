@@ -69,10 +69,10 @@ import kotlin.jvm.functions.Function5;
 @SuppressWarnings("CanBeFinal")
 public final class EditorTouchEventHandler implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener, ScaleGestureDetector.OnScaleGestureListener {
 
-    private final static int HIDE_DELAY = 3000;
+    private final static int HIDE_DELAY = 2000;
     private final static int HIDE_DELAY_HANDLE = 3500;
 
-    private final static int SCROLLBAR_FADE_ANIMATION_TIME = 200;
+    private final static int SCROLLBAR_FADE_ANIMATION_TIME = 150;
     private final static int MAGNIFIER_TOUCH_SLOP = 4;
 
     private final static int LEFT_EDGE = 1;

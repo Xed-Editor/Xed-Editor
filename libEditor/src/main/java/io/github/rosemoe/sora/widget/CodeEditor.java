@@ -175,15 +175,15 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
     /**
      * The default text size when creating the editor object. Unit is sp.
      */
-    public static final int DEFAULT_TEXT_SIZE = 18;
+    public static final int DEFAULT_TEXT_SIZE = 17;
     /**
      * The default line info text size when creating the editor object. Unit is sp.
      */
-    public static final int DEFAULT_LINE_INFO_TEXT_SIZE = 21;
+    public static final int DEFAULT_LINE_INFO_TEXT_SIZE = 19;
     /**
      * The default cursor blinking period
      */
-    public static final int DEFAULT_CURSOR_BLINK_PERIOD = 500;
+    public static final int DEFAULT_CURSOR_BLINK_PERIOD = 550;
     /**
      * Draw whitespace characters before line content start
      * <strong>Whitespace here only means space and tab</strong>
