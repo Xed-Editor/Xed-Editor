@@ -203,6 +203,25 @@ class SettingsEditor : BaseActivity() {
           return@onCheckedChange true
         }
       }
+
+
+//      switch("autoIndent") {
+//        title = "Auto Indent"
+//        summary = "automatically add tabs when createing new lines"
+//        iconRes = R.drawable.double_arrows
+//        defaultValue = true
+//        onCheckedChange { isChecked ->
+//          SettingsData.setBoolean(this@SettingsEditor,"autoIndent",isChecked)
+//          if(StaticData.fragments != null){
+//            for (f in StaticData.fragments){
+//              f.editor.props.autoIndent = isChecked
+//            }
+//          }
+//          return@onCheckedChange true
+//        }
+//      }
+
+
       pref("tabsize"){
         title = "Tab Size"
         summary = "Set tab size"

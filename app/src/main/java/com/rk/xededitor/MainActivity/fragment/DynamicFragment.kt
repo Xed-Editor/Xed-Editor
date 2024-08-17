@@ -63,6 +63,8 @@ class DynamicFragment : Fragment {
 
     editor.props.deleteMultiSpaces = tabSize
     editor.props.deleteEmptyLineFast = false
+   // editor.props.autoIndent = SettingsData.getBoolean(ctx,"autoIndent",true)
+    editor.props.useICULibToSelectWords = true
     editor.tabWidth = tabSize
 
     editor.setPinLineNumber(SettingsData.getBoolean(ctx,"pinline",false))
