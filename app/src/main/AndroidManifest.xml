@@ -10,12 +10,12 @@
 
     <application
         android:name=".App"
-       android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:supportsRtl="false"
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
@@ -54,13 +54,10 @@
         <activity
             android:name=".MainActivity.MainActivity"
             android:exported="true"
-
-
             android:theme="@style/Theme.Fragments"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -73,7 +70,7 @@
 
         <activity
             android:name=".terminal.Terminal"
-            android:exported="true"
+            android:exported="false"
             android:label="Terminal"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -83,13 +80,16 @@
 
         <activity
             android:name=".Settings.SettingsApp"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".Settings.SettingsMainActivity"
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".Settings.SettingsEditor"
-            android:exported="true" />
+            android:exported="false" />
+        <activity
+            android:name=".Settings.SettingsPlugins"
+            android:exported="false" />
     </application>
 
 </manifest>

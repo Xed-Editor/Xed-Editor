@@ -89,6 +89,15 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
         }
       }
+      pref("plugins_") {
+        title = "Plugins"
+        summary = "General settings for plugins"
+        iconRes = R.drawable.extension
+        onClickView {
+          startActivity(Intent(this@SettingsMainActivity, SettingsPlugins::class.java))
+        }
+      }
+
 
     }
   }

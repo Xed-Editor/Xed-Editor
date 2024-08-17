@@ -59,6 +59,11 @@ class DynamicFragment : Fragment {
 
     setupEditor(editor, ctx).setupLanguage(fileName)
     editor.isCursorAnimationEnabled = SettingsData.getBoolean(ctx,"CursorAnimation",true)
+    val tabSize = SettingsData.getSetting(ctx,"tabsize","4").toInt()
+
+    editor.props.deleteMultiSpaces = tabSize
+    editor.props.deleteEmptyLineFast = false
+    editor.tabWidth = tabSize
 
     editor.setPinLineNumber(SettingsData.getBoolean(ctx,"pinline",false))
 

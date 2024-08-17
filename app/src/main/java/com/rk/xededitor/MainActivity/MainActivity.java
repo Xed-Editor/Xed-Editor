@@ -20,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -77,6 +78,9 @@ public class MainActivity extends BaseActivity {
     NavigationView navigationView;
     private ActionBarDrawerToggle drawerToggle;
     private boolean isReselecting = false;
+
+
+
 
     public static void updateMenuItems() {
         final boolean visible = !(fragments == null || fragments.isEmpty());

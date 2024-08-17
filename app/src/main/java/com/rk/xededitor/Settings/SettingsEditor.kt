@@ -242,6 +242,18 @@ class SettingsEditor : BaseActivity() {
           return@onClick true
         }
       }
+
+      switch("tabtype_") {
+        title = "Use Space instead of Tabs"
+        summary = "write whitespaces in place of tabs"
+        iconRes = R.drawable.double_arrows
+        defaultValue = true
+        onCheckedChange { isChecked ->
+          SettingsData.setBoolean(this@SettingsEditor,"useSpaces",isChecked)
+          return@onCheckedChange true
+        }
+      }
+
       pref("textsize"){
         title = "Text Size"
         summary = "Set text size"

@@ -234,31 +234,7 @@ class SettingsApp : BaseActivity() {
           )
         }
       }
-      switch("plugins"){
-        title = "Enable Plugins"
-        summary = "Execute active plugins"
-        iconRes = R.drawable.extension
-        onCheckedChange { isChecked ->
-          SettingsData.setBoolean(this@SettingsApp,"enablePlugin",isChecked)
-          LoadingPopup(this@SettingsApp,200)
-          After(230){
-            runOnUiThread {
-              this@SettingsApp.recreate()
-            }
-          }
-          return@onCheckedChange true
-        }
-      }
-      if (SettingsData.getBoolean(this@SettingsApp,"enablePlugin",false)){
-        pref("managePlugin"){
-          title = "Manage Plugins"
-          summary = "on/off installed plugins"
-          iconRes = R.drawable.extension
-          onClickView {
-            startActivity(Intent(this@SettingsApp, ManagePlugin::class.java))
-          }
-        }
-      }
+
     }
   }
 

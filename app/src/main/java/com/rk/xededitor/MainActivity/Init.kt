@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Rect
+import android.view.KeyEvent
 import android.view.Surface
 import android.view.View
 import android.view.ViewTreeObserver
@@ -343,16 +344,27 @@ class Init(activity: MainActivity) {
                   )
                 }
               }
+
               R.id.tab -> {
-                val tabsize = SettingsData.getSetting(activity,"tabsize","4").toInt()
-                val sb = StringBuilder()
-                for (i in 0 until tabsize){
-                  sb.append(" ")
+                val tabsize = SettingsData.getSetting(activity, "tabsize", "4").toInt()
+                val useSpaces = SettingsData.getBoolean(activity, "useSpaces", true)
+
+                if (useSpaces) {
+                  val sb = StringBuilder()
+                  for (i in 0 until tabsize) {
+                    sb.append(" ")
+                  }
+                  fragment.editor.insertText(sb.toString(), tabsize)
+                }else{
+                  val keyEvent = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
+                  fragment.editor.dispatchKeyEvent(keyEvent)
                 }
-                fragment.editor.insertText(sb.toString(),tabsize)}
+
+              }
+
+
 
               R.id.untab -> {
-
                 if (cursor.leftColumn == 0) {
                   return@setOnClickListener
                 }
@@ -361,16 +373,14 @@ class Init(activity: MainActivity) {
                 val tabSize = SettingsData.getSetting(activity, "tabsize", "4").toInt()
 
                 // Create a string with spaces equal to tab size
-                val spaceString = " ".repeat(tabSize)
+                //" ".repeat(tabSize)
 
                 // Get the line content where the cursor is located
-                val lineContent = fragment.content?.getLine(cursor.leftLine).toString()
+                //val lineContent = fragment.content?.getLine(cursor.leftLine).toString()
 
                 // Check if there are enough characters before the cursor to match the tab size
                 if (cursor.leftColumn >= tabSize) {
-
                   fragment.editor.deleteText()
-
                 }
 
               }
