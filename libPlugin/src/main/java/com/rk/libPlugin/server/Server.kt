@@ -50,7 +50,7 @@ class Server(val app: Application) : Thread() {
 
 
 
-            val api = API(manifest)
+            val api = API()
             noGCList.add(api)
             InstalledPlugins.add(Plugin(api,manifest!!,plugin.absolutePath,this))
         }
