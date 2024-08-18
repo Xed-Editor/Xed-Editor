@@ -1,6 +1,5 @@
 package com.rk.xededitor.Settings
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
@@ -15,8 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libPlugin.client.ManagePlugin
-import com.rk.xededitor.After
+import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
@@ -98,47 +96,47 @@ class SettingsApp : BaseActivity() {
       when (binding.toggleButton.checkedButtonId) {
         binding.auto.id -> {
           LoadingPopup(this@SettingsApp, 200)
-          After(300) {
-            SettingsData.setSetting(
-              this,
-              "default_night_mode",
-              AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
-            )
+            com.rk.libcommons.After(300) {
+                SettingsData.setSetting(
+                    this,
+                    "default_night_mode",
+                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+                )
 
-            runOnUiThread {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                runOnUiThread {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                }
             }
-          }
         }
 
         binding.light.id -> {
           LoadingPopup(this@SettingsApp, 200)
-          After(300) {
-            SettingsData.setSetting(
-              this,
-              "default_night_mode",
-              AppCompatDelegate.MODE_NIGHT_NO.toString()
-            )
+            com.rk.libcommons.After(300) {
+                SettingsData.setSetting(
+                    this,
+                    "default_night_mode",
+                    AppCompatDelegate.MODE_NIGHT_NO.toString()
+                )
 
-            runOnUiThread {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                runOnUiThread {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                }
             }
-          }
         }
 
         binding.dark.id -> {
           LoadingPopup(this@SettingsApp, 200)
-          After(300) {
-            SettingsData.setSetting(
-              this,
-              "default_night_mode",
-              AppCompatDelegate.MODE_NIGHT_YES.toString()
-            )
+            com.rk.libcommons.After(300) {
+                SettingsData.setSetting(
+                    this,
+                    "default_night_mode",
+                    AppCompatDelegate.MODE_NIGHT_YES.toString()
+                )
 
-            runOnUiThread {
-              AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                runOnUiThread {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }
             }
-          }
         }
       }
     }

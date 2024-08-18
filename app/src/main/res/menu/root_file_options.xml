@@ -13,6 +13,12 @@
         android:id="@+id/openFile"
         android:title="@string/openfile"
         android:visible="false" />
+
+    <item
+        android:id="@+id/addFile"
+        android:title="@string/add_file"
+        android:visible="false" />
+
     <item
         android:id="@+id/ceateFolder"
         android:title="@string/new_folder"

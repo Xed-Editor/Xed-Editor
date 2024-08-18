@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libcommons.After
 
 class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
   private var dialog: AlertDialog? = null
@@ -19,11 +20,11 @@ class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
 
       if (hide_after_millis != null) {
         show()
-        After(hide_after_millis) {
-          ctx.runOnUiThread {
-            hide()
+          After(hide_after_millis) {
+              ctx.runOnUiThread {
+                  hide()
+              }
           }
-        }
       }
     }
   }

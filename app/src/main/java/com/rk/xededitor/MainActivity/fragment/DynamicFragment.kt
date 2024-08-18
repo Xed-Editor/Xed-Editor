@@ -4,12 +4,10 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.rk.xededitor.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
@@ -38,14 +36,15 @@ class DynamicFragment : Fragment {
 
 
   constructor() {
-    After(100) {
-      runOnUiThread {
-        val fragmentManager = BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
-        val fragmentTransaction = fragmentManager?.beginTransaction()
-        fragmentTransaction?.remove(this)
-        fragmentTransaction?.commitNowAllowingStateLoss()
+      com.rk.libcommons.After(100) {
+          runOnUiThread {
+              val fragmentManager =
+                  BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
+              val fragmentTransaction = fragmentManager?.beginTransaction()
+              fragmentTransaction?.remove(this)
+              fragmentTransaction?.commitNowAllowingStateLoss()
+          }
       }
-    }
   }
 
   constructor(file: File, ctx: Context) {
@@ -142,15 +141,14 @@ class DynamicFragment : Fragment {
   }
 
   fun updateUndoRedo() {
-      if (StaticData.menu == null){
+      if (StaticData.menu == null && !isSearching){
         return
       }
       StaticData.menu.findItem(R.id.redo)?.setEnabled(editor.canRedo())
       StaticData.menu.findItem(R.id.undo)?.setEnabled(editor.canUndo())
   }
 
-  @JvmOverloads
-  fun releaseEditor(removeCoontent: Boolean = false) {
+  fun releaseEditor() {
     editor.release()
     content = null
   }

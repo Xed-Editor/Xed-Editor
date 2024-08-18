@@ -18,10 +18,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.librunner.Runner
-import com.rk.xededitor.After
-import com.rk.xededitor.BaseActivity.Companion.getActivity
-import com.rk.xededitor.Decompress
-import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.handle
+import com.rk.libcommons.After
+import com.rk.libcommons.Decompress
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
@@ -183,7 +181,7 @@ class Init(activity: MainActivity) {
 
       }
 
-      After(
+      com.rk.libcommons.After(
         1000
       ) {
         rkUtils.runOnUiThread {
@@ -261,7 +259,7 @@ class Init(activity: MainActivity) {
             }
 
 
-            After(
+            com.rk.libcommons.After(
               150
             ) {
               rkUtils.runOnUiThread { activity.onNewEditor() }

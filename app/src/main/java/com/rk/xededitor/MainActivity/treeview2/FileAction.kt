@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.EditText
@@ -37,12 +36,15 @@ class FileAction(
 
   companion object {
     const val REQUEST_CODE_OPEN_DIRECTORY = 17618
+    const val REQUEST_ADD_FILE = 824689
     var to_save_file: File? = null
+    var Staticfile:File? = null
   }
 
   private var popupView: View
 
   init {
+    Staticfile = file
     val inflater = context.layoutInflater
     popupView = inflater.inflate(R.layout.file_action, null)
     handleOptionsVisibility()
@@ -76,6 +78,7 @@ class FileAction(
     val paste = popupView.findViewById<LinearLayout>(R.id.paste)
     val copy = popupView.findViewById<LinearLayout>(R.id.copy)
     val rename = popupView.findViewById<LinearLayout>(R.id.rename)
+    val addFile = popupView.findViewById<LinearLayout>(R.id.addFile)
 
 
     if (file.isDirectory) {
@@ -84,6 +87,7 @@ class FileAction(
       newfile.visibility = View.GONE
       newfolder.visibility = View.GONE
       paste.visibility = View.GONE
+      addFile.visibility = View.GONE
     }
 
     if (file == rootFolder) {
@@ -104,6 +108,16 @@ class FileAction(
 
   private fun handleMenuItemClick(id: Int): Boolean {
     return when (id) {
+
+      R.id.addFile -> {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.setType("*/*")
+
+        context.startActivityForResult(intent, REQUEST_ADD_FILE)
+        return true
+      }
+
       R.id.refresh -> {
         // Handle refresh action
         TreeView(context, rootFolder)
@@ -126,6 +140,7 @@ class FileAction(
       R.id.createFolder -> {
         // Handle createFolder action
         new(false)
+
         true
       }
 
@@ -185,6 +200,9 @@ class FileAction(
                 // Update the TreeView to reflect the changes
                 rkUtils.runOnUiThread {
                   adapter?.newFile(file, File(file, sourceFile.name))
+                  if (file == rootFolder){
+                    TreeView(context, rootFolder)
+                  }
                 }
 
 
@@ -361,6 +379,9 @@ class FileAction(
 
         //TreeView(context, rootFolder)
         adapter?.newFile(file, File(file, fileName))
+        if (file == rootFolder){
+          TreeView(context, rootFolder)
+        }
         loading.hide()
       }.show()
   }
@@ -398,6 +419,9 @@ class FileAction(
 
         //TreeView(context, rootFolder)
         adapter?.renameFile(file,File(file.parentFile, fileName))
+        if (file == rootFolder){
+          TreeView(context, rootFolder)
+        }
         loading.hide()
       }.show()
   }

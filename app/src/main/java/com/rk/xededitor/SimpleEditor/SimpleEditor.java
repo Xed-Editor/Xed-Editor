@@ -2,7 +2,6 @@ package com.rk.xededitor.SimpleEditor;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -23,17 +22,15 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.rk.xededitor.After;
+import com.rk.libcommons.Decompress;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.BatchReplacement.BatchReplacement;
-import com.rk.xededitor.Decompress;
+
 import com.rk.xededitor.R;
 import com.rk.xededitor.Settings.SettingsData;
 import com.rk.xededitor.Settings.SettingsMainActivity;
 import com.rk.xededitor.rkUtils;
 import com.rk.xededitor.setupEditor;
-
-import org.eclipse.tm4e.core.registry.IThemeSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,10 +39,6 @@ import java.io.OutputStream;
 import java.util.Objects;
 
 import io.github.rosemoe.sora.event.ContentChangeEvent;
-import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme;
-import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry;
-import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry;
-import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel;
 import io.github.rosemoe.sora.text.Content;
 import io.github.rosemoe.sora.text.ContentIO;
 import io.github.rosemoe.sora.widget.CodeEditor;

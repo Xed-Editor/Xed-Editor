@@ -110,6 +110,7 @@ dependencies {
     implementation(project(":libPlugin"))
     implementation(project(":libRunner"))
     implementation(project(":libEditor"))
+    implementation(project(":libCommons"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)
@@ -117,5 +118,6 @@ dependencies {
     implementation(libs.joni)
     implementation(libs.snakeyaml.engine)
     implementation(libs.jdt.annotation)
-    implementation(libs.nb.javac.android)
+
+
 }

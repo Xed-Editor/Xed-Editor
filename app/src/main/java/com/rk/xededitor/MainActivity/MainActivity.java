@@ -20,7 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.view.KeyEvent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,7 +42,8 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.rk.xededitor.After;
+
+import com.rk.libcommons.After;
 import com.rk.xededitor.BaseActivity;
 import com.rk.xededitor.FileClipboard;
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment;
@@ -59,6 +60,7 @@ import com.rk.xededitor.rkUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,8 +111,9 @@ public class MainActivity extends BaseActivity {
         menu.findItem(R.id.batchrep).setVisible(visible);
         menu.findItem(R.id.search).setVisible(visible);
         menu.findItem(R.id.share).setVisible(visible);
-        menu.findItem(R.id.undo).setVisible(visible);
-        menu.findItem(R.id.redo).setVisible(visible);
+        var shouldShowUndoRedo = visible && !fragments.get(mTabLayout.getSelectedTabPosition()).isSearching();
+        menu.findItem(R.id.undo).setVisible(shouldShowUndoRedo);
+        menu.findItem(R.id.redo).setVisible(shouldShowUndoRedo);
         menu.findItem(R.id.insertdate).setVisible(visible);
 
 
@@ -270,7 +273,6 @@ public class MainActivity extends BaseActivity {
             if (directoryUri != null) {
 
                 // Save a file in the selected directory
-                //String path = directoryUri.getPath().replace("/tree/primary:", "/storage/emulated/0/");
                 File directory = new File(convertUriToPath(this, directoryUri));
 
                 if (directory.isDirectory()) {
@@ -302,6 +304,22 @@ public class MainActivity extends BaseActivity {
                 Toast.makeText(this, "No directory selected", Toast.LENGTH_SHORT).show();
             }
 
+        } else if (requestCode == FileAction.REQUEST_ADD_FILE && resultCode == RESULT_OK) {
+            var selectedFile = new File(convertUriToPath(this, data.getData()));
+            var targetFile = FileAction.Companion.getStaticfile();
+
+            if (targetFile != null && targetFile.isDirectory() && selectedFile.exists() && selectedFile.isFile()) {
+                try {
+                    Path destinationPath = new File(targetFile, selectedFile.getName()).toPath();
+                    Files.move(selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
+                    if (targetFile.getAbsolutePath().equals(rootFolder.getAbsolutePath())){
+                        new TreeView(this, rootFolder);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.e("FileAction", "Failed to move file: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -361,11 +379,6 @@ public class MainActivity extends BaseActivity {
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*"); // you can specify mime types here to filter certain types of files
         startActivityForResult(intent, REQUEST_FILE_SELECTION);
-    }
-
-    public void revokeUriPermission(Uri uri) {
-        final int releaseFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-        getContentResolver().releasePersistableUriPermission(uri, releaseFlags);
     }
 
     public void openDir(View v) {

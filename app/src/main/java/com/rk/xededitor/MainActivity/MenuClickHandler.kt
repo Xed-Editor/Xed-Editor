@@ -1,6 +1,5 @@
 package com.rk.xededitor.MainActivity
 
-import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -8,21 +7,19 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
-import androidx.core.app.ActivityCompat.startActivityForResult
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.Runner
-import com.rk.xededitor.After
+import com.rk.libcommons.After
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.Printer
+import com.rk.libcommons.Printer
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.EditorSearcher
-import kotlinx.coroutines.flow.combineTransform
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -80,7 +77,7 @@ class MenuClickHandler {
 
         R.id.action_print -> {
           // Handle action_print
-          Printer.print(activity, fragments[mTabLayout.selectedTabPosition].content.toString())
+          com.rk.libcommons.Printer.print(activity, fragments[mTabLayout.selectedTabPosition].content.toString())
           return true
         }
 
@@ -256,11 +253,11 @@ class MenuClickHandler {
       }
 
       //show toast after some time
-      After(100) {
-        rkUtils.runOnUiThread {
-          rkUtils.toast(activity, activity.getString(R.string.saveAll))
+        com.rk.libcommons.After(100) {
+            rkUtils.runOnUiThread {
+                rkUtils.toast(activity, activity.getString(R.string.saveAll))
+            }
         }
-      }
 
     }
     fun showSearchMenuItems() {

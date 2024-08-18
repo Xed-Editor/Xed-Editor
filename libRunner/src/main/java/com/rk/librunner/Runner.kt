@@ -1,9 +1,17 @@
 package com.rk.librunner
 
 import android.content.Context
-import android.widget.Toast
+import android.graphics.Typeface
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.beanshell.BeanshellRunner
-import com.rk.librunner.beanshell.PluginServerRunner
 import java.io.File
 
 object Runner {
@@ -12,6 +20,7 @@ object Runner {
 
     init {
         registry["bsh"] = arrayListOf(BeanshellRunner())
+
     }
 
     fun isRunnable(file:File) : Boolean{
@@ -26,7 +35,83 @@ object Runner {
             if (runners?.size == 1){
                 runners[0].run(file,context)
             }else{
-                //show a popup
+                val scrollView = ScrollView(context)
+                runners?.forEach { runner ->
+                    LinearLayout(context).apply {
+                        id = View.generateViewId()
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                        ).apply {
+                            gravity = Gravity.CENTER_VERTICAL
+                        }
+
+                        val typedValue = TypedValue()
+                        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
+                        background = ContextCompat.getDrawable(context, typedValue.resourceId)
+
+
+                        isClickable = true
+                        isFocusable = true
+                        gravity = Gravity.CENTER_VERTICAL
+                        orientation = LinearLayout.HORIZONTAL
+                        setPadding(20, 20, 20, 20)
+
+
+                        val imageView = ImageView(context).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                marginEnd = 20
+                            }
+                            setImageDrawable(runner.getIcon(context) ?: ContextCompat.getDrawable(context, R.drawable.settings))
+                        }
+
+                        // LinearLayout for the TextViews
+                        val textContainer = LinearLayout(context).apply {
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            )
+                            orientation = LinearLayout.VERTICAL
+
+                            // First TextView
+                            val titleTextView = TextView(context).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                )
+                                text = runner.getName()
+                                setTypeface(null, Typeface.BOLD)
+                            }
+
+                            // Second TextView
+                            val subtitleTextView = TextView(context).apply {
+                                layoutParams = LinearLayout.LayoutParams(
+                                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                                    LinearLayout.LayoutParams.WRAP_CONTENT
+                                )
+                                text = runner.getDescription()
+                            }
+
+                            addView(titleTextView)
+                            addView(subtitleTextView)
+                        }
+
+                        addView(imageView)
+                        addView(textContainer)
+                        scrollView.addView(this)
+                        setOnClickListener {
+                            runner.run(file,context)
+                        }
+                    }
+
+
+                }
+
+
+                MaterialAlertDialogBuilder(context).setTitle("Choose Runtime").setView(scrollView).setNegativeButton("Cancel",null).show()
 
             }
         }

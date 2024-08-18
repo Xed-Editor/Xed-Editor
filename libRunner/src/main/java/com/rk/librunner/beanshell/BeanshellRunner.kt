@@ -3,6 +3,7 @@ package com.rk.librunner.beanshell
 import android.content.Context
 import android.graphics.drawable.Drawable
 import bsh.Interpreter
+import com.rk.libPlugin.server.API
 import com.rk.librunner.RunnableInterface
 import java.io.File
 
@@ -10,6 +11,8 @@ class BeanshellRunner : RunnableInterface {
     override fun run(file: File, context: Context) {
         val interpreter = Interpreter()
         interpreter.setClassLoader(context.applicationContext.classLoader)
+        interpreter.set("app", context.applicationContext)
+        interpreter.set("api", API())
         interpreter.source(file)
     }
 
@@ -18,7 +21,7 @@ class BeanshellRunner : RunnableInterface {
     }
 
     override fun getDescription(): String {
-        return "Vanilla BeanShell"
+        return "BeanShell"
     }
 
     override fun getIcon(context: Context): Drawable? {

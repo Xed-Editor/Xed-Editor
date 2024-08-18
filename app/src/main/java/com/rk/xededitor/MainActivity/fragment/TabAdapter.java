@@ -100,10 +100,8 @@ public class TabAdapter extends FragmentStatePagerAdapter {
     public void onEditorRemove(DynamicFragment fragment) {
         fragment.releaseEditor();
         if (fragments.size() <= 1) {
-            MenuItem undo = menu.findItem(R.id.undo);
-            MenuItem redo = menu.findItem(R.id.redo);
-            undo.setVisible(false);
-            redo.setVisible(false);
+            menu.findItem(R.id.undo).setVisible(false);
+            menu.findItem(R.id.redo).setVisible(false);
         }
     }
 

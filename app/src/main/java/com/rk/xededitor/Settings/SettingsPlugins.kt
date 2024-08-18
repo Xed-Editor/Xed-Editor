@@ -7,7 +7,7 @@ import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.libPlugin.client.ManagePlugin
-import com.rk.xededitor.After
+import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.R
@@ -75,7 +75,7 @@ class SettingsPlugins : BaseActivity() {
                 onCheckedChange { isChecked ->
                     SettingsData.setBoolean(this@SettingsPlugins, "enablePlugin", isChecked)
                     LoadingPopup(this@SettingsPlugins, 200)
-                    After(230) {
+                    com.rk.libcommons.After(230) {
                         runOnUiThread {
                             this@SettingsPlugins.recreate()
                         }

@@ -76,6 +76,7 @@
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
     <string name="terminal">Terminal</string>
+    <string name="add_file">Add File</string>
 
 
 </resources>
