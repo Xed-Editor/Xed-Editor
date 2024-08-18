@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Karbon</string>
+    <string name="app_name" translatable="false">KarbonEdit</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
     <string name="title_activity_settings">Settings</string>
