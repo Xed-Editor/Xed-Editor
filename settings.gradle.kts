@@ -32,3 +32,5 @@ include(":libPlugin")
 include(":libRunner")
 include(":libEditor")
 include(":libCommons")
+include(":libTreeView")
+

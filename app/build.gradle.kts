@@ -96,9 +96,9 @@ dependencies {
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.activity)
-    implementation("org.apache.commons:commons-vfs2:2.9.0")
-    implementation("com.github.mwiede:jsch:0.2.8")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+   // implementation("org.apache.commons:commons-vfs2:2.9.0")
+    //implementation("com.github.mwiede:jsch:0.2.8")
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
 
 

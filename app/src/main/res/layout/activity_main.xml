@@ -250,7 +250,7 @@
                 android:id="@+id/openFromPath"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:onClick="open_from_path"
+                android:onClick="openFromPath"
                 android:textColor="@color/bg"
                 android:text="Open from path" />
 

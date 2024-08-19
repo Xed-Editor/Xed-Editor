@@ -3,7 +3,6 @@ package com.rk.xededitor.MainActivity.treeview2
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.libcommons.After
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData.nodes
@@ -43,7 +42,7 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
 
               com.rk.libcommons.After(150) {
                   runOnUiThread {
-                      ctx.newEditor(node.value, false)
+                      ctx.newEditor(node.value)
                       ctx.onNewEditor()
                       if (!SettingsData.getBoolean(ctx, "keepDrawerLocked", false)) {
                           com.rk.libcommons.After(500) {

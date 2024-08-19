@@ -119,13 +119,13 @@ class MenuClickHandler {
 
         R.id.share -> {
           // Handle share
-          rkUtils.shareText(activity, activity.currentEditor.text.toString())
+          rkUtils.shareText(activity, rkUtils.currentEditor.text.toString())
           return true
         }
 
         R.id.insertdate -> {
           // Handle insertdate
-          activity.currentEditor.pasteText(
+          rkUtils.currentEditor.pasteText(
             " " + SimpleDateFormat.getDateTimeInstance()
               .format(Date(System.currentTimeMillis())) + " "
           )
