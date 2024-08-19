@@ -1,5 +1,6 @@
 package com.rk.xededitor.SimpleEditor
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
@@ -13,8 +14,10 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libcommons.After
 import com.rk.libcommons.Decompress
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.BatchReplacement.BatchReplacement
@@ -36,12 +39,12 @@ import java.io.File
 import java.io.IOException
 
 class SimpleEditor : BaseActivity() {
-    private var undo: MenuItem? = null
-    private var redo: MenuItem? = null
+    var undo: MenuItem? = null
+    var redo: MenuItem? = null
     private var content: Content? = null
     private var uri: Uri? = null
-    private var menu: Menu? = null
-    private var SearchText = ""
+    var menu: Menu? = null
+    var SearchText = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,10 +52,9 @@ class SimpleEditor : BaseActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
         editor = findViewById(R.id.editor)
-        supportActionBar!!.setDisplayShowTitleEnabled(true)
+        supportActionBar!!.setDisplayShowTitleEnabled(false)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
         if (!isDarkMode(this)) {
@@ -110,103 +112,59 @@ class SimpleEditor : BaseActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here
         val id = item.itemId
-        when (id) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-
-            R.id.action_settings -> {
-                startActivity(Intent(this, SettingsMainActivity::class.java))
-            }
-
-            R.id.action_save -> {
-                save()
-                return true
-            }
-
-            R.id.search -> {
-                val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_search, null)
-                val searchBox = popuopView.findViewById<TextView>(R.id.searchbox)
-                if (SearchText.isNotEmpty()) {
-                    searchBox.text = SearchText
-                }
-
-                MaterialAlertDialogBuilder(this).setTitle("Search").setView(popuopView)
-                    .setNegativeButton("Cancel", null).setPositiveButton("Search") { _, _ ->
-                        val checkBox = popuopView.findViewById<CheckBox>(R.id.case_senstive)
-                        SearchText = searchBox.text.toString()
-                        editor!!.searcher.search(
-                            SearchText,
-                            SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked)
-                        )
-                        menu!!.findItem(R.id.search_next).setVisible(true)
-                        menu!!.findItem(R.id.search_previous).setVisible(true)
-                        menu!!.findItem(R.id.search_close).setVisible(true)
-                        menu!!.findItem(R.id.replace).setVisible(true)
-                    }.show()
-            }
-
-            R.id.search_next -> {
-                editor!!.searcher.gotoNext()
-                return true
-            }
-
-            R.id.search_previous -> {
-                editor!!.searcher.gotoPrevious()
-                return true
-            }
-
-            R.id.search_close -> {
-                editor!!.searcher.stopSearch()
-                menu!!.findItem(R.id.search_next).setVisible(false)
-                menu!!.findItem(R.id.search_previous).setVisible(false)
-                menu!!.findItem(R.id.search_close).setVisible(false)
-                menu!!.findItem(R.id.replace).setVisible(false)
-                SearchText = ""
-                return true
-            }
-
-            R.id.replace -> {
-                val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_replace, null)
-                MaterialAlertDialogBuilder(this).setTitle("Replace").setView(popuopView)
-                    .setNegativeButton("Cancel", null).setPositiveButton("Replace All") { _, _ ->
-                        editor!!.searcher.replaceAll(
-                            (popuopView.findViewById<View>(R.id.replace_replacement) as TextView).text.toString()
-                        )
-                    }.show()
-            }
-
-            R.id.undo -> {
-                if (editor!!.canUndo()) {
-                    editor!!.undo()
-                }
-                redo!!.setEnabled(editor!!.canRedo())
-                undo!!.setEnabled(editor!!.canUndo())
-            }
-
-            R.id.redo -> {
-                if (editor!!.canRedo()) {
-                    editor!!.redo()
-                }
-                redo!!.setEnabled(editor!!.canRedo())
-                undo!!.setEnabled(editor!!.canUndo())
-            }
-
-            R.id.batchrep -> {
-                val intent = Intent(this, BatchReplacement::class.java)
-                intent.putExtra("isExt", true)
-                startActivity(intent)
-            }
-        }
+        HandleMenuItemClick.handle(this,id)
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.simple_mode_menu, menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         this.menu = menu
+
+        if (menu is MenuBuilder) {
+            menu.setOptionalIconsVisible(true)
+        }
+
         undo = menu.findItem(R.id.undo)
         redo = menu.findItem(R.id.redo)
+
+
+        After(200){
+            runOnUiThread{
+                undo?.apply {
+                    isVisible = true
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                }
+
+                redo?.apply {
+                    isVisible = true
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                }
+
+                menu.findItem(R.id.action_settings).apply {
+                    setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+                }
+
+                menu.findItem(R.id.action_save).apply {
+                    isVisible = true
+
+                }
+
+                menu.findItem(R.id.action_print).apply {
+                    isVisible = true
+                }
+
+                menu.findItem(R.id.share).apply {
+                    isVisible = true
+                }
+
+                menu.findItem(R.id.insertdate).apply {
+                    isVisible = true
+                }
+
+            }
+        }
+
         return true
     }
 

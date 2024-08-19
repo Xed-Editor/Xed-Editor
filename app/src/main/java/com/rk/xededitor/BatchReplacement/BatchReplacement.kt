@@ -157,8 +157,8 @@ class BatchReplacement : BaseActivity() {
                         )
                     } else if (intent.extras!!.getBoolean("isExt", false)) {
                         //if we are working with external editor
-                        SimpleEditor.editor.setText(
-                            SimpleEditor.editor.text.toString()
+                        SimpleEditor.editor?.setText(
+                            SimpleEditor.editor!!.text.toString()
                                 .replace(keyword, replacement)
                         )
                     }
