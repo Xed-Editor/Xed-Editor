@@ -77,6 +77,11 @@
     <string name="clipboardempty">Clipboard is empty</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Add File</string>
+    <string name="keyword_regex">keyword (Regex)</string>
+    <string name="replaceall">ReplaceAll</string>
+    <string name="add_new_replacement_batch">Add new replacement batch</string>
+    <string name="remove_a_search_batch">remove a search batch</string>
+    <string name="replacement">replacement</string>
 
 
 </resources>

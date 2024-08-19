@@ -1,31 +1,23 @@
 package com.rk.xededitor.terminal
 
-import android.content.Context
-import android.content.DialogInterface
-import android.content.pm.ApplicationInfo
 import android.graphics.Color
 import android.os.Bundle
-import android.text.InputType
 import android.view.KeyEvent
 import android.widget.LinearLayout
 import androidx.activity.OnBackPressedCallback
-import androidx.core.app.NavUtils
 import androidx.core.content.ContextCompat
-import com.blankj.utilcode.util.KeyboardUtils
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysInfo
-import com.rk.xededitor.terminal.virtualkeys.ivirtualkeys
+import com.rk.xededitor.terminal.virtualkeys.VirtualKeysListener
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
-import java.io.File
 
 
 class Terminal : BaseActivity() {
@@ -44,10 +36,11 @@ class Terminal : BaseActivity() {
     session = createSession()
     terminal.attachSession(session)
     terminal.setBackgroundColor(Color.BLACK)
+    terminal.requestFocus()
     val params = LinearLayout.LayoutParams(-1, 0)
     params.weight = 1f
     binding.root.addView(terminal, 0, params)
-    binding.extraKeys.virtualKeysViewClient = ivirtualkeys(session)
+    binding.extraKeys.virtualKeysViewClient = VirtualKeysListener(session)
     binding.extraKeys.reload(
       VirtualKeysInfo(
         VIRTUAL_KEYS,
@@ -74,7 +67,7 @@ class Terminal : BaseActivity() {
     super.onDestroy()
   }
 
-  val VIRTUAL_KEYS =
+  private val VIRTUAL_KEYS =
     ("[" +
         "\n  [" +
         "\n    \"ESC\"," +
@@ -103,20 +96,13 @@ class Terminal : BaseActivity() {
         "\n]")
 
   override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-
     terminal.dispatchKeyEvent(event)
     return super.dispatchKeyEvent(event)
   }
 
 
   private fun createSession(): TerminalSession {
-    var workingDir = filesDir.absolutePath
-
-    if (TreeView.opened_file_path.isNotEmpty()) {
-      workingDir = TreeView.opened_file_path
-    }
-
-
+    val workingDir = SettingsData.getString(SettingsData.Keys.LAST_OPENED_PATH,filesDir.absolutePath)
     val shell = "/system/bin/sh"
     val args = arrayOf("")
     val env = arrayOf(

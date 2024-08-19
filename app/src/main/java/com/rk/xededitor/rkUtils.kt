@@ -1,12 +1,23 @@
 package com.rk.xededitor
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.webkit.MimeTypeMap
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.MainActivity.StaticData
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.io.BufferedWriter
@@ -27,6 +38,54 @@ object rkUtils {
     fun runOnUiThread(runnable: Runnable?) {
         mHandler!!.post(runnable!!)
     }
+
+
+    fun verifyStoragePermission(activity: Activity) {
+        with(activity) {
+            var shouldAsk = false
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    shouldAsk = true
+                }
+            } else {
+                if (ContextCompat.checkSelfPermission(
+                        this, Manifest.permission.READ_EXTERNAL_STORAGE
+                    ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                        this, Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    shouldAsk = true
+                }
+            }
+
+            if (shouldAsk) {
+                MaterialAlertDialogBuilder(this).setTitle("Manage Storage")
+                    .setMessage("App needs access to edit files in your storage. Please allow the access in the upcoming system setting.")
+                    .setNegativeButton("Exit App") { dialog: DialogInterface?, which: Int ->
+                        finishAffinity()
+                    }.setPositiveButton("OK") { dialog: DialogInterface?, which: Int ->
+                        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                            val intent =
+                                Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                            intent.setData(Uri.parse("package:$packageName"))
+                            startActivityForResult(intent, StaticData.MANAGE_EXTERNAL_STORAGE)
+                        } else {
+                            //below 11
+                            // Request permissions
+                            val perms = arrayOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            )
+                            ActivityCompat.requestPermissions(
+                                this, perms, StaticData.REQUEST_CODE_STORAGE_PERMISSIONS
+                            )
+                        }
+                    }.setCancelable(false).show()
+            }
+        }
+    }
+
 
     val currentEditor: CodeEditor
         get() = StaticData.fragments[StaticData.mTabLayout.selectedTabPosition].editor

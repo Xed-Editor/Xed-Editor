@@ -22,8 +22,9 @@
                 android:layout_gravity="end"
                 android:layout_margin="5dp"
                 android:backgroundTint="#00000000"
-                android:onClick="replace_all"
-                android:src="@drawable/double_arrow" />
+                android:contentDescription="@string/replaceall"
+                android:onClick="replaceAll"
+                android:src="@drawable/find_replace" />
 
             <ImageButton
                 android:layout_width="wrap_content"
@@ -31,6 +32,7 @@
                 android:layout_gravity="end"
                 android:layout_margin="5dp"
                 android:backgroundTint="#00000000"
+                android:contentDescription="@string/add_new_replacement_batch"
                 android:onClick="addBatch"
                 android:src="@drawable/add" />
 
@@ -41,6 +43,7 @@
                 android:layout_gravity="end"
                 android:layout_margin="5dp"
                 android:backgroundTint="#00000000"
+                android:contentDescription="@string/remove_a_search_batch"
                 android:onClick="removeBatch"
                 android:src="@drawable/remove"
                 android:visibility="gone" />
@@ -84,7 +87,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
-                        android:hint="keyword (Regex)"
+                        android:hint="@string/keyword_regex"
                         android:paddingStart="8dp"
                         android:paddingEnd="5dp"
                         android:singleLine="true" />
@@ -110,7 +113,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:background="@android:color/transparent"
-                        android:hint="replacement"
+                        android:hint="@string/replacement"
                         android:paddingStart="8dp"
                         android:paddingEnd="5dp"
                         android:singleLine="true" />

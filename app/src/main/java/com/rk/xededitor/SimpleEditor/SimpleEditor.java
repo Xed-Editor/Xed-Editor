@@ -76,7 +76,7 @@ public class SimpleEditor extends BaseActivity {
             int flags = decorView.getSystemUiVisibility();
             flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
             decorView.setSystemUiVisibility(flags);
-        } else if (SettingsData.isOled(this)) {
+        } else if (SettingsData.isOled()) {
             toolbar.setBackgroundColor(Color.BLACK);
             Window window = getWindow();
             window.setNavigationBarColor(Color.BLACK);
@@ -97,8 +97,8 @@ public class SimpleEditor extends BaseActivity {
         }
 
         editor.setTypefaceText(Typeface.createFromAsset(getAssets(), "JetBrainsMono-Regular.ttf"));
-        editor.setTextSize(Float.parseFloat(SettingsData.getSetting(this, "textsize", "14")));
-        boolean wordwrap = SettingsData.getBoolean(this, "wordwrap", false);
+        editor.setTextSize(Float.parseFloat(SettingsData.getString(SettingsData.Keys.TEXT_SIZE, "14")));
+        boolean wordwrap = SettingsData.getBoolean(SettingsData.Keys.WORD_WRAP_ENABLED, false);
         editor.setWordwrap(wordwrap);
 
         new Thread(() -> new setupEditor(editor, SimpleEditor.this).ensureTextmateTheme()).start();

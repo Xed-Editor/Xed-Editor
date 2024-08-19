@@ -18,7 +18,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.librunner.Runner
-import com.rk.libcommons.After
 import com.rk.libcommons.Decompress
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.treeview2.TreeView
@@ -44,15 +43,14 @@ class Init(activity: MainActivity) {
           window.statusBarColor = Color.parseColor("#FEF7FF")
         } else if (SettingsData.isDarkMode(this)) {
 
-          if (SettingsData.isOled(this)) {
-
-            binding.drawerLayout.setBackgroundColor(Color.BLACK)
-            binding.navView.setBackgroundColor(Color.BLACK)
-            binding.main.setBackgroundColor(Color.BLACK)
-            binding.appbar.setBackgroundColor(Color.BLACK)
-            binding.toolbar.setBackgroundColor(Color.BLACK)
-            binding.tabs.setBackgroundColor(Color.BLACK)
-            binding.mainView.setBackgroundColor(Color.BLACK)
+          if (SettingsData.isOled()) {
+            binding!!.drawerLayout.setBackgroundColor(Color.BLACK)
+            binding!!.navView.setBackgroundColor(Color.BLACK)
+            binding!!.main.setBackgroundColor(Color.BLACK)
+            binding!!.appbar.setBackgroundColor(Color.BLACK)
+            binding!!.toolbar.setBackgroundColor(Color.BLACK)
+            binding!!.tabs.setBackgroundColor(Color.BLACK)
+            binding!!.mainView.setBackgroundColor(Color.BLACK)
             val window = window
             window.navigationBarColor = Color.BLACK
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -68,7 +66,7 @@ class Init(activity: MainActivity) {
 
         mTabLayout.setOnTabSelectedListener(object : OnTabSelectedListener {
           override fun onTabSelected(tab: TabLayout.Tab) {
-            viewPager.setCurrentItem(tab.position)
+            viewPager?.setCurrentItem(tab.position)
             val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
             fragment.updateUndoRedo()
             StaticData.menu?.findItem(R.id.run)?.setVisible(fragment.file != null && Runner.isRunnable(fragment.file!!))
@@ -91,14 +89,18 @@ class Init(activity: MainActivity) {
             inflater.inflate(R.menu.tab_menu, popupMenu.menu)
             popupMenu.setOnMenuItemClickListener { item ->
               val id = item.itemId
-              if (id == R.id.close_this) {
-                adapter.removeFragment(mTabLayout.selectedTabPosition)
-              } else if (id == R.id.close_others) {
-                adapter.closeOthers(viewPager.currentItem)
-              } else if (id == R.id.close_all) {
-                adapter.clear()
-                StaticData.menu?.findItem(R.id.run)?.setVisible(false)
+              when (id) {
+                  R.id.close_this -> {
+                    adapter?.removeFragment(mTabLayout.selectedTabPosition)
+                  }
+                  R.id.close_others -> {
+                    adapter?.closeOthers(viewPager!!.currentItem)
+                  }
+                  R.id.close_all -> {
+                    adapter?.clear()
+                    StaticData.menu?.findItem(R.id.run)?.setVisible(false)
 
+                  }
               }
               for (i in 0 until mTabLayout.tabCount) {
                 val tab = mTabLayout.getTabAt(i)
@@ -108,9 +110,9 @@ class Init(activity: MainActivity) {
                 }
               }
               if (mTabLayout.tabCount < 1) {
-                binding.tabs.visibility = View.GONE
-                binding.mainView.visibility = View.GONE
-                binding.openBtn.visibility = View.VISIBLE
+                binding!!.tabs.visibility = View.GONE
+                binding!!.mainView.visibility = View.GONE
+                binding!!.openBtn.visibility = View.VISIBLE
               }
               MainActivity.updateMenuItems()
               true
@@ -139,12 +141,12 @@ class Init(activity: MainActivity) {
 
         }
 
-        val last_opened_path = SettingsData.getSetting(this, "lastOpenedPath", "")
-        if (last_opened_path.isNotEmpty()) {
-          binding.mainView.visibility = View.VISIBLE
-          binding.safbuttons.visibility = View.GONE
-          binding.maindrawer.visibility = View.VISIBLE
-          binding.drawerToolbar.visibility = View.VISIBLE
+        val last_opened_path = SettingsData.getString(SettingsData.Keys.LAST_OPENED_PATH, "")
+        if (last_opened_path?.isNotEmpty() == true) {
+          binding!!.mainView.visibility = View.VISIBLE
+          binding!!.safbuttons.visibility = View.GONE
+          binding!!.maindrawer.visibility = View.VISIBLE
+          binding!!.drawerToolbar.visibility = View.VISIBLE
 
           StaticData.rootFolder = File(last_opened_path)
 
@@ -154,30 +156,8 @@ class Init(activity: MainActivity) {
           if (name.length > 18) {
             name = StaticData.rootFolder.name.substring(0, 15) + "..."
           }
-          binding.rootDirLabel.text = name
+          binding!!.rootDirLabel.text = name
         }
-
-
-        // val uriString = SettingsData.getSetting(this, "lastOpenedUri", "null")
-        /* if (uriString != "null") {
-           val uri = Uri.parse(uriString)
-           if (hasUriPermission(uri)) {
-             StaticData.rootFolder = DocumentFile.fromTreeUri(this, uri)
-             //binding.tabs.setVisibility(View.VISIBLE);
-             binding.mainView.visibility = View.VISIBLE
-             binding.safbuttons.visibility = View.GONE
-             binding.maindrawer.visibility = View.VISIBLE
-             binding.drawerToolbar.visibility = View.VISIBLE
-
-             runOnUiThread { TreeView(this, StaticData.rootFolder) }
-
-             var name = StaticData.rootFolder.name!!
-             if (name.length > 18) {
-               name = StaticData.rootFolder.name!!.substring(0, 15) + "..."
-             }
-             binding.rootDirLabel.text = name
-           }
-         }*/
 
       }
 
@@ -191,8 +171,8 @@ class Init(activity: MainActivity) {
 
 
                 //close drawer if opened
-                if (activity.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                  activity.drawerLayout.closeDrawer(GravityCompat.START)
+                if (activity.drawerLayout!!.isDrawerOpen(GravityCompat.START)) {
+                  activity.drawerLayout!!.closeDrawer(GravityCompat.START)
                   return
                 }
 
@@ -255,7 +235,7 @@ class Init(activity: MainActivity) {
             val file = File(activity.externalCacheDir, "newfile.txt")
 
             rkUtils.runOnUiThread {
-              activity.newEditor(file, true, sharedText)
+              activity.newEditor(file,  sharedText)
             }
 
 
@@ -270,7 +250,7 @@ class Init(activity: MainActivity) {
 
 
       rkUtils.runOnUiThread {
-        val arrows = activity.binding.childs
+        val arrows = activity.binding!!.childs
         for (i in 0 until arrows.childCount) {
           val button = arrows.getChildAt(i)
           button.setOnClickListener { v ->
@@ -344,8 +324,8 @@ class Init(activity: MainActivity) {
               }
 
               R.id.tab -> {
-                val tabsize = SettingsData.getSetting(activity, "tabsize", "4").toInt()
-                val useSpaces = SettingsData.getBoolean(activity, "useSpaces", true)
+                val tabsize = SettingsData.getString(SettingsData.Keys.TAB_SIZE, "4").toInt()
+                val useSpaces = SettingsData.getBoolean( SettingsData.Keys.USE_SPACE_INTABS, true)
 
                 if (useSpaces) {
                   val sb = StringBuilder()
@@ -367,16 +347,7 @@ class Init(activity: MainActivity) {
                   return@setOnClickListener
                 }
 
-                // Retrieve tab size setting
-                val tabSize = SettingsData.getSetting(activity, "tabsize", "4").toInt()
-
-                // Create a string with spaces equal to tab size
-                //" ".repeat(tabSize)
-
-                // Get the line content where the cursor is located
-                //val lineContent = fragment.content?.getLine(cursor.leftLine).toString()
-
-                // Check if there are enough characters before the cursor to match the tab size
+                val tabSize = SettingsData.getString( SettingsData.Keys.TAB_SIZE, "4").toInt()
                 if (cursor.leftColumn >= tabSize) {
                   fragment.editor.deleteText()
                 }
@@ -402,11 +373,11 @@ class Init(activity: MainActivity) {
       rkUtils.runOnUiThread {
         val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val rotation = windowManager.defaultDisplay.rotation
-        activity.binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        activity.binding!!.root.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
           override fun onGlobalLayout() {
             val r = Rect()
-            activity.binding.root.getWindowVisibleDisplayFrame(r)
-            val screenHeight = activity.binding.root.rootView.height
+            activity.binding!!.root.getWindowVisibleDisplayFrame(r)
+            val screenHeight = activity.binding!!.root.rootView.height
             val keypadHeight = screenHeight - r.bottom
 
             if (keypadHeight > screenHeight * 0.30) {

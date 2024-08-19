@@ -515,7 +515,7 @@ class PreferenceScreen private constructor(builder: Builder) : Preference(builde
         /**
          * The filename to use for the [SharedPreferences] of this [PreferenceScreen]
          */
-        var preferenceFileName: String = (context?.packageName ?: "package") + "_preferences"
+        var preferenceFileName: String = "Settings"
 
         /**
          * If true, the preference items in this screen will have a smaller left padding when they have no icon

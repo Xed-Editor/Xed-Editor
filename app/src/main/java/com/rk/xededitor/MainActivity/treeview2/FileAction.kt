@@ -236,10 +236,10 @@ class FileAction(
 
 
             if (file == rootFolder) {
-              context.binding.mainView.visibility = View.GONE
-              context.binding.safbuttons.visibility = View.VISIBLE
-              context.binding.maindrawer.visibility = View.GONE
-              context.binding.drawerToolbar.visibility = View.GONE
+              context.binding!!.mainView.visibility = View.GONE
+              context.binding!!.safbuttons.visibility = View.VISIBLE
+              context.binding!!.maindrawer.visibility = View.GONE
+              context.binding!!.drawerToolbar.visibility = View.GONE
               context.adapter?.clear()
 
             } else {
@@ -270,7 +270,7 @@ class FileAction(
 
       R.id.close -> {
         // Handle close action
-        SettingsData.setSetting(context, "lastOpenedPath", "")
+        SettingsData.setString(SettingsData.Keys.LAST_OPENED_PATH, null)
         close()
 
         true
@@ -281,7 +281,7 @@ class FileAction(
   }
 
 
-  fun getMimeType(context: Context, file: File): String? {
+  private fun getMimeType(context: Context, file: File): String? {
     val uri: Uri = Uri.fromFile(file)
     val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
     return if (extension != null) {
@@ -328,14 +328,14 @@ class FileAction(
       }
     }
     if (mTabLayout.tabCount < 1) {
-      context.binding.tabs.visibility = View.GONE
-      context.binding.mainView.visibility = View.GONE
-      context.binding.openBtn.visibility = View.VISIBLE
+      context.binding!!.tabs.visibility = View.GONE
+      context.binding!!.mainView.visibility = View.GONE
+      context.binding!!.openBtn.visibility = View.VISIBLE
     }
     MainActivity.updateMenuItems()
-    context.binding.maindrawer.visibility = View.GONE
-    context.binding.safbuttons.visibility = View.VISIBLE
-    context.binding.drawerToolbar.visibility = View.GONE
+    context.binding!!.maindrawer.visibility = View.GONE
+    context.binding!!.safbuttons.visibility = View.VISIBLE
+    context.binding!!.drawerToolbar.visibility = View.GONE
   }
 
   private fun new(createFile: Boolean) {

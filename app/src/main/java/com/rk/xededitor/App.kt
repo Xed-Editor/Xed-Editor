@@ -3,6 +3,7 @@ package com.rk.xededitor
 import android.app.Application
 import com.rk.libPlugin.server.Server
 import com.rk.xededitor.CrashHandler.CrashHandler
+import com.rk.xededitor.Settings.SettingsData
 
 class App : Application() {
 
@@ -17,14 +18,21 @@ class App : Application() {
     application = this
     super.onCreate()
 
+    //initialize uiHandler
     rkUtils.initUi()
 
+    //initialize shared preferences
+    SettingsData.initPref(this)
+
+    //create crash handler
     CrashHandler.INSTANCE.init(this)
 
-    val pluginServer = Server(this)
-    pluginServer.start()
 
-
+    //start plugin server
+    if (SettingsData.getBoolean(SettingsData.Keys.ENABLE_PLUGINS,false)){
+      val pluginServer = Server(this)
+      pluginServer.start()
+    }
 
   }
 }

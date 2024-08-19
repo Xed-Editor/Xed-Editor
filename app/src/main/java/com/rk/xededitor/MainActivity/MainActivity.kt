@@ -53,8 +53,6 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 class MainActivity : BaseActivity() {
-    private val REQUEST_FILE_SELECTION: Int = 123
-    private val MANAGE_EXTERNAL_STORAGE = 36169
     var binding: ActivityMainBinding? = null
     var adapter: TabAdapter? = null
     var viewPager: NoSwipeViewPager? = null
@@ -90,7 +88,7 @@ class MainActivity : BaseActivity() {
 
         PrepareRecyclerView(this)
 
-        verifyStoragePermission()
+        rkUtils.verifyStoragePermission(this)
 
         //run async init
         Init(this)
@@ -109,52 +107,10 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun verifyStoragePermission() {
-        var shouldAsk = false
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (!Environment.isExternalStorageManager()) {
-                shouldAsk = true
-            }
-        } else {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                shouldAsk = true
-            }
-        }
-
-        if (shouldAsk) {
-            MaterialAlertDialogBuilder(this).setTitle("Manage Storage")
-                .setMessage("App needs access to edit files in your storage. Please allow the access in the upcoming system setting.")
-                .setNegativeButton("Exit App") { dialog: DialogInterface?, which: Int ->
-                    finishAffinity()
-                }.setPositiveButton("OK") { dialog: DialogInterface?, which: Int ->
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                    val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                    intent.setData(Uri.parse("package:$packageName"))
-                    startActivityForResult(intent, MANAGE_EXTERNAL_STORAGE)
-                } else {
-                    //below 11
-                    // Request permissions
-                    val perms = arrayOf(
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    )
-                    ActivityCompat.requestPermissions(this, perms, REQUEST_CODE_STORAGE_PERMISSIONS)
-                }
-            }.setCancelable(false).show()
-        }
-    }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -162,7 +118,7 @@ class MainActivity : BaseActivity() {
         if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // permission denied
-                verifyStoragePermission()
+                rkUtils.verifyStoragePermission(this)
             }
         }
     }
@@ -172,21 +128,23 @@ class MainActivity : BaseActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (resultCode == RESULT_OK){
-            if(data != null){
-                if (requestCode == REQUEST_FILE_SELECTION) {
+        if (resultCode == RESULT_OK) {
+            if (data != null) {
+                if (requestCode == StaticData.REQUEST_FILE_SELECTION) {
                     handleFileSelection(data)
-                }else if (requestCode == StaticData.REQUEST_DIRECTORY_SELECTION) {
+                } else if (requestCode == StaticData.REQUEST_DIRECTORY_SELECTION) {
                     handleDirectorySelection(data)
                 }
             }
             when (requestCode) {
-                MANAGE_EXTERNAL_STORAGE -> {
-                    verifyStoragePermission()
+                StaticData.MANAGE_EXTERNAL_STORAGE -> {
+                    rkUtils.verifyStoragePermission(this)
                 }
+
                 FileAction.REQUEST_CODE_OPEN_DIRECTORY -> {
                     handleOpenDirectory(data)
                 }
+
                 FileAction.REQUEST_ADD_FILE -> {
                     handleAddFile(data)
                 }
@@ -203,9 +161,7 @@ class MainActivity : BaseActivity() {
             try {
                 val destinationPath = File(targetFile, selectedFile.name).toPath()
                 Files.move(
-                    selectedFile.toPath(),
-                    destinationPath,
-                    StandardCopyOption.REPLACE_EXISTING
+                    selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING
                 )
                 if (targetFile.absolutePath == StaticData.rootFolder.absolutePath) {
                     TreeView(this, StaticData.rootFolder)
@@ -307,12 +263,11 @@ class MainActivity : BaseActivity() {
     }
 
 
-
     fun openFile(v: View?) {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.setType("*/*")
-        startActivityForResult(intent, REQUEST_FILE_SELECTION)
+        startActivityForResult(intent, StaticData.REQUEST_FILE_SELECTION)
     }
 
     fun openDir(v: View?) {
@@ -323,7 +278,6 @@ class MainActivity : BaseActivity() {
 
     fun reselctDir(v: View?) {
         isReselecting = true
-        SettingsData.setSetting(this, "lastOpenedUri", "null")
         openDir(null)
     }
 
@@ -395,7 +349,9 @@ class MainActivity : BaseActivity() {
 
         StaticData.rootFolder = file
 
-        TreeView(this@MainActivity, file)
+        if (file != null) {
+            TreeView(this@MainActivity, file)
+        }
 
         //use new file browser
         var name = StaticData.rootFolder.name
@@ -477,18 +433,13 @@ class MainActivity : BaseActivity() {
             StaticData.menu.findItem(R.id.insertdate).setVisible(visible)
 
 
-            if (visible && SettingsData.getBoolean(
-                    getActivity(
-                        MainActivity::class.java
-                    ), "show_arrows", false
-                )
-            ) {
+            if (visible && SettingsData.getBoolean(SettingsData.Keys.SHOW_ARROW_KEYS, false)) {
                 activity.binding!!.divider.visibility = View.VISIBLE
                 activity.binding!!.mainBottomBar.visibility = View.VISIBLE
                 val vp = activity.binding!!.viewpager
                 val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
                 layoutParams.bottomMargin =
-                    rkUtils.dpToPx(44f, activity) // Convert dp to pixels as needed
+                    rkUtils.dpToPx(44f, activity)
                 vp.layoutParams = layoutParams
             } else {
                 activity.binding!!.divider.visibility = View.GONE
@@ -496,12 +447,11 @@ class MainActivity : BaseActivity() {
                 val vp = activity.binding!!.viewpager
                 val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
                 layoutParams.bottomMargin =
-                    rkUtils.dpToPx(0f, activity) // Convert dp to pixels as needed
+                    rkUtils.dpToPx(0f, activity)
                 vp.layoutParams = layoutParams
             }
         }
     }
-
 
 
     override fun onDestroy() {

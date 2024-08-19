@@ -13,6 +13,9 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.Settings.SettingsData.getBoolean
+import com.rk.xededitor.Settings.SettingsData.getString
+import com.rk.xededitor.Settings.SettingsData.Keys
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.setupEditor
@@ -25,145 +28,146 @@ import java.io.FileInputStream
 import java.io.InputStream
 
 class DynamicFragment : Fragment {
-  lateinit var fileName: String
-  var file: File? = null
-  private var ctx: Context? = null
-  lateinit var editor: CodeEditor
-  private var editorx: CodeEditor? = null
-  var content: Content? = null
-  var isModified: Boolean = false
-  var isSearching = false
+    lateinit var fileName: String
+    var file: File? = null
+    private var ctx: Context? = null
+    lateinit var editor: CodeEditor
+    private var editorx: CodeEditor? = null
+    var content: Content? = null
+    var isModified: Boolean = false
+    var isSearching = false
 
 
-  constructor() {
-      com.rk.libcommons.After(100) {
-          runOnUiThread {
-              val fragmentManager =
-                  BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
-              val fragmentTransaction = fragmentManager?.beginTransaction()
-              fragmentTransaction?.remove(this)
-              fragmentTransaction?.commitNowAllowingStateLoss()
-          }
-      }
-  }
-
-  constructor(file: File, ctx: Context) {
-
-
-    this.fileName = file.name
-    this.ctx = ctx
-    this.file = file
-    editor = CodeEditor(ctx)
-    editorx = editor
-
-    setupEditor(editor, ctx).setupLanguage(fileName)
-    editor.isCursorAnimationEnabled = SettingsData.getBoolean(ctx,"CursorAnimation",true)
-    val tabSize = SettingsData.getSetting(ctx,"tabsize","4").toInt()
-
-    editor.props.deleteMultiSpaces = tabSize
-    editor.props.deleteEmptyLineFast = false
-   // editor.props.autoIndent = SettingsData.getBoolean(ctx,"autoIndent",true)
-    editor.props.useICULibToSelectWords = true
-    editor.tabWidth = tabSize
-
-    editor.setPinLineNumber(SettingsData.getBoolean(ctx,"pinline",false))
-
-    if (SettingsData.isDarkMode(ctx)) {
-      setupEditor(editor, ctx).ensureTextmateTheme()
-    } else {
-      Thread { setupEditor(editor, ctx).ensureTextmateTheme() }.start()
-    }
-
-    
-
-    val wordwrap = SettingsData.getBoolean(ctx, "wordwrap", false)
-
-
-
-    Thread {
-      try {
-        val inputStream: InputStream = FileInputStream(file)
-        content = ContentIO.createFrom(inputStream)
-        inputStream.close()
-        runOnUiThread { editor.setText(content) }
-        if (wordwrap) {
-          val length = content.toString().length
-          if (length > 700 && content.toString().split("\\R".toRegex())
-              .dropLastWhile { it.isEmpty() }.toTypedArray().size < 100
-          ) {
+    constructor() {
+        com.rk.libcommons.After(100) {
             runOnUiThread {
-              rkUtils.toast(
-                ctx, resources.getString(R.string.ww_wait)
-              )
+                val fragmentManager =
+                    BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
+                val fragmentTransaction = fragmentManager?.beginTransaction()
+                fragmentTransaction?.remove(this)
+                fragmentTransaction?.commitNowAllowingStateLoss()
             }
-          }
-          if (length > 1500) {
-            runOnUiThread {
-              Toast.makeText(
-                ctx, resources.getString(R.string.ww_wait), Toast.LENGTH_LONG
-              ).show()
-            }
-          }
         }
-      } catch (e: Exception) {
-        e.printStackTrace()
-      }
-    }.start()
-
-
-    editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
-    editor.setTextSize(SettingsData.getSetting(ctx, "textsize", "14").toFloat())
-    editor.isWordwrap = wordwrap
-
-
-
-
-    setListener()
-  }
-
-  private fun setListener() {
-    editor.subscribeAlways(
-      ContentChangeEvent::class.java
-    ) {
-      updateUndoRedo()
-      val tab = StaticData.mTabLayout.getTabAt(StaticData.mTabLayout.selectedTabPosition)
-      if (isModified) {
-        tab!!.setText("$fileName*")
-      }
-      isModified = true
     }
-  }
 
-  override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-  ): View? {
-    return editorx
-  }
+    constructor(file: File, ctx: Context) {
 
-  fun updateUndoRedo() {
-      if (StaticData.menu == null && !isSearching){
-        return
-      }
-      StaticData.menu.findItem(R.id.redo)?.setEnabled(editor.canRedo())
-      StaticData.menu.findItem(R.id.undo)?.setEnabled(editor.canUndo())
-  }
 
-  fun releaseEditor() {
-    editor.release()
-    content = null
-  }
+        this.fileName = file.name
+        this.ctx = ctx
+        this.file = file
+        editor = CodeEditor(ctx)
+        editorx = editor
 
-  fun Undo() {
-    if (editor.canUndo()) {
-      editor.undo()
+        setupEditor(editor, ctx).setupLanguage(fileName)
+        editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
+        val tabSize = getString(Keys.TAB_SIZE, "4")?.toInt()
+
+        if (tabSize != null) {
+            editor.props.deleteMultiSpaces = tabSize
+            editor.tabWidth = tabSize
+        }
+        editor.props.deleteEmptyLineFast = false
+        editor.props.useICULibToSelectWords = true
+
+
+        editor.setPinLineNumber(
+            getBoolean(
+                Keys.PIN_LINE_NUMBER, default = false
+            )
+        )
+
+        if (SettingsData.isDarkMode(ctx)) {
+            setupEditor(editor, ctx).ensureTextmateTheme()
+        } else {
+            Thread { setupEditor(editor, ctx).ensureTextmateTheme() }.start()
+        }
+
+
+        val wordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, default = false)
+
+
+        Thread {
+            try {
+                val inputStream: InputStream = FileInputStream(file)
+                content = ContentIO.createFrom(inputStream)
+                inputStream.close()
+                runOnUiThread { editor.setText(content) }
+                if (wordwrap) {
+                    val length = content.toString().length
+                    if (length > 700 && content.toString().split("\\R".toRegex())
+                            .dropLastWhile { it.isEmpty() }.toTypedArray().size < 100
+                    ) {
+                        runOnUiThread {
+                            rkUtils.toast(
+                                ctx, resources.getString(R.string.ww_wait)
+                            )
+                        }
+                    }
+                    if (length > 1500) {
+                        runOnUiThread {
+                            Toast.makeText(
+                                ctx, resources.getString(R.string.ww_wait), Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }.start()
+
+
+        editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+        getString(Keys.TEXT_SIZE, "14")?.toFloat()?.let { editor.setTextSize(it) }
+        editor.isWordwrap = wordwrap
+
+        setListener()
     }
-  }
 
-  fun Redo() {
-    if (editor.canRedo()) {
-      editor.redo()
+    private fun setListener() {
+        editor.subscribeAlways(
+            ContentChangeEvent::class.java
+        ) {
+            updateUndoRedo()
+            val tab = StaticData.mTabLayout.getTabAt(StaticData.mTabLayout.selectedTabPosition)
+            if (isModified) {
+                tab!!.setText("$fileName*")
+            }
+            isModified = true
+        }
     }
-  }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        return editorx
+    }
+
+    fun updateUndoRedo() {
+        if (StaticData.menu == null && !isSearching) {
+            return
+        }
+        StaticData.menu.findItem(R.id.redo)?.setEnabled(editor.canRedo())
+        StaticData.menu.findItem(R.id.undo)?.setEnabled(editor.canUndo())
+    }
+
+    fun releaseEditor() {
+        editor.release()
+        content = null
+    }
+
+    fun Undo() {
+        if (editor.canUndo()) {
+            editor.undo()
+        }
+    }
+
+    fun Redo() {
+        if (editor.canRedo()) {
+            editor.redo()
+        }
+    }
 
 
 }

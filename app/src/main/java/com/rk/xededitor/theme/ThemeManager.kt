@@ -8,21 +8,21 @@ import com.rk.xededitor.Settings.SettingsData
 object ThemeManager {
     private const val THEME_PREFIX = "selectable_"
 
-    fun getSelectedTheme(context: Context): String {
-        return SettingsData.getSetting(context, "selected_theme", "Berry")
+    fun getSelectedTheme(): String {
+        return SettingsData.getString(SettingsData.Keys.SELECTED_THEME, "Berry")
     }
 
-    fun setSelectedTheme(context: Context, themeName: String) {
-        SettingsData.setSetting(context, "selected_theme", themeName)
+    fun setSelectedTheme(themeName: String) {
+        SettingsData.setString(SettingsData.Keys.SELECTED_THEME, themeName)
     }
 
     fun applyTheme(context: Context) {
-        setTheme(context, getSelectedTheme(context))
+        setTheme(context, getSelectedTheme())
     }
 
     fun setTheme(context: Context, themeName: String) {
         context.setTheme(getThemeIdByName(context, themeName))
-        setSelectedTheme(context, themeName)
+        setSelectedTheme(themeName)
     }
 
     private fun getThemeIdByName(context: Context, themeName: String): Int {

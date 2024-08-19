@@ -50,7 +50,7 @@ class SettingsPlugins : BaseActivity() {
         binding.toolbar.title = "Plugins"
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
+        if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
             binding.root.setBackgroundColor(Color.BLACK)
             binding.toolbar.setBackgroundColor(Color.BLACK)
             binding.appbar.setBackgroundColor(Color.BLACK)
@@ -68,14 +68,13 @@ class SettingsPlugins : BaseActivity() {
 
     fun getScreen(): PreferenceScreen {
         return screen(this) {
-            switch("plugins") {
+            switch(SettingsData.Keys.ENABLE_PLUGINS) {
                 title = "Enable Plugins"
                 summary = "Execute active plugins"
                 iconRes = R.drawable.extension
                 onCheckedChange { isChecked ->
-                    SettingsData.setBoolean(this@SettingsPlugins, "enablePlugin", isChecked)
                     LoadingPopup(this@SettingsPlugins, 200)
-                    com.rk.libcommons.After(230) {
+                    After(230) {
                         runOnUiThread {
                             this@SettingsPlugins.recreate()
                         }
@@ -83,7 +82,7 @@ class SettingsPlugins : BaseActivity() {
                     return@onCheckedChange true
                 }
             }
-            if (SettingsData.getBoolean(this@SettingsPlugins, "enablePlugin", false)) {
+            if (SettingsData.getBoolean(SettingsData.Keys.ENABLE_PLUGINS, false)) {
                 pref("managePlugin") {
                     title = "Manage Plugins"
                     summary = "on/off installed plugins"

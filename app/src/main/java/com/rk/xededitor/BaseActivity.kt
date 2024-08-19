@@ -31,8 +31,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
     activityMap[javaClass] = this
 
-    val settingDefaultNightMode = SettingsData.getSetting(
-      this, "default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+    val settingDefaultNightMode = SettingsData.getString(
+      SettingsData.Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
     ).toInt()
 
     if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
@@ -51,7 +51,7 @@ abstract class BaseActivity : AppCompatActivity() {
     } else {
       window.statusBarColor = Color.parseColor("#141118")
     }
-    if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
+    if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
       val window = window
       window.navigationBarColor = Color.BLACK
       window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)

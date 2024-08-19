@@ -94,7 +94,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
     val darkMode = SettingsData.isDarkMode(ctx)
     try {
       if (darkMode) {
-        val path = if (SettingsData.isOled(ctx)) {
+        val path = if (SettingsData.isOled()) {
           ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
         } else {
           ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
@@ -115,7 +115,7 @@ class setupEditor(val editor: CodeEditor, private val ctx: Context) {
           )
         )
         editorColorScheme = TextMateColorScheme.create(themeRegistry)
-        if (SettingsData.isOled(ctx)) {
+        if (SettingsData.isOled()) {
           editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
         }
       } else {

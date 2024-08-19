@@ -63,7 +63,7 @@ class SettingsApp : BaseActivity() {
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
+    if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
       binding.root.setBackgroundColor(Color.BLACK)
       binding.toolbar.setBackgroundColor(Color.BLACK)
       binding.appbar.setBackgroundColor(Color.BLACK)
@@ -78,8 +78,7 @@ class SettingsApp : BaseActivity() {
     }
 
     fun getCheckedBtnIdFromSettings(): Int {
-      val settingDefaultNightMode = SettingsData.getSetting(
-        this, "default_night_mode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+      val settingDefaultNightMode = SettingsData.getString(SettingsData.Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
       ).toInt()
 
       return when (settingDefaultNightMode) {
@@ -96,10 +95,9 @@ class SettingsApp : BaseActivity() {
       when (binding.toggleButton.checkedButtonId) {
         binding.auto.id -> {
           LoadingPopup(this@SettingsApp, 200)
-            com.rk.libcommons.After(300) {
-                SettingsData.setSetting(
-                    this,
-                    "default_night_mode",
+            After(300) {
+                SettingsData.setString(
+                    SettingsData.Keys.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
                 )
 
@@ -111,10 +109,9 @@ class SettingsApp : BaseActivity() {
 
         binding.light.id -> {
           LoadingPopup(this@SettingsApp, 200)
-            com.rk.libcommons.After(300) {
-                SettingsData.setSetting(
-                    this,
-                    "default_night_mode",
+            After(300) {
+                SettingsData.setString(
+                    SettingsData.Keys.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_NO.toString()
                 )
 
@@ -126,10 +123,9 @@ class SettingsApp : BaseActivity() {
 
         binding.dark.id -> {
           LoadingPopup(this@SettingsApp, 200)
-            com.rk.libcommons.After(300) {
-                SettingsData.setSetting(
-                    this,
-                    "default_night_mode",
+            After(300) {
+                SettingsData.setString(
+                    SettingsData.Keys.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_YES.toString()
                 )
 
@@ -148,20 +144,19 @@ class SettingsApp : BaseActivity() {
 
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
-      switch("oled") {
+      switch(SettingsData.Keys.OLED) {
         titleRes = R.string.oled
         summary = "Pure Black theme for amoled devices"
         iconRes = R.drawable.dark_mode
         defaultValue = false
-        onCheckedChange { newValue ->
-          SettingsData.setBoolean(this@SettingsApp, "isOled", newValue)
+        onCheckedChange {
           LoadingPopup(this@SettingsApp, 180)
           getActivity(MainActivity::class.java)?.recreate()
           return@onCheckedChange true
         }
       }
 
-      pref("privateData") {
+      pref(SettingsData.Keys.PRIVATE_DATA) {
         title = "Private App Files"
         summary = "Access private app files"
         iconRes = R.drawable.android
@@ -170,7 +165,7 @@ class SettingsApp : BaseActivity() {
           rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }
-      pref("Themes") {
+      pref(SettingsData.Keys.THEMES) {
         title = "Themes"
         summary = "Change themes"
         iconRes = R.drawable.palette
@@ -194,7 +189,7 @@ class SettingsApp : BaseActivity() {
           }
 
           linearLayout.addView(radioGroup)
-          val selectedThemeName = ThemeManager.getSelectedTheme(this@SettingsApp)
+          val selectedThemeName = ThemeManager.getSelectedTheme()
           val selectedThemeIndex = themes.indexOfFirst { it.first == selectedThemeName }
           if (selectedThemeIndex != -1) {
             radioGroup.check(radioGroup.getChildAt(selectedThemeIndex).id)
@@ -217,7 +212,7 @@ class SettingsApp : BaseActivity() {
                 val loading = LoadingPopup(this@SettingsApp, null).show()
 
                 val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
-                ThemeManager.setSelectedTheme(this@SettingsApp, selectedTheme.first)
+                ThemeManager.setSelectedTheme(selectedTheme.first)
 
                 activityMap.values.forEach { activity ->
                   activity?.recreate()

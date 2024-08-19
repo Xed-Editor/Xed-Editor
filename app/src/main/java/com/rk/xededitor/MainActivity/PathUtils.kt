@@ -1,19 +1,30 @@
 package com.rk.xededitor.MainActivity
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 object PathUtils {
     @JvmStatic
     fun convertUriToPath(context: Context, uri: Uri?): String {
-        val path = internal_convertUriToPath(context,uri)
-        return path.replace("/document","/storage").replace(":","/")
+        val path = internalConvertUriToPath(context, uri)
+        return path.replace("/document", "/storage").replace(":", "/")
     }
 
 
-    fun internal_convertUriToPath(context: Context, uri: Uri?): String {
+
+    private fun internalConvertUriToPath(context: Context, uri: Uri?): String {
         uri?.let {
             when {
                 DocumentsContract.isTreeUri(it) -> {
@@ -24,6 +35,7 @@ object PathUtils {
                             // Internal storage
                             "${Environment.getExternalStorageDirectory()}/${docId.substringAfter("primary:")}"
                         }
+
                         else -> {
                             // External storage (SD card)
                             val split = docId.split(":")
@@ -31,6 +43,7 @@ object PathUtils {
                         }
                     }
                 }
+
                 DocumentsContract.isDocumentUri(context, it) -> {
                     // Handle document URI
                     val docId = DocumentsContract.getDocumentId(it)
@@ -39,12 +52,17 @@ object PathUtils {
                             val split = docId.split(":")
                             val type = split[0]
                             if ("primary".equals(type, ignoreCase = true)) {
-                                return "${Environment.getExternalStorageDirectory()}/${split.getOrElse(1) { "" }}"
+                                return "${Environment.getExternalStorageDirectory()}/${
+                                    split.getOrElse(
+                                        1
+                                    ) { "" }
+                                }"
                             } else {
                                 // Handle SD card
                                 return "/storage/$type/${split.getOrElse(1) { "" }}"
                             }
                         }
+
                         isDownloadsDocument(it) -> {
                             val fileName = getFilePath(context, it)
                             if (fileName != null) {
@@ -53,25 +71,34 @@ object PathUtils {
                             // If unable to get the file name, fall back to a default path
                             return "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/"
                         }
+
                         isMediaDocument(it) -> {
                             val split = docId.split(":")
                             val type = split[0]
                             var contentUri: Uri? = null
                             when (type) {
-                                "image" -> contentUri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                                "video" -> contentUri = android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-                                "audio" -> contentUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                                "image" -> contentUri =
+                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+                                "video" -> contentUri =
+                                    android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+
+                                "audio" -> contentUri =
+                                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                             }
                             val selection = "_id=?"
                             val selectionArgs = arrayOf(split[1])
-                            return getDataColumn(context, contentUri, selection, selectionArgs) ?: "/storage/emulated/0/media/"
+                            return getDataColumn(context, contentUri, selection, selectionArgs)
+                                ?: "/storage/emulated/0/media/"
                         }
                     }
                 }
+
                 "content".equals(it.scheme, ignoreCase = true) -> {
                     // Handle content URI
                     return getDataColumn(context, it, null, null) ?: "/storage/emulated/0/"
                 }
+
                 "file".equals(it.scheme, ignoreCase = true) -> {
                     // Handle file URI
                     return it.path ?: "/storage/emulated/0/"
@@ -83,16 +110,22 @@ object PathUtils {
         return "/storage/emulated/0/"
     }
 
-    private fun getDataColumn(context: Context, uri: Uri?, selection: String?, selectionArgs: Array<String>?): String? {
+    private fun getDataColumn(
+        context: Context,
+        uri: Uri?,
+        selection: String?,
+        selectionArgs: Array<String>?
+    ): String? {
         val column = "_data"
         val projection = arrayOf(column)
         try {
-            context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val columnIndex = cursor.getColumnIndexOrThrow(column)
-                    return cursor.getString(columnIndex)
+            context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndexOrThrow(column)
+                        return cursor.getString(columnIndex)
+                    }
                 }
-            }
         } catch (e: Exception) {
             // Log the exception or handle it as needed
         }

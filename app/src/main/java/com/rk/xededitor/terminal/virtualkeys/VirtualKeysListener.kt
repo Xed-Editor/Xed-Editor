@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.Button
 import com.termux.terminal.TerminalSession
 
-class ivirtualkeys(val session: TerminalSession) : VirtualKeysView.IVirtualKeysView {
+class VirtualKeysListener(val session: TerminalSession) : VirtualKeysView.IVirtualKeysView {
   
   override fun onVirtualKeyButtonClick(
     view: View?, buttonInfo: VirtualKeyButton?, button: Button?
