@@ -18,6 +18,7 @@ public class StaticData {
     public static final int REQUEST_FILE_SELECTION = 64653;
     public static final int MANAGE_EXTERNAL_STORAGE = 6738973;
     public static final int REQUEST_CODE_STORAGE_PERMISSIONS = 3595397;
+
     public static ArrayList<DynamicFragment> fragments;
     public static List<Node<File>> nodes;
     public static TabLayout mTabLayout;
@@ -26,12 +27,12 @@ public class StaticData {
 
 
     public static void clear() {
-        nodes = null;
-        menu = null;
         fragments = null;
+        nodes = null;
         mTabLayout = null;
+        menu = null;
         rootFolder = null;
-        Log.d("Data", "Cleaning Static Data...");
+
         //run the garbage collector
         System.gc();
     }

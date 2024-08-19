@@ -32,6 +32,8 @@ class DynamicFragment : Fragment {
     var file: File? = null
     private var ctx: Context? = null
     lateinit var editor: CodeEditor
+
+    //this is used in onOnCreateView to prevent crash
     private var editorx: CodeEditor? = null
     var content: Content? = null
     var isModified: Boolean = false

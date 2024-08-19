@@ -115,7 +115,7 @@ class MainActivity : BaseActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         //check permission for old devices
-        if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
+        if (requestCode == StaticData.REQUEST_CODE_STORAGE_PERMISSIONS) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // permission denied
                 rkUtils.verifyStoragePermission(this)
@@ -398,7 +398,6 @@ class MainActivity : BaseActivity() {
     }
 
     companion object {
-        private const val REQUEST_CODE_STORAGE_PERMISSIONS = 38386
         fun updateMenuItems() {
             val visible = !(StaticData.fragments == null || StaticData.fragments.isEmpty())
             if (StaticData.menu == null) {
