@@ -3,6 +3,7 @@ package com.rk.xededitor.Settings
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -95,5 +96,16 @@ class SettingsPlugins : BaseActivity() {
         }
 
 
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            // Handle the back arrow click here
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

@@ -3,15 +3,16 @@ package com.rk.xededitor.MainActivity.fragment
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MenuClickHandler
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.Settings.SettingsData
 import kotlin.concurrent.thread
 
 class AutoSaver {
 
     companion object {
-        private var isRunning = false
+
         fun isRunning(): Boolean {
-            return isRunning
+            return thread != null
         }
 
         private var thread: Thread? = null
@@ -30,15 +31,22 @@ class AutoSaver {
     init {
         if (thread == null) {
             thread = Thread {
+                var shouldRun = true
                 if (!SettingsData.getBoolean(SettingsData.Keys.AUTO_SAVE,false)){ return@Thread }
                 intervalMillis = SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, "2000").toLong()
-                isRunning = true
-                while (!Thread.currentThread().isInterrupted) {
+                while (!Thread.currentThread().isInterrupted && shouldRun) {
                     BaseActivity.getActivity(MainActivity::class.java)
-                        ?.let { MenuClickHandler.handleSaveAll(it,true) }
+                        ?.let {
+                            if (StaticData.fragments != null && StaticData.fragments.isNotEmpty()){
+                                MenuClickHandler.handleSaveAll(it,true)
+                            }else{
+                                shouldRun = false
+                            }
+                        }
                     Thread.sleep(intervalMillis)
                 }
-                isRunning = false
+
+                thread = null
 
             }.also { it.start() }
         }
