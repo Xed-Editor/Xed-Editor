@@ -16,6 +16,7 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.fragment.AutoSaver
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
@@ -212,6 +213,10 @@ class SettingsEditor : BaseActivity() {
                 summary = "automatically save file"
                 iconRes = R.drawable.save
                 defaultValue = false
+                onCheckedChange {
+                    AutoSaver()
+                    return@onCheckedChange true
+                }
             }
 
             pref(SettingsData.Keys.AUTO_SAVE_TIME){
@@ -219,7 +224,36 @@ class SettingsEditor : BaseActivity() {
                 summary = "automatically save file after specified time"
                 iconRes = R.drawable.save
                 onClick {
-                    //todo
+                    val view =
+                        LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
+                    val edittext = view.findViewById<EditText>(R.id.name).apply {
+                        hint = "Interval in milliseconds"
+                        setText(SettingsData.getString(SettingsData.Keys.TEXT_SIZE, "2000"))
+                        inputType =
+                            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+                    }
+                    MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Auto Save Time")
+                        .setView(view).setNegativeButton("Cancel", null)
+                        .setPositiveButton("Apply") { dialog, which ->
+                            val text = edittext.text.toString()
+                            for (c in text) {
+                                if (!c.isDigit()) {
+                                    rkUtils.toast(this@SettingsEditor,"invalid value")
+                                    return@setPositiveButton
+                                }
+                            }
+                            if (text.toInt() < 1000) {
+                                rkUtils.toast(this@SettingsEditor,"Value too small")
+                                return@setPositiveButton
+                            }
+                            SettingsData.setString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, text)
+
+                            AutoSaver.setIntervalMillis(text.toLong())
+
+                        }.show()
+
+
+
                     return@onClick true
                 }
             }

@@ -30,6 +30,7 @@ object SettingsData {
         const val SHOW_LINE_NUMBERS="showlinenumbers"
         const val AUTO_SAVE="auto_save"
         const val AUTO_SAVE_TIME="auto_save_time"
+        const val AUTO_SAVE_TIME_VALUE="auto_save_time_value"
 
         //used in SettingsMainActivity
         const val APPLICATION="app_"

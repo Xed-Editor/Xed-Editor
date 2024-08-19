@@ -2,6 +2,7 @@ package com.rk.xededitor
 
 import android.app.Application
 import com.rk.libPlugin.server.Server
+import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.Settings.SettingsData
 
@@ -29,10 +30,13 @@ class App : Application() {
 
 
     //start plugin server
-    if (SettingsData.getBoolean(SettingsData.Keys.ENABLE_PLUGINS,false)){
-      val pluginServer = Server(this)
-      pluginServer.start()
+    After(200){
+      if (SettingsData.getBoolean(SettingsData.Keys.ENABLE_PLUGINS,false)){
+        val pluginServer = Server(this)
+        pluginServer.start()
+      }
     }
+
 
   }
 }

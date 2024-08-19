@@ -34,6 +34,7 @@ import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.handle
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.hideSearchMenuItems
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.showSearchMenuItems
 import com.rk.xededitor.MainActivity.PathUtils.convertUriToPath
+import com.rk.xededitor.MainActivity.fragment.AutoSaver
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment
 import com.rk.xededitor.MainActivity.fragment.NoSwipeViewPager
 import com.rk.xededitor.MainActivity.fragment.TabAdapter
@@ -260,6 +261,9 @@ class MainActivity : BaseActivity() {
         }
 
         updateMenuItems()
+        if (!AutoSaver.isRunning()){
+            AutoSaver()
+        }
     }
 
 
