@@ -39,7 +39,7 @@ class MainActivity : BaseActivity() {
 	var drawerLayout: DrawerLayout? = null
 	private var navigationView: NavigationView? = null
 	private var drawerToggle: ActionBarDrawerToggle? = null
-	//private var isReselecting = false
+	
 	
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -160,7 +160,6 @@ class MainActivity : BaseActivity() {
 		FileManager.openDir()
 	}
 	fun reselectDir(v: View?) {
-		//isReselecting = true
 		FileManager.openDir()
 	}
 	fun fileOptions(v: View?) {
