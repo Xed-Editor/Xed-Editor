@@ -14,7 +14,7 @@ import android.view.WindowManager
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
 import com.rk.libcommons.After
-import com.rk.libcommons.Decompress
+import com.rk.xededitor.Assets
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
@@ -28,7 +28,6 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
-import java.io.File
 import java.io.IOException
 
 class SimpleEditor : BaseActivity() {
@@ -64,20 +63,8 @@ class SimpleEditor : BaseActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
             window.statusBarColor = Color.BLACK
         }
-        if (!File(getExternalFilesDir(null).toString() + "/unzip").exists()) {
-            Thread {
-                try {
-                    Decompress.unzipFromAssets(
-                        this, "files.zip", getExternalFilesDir(null).toString() + "/unzip"
-                    )
-                    File(getExternalFilesDir(null).toString() + "files").delete()
-                    File(getExternalFilesDir(null).toString() + "files.zip").delete()
-                    File(getExternalFilesDir(null).toString() + "textmate").delete()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }.start()
-        }
+        
+        Assets.verify(this)
 
         editor!!.setTypefaceText(
             Typeface.createFromAsset(

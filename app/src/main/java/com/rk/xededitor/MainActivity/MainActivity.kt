@@ -18,6 +18,7 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.handle
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.hideSearchMenuItems
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.showSearchMenuItems
+import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.StaticData.menu
 import com.rk.xededitor.MainActivity.fragment.AutoSaver
@@ -90,6 +91,7 @@ class MainActivity : BaseActivity() {
 			StaticData.fragments = ArrayList()
 			adapter = TabAdapter(supportFragmentManager)
 			viewPager!!.setAdapter(adapter)
+			fileSet = HashSet()
 		}
 	}
 	
@@ -124,56 +126,30 @@ class MainActivity : BaseActivity() {
 	
 	
 	fun newEditor(file: File, text: String? = null) {
-		for (f in StaticData.fragments) {
-			if (f.file == file) {
-				rkUtils.toast(this, "File already opened!")
-				return
-			}
+		
+		if(fileSet.contains(file)){
+			rkUtils.toast(this, "File already opened!")
+			return
 		}
 		
+		fileSet.add(file)
 		val fragment = DynamicFragment(file, this)
-		if (text != null) {
-			fragment.editor.setText(text)
-		}
+		
+		text?.let { fragment.editor.setText(it)}
+		
 		adapter!!.addFragment(fragment, file)
 		
 		for (i in 0 until mTabLayout.tabCount) {
-			val tab = mTabLayout.getTabAt(i)
-			if (tab != null) {
-				val name = StaticData.fragments[tab.position].fileName
-				tab.setText(name)
-			}
+			mTabLayout.getTabAt(i)?.setText(StaticData.fragments[i].fileName)
 		}
 		
 		
 		updateMenuItems()
-		if (!AutoSaver.isRunning()) {
-			AutoSaver()
-		}
+		if (!AutoSaver.isRunning()) { AutoSaver() }
 	}
 	
 	
-	fun openFile(v: View?) {
-		FileManager.openFile()
-	}
-	fun openDir(v: View?) {
-		FileManager.openDir()
-	}
-	fun reselectDir(v: View?) {
-		FileManager.openDir()
-	}
-	fun fileOptions(v: View?) {
-		FileAction(this, StaticData.rootFolder, StaticData.rootFolder, null)
-	}
-	fun openDrawer(v: View?) {
-		drawerLayout!!.open()
-	}
-	fun openFromPath(v: View?) {
-		FileManager.openFromPath()
-	}
-	fun privateDir(v: View?) {
-		FileManager.privateDir()
-	}
+	
 	
 	@SuppressLint("RestrictedApi")
 	override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -213,7 +189,7 @@ class MainActivity : BaseActivity() {
 				After(200) { rkUtils.runOnUiThread { updateMenuItems() } }
 				return
 			}
-			val activity = checkNotNull(getActivity(MainActivity::class.java))
+			
 			if (mTabLayout == null || mTabLayout.selectedTabPosition == -1) {
 				hideSearchMenuItems()
 			} else if (!StaticData.fragments[mTabLayout.selectedTabPosition].isSearching) {
@@ -239,21 +215,29 @@ class MainActivity : BaseActivity() {
 			}
 			
 			
-			
+			val activity = checkNotNull(getActivity(MainActivity::class.java))
 			if (visible && SettingsData.getBoolean(SettingsData.Keys.SHOW_ARROW_KEYS, false)) {
-				activity.binding!!.divider.visibility = View.VISIBLE
-				activity.binding!!.mainBottomBar.visibility = View.VISIBLE
-				val vp = activity.binding!!.viewpager
-				val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
-				layoutParams.bottomMargin = rkUtils.dpToPx(44f, activity)
-				vp.layoutParams = layoutParams
+				with(activity.binding!!){
+					divider.visibility = View.VISIBLE
+					mainBottomBar.visibility = View.VISIBLE
+					
+					(viewpager.layoutParams as RelativeLayout.LayoutParams).apply {
+						bottomMargin = rkUtils.dpToPx(44f, activity)
+						viewpager.layoutParams = this
+					}
+				}
+				
 			} else {
-				activity.binding!!.divider.visibility = View.GONE
-				activity.binding!!.mainBottomBar.visibility = View.GONE
-				val vp = activity.binding!!.viewpager
-				val layoutParams = vp.layoutParams as RelativeLayout.LayoutParams
-				layoutParams.bottomMargin = rkUtils.dpToPx(0f, activity)
-				vp.layoutParams = layoutParams
+				with(activity.binding!!){
+					divider.visibility = View.GONE
+					mainBottomBar.visibility = View.GONE
+					
+					(viewpager.layoutParams as RelativeLayout.LayoutParams).apply {
+						bottomMargin = rkUtils.dpToPx(0f, activity)
+						viewpager.layoutParams = this
+					}
+				}
+				
 			}
 		}
 	}
@@ -262,5 +246,29 @@ class MainActivity : BaseActivity() {
 	override fun onDestroy() {
 		StaticData.clear()
 		super.onDestroy()
+	}
+	
+	
+	//view click listeners
+	fun openFile(v: View?) {
+		FileManager.openFile()
+	}
+	fun openDir(v: View?) {
+		FileManager.openDir()
+	}
+	fun reselectDir(v: View?) {
+		FileManager.openDir()
+	}
+	fun fileOptions(v: View?) {
+		FileAction(this, StaticData.rootFolder, StaticData.rootFolder, null)
+	}
+	fun openDrawer(v: View?) {
+		drawerLayout!!.open()
+	}
+	fun openFromPath(v: View?) {
+		FileManager.openFromPath()
+	}
+	fun privateDir(v: View?) {
+		FileManager.privateDir()
 	}
 }

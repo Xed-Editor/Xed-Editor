@@ -9,6 +9,7 @@ import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.updateMenuItems
 import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -72,6 +73,7 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
     }
 
     private fun onEditorRemove(fragment: DynamicFragment) {
+        fileSet.remove(fragment.file)
         fragment.releaseEditor()
         if (StaticData.fragments.size <= 1) {
             StaticData.menu.findItem(R.id.undo).setVisible(false)

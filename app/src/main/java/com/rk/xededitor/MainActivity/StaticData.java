@@ -9,6 +9,7 @@ import com.rk.xededitor.MainActivity.treeview2.Node;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
@@ -20,6 +21,7 @@ public class StaticData {
     public static final int REQUEST_CODE_STORAGE_PERMISSIONS = 3595397;
 
     public static ArrayList<DynamicFragment> fragments;
+    public static HashSet<File> fileSet;
     public static List<Node<File>> nodes;
     public static TabLayout mTabLayout;
     public static Menu menu;
@@ -32,6 +34,7 @@ public class StaticData {
         mTabLayout = null;
         menu = null;
         rootFolder = null;
+        fileSet = null;
 
         //run the garbage collector
         System.gc();

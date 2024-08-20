@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
@@ -16,7 +16,6 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.Settings.SettingsData.getString
 import com.rk.xededitor.Settings.SettingsData.Keys
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -40,8 +39,9 @@ class DynamicFragment : Fragment {
     var isSearching = false
 
 
+    //this constructor is called when theme change, it will remove itself
     constructor() {
-        com.rk.libcommons.After(100) {
+        After(100) {
             runOnUiThread {
                 val fragmentManager =
                     BaseActivity.getActivity(MainActivity::class.java)?.supportFragmentManager
@@ -53,76 +53,51 @@ class DynamicFragment : Fragment {
     }
 
     constructor(file: File, ctx: Context) {
-
-
         this.fileName = file.name
         this.ctx = ctx
         this.file = file
         editor = CodeEditor(ctx)
         editorx = editor
 
-        SetupEditor(editor, ctx).setupLanguage(fileName)
-        editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
-        val tabSize = getString(Keys.TAB_SIZE, "4")?.toInt()
-
-        if (tabSize != null) {
-            editor.props.deleteMultiSpaces = tabSize
-            editor.tabWidth = tabSize
-        }
+        
+        
+        
+        val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
+        editor.props.deleteMultiSpaces = tabSize
+        editor.tabWidth = tabSize
         editor.props.deleteEmptyLineFast = false
         editor.props.useICULibToSelectWords = true
-
-
-        editor.setPinLineNumber(
-            getBoolean(
-                Keys.PIN_LINE_NUMBER, default = false
-            )
-        )
-
+        editor.setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
+        editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
+        editor.isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
+        editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+        editor.setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
+        
+        
+        //run ensureTextmateTheme() in ui thread to prevent white flicker in dark mode
         if (SettingsData.isDarkMode(ctx)) {
             SetupEditor(editor, ctx).ensureTextmateTheme()
         } else {
             Thread { SetupEditor(editor, ctx).ensureTextmateTheme() }.start()
         }
+        
+        Thread{ SetupEditor(editor, ctx).setupLanguage(fileName) }.start()
 
 
-        val wordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, default = false)
-
-
+        //load content from file into the editor
         Thread {
             try {
                 val inputStream: InputStream = FileInputStream(file)
                 content = ContentIO.createFrom(inputStream)
                 inputStream.close()
                 runOnUiThread { editor.setText(content) }
-                if (wordwrap) {
-                    val length = content.toString().length
-                    if (length > 700 && content.toString().split("\\R".toRegex())
-                            .dropLastWhile { it.isEmpty() }.toTypedArray().size < 100
-                    ) {
-                        runOnUiThread {
-                            rkUtils.toast(
-                                ctx, resources.getString(R.string.ww_wait)
-                            )
-                        }
-                    }
-                    if (length > 1500) {
-                        runOnUiThread {
-                            Toast.makeText(
-                                ctx, resources.getString(R.string.ww_wait), Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }.start()
 
 
-        editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
-        getString(Keys.TEXT_SIZE, "14")?.toFloat()?.let { editor.setTextSize(it) }
-        editor.isWordwrap = wordwrap
+       
 
         setListener()
     }
@@ -170,6 +145,4 @@ class DynamicFragment : Fragment {
             editor.redo()
         }
     }
-
-
 }

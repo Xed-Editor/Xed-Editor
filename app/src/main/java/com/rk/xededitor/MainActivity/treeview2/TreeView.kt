@@ -12,41 +12,32 @@ import com.rk.xededitor.rkUtils.runOnUiThread
 import java.io.File
 
 
-class TreeView(val ctx: MainActivity, rootFolder: File) {
+class TreeView(val activity: MainActivity, rootFolder: File) {
     init {
         val recyclerView =
-            ctx.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
+            activity.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
                 setItemViewCacheSize(100)
                 visibility = View.GONE
 
             }
-
-        ctx.binding!!.progressBar.visibility = View.VISIBLE
-
-
+        activity.binding!!.progressBar.visibility = View.VISIBLE
         Thread {
+            
             SettingsData.setString(SettingsData.Keys.LAST_OPENED_PATH, rootFolder.absolutePath)
-
             nodes = TreeViewAdapter.merge(rootFolder)
-
-            val adapter = TreeViewAdapter(recyclerView, ctx, rootFolder)
-
+            val adapter = TreeViewAdapter(recyclerView, activity, rootFolder)
             adapter.apply {
                 setOnItemClickListener(object : OnItemClickListener {
                     override fun onItemClick(v: View, node: Node<File>) {
-                        val loading = LoadingPopup(ctx, null).show()
+                        val loading = LoadingPopup(activity, null).show()
 
                         After(150) {
                             runOnUiThread {
-                                ctx.newEditor(node.value)
-                                ctx.adapter?.onNewEditor()
-                                if (!SettingsData.getBoolean(
-                                        SettingsData.Keys.KEEP_DRAWER_LOCKED,
-                                        false
-                                    )
-                                ) {
+                                activity.newEditor(node.value)
+                                activity.adapter?.onNewEditor()
+                                if (!SettingsData.getBoolean(SettingsData.Keys.KEEP_DRAWER_LOCKED, false)) {
                                     After(500) {
-                                        ctx.binding!!.drawerLayout.close()
+                                        activity.binding!!.drawerLayout.close()
                                     }
                                 }
                                 loading.hide()
@@ -58,16 +49,16 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
 
 
                     override fun onItemLongClick(v: View, node: Node<File>) {
-                        FileAction(ctx, rootFolder, node.value, adapter)
+                        FileAction(activity, rootFolder, node.value, adapter)
                     }
                 })
                 submitList(nodes)
             }
 
 
-            ctx.runOnUiThread {
-                recyclerView.layoutManager = LinearLayoutManager(ctx)
-                ctx.binding!!.progressBar.visibility = View.GONE
+            activity.runOnUiThread {
+                recyclerView.layoutManager = LinearLayoutManager(activity)
+                activity.binding!!.progressBar.visibility = View.GONE
                 recyclerView.visibility = View.VISIBLE
                 recyclerView.adapter = adapter
             }

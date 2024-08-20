@@ -70,16 +70,77 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
     }
   }
 
-
-  private fun setLanguage(languageScopeName: String) {
-    FileProviderRegistry.getInstance().addFileProvider(
-      AssetsFileResolver(
-        ctx.applicationContext?.assets
+  companion object{
+    fun init(context: Context){
+      initGrammarRegistry(context)
+      initTextMateTheme(context)
+    }
+    private fun initGrammarRegistry(context: Context){
+      FileProviderRegistry.getInstance().addFileProvider(
+        AssetsFileResolver(
+          context.applicationContext?.assets
+        )
       )
-    )
+      
+      GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
+      
+    }
+    private fun initTextMateTheme(context: Context){
+      Assets.verify(context)
+      val darkMode = SettingsData.isDarkMode(context)
+      val themeRegistry = ThemeRegistry.getInstance()
+      try {
+        if (darkMode) {
+          val path = if (SettingsData.isOled()) {
+            File(context.filesDir,"unzip/textmate/black/darcula.json").absolutePath
+          } else {
+            File(context.filesDir,"unzip/textmate/darcula.json").absolutePath
+          }
+          if (!File(path).exists()) {
+            rkUtils.runOnUiThread {
+              rkUtils.toast(
+                context, context.resources.getString(R.string.theme_not_found_err)
+              )
+            }
+          }
+          
+          themeRegistry.loadTheme(
+            ThemeModel(
+              IThemeSource.fromInputStream(
+                FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
+              ), "darcula"
+            )
+          )
+          
+        } else {
+          val path = File(context.filesDir,"unzip/textmate/quietlight.json").absolutePath
+          if (!File(path).exists()) {
+            rkUtils.runOnUiThread {
+              rkUtils.toast(
+                context, context.resources.getString(R.string.theme_not_found_err)
+              )
+            }
+          }
+          themeRegistry.loadTheme(
+            ThemeModel(
+              IThemeSource.fromInputStream(
+                FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
+              ), "quitelight"
+            )
+          )
+          
+        }
+      } catch (e: Exception) {
+        e.printStackTrace()
+      }
+    }
+  }
 
-    GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-
+  
+  
+ 
+  
+  private fun setLanguage(languageScopeName: String) {
     val language = TextMateLanguage.create(
       languageScopeName, true /* true for enabling auto-completion */
     )
@@ -87,62 +148,15 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
   }
 
 
+  
   fun ensureTextmateTheme() {
-    var editorColorScheme = editor.colorScheme
     val themeRegistry = ThemeRegistry.getInstance()
-
-    val darkMode = SettingsData.isDarkMode(ctx)
-    try {
-      if (darkMode) {
-        val path = if (SettingsData.isOled()) {
-          ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
-        } else {
-          ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
-        }
-        if (!File(path).exists()) {
-          rkUtils.runOnUiThread {
-            rkUtils.toast(
-              ctx, ctx.resources.getString(R.string.theme_not_found_err)
-            )
-          }
-        }
-
-        themeRegistry.loadTheme(
-          ThemeModel(
-            IThemeSource.fromInputStream(
-              FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-            ), "darcula"
-          )
-        )
-        editorColorScheme = TextMateColorScheme.create(themeRegistry)
-        if (SettingsData.isOled()) {
-          editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
-        }
-      } else {
-        val path =
-          ctx.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
-        if (!File(path).exists()) {
-          rkUtils.runOnUiThread {
-            rkUtils.toast(
-              ctx, ctx.resources.getString(R.string.theme_not_found_err)
-            )
-          }
-        }
-        themeRegistry.loadTheme(
-          ThemeModel(
-            IThemeSource.fromInputStream(
-              FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-            ), "quitelight"
-          )
-        )
-        editorColorScheme = TextMateColorScheme.create(themeRegistry)
+    val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(themeRegistry)
+    
+    if (SettingsData.isDarkMode(ctx)) {
+      if (SettingsData.isOled()) {
+        editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
       }
-    } catch (e: Exception) {
-      e.printStackTrace()
-    }
-
-    if (darkMode) {
-      val pref = ctx.applicationContext.getSharedPreferences("MyPref", 0)
       themeRegistry.setTheme("darcula")
     } else {
       themeRegistry.setTheme("quietlight")
