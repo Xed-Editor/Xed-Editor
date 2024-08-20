@@ -26,13 +26,12 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import java.io.File
 
-class Init(activity: MainActivity) {
+class MainActivityAsync(activity: MainActivity) {
   init {
     Thread {
       Thread.currentThread().priority = 10
       with(activity) {
-
-
+        PermissionManager.verifyStoragePermission(this)
         if (!SettingsData.isDarkMode(this)) {
           //light mode
           window.navigationBarColor = Color.parseColor("#FEF7FF")
@@ -242,7 +241,7 @@ class Init(activity: MainActivity) {
             com.rk.libcommons.After(
               150
             ) {
-              rkUtils.runOnUiThread { activity.onNewEditor() }
+              rkUtils.runOnUiThread { activity.adapter?.onNewEditor() }
             }
           }
         }

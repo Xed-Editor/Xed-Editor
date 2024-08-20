@@ -14,7 +14,7 @@ import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.FileClipboard
-import com.rk.xededitor.LoadingPopup
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
@@ -126,7 +126,7 @@ class FileAction(
 
       R.id.reselect -> {
         // Handle reselect action
-        context.reselctDir(null)
+        context.reselectDir(null)
         true
       }
 

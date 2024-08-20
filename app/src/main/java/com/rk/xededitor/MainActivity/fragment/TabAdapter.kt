@@ -1,11 +1,13 @@
 package com.rk.xededitor.MainActivity.fragment
 
 import android.os.Parcelable
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.MainActivity.Companion.updateMenuItems
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -69,11 +71,22 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
             .select()
     }
 
-    fun onEditorRemove(fragment: DynamicFragment) {
+    private fun onEditorRemove(fragment: DynamicFragment) {
         fragment.releaseEditor()
         if (StaticData.fragments.size <= 1) {
             StaticData.menu.findItem(R.id.undo).setVisible(false)
             StaticData.menu.findItem(R.id.redo).setVisible(false)
+        }
+    }
+
+    fun onNewEditor() {
+        getActivity(MainActivity::class.java)?.let {
+            with(it){
+                binding!!.openBtn.visibility = View.GONE
+                binding!!.tabs.visibility = View.VISIBLE
+                binding!!.mainView.visibility = View.VISIBLE
+                updateMenuItems()
+            }
         }
     }
 

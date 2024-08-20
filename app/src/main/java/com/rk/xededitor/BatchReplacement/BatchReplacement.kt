@@ -10,7 +10,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.LoadingPopup
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.fragment.TabAdapter.Companion.currentEditor
 import com.rk.xededitor.R
@@ -19,8 +19,6 @@ import com.rk.xededitor.SimpleEditor.SimpleEditor
 import com.rk.xededitor.databinding.ActivityBatchReplacementBinding
 import com.rk.xededitor.rkUtils.dpToPx
 import com.rk.xededitor.rkUtils.toast
-import java.util.Objects
-import java.util.Random
 
 class BatchReplacement : BaseActivity() {
     private var binding: ActivityBatchReplacementBinding? = null

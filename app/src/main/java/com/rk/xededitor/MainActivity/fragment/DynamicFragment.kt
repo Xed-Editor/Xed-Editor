@@ -18,7 +18,7 @@ import com.rk.xededitor.Settings.SettingsData.getString
 import com.rk.xededitor.Settings.SettingsData.Keys
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.runOnUiThread
-import com.rk.xededitor.setupEditor
+import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
@@ -61,7 +61,7 @@ class DynamicFragment : Fragment {
         editor = CodeEditor(ctx)
         editorx = editor
 
-        setupEditor(editor, ctx).setupLanguage(fileName)
+        SetupEditor(editor, ctx).setupLanguage(fileName)
         editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
         val tabSize = getString(Keys.TAB_SIZE, "4")?.toInt()
 
@@ -80,9 +80,9 @@ class DynamicFragment : Fragment {
         )
 
         if (SettingsData.isDarkMode(ctx)) {
-            setupEditor(editor, ctx).ensureTextmateTheme()
+            SetupEditor(editor, ctx).ensureTextmateTheme()
         } else {
-            Thread { setupEditor(editor, ctx).ensureTextmateTheme() }.start()
+            Thread { SetupEditor(editor, ctx).ensureTextmateTheme() }.start()
         }
 
 

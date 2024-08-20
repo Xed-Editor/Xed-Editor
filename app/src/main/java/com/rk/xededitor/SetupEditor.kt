@@ -16,7 +16,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
 
-class setupEditor(val editor: CodeEditor, private val ctx: Context) {
+class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
 
   fun setupLanguage(fileName: String) {
     when (fileName.substringAfterLast('.', "")) {

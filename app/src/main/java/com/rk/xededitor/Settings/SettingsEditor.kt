@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.LoadingPopup
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.fragment.AutoSaver

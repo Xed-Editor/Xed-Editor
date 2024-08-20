@@ -7,34 +7,27 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import android.widget.CheckBox
-import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.After
 import com.rk.libcommons.Decompress
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.Settings.SettingsData.getString
 import com.rk.xededitor.Settings.SettingsData.isDarkMode
 import com.rk.xededitor.Settings.SettingsData.isOled
-import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.rkUtils.toast
-import com.rk.xededitor.setupEditor
+import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.io.File
 import java.io.IOException
 
@@ -95,7 +88,7 @@ class SimpleEditor : BaseActivity() {
         val wordwrap = getBoolean(SettingsData.Keys.WORD_WRAP_ENABLED, false)
         editor!!.isWordwrap = wordwrap
 
-        Thread { setupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme() }.start()
+        Thread { SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme() }.start()
 
 
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
@@ -195,7 +188,7 @@ class SimpleEditor : BaseActivity() {
                     e.printStackTrace()
                 }
 
-                setupEditor(editor!!, this@SimpleEditor).setupLanguage(
+                SetupEditor(editor!!, this@SimpleEditor).setupLanguage(
                     displayName!!
                 )
 

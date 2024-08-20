@@ -1,13 +1,12 @@
-package com.rk.xededitor
+package com.rk.libcommons
 
 import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libcommons.After
 
-class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
+class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
   private var dialog: AlertDialog? = null
 
   init {
@@ -18,9 +17,9 @@ class LoadingPopup(val ctx: Activity, hide_after_millis: Long?) {
       dialog = MaterialAlertDialogBuilder(ctx).setView(dialogView)
         .setCancelable(false).create()
 
-      if (hide_after_millis != null) {
+      if (hideAfterMillis != null) {
         show()
-          After(hide_after_millis) {
+          After(hideAfterMillis) {
               ctx.runOnUiThread {
                   hide()
               }

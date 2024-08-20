@@ -4,7 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.libcommons.After
-import com.rk.xededitor.LoadingPopup
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.Settings.SettingsData
@@ -39,7 +39,7 @@ class TreeView(val ctx: MainActivity, rootFolder: File) {
                         After(150) {
                             runOnUiThread {
                                 ctx.newEditor(node.value)
-                                ctx.onNewEditor()
+                                ctx.adapter?.onNewEditor()
                                 if (!SettingsData.getBoolean(
                                         SettingsData.Keys.KEEP_DRAWER_LOCKED,
                                         false
