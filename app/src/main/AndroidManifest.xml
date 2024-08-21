@@ -18,6 +18,7 @@
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="false"
         android:theme="@style/Theme.Fragments"
+        android:largeHeap="true"
         tools:targetApi="31">
 
         <provider
