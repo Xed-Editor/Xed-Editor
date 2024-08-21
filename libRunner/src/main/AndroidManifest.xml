@@ -5,5 +5,7 @@
         <activity
             android:name=".markdown.MarkDownPreview"
             android:exported="false" />
+        <activity android:name=".web.WebViewActivity"
+            android:exported="false"/>
     </application>
 </manifest>

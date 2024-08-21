@@ -13,7 +13,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.beanshell.BeanshellRunner
-import com.rk.librunner.markdown.MarkDown
+import com.rk.librunner.markdown.MarkDownRunner
+import com.rk.librunner.web.WebRunner
 import java.io.File
 
 interface RunnableInterface {
@@ -29,7 +30,8 @@ object Runner {
 
     init {
         registry["bsh"] = arrayListOf(BeanshellRunner())
-        registry["md"] = arrayListOf(MarkDown())
+        registry["md"] = arrayListOf(MarkDownRunner())
+        registry["html"] = arrayListOf(WebRunner())
     }
 
     fun isRunnable(file:File) : Boolean{

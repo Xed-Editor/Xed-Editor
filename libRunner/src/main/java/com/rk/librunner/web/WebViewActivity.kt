@@ -1,22 +1,14 @@
-package com.rk.librunner.markdown
+package com.rk.librunner.web
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
-import android.webkit.WebChromeClient
-import android.webkit.WebSettings
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.librunner.WebUtils
 import com.rk.librunner.databinding.ActivityMarkdownBinding
-import java.io.BufferedReader
 import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
 
 
-class MarkDownPreview : AppCompatActivity()  {
+class WebViewActivity: AppCompatActivity()  {
 	lateinit var binding:ActivityMarkdownBinding
 	
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,26 +25,11 @@ class MarkDownPreview : AppCompatActivity()  {
 		supportActionBar!!.title = file.name
 		WebUtils.setupWebView(binding.webview)
 		
-		val html = """
-			<!DOCTYPE html>
-			<html lang="en">
-			<head>
-			    <meta charset="UTF-8">
-				<script type="module" src="file:///android_asset/zeromd.js"></script>
-			</head>
-			<body>
-				<zero-md src="file://${file.absolutePath}"><zero-md>
-			</body>
-			</html>
-		""".trimIndent()
-		
-		
-		val baseUrl = "file://${file.parentFile!!.absolutePath}"
-		
-		binding.webview.loadDataWithBaseURL(baseUrl,html,"text/html", "UTF-8", null)
-		
+		binding.webview.loadUrl("file://${file.absolutePath}")
 		
 	}
+	
+	
 	
 	override fun onLowMemory() {
 		super.onLowMemory()
@@ -89,26 +66,4 @@ class MarkDownPreview : AppCompatActivity()  {
 			super.onBackPressed()
 		}
 	}
-	
-	
-	fun readFileFromAssets(context: Context, fileName: String?): String {
-		val stringBuilder = StringBuilder()
-		val assetManager = context.assets
-		
-		try {
-			assetManager.open(fileName!!).use { inputStream ->
-				BufferedReader(InputStreamReader(inputStream)).use { reader ->
-					var line: String?
-					while ((reader.readLine().also { line = it }) != null) {
-						stringBuilder.append(line).append("\n")
-					}
-				}
-			}
-		} catch (e: IOException) {
-			e.printStackTrace()
-		}
-		
-		return stringBuilder.toString()
-	}
-	
 }
