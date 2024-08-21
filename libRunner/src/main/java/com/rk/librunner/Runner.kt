@@ -2,6 +2,7 @@ package com.rk.librunner
 
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -12,7 +13,15 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.beanshell.BeanshellRunner
+import com.rk.librunner.markdown.MarkDown
 import java.io.File
+
+interface RunnableInterface {
+    fun run(file: File, context:Context)
+    fun getName() : String
+    fun getDescription():String
+    fun getIcon(context: Context): Drawable?
+}
 
 object Runner {
 
@@ -20,7 +29,7 @@ object Runner {
 
     init {
         registry["bsh"] = arrayListOf(BeanshellRunner())
-
+        registry["md"] = arrayListOf(MarkDown())
     }
 
     fun isRunnable(file:File) : Boolean{

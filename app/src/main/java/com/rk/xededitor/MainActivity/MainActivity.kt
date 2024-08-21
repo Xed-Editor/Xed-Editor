@@ -14,11 +14,13 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.rk.libcommons.After
+import com.rk.librunner.Runner
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.handle
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.hideSearchMenuItems
 import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.showSearchMenuItems
 import com.rk.xededitor.MainActivity.StaticData.fileSet
+import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.StaticData.menu
 import com.rk.xededitor.MainActivity.fragment.AutoSaver
@@ -34,7 +36,7 @@ import com.rk.xededitor.rkUtils
 import java.io.File
 
 class MainActivity : BaseActivity() {
-	var binding: ActivityMainBinding? = null
+	lateinit var binding: ActivityMainBinding
 	var adapter: TabAdapter? = null
 	var viewPager: NoSwipeViewPager? = null
 	var drawerLayout: DrawerLayout? = null
@@ -88,7 +90,7 @@ class MainActivity : BaseActivity() {
 		mTabLayout.setupWithViewPager(viewPager)
 		
 		if (adapter == null) {
-			StaticData.fragments = ArrayList()
+			fragments = ArrayList()
 			adapter = TabAdapter(supportFragmentManager)
 			viewPager!!.setAdapter(adapter)
 			fileSet = HashSet()
@@ -140,7 +142,7 @@ class MainActivity : BaseActivity() {
 		adapter!!.addFragment(fragment, file)
 		
 		for (i in 0 until mTabLayout.tabCount) {
-			mTabLayout.getTabAt(i)?.setText(StaticData.fragments[i].fileName)
+			mTabLayout.getTabAt(i)?.setText(fragments[i].fileName)
 		}
 		
 		
@@ -184,7 +186,7 @@ class MainActivity : BaseActivity() {
 	
 	companion object {
 		fun updateMenuItems() {
-			val visible = !(StaticData.fragments == null || StaticData.fragments.isEmpty())
+			val visible = !(fragments == null || fragments.isEmpty())
 			if (menu == null) {
 				After(200) { rkUtils.runOnUiThread { updateMenuItems() } }
 				return
@@ -192,7 +194,7 @@ class MainActivity : BaseActivity() {
 			
 			if (mTabLayout == null || mTabLayout.selectedTabPosition == -1) {
 				hideSearchMenuItems()
-			} else if (!StaticData.fragments[mTabLayout.selectedTabPosition].isSearching) {
+			} else if (!fragments[mTabLayout.selectedTabPosition].isSearching) {
 				hideSearchMenuItems()
 			} else {
 				showSearchMenuItems()
@@ -209,9 +211,12 @@ class MainActivity : BaseActivity() {
 				findItem(R.id.share).setVisible(visible)
 				menu.findItem(R.id.insertdate).setVisible(visible)
 				
-				val shouldShowUndoRedo = visible && !StaticData.fragments[mTabLayout.selectedTabPosition].isSearching
+				val shouldShowUndoRedo = visible && !fragments[mTabLayout.selectedTabPosition].isSearching
 				findItem(R.id.undo).setVisible(shouldShowUndoRedo)
 				findItem(R.id.redo).setVisible(shouldShowUndoRedo)
+				
+				val shouldShowRun = visible && fragments[mTabLayout.selectedTabPosition].file != null && Runner.isRunnable(fragments[mTabLayout.selectedTabPosition].file!!)
+				menu.findItem(R.id.run).setVisible(shouldShowRun)
 			}
 			
 			
