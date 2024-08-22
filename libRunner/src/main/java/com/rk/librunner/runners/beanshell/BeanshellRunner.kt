@@ -1,4 +1,4 @@
-package com.rk.librunner.beanshell
+package com.rk.librunner.runners.beanshell
 
 import android.content.Context
 import android.graphics.drawable.Drawable

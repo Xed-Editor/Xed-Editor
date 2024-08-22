@@ -19,6 +19,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
@@ -60,7 +61,7 @@ class CrashActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowTitleEnabled(true)
             error_editor = findViewById(R.id.error_editor)
-            ensureTextmateTheme()
+            SetupEditor(error_editor,this).ensureTextmateTheme()
 
 
 
@@ -109,67 +110,7 @@ class CrashActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun ensureTextmateTheme() {
-        var editorColorScheme: EditorColorScheme = error_editor.colorScheme
-        val themeRegistry = ThemeRegistry.getInstance()
-        val darkMode = SettingsData.isDarkMode(this)
-        try {
-            if (darkMode) {
-                val path: String
-                path = if (SettingsData.isOled()) {
-                    this.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/black/darcula.json"
-                } else {
-                    this.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/darcula.json"
-                }
-                if (!File(path).exists()) {
-                    runOnUiThread {
-                        rkUtils.toast(
-                            this, getResources().getString(R.string.theme_not_found_err)
-                        )
-                    }
-                }
-                themeRegistry.loadTheme(
-                    ThemeModel(
-                        IThemeSource.fromInputStream(
-                            FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-                        ), "darcula"
-                    )
-                )
-                editorColorScheme = TextMateColorScheme.create(themeRegistry)
-                if (SettingsData.isOled()) {
-                    editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
-                }
-            } else {
-                val path: String =
-                    this.getExternalFilesDir(null)!!.absolutePath + "/unzip/textmate/quietlight.json"
-                if (!File(path).exists()) {
-                    runOnUiThread {
-                        rkUtils.toast(
-                            this, getResources().getString(R.string.theme_not_found_err)
-                        )
-                    }
-                }
-                themeRegistry.loadTheme(
-                    ThemeModel(
-                        IThemeSource.fromInputStream(
-                            FileProviderRegistry.getInstance().tryGetInputStream(path), path, null
-                        ), "quitelight"
-                    )
-                )
-                editorColorScheme = TextMateColorScheme.create(themeRegistry)
-            }
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-        if (darkMode) {
-            val pref: SharedPreferences = this.applicationContext.getSharedPreferences("MyPref", 0)
-            themeRegistry.setTheme("darcula")
-        } else {
-            themeRegistry.setTheme("quietlight")
-        }
-        error_editor.setColorScheme(editorColorScheme)
-    }
+    
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

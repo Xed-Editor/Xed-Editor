@@ -10,7 +10,7 @@ android {
     defaultConfig {
         minSdk = 26
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+       
         consumerProguardFiles("consumer-rules.pro")
     }
 
@@ -44,4 +44,5 @@ dependencies {
     implementation(libs.bsh)
     implementation(project(":libPlugin"))
     implementation(project(":libCommons"))
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
 }
