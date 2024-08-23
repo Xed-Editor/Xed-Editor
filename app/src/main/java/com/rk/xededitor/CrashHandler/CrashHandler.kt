@@ -16,16 +16,17 @@ import java.util.Date
 import kotlin.system.exitProcess
 
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
-  private val handler = Handler(Looper.getMainLooper())
   private var context: Context? = null
   private val info: MutableMap<String, String> = HashMap()
+
+
   fun init(context: Context) {
     this.context = context.applicationContext
-    collectDeviceInfo(this.context)
     Thread.setDefaultUncaughtExceptionHandler(this)
   }
 
   override fun uncaughtException(thread: Thread, ex: Throwable) {
+    collectDeviceInfo(this.context)
     saveCrashInfo(thread.name, ex)
 
     if (Looper.myLooper() != null) {
@@ -80,34 +81,6 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
   }
 
   private fun saveCrashInfo(threadName: String, ex: Throwable) {
-    /* val sb = StringBuilder()
-     val timestamp = System.currentTimeMillis()
-     sb.append("Crash at ").append(timestamp).append("(timestamp) in thread named '")
-       .append(threadName).append("'\n")
-     sb.append("Local date and time:")
-       .append(SimpleDateFormat.getDateTimeInstance().format(Date(timestamp))).append('\n')
-       .append("\n\n\n----------------------------------------\n")
-     for ((key, value) in info) {
-       sb.append(key).append(" = ").append(value).append("\n")
-     }
-
-     val writer: Writer = StringWriter()
-     val printWriter = PrintWriter(writer)
-     ex.printStackTrace(printWriter)
-     var cause = ex.cause
-     while (cause != null) {
-       cause.printStackTrace(printWriter)
-       cause = cause.cause
-     }
-     printWriter.close()
-     val result = writer.toString()
-     sb.append("----------------------------------------\n\n\n")
-     sb.append(result).append('\n')
-
-
-     val error = sb.toString()
-     Log.e(LOG_TAG, error)
-     */
     //crash hander activity should never crash
     if (ex.stackTrace.toString().contains(CrashActivity::class.java.name)) {
       //if it does exit instantly or else the activity loop over and over

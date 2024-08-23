@@ -213,8 +213,13 @@ class SettingsEditor : BaseActivity() {
                 summary = "automatically save file"
                 iconRes = R.drawable.save
                 defaultValue = false
-                onCheckedChange {
-                    AutoSaver()
+                onCheckedChange { isChecked ->
+                    if (isChecked){
+                        getActivity(MainActivity::class.java)?.let { it1 -> AutoSaver.start(it1) }
+                    }else{
+                        AutoSaver.stop()
+                    }
+
                     return@onCheckedChange true
                 }
             }
@@ -246,9 +251,10 @@ class SettingsEditor : BaseActivity() {
                                 rkUtils.toast(this@SettingsEditor,"Value too small")
                                 return@setPositiveButton
                             }
-                            SettingsData.setString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, text)
 
-                            AutoSaver.setIntervalMillis(text.toLong())
+
+                            SettingsData.setString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, text)
+                            AutoSaver.delayTime = text.toLong()
 
                         }.show()
 

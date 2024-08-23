@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
@@ -22,6 +23,9 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -59,45 +63,41 @@ class DynamicFragment : Fragment {
         editor = CodeEditor(ctx)
         editorx = editor
 
-        
-        val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
-        editor.props.deleteMultiSpaces = tabSize
-        editor.tabWidth = tabSize
-        editor.props.deleteEmptyLineFast = false
-        editor.props.useICULibToSelectWords = true
-        editor.setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
-        editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
-        editor.isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
-        editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
-        editor.setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
-        
-        
-        //run ensureTextmateTheme() in ui thread to prevent white flicker in dark mode
         val setupEditor = SetupEditor(editor, ctx)
-        if (SettingsData.isDarkMode(ctx)) {
+        val isDarkMode = SettingsData.isDarkMode(ctx)
+        if (isDarkMode) {
             setupEditor.ensureTextmateTheme()
-        } else {
-            Thread { setupEditor.ensureTextmateTheme() }.start()
         }
-        
-        Thread{ setupEditor.setupLanguage(fileName) }.start()
-        
 
-        //load content from file into the editor
-        Thread {
-            try {
-                val inputStream: InputStream = FileInputStream(file)
-                content = ContentIO.createFrom(inputStream)
-                inputStream.close()
-                runOnUiThread { editor.setText(content) }
-            } catch (e: Exception) {
-                e.printStackTrace()
+        lifecycleScope.launch(Dispatchers.Default){
+            if (isDarkMode.not()){
+                setupEditor.ensureTextmateTheme()
             }
-        }.start()
+            val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
+            editor.props.deleteMultiSpaces = tabSize
+            editor.tabWidth = tabSize
+            editor.props.deleteEmptyLineFast = false
+            editor.props.useICULibToSelectWords = true
+            editor.setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
+            editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
+            editor.isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
+            editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+            editor.setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
 
-
-       
-
+            withContext(Dispatchers.IO){
+                try {
+                    val inputStream: InputStream = FileInputStream(file)
+                    content = ContentIO.createFrom(inputStream)
+                    inputStream.close()
+                    withContext(Dispatchers.Main){
+                        editor.setText(content)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            setupEditor.setupLanguage(fileName)
+        }
         setListener()
     }
 

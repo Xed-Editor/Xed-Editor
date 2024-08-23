@@ -2,11 +2,14 @@ package com.rk.xededitor
 
 import android.content.Context
 import com.rk.libcommons.Decompress
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 object Assets {
 	fun verify(context: Context) {
-		Thread {
+		GlobalScope.launch(Dispatchers.Default){
 			val externalFiles = context.filesDir
 			val destination = File(externalFiles, "unzip")
 			if (!destination.exists()) {
@@ -19,8 +22,6 @@ object Assets {
 					e.printStackTrace()
 				}
 			}
-			
-		}.start()
-		
+		}
 	}
 }

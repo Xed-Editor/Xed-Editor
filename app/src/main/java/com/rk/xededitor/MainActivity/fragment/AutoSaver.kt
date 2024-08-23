@@ -1,58 +1,59 @@
 package com.rk.xededitor.MainActivity.fragment
 
-import com.rk.xededitor.BaseActivity
+import androidx.lifecycle.lifecycleScope
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MenuClickHandler
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.Settings.SettingsData
-import kotlin.concurrent.thread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
-class AutoSaver {
+object AutoSaver {
 
-    companion object {
+    var delayTime = 10000L
+    private var job: Job? = null
 
-        fun isRunning(): Boolean {
-            return thread != null
-        }
-
-        private var thread: Thread? = null
-
-        private var intervalMillis: Long = 10000
-
-        fun setIntervalMillis(millis: Long) {
-            intervalMillis = millis
-        }
-
-        fun stop() {
-            thread?.interrupt()
-        }
-    }
 
     //todo
     //check if is in background before saving
     //do not save if content is empty
-    init {
-        if (thread == null) {
-            thread = Thread {
-                var shouldRun = true
-                if (!SettingsData.getBoolean(SettingsData.Keys.AUTO_SAVE,false)){ return@Thread }
-                intervalMillis = SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, intervalMillis.toString()).toLong()
-                while (!Thread.currentThread().isInterrupted && shouldRun) {
-                    BaseActivity.getActivity(MainActivity::class.java)
-                        ?.let {
-                            if (StaticData.fragments != null && StaticData.fragments.isNotEmpty()){
-                                MenuClickHandler.handleSaveAll(it,true)
-                            }else{
-                                shouldRun = false
-                            }
-                        }
-                    Thread.sleep(intervalMillis)
-                }
 
-                thread = null
-
-            }.also { it.start() }
+    fun start(activity: MainActivity) {
+        job?.let {
+            if (it.isActive) {
+                return
+            }
         }
 
+        job = activity.lifecycleScope.launch(Dispatchers.Default) {
+            if (SettingsData.getBoolean(SettingsData.Keys.AUTO_SAVE, false)) {
+                delayTime =
+                    SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, delayTime.toString())
+                        .toLong()
+                var running = true
+                while (running) {
+                    delay(delayTime)
+                    if (StaticData.fragments != null && StaticData.fragments.isNotEmpty() && !activity.isPaused && !activity.isFinishing && !activity.isDestroyed) {
+                        MenuClickHandler.handleSaveAll(activity, true)
+                    } else {
+                        running = false
+                    }
+
+                }
+            }
+        }
     }
+
+
+    fun stop() {
+        job?.let {
+            if (it.isActive) {
+                it.cancel()
+                job = null
+            }
+        }
+    }
+
 }

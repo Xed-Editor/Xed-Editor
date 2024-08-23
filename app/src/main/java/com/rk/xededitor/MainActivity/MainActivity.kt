@@ -38,8 +38,24 @@ class MainActivity : BaseActivity() {
 	var drawerLayout: DrawerLayout? = null
 	private var navigationView: NavigationView? = null
 	private var drawerToggle: ActionBarDrawerToggle? = null
-	
-	
+
+	var isPaused = false
+
+	override fun onPause() {
+		isPaused = true
+		super.onPause()
+	}
+
+	override fun onResume() {
+		isPaused = false
+		//restart auto saver if it stopped
+		AutoSaver.start(this)
+		super.onResume()
+	}
+
+
+
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		StaticData.clear()
 		super.onCreate(savedInstanceState)
@@ -169,9 +185,7 @@ class MainActivity : BaseActivity() {
 		
 		
 		MenuItemHandler.updateMenuItems()
-		if (!AutoSaver.isRunning()) {
-			AutoSaver()
-		}
+		AutoSaver.start(this)
 	}
 	
 	
