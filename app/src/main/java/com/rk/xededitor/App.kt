@@ -12,9 +12,6 @@ class App : Application() {
   override fun onCreate() {
     super.onCreate()
     
-    //initialize uiHandler
-    rkUtils.initUi()
-
     //initialize shared preferences
     SettingsData.initPref(this)
     

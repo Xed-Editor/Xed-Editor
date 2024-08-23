@@ -17,7 +17,7 @@ class AutoSaver {
 
         private var thread: Thread? = null
 
-        private var intervalMillis: Long = 2000
+        private var intervalMillis: Long = 10000
 
         fun setIntervalMillis(millis: Long) {
             intervalMillis = millis
@@ -28,12 +28,15 @@ class AutoSaver {
         }
     }
 
+    //todo
+    //check if is in background before saving
+    //do not save if content is empty
     init {
         if (thread == null) {
             thread = Thread {
                 var shouldRun = true
                 if (!SettingsData.getBoolean(SettingsData.Keys.AUTO_SAVE,false)){ return@Thread }
-                intervalMillis = SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, "2000").toLong()
+                intervalMillis = SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, intervalMillis.toString()).toLong()
                 while (!Thread.currentThread().isInterrupted && shouldRun) {
                     BaseActivity.getActivity(MainActivity::class.java)
                         ?.let {

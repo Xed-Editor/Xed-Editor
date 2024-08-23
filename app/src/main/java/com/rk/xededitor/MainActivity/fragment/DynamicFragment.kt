@@ -29,14 +29,15 @@ import java.io.InputStream
 class DynamicFragment : Fragment {
     lateinit var fileName: String
     var file: File? = null
-    private var ctx: Context? = null
+    private var ctx: Context = BaseActivity.getActivity(MainActivity::class.java)!!
     lateinit var editor: CodeEditor
-
-    //this is used in onOnCreateView to prevent crash
-    private var editorx: CodeEditor? = null
     var content: Content? = null
     var isModified: Boolean = false
     var isSearching = false
+
+    //this is used in onOnCreateView to prevent crash
+    private var editorx: CodeEditor? = null
+    
 
 
     //this constructor is called when theme change, it will remove itself
@@ -52,15 +53,12 @@ class DynamicFragment : Fragment {
         }
     }
 
-    constructor(file: File, ctx: Context) {
-        this.fileName = file.name
-        this.ctx = ctx
+    constructor(file: File) {
         this.file = file
+        this.fileName = file.name
         editor = CodeEditor(ctx)
         editorx = editor
 
-        
-        
         
         val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
         editor.props.deleteMultiSpaces = tabSize
@@ -75,14 +73,15 @@ class DynamicFragment : Fragment {
         
         
         //run ensureTextmateTheme() in ui thread to prevent white flicker in dark mode
+        val setupEditor = SetupEditor(editor, ctx)
         if (SettingsData.isDarkMode(ctx)) {
-            SetupEditor(editor, ctx).ensureTextmateTheme()
+            setupEditor.ensureTextmateTheme()
         } else {
-            Thread { SetupEditor(editor, ctx).ensureTextmateTheme() }.start()
+            Thread { setupEditor.ensureTextmateTheme() }.start()
         }
         
-        Thread{ SetupEditor(editor, ctx).setupLanguage(fileName) }.start()
-
+        Thread{ setupEditor.setupLanguage(fileName) }.start()
+        
 
         //load content from file into the editor
         Thread {

@@ -3,6 +3,7 @@
     <style name="Base.Theme.Fragments" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/berryX</item>
+        <item name="colorSurface">#FEF7FF</item>
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>

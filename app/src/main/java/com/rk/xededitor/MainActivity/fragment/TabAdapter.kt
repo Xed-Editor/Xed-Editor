@@ -7,7 +7,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.MainActivity.Companion.updateMenuItems
+import com.rk.xededitor.MainActivity.MenuItemHandler.updateMenuItems
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.R
@@ -84,9 +84,9 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
     fun onNewEditor() {
         getActivity(MainActivity::class.java)?.let {
             with(it){
-                binding!!.openBtn.visibility = View.GONE
-                binding!!.tabs.visibility = View.VISIBLE
-                binding!!.mainView.visibility = View.VISIBLE
+                binding.openBtn.visibility = View.GONE
+                binding.tabs.visibility = View.VISIBLE
+                binding.mainView.visibility = View.VISIBLE
                 updateMenuItems()
             }
         }

@@ -228,7 +228,7 @@ class SettingsEditor : BaseActivity() {
                         LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
                     val edittext = view.findViewById<EditText>(R.id.name).apply {
                         hint = "Interval in milliseconds"
-                        setText(SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, "2000"))
+                        setText(SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, "10000"))
                         inputType =
                             InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
                     }

@@ -47,7 +47,7 @@ object Runner {
             }
         }
     }
-    fun showRunnerSelectionDialog(context: Context, runners: List<RunnableInterface>, onRunnerSelected: (RunnableInterface) -> Unit) {
+    private fun showRunnerSelectionDialog(context: Context, runners: List<RunnableInterface>, onRunnerSelected: (RunnableInterface) -> Unit) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_runner_selection, null)
         val recyclerView: RecyclerView = dialogView.findViewById(R.id.runner_recycler_view)
         

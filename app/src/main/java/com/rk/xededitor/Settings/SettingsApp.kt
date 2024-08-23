@@ -214,8 +214,8 @@ class SettingsApp : BaseActivity() {
                 val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
                 ThemeManager.setSelectedTheme(selectedTheme.first)
 
-                activityMap.values.forEach { activity ->
-                  activity?.recreate()
+                activityMap.values.forEach { activityRef ->
+                  activityRef?.get()?.recreate()
                 }
 
                 loading.hide()

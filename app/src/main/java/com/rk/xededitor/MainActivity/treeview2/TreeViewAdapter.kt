@@ -24,7 +24,7 @@ interface OnItemClickListener {
 }
 
 class TreeViewAdapter(
-    val recyclerView: RecyclerView, val context: Context, val root: File
+    private val recyclerView: RecyclerView, val context: Context, val root: File
 ) : ListAdapter<Node<File>, TreeViewAdapter.ViewHolder>(NodeDiffCallback()) {
 
     private val icFile = ResourcesCompat.getDrawable(
@@ -41,59 +41,8 @@ class TreeViewAdapter(
     )
 
     private var listener: OnItemClickListener? = null
-    private var cachedViews = Stack<View>()
-    private val cacheList = FileCacheMap<File, List<Node<File>>>()
-
-    init {
-
-
-        thread = Thread {
-
-            val lock = ReentrantLock()
-            val localViews = Stack<View>()
-
-            if (!Thread.currentThread().isInterrupted) {
-                lock.lock()
-                cachedViews = localViews
-                lock.unlock()
-            }
-
-            val queue: Queue<List<Node<File>>> = LinkedList()
-            queue.add(currentList)
-
-            while (!Thread.currentThread().isInterrupted && queue.isNotEmpty()) {
-                val list = queue.poll() ?: continue
-                for (node in list) {
-                    if (!Thread.currentThread().isInterrupted) {
-                        val file = node.value
-                        if (file.isDirectory) {
-                            try {
-                                val childList = merge(file)
-                                lock.lock()
-                                cacheList.put(file, childList)
-                                lock.unlock()
-                                queue.add(childList)
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-                            }
-
-                        }
-                    }
-                }
-
-            }
-            val inflater = LayoutInflater.from(context)
-            for (i in 0 until 200) {
-                if (Thread.currentThread().isInterrupted) {
-                    break
-                }
-                val view = inflater.inflate(R.layout.recycler_view_item, null)
-                localViews.push(view)
-            }
-        }.also { it.start() }
-    }
-
-    //testing
+   
+    
     fun removeFile(file: File) {
         //todo handle folders
         val tempData = currentList.toMutableList()
@@ -158,10 +107,7 @@ class TreeViewAdapter(
         // Insert the new node at the same position
         tempData.add(index, newNode)
 
-        // Refresh the parent directory to update the cache
-        val cache = merge(parentFile ?: return)
-        cacheList.put(parentFile, cache)
-
+        
         // If the old node was expanded, expand the new node and add its children
         if (nodeToRename.isExpand) {
             val newChildren = merge(newFile)
@@ -187,7 +133,7 @@ class TreeViewAdapter(
         }
 
         val cache = merge(file)
-        cacheList.put(file, cache)
+        
 
         val children1 = TreeViewModel.getChildren(xnode!!)
         tempData.removeAll(children1.toSet())
@@ -232,11 +178,7 @@ class TreeViewAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view: View = if (cachedViews.isEmpty()) {
-            LayoutInflater.from(context).inflate(R.layout.recycler_view_item, parent, false)
-        } else {
-            cachedViews.pop()
-        }
+        val view: View = LayoutInflater.from(context).inflate(R.layout.recycler_view_item, parent, false)
         val holder = ViewHolder(view)
 
 
@@ -252,10 +194,8 @@ class TreeViewAdapter(
                         }
                         val tempData = currentList.toMutableList()
                         val index = tempData.indexOf(clickedNode)
-                        val cachedChild = cacheList.get(clickedNode.value)
-                        val children = cachedChild ?: merge(clickedNode.value).also {
-                            cacheList.put(clickedNode.value, it)
-                        }
+                        
+                        val children = merge(clickedNode.value)
                         //val children = merge(clickedNode.value)
                         tempData.addAll(index + 1, children)
                         TreeViewModel.add(clickedNode, children)

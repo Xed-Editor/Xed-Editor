@@ -1,4 +1,4 @@
-package com.rk.librunner.runners
+package com.rk.librunner.runners.web
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -12,9 +12,11 @@ import com.rk.librunner.databinding.ActivityMarkdownBinding
 
 
 
-open class WebActivity: AppCompatActivity()  {
+abstract class WebActivity: AppCompatActivity()  {
     lateinit var binding:ActivityMarkdownBinding
-    
+    var isDebugMode = true
+
+
     @SuppressLint("SetJavaScriptEnabled")
     fun setupWebView(webview: WebView) {
         val webSettings = webview.settings
@@ -24,12 +26,11 @@ open class WebActivity: AppCompatActivity()  {
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         webSettings.allowContentAccess = true
         webSettings.allowFileAccess = true
-        webSettings.allowFileAccessFromFileURLs = true
-        webSettings.allowUniversalAccessFromFileURLs = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         
         webview.setWebChromeClient(WebChromeClient());
-        webview.webViewClient = WebViewClient()
+
+        WebView.setWebContentsDebuggingEnabled(isDebugMode)
         
     }
 
@@ -56,13 +57,7 @@ open class WebActivity: AppCompatActivity()  {
         System.gc()
         finish()
     }
-
-    override fun onPause() {
-        super.onPause()
-        System.gc()
-        finish()
-    }
-
+    
     override fun onDestroy() {
         super.onDestroy()
         System.gc()

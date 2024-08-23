@@ -95,16 +95,6 @@
                             android:textColor="@color/invert_dull" />
 
                         <Button
-                            android:id="@+id/left_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="←"
-                            android:textColor="@color/invert_dull" />
-
-                        <Button
                             android:id="@+id/up_arrow"
                             android:textSize="20sp"
                             android:layout_width="wrap_content"
@@ -112,6 +102,26 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="↑"
+                            android:textColor="@color/invert_dull" />
+
+                        <Button
+                            android:id="@+id/down_arrow"
+                            android:textSize="20sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:backgroundTint="@android:color/transparent"
+                            android:text="↓"
+                            android:textColor="@color/invert_dull" />
+
+                        <Button
+                            android:id="@+id/left_arrow"
+                            android:textSize="20sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:backgroundTint="@android:color/transparent"
+                            android:text="←"
                             android:textColor="@color/invert_dull" />
 
                         <Button
@@ -124,15 +134,10 @@
                             android:text="→"
                             android:textColor="@color/invert_dull" />
 
-                        <Button
-                            android:id="@+id/down_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="↓"
-                            android:textColor="@color/invert_dull" />
+
+
+
+
 
                         <Button
                             android:id="@+id/home"

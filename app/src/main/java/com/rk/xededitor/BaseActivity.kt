@@ -7,29 +7,30 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.collection.ArrayMap
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.theme.ThemeManager
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
 
 abstract class BaseActivity : AppCompatActivity() {
 
   companion object {
-    val activityMap = WeakHashMap<Class<out BaseActivity>, Activity>()
+    val activityMap = ArrayMap<Class<out BaseActivity>,WeakReference<Activity>>()
 
     @Suppress("UNCHECKED_CAST")
     fun <T : BaseActivity> getActivity(activityClass: Class<T>): T? {
-      return activityMap[activityClass] as? T
+      return activityMap[activityClass]!!.get() as? T
     }
 
   }
-
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ThemeManager.applyTheme(this)
     super.onCreate(savedInstanceState)
 
-    activityMap[javaClass] = this
+    activityMap[javaClass] = WeakReference(this)
 
     val settingDefaultNightMode = SettingsData.getString(
       SettingsData.Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()

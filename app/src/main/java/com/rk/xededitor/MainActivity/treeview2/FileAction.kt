@@ -16,6 +16,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.FileClipboard
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.MenuItemHandler.updateMenuItems
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
@@ -332,7 +333,7 @@ class FileAction(
       context.binding!!.mainView.visibility = View.GONE
       context.binding!!.openBtn.visibility = View.VISIBLE
     }
-    MainActivity.updateMenuItems()
+   updateMenuItems()
     context.binding!!.maindrawer.visibility = View.GONE
     context.binding!!.safbuttons.visibility = View.VISIBLE
     context.binding!!.drawerToolbar.visibility = View.GONE

@@ -3,32 +3,28 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.RelativeLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import com.rk.libcommons.After
-import com.rk.librunner.Runner
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.handle
-import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.hideSearchMenuItems
-import com.rk.xededitor.MainActivity.MenuClickHandler.Companion.showSearchMenuItems
+import com.rk.xededitor.MainActivity.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.StaticData.menu
 import com.rk.xededitor.MainActivity.fragment.AutoSaver
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment
 import com.rk.xededitor.MainActivity.fragment.NoSwipeViewPager
 import com.rk.xededitor.MainActivity.fragment.TabAdapter
 import com.rk.xededitor.MainActivity.treeview2.FileAction
 import com.rk.xededitor.MainActivity.treeview2.PrepareRecyclerView
+import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityMainBinding
@@ -44,26 +40,50 @@ class MainActivity : BaseActivity() {
 	private var drawerToggle: ActionBarDrawerToggle? = null
 	
 	
-	
 	override fun onCreate(savedInstanceState: Bundle?) {
 		StaticData.clear()
 		super.onCreate(savedInstanceState)
 		
 		binding = ActivityMainBinding.inflate(layoutInflater)
-		setContentView(binding!!.root)
+		setContentView(binding.root)
 		
-		setSupportActionBar(binding!!.toolbar)
+		setSupportActionBar(binding.toolbar)
 		supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 		supportActionBar!!.setDisplayShowTitleEnabled(false)
 		
+		setupTheme()
 		setupDrawer()
-		PrepareRecyclerView(this)
-		MainActivityAsync(this)
+		
+		PrepareRecyclerView.init(this)
+		MainActivityAsync.init(this)
 		
 		initiateStaticVariables()
 		
+		OnBackPressedHandler(this)
 	}
 	
+	
+	
+	
+	private fun setupTheme() {
+		if (SettingsData.isDarkMode(this)) {
+			if (SettingsData.isOled()) {
+				val black = Color.BLACK
+				with(binding) {
+					drawerLayout.setBackgroundColor(black)
+					navView.setBackgroundColor(black)
+					main.setBackgroundColor(black)
+					appbar.setBackgroundColor(black)
+					toolbar.setBackgroundColor(black)
+					tabs.setBackgroundColor(black)
+					mainView.setBackgroundColor(black)
+				}
+			} else {
+				val window = window
+				window.navigationBarColor = Color.parseColor("#141118")
+			}
+		}
+	}
 	
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -72,8 +92,8 @@ class MainActivity : BaseActivity() {
 	
 	
 	private fun setupDrawer() {
-		drawerLayout = binding!!.drawerLayout
-		navigationView = binding!!.navView
+		drawerLayout = binding.drawerLayout
+		navigationView = binding.navView
 		navigationView?.layoutParams?.width = (Resources.getSystem().displayMetrics.widthPixels * 0.87).toInt()
 		
 		drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
@@ -84,8 +104,8 @@ class MainActivity : BaseActivity() {
 	}
 	
 	private fun initiateStaticVariables() {
-		viewPager = binding!!.viewpager
-		mTabLayout = binding!!.tabs
+		viewPager = binding.viewpager
+		mTabLayout = binding.tabs
 		viewPager!!.setOffscreenPageLimit(15)
 		mTabLayout.setupWithViewPager(viewPager)
 		
@@ -103,13 +123,6 @@ class MainActivity : BaseActivity() {
 		super.onActivityResult(requestCode, resultCode, data)
 		
 		if (resultCode == RESULT_OK) {
-			if (data != null) {
-				if (requestCode == StaticData.REQUEST_FILE_SELECTION) {
-					FileManager.handleFileSelection(data, this)
-				} else if (requestCode == StaticData.REQUEST_DIRECTORY_SELECTION) {
-					FileManager.handleDirectorySelection(data, this)
-				}
-			}
 			when (requestCode) {
 				StaticData.MANAGE_EXTERNAL_STORAGE -> {
 					PermissionManager.verifyStoragePermission(this)
@@ -122,22 +135,31 @@ class MainActivity : BaseActivity() {
 				FileAction.REQUEST_ADD_FILE -> {
 					FileManager.handleAddFile(data, this)
 				}
+				
+				StaticData.REQUEST_FILE_SELECTION -> {
+					data?.let { FileManager.handleFileSelection(it, this) }
+					
+				}
+				
+				StaticData.REQUEST_DIRECTORY_SELECTION -> {
+					data?.let { FileManager.handleDirectorySelection(it, this) }
+				}
+				
 			}
 		}
 	}
 	
 	
 	fun newEditor(file: File, text: String? = null) {
-		
-		if(fileSet.contains(file)){
+		if (fileSet.contains(file)) {
 			rkUtils.toast(this, "File already opened!")
 			return
 		}
 		
 		fileSet.add(file)
-		val fragment = DynamicFragment(file, this)
+		val fragment = DynamicFragment(file)
 		
-		text?.let { fragment.editor.setText(it)}
+		text?.let { fragment.editor.setText(it) }
 		
 		adapter!!.addFragment(fragment, file)
 		
@@ -146,11 +168,11 @@ class MainActivity : BaseActivity() {
 		}
 		
 		
-		updateMenuItems()
-		if (!AutoSaver.isRunning()) { AutoSaver() }
+		MenuItemHandler.updateMenuItems()
+		if (!AutoSaver.isRunning()) {
+			AutoSaver()
+		}
 	}
-	
-	
 	
 	
 	@SuppressLint("RestrictedApi")
@@ -162,7 +184,7 @@ class MainActivity : BaseActivity() {
 			menu.setOptionalIconsVisible(true)
 		}
 		
-		updateMenuItems()
+		MenuItemHandler.updateMenuItems()
 		return true
 	}
 	
@@ -170,109 +192,53 @@ class MainActivity : BaseActivity() {
 		val id = item.itemId
 		
 		if (id == android.R.id.home) {
-			if (drawerLayout!!.isDrawerOpen(GravityCompat.START)) {
-				drawerLayout!!.closeDrawer(GravityCompat.START)
-			} else {
-				drawerLayout!!.openDrawer(GravityCompat.START)
+			with(drawerLayout!!) {
+				val gstart = GravityCompat.START
+				if (isDrawerOpen(gstart)) {
+					closeDrawer(gstart)
+				} else {
+					openDrawer(gstart)
+				}
 			}
 			return true
 		} else {
-            if (drawerToggle!!.onOptionsItemSelected(item)) {
-                return true
-            }
+			if (drawerToggle!!.onOptionsItemSelected(item)) {
+				return true
+			}
 			return handle(this, item)
-		}
-	}
-	
-	companion object {
-		fun updateMenuItems() {
-			val visible = !(fragments == null || fragments.isEmpty())
-			if (menu == null) {
-				After(200) { rkUtils.runOnUiThread { updateMenuItems() } }
-				return
-			}
-			
-			if (mTabLayout == null || mTabLayout.selectedTabPosition == -1) {
-				hideSearchMenuItems()
-			} else if (!fragments[mTabLayout.selectedTabPosition].isSearching) {
-				hideSearchMenuItems()
-			} else {
-				showSearchMenuItems()
-			}
-			
-			with(menu){
-				findItem(R.id.batchrep).setVisible(visible)
-				findItem(R.id.search).setVisible(visible)
-				findItem(R.id.action_save).setVisible(visible)
-				findItem(R.id.action_print).setVisible(visible)
-				findItem(R.id.action_all).setVisible(visible)
-				findItem(R.id.batchrep).setVisible(visible)
-				findItem(R.id.search).setVisible(visible)
-				findItem(R.id.share).setVisible(visible)
-				menu.findItem(R.id.insertdate).setVisible(visible)
-				
-				val shouldShowUndoRedo = visible && !fragments[mTabLayout.selectedTabPosition].isSearching
-				findItem(R.id.undo).setVisible(shouldShowUndoRedo)
-				findItem(R.id.redo).setVisible(shouldShowUndoRedo)
-				
-				val shouldShowRun = visible && fragments[mTabLayout.selectedTabPosition].file != null && Runner.isRunnable(fragments[mTabLayout.selectedTabPosition].file!!)
-				menu.findItem(R.id.run).setVisible(shouldShowRun)
-			}
-			
-			
-			val activity = checkNotNull(getActivity(MainActivity::class.java))
-			if (visible && SettingsData.getBoolean(SettingsData.Keys.SHOW_ARROW_KEYS, false)) {
-				with(activity.binding!!){
-					divider.visibility = View.VISIBLE
-					mainBottomBar.visibility = View.VISIBLE
-					
-					(viewpager.layoutParams as RelativeLayout.LayoutParams).apply {
-						bottomMargin = rkUtils.dpToPx(44f, activity)
-						viewpager.layoutParams = this
-					}
-				}
-				
-			} else {
-				with(activity.binding!!){
-					divider.visibility = View.GONE
-					mainBottomBar.visibility = View.GONE
-					
-					(viewpager.layoutParams as RelativeLayout.LayoutParams).apply {
-						bottomMargin = rkUtils.dpToPx(0f, activity)
-						viewpager.layoutParams = this
-					}
-				}
-				
-			}
 		}
 	}
 	
 	
 	override fun onDestroy() {
-		StaticData.clear()
-		super.onDestroy()
+		StaticData.clear();super.onDestroy()
 	}
-	
 	
 	//view click listeners
 	fun openFile(v: View?) {
 		FileManager.openFile()
 	}
+	
 	fun openDir(v: View?) {
 		FileManager.openDir()
 	}
+	
 	fun reselectDir(v: View?) {
 		FileManager.openDir()
 	}
+	
 	fun fileOptions(v: View?) {
 		FileAction(this, StaticData.rootFolder, StaticData.rootFolder, null)
 	}
+	
 	fun openDrawer(v: View?) {
 		drawerLayout!!.open()
 	}
+	
 	fun openFromPath(v: View?) {
 		FileManager.openFromPath()
 	}
+	
 	fun privateDir(v: View?) {
 		FileManager.privateDir()
 	}

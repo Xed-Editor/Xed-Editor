@@ -29,14 +29,10 @@ import java.io.OutputStreamWriter
 import java.security.MessageDigest
 
 object rkUtils {
-    var mHandler: Handler? = null
-
-    fun initUi() {
-        mHandler = Handler(Looper.getMainLooper())
-    }
+    private var mHandler = Handler(Looper.getMainLooper())
 
     fun runOnUiThread(runnable: Runnable?) {
-        mHandler!!.post(runnable!!)
+        mHandler.post(runnable!!)
     }
 
 
