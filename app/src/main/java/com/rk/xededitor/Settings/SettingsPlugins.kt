@@ -69,7 +69,7 @@ class SettingsPlugins : BaseActivity() {
 
     fun getScreen(): PreferenceScreen {
         return screen(this) {
-            switch(SettingsData.Keys.ENABLE_PLUGINS) {
+            switch(Keys.ENABLE_PLUGINS) {
                 title = "Enable Plugins"
                 summary = "Execute active plugins"
                 iconRes = R.drawable.extension
@@ -83,7 +83,7 @@ class SettingsPlugins : BaseActivity() {
                     return@onCheckedChange true
                 }
             }
-            if (SettingsData.getBoolean(SettingsData.Keys.ENABLE_PLUGINS, false)) {
+            if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS, false)) {
                 pref("managePlugin") {
                     title = "Manage Plugins"
                     summary = "on/off installed plugins"

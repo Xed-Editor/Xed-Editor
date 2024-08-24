@@ -71,9 +71,14 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
   }
 
   companion object{
+    private var isInit = false
     fun init(context: Context){
-      initGrammarRegistry(context)
-      initTextMateTheme(context)
+      if (isInit.not()){
+        initGrammarRegistry(context)
+        initTextMateTheme(context)
+        isInit = true
+      }
+
     }
     private fun initGrammarRegistry(context: Context){
       FileProviderRegistry.getInstance().addFileProvider(

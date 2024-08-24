@@ -13,10 +13,10 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.Settings.SettingsData.getString
-import com.rk.xededitor.Settings.SettingsData.Keys
 import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -70,21 +70,7 @@ class DynamicFragment : Fragment {
         }
 
         lifecycleScope.launch(Dispatchers.Default){
-            if (isDarkMode.not()){
-                setupEditor.ensureTextmateTheme()
-            }
-            val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
-            editor.props.deleteMultiSpaces = tabSize
-            editor.tabWidth = tabSize
-            editor.props.deleteEmptyLineFast = false
-            editor.props.useICULibToSelectWords = true
-            editor.setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
-            editor.isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
-            editor.isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
-            editor.typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
-            editor.setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
-
-            withContext(Dispatchers.IO){
+            launch(Dispatchers.IO){
                 try {
                     val inputStream: InputStream = FileInputStream(file)
                     content = ContentIO.createFrom(inputStream)
@@ -96,7 +82,27 @@ class DynamicFragment : Fragment {
                     e.printStackTrace()
                 }
             }
-            setupEditor.setupLanguage(fileName)
+            launch(Dispatchers.Default){
+                if (isDarkMode.not()){
+                    setupEditor.ensureTextmateTheme()
+                }
+            }
+            launch(Dispatchers.Default){
+                setupEditor.setupLanguage(fileName)
+            }
+
+            with(editor){
+                val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
+                props.deleteMultiSpaces = tabSize
+                tabWidth = tabSize
+                props.deleteEmptyLineFast = false
+                props.useICULibToSelectWords = true
+                setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
+                isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
+                isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
+                typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+                setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
+            }
         }
         setListener()
     }

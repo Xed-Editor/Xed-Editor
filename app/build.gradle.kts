@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
+
 android {
     namespace = "com.rk.xededitor"
     compileSdk = 34
@@ -12,6 +13,7 @@ android {
     lintOptions {
         disable("MissingTranslation")
     }
+
 
 
     dependenciesInfo {
@@ -61,6 +63,8 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
+
+
     }
 
     defaultConfig {

@@ -13,10 +13,12 @@ import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
 import com.rk.xededitor.Assets
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.Settings.SettingsData.getString
@@ -28,6 +30,9 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class SimpleEditor : BaseActivity() {
@@ -71,11 +76,14 @@ class SimpleEditor : BaseActivity() {
                 assets, "JetBrainsMono-Regular.ttf"
             )
         )
-        editor!!.setTextSize(getString(SettingsData.Keys.TEXT_SIZE, "14").toFloat())
-        val wordwrap = getBoolean(SettingsData.Keys.WORD_WRAP_ENABLED, false)
+        editor!!.setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
+        val wordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
         editor!!.isWordwrap = wordwrap
 
-        Thread { SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme() }.start()
+        lifecycleScope.launch(Dispatchers.Default){
+            SetupEditor.init(this@SimpleEditor)
+            SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme()
+        }
 
 
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
@@ -192,11 +200,7 @@ class SimpleEditor : BaseActivity() {
                     )
                     if (inputStream != null) {
                         content = ContentIO.createFrom(inputStream)
-                        if (content != null) {
-                            editor!!.setText(content) // Ensure content.toString() is what you intend to set
-                        } else {
-                            toast(this, resources.getString(R.string.null_contnt))
-                        }
+                        editor!!.setText(content)
                         inputStream.close()
                     }
                 } catch (e: IOException) {
@@ -207,7 +211,7 @@ class SimpleEditor : BaseActivity() {
     }
 
     fun save() {
-        Thread {
+        lifecycleScope.launch(Dispatchers.IO){
             var s: String
             try {
                 val outputStream = contentResolver.openOutputStream(uri!!, "wt")
@@ -221,11 +225,11 @@ class SimpleEditor : BaseActivity() {
                 e.printStackTrace()
                 s = "Unknown Error \n$e"
             }
-            val toast = s
-            this@SimpleEditor.runOnUiThread {
-                toast(this@SimpleEditor, toast)
+
+            withContext(Dispatchers.Main){
+                toast(this@SimpleEditor, s)
             }
-        }.start()
+        }
     }
 
     companion object {

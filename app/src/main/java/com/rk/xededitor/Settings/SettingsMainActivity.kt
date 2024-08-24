@@ -73,7 +73,7 @@ class SettingsMainActivity : BaseActivity() {
 
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
-      pref(SettingsData.Keys.APPLICATION) {
+      pref(Keys.APPLICATION) {
         title = "Application"
         summary = "General settings for the application"
         iconRes = R.drawable.android
@@ -81,7 +81,7 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsApp::class.java))
         }
       }
-      pref(SettingsData.Keys.EDITOR) {
+      pref(Keys.EDITOR) {
         title = "Editor"
         summary = "General settings for the editor"
         iconRes = R.drawable.edit
@@ -89,7 +89,7 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
         }
       }
-      pref(SettingsData.Keys.PLUGINS) {
+      pref(Keys.PLUGINS) {
         title = "Plugins"
         summary = "General settings for plugins"
         iconRes = R.drawable.extension

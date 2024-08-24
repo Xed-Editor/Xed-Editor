@@ -150,7 +150,7 @@ class BatchReplacement : BaseActivity() {
 
                     if (StaticData.fragments != null) {
                         val editor = currentEditor
-                        editor.setText(
+                        editor?.setText(
                             editor.text.toString().replace(keyword, replacement)
                         )
                     } else if (intent.extras!!.getBoolean("isExt", false)) {

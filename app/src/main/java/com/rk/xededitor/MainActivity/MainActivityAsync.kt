@@ -8,34 +8,42 @@ import android.view.Surface
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.handlers.FileManager
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 
 object MainActivityAsync{
 	fun init(activity: MainActivity){
-		Thread {
+		activity.lifecycleScope.launch(Dispatchers.Default){
 			handleIntent(activity)
 			openLastPath(activity)
 			setupTabClickListener(activity)
 			SetupEditor.init(activity)
-			PermissionManager.verifyStoragePermission(activity)
+			PermissionHandler.verifyStoragePermission(activity)
 			setupArrowKeys(activity)
 			hideKeyBoardIfTooLarge(activity)
-		}.apply {
-			priority = Thread.MAX_PRIORITY
-			start()
+			//FileManager.loadPreviouslyOpenedFiles(activity)
 		}
 	}
+
+
 	
 	private fun setupTabClickListener(activity: MainActivity){
 		with(activity){
@@ -45,45 +53,42 @@ object MainActivityAsync{
 					val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
 					fragment.updateUndoRedo()
 					StaticData.menu?.findItem(R.id.run)?.setVisible(fragment.file != null && Runner.isRunnable(fragment.file!!))
-					
+
 					if (!fragment.isSearching) {
 						MenuClickHandler.hideSearchMenuItems()
 					} else {
 						//show search buttons
 						MenuClickHandler.showSearchMenuItems()
 					}
-					
-					
+
+
 				}
-				
+
 				override fun onTabReselected(tab: TabLayout.Tab) {
 					val popupMenu = PopupMenu(activity, tab.view)
 					popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
-					
 					popupMenu.setOnMenuItemClickListener { item ->
 						val id = item.itemId
 						when (id) {
 							R.id.close_this -> {
 								adapter?.removeFragment(mTabLayout.selectedTabPosition)
 							}
-							
+
 							R.id.close_others -> {
 								adapter?.closeOthers(viewPager!!.currentItem)
 							}
-							
+
 							R.id.close_all -> {
 								adapter?.clear()
-								StaticData.menu?.findItem(R.id.run)?.setVisible(false)
-								
 							}
 						}
-						
-						
+
+
 						for (i in 0 until mTabLayout.tabCount) {
 							mTabLayout.getTabAt(i)?.setText(StaticData.fragments[i].fileName)
 						}
-						
-						
+
+
 						if (mTabLayout.tabCount < 1) {
 							binding.tabs.visibility = View.GONE
 							binding.mainView.visibility = View.GONE
@@ -94,14 +99,14 @@ object MainActivityAsync{
 					}
 					popupMenu.show()
 				}
-				
+
 				override fun onTabUnselected(tab: TabLayout.Tab) {}
 			})
 		}
-		
+
 	}
 	private fun openLastPath(activity: MainActivity){
-		val lastOpenedPath = SettingsData.getString(SettingsData.Keys.LAST_OPENED_PATH, "")
+		val lastOpenedPath = SettingsData.getString(Keys.LAST_OPENED_PATH, "")
 		if (lastOpenedPath.isNotEmpty()) {
 			val file = File(lastOpenedPath)
 			if (file.exists()) {
@@ -117,7 +122,7 @@ object MainActivityAsync{
 				activity.binding.rootDirLabel.text = StaticData.rootFolder.name.let {
 					if (it.length > 18) it.substring(0, 15) + "..." else it
 				}
-				
+
 				rkUtils.runOnUiThread { TreeView(activity, StaticData.rootFolder) }
 			}
 		}
@@ -125,19 +130,19 @@ object MainActivityAsync{
 	private fun handleIntent(activity: MainActivity){
 		val intent: Intent = activity.intent
 		val type = intent.type
-		
+
 		if (Intent.ACTION_SEND == intent.action && type != null) {
 			if (type.startsWith("text")) {
 				val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
 				if (sharedText != null) {
 					val file = File(activity.externalCacheDir, "newfile.txt")
-					
+
 					rkUtils.runOnUiThread {
 						activity.newEditor(file, sharedText)
 					}
-					
+
 					After(150) {
-						rkUtils.runOnUiThread { activity.adapter?.onNewEditor() }
+						rkUtils.runOnUiThread { activity.adapter?.onNewEditor(file) }
 					}
 				}
 			}
@@ -152,7 +157,7 @@ object MainActivityAsync{
 				activity.binding.root.getWindowVisibleDisplayFrame(r)
 				val screenHeight = activity.binding.root.rootView.height
 				val keypadHeight = screenHeight - r.bottom
-				
+
 				if (keypadHeight > screenHeight * 0.30) {
 					if (rotation != Surface.ROTATION_0 && rotation != Surface.ROTATION_180) {
 						KeyboardUtils.hideSoftInput(activity)
@@ -165,72 +170,68 @@ object MainActivityAsync{
 	private fun setupArrowKeys(activity: MainActivity){
 		rkUtils.runOnUiThread {
 			val arrows = activity.binding.childs
-			
-			val tabSize = SettingsData.getString(SettingsData.Keys.TAB_SIZE, "4").toInt()
-			val useSpaces = SettingsData.getBoolean(SettingsData.Keys.USE_SPACE_INTABS, true)
-			
-			
+
+			val tabSize = SettingsData.getString(Keys.TAB_SIZE, "4").toInt()
+			val useSpaces = SettingsData.getBoolean(Keys.USE_SPACE_INTABS, true)
+
+
 			val listener = View.OnClickListener { v ->
 				val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
 				val cursor = fragment.editor.cursor
-				
+
 				when (v.id) {
 					R.id.left_arrow -> {
 						if (cursor.leftColumn - 1 >= 0) {
 							fragment.editor.setSelection(cursor.leftLine, cursor.leftColumn - 1)
 						}
 					}
-					
+
 					R.id.right_arrow -> {
 						val lineNumber = cursor.leftLine
 						val line = fragment.content!!.getLine(lineNumber)
-						
+
 						if (cursor.leftColumn < line.length) {
 							fragment.editor.setSelection(cursor.leftLine, cursor.leftColumn + 1)
-							
+
 						}
-						
+
 					}
-					
+
 					R.id.up_arrow -> {
 						if (cursor.leftLine - 1 >= 0) {
 							val upline = cursor.leftLine - 1
 							val uplinestr = fragment.content!!.getLine(upline)
-							
-							var columm = 0
-							
-							columm = if (uplinestr.length < cursor.leftColumn) {
+
+							val columm = if (uplinestr.length < cursor.leftColumn) {
 								uplinestr.length
 							} else {
 								cursor.leftColumn
 							}
-							
-							
+
+
 							fragment.editor.setSelection(cursor.leftLine - 1, columm)
 						}
-						
+
 					}
-					
+
 					R.id.down_arrow -> {
 						if (cursor.leftLine + 1 < fragment.content!!.lineCount) {
-							
+
 							val dnline = cursor.leftLine + 1
 							val dnlinestr = fragment.content!!.getLine(dnline)
-							
-							var columm = 0
-							
-							columm = if (dnlinestr.length < cursor.leftColumn) {
+
+							val columm = if (dnlinestr.length < cursor.leftColumn) {
 								dnlinestr.length
 							} else {
 								cursor.leftColumn
 							}
-							
+
 							fragment.editor.setSelection(cursor.leftLine + 1, columm)
 						}
 					}
-					
+
 					R.id.tab -> {
-						
+
 						if (useSpaces) {
 							val sb = StringBuilder()
 							for (xi in 0 until tabSize) {
@@ -240,25 +241,12 @@ object MainActivityAsync{
 						} else {
 							fragment.editor.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB))
 						}
-						
+
 					}
-					
-					
-					R.id.untab -> {
-						if (cursor.leftColumn == 0) {
-							return@OnClickListener
-						}
-						
-						if (cursor.leftColumn >= tabSize) {
-							fragment.editor.deleteText()
-						}
-						
-					}
-					
 					R.id.home -> {
 						fragment.editor.setSelection(cursor.leftLine, 0)
 					}
-					
+
 					R.id.end -> {
 						fragment.editor.setSelection(cursor.leftLine, fragment.content?.getLine(cursor.leftLine)?.length ?: 0)
 					}

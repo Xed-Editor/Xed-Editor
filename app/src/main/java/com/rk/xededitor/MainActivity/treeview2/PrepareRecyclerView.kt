@@ -6,6 +6,7 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 
 
@@ -16,7 +17,7 @@ object PrepareRecyclerView {
   fun init(activity: MainActivity){
     val density = activity.resources.displayMetrics.density
     fun holder(activity: MainActivity): ViewGroup {
-      if (!SettingsData.getBoolean(SettingsData.Keys.DIAGONAL_SCROLL, false)) {
+      if (!SettingsData.getBoolean(Keys.DIAGONAL_SCROLL, false)) {
         val hsv = HorizontalScrollView(activity).apply {
           layoutParams = ViewGroup.MarginLayoutParams(
             ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
@@ -45,7 +46,7 @@ object PrepareRecyclerView {
         layoutParams = ViewGroup.LayoutParams(
           ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         ).apply {
-          if (!SettingsData.getBoolean(SettingsData.Keys.DIAGONAL_SCROLL, false)) {
+          if (!SettingsData.getBoolean(Keys.DIAGONAL_SCROLL, false)) {
             setPadding(0, 0, dpToPx(54,density), dpToPx(5,density))
           } else {
             setPadding(0, 0, dpToPx(54,density), dpToPx(60,density))
@@ -59,7 +60,7 @@ object PrepareRecyclerView {
         layoutParams = ViewGroup.MarginLayoutParams(
           ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT
         ).apply {
-          if (!SettingsData.getBoolean(SettingsData.Keys.DIAGONAL_SCROLL, false)) {
+          if (!SettingsData.getBoolean(Keys.DIAGONAL_SCROLL, false)) {
             setMargins(0, dpToPx(10,density), 0, 0)
           } else {
             setMargins(0, dpToPx(10,density), 0, dpToPx(60,density))

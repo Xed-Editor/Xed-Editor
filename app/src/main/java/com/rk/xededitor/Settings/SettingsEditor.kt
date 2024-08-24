@@ -80,7 +80,7 @@ class SettingsEditor : BaseActivity() {
     private fun getScreen(): PreferenceScreen {
         return screen(this) {
 
-            switch(SettingsData.Keys.WORD_WRAP_ENABLED) {
+            switch(Keys.WORD_WRAP_ENABLED) {
                 titleRes = R.string.ww
                 summary = "Enable Word Wrap in all editors"
                 iconRes = R.drawable.reorder
@@ -95,16 +95,13 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            switch(SettingsData.Keys.KEEP_DRAWER_LOCKED) {
+            switch(Keys.KEEP_DRAWER_LOCKED) {
                 titleRes = R.string.keepdl
                 summary = "Keep drawer locked when opening a file"
                 iconRes = R.drawable.lock
-                onCheckedChange { isChecked ->
-                    return@onCheckedChange true
-                }
             }
 
-            switch(SettingsData.Keys.DIAGONAL_SCROLL) {
+            switch(Keys.DIAGONAL_SCROLL) {
                 title = "Diagnol Scrolling"
                 summary = "Enable Diagnol Scrolling in File Browser"
                 iconRes = R.drawable.diagonal_scroll
@@ -116,7 +113,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            switch(SettingsData.Keys.CURSOR_ANIMATION_ENABLED) {
+            switch(Keys.CURSOR_ANIMATION_ENABLED) {
                 title = "Cursor Animation"
                 summary = "Enable Smooth Cursor Animations"
                 iconRes = R.drawable.animation
@@ -130,7 +127,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            switch(SettingsData.Keys.SHOW_LINE_NUMBERS) {
+            switch(Keys.SHOW_LINE_NUMBERS) {
                 title = "Show Line Numbers"
                 summary = "Show Line Numbers in Editor"
                 iconRes = R.drawable.linenumbers
@@ -145,7 +142,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            switch(SettingsData.Keys.PIN_LINE_NUMBER) {
+            switch(Keys.PIN_LINE_NUMBER) {
                 title = "Pin Line Numbers"
                 summary = "Pin Line Numbers in Editor"
                 iconRes = R.drawable.linenumbers
@@ -160,7 +157,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            switch(SettingsData.Keys.SHOW_ARROW_KEYS) {
+            switch(Keys.SHOW_ARROW_KEYS) {
                 title = "Extra Keys"
                 summary = "Show extra keys in the editor"
                 iconRes = R.drawable.double_arrows
@@ -201,14 +198,14 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            switch(SettingsData.Keys.USE_SPACE_INTABS) {
+            switch(Keys.USE_SPACE_INTABS) {
                 title = "Use Space instead of Tabs"
                 summary = "write whitespaces in place of tabs"
                 iconRes = R.drawable.double_arrows
                 defaultValue = true
             }
 
-            switch(SettingsData.Keys.AUTO_SAVE){
+            switch(Keys.AUTO_SAVE){
                 title = "Auto Save"
                 summary = "automatically save file"
                 iconRes = R.drawable.save
@@ -224,7 +221,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            pref(SettingsData.Keys.AUTO_SAVE_TIME){
+            pref(Keys.AUTO_SAVE_TIME){
                 title = "Auto Save Time"
                 summary = "automatically save file after specified time"
                 iconRes = R.drawable.save
@@ -233,13 +230,13 @@ class SettingsEditor : BaseActivity() {
                         LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
                     val edittext = view.findViewById<EditText>(R.id.name).apply {
                         hint = "Interval in milliseconds"
-                        setText(SettingsData.getString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, "10000"))
+                        setText(SettingsData.getString(Keys.AUTO_SAVE_TIME_VALUE, "10000"))
                         inputType =
                             InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
                     }
                     MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Auto Save Time")
                         .setView(view).setNegativeButton("Cancel", null)
-                        .setPositiveButton("Apply") { dialog, which ->
+                        .setPositiveButton("Apply") { _, _ ->
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
@@ -253,7 +250,7 @@ class SettingsEditor : BaseActivity() {
                             }
 
 
-                            SettingsData.setString(SettingsData.Keys.AUTO_SAVE_TIME_VALUE, text)
+                            SettingsData.setString(Keys.AUTO_SAVE_TIME_VALUE, text)
                             AutoSaver.delayTime = text.toLong()
 
                         }.show()
@@ -264,7 +261,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            pref(SettingsData.Keys.TEXT_SIZE) {
+            pref(Keys.TEXT_SIZE) {
                 title = "Text Size"
                 summary = "Set text size"
                 iconRes = R.drawable.reorder
@@ -273,13 +270,13 @@ class SettingsEditor : BaseActivity() {
                         LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
                     val edittext = view.findViewById<EditText>(R.id.name).apply {
                         hint = "Text size"
-                        setText(SettingsData.getString(SettingsData.Keys.TEXT_SIZE, "14"))
+                        setText(SettingsData.getString(Keys.TEXT_SIZE, "14"))
                         inputType =
                             InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
                     }
                     MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Text Size")
                         .setView(view).setNegativeButton("Cancel", null)
-                        .setPositiveButton("Apply") { dialog, which ->
+                        .setPositiveButton("Apply") { _, _ ->
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
@@ -291,7 +288,7 @@ class SettingsEditor : BaseActivity() {
                                 rkUtils.toast(this@SettingsEditor,"Value too large")
                                 return@setPositiveButton
                             }
-                            SettingsData.setString(SettingsData.Keys.TEXT_SIZE, text)
+                            SettingsData.setString(Keys.TEXT_SIZE, text)
 
                             if (StaticData.fragments != null) {
                                 for (f in StaticData.fragments) {
@@ -306,7 +303,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            pref(SettingsData.Keys.TAB_SIZE) {
+            pref(Keys.TAB_SIZE) {
                 title = "Tab Size"
                 summary = "Set tab size"
                 iconRes = R.drawable.double_arrows
@@ -315,13 +312,13 @@ class SettingsEditor : BaseActivity() {
                         LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
                     val edittext = view.findViewById<EditText>(R.id.name).apply {
                         hint = "Tab Size"
-                        setText(SettingsData.getString(SettingsData.Keys.TAB_SIZE, "4"))
+                        setText(SettingsData.getString(Keys.TAB_SIZE, "4"))
                         inputType =
                             InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
                     }
                     MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Tab Size")
                         .setView(view).setNegativeButton("Cancel", null)
-                        .setPositiveButton("Apply") { dialog, which ->
+                        .setPositiveButton("Apply") { _, _ ->
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
@@ -333,7 +330,7 @@ class SettingsEditor : BaseActivity() {
                                 rkUtils.toast(this@SettingsEditor,"Value too large")
                                 return@setPositiveButton
                             }
-                            SettingsData.setString(SettingsData.Keys.TAB_SIZE, text)
+                            SettingsData.setString(Keys.TAB_SIZE, text)
 
                             if (StaticData.fragments != null) {
                                 for (f in StaticData.fragments) {

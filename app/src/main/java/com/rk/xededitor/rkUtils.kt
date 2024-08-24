@@ -39,7 +39,8 @@ object rkUtils {
 
 
 
-    val currentEditor: CodeEditor
+
+    val currentEditor: CodeEditor?
         get() = StaticData.fragments[StaticData.mTabLayout.selectedTabPosition].editor
 
     fun writeToFile(file: File?, data: String?) {

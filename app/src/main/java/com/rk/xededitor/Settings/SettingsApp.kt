@@ -36,7 +36,7 @@ class SettingsApp : BaseActivity() {
   private lateinit var padapter: PreferencesAdapter
   private lateinit var playoutManager: LinearLayoutManager
 
-  fun getRecyclerView(): RecyclerView {
+  private fun getRecyclerView(): RecyclerView {
     binding = ActivitySettingsMainBinding.inflate(layoutInflater)
     recyclerView = binding.recyclerView
     return recyclerView
@@ -78,7 +78,7 @@ class SettingsApp : BaseActivity() {
     }
 
     fun getCheckedBtnIdFromSettings(): Int {
-      val settingDefaultNightMode = SettingsData.getString(SettingsData.Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+      val settingDefaultNightMode = SettingsData.getString(Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
       ).toInt()
 
       return when (settingDefaultNightMode) {
@@ -97,7 +97,7 @@ class SettingsApp : BaseActivity() {
           LoadingPopup(this@SettingsApp, 200)
             After(300) {
                 SettingsData.setString(
-                    SettingsData.Keys.DEFAULT_NIGHT_MODE,
+                    Keys.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
                 )
 
@@ -111,7 +111,7 @@ class SettingsApp : BaseActivity() {
           LoadingPopup(this@SettingsApp, 200)
             After(300) {
                 SettingsData.setString(
-                    SettingsData.Keys.DEFAULT_NIGHT_MODE,
+                    Keys.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_NO.toString()
                 )
 
@@ -125,7 +125,7 @@ class SettingsApp : BaseActivity() {
           LoadingPopup(this@SettingsApp, 200)
             After(300) {
                 SettingsData.setString(
-                    SettingsData.Keys.DEFAULT_NIGHT_MODE,
+                    Keys.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_YES.toString()
                 )
 
@@ -144,7 +144,7 @@ class SettingsApp : BaseActivity() {
 
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
-      switch(SettingsData.Keys.OLED) {
+      switch(Keys.OLED) {
         titleRes = R.string.oled
         summary = "Pure Black theme for amoled devices"
         iconRes = R.drawable.dark_mode
@@ -156,7 +156,7 @@ class SettingsApp : BaseActivity() {
         }
       }
 
-      pref(SettingsData.Keys.PRIVATE_DATA) {
+      pref(Keys.PRIVATE_DATA) {
         title = "Private App Files"
         summary = "Access private app files"
         iconRes = R.drawable.android
@@ -165,7 +165,7 @@ class SettingsApp : BaseActivity() {
           rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }
-      pref(SettingsData.Keys.THEMES) {
+      pref(Keys.THEMES) {
         title = "Themes"
         summary = "Change themes"
         iconRes = R.drawable.palette
@@ -247,7 +247,7 @@ class SettingsApp : BaseActivity() {
     val id = item.itemId
     if (id == android.R.id.home) {
       // Handle the back arrow click here
-      onBackPressed()
+      onBackPressedDispatcher.onBackPressed()
       return true
     }
     return super.onOptionsItemSelected(item)

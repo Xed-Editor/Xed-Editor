@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
@@ -102,7 +103,7 @@ class Terminal : BaseActivity() {
 
 
   private fun createSession(): TerminalSession {
-    val workingDir = SettingsData.getString(SettingsData.Keys.LAST_OPENED_PATH,filesDir.absolutePath)
+    val workingDir = SettingsData.getString(Keys.LAST_OPENED_PATH,filesDir.absolutePath)
     val shell = "/system/bin/sh"
     val args = arrayOf("")
     val env = arrayOf(

@@ -1,22 +1,24 @@
-package com.rk.xededitor.MainActivity
+package com.rk.xededitor.MainActivity.handlers
 
 import android.view.View
 import android.widget.RelativeLayout
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.BaseActivity.Companion.getActivity
-import com.rk.xededitor.MainActivity.MenuClickHandler.hideSearchMenuItems
-import com.rk.xededitor.MainActivity.MenuClickHandler.showSearchMenuItems
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.hideSearchMenuItems
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.showSearchMenuItems
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.StaticData.menu
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 
 object MenuItemHandler {
 	fun updateMenuItems() {
-		val visible = !(fragments == null || fragments.isEmpty())
+		val visible = fragments != null && fragments.isNotEmpty()
 		if (menu == null) {
 			After(200) { rkUtils.runOnUiThread { updateMenuItems() } }
 			return
@@ -31,15 +33,15 @@ object MenuItemHandler {
 		}
 		
 		with(menu){
-			findItem(R.id.batchrep).setVisible(visible)
-			findItem(R.id.search).setVisible(visible)
-			findItem(R.id.action_save).setVisible(visible)
-			findItem(R.id.action_print).setVisible(visible)
-			findItem(R.id.action_all).setVisible(visible)
-			findItem(R.id.batchrep).setVisible(visible)
-			findItem(R.id.search).setVisible(visible)
-			findItem(R.id.share).setVisible(visible)
-			findItem(R.id.insertdate).setVisible(visible)
+			findItem(R.id.batchrep).isVisible = visible
+			findItem(R.id.search).isVisible = visible
+			findItem(R.id.action_save).isVisible = visible
+			findItem(R.id.action_print).isVisible = visible
+			findItem(R.id.action_all).isVisible = visible
+			findItem(R.id.batchrep).isVisible = visible
+			findItem(R.id.search).isVisible = visible
+			findItem(R.id.share).isVisible = visible
+			findItem(R.id.insertdate).isVisible = visible
 			
 			
 			val shouldShowUndoRedo = visible && !fragments[mTabLayout.selectedTabPosition].isSearching
@@ -53,7 +55,7 @@ object MenuItemHandler {
 		
 		
 		val activity = checkNotNull(getActivity(MainActivity::class.java))
-		if (visible && SettingsData.getBoolean(SettingsData.Keys.SHOW_ARROW_KEYS, false)) {
+		if (visible && SettingsData.getBoolean(Keys.SHOW_ARROW_KEYS, false)) {
 			with(activity.binding){
 				divider.visibility = View.VISIBLE
 				mainBottomBar.visibility = View.VISIBLE

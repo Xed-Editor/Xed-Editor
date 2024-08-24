@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity
+package com.rk.xededitor.MainActivity.handlers
 
 import android.Manifest
 import android.app.Activity
@@ -12,9 +12,9 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.rkUtils
+import com.rk.xededitor.MainActivity.StaticData
 
-object PermissionManager {
+object PermissionHandler {
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray,activity: Activity) {
 
         //check permission for old devices

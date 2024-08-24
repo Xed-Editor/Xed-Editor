@@ -8,6 +8,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.collection.ArrayMap
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.theme.ThemeManager
 import java.lang.ref.WeakReference
@@ -33,7 +34,7 @@ abstract class BaseActivity : AppCompatActivity() {
     activityMap[javaClass] = WeakReference(this)
 
     val settingDefaultNightMode = SettingsData.getString(
-      SettingsData.Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+      Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
     ).toInt()
 
     if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {

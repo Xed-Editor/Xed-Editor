@@ -14,7 +14,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.MenuClickHandler.handle
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
@@ -22,9 +22,12 @@ import com.rk.xededitor.MainActivity.fragment.AutoSaver
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment
 import com.rk.xededitor.MainActivity.fragment.NoSwipeViewPager
 import com.rk.xededitor.MainActivity.fragment.TabAdapter
+import com.rk.xededitor.MainActivity.handlers.FileManager
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.OnBackPressedHandler
+import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.treeview2.FileAction
 import com.rk.xededitor.MainActivity.treeview2.PrepareRecyclerView
-import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityMainBinding
@@ -103,7 +106,7 @@ class MainActivity : BaseActivity() {
 	
 	override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-		PermissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+		PermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
 	}
 	
 	
@@ -141,7 +144,7 @@ class MainActivity : BaseActivity() {
 		if (resultCode == RESULT_OK) {
 			when (requestCode) {
 				StaticData.MANAGE_EXTERNAL_STORAGE -> {
-					PermissionManager.verifyStoragePermission(this)
+					PermissionHandler.verifyStoragePermission(this)
 				}
 				
 				FileAction.REQUEST_CODE_OPEN_DIRECTORY -> {
@@ -171,19 +174,13 @@ class MainActivity : BaseActivity() {
 			rkUtils.toast(this, "File already opened!")
 			return
 		}
-		
 		fileSet.add(file)
 		val fragment = DynamicFragment(file)
-		
 		text?.let { fragment.editor.setText(it) }
-		
 		adapter!!.addFragment(fragment, file)
-		
 		for (i in 0 until mTabLayout.tabCount) {
 			mTabLayout.getTabAt(i)?.setText(fragments[i].fileName)
 		}
-		
-		
 		MenuItemHandler.updateMenuItems()
 		AutoSaver.start(this)
 	}

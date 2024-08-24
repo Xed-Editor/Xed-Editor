@@ -3,17 +3,18 @@ package com.rk.xededitor.theme
 import android.content.Context
 import android.content.res.Resources
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 
 object ThemeManager {
     private const val THEME_PREFIX = "selectable_"
 
     fun getSelectedTheme(): String {
-        return SettingsData.getString(SettingsData.Keys.SELECTED_THEME, "Berry")
+        return SettingsData.getString(Keys.SELECTED_THEME, "Berry")
     }
 
     fun setSelectedTheme(themeName: String) {
-        SettingsData.setString(SettingsData.Keys.SELECTED_THEME, themeName)
+        SettingsData.setString(Keys.SELECTED_THEME, themeName)
     }
 
     fun applyTheme(context: Context) {

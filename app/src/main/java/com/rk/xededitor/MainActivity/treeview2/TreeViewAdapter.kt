@@ -13,10 +13,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.R
 import java.io.File
-import java.util.LinkedList
-import java.util.Queue
-import java.util.Stack
-import java.util.concurrent.locks.ReentrantLock
 
 interface OnItemClickListener {
     fun onItemClick(v: View, node: Node<File>)
@@ -69,11 +65,9 @@ class TreeViewAdapter(
     }
 
     fun renameFile(oldFile: File, newFile: File) {
-        val parentFile = oldFile.parentFile
         val tempData = currentList.toMutableList()
         var nodeToRename: Node<File>? = null
 
-        // Find the node to rename
         for (node in tempData) {
             if (node.value == oldFile) {
                 nodeToRename = node
@@ -82,33 +76,26 @@ class TreeViewAdapter(
         }
 
         if (nodeToRename == null) {
-            // Handle the error, e.g., show a message or log it
             return
         }
 
-        // Remove the old node
+
         val index = tempData.indexOf(nodeToRename)
         if (index == -1) {
-            // Handle the error, e.g., show a message or log it
             return
         }
         tempData.removeAt(index)
 
-        // Remove the old children if the node was expanded
         if (nodeToRename.isExpand) {
             val children = TreeViewModel.getChildren(nodeToRename)
             tempData.removeAll(children.toSet())
             TreeViewModel.remove(nodeToRename, nodeToRename.child)
         }
 
-        // Create a new node for the new file
         val newNode = Node(newFile)
 
-        // Insert the new node at the same position
         tempData.add(index, newNode)
 
-        
-        // If the old node was expanded, expand the new node and add its children
         if (nodeToRename.isExpand) {
             val newChildren = merge(newFile)
             tempData.addAll(index + 1, newChildren)
@@ -116,12 +103,11 @@ class TreeViewAdapter(
             newNode.isExpand = true
         }
 
-        // Submit the updated list
         submitList(tempData)
     }
 
 
-    fun newFile(file: File, child: File) {
+    fun newFile(file: File) {
         //List<Node<File>>
         val tempData = currentList.toMutableList()
         var xnode: Node<File>? = null
