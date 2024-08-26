@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.List;
 
 
+
+
 public class StaticData {
 
     public static final int REQUEST_DIRECTORY_SELECTION = 2937;
@@ -23,15 +25,12 @@ public class StaticData {
 
     public static ArrayList<DynamicFragment> fragments;
     public static HashSet<File> fileSet;
-    public static List<Node<File>> nodes;
     public static TabLayout mTabLayout;
     public static Menu menu;
     public static File rootFolder;
 
-
     public static void clear() {
         fragments = null;
-        nodes = null;
         mTabLayout = null;
         menu = null;
         rootFolder = null;

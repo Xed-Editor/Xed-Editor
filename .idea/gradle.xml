@@ -8,14 +8,14 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/libCommons" />
-            <option value="$PROJECT_DIR$/libEditor" />
-            <option value="$PROJECT_DIR$/libPlugin" />
-            <option value="$PROJECT_DIR$/libRunner" />
-            <option value="$PROJECT_DIR$/libTreeView" />
-            <option value="$PROJECT_DIR$/libsettings" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libCommons" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libEditor" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libPlugin" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libRunner" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libTreeView" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libsettings" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

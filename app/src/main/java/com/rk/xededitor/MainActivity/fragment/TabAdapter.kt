@@ -57,11 +57,10 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
         }
     }
 
-    fun addFragment(frag: DynamicFragment?, file: File) {
+    fun addFragment(frag: DynamicFragment, file: File) {
         fragments.add(frag)
         notifyDataSetChanged()
-        if (fragments.size > 1) StaticData.mTabLayout.getTabAt(fragments.size - 1)!!
-            .select()
+        if (fragments.size > 1) StaticData.mTabLayout.getTabAt(fragments.size - 1)!!.select()
     }
 
     private fun onEditorRemove(fragment: DynamicFragment) {
@@ -121,7 +120,6 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
 
         for (fragment in fragments) {
             fragment?.let { onEditorRemove(it);fragmentTransaction.remove(it) }
-
         }
         fragmentTransaction.commitNow()
 

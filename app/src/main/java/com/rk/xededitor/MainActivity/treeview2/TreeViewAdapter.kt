@@ -40,7 +40,6 @@ class TreeViewAdapter(
    
     
     fun removeFile(file: File) {
-        //todo handle folders
         val tempData = currentList.toMutableList()
         var nodetoremove: Node<File>? = null
 
@@ -50,7 +49,6 @@ class TreeViewAdapter(
                 break
             }
         }
-
         if (file.isFile) {
             tempData.removeAt(tempData.indexOf(nodetoremove))
         } else {

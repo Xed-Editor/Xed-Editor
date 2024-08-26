@@ -1,56 +1,45 @@
 package com.rk.xededitor
 
-import androidx.documentfile.provider.DocumentFile
 import java.io.File
 
-class FileClipboard private constructor() {
-  companion object {
-    @Volatile
+object FileClipboard {
     private var fileClipboard: File? = null
-
-    @Volatile
     private var isPasted: Boolean = true
 
-    @JvmStatic
     fun setFile(file: File?) {
-      synchronized(this) {
-        fileClipboard = file
-        isPasted = false
-      }
-    }
-
-    @JvmStatic
-    fun clear() {
-      synchronized(this) {
-        fileClipboard = null
-        isPasted = true
-      }
-    }
-
-    @JvmStatic
-    fun getFile(): File? {
-      synchronized(this) {
-        val file = fileClipboard
-        if (isPasted) {
-          fileClipboard = null
+        synchronized(this) {
+            fileClipboard = file
+            isPasted = false
         }
-        isPasted = true
-        return file
-      }
     }
 
-    @JvmStatic
+    fun clear() {
+        synchronized(this) {
+            fileClipboard = null
+            isPasted = true
+        }
+    }
+
+    fun getFile(): File? {
+        synchronized(this) {
+            val file = fileClipboard
+            if (isPasted) {
+                fileClipboard = null
+            }
+            isPasted = true
+            return file
+        }
+    }
+
     fun isEmpty(): Boolean {
-      synchronized(this) {
-        return fileClipboard == null
-      }
+        synchronized(this) {
+            return fileClipboard == null
+        }
     }
-
-    @JvmStatic
     fun markAsPasted() {
-      synchronized(this) {
-        isPasted = true
-      }
+        synchronized(this) {
+            isPasted = true
+        }
     }
-  }
 }
+

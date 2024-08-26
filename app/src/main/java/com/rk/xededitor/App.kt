@@ -14,11 +14,11 @@ class App : Application() {
   override fun onCreate() {
     super.onCreate()
 
-    //todo move this into a separate module
     //create crash handler
     CrashHandler.INSTANCE.init(this)
 
     //handle version change
+    //blocking code
     VersionChangeHandler.handle(this)
     
     //initialize shared preferences

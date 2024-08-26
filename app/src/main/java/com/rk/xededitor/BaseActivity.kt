@@ -12,7 +12,6 @@ import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.theme.ThemeManager
 import java.lang.ref.WeakReference
-import java.util.WeakHashMap
 
 
 abstract class BaseActivity : AppCompatActivity() {

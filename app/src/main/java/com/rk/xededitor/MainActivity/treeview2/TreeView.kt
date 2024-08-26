@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rk.libcommons.After
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData.nodes
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils.runOnUiThread
@@ -28,7 +27,7 @@ class TreeView(val activity: MainActivity, rootFolder: File) {
 
 		activity.lifecycleScope.launch(Dispatchers.Default){
 			SettingsData.setString(Keys.LAST_OPENED_PATH, rootFolder.absolutePath)
-			nodes = TreeViewAdapter.merge(rootFolder)
+			val nodes = TreeViewAdapter.merge(rootFolder)
 			val adapter = TreeViewAdapter(recyclerView, activity, rootFolder)
 			adapter.apply {
 				setOnItemClickListener(object : OnItemClickListener {

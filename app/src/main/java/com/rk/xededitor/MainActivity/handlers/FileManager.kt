@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.After
-import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.FileClipboard
 import com.rk.xededitor.MainActivity.MainActivity
@@ -19,21 +18,14 @@ import com.rk.xededitor.MainActivity.PathUtils.convertUriToPath
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.fragment.AutoSaver
 import com.rk.xededitor.MainActivity.treeview2.FileAction
 import com.rk.xededitor.MainActivity.treeview2.FileAction.Companion.Staticfile
 import com.rk.xededitor.MainActivity.treeview2.TreeView
 import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -42,7 +34,7 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
-private const val delimiter = "|$|"
+//private const val delimiter = "|$|"
 object FileManager {
 
 //    @OptIn(DelicateCoroutinesApi::class)
