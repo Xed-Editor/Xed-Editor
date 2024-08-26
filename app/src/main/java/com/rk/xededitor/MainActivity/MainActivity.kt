@@ -73,7 +73,6 @@ class MainActivity : BaseActivity() {
 		setupTheme()
 		setupDrawer()
 
-
 		PrepareRecyclerView.init(this)
 
 		initiateStaticVariables()
@@ -115,7 +114,7 @@ class MainActivity : BaseActivity() {
 		drawerLayout = binding.drawerLayout
 		navigationView = binding.navView
 		navigationView?.layoutParams?.width = (Resources.getSystem().displayMetrics.widthPixels * 0.87).toInt()
-		
+
 		drawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
 		drawerLayout?.addDrawerListener(drawerToggle!!)
 		drawerToggle?.syncState()
@@ -128,7 +127,7 @@ class MainActivity : BaseActivity() {
 		mTabLayout = binding.tabs
 		viewPager!!.setOffscreenPageLimit(15)
 		mTabLayout.setupWithViewPager(viewPager)
-		
+
 		if (adapter == null) {
 			fragments = ArrayList()
 			adapter = TabAdapter(supportFragmentManager)
