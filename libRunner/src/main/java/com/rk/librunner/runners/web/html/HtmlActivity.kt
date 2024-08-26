@@ -44,7 +44,7 @@ class HtmlActivity : WebActivity() {
                     webViewClient = object : WebViewClient() {
                         override fun onPageFinished(view: WebView?, url: String?) {
                             with(binding.webview.title) {
-                                if (isNullOrEmpty()) {
+                                if (isNullOrEmpty().not()) {
                                     supportActionBar!!.title = this
                                 } else {
                                     supportActionBar!!.title = file.name
@@ -60,6 +60,7 @@ class HtmlActivity : WebActivity() {
                         "utf-8",
                         null
                     )
+
                 }
             }
         }
