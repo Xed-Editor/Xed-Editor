@@ -72,12 +72,13 @@ class MainActivity : BaseActivity() {
 		
 		setupTheme()
 		setupDrawer()
-		
+
+
 		PrepareRecyclerView.init(this)
-		MainActivityAsync.init(this)
-		
+
 		initiateStaticVariables()
-		
+		MainActivityAsync.init(this)
+
 		OnBackPressedHandler(this)
 	}
 	

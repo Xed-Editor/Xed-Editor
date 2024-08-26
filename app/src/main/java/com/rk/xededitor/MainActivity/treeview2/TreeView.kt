@@ -21,10 +21,8 @@ class TreeView(val activity: MainActivity, rootFolder: File) {
 		val recyclerView = activity.findViewById<RecyclerView>(PrepareRecyclerView.recyclerViewId).apply {
 			setItemViewCacheSize(100)
 			visibility = View.GONE
-			
 		}
 		activity.binding.progressBar.visibility = View.VISIBLE
-
 		activity.lifecycleScope.launch(Dispatchers.Default){
 			SettingsData.setString(Keys.LAST_OPENED_PATH, rootFolder.absolutePath)
 			val nodes = TreeViewAdapter.merge(rootFolder)
