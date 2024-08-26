@@ -5,7 +5,11 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.lifecycle.lifecycleScope
 import com.rk.librunner.runners.web.WebActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 
@@ -25,21 +29,20 @@ class HtmlActivity : WebActivity() {
         httpServer = HttpServer(PORT, file.parentFile!!)
 
 
-        Thread {
+        lifecycleScope.launch(Dispatchers.Default){
             val sb = StringBuilder(FileInputStream(file).bufferedReader().use { it.readText() })
             val erudaJs = readAssetFile(this@HtmlActivity, "eruda.js")
             val js =
-                """eruda.init();eruda.remove('elements');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('displayIfErr',false);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()
+                """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('info');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('displayIfErr',false);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()
             val injectHtml = """
                 <script>$erudaJs</script>
                 <script>$js</script>
             """.trimIndent()
             sb.insert(0, injectHtml)
-
-            runOnUiThread {
+            withContext(Dispatchers.Main){
                 with(binding.webview) {
                     webViewClient = object : WebViewClient() {
-                        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                        override fun onPageFinished(view: WebView?, url: String?) {
                             with(binding.webview.title) {
                                 if (isNullOrEmpty()) {
                                     supportActionBar!!.title = this
@@ -49,7 +52,6 @@ class HtmlActivity : WebActivity() {
                             }
                             super.onPageFinished(view, url)
                         }
-
                     }
                     loadDataWithBaseURL(
                         "http://localhost:$PORT",
@@ -60,7 +62,7 @@ class HtmlActivity : WebActivity() {
                     )
                 }
             }
-        }.start()
+        }
     }
 
 
