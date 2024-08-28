@@ -9,6 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.runners.beanshell.BeanshellRunner
 import com.rk.librunner.runners.web.html.HtmlRunner
 import com.rk.librunner.runners.web.markdown.MarkDownRunner
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ object Runner {
         return registry.keys.any { it == ext }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun run(file: File, context: Context) {
         GlobalScope.launch(Dispatchers.Default) {
             if (isRunnable(file)) {

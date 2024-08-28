@@ -7,10 +7,7 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libcommons.After
 import com.rk.libcommons.Printer
 import com.rk.librunner.Runner
 import com.rk.xededitor.BatchReplacement.BatchReplacement
@@ -18,16 +15,12 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
-import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.EditorSearcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 

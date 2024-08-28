@@ -4,11 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.libtreeview"
+    namespace = "com.rk.filetree"
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
+        minSdk = 24
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 

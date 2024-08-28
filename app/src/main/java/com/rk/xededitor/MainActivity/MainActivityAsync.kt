@@ -7,19 +7,24 @@ import android.view.KeyEvent
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.rk.filetree.provider.file
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.handlers.FileManager
+import com.rk.xededitor.MainActivity.StaticData.rootFolder
+import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
-import com.rk.xededitor.MainActivity.treeview2.TreeView
+import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
@@ -28,6 +33,7 @@ import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+
 
 object MainActivityAsync{
 	fun init(activity: MainActivity){
@@ -39,12 +45,75 @@ object MainActivityAsync{
 			PermissionHandler.verifyStoragePermission(activity)
 			setupArrowKeys(activity)
 			hideKeyBoardIfTooLarge(activity)
+			setupNavigationRail(activity)
 			//FileManager.loadPreviouslyOpenedFiles(activity)
 		}
 	}
 
+	private val openFileId = View.generateViewId()
+	private val openDirId = View.generateViewId()
+	private val openPathId = View.generateViewId()
 
-	
+	private fun setupNavigationRail(activity: MainActivity){
+		var dialog:AlertDialog? = null
+
+		val listener = View.OnClickListener { v->
+			when(v.id){
+				openFileId -> {
+					FileManager.openFile()
+				}
+				openDirId -> {
+					FileManager.openDir()
+				}
+				openPathId -> {
+					FileManager.openFromPath()
+				}
+			}
+			dialog?.hide()
+			dialog = null
+		}
+
+		fun handleAddNew(){
+			ActionPopup(activity).apply {
+				addItem("Open a File","Choose a file from storage to directly edit it",ContextCompat.getDrawable(activity,R.drawable.outline_insert_drive_file_24),listener,openFileId)
+				addItem("Open a Directory","Choose a directory from storage as a project",ContextCompat.getDrawable(activity,R.drawable.outline_folder_24),listener,openDirId)
+				addItem("Open from Path","Open a project/file from a path",ContextCompat.getDrawable(activity,R.drawable.android),listener,openPathId)
+				setTitle("Add")
+				getDialogBuilder().setNegativeButton("Cancel",null)
+				dialog = show()
+			}
+
+			//hide + button if 6 projects are added
+			if (activity.binding.navigationRail.menu.getItem(5).isVisible){
+				activity.binding.navigationRail.menu.getItem(6).isVisible = false
+			}
+		}
+
+		activity.binding.navigationRail.setOnItemSelectedListener { item ->
+			if (item.itemId == R.id.add_new) {
+				handleAddNew()
+				false
+			}
+			else {
+				ProjectManager.projects[item.itemId]?.let {
+					ProjectManager.changeProject(File(it),activity)
+				}
+				true
+			}
+		}
+
+		//close drawer if same item is selected again except add_new item
+		activity.binding.navigationRail.setOnItemReselectedListener { item ->
+			if (item.itemId == R.id.add_new){
+				handleAddNew()
+			}else if (activity.binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+				activity.binding.drawerLayout.closeDrawer(GravityCompat.START)
+			}
+		}
+
+	}
+
+
 	private fun setupTabClickListener(activity: MainActivity){
 		with(activity){
 			mTabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
@@ -110,20 +179,15 @@ object MainActivityAsync{
 		if (lastOpenedPath.isNotEmpty()) {
 			val file = File(lastOpenedPath)
 			if (file.exists()) {
+				rootFolder = File(lastOpenedPath)
 				rkUtils.runOnUiThread {
 					with(activity.binding) {
 						mainView.visibility = View.VISIBLE
-						safbuttons.visibility = View.GONE
 						maindrawer.visibility = View.VISIBLE
-						drawerToolbar.visibility = View.VISIBLE
+						activity.fileTree.loadFiles(file(rootFolder))
+						ProjectManager.addProject(file)
 					}
 				}
-				StaticData.rootFolder = File(lastOpenedPath)
-				activity.binding.rootDirLabel.text = StaticData.rootFolder.name.let {
-					if (it.length > 18) it.substring(0, 15) + "..." else it
-				}
-
-				rkUtils.runOnUiThread { TreeView(activity, StaticData.rootFolder) }
 			}
 		}
 	}

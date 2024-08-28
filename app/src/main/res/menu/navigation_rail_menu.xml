@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/folder1"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder2"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder3"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder4"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder5"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder6"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/add_new"
+        android:title="Add"
+        android:icon="@drawable/add"
+        app:showAsAction="ifRoom" />
+
+</menu>

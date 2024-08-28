@@ -115,6 +115,7 @@ dependencies {
     implementation(project(":libRunner"))
     implementation(project(":libEditor"))
     implementation(project(":libCommons"))
+    implementation(project(":FileTree"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)

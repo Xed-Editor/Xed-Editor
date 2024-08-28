@@ -11,12 +11,10 @@ import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.MainActivity.StaticData.fragments
-import com.rk.xededitor.MainActivity.handlers.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.io.File
-import java.lang.ref.WeakReference
 
 class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePagerAdapter(
     fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT

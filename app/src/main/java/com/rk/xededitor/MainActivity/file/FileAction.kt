@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.treeview2
+package com.rk.xededitor.MainActivity.file
 
 import android.content.Context
 import android.content.DialogInterface
@@ -14,14 +14,13 @@ import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.provider.file
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.FileClipboard
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
-import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
@@ -38,7 +37,6 @@ class FileAction(
     private val context: MainActivity,
     private val rootFolder: File,
     private val file: File,
-    private val adapter: TreeViewAdapter?
 ) {
 
     companion object {
@@ -128,7 +126,7 @@ class FileAction(
 
             R.id.refresh -> {
                 // Handle refresh action
-                TreeView(context, rootFolder)
+                BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
                 true
             }
 
@@ -141,7 +139,6 @@ class FileAction(
             R.id.openFile -> {
                 // Handle openFile action
                 context.openFile(null)
-                stopThread()
                 true
             }
 
@@ -218,10 +215,12 @@ class FileAction(
 
                                     // Update the TreeView to reflect the changes
                                     withContext(Dispatchers.Main) {
-                                        adapter?.newFile(file)
-                                        if (file == rootFolder) {
-                                            TreeView(context, rootFolder)
-                                        }
+//                                        adapter?.newFile(file)
+//                                        if (file == rootFolder) {
+//                                            TreeView(context, rootFolder)
+//                                        }
+                                        BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+
                                     }
 
                                     // Optionally, clear the clipboard after pasting
@@ -259,9 +258,7 @@ class FileAction(
 
                         if (file == rootFolder) {
                             context.binding.mainView.visibility = View.GONE
-                            context.binding.safbuttons.visibility = View.VISIBLE
                             context.binding.maindrawer.visibility = View.GONE
-                            context.binding.drawerToolbar.visibility = View.GONE
                             context.adapter?.clear()
 
                         } else {
@@ -274,7 +271,8 @@ class FileAction(
                             }
 
                             // TreeView(context, rootFolder)
-                            adapter?.removeFile(file)
+                            //adapter?.removeFile(file)
+                            BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
 
                         }
 
@@ -345,10 +343,8 @@ class FileAction(
     private fun close() {
         context.adapter?.clear()
         for (i in 0 until mTabLayout.tabCount) {
-            val tab = mTabLayout.getTabAt(i)
-            if (tab != null) {
-                val name = fragments[i].fileName
-                tab.setText(name)
+            mTabLayout.getTabAt(i)?.apply {
+                text = fragments[i].fileName
             }
         }
         if (mTabLayout.tabCount < 1) {
@@ -358,8 +354,7 @@ class FileAction(
         }
         updateMenuItems()
         context.binding.maindrawer.visibility = View.GONE
-        context.binding.safbuttons.visibility = View.VISIBLE
-        context.binding.drawerToolbar.visibility = View.GONE
+        ProjectManager.removeProject(rootFolder)
     }
 
     private fun new(createFile: Boolean) {
@@ -402,10 +397,12 @@ class FileAction(
                 }
 
                 //TreeView(context, rootFolder)
-                adapter?.newFile(file)
-                if (file == rootFolder) {
-                    TreeView(context, rootFolder)
-                }
+//                adapter?.newFile(file)
+//                if (file == rootFolder) {
+//                    TreeView(context, rootFolder)
+//                }
+                BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+
                 loading.hide()
             }.show()
     }
@@ -442,10 +439,12 @@ class FileAction(
                 file.renameTo(File(file.parentFile, fileName))
 
                 //TreeView(context, rootFolder)
-                adapter?.renameFile(file, File(file.parentFile, fileName))
-                if (file == rootFolder) {
-                    TreeView(context, rootFolder)
-                }
+//                adapter?.renameFile(file, File(file.parentFile, fileName))
+//                if (file == rootFolder) {
+//                    TreeView(context, rootFolder)
+//                }
+                BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+
                 loading.hide()
             }.show()
     }

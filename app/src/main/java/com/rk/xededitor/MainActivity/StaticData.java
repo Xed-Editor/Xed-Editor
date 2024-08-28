@@ -1,19 +1,12 @@
 package com.rk.xededitor.MainActivity;
 
-import android.util.Log;
 import android.view.Menu;
 
 import com.google.android.material.tabs.TabLayout;
 import com.rk.xededitor.MainActivity.fragment.DynamicFragment;
-import com.rk.xededitor.MainActivity.treeview2.Node;
-
 import java.io.File;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-
-
 
 
 public class StaticData {

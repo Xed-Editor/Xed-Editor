@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.handlers
+package com.rk.xededitor.MainActivity.file
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -10,18 +10,16 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.provider.file
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.FileClipboard
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.PathUtils.convertUriToPath
+import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.treeview2.FileAction
-import com.rk.xededitor.MainActivity.treeview2.FileAction.Companion.Staticfile
-import com.rk.xededitor.MainActivity.treeview2.TreeView
-import com.rk.xededitor.MainActivity.treeview2.TreeViewAdapter.Companion.stopThread
+import com.rk.xededitor.MainActivity.StaticData.rootFolder
+import com.rk.xededitor.MainActivity.file.FileAction.Companion.Staticfile
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
@@ -170,8 +168,8 @@ object FileManager {
                 Files.move(
                     selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING
                 )
-                if (targetFile.absolutePath == StaticData.rootFolder.absolutePath) {
-                    TreeView(mainActivity, StaticData.rootFolder)
+                if (targetFile.absolutePath == rootFolder.absolutePath) {
+                    BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -216,18 +214,20 @@ object FileManager {
     fun handleDirectorySelection(data: Intent, mainActivity: MainActivity) {
         with(mainActivity) {
             binding.mainView.visibility = View.VISIBLE
-            binding.safbuttons.visibility = View.GONE
             binding.maindrawer.visibility = View.VISIBLE
-            binding.drawerToolbar.visibility = View.VISIBLE
+            //binding.drawerToolbar.visibility = View.VISIBLE
 
             val file = File(convertUriToPath(this, data.data))
-            StaticData.rootFolder = file
-            var name = StaticData.rootFolder.name
-            if (name.length > 18) {
-                name = StaticData.rootFolder.name.substring(0, 15) + "..."
-            }
-            binding.rootDirLabel.text = name
-            TreeView(this, file)
+            rootFolder = file
+//            var name = StaticData.rootFolder.name
+//            if (name.length > 18) {
+//                name = StaticData.rootFolder.name.substring(0, 15) + "..."
+//            }
+//            binding.rootDirLabel.text = name
+            BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(file))
+
+
+            ProjectManager.addProject(file)
         }
 
     }
@@ -251,7 +251,6 @@ object FileManager {
         )
     }
     fun openDir() {
-        stopThread()
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         BaseActivity.getActivity(MainActivity::class.java)?.startActivityForResult(intent,
             StaticData.REQUEST_DIRECTORY_SELECTION
@@ -287,21 +286,19 @@ object FileManager {
                     }
                     if (file.isDirectory) {
                         binding.mainView.visibility = View.VISIBLE
-                        binding.safbuttons.visibility = View.GONE
                         binding.maindrawer.visibility = View.VISIBLE
-                        binding.drawerToolbar.visibility = View.VISIBLE
+                        //binding.drawerToolbar.visibility = View.VISIBLE
 
-                        StaticData.rootFolder = file
+                        rootFolder = file
 
-                        TreeView(this, file)
+                        BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
 
-                        //use new file browser
-                        var name = StaticData.rootFolder.name
-                        if (name.length > 18) {
-                            name = StaticData.rootFolder.name.substring(0, 15) + "..."
-                        }
-
-                        binding.rootDirLabel.text = name
+//                        var name = StaticData.rootFolder.name
+//                        if (name.length > 18) {
+//                            name = StaticData.rootFolder.name.substring(0, 15) + "..."
+//                        }
+//
+//                        binding.rootDirLabel.text = name
                     } else {
                         newEditor(file)
                     }
@@ -313,24 +310,23 @@ object FileManager {
         BaseActivity.getActivity(MainActivity::class.java)?.let {
             with(it) {
                 binding.mainView.visibility = View.VISIBLE
-                binding.safbuttons.visibility = View.GONE
                 binding.maindrawer.visibility = View.VISIBLE
-                binding.drawerToolbar.visibility = View.VISIBLE
+               // binding.drawerToolbar.visibility = View.VISIBLE
 
                 val file = filesDir.parentFile
 
-                StaticData.rootFolder = file
+                rootFolder = file
 
                 if (file != null) {
-                    TreeView(this, file)
+                    BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
                 }
 
-                var name = StaticData.rootFolder.name
-                if (name.length > 18) {
-                    name = StaticData.rootFolder.name.substring(0, 15) + "..."
-                }
-
-                binding.rootDirLabel.text = name
+//                var name = StaticData.rootFolder.name
+//                if (name.length > 18) {
+//                    name = StaticData.rootFolder.name.substring(0, 15) + "..."
+//                }
+//
+//                binding.rootDirLabel.text = name
             }
         }
     }

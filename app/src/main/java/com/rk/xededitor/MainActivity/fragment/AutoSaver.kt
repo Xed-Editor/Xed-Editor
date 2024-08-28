@@ -2,9 +2,8 @@ package com.rk.xededitor.MainActivity.fragment
 
 import androidx.lifecycle.lifecycleScope
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.StaticData
-import com.rk.xededitor.MainActivity.handlers.FileManager
+import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import kotlinx.coroutines.Dispatchers

@@ -1,19 +1,9 @@
-package com.rk.xededitor.MainActivity
+package com.rk.xededitor.MainActivity.file
 
-import android.Manifest
-import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
-import android.provider.Settings
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 object PathUtils {
     @JvmStatic

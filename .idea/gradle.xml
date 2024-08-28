@@ -9,12 +9,12 @@
         <option name="modules">
           <set>
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/FileTree" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libCommons" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libEditor" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libPlugin" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libRunner" />
-            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libTreeView" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libsettings" />
           </set>
         </option>

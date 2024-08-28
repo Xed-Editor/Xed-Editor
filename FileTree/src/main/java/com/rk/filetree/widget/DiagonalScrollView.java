@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.rk.xededitor.MainActivity.treeview2;
+package com.rk.filetree.widget;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -24,7 +24,15 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.view.*;
+import android.view.FocusFinder;
+import android.view.InputDevice;
+import android.view.MotionEvent;
+import android.view.VelocityTracker;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.ViewDebug;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.AnimationUtils;
@@ -954,7 +962,7 @@ public class DiagonalScrollView extends FrameLayout {
      * When looking for focus in children of a scroll view, need to be a little
      * more careful not to give focus to something that is scrolled off screen.
      * <p>
-     * This is more expensive than the default {@link android.view.ViewGroup}
+     * This is more expensive than the default {@link ViewGroup}
      * implementation, otherwise this behavior might have been made the default.
      */
     @Override
@@ -1168,8 +1176,8 @@ public class DiagonalScrollView extends FrameLayout {
     }
 
     static class SavedState extends BaseSavedState {
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Creator<SavedState> CREATOR
+                = new Creator<SavedState>() {
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }

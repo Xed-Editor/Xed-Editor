@@ -180,96 +180,49 @@
         android:layout_gravity="start"
         app:drawerLayoutCornerSize="0dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/drawerToolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="8dp"
-            android:visibility="gone">
+        <!-- Container for NavigationRailView -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/rootDirLabel"
+            <com.google.android.material.navigationrail.NavigationRailView
+                android:id="@+id/navigation_rail"
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                app:menu="@menu/navigation_rail_menu" />
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="1px"
+                android:layout_height="match_parent"/>
+
+            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:paddingStart="8dp"
-                android:textColor="?attr/colorPrimary"
-                android:textSize="20sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/refreshButton"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/refreshButton"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:background="?android:attr/selectableItemBackground"
-                android:onClick="fileOptions"
-                android:src="@drawable/ic_menu_moreoverflow_material"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <LinearLayout
+                    android:id="@+id/maindrawer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
 
-        <LinearLayout
-            android:id="@+id/safbuttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:padding="68dp">
+                </LinearLayout>
 
-            <Button
-                android:id="@+id/openFile_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/bg"
-                android:onClick="openFile"
-                android:text="@string/open_file" />
-
-            <Button
-                android:id="@+id/openDir_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="openDir"
-                android:textColor="@color/bg"
-                android:text="@string/open_directory" />
-
-            <Button
-                android:id="@+id/openFromPath"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="openFromPath"
-                android:textColor="@color/bg"
-                android:text="Open from path" />
-
-        </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/maindrawer"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_marginTop="30dp"
-            android:orientation="vertical"
-            android:visibility="gone">
+            </LinearLayout>
 
         </LinearLayout>
 
     </com.google.android.material.navigation.NavigationView>
+
 
 </androidx.drawerlayout.widget.DrawerLayout>

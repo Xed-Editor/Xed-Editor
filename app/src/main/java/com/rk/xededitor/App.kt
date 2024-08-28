@@ -15,20 +15,18 @@ class App : Application() {
     super.onCreate()
 
     //create crash handler
-    CrashHandler.INSTANCE.init(this)
+    CrashHandler.INSTANCE.init(this).let {
+      //initialize shared preferences
+      SettingsData.initPref(this).let {
+        //handle version change
+        //blocking code
+        VersionChangeHandler.handle(this)
+      }
+    }
 
-    //handle version change
-    //blocking code
-    VersionChangeHandler.handle(this)
-    
-    //initialize shared preferences
-    SettingsData.initPref(this)
-    
+
     //verify if assets are extracted or not
     Assets.verify(this)
-
-
-
 
     //start plugin server
     After(200){
