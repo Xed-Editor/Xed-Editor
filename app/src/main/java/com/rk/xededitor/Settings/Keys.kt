@@ -23,6 +23,7 @@ object Keys {
     const val AUTO_SAVE_TIME="auto_save_time"
     const val AUTO_SAVE_TIME_VALUE="auto_save_time_value"
     const val VERSION_CODE="version_code"
+    const val PROJECTS="opened_projects"
     //used in SettingsMainActivity
     const val APPLICATION="app_"
     const val EDITOR="editor_"

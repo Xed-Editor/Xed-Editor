@@ -11,6 +11,7 @@ import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.interfaces.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
+import com.rk.filetree.util.Sorter
 
 class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
@@ -40,11 +41,24 @@ class FileTree : RecyclerView {
 
 
     private var init = false
-    fun loadFiles(file: FileObject){
+    private var showRootNode:Boolean = false
+    fun loadFiles(file: FileObject,showRootNodeX:Boolean? = null){
         rootFileObject = file
-        val nodes = mutableListOf<Node<FileObject>>()
+
+        showRootNodeX?.let {
+            showRootNode = it
+        }
+
+        val nodes:List<Node<FileObject>> = if (showRootNode){
+            mutableListOf<Node<FileObject>>().apply {
+                add(Node(file))
+            }
+        }else{
+            Sorter.sort(file)
+        }
+
+
         if (init.not()){
-            nodes.add(Node(file))
             if (fileTreeAdapter.iconProvider == null){
                 fileTreeAdapter.iconProvider = DefaultFileIconProvider(context)
             }
@@ -52,15 +66,19 @@ class FileTree : RecyclerView {
             fileTreeAdapter.submitList(nodes)
             init = true
         }else{
-            nodes.add(Node(file))
             fileTreeAdapter.submitList(nodes)
         }
     }
 
 
     fun reloadFileTree(){
-        val nodes = mutableListOf<Node<FileObject>>()
-        nodes.add(Node(rootFileObject))
+        val nodes:List<Node<FileObject>> = if (showRootNode){
+            mutableListOf<Node<FileObject>>().apply {
+                add(Node(rootFileObject))
+            }
+        }else{
+            Sorter.sort(rootFileObject)
+        }
         fileTreeAdapter.submitList(nodes)
     }
 

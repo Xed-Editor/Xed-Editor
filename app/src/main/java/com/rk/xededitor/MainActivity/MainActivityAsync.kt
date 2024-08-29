@@ -19,7 +19,7 @@ import com.rk.filetree.provider.file
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.StaticData.rootFolder
+import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
@@ -46,6 +46,7 @@ object MainActivityAsync{
 			setupArrowKeys(activity)
 			hideKeyBoardIfTooLarge(activity)
 			setupNavigationRail(activity)
+			ProjectManager.restoreProjects(activity)
 			//FileManager.loadPreviouslyOpenedFiles(activity)
 		}
 	}
@@ -83,10 +84,6 @@ object MainActivityAsync{
 				dialog = show()
 			}
 
-			//hide + button if 6 projects are added
-			if (activity.binding.navigationRail.menu.getItem(5).isVisible){
-				activity.binding.navigationRail.menu.getItem(6).isVisible = false
-			}
 		}
 
 		activity.binding.navigationRail.setOnItemSelectedListener { item ->
@@ -106,8 +103,11 @@ object MainActivityAsync{
 		activity.binding.navigationRail.setOnItemReselectedListener { item ->
 			if (item.itemId == R.id.add_new){
 				handleAddNew()
-			}else if (activity.binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-				activity.binding.drawerLayout.closeDrawer(GravityCompat.START)
+			}else{
+				ProjectManager.projects[item.itemId]?.let {
+					val f = File(it)
+					FileAction(activity,f,f)
+				}
 			}
 		}
 
@@ -179,12 +179,11 @@ object MainActivityAsync{
 		if (lastOpenedPath.isNotEmpty()) {
 			val file = File(lastOpenedPath)
 			if (file.exists()) {
-				rootFolder = File(lastOpenedPath)
 				rkUtils.runOnUiThread {
 					with(activity.binding) {
 						mainView.visibility = View.VISIBLE
 						maindrawer.visibility = View.VISIBLE
-						activity.fileTree.loadFiles(file(rootFolder))
+						//activity.fileTree.loadFiles(file(rootFolder))
 						ProjectManager.addProject(file)
 					}
 				}

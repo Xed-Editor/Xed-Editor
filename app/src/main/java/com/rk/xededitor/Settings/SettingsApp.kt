@@ -18,6 +18,7 @@ import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
@@ -161,7 +162,7 @@ class SettingsApp : BaseActivity() {
         summary = "Access private app files"
         iconRes = R.drawable.android
         onClickView {
-          getActivity(MainActivity::class.java)?.privateDir(null)
+          FileManager.privateDir()
           rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }

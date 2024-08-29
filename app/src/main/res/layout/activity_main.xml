@@ -42,7 +42,7 @@
             android:visibility="gone"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <com.rk.xededitor.MainActivity.fragment.NoSwipeViewPager
+            <com.rk.xededitor.MainActivity.editor.NoSwipeViewPager
                 android:id="@+id/viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
@@ -188,7 +188,8 @@
 
             <com.google.android.material.navigationrail.NavigationRailView
                 android:id="@+id/navigation_rail"
-                android:layout_width="60dp"
+                android:layout_width="50dp"
+                app:labelVisibilityMode="labeled"
                 android:layout_height="match_parent"
                 app:menu="@menu/navigation_rail_menu" />
             <com.google.android.material.divider.MaterialDivider
@@ -214,6 +215,11 @@
                     android:layout_height="fill_parent"
                     android:orientation="vertical"
                     android:visibility="gone">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/frame"/>
 
 
                 </LinearLayout>

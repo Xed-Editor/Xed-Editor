@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.fragment
+package com.rk.xededitor.MainActivity.editor
 
 import androidx.lifecycle.lifecycleScope
 import com.rk.xededitor.MainActivity.MainActivity

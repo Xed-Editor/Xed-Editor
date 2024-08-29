@@ -1,7 +1,9 @@
 package com.rk.filetree.interfaces
 
-interface FileObject {
-    fun listFiles() : List<FileObject>
+import java.io.Serializable
+
+interface FileObject : Serializable{
+    fun listFiles():List<FileObject>
     fun isDirectory():Boolean
     fun isFile():Boolean
     fun getName():String

@@ -27,11 +27,12 @@ import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.file.FileTreeScrollViewManager
-import com.rk.xededitor.MainActivity.fragment.AutoSaver
-import com.rk.xededitor.MainActivity.fragment.DynamicFragment
-import com.rk.xededitor.MainActivity.fragment.NoSwipeViewPager
-import com.rk.xededitor.MainActivity.fragment.TabAdapter
+import com.rk.xededitor.MainActivity.editor.AutoSaver
+import com.rk.xededitor.MainActivity.editor.DynamicFragment
+import com.rk.xededitor.MainActivity.editor.NoSwipeViewPager
+import com.rk.xededitor.MainActivity.editor.TabAdapter
 import com.rk.xededitor.MainActivity.file.FileManager
+import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.OnBackPressedHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
@@ -44,7 +45,7 @@ import java.io.File
 
 class MainActivity : BaseActivity() {
     lateinit var binding: ActivityMainBinding
-    lateinit var fileTree: FileTree
+    //lateinit var fileTree: FileTree
     var adapter: TabAdapter? = null
     var viewPager: NoSwipeViewPager? = null
     var drawerLayout: DrawerLayout? = null
@@ -60,6 +61,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         isPaused = false
+        ProjectManager.processQueue(this)
         //restart auto saver if it stopped
         AutoSaver.start(this)
         super.onResume()
@@ -80,51 +82,51 @@ class MainActivity : BaseActivity() {
         setupTheme()
         setupDrawer()
 
-        fileTree = FileTree(this)
-        fileTree.setOnFileClickListener(object : FileClickListener {
-            override fun onClick(node: Node<FileObject>) {
-                if (node.value.isDirectory()) {
-                    return
-                }
-                val loading = LoadingPopup(this@MainActivity, null).show()
-                val file = File(node.value.getAbsolutePath())
-
-                //delay 100ms for smoother click
-                //opening a file always take more than 500ms because of these delays
-                After(100) {
-                    runOnUiThread {
-                        newEditor(file)
-                        adapter?.onNewEditor(file)
-
-                    }
-
-                    //delay close drawer after 400ms
-                    After(400) {
-                        if (!SettingsData.getBoolean(Keys.KEEP_DRAWER_LOCKED, false)) {
-                            runOnUiThread {
-                                binding.drawerLayout.close()
-                                loading.hide()
-                            }
-                        }
-                    }
-                }
-
-
-            }
-
-        })
-        fileTree.setOnFileLongClickListener(object : FileLongClickListener {
-            override fun onLongClick(node: Node<FileObject>) {
-                FileAction(
-                    this@MainActivity,
-                    StaticData.rootFolder,
-                    File(node.value.getAbsolutePath())
-                )
-            }
-
-        })
-        val scrollView = FileTreeScrollViewManager.getFileTreeParentScrollView(this, fileTree)
-        binding.maindrawer.addView(scrollView)
+//        fileTree = FileTree(this)
+//        fileTree.setOnFileClickListener(object : FileClickListener {
+//            override fun onClick(node: Node<FileObject>) {
+//                if (node.value.isDirectory()) {
+//                    return
+//                }
+//                val loading = LoadingPopup(this@MainActivity, null).show()
+//                val file = File(node.value.getAbsolutePath())
+//
+//                //delay 100ms for smoother click
+//                //opening a file always take more than 500ms because of these delays
+//                After(100) {
+//                    runOnUiThread {
+//                        newEditor(file)
+//                        adapter?.onNewEditor(file)
+//
+//                    }
+//
+//                    //delay close drawer after 400ms
+//                    After(400) {
+//                        if (!SettingsData.getBoolean(Keys.KEEP_DRAWER_LOCKED, false)) {
+//                            runOnUiThread {
+//                                binding.drawerLayout.close()
+//                                loading.hide()
+//                            }
+//                        }
+//                    }
+//                }
+//
+//
+//            }
+//
+//        })
+//        fileTree.setOnFileLongClickListener(object : FileLongClickListener {
+//            override fun onLongClick(node: Node<FileObject>) {
+//                FileAction(
+//                    this@MainActivity,
+//                    StaticData.rootFolder,
+//                    File(node.value.getAbsolutePath())
+//                )
+//            }
+//
+//        })
+//        val scrollView = FileTreeScrollViewManager.getFileTreeParentScrollView(this, fileTree)
+//        binding.maindrawer.addView(scrollView)
 
         initiateStaticVariables()
         MainActivityAsync.init(this)
@@ -285,15 +287,7 @@ class MainActivity : BaseActivity() {
         FileManager.openFile()
     }
 
-    fun reselectDir(v: View?) {
-        FileManager.openDir()
-    }
-
     fun openDrawer(v: View?) {
         drawerLayout!!.open()
-    }
-
-    fun privateDir(v: View?) {
-        FileManager.privateDir()
     }
 }

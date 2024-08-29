@@ -125,14 +125,13 @@ class FileAction(
             }
 
             R.id.refresh -> {
-                // Handle refresh action
-                BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                ProjectManager.refreshCurrentProject()
                 true
             }
 
             R.id.reselect -> {
                 // Handle reselect action
-                context.reselectDir(null)
+                FileManager.openDir(reselecting = true)
                 true
             }
 
@@ -219,7 +218,8 @@ class FileAction(
 //                                        if (file == rootFolder) {
 //                                            TreeView(context, rootFolder)
 //                                        }
-                                        BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                                        //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                                        ProjectManager.addProject(rootFolder)
 
                                     }
 
@@ -272,7 +272,8 @@ class FileAction(
 
                             // TreeView(context, rootFolder)
                             //adapter?.removeFile(file)
-                            BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                            //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                            ProjectManager.addProject(rootFolder)
 
                         }
 
@@ -353,7 +354,7 @@ class FileAction(
             context.binding.openBtn.visibility = View.VISIBLE
         }
         updateMenuItems()
-        context.binding.maindrawer.visibility = View.GONE
+       // context.binding.maindrawer.visibility = View.GONE
         ProjectManager.removeProject(rootFolder)
     }
 
@@ -401,7 +402,8 @@ class FileAction(
 //                if (file == rootFolder) {
 //                    TreeView(context, rootFolder)
 //                }
-                BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                ProjectManager.addProject(rootFolder)
 
                 loading.hide()
             }.show()
@@ -443,7 +445,8 @@ class FileAction(
 //                if (file == rootFolder) {
 //                    TreeView(context, rootFolder)
 //                }
-                BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+               // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                ProjectManager.addProject(rootFolder)
 
                 loading.hide()
             }.show()

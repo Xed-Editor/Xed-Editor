@@ -36,6 +36,7 @@ data class Node<T>(
   override fun hashCode(): Int {
     return value.hashCode()
   }
+
 }
 
 object TreeViewModel {

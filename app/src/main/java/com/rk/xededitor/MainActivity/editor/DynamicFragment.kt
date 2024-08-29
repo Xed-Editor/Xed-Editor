@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.fragment
+package com.rk.xededitor.MainActivity.editor
 
 import android.content.Context
 import android.graphics.Typeface
@@ -24,7 +24,6 @@ import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -150,5 +149,17 @@ class DynamicFragment : Fragment {
         if (editor.canRedo()) {
             editor.redo()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        //fragments get removed by the tab adapter but just to be safe
+        After(10000){
+            if (StaticData.fragments.contains(this)){
+                StaticData.fragments.remove(this)
+            }
+        }
+
     }
 }

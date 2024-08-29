@@ -18,7 +18,6 @@ import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.StaticData.rootFolder
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.Staticfile
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -34,6 +33,8 @@ import java.nio.file.StandardCopyOption
 
 //private const val delimiter = "|$|"
 object FileManager {
+
+    var ISreselcting = false
 
 //    @OptIn(DelicateCoroutinesApi::class)
 //    fun addFileToPreviouslyOpenedFiles(file: File){
@@ -168,8 +169,10 @@ object FileManager {
                 Files.move(
                     selectedFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING
                 )
-                if (targetFile.absolutePath == rootFolder.absolutePath) {
-                    BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                val rootFolder = ProjectManager.getSelectedProjectRootFilePath()
+                if (targetFile.absolutePath == rootFolder) {
+                    //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                    ProjectManager.addProject(File(rootFolder))
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -215,19 +218,14 @@ object FileManager {
         with(mainActivity) {
             binding.mainView.visibility = View.VISIBLE
             binding.maindrawer.visibility = View.VISIBLE
-            //binding.drawerToolbar.visibility = View.VISIBLE
 
             val file = File(convertUriToPath(this, data.data))
-            rootFolder = file
-//            var name = StaticData.rootFolder.name
-//            if (name.length > 18) {
-//                name = StaticData.rootFolder.name.substring(0, 15) + "..."
-//            }
-//            binding.rootDirLabel.text = name
-            BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(file))
+            if (ISreselcting){
+                ProjectManager.changeCurrentProjectRoot(file(file))
+            }else{
+                ProjectManager.addProject(file)
+            }
 
-
-            ProjectManager.addProject(file)
         }
 
     }
@@ -250,7 +248,10 @@ object FileManager {
             StaticData.REQUEST_FILE_SELECTION
         )
     }
-    fun openDir() {
+    fun openDir(reselecting:Boolean? = null) {
+        reselecting?.let {
+            ISreselcting = it
+        }
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
         BaseActivity.getActivity(MainActivity::class.java)?.startActivityForResult(intent,
             StaticData.REQUEST_DIRECTORY_SELECTION
@@ -289,9 +290,10 @@ object FileManager {
                         binding.maindrawer.visibility = View.VISIBLE
                         //binding.drawerToolbar.visibility = View.VISIBLE
 
-                        rootFolder = file
 
-                        BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+
+                        //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                        ProjectManager.addProject(file)
 
 //                        var name = StaticData.rootFolder.name
 //                        if (name.length > 18) {
@@ -307,27 +309,10 @@ object FileManager {
         }
     }
     fun privateDir() {
-        BaseActivity.getActivity(MainActivity::class.java)?.let {
-            with(it) {
-                binding.mainView.visibility = View.VISIBLE
-                binding.maindrawer.visibility = View.VISIBLE
-               // binding.drawerToolbar.visibility = View.VISIBLE
-
-                val file = filesDir.parentFile
-
-                rootFolder = file
-
-                if (file != null) {
-                    BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                }
-
-//                var name = StaticData.rootFolder.name
-//                if (name.length > 18) {
-//                    name = StaticData.rootFolder.name.substring(0, 15) + "..."
-//                }
-//
-//                binding.rootDirLabel.text = name
-            }
+        BaseActivity.getActivity(MainActivity::class.java)?.apply{
+            binding.mainView.visibility = View.VISIBLE
+            binding.maindrawer.visibility = View.VISIBLE
+            ProjectManager.addProject(filesDir.parentFile!!)
         }
     }
 }
