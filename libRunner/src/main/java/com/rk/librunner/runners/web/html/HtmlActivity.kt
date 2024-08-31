@@ -33,7 +33,7 @@ class HtmlActivity : WebActivity() {
             val sb = StringBuilder(FileInputStream(file).bufferedReader().use { it.readText() })
             val erudaJs = readAssetFile(this@HtmlActivity, "eruda.js")
             val js =
-                """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('info');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('displayIfErr',false);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()
+                """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()
             val injectHtml = """
                 <script>$erudaJs</script>
                 <script>$js</script>
