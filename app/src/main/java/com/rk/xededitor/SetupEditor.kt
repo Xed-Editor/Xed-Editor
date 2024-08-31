@@ -34,6 +34,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
             "json" -> setLanguage("source.json")
             "css" -> setLanguage("source.css")
             "cs" -> setLanguage("source.cs")
+            "yml", "eyaml", "eyml", "yaml", "cff" -> setLanguage("source.yaml")
         }
     }
 
