@@ -52,7 +52,7 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
-        <activity android:name=".terminal.TerminalActivity"
+        <activity android:name=".terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
             android:windowSoftInputMode="adjustResize">

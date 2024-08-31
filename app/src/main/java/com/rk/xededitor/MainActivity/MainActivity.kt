@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.GravityCompat
@@ -81,7 +82,6 @@ class MainActivity : BaseActivity() {
         setupDrawer()
         initiateStaticVariables()
         ActivitySetup.init(this)
-
 
     }
 

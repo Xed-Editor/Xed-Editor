@@ -51,7 +51,7 @@ object ActivitySetup{
 
 			delay(500)
 			withContext(Dispatchers.Main){
-				OnBackPressedHandler(activity)
+				//OnBackPressedHandler(activity)
 			}
 
 			//FileManager.loadPreviouslyOpenedFiles(activity)

@@ -12,7 +12,8 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.terminal.TerminalActivity
+import com.rk.xededitor.terminal.Terminal
+import com.rk.xededitor.terminal.TerminalBackEnd
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -111,7 +112,7 @@ object HandleMenuItemClick {
                 }
 
                 R.id.terminal -> {
-                    startActivity(Intent(this,TerminalActivity::class.java))
+                    startActivity(Intent(this, Terminal::class.java))
                 }
 
                 R.id.action_print -> {
