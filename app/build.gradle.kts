@@ -100,13 +100,11 @@ dependencies {
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.activity)
+
    // implementation("org.apache.commons:commons-vfs2:2.9.0")
     //implementation("com.github.mwiede:jsch:0.2.8")
+
     coreLibraryDesugaring(libs.desugar.jdk.libs)
-
-
-
-
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)

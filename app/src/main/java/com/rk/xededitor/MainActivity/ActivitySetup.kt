@@ -10,32 +10,33 @@ import android.view.WindowManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-import com.rk.filetree.provider.file
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
-import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.MainActivity.handlers.OnBackPressedHandler
+import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
-object MainActivityAsync{
+object ActivitySetup{
+
 	fun init(activity: MainActivity){
 		activity.lifecycleScope.launch(Dispatchers.Default){
 			handleIntent(activity)
@@ -47,6 +48,12 @@ object MainActivityAsync{
 			hideKeyBoardIfTooLarge(activity)
 			setupNavigationRail(activity)
 			ProjectManager.restoreProjects(activity)
+
+			delay(500)
+			withContext(Dispatchers.Main){
+				OnBackPressedHandler(activity)
+			}
+
 			//FileManager.loadPreviouslyOpenedFiles(activity)
 		}
 	}
@@ -55,7 +62,7 @@ object MainActivityAsync{
 	private val openDirId = View.generateViewId()
 	private val openPathId = View.generateViewId()
 
-	private fun setupNavigationRail(activity: MainActivity){
+	fun setupNavigationRail(activity: MainActivity){
 		var dialog:AlertDialog? = null
 
 		val listener = View.OnClickListener { v->
@@ -108,7 +115,7 @@ object MainActivityAsync{
 	}
 
 
-	private fun setupTabClickListener(activity: MainActivity){
+	fun setupTabClickListener(activity: MainActivity){
 		with(activity){
 			mTabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
 				override fun onTabSelected(tab: TabLayout.Tab) {
@@ -168,7 +175,7 @@ object MainActivityAsync{
 		}
 
 	}
-	private fun openLastPath(activity: MainActivity){
+	fun openLastPath(activity: MainActivity){
 		val lastOpenedPath = SettingsData.getString(Keys.LAST_OPENED_PATH, "")
 		if (lastOpenedPath.isNotEmpty()) {
 			val file = File(lastOpenedPath)
@@ -184,7 +191,7 @@ object MainActivityAsync{
 			}
 		}
 	}
-	private fun handleIntent(activity: MainActivity){
+	fun handleIntent(activity: MainActivity){
 		val intent: Intent = activity.intent
 		val type = intent.type
 
@@ -205,7 +212,7 @@ object MainActivityAsync{
 			}
 		}
 	}
-	private fun hideKeyBoardIfTooLarge(activity: MainActivity){
+	fun hideKeyBoardIfTooLarge(activity: MainActivity){
 		rkUtils.runOnUiThread {
 			val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			val rotation = windowManager.defaultDisplay.rotation
@@ -224,7 +231,7 @@ object MainActivityAsync{
 			}
 		}
 	}
-	private fun setupArrowKeys(activity: MainActivity){
+	fun setupArrowKeys(activity: MainActivity){
 		rkUtils.runOnUiThread {
 			val arrows = activity.binding.childs
 

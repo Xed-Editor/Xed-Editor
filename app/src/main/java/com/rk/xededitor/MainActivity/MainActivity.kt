@@ -13,20 +13,19 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import com.rk.filetree.interfaces.FileClickListener
-import com.rk.filetree.interfaces.FileLongClickListener
-import com.rk.filetree.interfaces.FileObject
-import com.rk.filetree.model.Node
-import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
-import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.MainActivity.ActivitySetup.handleIntent
+import com.rk.xededitor.MainActivity.ActivitySetup.hideKeyBoardIfTooLarge
+import com.rk.xededitor.MainActivity.ActivitySetup.openLastPath
+import com.rk.xededitor.MainActivity.ActivitySetup.setupArrowKeys
+import com.rk.xededitor.MainActivity.ActivitySetup.setupNavigationRail
+import com.rk.xededitor.MainActivity.ActivitySetup.setupTabClickListener
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileAction
-import com.rk.xededitor.MainActivity.file.FileTreeScrollViewManager
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.MainActivity.editor.NoSwipeViewPager
@@ -37,10 +36,11 @@ import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.OnBackPressedHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityMainBinding
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.took
 import java.io.File
 
 class MainActivity : BaseActivity() {
@@ -67,73 +67,23 @@ class MainActivity : BaseActivity() {
         super.onResume()
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         StaticData.clear()
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
+        setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
 
         setupTheme()
         setupDrawer()
-
-//        fileTree = FileTree(this)
-//        fileTree.setOnFileClickListener(object : FileClickListener {
-//            override fun onClick(node: Node<FileObject>) {
-//                if (node.value.isDirectory()) {
-//                    return
-//                }
-//                val loading = LoadingPopup(this@MainActivity, null).show()
-//                val file = File(node.value.getAbsolutePath())
-//
-//                //delay 100ms for smoother click
-//                //opening a file always take more than 500ms because of these delays
-//                After(100) {
-//                    runOnUiThread {
-//                        newEditor(file)
-//                        adapter?.onNewEditor(file)
-//
-//                    }
-//
-//                    //delay close drawer after 400ms
-//                    After(400) {
-//                        if (!SettingsData.getBoolean(Keys.KEEP_DRAWER_LOCKED, false)) {
-//                            runOnUiThread {
-//                                binding.drawerLayout.close()
-//                                loading.hide()
-//                            }
-//                        }
-//                    }
-//                }
-//
-//
-//            }
-//
-//        })
-//        fileTree.setOnFileLongClickListener(object : FileLongClickListener {
-//            override fun onLongClick(node: Node<FileObject>) {
-//                FileAction(
-//                    this@MainActivity,
-//                    StaticData.rootFolder,
-//                    File(node.value.getAbsolutePath())
-//                )
-//            }
-//
-//        })
-//        val scrollView = FileTreeScrollViewManager.getFileTreeParentScrollView(this, fileTree)
-//        binding.maindrawer.addView(scrollView)
-
         initiateStaticVariables()
-        MainActivityAsync.init(this)
+        ActivitySetup.init(this)
 
-        OnBackPressedHandler(this)
+
     }
-
 
     private fun setupTheme() {
         if (SettingsData.isDarkMode(this)) {

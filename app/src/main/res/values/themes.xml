@@ -1,7 +1,6 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.Fragments" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/berryX</item>
         <item name="colorSurface">#FEF7FF</item>
         <item name="fontFamily">@font/outfit_regular</item>
@@ -14,15 +13,6 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-
-
-
-
-
-
-
-
-
 
 
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
