@@ -1,7 +1,6 @@
 package com.rk.librunner.runners.web.html
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -30,7 +29,9 @@ class HtmlActivity : WebActivity() {
 
 
         lifecycleScope.launch(Dispatchers.Default){
-            val sb = StringBuilder(FileInputStream(file).bufferedReader().use { it.readText() })
+            val sb = StringBuilder(withContext(Dispatchers.IO) {
+                FileInputStream(file).bufferedReader()
+            }.use { it.readText() })
             val erudaJs = readAssetFile(this@HtmlActivity, "eruda.js")
             val js =
                 """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()

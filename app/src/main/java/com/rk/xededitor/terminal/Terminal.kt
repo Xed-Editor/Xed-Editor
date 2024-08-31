@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.KeyEvent
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import com.rk.xededitor.BaseActivity
@@ -30,13 +31,17 @@ class Terminal : BaseActivity() {
     binding = ActivityTerminalBinding.inflate(layoutInflater)
     setContentView(binding.getRoot())
     terminal = TerminalView(this, null)
-    terminal.setTerminalViewClient(TerminalClient(terminal, this))
-    terminal.keepScreenOn = true
-    terminal.setTextSize(rkUtils.dpToPx(13.5f, this))
-    session = createSession()
-    terminal.attachSession(session)
-    terminal.setBackgroundColor(Color.BLACK)
-    terminal.requestFocus()
+
+    with(terminal){
+      setTerminalViewClient(TerminalClient(terminal, this@Terminal))
+      setTextSize(rkUtils.dpToPx(13.5f, this@Terminal))
+      keepScreenOn = true
+      session = createSession()
+      attachSession(session)
+      setBackgroundColor(Color.BLACK)
+
+    }
+
     val params = LinearLayout.LayoutParams(-1, 0)
     params.weight = 1f
     binding.root.addView(terminal, 0, params)
@@ -53,9 +58,21 @@ class Terminal : BaseActivity() {
     window.decorView.systemUiVisibility = 0
     window.navigationBarColor = ContextCompat.getColor(this, R.color.dark)
 
+
+
+
+    var lastBackPressedTime: Long = 0
+    val doubleBackPressTimeInterval: Long = 2000
     onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
       override fun handleOnBackPressed() {
-        //do nothing
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
+          isEnabled = false
+          onBackPressedDispatcher.onBackPressed()
+        } else {
+          lastBackPressedTime = currentTime
+          rkUtils.toast(this@Terminal,"Press back again to exit")
+        }
       }
     })
 
@@ -99,6 +116,12 @@ class Terminal : BaseActivity() {
     terminal.dispatchKeyEvent(event)
     return super.dispatchKeyEvent(event)
   }
+
+  override fun onKeyLongPress(keyCode: Int, event: KeyEvent?): Boolean {
+    terminal.onKeyLongPress(keyCode, event)
+    return super.onKeyLongPress(keyCode, event)
+  }
+
 
 
   private fun createSession(): TerminalSession {

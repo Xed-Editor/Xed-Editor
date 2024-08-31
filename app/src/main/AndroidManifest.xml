@@ -52,6 +52,8 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+        <activity android:name=".terminal.TerminalActivity"
+            android:exported="true"/>
         <activity
             android:name=".MainActivity.MainActivity"
             android:exported="true"
