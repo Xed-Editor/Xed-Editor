@@ -3,7 +3,7 @@
 2. now go back to main screen and open file browser
 3. open folder named **"files"** then create a folder named **"plugins"** if not already there
 4. create a folder **"MyPlugin"** inside that plugins folder
-5. create a new file named **"manifest.json"** inside **"MyPlugin"** folder and paste this you modify this if you want
+5. create a new file named **"manifest.json"** inside **"MyPlugin"** folder and paste this you can modify this if you want
 
 ```
 {
