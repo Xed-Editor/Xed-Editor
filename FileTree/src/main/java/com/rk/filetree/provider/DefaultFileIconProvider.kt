@@ -23,7 +23,6 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val cpp = ContextCompat.getDrawable(context, R.drawable.ic_language_cpp)
     private val json = ContextCompat.getDrawable(context, R.drawable.ic_language_json)
     private val css = ContextCompat.getDrawable(context, R.drawable.ic_language_css)
-    private val markdown = ContextCompat.getDrawable(context, R.drawable.ic_language_markdown)
     private val csharp = ContextCompat.getDrawable(context, R.drawable.ic_language_csharp)
 
     override fun getIcon(node: Node<FileObject>): Drawable? {
@@ -36,7 +35,6 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                 "xml" -> xml
                 "js" -> js
                 "c" -> c
-                "md" -> markdown
                 "cpp", "h" -> cpp
                 "json" -> json
                 "css" -> css
