@@ -13,24 +13,35 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val folder = ContextCompat.getDrawable(context, R.drawable.folder)
     private val chevronRight = ContextCompat.getDrawable(context, R.drawable.ic_chevron_right)
     private val expandMore = ContextCompat.getDrawable(context, R.drawable.round_expand_more_24)
+    private val java = ContextCompat.getDrawable(context, R.drawable.ic_language_java)
+    private val html = ContextCompat.getDrawable(context, R.drawable.ic_language_html)
+    private val kotlin = ContextCompat.getDrawable(context, R.drawable.ic_language_kotlin)
+    private val python = ContextCompat.getDrawable(context, R.drawable.ic_language_python)
+    private val xml = ContextCompat.getDrawable(context, R.drawable.ic_language_xml)
+    private val js = ContextCompat.getDrawable(context, R.drawable.ic_language_js)
+    private val c = ContextCompat.getDrawable(context, R.drawable.ic_language_c)
+    private val cpp = ContextCompat.getDrawable(context, R.drawable.ic_language_cpp)
+    private val json = ContextCompat.getDrawable(context, R.drawable.ic_language_json)
+    private val css = ContextCompat.getDrawable(context, R.drawable.ic_language_css)
+    private val csharp = ContextCompat.getDrawable(context, R.drawable.ic_language_csharp)
 
     override fun getIcon(node: Node<FileObject>): Drawable? {
-        return if (node.value.isFile()){
+        return if (node.value.isFile()) {
             when (node.value.getName().substringAfterLast('.', "")) {
-                "java", "bsh" -> ContextCompat.getDrawable(context, R.drawable.ic_language_java)
-                "html" -> ContextCompat.getDrawable(context, R.drawable.ic_language_html)
-                "kt", "kts" -> ContextCompat.getDrawable(context, R.drawable.ic_language_kotlin)
-                "py" -> ContextCompat.getDrawable(context, R.drawable.ic_language_python)
-                "xml" -> ContextCompat.getDrawable(context, R.drawable.ic_language_xml)
-                "js" -> ContextCompat.getDrawable(context, R.drawable.ic_language_js)
-                "c" -> ContextCompat.getDrawable(context, R.drawable.ic_language_c)
-                "cpp", "h" -> ContextCompat.getDrawable(context, R.drawable.ic_language_cpp)
-                "json" -> ContextCompat.getDrawable(context, R.drawable.ic_language_json)
-                "css" -> ContextCompat.getDrawable(context, R.drawable.ic_language_css)
-                "cs" -> ContextCompat.getDrawable(context, R.drawable.ic_language_csharp)
+                "java", "bsh" -> java
+                "html" -> html
+                "kt", "kts" -> kotlin
+                "py" -> python
+                "xml" -> xml
+                "js" -> js
+                "c" -> c
+                "cpp", "h" -> cpp
+                "json" -> json
+                "css" -> css
+                "cs" -> csharp
                 else -> file
             }
-        }else{
+        } else {
             folder
         }
     }
