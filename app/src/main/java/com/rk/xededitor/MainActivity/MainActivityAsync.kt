@@ -101,16 +101,10 @@ object MainActivityAsync{
 
 		//close drawer if same item is selected again except add_new item
 		activity.binding.navigationRail.setOnItemReselectedListener { item ->
-			if (item.itemId == R.id.add_new){
+			if (item.itemId == R.id.add_new) {
 				handleAddNew()
-			}else{
-				ProjectManager.projects[item.itemId]?.let {
-					val f = File(it)
-					FileAction(activity,f,f)
-				}
 			}
 		}
-
 	}
 
 

@@ -132,7 +132,7 @@ class FileTreeAdapter(private val context: Context,val fileTree: FileTree) :
         holder.textView.text = "  ${node.value.getName()}  "
     }
 
-    private fun expandNode(clickedNode: Node<FileObject>) {
+    fun expandNode(clickedNode: Node<FileObject>) {
         val tempData = currentList.toMutableList()
         val index = tempData.indexOf(clickedNode)
         val children = Sorter.sort(clickedNode.value)

@@ -291,8 +291,8 @@ class FileAction(
 
             R.id.close -> {
                 // Handle close action
-                SettingsData.setString(Keys.LAST_OPENED_PATH, null)
                 close()
+
 
                 true
             }
@@ -342,7 +342,7 @@ class FileAction(
     }
 
     private fun close() {
-        context.adapter?.clear()
+        //context.adapter?.clear()
         for (i in 0 until mTabLayout.tabCount) {
             mTabLayout.getTabAt(i)?.apply {
                 text = fragments[i].fileName

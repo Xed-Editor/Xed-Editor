@@ -41,7 +41,8 @@ class FileTree : RecyclerView {
 
 
     private var init = false
-    private var showRootNode:Boolean = false
+    private var showRootNode:Boolean = true
+
     fun loadFiles(file: FileObject,showRootNodeX:Boolean? = null){
         rootFileObject = file
 
@@ -63,10 +64,11 @@ class FileTree : RecyclerView {
                 fileTreeAdapter.iconProvider = DefaultFileIconProvider(context)
             }
             adapter = fileTreeAdapter
-            fileTreeAdapter.submitList(nodes)
             init = true
-        }else{
-            fileTreeAdapter.submitList(nodes)
+        }
+        fileTreeAdapter.submitList(nodes)
+        if (showRootNode){
+            fileTreeAdapter.expandNode(nodes[0])
         }
     }
 

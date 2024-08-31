@@ -20,7 +20,6 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import java.io.File
 
-@Suppress("DEPRECATION")
 class FileTreeFrag : Fragment() {
 
     private lateinit var scrollView:ViewGroup
@@ -29,6 +28,7 @@ class FileTreeFrag : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setRetainInstance(true)
         rootFile = (requireArguments().getSerializable("file") as? FileObject)!!
 
         fileTree = FileTree(requireContext())

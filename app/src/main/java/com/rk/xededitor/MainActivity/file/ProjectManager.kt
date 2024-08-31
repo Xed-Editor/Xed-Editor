@@ -66,7 +66,9 @@ object ProjectManager {
 
                     // Detach currently attached fragments
                     activity.supportFragmentManager.fragments.forEach { frag ->
-                        transaction.detach(frag)
+                        if (fileTreeFragments.values.contains(frag)){
+                            transaction.detach(frag)
+                        }
                     }
 
                     // Add the new fragment and attach it
@@ -124,6 +126,8 @@ object ProjectManager {
                         selectItem(rail.menu.getItem(i + 1))
                     }
 
+                    saveProjects(activity)
+
                     break
                 }
             }
@@ -136,9 +140,11 @@ object ProjectManager {
         val fragment = fileTreeFragments[fileObj.getAbsolutePath()]
         val transaction = activity.supportFragmentManager.beginTransaction()
 
-        // Detach currently attached fragments
         activity.supportFragmentManager.fragments.forEach { frag ->
-            transaction.detach(frag)
+            if (fileTreeFragments.values.contains(frag)){
+                transaction.detach(frag)
+            }
+
         }
 
         transaction.attach(fragment!!)
@@ -169,35 +175,39 @@ object ProjectManager {
     }
 
 
-    fun restoreProjects(activity: MainActivity){
-        activity.lifecycleScope.launch(Dispatchers.IO){
-            val jsonString = SettingsData.getString(Keys.PROJECTS,"")
+    fun restoreProjects(activity: MainActivity) {
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            val jsonString = SettingsData.getString(Keys.PROJECTS, "")
             if (jsonString.isNotEmpty()) {
                 val gson = Gson()
-                val projectsList = gson.fromJson(jsonString, Array<String>::class.java)
+                val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList() // Convert to a List
 
                 projectsList.forEach {
-
                     val file = File(it)
-                    withContext(Dispatchers.Main){
-                        activity.binding.mainView.visibility = View.VISIBLE
-                        activity.binding.maindrawer.visibility = View.VISIBLE
+                    withContext(Dispatchers.Main) {
+                        // Prevent duplicates by checking if the project's path is already in the values of the ArrayMap
+                        if (!projects.containsValue(file.absolutePath)) {
+                            activity.binding.mainView.visibility = View.VISIBLE
+                            activity.binding.maindrawer.visibility = View.VISIBLE
 
-                        addProject(file)
+                            addProject(file)
+                        }
                     }
-
                 }
             }
         }
     }
 
-    fun saveProjects(activity: MainActivity){
+    private fun saveProjects(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val gson = Gson()
-            val jsonString = gson.toJson(projects.values.toList())
-            SettingsData.setString(Keys.PROJECTS,jsonString)
+            val uniqueProjects = projects.values.toSet()
+            val jsonString = gson.toJson(uniqueProjects.toList())
+            SettingsData.setString(Keys.PROJECTS, jsonString)
         }
     }
+
+
 
 
 }
