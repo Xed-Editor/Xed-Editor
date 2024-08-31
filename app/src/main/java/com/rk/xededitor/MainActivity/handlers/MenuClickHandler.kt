@@ -46,7 +46,7 @@ object MenuClickHandler {
 			
 			R.id.action_save -> {
 				// Handle action_save
-				FileManager.saveFile(activity, mTabLayout.selectedTabPosition)
+				FileManager.saveFile(activity, fragments[mTabLayout.selectedTabPosition])
 				return true
 			}
 			

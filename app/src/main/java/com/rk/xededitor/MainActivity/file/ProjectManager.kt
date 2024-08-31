@@ -185,8 +185,7 @@ object ProjectManager {
                 projectsList.forEach {
                     val file = File(it)
                     withContext(Dispatchers.Main) {
-                        // Prevent duplicates by checking if the project's path is already in the values of the ArrayMap
-                        if (!projects.containsValue(file.absolutePath)) {
+                         if (!projects.containsValue(file.absolutePath)) {
                             activity.binding.mainView.visibility = View.VISIBLE
                             activity.binding.maindrawer.visibility = View.VISIBLE
 

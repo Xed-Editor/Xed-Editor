@@ -18,6 +18,7 @@ import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.Staticfile
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -91,11 +92,8 @@ object FileManager {
 //        }
 //    }
 
-    fun saveFile(activity: MainActivity, index: Int, isAutoSaver: Boolean = false) {
-        if (index > fragments.size){
-            return
-        }
-        val fragment = fragments[index]
+    fun saveFile(activity: MainActivity, fragment:DynamicFragment, isAutoSaver: Boolean = false) {
+
         val file = fragment.file
         val content = fragment.content
 
@@ -112,9 +110,9 @@ object FileManager {
             return
         }
 
+        val tab = mTabLayout.getTabAt(fragments.indexOf(fragment)) ?: throw RuntimeException("Tab not found")
         rkUtils.runOnUiThread {
-            val tab = mTabLayout.getTabAt(index) ?: throw RuntimeException("Tab not found")
-            if (tab.text?.endsWith("*") == true) {
+             if (tab.text?.endsWith("*") == true) {
                 fragment.isModified = false
                 tab.text = tab.text?.dropLast(1)
             }
@@ -144,8 +142,9 @@ object FileManager {
 
     fun handleSaveAllFiles(activity: MainActivity, isAutoSaver: Boolean = false) {
         //loop over all tabs and save the files
-        for (i in 0 until mTabLayout.tabCount) {
-            saveFile(activity, i, isAutoSaver)
+
+        fragments.forEach { fragment ->
+            saveFile(activity,fragment,isAutoSaver)
         }
 
         if (!isAutoSaver) {
