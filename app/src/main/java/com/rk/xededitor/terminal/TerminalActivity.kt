@@ -17,6 +17,9 @@ import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.PathUtils
 import com.blankj.utilcode.util.SizeUtils
+import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants
+import com.rk.xededitor.terminal.virtualkeys.VirtualKeysInfo
+import com.rk.xededitor.terminal.virtualkeys.VirtualKeysListener
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -26,29 +29,32 @@ import com.termux.view.TerminalViewClient
 import java.io.File
 
 class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClient {
-
-
     private var fontSize = SizeUtils.dp2px(14f)
     private lateinit var terminal: TerminalView
-
-    private val workingDirectory: String
-        get() {
-            val extras = intent.extras
-            if (extras != null && extras.containsKey(KEY_WORKING_DIRECTORY)) {
-                val directory = extras.getString(KEY_WORKING_DIRECTORY, null)
-                return if (directory != null && directory.trim { it <= ' ' }.isNotEmpty()) directory
-                else PathUtils.getRootPathExternalFirst()
-            }
-            return PathUtils.getRootPathExternalFirst()
-        }
+    private lateinit var binding: ActivityTerminalBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window?.also {
             val controller = getInsetsController(it, it.decorView)
-            controller.setAppearanceLightNavigationBars(false)
-            controller.setAppearanceLightStatusBars(false)
+            controller.isAppearanceLightNavigationBars = false
+            controller.isAppearanceLightStatusBars = false
         }
+
         super.onCreate(savedInstanceState)
+
+        binding = ActivityTerminalBinding.inflate(layoutInflater)
+
+        setupTerminalView()
+        setContentView(binding.root)
+
+        binding.extraKeys.virtualKeysViewClient = VirtualKeysListener(terminal.mTermSession)
+        binding.extraKeys.reload(
+            VirtualKeysInfo(
+                VIRTUAL_KEYS,
+                "",
+                VirtualKeysConstants.CONTROL_CHARS_ALIASES
+            )
+        )
 
         onBackPressedDispatcher.addCallback(
             this,
@@ -60,9 +66,36 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
             },
         )
 
-        setupTerminalView()
-
     }
+
+    private val VIRTUAL_KEYS =
+        ("[" +
+                "\n  [" +
+                "\n    \"ESC\"," +
+                "\n    {" +
+                "\n      \"key\": \"/\"," +
+                "\n      \"popup\": \"\\\\\"" +
+                "\n    }," +
+                "\n    {" +
+                "\n      \"key\": \"-\"," +
+                "\n      \"popup\": \"|\"" +
+                "\n    }," +
+                "\n    \"HOME\"," +
+                "\n    \"UP\"," +
+                "\n    \"END\"," +
+                "\n    \"PGUP\"" +
+                "\n  ]," +
+                "\n  [" +
+                "\n    \"TAB\"," +
+                "\n    \"CTRL\"," +
+                "\n    \"ALT\"," +
+                "\n    \"LEFT\"," +
+                "\n    \"DOWN\"," +
+                "\n    \"RIGHT\"," +
+                "\n    \"PGDN\"" +
+                "\n  ]" +
+                "\n]")
+
 
     override fun onResume() {
         super.onResume()
@@ -76,6 +109,7 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
     }
 
     override fun onDestroy() {
+        terminal.mTermSession.finishIfRunning()
         super.onDestroy()
     }
 
@@ -87,8 +121,7 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
         terminal.setTextSize(fontSize)
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f
-        //binding.root.addView(terminal, 0, params)
-        setContentView(terminal)
+        binding.root.addView(terminal, 0, params)
 
     }
 
@@ -97,6 +130,9 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
         if (File("/bin/sh").exists().not()) {
             shell = "/system/bin/sh"
         }
+
+        val workingDirectory = filesDir.absolutePath
+
         return TerminalSession(
             shell,
             workingDirectory,
@@ -118,7 +154,7 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
     }
 
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
-        ClipboardUtils.copyText("VCSpace Terminal", text)
+        ClipboardUtils.copyText("Terminal", text)
     }
 
     override fun onPasteTextFromClipboard(session: TerminalSession) {
@@ -209,14 +245,10 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
     }
 
     override fun readControlKey(): Boolean {
-//        val state = binding.virtualKeys.readSpecialButton(SpecialButton.CTRL, true)
-//        return state != null && state
         return false
     }
 
     override fun readAltKey(): Boolean {
-//        val state = binding.virtualKeys.readSpecialButton(SpecialButton.ALT, true)
-//        return state != null && state
         return false
     }
 
@@ -234,9 +266,6 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
 
     override fun onEmulatorSet() {
         setTerminalCursorBlinkingState(true)
-//        binding.root.setBackgroundColor(
-//            terminal.mTermSession.emulator.mColors.mCurrentColors[TextStyle.COLOR_INDEX_BACKGROUND]
-//        )
     }
 
     private fun setTerminalCursorBlinkingState(start: Boolean) {
@@ -248,40 +277,5 @@ class TerminalActivity : BaseActivity(), TerminalViewClient, TerminalSessionClie
     private fun showSoftInput() {
         terminal.requestFocus()
         KeyboardUtils.showSoftInput(terminal)
-    }
-
-
-
-    companion object {
-        const val KEY_WORKING_DIRECTORY = "terminal_workingDirectory"
-        const val KEY_PYTHON_FILE_PATH = "terminal_python_file"
-
-        const val VIRTUAL_KEYS =
-            ("[" +
-                    "\n  [" +
-                    "\n    \"ESC\"," +
-                    "\n    {" +
-                    "\n      \"key\": \"/\"," +
-                    "\n      \"popup\": \"\\\\\"" +
-                    "\n    }," +
-                    "\n    {" +
-                    "\n      \"key\": \"-\"," +
-                    "\n      \"popup\": \"|\"" +
-                    "\n    }," +
-                    "\n    \"HOME\"," +
-                    "\n    \"UP\"," +
-                    "\n    \"END\"," +
-                    "\n    \"PGUP\"" +
-                    "\n  ]," +
-                    "\n  [" +
-                    "\n    \"TAB\"," +
-                    "\n    \"CTRL\"," +
-                    "\n    \"ALT\"," +
-                    "\n    \"LEFT\"," +
-                    "\n    \"DOWN\"," +
-                    "\n    \"RIGHT\"," +
-                    "\n    \"PGDN\"" +
-                    "\n  ]" +
-                    "\n]")
     }
 }

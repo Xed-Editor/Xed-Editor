@@ -53,7 +53,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".terminal.TerminalActivity"
-            android:exported="true"/>
+            android:exported="true"
+            android:label="Terminal"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity.MainActivity"
             android:exported="true"
@@ -69,16 +76,6 @@
                 <data android:mimeType="text/*" />
             </intent-filter>
 
-        </activity>
-
-        <activity
-            android:name=".terminal.Terminal"
-            android:exported="false"
-            android:label="Terminal"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
