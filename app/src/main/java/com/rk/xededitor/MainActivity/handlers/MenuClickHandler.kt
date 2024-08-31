@@ -160,12 +160,12 @@ object MenuClickHandler {
 	
 	
 	private fun handleSearchNext(): Boolean {
-		fragments[mTabLayout.selectedTabPosition].editor.searcher?.gotoNext()
+		fragments[mTabLayout.selectedTabPosition].editor.searcher?.gotoPrevious()
 		return true
 	}
 	
 	private fun handleSearchPrevious(): Boolean {
-		fragments[mTabLayout.selectedTabPosition].editor.searcher?.gotoPrevious()
+		fragments[mTabLayout.selectedTabPosition].editor.searcher?.gotoNext()
 		return true
 	}
 	

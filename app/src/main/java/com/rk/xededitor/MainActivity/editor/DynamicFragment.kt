@@ -65,6 +65,7 @@ class DynamicFragment : Fragment {
 
         val setupEditor = SetupEditor(editor, ctx)
         val isDarkMode = SettingsData.isDarkMode(ctx)
+
         if (isDarkMode) {
             setupEditor.ensureTextmateTheme()
         }

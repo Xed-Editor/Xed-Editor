@@ -102,8 +102,8 @@ class SettingsEditor : BaseActivity() {
             }
 
             switch(Keys.DIAGONAL_SCROLL) {
-                title = "Diagnol Scrolling"
-                summary = "Enable Diagnol Scrolling in File Browser"
+                title = "Diagonal Scrolling"
+                summary = "Enable Diagonal Scrolling in File Browser"
                 iconRes = R.drawable.diagonal_scroll
                 defaultValue = false
                 onCheckedChange {
