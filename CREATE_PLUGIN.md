@@ -20,7 +20,7 @@
 ```
 
 6. now create a new file named **"main.bsh"** inside **"MyPlugin"**
-7. and put a png file named **"icon.png"** for icon (currently on version v2.6.0 karbon does not support adding files on private directory you have to find a workaround to add icon.png into private app files you can use terminal to download stuff)
+7. and put a png file named **"icon.png"** for icon 
 8. open main.bsh
 9. and write some code to show a toast to check if everything is working
 
