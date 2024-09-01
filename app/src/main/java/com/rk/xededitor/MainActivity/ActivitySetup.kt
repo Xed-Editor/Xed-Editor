@@ -290,6 +290,19 @@ object ActivitySetup{
 						}
 
 					}
+
+					R.id.untab -> {
+						if (cursor.leftColumn == 0) {
+							return@OnClickListener
+						}
+
+						val tabSize = SettingsData.getString(Keys.TAB_SIZE, "4").toInt()
+
+						if (cursor.leftColumn >= tabSize) {
+							fragment.editor.deleteText()
+						}
+
+					}
 					R.id.home -> {
 						fragment.editor.setSelection(cursor.leftLine, 0)
 					}
