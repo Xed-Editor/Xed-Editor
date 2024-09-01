@@ -4,9 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
-import android.webkit.MimeTypeMap
 import android.widget.Toast
-import androidx.documentfile.provider.DocumentFile
 import com.rk.xededitor.MainActivity.StaticData
 import io.github.rosemoe.sora.widget.CodeEditor
 

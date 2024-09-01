@@ -70,7 +70,7 @@ android {
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 29
         versionCode = 31
         versionName = "2.7.0"
     }

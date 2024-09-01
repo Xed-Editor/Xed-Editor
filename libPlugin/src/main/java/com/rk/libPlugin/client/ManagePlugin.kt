@@ -17,8 +17,6 @@ class ManagePlugin : AppCompatActivity() {
         Objects.requireNonNull(supportActionBar)?.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.title = "Manage Plugins"
 
-
-
         setContentView(binding.root)
         binding.listView.adapter = CustomListAdapter(this,Server.getInstalledPlugins())
 
