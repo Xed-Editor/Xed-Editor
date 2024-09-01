@@ -49,7 +49,7 @@ object FileTreeScrollViewManager {
             it.layoutParams = params
             (it.layoutParams as ViewGroup.MarginLayoutParams).apply {
                 if (isDiagonalScroll) {
-                    setMargins(0, dpToPx(3, density), 0, dpToPx(60, density))
+                    setMargins(0, dpToPx(3, density), 0, 0)
                 } else {
                     setMargins(0, dpToPx(3, density), 0, 0)
                 }

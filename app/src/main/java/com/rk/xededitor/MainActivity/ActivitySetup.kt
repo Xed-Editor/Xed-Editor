@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
@@ -37,6 +38,7 @@ import java.io.File
 
 object ActivitySetup{
 
+	val checker:Class<out Any> = DiagonalScrollView::class.java
 	fun init(activity: MainActivity){
 		activity.lifecycleScope.launch(Dispatchers.Default){
 			handleIntent(activity)
@@ -60,7 +62,7 @@ object ActivitySetup{
 	private val openDirId = View.generateViewId()
 	private val openPathId = View.generateViewId()
 
-	fun setupNavigationRail(activity: MainActivity){
+	private fun setupNavigationRail(activity: MainActivity){
 		var dialog:AlertDialog? = null
 
 		val listener = View.OnClickListener { v->
@@ -110,10 +112,11 @@ object ActivitySetup{
 				handleAddNew()
 			}
 		}
+
 	}
 
 
-	fun setupTabClickListener(activity: MainActivity){
+	private fun setupTabClickListener(activity: MainActivity){
 		with(activity){
 			mTabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
 				override fun onTabSelected(tab: TabLayout.Tab) {
@@ -195,7 +198,7 @@ object ActivitySetup{
 			}
 		}
 	}
-	fun hideKeyBoardIfTooLarge(activity: MainActivity){
+	private fun hideKeyBoardIfTooLarge(activity: MainActivity){
 		rkUtils.runOnUiThread {
 			val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 			val rotation = windowManager.defaultDisplay.rotation

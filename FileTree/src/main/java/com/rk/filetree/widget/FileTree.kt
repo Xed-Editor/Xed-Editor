@@ -27,6 +27,10 @@ class FileTree : RecyclerView {
         fileTreeAdapter = FileTreeAdapter(context,this)
     }
 
+    fun getRootFileObject() : FileObject{
+        return rootFileObject
+    }
+
     fun setIconProvider(fileIconProvider: FileIconProvider){
         fileTreeAdapter.iconProvider = fileIconProvider
     }

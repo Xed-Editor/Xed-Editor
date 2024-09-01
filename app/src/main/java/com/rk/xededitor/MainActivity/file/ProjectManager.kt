@@ -1,38 +1,47 @@
 package com.rk.xededitor.MainActivity.file
 
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.collection.ArrayMap
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
+import com.rk.filetree.interfaces.FileClickListener
+import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.interfaces.FileObject
+import com.rk.filetree.model.Node
 import com.rk.filetree.provider.file
+import com.rk.filetree.widget.DiagonalScrollView
+import com.rk.filetree.widget.FileTree
+import com.rk.libcommons.After
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.LinkedList
 import java.util.Queue
 
 object ProjectManager {
 
-    val projects = ArrayMap<Int, String>()
-    private val fileTreeFragments = ArrayMap<String, FileTreeFrag>()
+    val projects = HashMap<Int, String>()
     private val queue: Queue<File> = LinkedList()
 
-    fun processQueue(activity: MainActivity){
-        activity.lifecycleScope.launch(Dispatchers.Default){
-            while (queue.isNotEmpty()){
+
+
+    fun processQueue(activity: MainActivity) {
+        activity.lifecycleScope.launch(Dispatchers.Default) {
+            while (queue.isNotEmpty()) {
                 delay(100)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     queue.poll()?.let { addProject(it) }
                 }
 
@@ -43,7 +52,7 @@ object ProjectManager {
 
     fun addProject(file: File) {
         BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
-            if (activity.isPaused){
+            if (activity.isPaused) {
                 queue.add(file)
                 return
             }
@@ -52,32 +61,34 @@ object ProjectManager {
                 val item = rail.menu.getItem(i)
                 val menuItemId = item.itemId
                 if (menuItemId != R.id.add_new && !projects.contains(menuItemId)) {
-                    item.isVisible = true
                     item.title = file.name
-                   item.isChecked = true
+                    item.isVisible = true
+                    item.isChecked = true
 
-                    projects[menuItemId] = file.absolutePath
 
-                    val fileObj = file(file)
-                    val fragment = FileTreeFrag.newInstance(fileObj)
-                    fileTreeFragments[fileObj.getAbsolutePath()] = fragment
-
-                    val transaction = activity.supportFragmentManager.beginTransaction()
-
-                    // Detach currently attached fragments
-                    activity.supportFragmentManager.fragments.forEach { frag ->
-                        if (fileTreeFragments.values.contains(frag)){
-                            transaction.detach(frag)
-                        }
+                    synchronized(projects){
+                        projects[menuItemId] = file.absolutePath
                     }
 
-                    // Add the new fragment and attach it
-                    transaction.add(R.id.frame, fragment)
-                    transaction.attach(fragment)
-                    transaction.commit()
+
+                    val fileObj = file(file)
+
+                    val fileTree = FileTree(activity)
+                    fileTree.loadFiles(fileObj)
+                    fileTree.setOnFileClickListener(fileClickListener)
+                    fileTree.setOnFileLongClickListener(fileLongClickListener)
+                    val scrollView =
+                        FileTreeScrollViewManager.getFileTreeParentScrollView(activity, fileTree)
+                    scrollView.id = file.absolutePath.hashCode()
+
+                    activity.binding.maindrawer.addView(scrollView)
+
+
+                    changeProject(file, activity)
+
 
                     //hide + button if 6 projects are added
-                    if (activity.binding.navigationRail.menu.getItem(5).isVisible){
+                    if (activity.binding.navigationRail.menu.getItem(5).isVisible) {
                         activity.binding.navigationRail.menu.getItem(6).isVisible = false
                     }
 
@@ -90,7 +101,8 @@ object ProjectManager {
 
     }
 
-    fun removeProject(file: File) {
+
+    fun removeProject(file: File, saveState: Boolean = true) {
         val filePath = file.absolutePath
         BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
             val rail = activity.binding.navigationRail
@@ -101,17 +113,22 @@ object ProjectManager {
                     item.isChecked = false
                     item.isVisible = false
 
-                    val fileObj = file(file)
+                    for (i in 0 until activity.binding.maindrawer.childCount) {
+                        val view = activity.binding.maindrawer.getChildAt(i)
+                        if (view is DiagonalScrollView) {
+                            if (view.id == file.absolutePath.hashCode()) {
+                                activity.binding.maindrawer.removeView(view)
+                            }
+                        }
+                    }
                     projects.remove(menuItemId)
-                    val fragment = fileTreeFragments.remove(fileObj.getAbsolutePath())
-                    activity.supportFragmentManager.beginTransaction().remove(fragment!!).commit()
 
 
                     if (!rail.menu.getItem(6).isVisible) {
                         rail.menu.getItem(6).isVisible = true
                     }
 
-                    fun selectItem(itemx:MenuItem){
+                    fun selectItem(itemx: MenuItem) {
                         val previousFilePath = projects[itemx.itemId]
                         if (previousFilePath != null) {
                             itemx.isChecked = true
@@ -126,7 +143,10 @@ object ProjectManager {
                         selectItem(rail.menu.getItem(i + 1))
                     }
 
-                    saveProjects(activity)
+                    if (saveState) {
+                        saveProjects(activity)
+                    }
+
 
                     break
                 }
@@ -135,70 +155,111 @@ object ProjectManager {
     }
 
 
+    private var currentProjectId:Int = -1
     fun changeProject(file: File, activity: MainActivity) {
-        val fileObj = file(file)
-        val fragment = fileTreeFragments[fileObj.getAbsolutePath()]
-        val transaction = activity.supportFragmentManager.beginTransaction()
-
-        activity.supportFragmentManager.fragments.forEach { frag ->
-            if (fileTreeFragments.values.contains(frag)){
-                transaction.detach(frag)
+        for (i in 0 until activity.binding.maindrawer.childCount) {
+            val view = activity.binding.maindrawer.getChildAt(i)
+            if (view is ViewGroup) {
+                if (view.id != file.absolutePath.hashCode()) {
+                    view.visibility = View.GONE
+                } else {
+                    view.visibility = View.VISIBLE
+                   currentProjectId = file.absolutePath.hashCode()
+                }
             }
-
         }
-
-        transaction.attach(fragment!!)
-        transaction.commit()
     }
 
+    fun clear(activity: MainActivity){
+        projects.clear()
+        for (i in 0 until activity.binding.maindrawer.childCount) {
+            val view = activity.binding.maindrawer.getChildAt(i)
+            if (view is DiagonalScrollView) {
+                activity.binding.maindrawer.removeView(view)
+            }
+        }
+    }
 
-    fun getSelectedProjectRootFilePath():String?{
+    fun getSelectedProjectRootFilePath(): String? {
         BaseActivity.getActivity(MainActivity::class.java)?.apply {
             return projects[binding.navigationRail.selectedItemId]
         }
         return null
     }
 
-    private fun getSelectedProjectFragment(): FileTreeFrag? {
-        return fileTreeFragments[getSelectedProjectRootFilePath()]
+    fun getSelectedView(activity: MainActivity) : FileTree{
+        val view: ViewGroup = activity.binding.maindrawer.findViewById(currentProjectId)
+        return (view.getChildAt(0) as ViewGroup).getChildAt(0) as FileTree
     }
 
-    fun refreshCurrentProject(){
-        getSelectedProjectFragment()?.fileTree?.reloadFileTree()
+    fun refreshCurrentProject(activity: MainActivity) {
+        getSelectedView(activity).reloadFileTree()
     }
 
-    fun changeCurrentProjectRoot(file: FileObject){
-        getSelectedProjectFragment()?.fileTree?.loadFiles(file)
-        BaseActivity.getActivity(MainActivity::class.java)?.binding?.navigationRail?.apply {
-            menu.findItem(selectedItemId).title = file.getName()
-        }
+    fun changeCurrentProjectRoot(file: FileObject,activity: MainActivity) {
+        getSelectedView(activity).loadFiles(file)
     }
-
 
     fun restoreProjects(activity: MainActivity) {
-        if (projects.isNotEmpty()){
-            return
+        clear(activity)
+        val jsonString = SettingsData.getString(Keys.PROJECTS, "")
+        if (jsonString.isNotEmpty()) {
+            val gson = Gson()
+            val projectsList = gson.fromJson(jsonString, Array<String>::class.java)
+                .toList()
+
+            projectsList.forEach {
+                val file = File(it)
+                activity.binding.mainView.visibility = View.VISIBLE
+                addProject(file)
+            }
         }
-        activity.lifecycleScope.launch(Dispatchers.IO) {
-            val jsonString = SettingsData.getString(Keys.PROJECTS, "")
-            if (jsonString.isNotEmpty()) {
-                val gson = Gson()
-                val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList() // Convert to a List
+    }
 
-                projectsList.forEach {
-                    val file = File(it)
-                    withContext(Dispatchers.Main) {
-                         if (!projects.containsValue(file.absolutePath)) {
-                            activity.binding.mainView.visibility = View.VISIBLE
-                            activity.binding.maindrawer.visibility = View.VISIBLE
+    private val fileClickListener = object : FileClickListener {
+        override fun onClick(node: Node<FileObject>) {
+            if (node.value.isDirectory()) {
+                return
+            }
 
-                            addProject(file)
+            BaseActivity.getActivity(MainActivity::class.java)?.let {
+                val loading = LoadingPopup(it, null).show()
+                val file = File(node.value.getAbsolutePath())
+
+                //delay 100ms for smoother click
+                //opening a file always take more than 500ms because of these delays
+                After(100) {
+                    rkUtils.runOnUiThread {
+                        it.newEditor(file)
+                        it.adapter?.onNewEditor(file)
+                    }
+
+                    //delay close drawer after 400ms
+                    After(400) {
+                        if (!SettingsData.getBoolean(Keys.KEEP_DRAWER_LOCKED, false)) {
+                            rkUtils.runOnUiThread {
+                                it.binding.drawerLayout.close()
+                                loading.hide()
+                            }
                         }
                     }
                 }
             }
         }
     }
+
+    private val fileLongClickListener = object : FileLongClickListener {
+        override fun onLongClick(node: Node<FileObject>) {
+            BaseActivity.getActivity(MainActivity::class.java)?.apply {
+                getSelectedProjectRootFilePath()?.let {
+                    FileAction(this, File(it), File(node.value.getAbsolutePath()))
+                }
+
+            }
+        }
+
+    }
+
 
     private fun saveProjects(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
@@ -208,8 +269,6 @@ object ProjectManager {
             SettingsData.setString(Keys.PROJECTS, jsonString)
         }
     }
-
-
 
 
 }

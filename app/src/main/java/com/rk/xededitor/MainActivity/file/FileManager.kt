@@ -171,7 +171,7 @@ object FileManager {
                 val rootFolder = ProjectManager.getSelectedProjectRootFilePath()
                 if (targetFile.absolutePath == rootFolder) {
                     //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                    ProjectManager.refreshCurrentProject()
+                    ProjectManager.refreshCurrentProject(mainActivity)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -220,7 +220,7 @@ object FileManager {
 
             val file = File(convertUriToPath(this, data.data))
             if (ISreselcting){
-                ProjectManager.changeCurrentProjectRoot(file(file))
+                ProjectManager.changeCurrentProjectRoot(file(file),mainActivity)
             }else{
                 ProjectManager.addProject(file)
             }

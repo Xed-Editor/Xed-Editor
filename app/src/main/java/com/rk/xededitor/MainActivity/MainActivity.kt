@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
+import android.app.Application
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
@@ -49,10 +50,11 @@ class MainActivity : BaseActivity() {
         super.onPause()
     }
 
+
+
     override fun onResume() {
         isPaused = false
         ProjectManager.processQueue(this)
-        ProjectManager.restoreProjects(this)
         //restart auto saver if it stopped
         AutoSaver.start(this)
         super.onResume()
@@ -60,7 +62,9 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         StaticData.clear()
+
         super.onCreate(savedInstanceState)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
@@ -72,6 +76,8 @@ class MainActivity : BaseActivity() {
         setupDrawer()
         initiateStaticVariables()
         ActivitySetup.init(this)
+
+        ProjectManager.restoreProjects(this)
 
     }
 

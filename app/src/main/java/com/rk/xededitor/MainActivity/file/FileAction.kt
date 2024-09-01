@@ -125,7 +125,7 @@ class FileAction(
             }
 
             R.id.refresh -> {
-                ProjectManager.refreshCurrentProject()
+                ProjectManager.refreshCurrentProject(context)
                 true
             }
 
@@ -219,7 +219,7 @@ class FileAction(
 //                                            TreeView(context, rootFolder)
 //                                        }
                                         //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                        ProjectManager.refreshCurrentProject()
+                                        ProjectManager.refreshCurrentProject(context)
 
                                     }
 
@@ -273,7 +273,7 @@ class FileAction(
                             // TreeView(context, rootFolder)
                             //adapter?.removeFile(file)
                             //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                            ProjectManager.refreshCurrentProject()
+                            ProjectManager.refreshCurrentProject(context)
 
                         }
 
@@ -403,7 +403,7 @@ class FileAction(
 //                    TreeView(context, rootFolder)
 //                }
                 //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                ProjectManager.refreshCurrentProject()
+                ProjectManager.refreshCurrentProject(context)
 
                 loading.hide()
             }.show()
@@ -446,7 +446,7 @@ class FileAction(
 //                    TreeView(context, rootFolder)
 //                }
                // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                ProjectManager.refreshCurrentProject()
+                ProjectManager.refreshCurrentProject(context)
 
                 loading.hide()
             }.show()
