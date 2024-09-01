@@ -1,5 +1,6 @@
 package com.rk.xededitor.terminal
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -76,6 +77,7 @@ class Terminal : BaseActivity() {
         terminalBackend.setTerminal(terminal)
         terminal.setTerminalViewClient(terminalBackend)
         terminal.attachSession(createSession())
+        terminal.setBackgroundColor(Color.BLACK)
         terminal.keepScreenOn = true
         terminal.setTextSize(fontSize)
         val params = LinearLayout.LayoutParams(-1, 0)

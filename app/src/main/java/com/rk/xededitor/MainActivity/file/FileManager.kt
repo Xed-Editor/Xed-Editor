@@ -171,7 +171,7 @@ object FileManager {
                 val rootFolder = ProjectManager.getSelectedProjectRootFilePath()
                 if (targetFile.absolutePath == rootFolder) {
                     //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                    ProjectManager.addProject(File(rootFolder))
+                    ProjectManager.refreshCurrentProject()
                 }
             } catch (e: IOException) {
                 e.printStackTrace()

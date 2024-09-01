@@ -176,6 +176,9 @@ object ProjectManager {
 
 
     fun restoreProjects(activity: MainActivity) {
+        if (projects.isNotEmpty()){
+            return
+        }
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val jsonString = SettingsData.getString(Keys.PROJECTS, "")
             if (jsonString.isNotEmpty()) {

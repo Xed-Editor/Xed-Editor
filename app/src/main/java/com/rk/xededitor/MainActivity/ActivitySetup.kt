@@ -40,14 +40,12 @@ object ActivitySetup{
 	fun init(activity: MainActivity){
 		activity.lifecycleScope.launch(Dispatchers.Default){
 			handleIntent(activity)
-			openLastPath(activity)
 			setupTabClickListener(activity)
 			SetupEditor.init(activity)
 			PermissionHandler.verifyStoragePermission(activity)
 			setupArrowKeys(activity)
 			hideKeyBoardIfTooLarge(activity)
 			setupNavigationRail(activity)
-			ProjectManager.restoreProjects(activity)
 
 			delay(500)
 			withContext(Dispatchers.Main){
@@ -175,22 +173,7 @@ object ActivitySetup{
 		}
 
 	}
-	fun openLastPath(activity: MainActivity){
-		val lastOpenedPath = SettingsData.getString(Keys.LAST_OPENED_PATH, "")
-		if (lastOpenedPath.isNotEmpty()) {
-			val file = File(lastOpenedPath)
-			if (file.exists()) {
-				rkUtils.runOnUiThread {
-					with(activity.binding) {
-						mainView.visibility = View.VISIBLE
-						maindrawer.visibility = View.VISIBLE
-						//activity.fileTree.loadFiles(file(rootFolder))
-						ProjectManager.addProject(file)
-					}
-				}
-			}
-		}
-	}
+
 	fun handleIntent(activity: MainActivity){
 		val intent: Intent = activity.intent
 		val type = intent.type

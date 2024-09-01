@@ -8,40 +8,29 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
-import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.ActivitySetup.handleIntent
-import com.rk.xededitor.MainActivity.ActivitySetup.hideKeyBoardIfTooLarge
-import com.rk.xededitor.MainActivity.ActivitySetup.openLastPath
-import com.rk.xededitor.MainActivity.ActivitySetup.setupArrowKeys
-import com.rk.xededitor.MainActivity.ActivitySetup.setupNavigationRail
-import com.rk.xededitor.MainActivity.ActivitySetup.setupTabClickListener
-import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.StaticData.fileSet
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.MainActivity.editor.NoSwipeViewPager
 import com.rk.xededitor.MainActivity.editor.TabAdapter
+import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
-import com.rk.xededitor.MainActivity.handlers.OnBackPressedHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityMainBinding
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.took
 import java.io.File
 
 class MainActivity : BaseActivity() {
@@ -63,6 +52,7 @@ class MainActivity : BaseActivity() {
     override fun onResume() {
         isPaused = false
         ProjectManager.processQueue(this)
+        ProjectManager.restoreProjects(this)
         //restart auto saver if it stopped
         AutoSaver.start(this)
         super.onResume()
