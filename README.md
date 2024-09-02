@@ -27,7 +27,7 @@ Karbon is a versatile text editor designed specifically for Android devices, off
 - [x] Copy Pasting files and Folders
 - [x] Rename, Delete files and folders
 - [x] Print text
-- [x] Plugins (Read [CreatingPlugins](/CREATE_PLUGIN.md))
+- [x] Plugins (Read [Creating Plugins](/docs/CREATE_PLUGIN.md))
 
 ## Installation
 
