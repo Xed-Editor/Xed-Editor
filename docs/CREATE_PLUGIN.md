@@ -42,7 +42,7 @@
 
    ```java
 
-   //never forget to adding semicolon in the end of expressions
+   //never forget to add semicolon in the end of expressions
  
    //show a toast
    api.toast("hello from plugin");
