@@ -20,29 +20,33 @@ class Server(val app: Application) : Thread() {
         }
     }
 
-    private fun Application.indexPlugins(){
-        val root = getPluginRoot()
-        val pluginsFiles = root.listFiles()
-        if (root.exists().not()and(pluginsFiles.isNullOrEmpty())){return}
 
-        for (plugin in pluginsFiles!!) {
-            val manifestFile = File(plugin, "manifest.json")
-
-            var manifest: Manifest? = null
-            try {
-                val json = manifestFile.readText()
-                val gson = Gson()
-                manifest = gson.fromJson(json, Manifest::class.java)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Toast.makeText(app,"PluginError ${e.message}",Toast.LENGTH_LONG).show()
-            }
-
-            InstalledPlugins.add(Plugin(manifest!!,plugin.absolutePath,this))
-        }
-    }
 
     companion object {
+
+        fun Application.indexPlugins(){
+            InstalledPlugins.clear()
+            val root = getPluginRoot()
+            val pluginsFiles = root.listFiles()
+            if (root.exists().not()and(pluginsFiles.isNullOrEmpty())){return}
+
+            for (plugin in pluginsFiles!!) {
+                val manifestFile = File(plugin, "manifest.json")
+
+                var manifest: Manifest? = null
+                try {
+                    val json = manifestFile.readText()
+                    val gson = Gson()
+                    manifest = gson.fromJson(json, Manifest::class.java)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this,"PluginError ${e.message}",Toast.LENGTH_LONG).show()
+                }
+
+                InstalledPlugins.add(Plugin(manifest!!,plugin.absolutePath,this))
+            }
+        }
+
         private val InstalledPlugins = ArrayList<Plugin>()
 
         @JvmStatic

@@ -41,4 +41,5 @@ dependencies {
     implementation(libs.material)
     implementation(libs.bsh)
     implementation(libs.gson)
+    implementation(libs.coordinatorlayout)
 }

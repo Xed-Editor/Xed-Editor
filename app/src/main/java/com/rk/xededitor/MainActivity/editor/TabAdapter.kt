@@ -14,6 +14,10 @@ import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.widget.CodeEditor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePagerAdapter(
@@ -58,7 +62,10 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
     fun addFragment(frag: DynamicFragment, file: File) {
         fragments.add(frag)
         notifyDataSetChanged()
-        if (fragments.size > 1) StaticData.mTabLayout.getTabAt(fragments.size - 1)!!.select()
+        GlobalScope.launch(Dispatchers.Main){
+            delay(300)
+            if (fragments.size > 1) StaticData.mTabLayout.getTabAt(fragments.size - 1)!!.select()
+        }
     }
 
     private fun onEditorRemove(fragment: DynamicFragment) {

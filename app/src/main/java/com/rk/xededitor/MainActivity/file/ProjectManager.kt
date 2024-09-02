@@ -147,7 +147,6 @@ object ProjectManager {
                         saveProjects(activity)
                     }
 
-
                     break
                 }
             }
