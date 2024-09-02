@@ -7,10 +7,10 @@
 ### **Step 2: Navigate to the File Browser**
 1. Return to the main screen of the app.
 2. Open the **File Browser**.
+3. Open project named "com.rk.xededitor"
 
 ### **Step 3: Create the Plugin Directory**
-1. Locate and open the folder named **"files"**.
-2. Inside the **"files"** folder, create a new folder named **"plugins"** (if it doesn't already exist).
+1. Create a new folder named **"plugins"** (if it doesn't already exist).
 
 ### **Step 4: Create Your Plugin Folder**
 1. Inside the **"plugins"** folder, create a new folder named **"MyPlugin"**.
