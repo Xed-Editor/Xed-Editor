@@ -50,7 +50,7 @@
    ```
  3. See [API.kt](https://github.com/RohitKushvaha01/Xed-Editor/blob/dev/libPlugin/src/main/java/com/rk/libPlugin/server/api/API.kt) for available api calls
 
-4. Read [API Documentation](/docs/APIDocumentation) 
+4. Read [API Documentation](https://github.com/RohitKushvaha01/Xed-Editor/blob/dev/docs/APIDocumentation.md) 
 
 5. Application context is globally available similar to api class you can use "app" anyware in the script
    
