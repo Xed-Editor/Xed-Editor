@@ -30,20 +30,20 @@ The `API` class is a singleton object that provides various utility methods and 
   - **Description:** Displays a toast message to the user.
   - **Parameters:** 
     - `message`: The message string to be displayed in the toast.
-  - **Usage:** Call this method to show a brief message to the user, e.g., `API.toast("Hello, World!")`.
+  - **Usage:** Call this method to show a brief message to the user, e.g., `api.toast("Hello, World!")`.
 
 - **`fun runCommand(command: String): Command`**
   - **Description:** Executes a command string and returns a `Command` object that represents the execution.
   - **Parameters:**
     - `command`: The command string to be executed.
   - **Returns:** A `Command` object.
-  - **Usage:** Call this method to execute commands within the plugin environment, e.g., `val result = API.runCommand("some_command")`.
+  - **Usage:** Call this method to execute commands within the plugin environment, e.g., `val result = api.runCommand("some_command")`.
 
 - **`fun runOnUiThread(runnable: Runnable?)`**
   - **Description:** Executes the provided `Runnable` on the main UI thread.
   - **Parameters:**
     - `runnable`: A `Runnable` object containing the code to be executed on the UI thread.
-  - **Usage:** Use this method when you need to interact with the UI from a background thread, e.g., `API.runOnUiThread { /* UI code */ }`.
+  - **Usage:** Use this method when you need to interact with the UI from a background thread, e.g., `api.runOnUiThread { /* UI code */ }`.
 
 - **`fun showPopup(title: String, message: String): AlertDialog?`**
   - **Description:** Displays a popup dialog with a title and message.
@@ -51,13 +51,13 @@ The `API` class is a singleton object that provides various utility methods and 
     - `title`: The title of the popup dialog.
     - `message`: The message body of the popup dialog.
   - **Returns:** The `AlertDialog` instance if successfully displayed, otherwise `null`.
-  - **Usage:** Call this method to show a simple alert dialog, e.g., `API.showPopup("Notice", "This is a popup message.")`.
+  - **Usage:** Call this method to show a simple alert dialog, e.g., `api.showPopup("Notice", "This is a popup message.")`.
 
 - **`fun showError(error: String)`**
   - **Description:** Displays an error dialog with the option to copy the error message to the clipboard.
   - **Parameters:**
     - `error`: The error message to be displayed.
-  - **Usage:** Call this method to alert the user of an error and offer to copy the error message, e.g., `API.showError("An unexpected error occurred.")`.
+  - **Usage:** Call this method to alert the user of an error and offer to copy the error message, e.g., `api.showError("An unexpected error occurred.")`.
 
 ---
 
