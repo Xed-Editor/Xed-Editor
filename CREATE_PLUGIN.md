@@ -1,49 +1,59 @@
-# Creating your first plugin
-1. Go to **Settings >> Application** then click on **Access private app files**
-2. now go back to main screen and open file browser
-3. open folder named **"files"** then create a folder named **"plugins"** if not already there
-4. create a folder **"MyPlugin"** inside that plugins folder
-5. create a new file named **"manifest.json"** inside **"MyPlugin"** folder and paste this you modify this if you want
+## **Creating Your First Plugin**
 
-```
-{
-  "name": "MyPlugin",
-  "packageName": "com.example.myplugin",
-  "author": "John Doe",
-  "version": "1.0.0",
-  "versionCode": 1,
-  "script": "main.bsh",
-  "icon": "icon.png"
-}
+### **Step 1: Enable Access to App Files**
+1. Open the app and navigate to **Settings > Application**.
+2. Click on **Access private app files**.
 
+### **Step 2: Navigate to the File Browser**
+1. Return to the main screen of the app.
+2. Open the **File Browser**.
 
-```
+### **Step 3: Create the Plugin Directory**
+1. Locate and open the folder named **"files"**.
+2. Inside the **"files"** folder, create a new folder named **"plugins"** (if it doesn't already exist).
 
-6. now create a new file named **"main.bsh"** inside **"MyPlugin"**
-7. and put a png file named **"icon.png"** for icon (currently on version v2.6.0 karbon does not support adding files on private directory you have to find a workaround to add icon.png into private app files you can use terminal to download stuff)
-8. open main.bsh
-9. and write some code to show a toast to check if everything is working
+### **Step 4: Create Your Plugin Folder**
+1. Inside the **"plugins"** folder, create a new folder named **"MyPlugin"**.
 
-```
-//note : accessing kotlin classes is buggy and not supported
-//import classes from karbon or java
-import com.rk.xededitor.rkUtils;
+### **Step 5: Create and Configure `manifest.json`**
+1. In the **"MyPlugin"** folder, create a new file named **"manifest.json"**.
+2. Copy and paste the following code into `manifest.json`, then modify the details as needed:
+   ```json
+   {
+     "name": "MyPlugin",
+     "packageName": "com.example.myplugin",
+     "author": "John Doe",
+     "version": "1.0.0",
+     "versionCode": 1,
+     "script": "main.bsh",
+     "icon": "icon.png"
+   }
+   ```
 
-//create a Runnable because plugins run on 
-//a background thread and to intract with ui you should
-// create a runnable and pass it to rkUtils.runOnUiThread method
+### **Step 6: Create the Script File**
+1. Still inside the **"MyPlugin"** folder, create a new file named **"main.bsh"**.
 
-Runnable myRunnable = new Runnable() {
-    public void run() {
+### **Step 7: Add an Icon
+1. Include a PNG file named **"icon.png"** in the **"MyPlugin"** folder.
+   
+### **Step 8: Write Your Plugin Code**
+1. Open the **"main.bsh"** file you created earlier.
+2. Write the following code to display a toast message, which will verify that your plugin is working correctly:
 
-        //the 'app' variable is a instance of Application class this variable is passed by the plugin server
-        rkUtils.toast(app,"yo");
-    }
-};
+   ```java
 
-rkUtils.runOnUiThread(myRunnable);
+   //never forget to adding semicolon in the end of expressions
+ 
+   //show a toast
+   api.toast("hello from plugin");
+   
+   ```
 
-```
+### **Step 9: Enable Your Plugin**
+1. Go to **Manage Plugins** in the app's settings.
+2. Enable your plugin from the list.
+   
+   **Note:** If your plugin is not visible in the Manage Plugins settings, try force-stopping the app and reopening it.
 
-10. lastly you have to enable your plugin from manage plugins activity (if your plugin is not visible in the manage plugin settings try force stopping the app)
-11. thats it if you want to learn how to code in beanshell i highly recommend [beanshell quickstart](http://www.beanshell.org/manual/quickstart.html)
+### **Step 10: Test Your Plugin**
+1. Your plugin should now be enabled and functioning. If you'd like to learn more about coding in BeanShell, you can refer to the [BeanShell Quickstart Guide](http://www.beanshell.org/manual/quickstart.html).
