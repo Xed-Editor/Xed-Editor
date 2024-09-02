@@ -25,24 +25,52 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val css = ContextCompat.getDrawable(context, R.drawable.ic_language_css)
     private val csharp = ContextCompat.getDrawable(context, R.drawable.ic_language_csharp)
 
+    private val bash = ContextCompat.getDrawable(context, R.drawable.bash)
+    private val apk = ContextCompat.getDrawable(context, R.drawable.apkfile)
+    private val archive = ContextCompat.getDrawable(context, R.drawable.archive)
+    private val contract = ContextCompat.getDrawable(context, R.drawable.contract)
+    private val text = ContextCompat.getDrawable(context, R.drawable.text)
+    private val video = ContextCompat.getDrawable(context, R.drawable.video)
+    private val audio = ContextCompat.getDrawable(context, R.drawable.music)
+    private val image = ContextCompat.getDrawable(context, R.drawable.image)
+    private val react = ContextCompat.getDrawable(context,R.drawable.react)
+    private val rust = ContextCompat.getDrawable(context,R.drawable.rust)
+    private val markdown = ContextCompat.getDrawable(context,R.drawable.markdown)
+
     override fun getIcon(node: Node<FileObject>): Drawable? {
         return if (node.value.isFile()) {
-            when (node.value.getName().substringAfterLast('.', "")) {
-                "java", "bsh" -> java
-                "html" -> html
-                "kt", "kts" -> kotlin
-                "py" -> python
-                "xml" -> xml
-                "js" -> js
-                "c" -> c
-                "cpp", "h" -> cpp
-                "json" -> json
-                "css" -> css
-                "cs" -> csharp
-                else -> file
+            when(node.value.getName()){
+                "contract.sol", "LICENSE" -> contract
+                "gradlew" -> bash
+
+                else -> when (node.value.getName().substringAfterLast('.', "")) {
+                    "java", "bsh" -> java
+                    "html" -> html
+                    "kt", "kts" -> kotlin
+                    "py" -> python
+                    "xml" -> xml
+                    "js" -> js
+                    "c","h" -> c
+                    "cpp","hpp" -> cpp
+                    "json" -> json
+                    "css" -> css
+                    "cs" -> csharp
+                    "sh","bash","zsh","bat" -> bash
+                    "apk","xapk","apks" -> apk
+                    "zip","rar","7z","tar.gz","tar.bz2","tar" -> archive
+                    "md" -> markdown
+                    "txt" -> text
+                    "mp3","wav","ogg","flac" -> audio
+                    "mp4","mov","avi","mkv" -> video
+                    "jpg","jpeg","png","gif","bmp" -> image
+                    "rs" -> rust
+                    "jsx" -> react
+                    else -> file
+                }
             }
+
         } else {
-            folder
+           folder
         }
     }
 
