@@ -48,6 +48,10 @@
    api.toast("hello from plugin");
    
    ```
+ 3. See [API.kt](https://github.com/RohitKushvaha01/Xed-Editor/blob/dev/libPlugin/src/main/java/com/rk/libPlugin/server/api/API.kt) for available api calls
+
+4. Application context is globally available similar to api class you can use "app" anyware in the script
+   
 
 ### **Step 9: Enable Your Plugin**
 1. Go to **Manage Plugins** in the app's settings.
