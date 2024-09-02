@@ -61,7 +61,7 @@
    
    **Note:** If your plugin is not visible in the Manage Plugins settings, try force-stopping the app and reopening it.
 
-   **Note** Plugin are only run on app cold start
+   **Note:** Plugin are only run on app cold start
 
 ### **Step 10: Test Your Plugin**
 1. Your plugin should now be enabled and functioning. If you'd like to learn more about coding in BeanShell, you can refer to the [BeanShell Quickstart Guide](http://www.beanshell.org/manual/quickstart.html).
