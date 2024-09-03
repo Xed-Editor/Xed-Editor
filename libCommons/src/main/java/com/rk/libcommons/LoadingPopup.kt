@@ -3,47 +3,58 @@ package com.rk.libcommons
 import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
-  private var dialog: AlertDialog? = null
+    private var dialog: AlertDialog? = null
+    private lateinit var dialogView: View
 
-  init {
-    // Create the dialog on the UI thread
-    ctx.runOnUiThread {
-      val inflater1: LayoutInflater = ctx.layoutInflater
-      val dialogView: View = inflater1.inflate(R.layout.progress_dialog, null)
-      dialog = MaterialAlertDialogBuilder(ctx).setView(dialogView)
-        .setCancelable(false).create()
 
-      if (hideAfterMillis != null) {
-        show()
-          After(hideAfterMillis) {
-              ctx.runOnUiThread {
-                  hide()
-              }
-          }
-      }
+    init {
+        // Create the dialog on the UI thread
+        ctx.runOnUiThread {
+            val inflater1: LayoutInflater = ctx.layoutInflater
+            dialogView = inflater1.inflate(R.layout.progress_dialog, null)
+            dialog = MaterialAlertDialogBuilder(ctx).setView(dialogView)
+                .setCancelable(false).create()
+
+            if (hideAfterMillis != null) {
+                show()
+                After(hideAfterMillis) {
+                    ctx.runOnUiThread {
+                        hide()
+                    }
+                }
+            }
+        }
     }
-  }
 
-  fun show(): LoadingPopup {
-    ctx.runOnUiThread {
-      dialog?.show()
+    fun setMessage(message: String): LoadingPopup {
+        dialogView.findViewById<TextView>(R.id.progress_message).text = message
+        return this
     }
-    return this
-  }
 
-  fun hide() {
-    ctx.runOnUiThread {
-      if (dialog != null && dialog?.isShowing == true) {
-        dialog?.dismiss()
-      }
+    fun show(): LoadingPopup {
+        ctx.runOnUiThread {
+            if (dialog?.isShowing?.not() == true) {
+                dialog?.show()
+            }
+
+        }
+        return this
     }
-  }
 
-  fun getDialog(): AlertDialog? {
-    return dialog
-  }
+    fun hide() {
+        ctx.runOnUiThread {
+            if (dialog != null && dialog?.isShowing == true) {
+                dialog?.dismiss()
+            }
+        }
+    }
+
+    fun getDialog(): AlertDialog? {
+        return dialog
+    }
 }

@@ -122,6 +122,8 @@ dependencies {
     implementation(libs.joni)
     implementation(libs.snakeyaml.engine)
     implementation(libs.jdt.annotation)
+    implementation(libs.ktsh)
+
 
 
 }

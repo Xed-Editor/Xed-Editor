@@ -94,6 +94,9 @@ object API {
      * } else {
      *     print("Command failed: " + result.stderr().toString());
      * }
+     *
+     * //todo
+     * Note: Make sure to shutdown the Shell
      * ```
      */
     fun runCommand(command: String): Shell.Command.Result {
