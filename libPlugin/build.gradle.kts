@@ -42,4 +42,5 @@ dependencies {
     implementation(libs.bsh)
     implementation(libs.gson)
     implementation(libs.coordinatorlayout)
+    implementation(libs.ktsh)
 }

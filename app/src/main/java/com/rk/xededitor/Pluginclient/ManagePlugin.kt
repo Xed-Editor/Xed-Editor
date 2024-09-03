@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.Server
 import com.rk.libPlugin.server.Server.Companion.indexPlugins
+import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.databinding.ActivityManageBinding
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +27,7 @@ import java.util.zip.ZipInputStream
 
 const val PICK_FILE_REQUEST_CODE = 37579
 
-class ManagePlugin : AppCompatActivity() {
+class ManagePlugin : BaseActivity() {
     lateinit var binding: ActivityManageBinding
     lateinit var madapter:CustomListAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -126,12 +127,12 @@ class ManagePlugin : AppCompatActivity() {
         }
     }
 
-    private fun extractZip(zipUri: Uri, file: File) {
+    private fun extractZip(zipUri: Uri, xfile: File) {
         contentResolver.openInputStream(zipUri)?.use { inputStream ->
             ZipInputStream(inputStream).use { zipInputStream ->
                 var entry: ZipEntry? = zipInputStream.nextEntry
                 while (entry != null) {
-                    val file = File(file, entry.name)
+                    val file = File(xfile, entry.name)
                     if (entry.isDirectory) {
                         file.mkdirs()
                     } else {

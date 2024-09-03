@@ -4,6 +4,7 @@ appcompat = "1.7.0"
 bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.9.0"
 desugar_jdk_libs = "2.0.4"
+ktsh = "1.0.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 modernandroidpreferences = "2.4.0-beta1"
@@ -30,6 +31,7 @@ bsh = { module = "org.beanshell:bsh", version.ref = "bsh" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+ktsh = { module = "com.jaredrummler:ktsh", version.ref = "ktsh" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }

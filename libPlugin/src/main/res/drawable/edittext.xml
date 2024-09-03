@@ -1,0 +1,7 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <stroke
+        android:width="2dp"
+        android:color="?attr/colorPrimary" /> <!-- Change to your desired outline color -->
+    <corners android:radius="8dp" /> <!-- Adjust the radius as needed -->
+</shape>

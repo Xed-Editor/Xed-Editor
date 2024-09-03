@@ -33,7 +33,6 @@
         android:layout_margin="16dp"
         android:src="@drawable/add"
         app:fabSize="normal"
-        android:backgroundTint="?attr/colorPrimary"
         />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
