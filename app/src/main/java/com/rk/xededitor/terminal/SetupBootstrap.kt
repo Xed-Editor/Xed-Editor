@@ -1,5 +1,6 @@
 package com.rk.xededitor.terminal
 
+import android.content.Context
 import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
@@ -29,11 +30,9 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
             return
         }
 
-        loadingPopup =
-            LoadingPopup(
-                terminal,
-                null
-            ).setMessage("Please wait while the packages are being downloaded.")
+        loadingPopup = LoadingPopup(
+            terminal, null
+        ).setMessage("Please wait while the packages are being downloaded.")
 
         if (File(terminal.filesDir, "bootstrap.tar").exists().not()) {
             loadingPopup.show()
@@ -105,6 +104,8 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
                     val bootstrap = File(terminal.cacheDir.absolutePath, "bootstrap.tar")
 
+                    exctractAssets(terminal,"proot.sh","${terminal.filesDir.parentFile!!.absolutePath}/proot.sh")
+
                     Shell("sh").apply {
                         run("tar -xvf ${bootstrap.absolutePath} -C ${bootstrap.parentFile!!.absolutePath}")
 
@@ -132,8 +133,11 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                         run("mv ${bootstrap.parentFile!!.absolutePath}/root ${terminal.filesDir.parentFile!!.absolutePath}")
                         run("chmod +x ${terminal.filesDir.parentFile!!.absolutePath}/root/bin/proot")
                         run("rm -rf ${terminal.cacheDir.absolutePath}/*")
-                        run("echo \"${terminal.filesDir.parentFile!!.absolutePath}/root/bin/proot -S ${terminal.filesDir.parentFile!!.absolutePath}/rootfs\" > ${terminal.filesDir.parentFile!!.absolutePath}/proot.sh")
+                        // run("echo \"${terminal.filesDir.parentFile!!.absolutePath}/root/bin/proot -S ${terminal.filesDir.parentFile!!.absolutePath}/rootfs\" > ${terminal.filesDir.parentFile!!.absolutePath}/proot.sh")
 
+                        //fix internet
+                        run("echo \"nameserver 8.8.8.8\" > ${terminal.filesDir.parentFile!!.absolutePath}rootfs/etc/resolv.conf")
+                        run("echo \"nameserver 8.8.4.4\" >> ${terminal.filesDir.parentFile!!.absolutePath}rootfs/etc/resolv.conf")
                         shutdown()
 
                     }
@@ -148,8 +152,8 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
             }
 
             val failure = Runnable {
-                GlobalScope.launch(Dispatchers.Main){
-                    rkUtils.toast(terminal,"package download failed")
+                GlobalScope.launch(Dispatchers.Main) {
+                    rkUtils.toast(terminal, "package download failed")
                     loadingPopup.hide()
                     terminal.finish()
                 }
@@ -209,11 +213,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
     }
 
     fun downloadFile(
-        url: String,
-        outputDir: String,
-        fileName: String,
-        onComplete: Runnable,
-        onFailure: Runnable
+        url: String, outputDir: String, fileName: String, onComplete: Runnable, onFailure: Runnable
     ) {
         var connection: HttpURLConnection? = null
         var inputStream: InputStream? = null
@@ -254,4 +254,31 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
             connection?.disconnect()
         }
     }
+
+
+    fun exctractAssets(context: Context, assetFileName: String, outputFilePath: String) {
+        val assetManager = context.assets
+        val outputFile = File(outputFilePath)
+
+        try {
+            // Open the asset file as an InputStream
+            assetManager.open(assetFileName).use { inputStream ->
+                // Create an output file and its parent directories if they don't exist
+                outputFile.parentFile?.mkdirs()
+
+                // Write the input stream to the output file
+                FileOutputStream(outputFile).use { outputStream ->
+                    val buffer = ByteArray(1024)
+                    var length: Int
+                    while (inputStream.read(buffer).also { length = it } > 0) {
+                        outputStream.write(buffer, 0, length)
+                    }
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            println("Failed to copy file: ${e.message}")
+        }
+    }
+
 }

@@ -1,0 +1,1 @@
+/data/data/com.rk.xededitor/root/bin/proot -b /sdcard:/sdcard -b /storage:/storage -S /data/data/com.rk.xededitor/rootfs

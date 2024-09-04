@@ -86,31 +86,6 @@ class Terminal : BaseActivity() {
     }
 
 
-//    fun exctractAssets(context: Context, assetFileName: String, outputFilePath: String) {
-//        val assetManager = context.assets
-//        val outputFile = File(outputFilePath)
-//
-//        try {
-//            // Open the asset file as an InputStream
-//            assetManager.open(assetFileName).use { inputStream ->
-//                // Create an output file and its parent directories if they don't exist
-//                outputFile.parentFile?.mkdirs()
-//
-//                // Write the input stream to the output file
-//                FileOutputStream(outputFile).use { outputStream ->
-//                    val buffer = ByteArray(1024)
-//                    var length: Int
-//                    while (inputStream.read(buffer).also { length = it } > 0) {
-//                        outputStream.write(buffer, 0, length)
-//                    }
-//                }
-//            }
-//            println("File copied successfully to $outputFilePath")
-//        } catch (e: IOException) {
-//            e.printStackTrace()
-//            println("Failed to copy file: ${e.message}")
-//        }
-//    }
 
 
     private fun createSession(): TerminalSession {
