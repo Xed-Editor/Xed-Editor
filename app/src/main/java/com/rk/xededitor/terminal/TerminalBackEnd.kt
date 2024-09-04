@@ -6,6 +6,8 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.SizeUtils
+import com.rk.xededitor.Settings.Keys
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -14,7 +16,7 @@ import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
 class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessionClient {
-    private var fontSize = SizeUtils.dp2px(14f)
+    private var fontSize = SizeUtils.dp2px(SettingsData.getString(Keys.TERMINAL_TEXT_SIZE,"14").toFloat())
     private lateinit var terminal: TerminalView
 
     fun setTerminal(terminalView: TerminalView){

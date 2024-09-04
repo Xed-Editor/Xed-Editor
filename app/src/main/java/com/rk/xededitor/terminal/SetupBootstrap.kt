@@ -136,8 +136,8 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                         // run("echo \"${terminal.filesDir.parentFile!!.absolutePath}/root/bin/proot -S ${terminal.filesDir.parentFile!!.absolutePath}/rootfs\" > ${terminal.filesDir.parentFile!!.absolutePath}/proot.sh")
 
                         //fix internet
-                        run("echo \"nameserver 8.8.8.8\" > ${terminal.filesDir.parentFile!!.absolutePath}rootfs/etc/resolv.conf")
-                        run("echo \"nameserver 8.8.4.4\" >> ${terminal.filesDir.parentFile!!.absolutePath}rootfs/etc/resolv.conf")
+                        run("echo \"nameserver 8.8.8.8\" > ${terminal.filesDir.parentFile!!.absolutePath}/rootfs/etc/resolv.conf")
+                        run("echo \"nameserver 8.8.4.4\" >> ${terminal.filesDir.parentFile!!.absolutePath}/rootfs/etc/resolv.conf")
                         shutdown()
 
                     }

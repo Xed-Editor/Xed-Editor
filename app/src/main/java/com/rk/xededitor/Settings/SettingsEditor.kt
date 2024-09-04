@@ -288,6 +288,10 @@ class SettingsEditor : BaseActivity() {
                                 rkUtils.toast(this@SettingsEditor,"Value too large")
                                 return@setPositiveButton
                             }
+                            if (text.toInt() < 8){
+                                rkUtils.toast(this@SettingsEditor,"Value too small")
+                                return@setPositiveButton
+                            }
                             SettingsData.setString(Keys.TEXT_SIZE, text)
 
                             if (StaticData.fragments != null) {
@@ -330,6 +334,7 @@ class SettingsEditor : BaseActivity() {
                                 rkUtils.toast(this@SettingsEditor,"Value too large")
                                 return@setPositiveButton
                             }
+
                             SettingsData.setString(Keys.TAB_SIZE, text)
 
                             if (StaticData.fragments != null) {

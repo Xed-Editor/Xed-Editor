@@ -66,12 +66,12 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
             try {
                 fun registerDarkTheme() {
                     val path = if (SettingsData.isOled()) {
-                        File(context.filesDir, "unzip/textmate/black/darcula.json").absolutePath
+                        File(context.filesDir.parentFile, "unzip/textmate/black/darcula.json").absolutePath
                     } else {
-                        File(context.filesDir, "unzip/textmate/darcula.json").absolutePath
+                        File(context.filesDir.parentFile, "unzip/textmate/darcula.json").absolutePath
                     }
                     if (!File(path).exists()) {
-                        rkUtils.runOnUiThread {
+                        runOnUiThread {
                             rkUtils.toast(context, context.resources.getString(R.string.theme_not_found_err))
                         }
                         return
@@ -89,9 +89,9 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
                 }
 
                 fun registerLightTheme() {
-                    val path = File(context.filesDir, "unzip/textmate/quietlight.json").absolutePath
+                    val path = File(context.filesDir.parentFile, "unzip/textmate/quietlight.json").absolutePath
                     if (!File(path).exists()) {
-                        rkUtils.runOnUiThread {
+                        runOnUiThread {
                             rkUtils.toast(context, context.resources.getString(R.string.theme_not_found_err))
                         }
                         return

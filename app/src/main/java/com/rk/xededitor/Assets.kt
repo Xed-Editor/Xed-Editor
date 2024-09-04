@@ -13,7 +13,7 @@ object Assets {
 	@OptIn(DelicateCoroutinesApi::class)
 	fun verify(context: Context) {
 		GlobalScope.launch(Dispatchers.IO){
-			val externalFiles = context.filesDir
+			val externalFiles = context.filesDir.parentFile
 			val destination = File(externalFiles, "unzip")
 			if (!destination.exists()) {
 				try {

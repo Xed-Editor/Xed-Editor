@@ -23,6 +23,9 @@
         <activity android:name="com.rk.xededitor.Pluginclient.ManagePlugin"
             android:exported="false"/>
 
+        <activity android:name=".Settings.TerminalSettings"
+            android:exported="false"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

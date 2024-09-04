@@ -19,7 +19,6 @@ import com.termux.view.TerminalView
 import java.io.File
 
 class Terminal : BaseActivity() {
-    private var fontSize = SizeUtils.dp2px(14f)
     lateinit var terminal: TerminalView
     lateinit var binding: ActivityTerminalBinding
     private lateinit var session: TerminalSession
@@ -77,15 +76,13 @@ class Terminal : BaseActivity() {
         session = createSession()
         terminal.attachSession(session)
         terminal.setBackgroundColor(Color.BLACK)
+        terminal.setTextSize(SizeUtils.dp2px(SettingsData.getString(Keys.TERMINAL_TEXT_SIZE,"14").toFloat()))
         terminal.keepScreenOn = true
-        terminal.setTextSize(fontSize)
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f
         binding.root.addView(terminal, 0, params)
 
     }
-
-
 
 
     private fun createSession(): TerminalSession {
@@ -99,10 +96,12 @@ class Terminal : BaseActivity() {
         }
 
         val workingDir = SettingsData.getString(Keys.LAST_OPENED_PATH, filesDir.absolutePath)
-        //val shell = File(filesDir.parentFile,"root/bin/proot").absolutePath
         val shell = "/system/bin/sh"
-        //val rootfs = File(filesDir.parentFile, "rootfs").absolutePath
-        val args = arrayOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath)
+        val args = if (SettingsData.getBoolean(Keys.FAIL_SAFE, false)) {
+            arrayOf("")
+        } else {
+            arrayOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath)
+        }
         val env = arrayOf(
             "PROOT_TMP_DIR=${tmpDir.absolutePath}",
             "HOME=" + filesDir.absolutePath,

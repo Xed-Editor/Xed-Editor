@@ -95,7 +95,12 @@ object FileManager {
     fun saveFile(activity: MainActivity, fragment:DynamicFragment, isAutoSaver: Boolean = false) {
 
         val file = fragment.file
-        val content = fragment.content
+
+        val content = if (isAutoSaver){
+            fragment.content
+        }else{
+            fragment.editor.text
+        }
 
         if (file == null || file.exists().not()){
             if (isAutoSaver.not()){

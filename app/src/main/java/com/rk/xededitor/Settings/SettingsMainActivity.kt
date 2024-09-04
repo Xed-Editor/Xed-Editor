@@ -98,6 +98,15 @@ class SettingsMainActivity : BaseActivity() {
         }
       }
 
+      pref(Keys.TERMINAL) {
+        title = "Terminal"
+        summary = "General settings for terminal"
+        iconRes = R.drawable.terminal
+        onClickView {
+          startActivity(Intent(this@SettingsMainActivity, TerminalSettings::class.java))
+        }
+      }
+
 
     }
   }

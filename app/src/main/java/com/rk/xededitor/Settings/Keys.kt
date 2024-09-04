@@ -1,5 +1,7 @@
 package com.rk.xededitor.Settings
 
+import com.jaredrummler.ktsh.Shell
+
 object Keys {
     const val LAST_OPENED_FILES="last_opened_files"
     const val PIN_LINE_NUMBER="pinline"
@@ -24,8 +26,14 @@ object Keys {
     const val AUTO_SAVE_TIME_VALUE="auto_save_time_value"
     const val VERSION_CODE="version_code"
     const val PROJECTS="opened_projects"
+    const val START_SHELL_PREF="start_shell"
+    const val SHELL="shell"
+    const val FAIL_SAFE="failsafe"
+    const val TERMINAL_TEXT_SIZE_PREF="terminal_text_size_pref"
+    const val TERMINAL_TEXT_SIZE="terminal_text_size"
     //used in SettingsMainActivity
     const val APPLICATION="app_"
     const val EDITOR="editor_"
     const val PLUGINS="plugins_"
+    const val TERMINAL="terminal_"
 }
