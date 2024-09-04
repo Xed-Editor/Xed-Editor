@@ -216,7 +216,7 @@ class SimpleEditor : BaseActivity() {
             try {
                 val outputStream = contentResolver.openOutputStream(uri!!, "wt")
                 if (outputStream != null) {
-                    ContentIO.writeTo(content!!, outputStream, true)
+                    ContentIO.writeTo(editor!!.text, outputStream, true)
                     s = "saved"
                 } else {
                     s = "InputStream is null"

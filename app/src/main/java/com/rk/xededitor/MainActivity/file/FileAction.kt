@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.jaredrummler.ktsh.Shell
 import com.rk.filetree.provider.file
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
@@ -32,6 +33,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.Locale
+import kotlin.random.Random
 
 class FileAction(
     private val context: MainActivity,
@@ -204,11 +206,10 @@ class FileAction(
 
                                     // Move the source file to the target directory
                                     withContext(Dispatchers.IO) {
-                                        Files.copy(
-                                            sourceFile.toPath(),
-                                            targetPath,
-                                            StandardCopyOption.REPLACE_EXISTING
-                                        )
+                                        Shell.SH.apply {
+                                            run("cp -r ${sourceFile.absolutePath} $targetPath")
+                                            shutdown()
+                                        }
                                     }
 
 
@@ -280,12 +281,6 @@ class FileAction(
 
                     }.show()
 
-
-
-
-
-
-
                 true
             }
 
@@ -354,7 +349,7 @@ class FileAction(
             context.binding.openBtn.visibility = View.VISIBLE
         }
         updateMenuItems()
-       // context.binding.maindrawer.visibility = View.GONE
+        // context.binding.maindrawer.visibility = View.GONE
         ProjectManager.removeProject(rootFolder)
     }
 
@@ -397,12 +392,6 @@ class FileAction(
                     File(file, fileName).mkdir()
                 }
 
-                //TreeView(context, rootFolder)
-//                adapter?.newFile(file)
-//                if (file == rootFolder) {
-//                    TreeView(context, rootFolder)
-//                }
-                //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
                 ProjectManager.refreshCurrentProject(context)
 
                 loading.hide()
@@ -417,39 +406,51 @@ class FileAction(
         editText.hint = "file name"
 
         MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.rename))
-            .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
+            .setView(popupView)
+            .setNegativeButton(context.getString(R.string.cancel), null)
             .setPositiveButton(
                 context.getString(R.string.rename)
             ) { _: DialogInterface?, _: Int ->
-                if (editText.getText().toString().isEmpty()) {
+                val newFileName = editText.text.toString()
+
+                if (newFileName.isEmpty()) {
                     rkUtils.toast(context, context.getString(R.string.ask_enter_name))
                     return@setPositiveButton
                 }
 
                 val loading = LoadingPopup(context, null)
-
                 loading.show()
-                val fileName = editText.getText().toString()
-                for (xfile in file.parentFile?.listFiles()!!) {
-                    if (xfile.name == fileName) {
-                        rkUtils.toast(context, context.getString(R.string.already_exists))
-                        loading.hide()
-                        return@setPositiveButton
-                    }
+
+                // Check if the new file name already exists
+                val parentDir = file.parentFile
+                val fileExists =
+                    parentDir?.list()?.any { it.equals(newFileName, ignoreCase = false) } == true
+
+                if (fileExists) {
+                    rkUtils.toast(context, context.getString(R.string.already_exists))
+                    loading.hide()
+                    return@setPositiveButton
                 }
 
-                file.renameTo(File(file.parentFile, fileName))
+                fun rename(file: File, to: String) {
+                    context.lifecycleScope.launch(Dispatchers.IO) {
+                        val random = Random(28958510971)
+                        val xf = (random.nextInt() + random.nextInt()).toString()
+                        Shell.SH.apply {
+                            run("mv ${file.canonicalPath} ${file.parentFile}/$xf")
+                            run("mv ${file.parentFile}/$xf ${file.parentFile}/$to")
+                            shutdown()
+                        }
+                    }
 
-                //TreeView(context, rootFolder)
-//                adapter?.renameFile(file, File(file.parentFile, fileName))
-//                if (file == rootFolder) {
-//                    TreeView(context, rootFolder)
-//                }
-               // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                ProjectManager.refreshCurrentProject(context)
+                }
+
+                rename(file, newFileName)
+
 
                 loading.hide()
             }.show()
     }
+
 
 }
