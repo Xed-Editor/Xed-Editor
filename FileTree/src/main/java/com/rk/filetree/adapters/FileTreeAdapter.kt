@@ -40,7 +40,7 @@ class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
     }
 }
 
-class FileTreeAdapter(private val context: Context,val fileTree: FileTree) :
+class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     ListAdapter<Node<FileObject>, ViewHolder>(NodeDiffCallback()) {
 
     var onClickListener: FileClickListener? = null
@@ -92,10 +92,25 @@ class FileTreeAdapter(private val context: Context,val fileTree: FileTree) :
         return holder
     }
 
+
+    fun addFileObject(fileObject: FileObject){
+
+    }
+    fun removeFileObject(fileObject: FileObject){
+
+    }
+    fun renameFileObject(fileObject: FileObject){
+
+    }
+
+
     private fun dpToPx(dpValue: Float): Int {
         val scale: Float = context.resources.displayMetrics.density
         return (dpValue * scale + 0.5f).toInt()
     }
+
+
+
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -120,6 +135,7 @@ class FileTreeAdapter(private val context: Context,val fileTree: FileTree) :
             expandView.visibility = View.VISIBLE
             if (!node.isExpand) {
                 expandView.setImageDrawable(icChevronRight)
+
             } else {
                 expandView.setImageDrawable(iconProvider?.getExpandMore())
             }
@@ -129,7 +145,7 @@ class FileTreeAdapter(private val context: Context,val fileTree: FileTree) :
             expandView.visibility = View.GONE
         }
 
-        holder.textView.text = "  ${node.value.getName()}  "
+        holder.textView.text = "  ${node.value.getName()}             "
     }
 
     fun expandNode(clickedNode: Node<FileObject>) {

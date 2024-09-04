@@ -47,6 +47,10 @@ class FileTree : RecyclerView {
     private var init = false
     private var showRootNode:Boolean = true
 
+    fun showRootNode():Boolean{
+        return showRootNode
+    }
+
     fun loadFiles(file: FileObject,showRootNodeX:Boolean? = null){
         rootFileObject = file
 
@@ -78,6 +82,8 @@ class FileTree : RecyclerView {
 
 
     fun reloadFileTree(){
+        fileTreeAdapter.refresh()
+        return
         val nodes:List<Node<FileObject>> = if (showRootNode){
             mutableListOf<Node<FileObject>>().apply {
                 add(Node(rootFileObject))
