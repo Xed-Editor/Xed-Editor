@@ -6,13 +6,14 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.SizeUtils
+import com.rk.xededitor.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val activity:Activity): TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessionClient {
     private var fontSize = SizeUtils.dp2px(14f)
     private lateinit var terminal: TerminalView
 
@@ -121,21 +122,30 @@ class TerminalBackEnd(val activity:Activity): TerminalViewClient, TerminalSessio
         return false
     }
 
+
+    //keys
     override fun readControlKey(): Boolean {
-        return false
+        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.CTRL, true)
+        return state != null && state
     }
 
     override fun readAltKey(): Boolean {
-        return false
+        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.ALT, true)
+        return state != null && state
     }
 
     override fun readShiftKey(): Boolean {
-        return false
+        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.SHIFT, true)
+        return state != null && state
     }
 
     override fun readFnKey(): Boolean {
-        return false
+        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.FN, true)
+        return state != null && state
     }
+
+
+
 
     override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession): Boolean {
         return false
