@@ -2,5 +2,6 @@
 <resources>
     <color name="berryX">#B0C5FE</color>
     <color name="invert_dull">#999</color>
+    <color name="invert">@android:color/white</color>
     <color name="bg">#1C1B20</color>
 </resources>
