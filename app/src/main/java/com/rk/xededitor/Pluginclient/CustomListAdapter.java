@@ -18,7 +18,9 @@ import com.rk.libPlugin.server.Plugin;
 import com.rk.libPlugin.server.Loader;
 import com.rk.libPlugin.server.PluginUtils;
 
+import java.io.IOException;
 import java.util.List;
+import java.io.File;
 
 
 public class CustomListAdapter extends ArrayAdapter<Plugin> {
@@ -47,7 +49,13 @@ public class CustomListAdapter extends ArrayAdapter<Plugin> {
         pkg.setText(plugin.getInfo().getPackageName());
 
         String image_path = plugin.getInfo().getIcon();
-        Bitmap bitmap = BitmapFactory.decodeFile(image_path);
+        var file = new File(plugin.getPluginHome(),image_path);
+        Bitmap bitmap = null;
+        try {
+            bitmap = BitmapFactory.decodeFile(file.getCanonicalPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         if (bitmap != null){
             ImageView imageView = convertView.findViewById(R.id.icon);
             imageView.setImageBitmap(bitmap);

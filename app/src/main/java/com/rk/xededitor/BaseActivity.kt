@@ -32,13 +32,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     activityMap[javaClass] = WeakReference(this)
 
-    val settingDefaultNightMode = SettingsData.getString(
-      Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
-    ).toInt()
 
-    if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
-      AppCompatDelegate.setDefaultNightMode(settingDefaultNightMode)
-    }
 
 
     if (!SettingsData.isDarkMode(this)) {

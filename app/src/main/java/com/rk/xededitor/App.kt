@@ -1,6 +1,7 @@
 package com.rk.xededitor
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
@@ -21,6 +22,13 @@ class App : Application() {
         //handle version change
         //blocking code
         VersionChangeHandler.handle(this)
+        val settingDefaultNightMode = SettingsData.getString(
+          Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+        ).toInt()
+
+        if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
+          AppCompatDelegate.setDefaultNightMode(settingDefaultNightMode)
+        }
       }
     }
 

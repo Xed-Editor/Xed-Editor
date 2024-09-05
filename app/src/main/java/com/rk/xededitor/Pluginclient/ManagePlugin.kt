@@ -1,14 +1,17 @@
 package com.rk.xededitor.Pluginclient
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.view.WindowManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.PluginInstaller
 import com.rk.libPlugin.server.PluginUtils
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityManageBinding
 import com.rk.xededitor.rkUtils
 import java.io.File
@@ -35,6 +38,21 @@ class ManagePlugin : BaseActivity() {
         supportActionBar!!.title = "Manage Plugins"
 
         setContentView(binding.root)
+
+
+        if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
+            binding.root.setBackgroundColor(Color.BLACK)
+            binding.toolbar.setBackgroundColor(Color.BLACK)
+            binding.appbar.setBackgroundColor(Color.BLACK)
+            window.navigationBarColor = Color.BLACK
+            val window = window
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+            window.statusBarColor = Color.BLACK
+            window.navigationBarColor = Color.BLACK
+        } else if (SettingsData.isDarkMode(this)) {
+            val window = window
+            window.navigationBarColor = Color.parseColor("#141118")
+        }
 
         application.indexPlugins()
         madapter = CustomListAdapter(this, PluginUtils.getInstalledPlugins())

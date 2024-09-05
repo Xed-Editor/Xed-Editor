@@ -11,7 +11,7 @@ import java.io.File
 
 class Plugin(
     val info: Manifest,
-    private val pluginHome: String,
+    val pluginHome: String,
     val app: Application
 ) : Thread() {
     lateinit var interpreter: Interpreter
