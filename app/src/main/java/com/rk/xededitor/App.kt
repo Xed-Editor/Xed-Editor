@@ -1,7 +1,7 @@
 package com.rk.xededitor
 
 import android.app.Application
-import com.rk.libPlugin.server.Server
+import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
@@ -31,8 +31,8 @@ class App : Application() {
     //start plugin server
     After(200){
       if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS,false)){
-        val pluginServer = Server(this)
-        pluginServer.start()
+        val pluginLoader = Loader(this)
+        pluginLoader.start()
       }
     }
 

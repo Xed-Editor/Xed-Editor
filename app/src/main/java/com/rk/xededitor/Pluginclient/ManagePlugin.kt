@@ -4,25 +4,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libPlugin.server.Server
-import com.rk.libPlugin.server.Server.Companion.indexPlugins
+import com.rk.libPlugin.server.PluginInstaller
+import com.rk.libPlugin.server.PluginUtils
+import com.rk.libPlugin.server.PluginUtils.indexPlugins
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.databinding.ActivityManageBinding
 import com.rk.xededitor.rkUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.util.Objects
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
-
 
 
 const val PICK_FILE_REQUEST_CODE = 37579
@@ -36,13 +31,13 @@ class ManagePlugin : BaseActivity() {
 
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
-        Objects.requireNonNull(supportActionBar)?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.title = "Manage Plugins"
 
         setContentView(binding.root)
 
         application.indexPlugins()
-        madapter = CustomListAdapter(this, Server.getInstalledPlugins())
+        madapter = CustomListAdapter(this, PluginUtils.getInstalledPlugins())
         binding.listView.adapter = madapter
 
         binding.fab.setOnClickListener {
@@ -68,29 +63,8 @@ class ManagePlugin : BaseActivity() {
                     return
                 }
 
-                val tempDir = File(cacheDir, "temp$fileName")
-                if (!tempDir.exists()) {
-                    tempDir.mkdirs()
-                }
 
-                val pluginsDir = File(filesDir.parentFile!!, "plugins")
-                if (pluginsDir.exists().not()) {
-                    pluginsDir.mkdirs()
-                }
-
-                extractZip(uri, tempDir)
-
-                var isInstalled = false
-                tempDir.listFiles()?.forEach { f ->
-                    if (f.isDirectory && File(f, "manifest.json").exists()) {
-                        copyDirectory(f.parentFile!!, pluginsDir)
-                        isInstalled = true
-                    }
-                }
-
-                lifecycleScope.launch(Dispatchers.IO){
-                    tempDir.deleteRecursively()
-                }
+                val isInstalled = contentResolver.openInputStream(uri)?.let { PluginInstaller.installFromZip(this, it) } ?: false
 
                 if (isInstalled){
                     rkUtils.toast(this, "Installed Successfully")

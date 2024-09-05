@@ -15,7 +15,8 @@ import androidx.annotation.NonNull;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.rk.libPlugin.R;
 import com.rk.libPlugin.server.Plugin;
-import com.rk.libPlugin.server.Server;
+import com.rk.libPlugin.server.Loader;
+import com.rk.libPlugin.server.PluginUtils;
 
 import java.util.List;
 
@@ -44,7 +45,6 @@ public class CustomListAdapter extends ArrayAdapter<Plugin> {
 
         TextView pkg = convertView.findViewById(R.id.pkg);
         pkg.setText(plugin.getInfo().getPackageName());
-        
 
         String image_path = plugin.getInfo().getIcon();
         Bitmap bitmap = BitmapFactory.decodeFile(image_path);
@@ -55,11 +55,9 @@ public class CustomListAdapter extends ArrayAdapter<Plugin> {
 
         MaterialSwitch materialSwitch = convertView.findViewById(R.id.toggle);
 
-        materialSwitch.setChecked(Server.isPluginActive(context,plugin.getInfo().getPackageName(),false));
+        materialSwitch.setChecked(PluginUtils.isPluginActive(context,plugin.getInfo().getPackageName(),false));
 
-        materialSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Server.setPluginActive(context,plugin.getInfo().getPackageName(),isChecked);
-        });
+        materialSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> PluginUtils.setPluginActive(context,plugin.getInfo().getPackageName(),isChecked));
         return convertView;
     }
 
