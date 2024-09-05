@@ -1,6 +1,9 @@
 package com.rk.librunner.runners.web.html
 
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -12,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
+
 
 private const val PORT = 8080
 
@@ -62,7 +66,6 @@ class HtmlActivity : WebActivity() {
                         "utf-8",
                         null
                     )
-
                 }
             }
         }

@@ -19,6 +19,7 @@ import com.rk.filetree.provider.file
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
@@ -439,6 +440,12 @@ class FileAction(
                             shutdown()
                             withContext(Dispatchers.Main){
                                 ProjectManager.currentProject.updateFileRenamed(file,File(file.parentFile,newFileName))
+                            }
+                            fragments.forEach { f ->
+                                if(f.file?.absolutePath == file.absolutePath){
+                                    f.file = file
+                                    f.fileName = File("${file.parentFile}/$to").name
+                                }
                             }
                         }
                     }
