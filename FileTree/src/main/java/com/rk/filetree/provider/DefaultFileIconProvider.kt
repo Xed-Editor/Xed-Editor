@@ -24,7 +24,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val json = ContextCompat.getDrawable(context, R.drawable.ic_language_json)
     private val css = ContextCompat.getDrawable(context, R.drawable.ic_language_css)
     private val csharp = ContextCompat.getDrawable(context, R.drawable.ic_language_csharp)
-
+    private val unknown = ContextCompat.getDrawable(context,R.drawable.question_mark)
     private val bash = ContextCompat.getDrawable(context, R.drawable.bash)
     private val apk = ContextCompat.getDrawable(context, R.drawable.apkfile)
     private val archive = ContextCompat.getDrawable(context, R.drawable.archive)
@@ -69,8 +69,10 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                 }
             }
 
-        } else {
+        } else if (node.value.isDirectory()) {
            folder
+        }else{
+           unknown
         }
     }
 

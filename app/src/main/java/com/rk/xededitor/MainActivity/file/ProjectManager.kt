@@ -186,14 +186,41 @@ object ProjectManager {
         return null
     }
 
-    fun getSelectedView(activity: MainActivity) : FileTree{
+    private fun getSelectedView(activity: MainActivity) : FileTree{
         val view: ViewGroup = activity.binding.maindrawer.findViewById(currentProjectId)
         return (view.getChildAt(0) as ViewGroup).getChildAt(0) as FileTree
     }
 
-    fun refreshCurrentProject(activity: MainActivity) {
-        getSelectedView(activity).reloadFileTree()
+
+
+    object currentProject {
+        fun refresh() {
+            BaseActivity.getActivity(MainActivity::class.java)?.apply {
+                getSelectedView(this).reloadFileTree()
+            }
+        }
+
+        fun updateFileRenamed(file: File,newFile: File){
+            BaseActivity.getActivity(MainActivity::class.java)?.apply {
+                getSelectedView(this).onFileRenamed(file(file),file(newFile))
+            }
+
+        }
+        fun updateFileDeleted(file: File){
+            BaseActivity.getActivity(MainActivity::class.java)?.apply {
+                getSelectedView(this).onFileRemoved(file(file))
+            }
+        }
+        fun updateFileAdded(file: File){
+            BaseActivity.getActivity(MainActivity::class.java)?.apply {
+                getSelectedView(this).onFileAdded(file(file))
+            }
+        }
+
     }
+
+
+
 
     fun changeCurrentProjectRoot(file: FileObject,activity: MainActivity) {
         getSelectedView(activity).loadFiles(file)

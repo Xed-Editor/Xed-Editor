@@ -82,8 +82,6 @@ class FileTree : RecyclerView {
 
 
     fun reloadFileTree(){
-        fileTreeAdapter.refresh()
-        return
         val nodes:List<Node<FileObject>> = if (showRootNode){
             mutableListOf<Node<FileObject>>().apply {
                 add(Node(rootFileObject))
@@ -92,6 +90,16 @@ class FileTree : RecyclerView {
             Sorter.sort(rootFileObject)
         }
         fileTreeAdapter.submitList(nodes)
+    }
+
+    fun onFileAdded(file:FileObject){
+        fileTreeAdapter.newFile(file)
+    }
+    fun onFileRemoved(file: FileObject){
+        fileTreeAdapter.removeFile(file)
+    }
+    fun onFileRenamed(file: FileObject,newFileObject: FileObject){
+        fileTreeAdapter.renameFile(file,newFileObject)
     }
 
 }

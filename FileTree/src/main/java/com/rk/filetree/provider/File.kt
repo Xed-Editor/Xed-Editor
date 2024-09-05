@@ -6,6 +6,8 @@ import java.io.File
 
 //wrapper for java.io.File
 class file(val file: File) : FileObject {
+    private val isfile = file.isFile
+    private val isDir = file.isDirectory
 
     override fun listFiles(): List<FileObject> {
         val list = file.listFiles()
@@ -20,12 +22,13 @@ class file(val file: File) : FileObject {
         return file
     }
 
+
     override fun isDirectory(): Boolean {
-        return file.isDirectory
+        return isDir
     }
 
     override fun isFile(): Boolean {
-       return file.isFile
+       return isfile
     }
 
     override fun getName(): String {
@@ -38,5 +41,9 @@ class file(val file: File) : FileObject {
 
     override fun getAbsolutePath(): String {
         return file.absolutePath
+    }
+
+    override fun createFromPath(path: String): FileObject {
+        return file(File(path))
     }
 }

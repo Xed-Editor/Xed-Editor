@@ -127,7 +127,7 @@ class FileAction(
             }
 
             R.id.refresh -> {
-                ProjectManager.refreshCurrentProject(context)
+                ProjectManager.currentProject.refresh()
                 true
             }
 
@@ -220,7 +220,7 @@ class FileAction(
 //                                            TreeView(context, rootFolder)
 //                                        }
                                         //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                        ProjectManager.refreshCurrentProject(context)
+                                        ProjectManager.currentProject.updateFileAdded(targetPath.toFile())
 
                                     }
 
@@ -263,6 +263,8 @@ class FileAction(
                             context.adapter?.clear()
 
                         } else {
+                            ProjectManager.currentProject.updateFileDeleted(file)
+
                             if (file.isFile) {
 
                                 file.delete()
@@ -270,11 +272,6 @@ class FileAction(
 
                                 file.deleteRecursively()
                             }
-
-                            // TreeView(context, rootFolder)
-                            //adapter?.removeFile(file)
-                            //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                            ProjectManager.refreshCurrentProject(context)
 
                         }
 
@@ -392,7 +389,7 @@ class FileAction(
                     File(file, fileName).mkdir()
                 }
 
-                ProjectManager.refreshCurrentProject(context)
+                ProjectManager.currentProject.updateFileAdded(file)
 
                 loading.hide()
             }.show()
@@ -440,6 +437,9 @@ class FileAction(
                             run("mv ${file.canonicalPath} ${file.parentFile}/$xf")
                             run("mv ${file.parentFile}/$xf ${file.parentFile}/$to")
                             shutdown()
+                            withContext(Dispatchers.Main){
+                                ProjectManager.currentProject.updateFileRenamed(file,File(file.parentFile,newFileName))
+                            }
                         }
                     }
 

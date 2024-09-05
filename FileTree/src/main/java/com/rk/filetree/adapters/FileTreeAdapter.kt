@@ -10,14 +10,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.filetree.model.Node
 import com.rk.filetree.R
-import com.rk.filetree.util.Sorter
-import com.rk.filetree.model.TreeViewModel
 import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileIconProvider
 import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.interfaces.FileObject
+import com.rk.filetree.model.Node
+import com.rk.filetree.model.TreeViewModel
+import com.rk.filetree.util.Sorter
 import com.rk.filetree.widget.FileTree
 
 class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
@@ -36,7 +36,7 @@ class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
     override fun areContentsTheSame(
         oldItem: Node<FileObject>, newItem: Node<FileObject>
     ): Boolean {
-        return oldItem == newItem
+        return areItemsTheSame(oldItem, newItem)
     }
 }
 
@@ -93,23 +93,91 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
 
-    fun addFileObject(fileObject: FileObject){
+    fun newFile(file: FileObject) {
+        val tempData = currentList.toMutableList()
+        var xnode: Node<FileObject>? = null
+        for (node in tempData) {
+            if (node.value.getAbsolutePath() == file.getAbsolutePath()) {
+                xnode = node
+                break
+            }
+        }
 
-    }
-    fun removeFileObject(fileObject: FileObject){
+        val cache = Sorter.sort(file)
 
-    }
-    fun renameFileObject(fileObject: FileObject){
 
+        val children1 = TreeViewModel.getChildren(xnode!!)
+        tempData.removeAll(children1.toSet())
+        TreeViewModel.remove(xnode, xnode.child)
+        xnode.isExpand = false
+
+
+        val index = tempData.indexOf(xnode)
+
+        tempData.addAll(index + 1, cache)
+        TreeViewModel.add(xnode, cache)
+        xnode.isExpand = true
+
+
+        submitList(tempData)
     }
+
+    fun removeFile(file: FileObject) {
+        val tempData = currentList.toMutableList()
+        var nodetoremove: Node<FileObject>? = null
+
+        for (node in tempData) {
+            if (node.value.getAbsolutePath() == file.getAbsolutePath()) {
+                nodetoremove = node
+                break
+            }
+        }
+
+        if (nodetoremove != null) {
+            if (file.isFile()) {
+                val index = tempData.indexOf(nodetoremove)
+                if (index != -1) {
+                    tempData.removeAt(index)
+                }
+            } else {
+                val children = TreeViewModel.getChildren(nodetoremove)
+                tempData.removeAll(children.toSet())
+                TreeViewModel.remove(nodetoremove, nodetoremove.child)
+                nodetoremove.isExpand = false
+
+                val index = tempData.indexOf(nodetoremove)
+                if (index != -1) {
+                    tempData.removeAt(index)
+                }
+            }
+
+            submitList(tempData)
+        }
+    }
+
+
+    fun renameFile(child: FileObject, newFile: FileObject) {
+        val tempData = currentList.toMutableList()
+        for (node in tempData) {
+            if (node.value.getAbsolutePath() == child.getAbsolutePath()) {
+                node.value = newFile
+                submitList(tempData)
+
+                val position = tempData.indexOf(node)
+                if (position != -1) {
+                    notifyItemChanged(position)
+                }
+                break
+            }
+        }
+    }
+
 
 
     private fun dpToPx(dpValue: Float): Int {
         val scale: Float = context.resources.displayMetrics.density
         return (dpValue * scale + 0.5f).toInt()
     }
-
-
 
 
     @SuppressLint("SetTextI18n")

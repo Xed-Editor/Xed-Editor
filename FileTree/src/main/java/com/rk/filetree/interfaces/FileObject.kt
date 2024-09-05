@@ -9,4 +9,5 @@ interface FileObject : Serializable{
     fun getName():String
     fun getParentFile(): FileObject?
     fun getAbsolutePath():String
+    fun createFromPath(path:String):FileObject
 }
