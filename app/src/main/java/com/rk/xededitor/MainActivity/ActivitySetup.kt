@@ -145,14 +145,17 @@ object ActivitySetup{
 						when (id) {
 							R.id.close_this -> {
 								adapter?.removeFragment(mTabLayout.selectedTabPosition)
+								activity.adapter?.notifyDataSetChanged()
 							}
 
 							R.id.close_others -> {
 								adapter?.closeOthers(viewPager!!.currentItem)
+								activity.adapter?.notifyDataSetChanged()
 							}
 
 							R.id.close_all -> {
 								adapter?.clear()
+								activity.adapter?.notifyDataSetChanged()
 							}
 						}
 
