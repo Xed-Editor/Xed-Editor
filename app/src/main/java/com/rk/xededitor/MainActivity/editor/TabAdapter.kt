@@ -78,7 +78,7 @@ class TabAdapter(private val fragmentManager: FragmentManager) : FragmentStatePa
         //fragment.file?.let { FileManager.removeFileFromPreviouslyOpenedFiles(it) }
     }
 
-    fun onNewEditor(file: File) {
+    fun onNewEditor() {
         getActivity(MainActivity::class.java)?.let {
             with(it){
                 binding.openBtn.visibility = View.GONE

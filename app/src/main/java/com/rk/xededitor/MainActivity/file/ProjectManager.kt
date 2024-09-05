@@ -257,7 +257,7 @@ object ProjectManager {
                 After(100) {
                     rkUtils.runOnUiThread {
                         it.newEditor(file)
-                        it.adapter?.onNewEditor(file)
+                        it.adapter?.onNewEditor()
                     }
 
                     //delay close drawer after 400ms

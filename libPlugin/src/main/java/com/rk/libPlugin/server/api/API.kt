@@ -13,7 +13,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.jaredrummler.ktsh.Shell
 import com.rk.libPlugin.R
 
 // This class will be available to every plugin
@@ -82,28 +81,8 @@ object API {
         }
     }
 
-    /**
-     * Executes a shell command and returns the result.
-     *
-     * Usage:
-     *
-     * ```java
-     * result = api.runCommand("ls -la");
-     * if (result.isSuccess()) {
-     *     print("Command output: " + result.stdout().toString());
-     * } else {
-     *     print("Command failed: " + result.stderr().toString());
-     * }
-     *
-     * //todo
-     * Note: Make sure to shutdown the Shell
-     * ```
-     */
-    fun runCommand(command: String): Shell.Command.Result {
-        return Shell("sh").run(command)
-    }
 
-    val handler = Handler(Looper.getMainLooper())
+
 
     /**
      * Runs the specified code on the UI thread.
@@ -118,6 +97,7 @@ object API {
      * });
      * ```
      */
+    val handler = Handler(Looper.getMainLooper())
     fun runOnUiThread(runnable: Runnable?) {
         handler.post(runnable!!)
     }

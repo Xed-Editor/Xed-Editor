@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
-import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
@@ -38,7 +37,6 @@ import java.io.File
 
 object ActivitySetup{
 
-	val checker:Class<out Any> = DiagonalScrollView::class.java
 	fun init(activity: MainActivity){
 		activity.lifecycleScope.launch(Dispatchers.Default){
 			handleIntent(activity)
@@ -116,11 +114,15 @@ object ActivitySetup{
 	}
 
 
+	var smoothScroll = true
 	private fun setupTabClickListener(activity: MainActivity){
+		smoothScroll = SettingsData.getBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL,true)
 		with(activity){
 			mTabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
 				override fun onTabSelected(tab: TabLayout.Tab) {
-					viewPager?.setCurrentItem(tab.position)
+
+					viewPager?.setCurrentItem(tab.position, smoothScroll)
+
 					val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
 					fragment.updateUndoRedo()
 					StaticData.menu?.findItem(R.id.run)?.setVisible(fragment.file != null && Runner.isRunnable(fragment.file!!))
@@ -192,7 +194,7 @@ object ActivitySetup{
 					}
 
 					After(150) {
-						rkUtils.runOnUiThread { activity.adapter?.onNewEditor(file) }
+						rkUtils.runOnUiThread { activity.adapter?.onNewEditor() }
 					}
 				}
 			}

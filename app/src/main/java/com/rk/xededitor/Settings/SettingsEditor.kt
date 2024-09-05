@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
+import com.rk.xededitor.MainActivity.ActivitySetup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.editor.AutoSaver
@@ -80,6 +81,18 @@ class SettingsEditor : BaseActivity() {
     private fun getScreen(): PreferenceScreen {
         return screen(this) {
 
+            switch(Keys.VIEWPAGER_SMOOTH_SCROLL) {
+                title = "Smooth Tabs"
+                summary = "Smoothly switch between tabs"
+                iconRes = R.drawable.animation
+                defaultValue = true
+                onCheckedChange { isChecked ->
+                    ActivitySetup.smoothScroll = isChecked
+                    return@onCheckedChange true
+                }
+            }
+
+
             switch(Keys.WORD_WRAP_ENABLED) {
                 titleRes = R.string.ww
                 summary = "Enable Word Wrap in all editors"
@@ -112,6 +125,7 @@ class SettingsEditor : BaseActivity() {
                     return@onCheckedChange true
                 }
             }
+
 
             switch(Keys.CURSOR_ANIMATION_ENABLED) {
                 title = "Cursor Animation"

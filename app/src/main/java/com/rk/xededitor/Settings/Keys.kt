@@ -1,7 +1,5 @@
 package com.rk.xededitor.Settings
 
-import com.jaredrummler.ktsh.Shell
-
 object Keys {
     const val LAST_OPENED_FILES="last_opened_files"
     const val PIN_LINE_NUMBER="pinline"
@@ -31,6 +29,7 @@ object Keys {
     const val FAIL_SAFE="failsafe"
     const val TERMINAL_TEXT_SIZE_PREF="terminal_text_size_pref"
     const val TERMINAL_TEXT_SIZE="terminal_text_size"
+    const val VIEWPAGER_SMOOTH_SCROLL="viewpager_smooth_scroll"
     //used in SettingsMainActivity
     const val APPLICATION="app_"
     const val EDITOR="editor_"

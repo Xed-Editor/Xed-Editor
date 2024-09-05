@@ -28,6 +28,7 @@ class BeanshellRunner : RunnableInterface {
                 import com.rk.libPlugin.server.*;
                 import com.rk.libPlugin.server.api.*;
                 import com.rk.libcommons.*;
+                import com.jaredrummler.ktsh.Shell;
             """)
             interpreter.source(file)
         }catch (e:Exception){
