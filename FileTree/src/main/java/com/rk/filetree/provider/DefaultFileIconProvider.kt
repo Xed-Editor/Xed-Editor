@@ -40,7 +40,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     override fun getIcon(node: Node<FileObject>): Drawable? {
         return if (node.value.isFile()) {
             when(node.value.getName()){
-                "contract.sol", "LICENSE" -> contract
+                "contract.sol", "LICENSE","NOTICE","NOTICE.txt" -> contract
                 "gradlew" -> bash
 
                 else -> when (node.value.getName().substringAfterLast('.', "")) {

@@ -1,24 +1,21 @@
-package com.rk.librunner.runners.web.html
+package com.rk.librunner.runners.web.markdown
 
 import android.content.Context
 import android.os.Bundle
-import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
-import com.rk.librunner.runners.web.HttpServer
 import com.rk.librunner.runners.web.WebActivity
+import com.rk.librunner.runners.web.HttpServer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.InputStream
 
-private const val PORT = 8080
-
-//random characters for javascript variable name
-private const val C = "ceskhbfbdnjjdd"
-
-class HtmlActivity : WebActivity() {
+private const val PORT=8357
+class MDViewer : WebActivity() {
     private lateinit var file: File
     private lateinit var httpServer: HttpServer
 
@@ -26,37 +23,55 @@ class HtmlActivity : WebActivity() {
         super.onCreate(savedInstanceState)
         file = File(intent.getStringExtra("filepath").toString())
 
+        supportActionBar!!.title = file.name
+
         httpServer = HttpServer(PORT, file.parentFile!!)
+
+
+        //todo set dynamic background color
+        //val themeColorHex = "#000"
+        //<style>
+        //				body{
+        //					background:$themeColorHex
+        //				}
+        //				</style>
+
+
+        /*
+		* https://cdn.jsdelivr.net/npm/marked@0/marked.min.js
+		* https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js
+		* https://cdn.jsdelivr.net/npm/github-markdown-css@2/github-markdown.min.css
+		* https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css
+		* */
+
 
 
         lifecycleScope.launch(Dispatchers.Default){
             val sb = StringBuilder(withContext(Dispatchers.IO) {
                 FileInputStream(file).bufferedReader()
             }.use { it.readText() })
-            val erudaJs = readAssetFile(this@HtmlActivity, "eruda.js")
-            val js =
-                """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()
+
             val injectHtml = """
-                <script>$erudaJs</script>
-                <script>$js</script>
+                <!DOCTYPE html>
+			<html lang="en">
+			<head>
+			    <meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				
+				<script type="module">${readAssetFile(this@MDViewer,"zeromd.js")}</script>
+			</head>
+			<body>
+				<zero-md src="/${file.name}"><zero-md>
+			</body>
+			</html>
+                
             """.trimIndent()
             sb.insert(0, injectHtml)
             withContext(Dispatchers.Main){
                 with(binding.webview) {
-                    webViewClient = object : WebViewClient() {
-                        override fun onPageFinished(view: WebView?, url: String?) {
-                            with(binding.webview.title) {
-                                if (isNullOrEmpty().not()) {
-                                    supportActionBar!!.title = this
-                                } else {
-                                    supportActionBar!!.title = file.name
-                                }
-                            }
-                            super.onPageFinished(view, url)
-                        }
-                    }
+                    webViewClient = WebViewClient()
                     loadDataWithBaseURL(
-                        "http://localhost:$PORT",
+                        "http://localhost:${PORT}",
                         sb.toString(),
                         "text/html",
                         "utf-8",
@@ -81,5 +96,11 @@ class HtmlActivity : WebActivity() {
         if (httpServer.isAlive) {
             httpServer.stop()
         }
+
     }
+
+
+
+
+
 }

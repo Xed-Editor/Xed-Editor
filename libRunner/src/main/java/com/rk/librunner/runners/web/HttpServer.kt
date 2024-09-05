@@ -1,4 +1,4 @@
-package com.rk.librunner.runners.web.html
+package com.rk.librunner.runners.web
 
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status

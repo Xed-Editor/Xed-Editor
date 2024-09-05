@@ -12,8 +12,8 @@ import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
+import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.ActivitySetup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
@@ -120,8 +120,7 @@ class SettingsEditor : BaseActivity() {
                 iconRes = R.drawable.diagonal_scroll
                 defaultValue = false
                 onCheckedChange {
-                    LoadingPopup(this@SettingsEditor,180)
-                    getActivity(MainActivity::class.java)?.recreate()
+                    rkUtils.toast(this@SettingsEditor, "restart required")
                     return@onCheckedChange true
                 }
             }
@@ -180,7 +179,7 @@ class SettingsEditor : BaseActivity() {
                     if (StaticData.fragments == null || StaticData.fragments.isEmpty()) {
                         return@onCheckedChange true
                     }
-                    LoadingPopup(this@SettingsEditor,200)
+                    LoadingPopup(this@SettingsEditor, 200)
 
                     if (isChecked) {
                         getActivity(MainActivity::class.java)?.binding?.divider?.visibility =
@@ -219,15 +218,15 @@ class SettingsEditor : BaseActivity() {
                 defaultValue = true
             }
 
-            switch(Keys.AUTO_SAVE){
+            switch(Keys.AUTO_SAVE) {
                 title = "Auto Save"
                 summary = "automatically save file"
                 iconRes = R.drawable.save
                 defaultValue = false
                 onCheckedChange { isChecked ->
-                    if (isChecked){
+                    if (isChecked) {
                         getActivity(MainActivity::class.java)?.let { it1 -> AutoSaver.start(it1) }
-                    }else{
+                    } else {
                         AutoSaver.stop()
                     }
 
@@ -235,7 +234,7 @@ class SettingsEditor : BaseActivity() {
                 }
             }
 
-            pref(Keys.AUTO_SAVE_TIME){
+            pref(Keys.AUTO_SAVE_TIME) {
                 title = "Auto Save Time"
                 summary = "automatically save file after specified time"
                 iconRes = R.drawable.save
@@ -254,12 +253,12 @@ class SettingsEditor : BaseActivity() {
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
-                                    rkUtils.toast(this@SettingsEditor,"invalid value")
+                                    rkUtils.toast(this@SettingsEditor, "invalid value")
                                     return@setPositiveButton
                                 }
                             }
                             if (text.toInt() < 1000) {
-                                rkUtils.toast(this@SettingsEditor,"Value too small")
+                                rkUtils.toast(this@SettingsEditor, "Value too small")
                                 return@setPositiveButton
                             }
 
@@ -294,16 +293,16 @@ class SettingsEditor : BaseActivity() {
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
-                                    rkUtils.toast(this@SettingsEditor,"invalid value")
+                                    rkUtils.toast(this@SettingsEditor, "invalid value")
                                     return@setPositiveButton
                                 }
                             }
                             if (text.toInt() > 32) {
-                                rkUtils.toast(this@SettingsEditor,"Value too large")
+                                rkUtils.toast(this@SettingsEditor, "Value too large")
                                 return@setPositiveButton
                             }
-                            if (text.toInt() < 8){
-                                rkUtils.toast(this@SettingsEditor,"Value too small")
+                            if (text.toInt() < 8) {
+                                rkUtils.toast(this@SettingsEditor, "Value too small")
                                 return@setPositiveButton
                             }
                             SettingsData.setString(Keys.TEXT_SIZE, text)
@@ -340,12 +339,12 @@ class SettingsEditor : BaseActivity() {
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
-                                    rkUtils.toast(this@SettingsEditor,"invalid value")
+                                    rkUtils.toast(this@SettingsEditor, "invalid value")
                                     return@setPositiveButton
                                 }
                             }
                             if (text.toInt() > 16) {
-                                rkUtils.toast(this@SettingsEditor,"Value too large")
+                                rkUtils.toast(this@SettingsEditor, "Value too large")
                                 return@setPositiveButton
                             }
 

@@ -6,7 +6,7 @@
         android:usesCleartextTraffic="true"
         >
         <activity
-            android:name=".runners.web.markdown.MarkDownPreview"
+            android:name=".runners.web.markdown.MDViewer"
             android:exported="false" />
         <activity android:name=".runners.web.html.HtmlActivity"
             android:exported="false"/>
