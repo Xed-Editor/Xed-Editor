@@ -11,7 +11,7 @@
 
 
 
-Karbon is a feature-packed text editor crafted for developers, programmers, and power users seeking a robust coding experience on Android. With support for various programming languages, syntax highlighting, and powerful customization options, Karbon allows you to write, edit, and manage code or text files effortlessly. Tailored for those who need precision and flexibility, Karbon transforms your mobile device into a portable development environment.
+Karbon is a powerful text editor for developers, programmers, and power users on Android. It offers syntax highlighting, and robust customization, making it a perfect tool for coding and text management on the go.
 
 
 
