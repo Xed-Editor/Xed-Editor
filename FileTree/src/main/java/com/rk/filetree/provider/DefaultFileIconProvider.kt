@@ -59,7 +59,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                     "cs" -> csharp
                     "sh","bash","zsh","bat" -> bash
                     "apk","xapk","apks" -> apk
-                    "zip","rar","7z","tar.gz","tar.bz2","tar" -> archive
+                    "zip","rar","7z","gz","bz2","tar","xz" -> archive
                     "md" -> markdown
                     "txt" -> text
                     "mp3","wav","ogg","flac" -> audio
