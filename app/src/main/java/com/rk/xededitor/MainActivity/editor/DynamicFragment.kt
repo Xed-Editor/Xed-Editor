@@ -91,6 +91,7 @@ class DynamicFragment : Fragment {
             launch(Dispatchers.Default){
                 setupEditor.setupLanguage(fileName)
             }
+}
 
             with(editor){
                 val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
@@ -104,7 +105,7 @@ class DynamicFragment : Fragment {
                 typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
                 setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
             }
-        }
+        
         setListener()
     }
 
