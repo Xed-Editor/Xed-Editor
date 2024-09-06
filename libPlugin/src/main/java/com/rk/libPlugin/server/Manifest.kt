@@ -3,6 +3,7 @@ package com.rk.libPlugin.server
 data class Manifest(
     val name:String,
     val packageName:String,
+    val description:String,
     val author:String,
     val version:String,
     val versionCode:Int,

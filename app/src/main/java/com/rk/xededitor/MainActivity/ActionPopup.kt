@@ -13,8 +13,10 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.view.setPadding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.R
+import com.rk.xededitor.rkUtils.dpToPx
 
 class ActionPopup(val context:Context) {
     private val dialogBuilder: MaterialAlertDialogBuilder
@@ -30,6 +32,7 @@ class ActionPopup(val context:Context) {
         context.theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
         rootView = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
+            setPadding(0,dpToPx(10f,context),0,0)
             scrollView.addView(this)
         }
 
@@ -50,7 +53,7 @@ class ActionPopup(val context:Context) {
     }
 
     fun hide() : ActionPopup{
-        dialog?.let { hide() }
+        dialog?.hide()
         return this
     }
 

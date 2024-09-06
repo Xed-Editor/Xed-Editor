@@ -43,6 +43,6 @@ dependencies {
     implementation(libs.material)
     implementation(libs.bsh)
     implementation(project(":libPlugin"))
-    implementation(project(":libCommons"))
+    implementation(project(":commons"))
     implementation("org.nanohttpd:nanohttpd:2.3.1")
 }

@@ -159,7 +159,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                 }
             }
 
-            downloadFile(url, terminal.cacheDir.absolutePath, "bootstrap.tar", complete, failure)
+            rkUtils.downloadFile(url, terminal.cacheDir.absolutePath, "bootstrap.tar", complete, failure)
 
         }
 
@@ -212,48 +212,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
         return false
     }
 
-    fun downloadFile(
-        url: String, outputDir: String, fileName: String, onComplete: Runnable, onFailure: Runnable
-    ) {
-        var connection: HttpURLConnection? = null
-        var inputStream: InputStream? = null
-        var outputStream: FileOutputStream? = null
 
-        try {
-            val file = File(outputDir, fileName)
-            val urlConnection = URL(url).openConnection() as HttpURLConnection
-            urlConnection.requestMethod = "GET"
-            urlConnection.connectTimeout = 10000 // 10 seconds
-            urlConnection.readTimeout = 10000 // 10 seconds
-            urlConnection.connect()
-
-            if (urlConnection.responseCode == HttpURLConnection.HTTP_OK) {
-                inputStream = urlConnection.inputStream
-                outputStream = FileOutputStream(file)
-                val buffer = ByteArray(1024)
-                var bytesRead: Int
-
-                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                    outputStream.write(buffer, 0, bytesRead)
-                }
-
-                onComplete.run()
-            } else {
-                onFailure.run()
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-            onFailure.run()
-        } finally {
-            try {
-                inputStream?.close()
-                outputStream?.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-            connection?.disconnect()
-        }
-    }
 
 
     fun exctractAssets(context: Context, assetFileName: String, outputFilePath: String) {

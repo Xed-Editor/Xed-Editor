@@ -25,6 +25,8 @@
 
         <activity android:name=".Settings.TerminalSettings"
             android:exported="false"/>
+        <activity android:name=".Pluginclient.ActivityPluginRepo"
+            android:exported="true"/>
 
         <provider
             android:name="androidx.core.content.FileProvider"

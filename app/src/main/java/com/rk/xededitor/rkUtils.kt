@@ -7,6 +7,12 @@ import android.os.Looper
 import android.widget.Toast
 import com.rk.xededitor.MainActivity.StaticData
 import io.github.rosemoe.sora.widget.CodeEditor
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 
 object rkUtils {
     private var mHandler = Handler(Looper.getMainLooper())
@@ -41,5 +47,48 @@ object rkUtils {
         val start = System.currentTimeMillis()
         runnable.run()
         return System.currentTimeMillis() - start
+    }
+
+    fun downloadFile(
+        url: String, outputDir: String, fileName: String, onComplete: Runnable, onFailure: Runnable
+    ) {
+        var connection: HttpURLConnection? = null
+        var inputStream: InputStream? = null
+        var outputStream: FileOutputStream? = null
+
+        try {
+            val file = File(outputDir, fileName)
+            connection = URL(url).openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+            connection.connectTimeout = 10000 // 10 seconds
+            connection.readTimeout = 10000 // 10 seconds
+            connection.connect()
+
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                inputStream = connection.inputStream
+                outputStream = FileOutputStream(file)
+                val buffer = ByteArray(1024)
+                var bytesRead: Int
+
+                while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                    outputStream.write(buffer, 0, bytesRead)
+                }
+
+                onComplete.run()
+            } else {
+                onFailure.run()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            onFailure.run()
+        } finally {
+            try {
+                inputStream?.close()
+                outputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+            connection?.disconnect()
+        }
     }
 }

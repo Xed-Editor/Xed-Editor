@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.filetree.model.Node
-import com.rk.filetree.R
+import com.rk.libcommons.R
 import com.rk.filetree.interfaces.FileIconProvider
 import com.rk.filetree.interfaces.FileObject
 

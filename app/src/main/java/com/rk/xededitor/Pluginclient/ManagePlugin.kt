@@ -5,32 +5,30 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.view.MenuItem
+import android.view.View
 import android.view.WindowManager
+import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.PluginInstaller
 import com.rk.libPlugin.server.PluginUtils
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.MainActivity.ActionPopup
+import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.databinding.ActivityManageBinding
+import com.rk.xededitor.databinding.ActivityPluginsBinding
 import com.rk.xededitor.rkUtils
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
-import java.util.zip.ZipEntry
-import java.util.zip.ZipInputStream
 
 
 const val PICK_FILE_REQUEST_CODE = 37579
 
 class ManagePlugin : BaseActivity() {
-    lateinit var binding: ActivityManageBinding
-    lateinit var madapter:CustomListAdapter
+    lateinit var binding: ActivityPluginsBinding
+    lateinit var madapter: InstalledPluginListAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityManageBinding.inflate(layoutInflater)
+        binding = ActivityPluginsBinding.inflate(layoutInflater)
 
         val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
@@ -55,17 +53,45 @@ class ManagePlugin : BaseActivity() {
         }
 
         application.indexPlugins()
-        madapter = CustomListAdapter(this, PluginUtils.getInstalledPlugins())
+        madapter = InstalledPluginListAdapter(
+            this,
+            PluginUtils.getInstalledPlugins()
+        )
         binding.listView.adapter = madapter
 
         binding.fab.setOnClickListener {
-            MaterialAlertDialogBuilder(this).setTitle("Add Plugin")
-                .setMessage("Choose the plugin zip file from storage to install it.")
-                .setNegativeButton("Cancel", null).setPositiveButton("Choose") { dialog, which ->
-                    val intent = Intent(Intent.ACTION_GET_CONTENT)
-                    intent.type = "*/*"
-                    startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
-                }.show()
+
+
+
+            ActionPopup(this).apply {
+                setTitle("Install Plugin")
+
+                addItem("Zip Install","Install Plugin from local storage",ContextCompat.getDrawable(this@ManagePlugin,com.rk.libcommons.R.drawable.archive),
+                    {
+                        hide()
+                        MaterialAlertDialogBuilder(this@ManagePlugin).setTitle("Add Plugin")
+                            .setMessage("Choose the plugin zip file from storage to install it.")
+                            .setNegativeButton("Cancel", null).setPositiveButton("Choose") { dialog, which ->
+                                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                                intent.type = "*/*"
+                                startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
+                            }.show()
+
+
+                    }, View.generateViewId())
+
+
+                addItem("Download","Download Plugins from repository",ContextCompat.getDrawable(this@ManagePlugin,R.drawable.download),
+                    {
+                        hide()
+                        startActivity(Intent(this@ManagePlugin,ActivityPluginRepo::class.java))
+                    }, View.generateViewId())
+                getDialogBuilder().setNegativeButton("Cancel",null)
+                show()
+            }
+
+
+
         }
     }
 
@@ -100,50 +126,6 @@ class ManagePlugin : BaseActivity() {
 
     }
 
-    private fun copyDirectory(sourceDir: File, targetDir: File) {
-        if (!sourceDir.exists()) return
-        if (!targetDir.exists()) targetDir.mkdirs()
-
-        sourceDir.listFiles()?.forEach { file ->
-            val newFile = File(targetDir, file.name)
-            if (file.isDirectory) {
-                copyDirectory(file, newFile)
-            } else {
-                try {
-                    Files.copy(file.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    rkUtils.toast(this, e.message)
-                }
-            }
-        }
-    }
-
-    private fun extractZip(zipUri: Uri, xfile: File) {
-        contentResolver.openInputStream(zipUri)?.use { inputStream ->
-            ZipInputStream(inputStream).use { zipInputStream ->
-                var entry: ZipEntry? = zipInputStream.nextEntry
-                while (entry != null) {
-                    val file = File(xfile, entry.name)
-                    if (entry.isDirectory) {
-                        file.mkdirs()
-                    } else {
-                        file.parentFile?.mkdirs()
-                        FileOutputStream(file).use { outputStream ->
-                            val buffer = ByteArray(1024)
-                            var length: Int
-                            while (zipInputStream.read(buffer).also { length = it } > 0) {
-                                outputStream.write(buffer, 0, length)
-                            }
-                        }
-                    }
-                    zipInputStream.closeEntry()
-                    entry = zipInputStream.nextEntry
-                }
-            }
-        }
-    }
-
     private fun getFileName(uri: Uri): String? {
         var result: String? = null
         val cursor = contentResolver.query(uri, null, null, null, null)
@@ -159,5 +141,18 @@ class ManagePlugin : BaseActivity() {
         }
         return result
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            // Handle the back arrow click here
+            onBackPressedDispatcher.onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
 
 }
