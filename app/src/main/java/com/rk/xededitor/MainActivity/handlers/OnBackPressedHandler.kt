@@ -5,8 +5,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.core.view.GravityCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData
-import com.rk.xededitor.MainActivity.StaticData.fragments
+import com.rk.xededitor.MainActivity.model.StaticData
+import com.rk.xededitor.MainActivity.model.StaticData.fragments
 import com.rk.xededitor.R
 
 class OnBackPressedHandler(private val mainActivity: MainActivity) : OnBackPressedCallback(true) {

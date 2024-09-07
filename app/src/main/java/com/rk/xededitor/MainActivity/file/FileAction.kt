@@ -15,24 +15,18 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
-import com.rk.filetree.provider.file
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData
-import com.rk.xededitor.MainActivity.StaticData.fragments
-import com.rk.xededitor.MainActivity.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.model.StaticData.fragments
+import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
 import java.util.Locale
 import kotlin.random.Random
 

@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.model.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
@@ -115,7 +115,8 @@ class DynamicFragment : Fragment {
             ContentChangeEvent::class.java
         ) {
             updateUndoRedo()
-            val tab = StaticData.mTabLayout.getTabAt(StaticData.mTabLayout.selectedTabPosition)
+            val tab = StaticData.mTabLayout.getTabAt(
+                StaticData.mTabLayout.selectedTabPosition)
             if (isModified) {
                 tab!!.setText("$fileName*")
             }

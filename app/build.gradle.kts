@@ -103,6 +103,8 @@ dependencies {
     implementation(libs.activity)
     implementation(project(":editor"))
     implementation(project(":language-textmate"))
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
 
     // implementation("org.apache.commons:commons-vfs2:2.9.0")
     //implementation("com.github.mwiede:jsch:0.2.8")

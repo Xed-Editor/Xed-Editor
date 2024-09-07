@@ -15,9 +15,9 @@ import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
-import com.rk.xededitor.MainActivity.StaticData
-import com.rk.xededitor.MainActivity.StaticData.fragments
-import com.rk.xededitor.MainActivity.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.model.StaticData
+import com.rk.xededitor.MainActivity.model.StaticData.fragments
+import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.Staticfile
 import com.rk.xededitor.R

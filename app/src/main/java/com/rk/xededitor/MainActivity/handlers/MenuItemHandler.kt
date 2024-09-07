@@ -8,9 +8,9 @@ import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.hideSearchMenuItems
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.showSearchMenuItems
-import com.rk.xededitor.MainActivity.StaticData.fragments
-import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.StaticData.menu
+import com.rk.xededitor.MainActivity.model.StaticData.fragments
+import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.model.StaticData.menu
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData

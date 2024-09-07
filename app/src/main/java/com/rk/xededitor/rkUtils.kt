@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.model.StaticData
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.io.File
 import java.io.FileOutputStream

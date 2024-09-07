@@ -12,7 +12,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.model.StaticData
 
 object PermissionHandler {
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray,activity: Activity) {

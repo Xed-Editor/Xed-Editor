@@ -19,5 +19,9 @@
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>
 
+    <style name="Theme.Fragments.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Fragments.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 
 </resources>

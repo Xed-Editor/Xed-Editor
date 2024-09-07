@@ -1,7 +1,6 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
-import android.app.Application
 import android.content.Intent
 import android.content.res.Resources
 import android.graphics.Color
@@ -9,15 +8,16 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.StaticData.fileSet
-import com.rk.xededitor.MainActivity.StaticData.fragments
-import com.rk.xededitor.MainActivity.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.model.StaticData.fileSet
+import com.rk.xededitor.MainActivity.model.StaticData.fragments
+import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.MainActivity.editor.NoSwipeViewPager
@@ -28,6 +28,8 @@ import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
+import com.rk.xededitor.MainActivity.model.MainViewModel
+import com.rk.xededitor.MainActivity.model.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityMainBinding
@@ -35,8 +37,9 @@ import com.rk.xededitor.rkUtils
 import java.io.File
 
 class MainActivity : BaseActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
     lateinit var binding: ActivityMainBinding
-    //lateinit var fileTree: FileTree
     var adapter: TabAdapter? = null
     var viewPager: NoSwipeViewPager? = null
     var drawerLayout: DrawerLayout? = null
@@ -62,7 +65,6 @@ class MainActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         StaticData.clear()
-
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -207,11 +209,11 @@ class MainActivity : BaseActivity() {
 
         if (id == android.R.id.home) {
             with(drawerLayout!!) {
-                val gstart = GravityCompat.START
-                if (isDrawerOpen(gstart)) {
-                    closeDrawer(gstart)
+                val start = GravityCompat.START
+                if (isDrawerOpen(start)) {
+                    closeDrawer(start)
                 } else {
-                    openDrawer(gstart)
+                    openDrawer(start)
                 }
             }
             return true

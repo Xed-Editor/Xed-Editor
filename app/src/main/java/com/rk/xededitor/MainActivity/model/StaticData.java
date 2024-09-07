@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity;
+package com.rk.xededitor.MainActivity.model;
 
 import android.view.Menu;
 
@@ -16,6 +16,8 @@ public class StaticData {
     public static final int MANAGE_EXTERNAL_STORAGE = 6738973;
     public static final int REQUEST_CODE_STORAGE_PERMISSIONS = 3595397;
 
+
+    //fragments gets cleared when main activity is recreated,so no memory leaks
     public static ArrayList<DynamicFragment> fragments;
     public static HashSet<File> fileSet;
     public static TabLayout mTabLayout;
@@ -23,6 +25,7 @@ public class StaticData {
 
 
     public static void clear() {
+        fragments.clear();
         fragments = null;
         mTabLayout = null;
         menu = null;

@@ -7,7 +7,7 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
-import com.rk.xededitor.BatchReplacement.BatchReplacement
+import com.rk.xededitor.MainActivity.BatchReplacement.BatchReplacement
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor

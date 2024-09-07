@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils

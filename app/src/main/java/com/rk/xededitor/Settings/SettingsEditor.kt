@@ -16,7 +16,7 @@ import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.ActivitySetup
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.model.StaticData
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.R
