@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
+import com.rk.xededitor.Settings.Keys
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +27,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
             return
         }
 
-        if (File(terminal.filesDir.parentFile, "root/bin/proot").exists()) {
+        if (SettingsData.getBoolean(Keys.FAIL_SAFE,false) || File(terminal.filesDir.parentFile, "root/bin/proot").exists()) {
             runnable.run()
             return
         }
