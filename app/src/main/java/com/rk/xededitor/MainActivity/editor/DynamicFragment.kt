@@ -100,6 +100,7 @@ class DynamicFragment : Fragment {
                 props.deleteEmptyLineFast = false
                 props.useICULibToSelectWords = true
                 setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
+                isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS,true)
                 isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
                 isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
                 typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
