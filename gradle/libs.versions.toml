@@ -3,19 +3,20 @@ agp = "8.5.2"
 appcompat = "1.7.0"
 bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.9.0"
-desugar_jdk_libs = "2.0.4"
+desugar_jdk_libs = "2.1.2"
 ktsh = "1.0.0"
+lsp4j = "0.22.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 modernandroidpreferences = "2.4.0-beta1"
-navigationFragment = "2.7.7"
-navigationUi = "2.7.7"
+navigationFragment = "2.8.0"
+navigationUi = "2.8.0"
 kotlin = "2.0.0"
 asynclayoutinflater = "1.0.0"
-navigationFragmentKtx = "2.7.7"
-navigationUiKtx = "2.7.7"
+navigationFragmentKtx = "2.8.0"
+navigationUiKtx = "2.8.0"
 coreKtx = "1.13.1"
-activity = "1.9.1"
+activity = "1.9.2"
 nbJavacAndroid = "17.0.0.3"
 okhttp = "4.12.0"
 sshj = "0.38.0"
@@ -43,13 +44,13 @@ navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fr
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-
+lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
 nb-javac-android = { module = "io.github.itsaky:nb-javac-android", version.ref = "nbJavacAndroid" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
-
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.8.0" }
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
 gson = { module = "com.google.code.gson:gson", version = "2.11.0" }

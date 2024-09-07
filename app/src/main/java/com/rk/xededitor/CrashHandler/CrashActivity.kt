@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
@@ -20,15 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.rkUtils
-import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
-import io.github.rosemoe.sora.langs.textmate.registry.FileProviderRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
-import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import org.eclipse.tm4e.core.registry.IThemeSource
-import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat

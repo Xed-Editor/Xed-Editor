@@ -12,7 +12,9 @@
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/FileTree" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/commons" />
-            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libEditor" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor-lsp" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/language-textmate" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libPlugin" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libRunner" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libsettings" />

@@ -25,11 +25,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Xed Editor"
+rootProject.name = "Karbon"
 include(":app")
 include(":libsettings")
 include(":libPlugin")
 include(":libRunner")
-include(":libEditor")
+include(":editor")
+include(":editor-lsp")
+include(":language-textmate")
 include(":commons")
 include(":FileTree")

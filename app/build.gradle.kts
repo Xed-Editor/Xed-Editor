@@ -101,8 +101,10 @@ dependencies {
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.activity)
+    implementation(project(":editor"))
+    implementation(project(":language-textmate"))
 
-   // implementation("org.apache.commons:commons-vfs2:2.9.0")
+    // implementation("org.apache.commons:commons-vfs2:2.9.0")
     //implementation("com.github.mwiede:jsch:0.2.8")
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -112,7 +114,6 @@ dependencies {
     implementation(project(":libsettings"))
     implementation(project(":libPlugin"))
     implementation(project(":libRunner"))
-    implementation(project(":libEditor"))
     implementation(project(":commons"))
     implementation(project(":FileTree"))
     implementation(libs.sshj)
