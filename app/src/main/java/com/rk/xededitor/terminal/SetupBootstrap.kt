@@ -23,10 +23,6 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
     private lateinit var loadingPopup: LoadingPopup
     fun init() {
-        if (getArch() == AARCH.NONE) {
-            return
-        }
-
         if (SettingsData.getBoolean(Keys.FAIL_SAFE,false) || File(terminal.filesDir.parentFile, "root/bin/proot").exists()) {
             runnable.run()
             return
@@ -68,7 +64,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
             AARCH.NONE -> {
 
-                throw RuntimeException("Unsupport Platform")
+                throw RuntimeException("Unsupported Platform, Use Fail Safe")
             }
         }
     }
@@ -143,6 +139,9 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                         shutdown()
 
                     }
+
+                    exctractAssets(terminal,"init.sh","${terminal.filesDir.parentFile!!.absolutePath}/rootfs/init.sh")
+
                     withContext(Dispatchers.Main) {
                         loadingPopup.hide()
                         runnable.run()
