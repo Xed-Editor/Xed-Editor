@@ -28,7 +28,7 @@ done
 # Install
 if [ -n "$missing_packages" ]; then
     echo -e "\e[32mInstalling Important packages\e[0m"
-    apk add "$missing_packages"
+    apk add $missing_packages
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSuccessfully Installed\e[0m"
     else
