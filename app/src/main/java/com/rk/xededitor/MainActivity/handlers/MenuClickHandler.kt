@@ -58,7 +58,7 @@ object MenuClickHandler {
 						    val loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
 						    loadingPopup.show()
 						    try {
-						    	val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file?)
+						    	val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
 						    	if (gitRoot != null) {
 						    		val git = Git.open(gitRoot.absolutePath)
 						    		val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
