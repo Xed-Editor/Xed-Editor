@@ -74,7 +74,7 @@ class GitSettings : BaseActivity() {
                     val view = LayoutInflater.from(this@GitSettings).inflate(R.layout.popup_new, null)
                     val edittext = view.findViewById<EditText>(R.id.name).apply {
                         hint = "eg. UserDev:ghp_..."
-                        setText(SettingsData.getString(Keys.GIT_CRED, null))
+                        setText(SettingsData.getString(Keys.GIT_CRED, ""))
                     }
                     MaterialAlertDialogBuilder(this@GitSettings).setTitle("Credentials")
                         .setView(view).setNegativeButton("Cancel", null)
