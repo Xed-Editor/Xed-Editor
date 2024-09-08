@@ -22,6 +22,18 @@ class file(val file: File) : FileObject {
         return file
     }
 
+    fun findGitRoot(): File? {
+        var currentFile = this
+        while (currentFile.getParentFile() != null) {
+            val parentDir = currentFile.getParentFile()!!.getNativeFile()
+            if (File(parentDir, ".git").exists()) {
+                return currentFile.getParentFile()!!.getNativeFile()
+            }
+            currentFile = currentFile.getParentFile()!!
+        }
+        return null
+    }
+
 
     override fun isDirectory(): Boolean {
         return isDir

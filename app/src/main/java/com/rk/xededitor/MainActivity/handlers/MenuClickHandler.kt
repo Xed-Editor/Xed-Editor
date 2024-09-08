@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
+import com.rk.libcommons.LoadingPopup
 import com.rk.librunner.Runner
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
@@ -20,11 +21,15 @@ import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.ActionPopup
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.terminal.TerminalBackEnd
 import io.github.rosemoe.sora.widget.EditorSearcher
+import org.eclipse.jgit.api.errors.GitAPIException
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -50,7 +55,20 @@ object MenuClickHandler {
 				val listener = View.OnClickListener { v->
 					when(v.id){
 						pull -> {
-						    // todo
+						    loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
+						    loadingPopup.show()
+						    val gitRoot = fragments[mTabLayout.selectedTabPosition].file?.findGitRoot()
+						    try {
+						    	if (gitRoot != null) {
+						    		val git = Git.open(gitRoot)
+						    		val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+						    		git.pull().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
+						    	}
+						    }
+						    catch (e: GitAPIException) {
+               		            // todo
+						    }
+						    loadingPopup.hide()
 						}
 						push -> {
 							// todo
@@ -240,10 +258,6 @@ object MenuClickHandler {
 		val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
 		fragment.editor.searcher?.search(searchText!!, EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, !checkBox.isChecked))
 		showSearchMenuItems()
-	}
-
-	private fun handlePush() {
-		// todo
 	}
 	
 	
