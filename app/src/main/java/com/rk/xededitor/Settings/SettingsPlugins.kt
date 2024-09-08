@@ -7,7 +7,7 @@ import android.view.MenuItem
 import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.xededitor.Pluginclient.ManagePlugin
+import com.rk.xededitor.PluginClient.ManagePlugin
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup

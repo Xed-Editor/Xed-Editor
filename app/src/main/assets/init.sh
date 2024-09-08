@@ -31,8 +31,6 @@ if [ -n "$missing_packages" ]; then
     apk add $missing_packages
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSuccessfully Installed\e[0m"
-    else
-       echo -e "\e[31mFailed to install some packages. Please try again\e[0m"
     fi
 fi
 

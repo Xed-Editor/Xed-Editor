@@ -1,19 +1,14 @@
-package com.rk.xededitor.Pluginclient
+package com.rk.xededitor.PluginClient
 
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityPluginsBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class ActivityPluginRepo : BaseActivity() {
     lateinit var binding: ActivityPluginsBinding

@@ -1,4 +1,4 @@
-package com.rk.xededitor.Pluginclient
+package com.rk.xededitor.PluginClient
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

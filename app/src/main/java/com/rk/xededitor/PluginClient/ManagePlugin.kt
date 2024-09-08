@@ -1,4 +1,4 @@
-package com.rk.xededitor.Pluginclient
+package com.rk.xededitor.PluginClient
 
 import android.content.Intent
 import android.graphics.Color

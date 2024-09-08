@@ -20,16 +20,16 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31" >
-        <activity android:name=".MainActivity.tab.TabActivity"
+        <activity android:name=".tab.TabActivity"
             android:exported="true"/>
         <activity
-            android:name=".Pluginclient.ManagePlugin"
+            android:name=".PluginClient.ManagePlugin"
             android:exported="false" />
         <activity
             android:name=".Settings.TerminalSettings"
             android:exported="false" />
         <activity
-            android:name=".Pluginclient.ActivityPluginRepo"
+            android:name=".PluginClient.ActivityPluginRepo"
             android:exported="true" />
 
         <provider

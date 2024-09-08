@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.tab
+package com.rk.xededitor.tab
 
 import android.graphics.Typeface
 import android.os.Bundle
@@ -94,14 +94,6 @@ class TabFragment : Fragment() {
         return editor
     }
 
-   // override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-     //   super.onViewCreated(view, savedInstanceState)
-      //  val textView: TextView = view.findViewById(R.id.textView)
-//        readFileContent { content ->
-//            textView.text = content
-//        }
- //   }
-
 
     companion object {
         private const val ARG_FILE_PATH = "file_path"
@@ -114,6 +106,8 @@ class TabFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
+
+
     }
 
 
