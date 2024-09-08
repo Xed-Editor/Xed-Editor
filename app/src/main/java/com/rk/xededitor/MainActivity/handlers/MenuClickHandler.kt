@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
 import com.rk.librunner.Runner
@@ -16,6 +17,7 @@ import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileManager
+import com.rk.xededitor.MainActivity.ActionPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.rkUtils
@@ -38,6 +40,26 @@ object MenuClickHandler {
 				FileManager.saveFile(activity, fragments[mTabLayout.selectedTabPosition],true)
 				fragments[mTabLayout.selectedTabPosition].file?.let { Runner.run(it, activity) }
 				return true
+			}
+
+			R.id.git -> {
+				var dialog:AlertDialog? = null
+				val listener = View.OnClickListener { v->
+					when(v.id){
+						push -> {
+							handlePush()
+						}
+					}
+					dialog?.hide()
+					dialog = null
+				}
+				ActionPopup(activity).apply {
+					addItem("Commit and push", "Create a commit and push changes to the remote repository", ContextCompat.getDrawable(activity,R.drawable.upload), listener, push)
+					setTitle("Git")
+					getDialogBuilder().setNegativeButton("Cancel",null)
+					dialog = show()
+				}
+				return true;
 			}
 			
 			R.id.action_all -> {
@@ -211,6 +233,10 @@ object MenuClickHandler {
 		val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
 		fragment.editor.searcher?.search(searchText!!, EditorSearcher.SearchOptions(EditorSearcher.SearchOptions.TYPE_NORMAL, !checkBox.isChecked))
 		showSearchMenuItems()
+	}
+
+	private fun handlePush() {
+		// todo
 	}
 	
 	
