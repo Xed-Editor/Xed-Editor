@@ -7,12 +7,16 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
+import android.content.ClipData
+import android.content.Context
+import android.content.ClipboardManager
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
 import com.rk.libcommons.LoadingPopup
 import com.rk.librunner.Runner
+import com.rk.xededitor.App
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
@@ -59,7 +63,7 @@ object MenuClickHandler {
 				var dialog:AlertDialog? = null
 				val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
 				if (credentials.size != 2) {
-				    rkUtils.toast(terminal, "Credentials does not valid")
+				    rkUtils.toast(activity, "Credentials does not valid")
 				    return true
 				}
 				val listener = View.OnClickListener { v->
@@ -76,7 +80,13 @@ object MenuClickHandler {
 						    	    }
 						        }
 						        catch (e: GitAPIException) {
-               		                // todo
+               		                runOnUiThread {
+               		                	MaterialAlertDialogBuilder(it).setTitle("Error").setNeutralButton("Copy") { _, _ ->
+               		                		val clipboard = App.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    						val clip = ClipData.newPlainText("label", error)
+                    						clipboard.setPrimaryClip(clip)
+               		                	}.setPositiveButton("OK", null).setMessage(error).show()
+               		                }
 						        }
 						        withContext(Dispatchers.Main) {
 						            loadingPopup.hide()
@@ -299,7 +309,7 @@ object MenuClickHandler {
 
 			val v = !(mTabLayout.selectedTabPosition == -1 && fragments.isNullOrEmpty())
 			findItem(R.id.run).isVisible = v && Runner.isRunnable(fragments[mTabLayout.selectedTabPosition].file!!)
-			findItem(R.id.git).isVisible = v
+			findItem(R.id.git).isVisible = v && FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file) != null
 
 			if (mTabLayout.selectedTabPosition != -1) {
 				findItem(R.id.undo).isVisible = true
