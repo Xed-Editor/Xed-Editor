@@ -116,11 +116,11 @@ object MenuClickHandler {
 						    	    		val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
 						    	    		if (gitRoot != null) {
 						    		    		val git = Git.open(gitRoot)
-						    		    		val ref = repository.findRef(branch)
+						    		    		val ref = git.repository.findRef(branch)
         										if (ref == null) {
             										git.branchCreate().setName(branch).call()
             										git.checkout().setName(branch).call()
-        										} else if (currentBranch != branch) {
+        										} else if (git.repository.branch != branch) {
             										git.checkout().setName(branch).call()
         										}
         										val config = git.repository.config
