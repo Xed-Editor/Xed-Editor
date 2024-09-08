@@ -88,18 +88,42 @@ object MenuClickHandler {
 						push -> {
 							val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
 							view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
-							val branch = view.findViewById<EditText>(R.id.name).apply {
+							val branchedit = view.findViewById<EditText>(R.id.name).apply {
                         		hint = "eg. main"
-                        		setText("main")
                     		}
-                    		val commit = view.findViewById<EditText>(R.id.mime).apply {
+                    		val commitedit = view.findViewById<EditText>(R.id.mime).apply {
                         		hint = "eg. Changed something"
-                        		setText("Updated files")
                     		}
 							MaterialAlertDialogBuilder(activity).setTitle("Push")
 								.setView(view).setNegativeButton("Cancel", null)
 								.setPositiveButton("Apply") { _, _ ->
-									
+									val branch = branchedit.text.toString()
+									val commit = commitedit.text.toString()
+									if (branch.isEmpty() || commit.isEmpty()) {
+									    rkUtils.toast(activity, "Please fill in both fields")
+										return@setPositiveButton
+									}
+									val loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
+						    		loadingPopup.show()
+						    		GlobalScope.launch(Dispatchers.IO) {
+						        		try {
+						    	    		val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
+						    	    		if (gitRoot != null) {
+						    		    		val git = Git.open(gitRoot)
+						    		    		git.add().addFilepattern(".").call()
+						    		    		git.commit().setMessage(commit).call()
+						    		    		git.checkout().setName(branch).call()
+						    		    		git.push().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
+						    	    		}
+						        		}
+						        		catch (e: GitAPIException) {
+               		                		rkUtils.toast(activity, e.message)
+						        		}
+						        		withContext(Dispatchers.Main) {
+						        			rkUtils.toast(activity, "Successfully")
+						            		loadingPopup.hide()
+						        		}
+						    		}
 								}.show()
 						}
 					}
