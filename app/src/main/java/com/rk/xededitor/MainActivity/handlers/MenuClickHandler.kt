@@ -32,6 +32,7 @@ object MenuClickHandler {
 	
 	
 	private var searchText: String? = ""
+	private val pull = View.generateViewId()
 	private val push = View.generateViewId()
 	
 	fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
@@ -48,14 +49,18 @@ object MenuClickHandler {
 				var dialog:AlertDialog? = null
 				val listener = View.OnClickListener { v->
 					when(v.id){
+						pull -> {
+						    // todo
+						}
 						push -> {
-							handlePush()
+							// todo
 						}
 					}
 					dialog?.hide()
 					dialog = null
 				}
 				ActionPopup(activity).apply {
+				    addItem("Pull", "Sync local repository with remote repository", ContextCompat.getDrawable(activity,R.drawable.sync), listener, pull)
 					addItem("Commit and push", "Create a commit and push changes to the remote repository", ContextCompat.getDrawable(activity,R.drawable.upload), listener, push)
 					setTitle("Git")
 					getDialogBuilder().setNegativeButton("Cancel",null)
