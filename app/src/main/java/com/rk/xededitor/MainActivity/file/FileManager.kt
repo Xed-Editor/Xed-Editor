@@ -163,6 +163,17 @@ object FileManager {
 
     }
 
+    fun findGitRoot(file: File): File? {
+        var currentFile = file
+        while (currentFile.parentFile != null) {
+        	if (File(currentFile.parentFile, ".git").exists()) {
+            	return currentFile.parentFile
+       	    }
+            currentFile = currentFile.parentFile
+        }
+        return null
+    }
+
     fun handleAddFile(data: Intent?, mainActivity: MainActivity) {
         val selectedFile = File(convertUriToPath(mainActivity, data!!.data))
         val targetFile = Staticfile

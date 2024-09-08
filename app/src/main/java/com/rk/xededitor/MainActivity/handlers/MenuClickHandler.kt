@@ -57,10 +57,10 @@ object MenuClickHandler {
 						pull -> {
 						    loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
 						    loadingPopup.show()
-						    val gitRoot = fragments[mTabLayout.selectedTabPosition].file?.findGitRoot()
 						    try {
+						    	val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file?)
 						    	if (gitRoot != null) {
-						    		val git = Git.open(gitRoot)
+						    		val git = Git.open(gitRoot.absolutePath)
 						    		val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
 						    		git.pull().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
 						    	}
