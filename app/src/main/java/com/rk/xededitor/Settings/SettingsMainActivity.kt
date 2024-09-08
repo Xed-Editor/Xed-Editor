@@ -107,7 +107,7 @@ class SettingsMainActivity : BaseActivity() {
         }
       }
 
-      pref(Keys.TERMINAL) {
+      pref(Keys.GIT) {
         title = "Git"
         summary = "General settings for git"
         iconRes = R.drawable.git
