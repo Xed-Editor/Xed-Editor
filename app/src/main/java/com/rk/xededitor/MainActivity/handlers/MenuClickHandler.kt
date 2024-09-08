@@ -63,6 +63,11 @@ object MenuClickHandler {
 				    rkUtils.toast(activity, "Credentials does not valid. Change it in settings")
 				    return true
 				}
+				val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
+				if (userdata.size != 2) {
+				    rkUtils.toast(activity, "User data does not valid. Change it in settings")
+				    return true
+				}
 				val listener = View.OnClickListener { v->
 					when(v.id){
 						pull -> {
@@ -93,6 +98,7 @@ object MenuClickHandler {
                     		}
                     		val commitedit = view.findViewById<EditText>(R.id.mime).apply {
                         		hint = "eg. Changed something"
+                        		setText("Changed something")
                     		}
 							MaterialAlertDialogBuilder(activity).setTitle("Push")
 								.setView(view).setNegativeButton("Cancel", null)
@@ -103,16 +109,26 @@ object MenuClickHandler {
 									    rkUtils.toast(activity, "Please fill in both fields")
 										return@setPositiveButton
 									}
-									val loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
+									val loadingPopup = LoadingPopup(activity, null).setMessage("Pushing to remote repository...")
 						    		loadingPopup.show()
 						    		GlobalScope.launch(Dispatchers.IO) {
 						        		try {
 						    	    		val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
 						    	    		if (gitRoot != null) {
 						    		    		val git = Git.open(gitRoot)
-						    		    		git.add().addFilepattern(".").call()
+						    		    		val ref = repository.findRef(branch)
+        										if (ref == null) {
+            										git.branchCreate().setName(branch).call()
+            										git.checkout().setName(branch).call()
+        										} else if (currentBranch != branch) {
+            										git.checkout().setName(branch).call()
+        										}
+        										val config = git.repository.config
+        										config.setString("user", null, "name", userdata[0])
+        										config.setString("user", null, "email", userdata[1])
+        										config.save()
+        										git.add().addFilepattern(".").call()
 						    		    		git.commit().setMessage(commit).call()
-						    		    		git.checkout().setName(branch).call()
 						    		    		git.push().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
 						    	    		}
 						        		}

@@ -73,7 +73,7 @@ class GitSettings : BaseActivity() {
                 onClickView {
                     val view = LayoutInflater.from(this@GitSettings).inflate(R.layout.popup_new, null)
                     val edittext = view.findViewById<EditText>(R.id.name).apply {
-                        hint = "eg. UserDev:ghp_..."
+                        hint = "eg. SuperKek:ghp_..."
                         setText(SettingsData.getString(Keys.GIT_CRED, ""))
                     }
                     MaterialAlertDialogBuilder(this@GitSettings).setTitle("Credentials")
@@ -84,6 +84,27 @@ class GitSettings : BaseActivity() {
                                 return@setPositiveButton
                             }
                             SettingsData.setString(Keys.GIT_CRED, credentials)
+                        }.show()
+                }
+            }
+            pref(Keys.GIT_USER) {
+                title = "User data"
+                summary = "User data for git"
+                iconRes = R.drawable.person
+                onClickView {
+                    val view = LayoutInflater.from(this@GitSettings).inflate(R.layout.popup_new, null)
+                    val edittext = view.findViewById<EditText>(R.id.name).apply {
+                        hint = "eg. UserDev:example@email.com"
+                        setText(SettingsData.getString(Keys.GIT_USER_DATA, ""))
+                    }
+                    MaterialAlertDialogBuilder(this@GitSettings).setTitle("User data")
+                        .setView(view).setNegativeButton("Cancel", null)
+                        .setPositiveButton("Apply") { _, _ ->
+                            val userdata = edittext.text.toString()
+                            if (userdata.isEmpty()) {
+                                return@setPositiveButton
+                            }
+                            SettingsData.setString(Keys.GIT_USER_DATA, userdata)
                         }.show()
                 }
             }
