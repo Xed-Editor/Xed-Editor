@@ -126,7 +126,7 @@ dependencies {
     implementation(libs.ktsh)
     implementation(libs.swiperefreshlayout)
     implementation(libs.okhttp)
-    implementation(org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r)
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r")
 
 
 }
