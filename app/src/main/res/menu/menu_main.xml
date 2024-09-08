@@ -104,6 +104,6 @@
         android:icon="@drawable/git"
         android:title="Git"
         android:visible="false"
-        app:showAsAction="always"/>
+        app:showAsAction="ifRoom"/>
 
 </menu>
