@@ -1,4 +1,4 @@
-## **Creating Your First Best Plugin**
+## **Creating Your First Plugin**
 
 ### **Step 1: Enable Access to App Files**
 1. Open the app and navigate to **Settings > Application**.
