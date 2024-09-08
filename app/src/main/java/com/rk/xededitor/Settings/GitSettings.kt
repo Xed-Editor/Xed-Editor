@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.LayoutInflater
 import android.view.WindowManager
+import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rk.xededitor.BaseActivity
