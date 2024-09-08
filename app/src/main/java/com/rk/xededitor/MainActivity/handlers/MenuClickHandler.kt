@@ -8,6 +8,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
 import com.rk.librunner.Runner
@@ -31,6 +32,7 @@ object MenuClickHandler {
 	
 	
 	private var searchText: String? = ""
+	private val push = View.generateViewId()
 	
 	fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
 		val id = menuItem.itemId
