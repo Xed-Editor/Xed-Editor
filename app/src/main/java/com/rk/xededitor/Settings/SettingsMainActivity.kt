@@ -107,6 +107,15 @@ class SettingsMainActivity : BaseActivity() {
         }
       }
 
+      pref(Keys.TERMINAL) {
+        title = "Git"
+        summary = "General settings for git"
+        iconRes = R.drawable.git
+        onClickView {
+          startActivity(Intent(this@SettingsMainActivity, GitSettings::class.java))
+        }
+      }
+
 
     }
   }

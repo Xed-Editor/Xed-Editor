@@ -35,4 +35,5 @@ object Keys {
     const val EDITOR="editor_"
     const val PLUGINS="plugins_"
     const val TERMINAL="terminal_"
+    const val GIT="git_"
 }
