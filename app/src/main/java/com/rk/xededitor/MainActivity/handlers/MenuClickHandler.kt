@@ -33,6 +33,10 @@ import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 
 object MenuClickHandler {
 	
@@ -58,18 +62,22 @@ object MenuClickHandler {
 						pull -> {
 						    val loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
 						    loadingPopup.show()
-						    try {
-						    	val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
-						    	if (gitRoot != null) {
-						    		val git = Git.open(gitRoot)
-						    		val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
-						    		git.pull().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
-						    	}
+						    GlobalScope.launch(Dispatchers.IO) {
+						        try {
+						    	    val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
+						    	    if (gitRoot != null) {
+						    		    val git = Git.open(gitRoot)
+						    		    val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+						    		    git.pull().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
+						    	    }
+						        }
+						        catch (e: GitAPIException) {
+               		                // todo
+						        }
+						        withContext(Dispatchers.Main) {
+						            loadingPopup.hide()
+						        }
 						    }
-						    catch (e: GitAPIException) {
-               		            // todo
-						    }
-						    loadingPopup.hide()
 						}
 						push -> {
 							// todo
