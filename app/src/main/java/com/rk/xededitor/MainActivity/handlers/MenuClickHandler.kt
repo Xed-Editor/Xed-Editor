@@ -79,7 +79,7 @@ object MenuClickHandler {
 						    	    }
 						        }
 						        catch (e: GitAPIException) {
-               		                rkUtils.toast(activity, e.getMessage())
+               		                rkUtils.toast(activity, e.message)
 						        }
 						        withContext(Dispatchers.Main) {
 						            loadingPopup.hide()
