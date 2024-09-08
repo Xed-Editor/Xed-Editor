@@ -82,12 +82,25 @@ object MenuClickHandler {
                		                rkUtils.toast(activity, e.message)
 						        }
 						        withContext(Dispatchers.Main) {
+						        	rkUtils.toast(activity, "Successfully")
 						            loadingPopup.hide()
 						        }
 						    }
 						}
 						push -> {
-							// todo
+							val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
+							val branch = view.findViewById<EditText>(R.id.name).apply {
+                        		hint = "eg. main"
+                    		}
+                    		val commit = view.findViewById<EditText>(R.id.mime).apply {
+                        		hint = "eg. Changed something"
+                        		setText("Updated files")
+                    		}
+							MaterialAlertDialogBuilder(activity).setTitle("Push")
+								.setView(view).setNegativeButton("Cancel", null)
+								.setPositiveButton("Apply") { _, _ ->
+									
+								}.show()
 						}
 					}
 					dialog?.hide()
