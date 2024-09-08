@@ -2,7 +2,7 @@
   <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Xed Editor" width="90" height="90"/>
 </p>
 
-<h2 align="center"><b>Karbo</b></h2>
+<h2 align="center"><b>Karbon</b></h2>
 
 <div align="center"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=views%20(today/total)&edge_flat=false" alt="Hits">
 <img src="https://img.shields.io/github/downloads/RohitKushvaha01/Xed-Editor/total?label=Downloads" alt="Download Count"><a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"></a>
