@@ -55,7 +55,7 @@ object MenuClickHandler {
 				val listener = View.OnClickListener { v->
 					when(v.id){
 						pull -> {
-						    loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
+						    val loadingPopup = LoadingPopup(activity, null).setMessage("Please wait while the files are being downloaded.")
 						    loadingPopup.show()
 						    try {
 						    	val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file?)
