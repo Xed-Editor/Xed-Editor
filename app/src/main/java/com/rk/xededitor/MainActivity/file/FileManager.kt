@@ -165,11 +165,11 @@ object FileManager {
 
     fun findGitRoot(file: File?): File? {
         var currentFile = file
-        while (currentFile.parentFile!! != null) {
-        	if (File(currentFile.parentFile!!, ".git").exists()) {
-            	return currentFile.parentFile!!
+        while (currentFile?.parentFile != null) {
+        	if (File(currentFile.parentFile, ".git").exists()) {
+            	return currentFile.parentFile
        	    }
-            currentFile = currentFile.parentFile!!
+            currentFile = currentFile.parentFile
         }
         return null
     }
