@@ -16,7 +16,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
 import com.rk.libcommons.LoadingPopup
 import com.rk.librunner.Runner
-import com.rk.xededitor.App
 import com.rk.xededitor.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
@@ -80,13 +79,7 @@ object MenuClickHandler {
 						    	    }
 						        }
 						        catch (e: GitAPIException) {
-               		                runOnUiThread {
-               		                	MaterialAlertDialogBuilder(it).setTitle("Error").setNeutralButton("Copy") { _, _ ->
-               		                		val clipboard = App.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    						val clip = ClipData.newPlainText("label", error)
-                    						clipboard.setPrimaryClip(clip)
-               		                	}.setPositiveButton("OK", null).setMessage(error).show()
-               		                }
+               		                rkUtils.toast(activity, e.getMessage())
 						        }
 						        withContext(Dispatchers.Main) {
 						            loadingPopup.hide()
