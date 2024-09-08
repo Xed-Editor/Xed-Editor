@@ -18,8 +18,8 @@ import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.model.StaticData.fragments
-import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.StaticData.fragments
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils

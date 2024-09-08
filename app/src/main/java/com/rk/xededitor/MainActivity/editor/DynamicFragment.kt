@@ -11,14 +11,14 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.model.StaticData
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.Settings.SettingsData.getString
-import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.SetupEditor
+import com.rk.xededitor.rkUtils.runOnUiThread
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
@@ -41,7 +41,6 @@ class DynamicFragment : Fragment {
 
     //this is used in onOnCreateView to prevent crash
     private var editorx: CodeEditor? = null
-    
 
 
     //this constructor is called when theme change, it will remove itself
@@ -70,43 +69,43 @@ class DynamicFragment : Fragment {
             setupEditor.ensureTextmateTheme()
         }
 
-        lifecycleScope.launch(Dispatchers.Default){
-            launch(Dispatchers.IO){
+        lifecycleScope.launch(Dispatchers.Default) {
+            launch(Dispatchers.IO) {
                 try {
                     val inputStream: InputStream = FileInputStream(file)
                     content = ContentIO.createFrom(inputStream)
                     inputStream.close()
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         editor.setText(content)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-            launch(Dispatchers.Default){
-                if (isDarkMode.not()){
+            launch(Dispatchers.Default) {
+                if (isDarkMode.not()) {
                     setupEditor.ensureTextmateTheme()
                 }
             }
-            launch(Dispatchers.Default){
+            launch(Dispatchers.Default) {
                 setupEditor.setupLanguage(fileName)
             }
-}
+        }
 
-            with(editor){
-                val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
-                props.deleteMultiSpaces = tabSize
-                tabWidth = tabSize
-                props.deleteEmptyLineFast = false
-                props.useICULibToSelectWords = true
-                setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER,false))
-                isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS,true)
-                isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
-                isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED,false)
-                typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
-                setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
-            }
-        
+        with(editor) {
+            val tabSize = getString(Keys.TAB_SIZE, "4").toInt()
+            props.deleteMultiSpaces = tabSize
+            tabWidth = tabSize
+            props.deleteEmptyLineFast = false
+            props.useICULibToSelectWords = true
+            setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER, false))
+            isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS, true)
+            isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
+            isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
+            typefaceText = Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+            setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
+        }
+
         setListener()
     }
 
@@ -116,7 +115,8 @@ class DynamicFragment : Fragment {
         ) {
             updateUndoRedo()
             val tab = StaticData.mTabLayout.getTabAt(
-                StaticData.mTabLayout.selectedTabPosition)
+                StaticData.mTabLayout.selectedTabPosition
+            )
             if (isModified) {
                 tab!!.setText("$fileName*")
             }
@@ -159,8 +159,8 @@ class DynamicFragment : Fragment {
         super.onDestroy()
 
         //fragments get removed by the tab adapter but just to be safe
-        After(10000){
-            if (StaticData.fragments.contains(this)){
+        After(10000) {
+            if (StaticData.fragments.contains(this)) {
                 StaticData.fragments.remove(this)
             }
         }

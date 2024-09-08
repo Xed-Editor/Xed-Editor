@@ -8,9 +8,9 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
-import com.rk.xededitor.MainActivity.model.StaticData
-import com.rk.xededitor.MainActivity.model.StaticData.fileSet
-import com.rk.xededitor.MainActivity.model.StaticData.fragments
+import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.StaticData.fileSet
+import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.widget.CodeEditor

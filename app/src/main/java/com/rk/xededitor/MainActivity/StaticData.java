@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.model;
+package com.rk.xededitor.MainActivity;
 
 import android.view.Menu;
 
@@ -25,7 +25,10 @@ public class StaticData {
 
 
     public static void clear() {
-        fragments.clear();
+        if (fragments != null){
+            fragments.clear();
+        }
+
         fragments = null;
         mTabLayout = null;
         menu = null;

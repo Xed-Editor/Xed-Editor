@@ -12,9 +12,9 @@ import com.rk.libcommons.Printer
 import com.rk.librunner.Runner
 import com.rk.xededitor.MainActivity.BatchReplacement.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.model.StaticData
-import com.rk.xededitor.MainActivity.model.StaticData.fragments
-import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.StaticData
+import com.rk.xededitor.MainActivity.StaticData.fragments
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity

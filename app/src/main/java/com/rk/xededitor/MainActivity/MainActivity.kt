@@ -15,9 +15,9 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.model.StaticData.fileSet
-import com.rk.xededitor.MainActivity.model.StaticData.fragments
-import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.StaticData.fileSet
+import com.rk.xededitor.MainActivity.StaticData.fragments
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.editor.DynamicFragment
 import com.rk.xededitor.MainActivity.editor.NoSwipeViewPager
@@ -28,8 +28,7 @@ import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.handle
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
-import com.rk.xededitor.MainActivity.model.MainViewModel
-import com.rk.xededitor.MainActivity.model.StaticData
+
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityMainBinding
@@ -38,7 +37,6 @@ import java.io.File
 
 class MainActivity : BaseActivity() {
 
-    private val viewModel: MainViewModel by viewModels()
     lateinit var binding: ActivityMainBinding
     var adapter: TabAdapter? = null
     var viewPager: NoSwipeViewPager? = null

@@ -11,7 +11,7 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.MainActivity.model.StaticData
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.MainActivity.editor.TabAdapter.Companion.currentEditor
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData

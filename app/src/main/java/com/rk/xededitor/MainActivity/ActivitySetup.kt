@@ -16,13 +16,12 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
-import com.rk.xededitor.MainActivity.model.StaticData.mTabLayout
+import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
-import com.rk.xededitor.MainActivity.model.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
