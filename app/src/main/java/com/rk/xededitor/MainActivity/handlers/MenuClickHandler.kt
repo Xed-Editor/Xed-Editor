@@ -61,7 +61,7 @@ object MenuClickHandler {
 						    try {
 						    	val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
 						    	if (gitRoot != null) {
-						    		val git = Git.open(gitRoot.absolutePath)
+						    		val git = Git.open(gitRoot)
 						    		val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
 						    		git.pull().setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
 						    	}
