@@ -10,12 +10,6 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
-        android:id="@+id/git"
-        android:icon="@drawable/git"
-        android:title="Git"
-        android:visible="false"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_save"
         android:icon="@drawable/save"
         android:title="@string/save_1"
