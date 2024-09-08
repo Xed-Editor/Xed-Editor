@@ -239,7 +239,7 @@ object MenuClickHandler {
 
 			val v = !(mTabLayout.selectedTabPosition == -1 && fragments.isNullOrEmpty())
 			findItem(R.id.run).isVisible = v && Runner.isRunnable(fragments[mTabLayout.selectedTabPosition].file!!)
-			findItem(R.id.run).isVisible = v
+			findItem(R.id.git).isVisible = v
 
 			if (mTabLayout.selectedTabPosition != -1) {
 				findItem(R.id.undo).isVisible = true
