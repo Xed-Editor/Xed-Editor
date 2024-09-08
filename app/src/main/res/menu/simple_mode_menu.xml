@@ -7,11 +7,6 @@
         android:title="@string/save_1"
         android:icon="@drawable/save"
         app:showAsAction="always" />
-        <item
-        android:id="@+id/git"
-        android:icon="@drawable/git"
-        android:title="Git"
-        app:showAsAction="always" />
     <item
         android:id="@+id/undo"
         android:enabled="false"

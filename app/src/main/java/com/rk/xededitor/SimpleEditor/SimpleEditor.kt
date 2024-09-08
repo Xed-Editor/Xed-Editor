@@ -119,11 +119,6 @@ class SimpleEditor : BaseActivity() {
 
         After(200){
             runOnUiThread{
-                menu.findItem(R.id.git).apply {
-                    isVisible = true
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                }
-
                 undo?.apply {
                     isVisible = true
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
