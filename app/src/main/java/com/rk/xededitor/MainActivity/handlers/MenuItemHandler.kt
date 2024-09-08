@@ -51,6 +51,7 @@ object MenuItemHandler {
 			val shouldShowRun = visible && fragments[mTabLayout.selectedTabPosition].file != null
 					&& Runner.isRunnable(fragments[mTabLayout.selectedTabPosition].file!!)
 			findItem(R.id.run).setVisible(shouldShowRun)
+			findItem(R.id.git).setVisible(visible && fragments[mTabLayout.selectedTabPosition].file != null)
 		}
 		
 		
