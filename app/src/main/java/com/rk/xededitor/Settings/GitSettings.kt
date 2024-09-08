@@ -3,14 +3,19 @@ package com.rk.xededitor.Settings
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.WindowManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.screen
+import de.Maxr1998.modernpreferences.helpers.pref
+import de.Maxr1998.modernpreferences.helpers.onClickView
 
 class GitSettings : BaseActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -60,7 +65,27 @@ class GitSettings : BaseActivity() {
 
     private fun getScreen(): PreferenceScreen {
         return screen(this) {
-            
+            pref(Keys.GIT_CREDENTIALS) {
+                title = "Credentials"
+                summary = "Credentials for git"
+                iconRes = R.drawable.key
+                onClickView {
+                    val view = LayoutInflater.from(this@GitSettings).inflate(R.layout.popup_new, null)
+                    val edittext = view.findViewById<EditText>(R.id.name).apply {
+                        hint = "eg. UserDev:ghp_..."
+                        setText(SettingsData.getString(Keys.GIT_CRED, null))
+                    }
+                    MaterialAlertDialogBuilder(this@GitSettings).setTitle("Credentials")
+                        .setView(view).setNegativeButton("Cancel", null)
+                        .setPositiveButton("Apply") { _, _ ->
+                            val credentials = edittext.text.toString()
+                            if (credentials.isEmpty()) {
+                                return@setPositiveButton
+                            }
+                            SettingsData.setString(Keys.GIT_CRED, credentials)
+                        }.show()
+                }
+            }
         }
     }
 
