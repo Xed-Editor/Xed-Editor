@@ -110,7 +110,7 @@ class SettingsMainActivity : BaseActivity() {
       pref(Keys.GIT) {
         title = "Git"
         summary = "General settings for git"
-        iconRes = R.drawable.git
+        iconRes = R.drawable.github
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, GitSettings::class.java))
         }
