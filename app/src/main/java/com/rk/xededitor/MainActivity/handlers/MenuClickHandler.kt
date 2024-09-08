@@ -28,6 +28,7 @@ import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.terminal.TerminalBackEnd
 import io.github.rosemoe.sora.widget.EditorSearcher
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.text.SimpleDateFormat
