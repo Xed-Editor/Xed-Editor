@@ -62,7 +62,7 @@ object MenuClickHandler {
 				var dialog:AlertDialog? = null
 				val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
 				if (credentials.size != 2) {
-				    rkUtils.toast(activity, "Credentials does not valid")
+				    rkUtils.toast(activity, "Credentials does not valid. Change it in settings")
 				    return true
 				}
 				val listener = View.OnClickListener { v->
@@ -89,8 +89,10 @@ object MenuClickHandler {
 						}
 						push -> {
 							val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
+							view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
 							val branch = view.findViewById<EditText>(R.id.name).apply {
                         		hint = "eg. main"
+                        		setText("main")
                     		}
                     		val commit = view.findViewById<EditText>(R.id.mime).apply {
                         		hint = "eg. Changed something"
