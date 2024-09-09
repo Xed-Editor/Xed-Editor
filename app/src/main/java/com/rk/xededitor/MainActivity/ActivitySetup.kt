@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
-import org.eclipse.jgit.errors.TransportException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 
@@ -119,7 +118,7 @@ object ActivitySetup{
                                             ProjectManager.addProject(repoDir)
                                         }
                                     }
-                                    catch (e: TransportException) {
+                                    catch (e: Exception) {
                                         val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                                         if (credentials.size != 2) {
                                             withContext(Dispatchers.Main) {
