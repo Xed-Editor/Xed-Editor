@@ -8,13 +8,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
-import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +26,10 @@ import java.io.InputStream
 class TabFragment : Fragment() {
 
     lateinit var file: File
-    var editor:CodeEditor? = null
+    var editor: CodeEditor? = null
+
+    // see @MenuClickHandler.update()
+    var setListener = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,12 +84,13 @@ class TabFragment : Fragment() {
             isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS, true)
             isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
             isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
-            typefaceText = Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
+            typefaceText =
+                Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
             setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
         }
     }
 
-    fun save() {
+    fun save(showToast: Boolean = true) {
         if (file.exists().not()) {
             rkUtils.runOnUiThread {
                 Toast.makeText(context, "File no longer exists", Toast.LENGTH_SHORT).show()
@@ -97,12 +99,17 @@ class TabFragment : Fragment() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                val content = editor?.text
+                val content = withContext(Dispatchers.Main) {
+                    editor?.text
+                }
+
                 val outputStream = FileOutputStream(file, false)
                 if (content != null) {
                     ContentIO.writeTo(content, outputStream, true)
-                    withContext(Dispatchers.Main){
-                        rkUtils.toast(context,"saved")
+                    if (showToast) {
+                        withContext(Dispatchers.Main) {
+                            rkUtils.toast(context, "saved")
+                        }
                     }
                 }
 
@@ -120,17 +127,23 @@ class TabFragment : Fragment() {
 
     }
 
-    fun undo(){
+    fun undo() {
         editor?.undo()
     }
 
-    fun redo(){
+    fun redo() {
         editor?.redo()
     }
 
-    fun isSearching():Boolean{
-        return false
+    private var isSearching: Boolean = false
+    fun isSearching(): Boolean {
+        return isSearching
     }
+
+    fun setSearching(s: Boolean) {
+        isSearching = s
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -138,7 +151,6 @@ class TabFragment : Fragment() {
     ): View? {
         return editor
     }
-
 
 
     companion object {

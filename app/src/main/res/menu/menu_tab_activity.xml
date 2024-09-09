@@ -95,5 +95,11 @@
         android:title="Run"
         android:visible="false"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/git"
+        android:icon="@drawable/git"
+        android:title="Git"
+        android:visible="false"
+        app:showAsAction="ifRoom"/>
 
 </menu>

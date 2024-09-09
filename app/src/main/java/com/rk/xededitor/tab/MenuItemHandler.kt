@@ -3,7 +3,6 @@ package com.rk.xededitor.tab
 import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.rk.librunner.Runner
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -11,8 +10,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 object MenuItemHandler {
+
+    fun findGitRoot(file: File?): File? {
+        var currentFile = file
+        while (currentFile?.parentFile != null) {
+            if (File(currentFile.parentFile, ".git").exists()) {
+                return currentFile.parentFile
+            }
+            currentFile = currentFile.parentFile
+        }
+        return null
+    }
 
     fun update(activity: TabActivity) {
         activity.lifecycleScope.launch(Dispatchers.Default) {
@@ -23,36 +34,51 @@ object MenuItemHandler {
 
             withContext(Dispatchers.Main) {
                 val menu = activity.menu
-                editorMenu(menu, activity.fragmentFiles.isNotEmpty())
-                searchMenu(menu, activity.getCurrentFragment()?.get()?.isSearching() ?: false)
-                activity.getCurrentFragment()?.get()?.file?.let {
-                    menu.findItem(R.id.run).isVisible =
-                        activity.fragmentFiles.isNotEmpty() && Runner.isRunnable(it)
+
+                val show = activity.fragmentFiles.isNotEmpty()
+                editorMenu(menu,show)
+
+                if(show){
+                    activity.getCurrentFragment()?.file?.let {
+                        menu.findItem(R.id.run).isVisible = Runner.isRunnable(it)
+                    }
+                }else{
+                    menu.findItem(R.id.run).isVisible = false
                 }
-                updateUndoRedo(menu,activity.getCurrentFragment()?.get())
+
+                menu.findItem(R.id.git).isVisible = findGitRoot(activity.getCurrentFragment()?.file) != null
+
+                updateUndoRedo(menu, activity.getCurrentFragment())
+
+                searchMenu(menu, activity.getCurrentFragment()?.isSearching() ?: false)
+
 
             }
         }
     }
 
-    private var setListener = false
-    private fun updateUndoRedo(menu: Menu,currentFragment: TabFragment?){
-        if (setListener.not()){
-            currentFragment?.let { it ->
+
+    private fun updateUndoRedo(menu: Menu, currentFragment: TabFragment?) {
+
+        menu.findItem(R.id.redo).isEnabled = currentFragment?.editor?.canRedo() == true
+        menu.findItem(R.id.undo).isEnabled = currentFragment?.editor?.canUndo() == true
+
+        if (currentFragment?.setListener?.not() == true) {
+            currentFragment.let { it ->
                 it.editor?.subscribeAlways(
                     ContentChangeEvent::class.java
                 ) {
-                    rkUtils.runOnUiThread{
+                    rkUtils.runOnUiThread {
                         menu.findItem(R.id.redo).isEnabled = it.editor.canRedo() == true
                         menu.findItem(R.id.undo).isEnabled = it.editor.canUndo() == true
                     }
 
                 }
 
+                it.setListener = true
+
 
             }
-
-            setListener = true
         }
 
     }
@@ -67,6 +93,7 @@ object MenuItemHandler {
             findItem(R.id.share).isVisible = show
             findItem(R.id.undo).isVisible = show
             findItem(R.id.redo).isVisible = show
+
         }
     }
 
@@ -76,6 +103,23 @@ object MenuItemHandler {
             findItem(R.id.search_previous).isVisible = show
             findItem(R.id.search_close).isVisible = show
             findItem(R.id.replace).isVisible = show
+
+            if (findItem(R.id.run).isVisible) {
+                findItem(R.id.run).isVisible = show.not()
+            }
+            if (findItem(R.id.undo).isVisible){
+                findItem(R.id.undo).isVisible = show.not()
+            }
+            if ( findItem(R.id.redo).isVisible){
+                findItem(R.id.redo).isVisible = show.not()
+            }
+            if (findItem(R.id.action_save).isVisible){
+                findItem(R.id.action_save).isVisible = show.not()
+            }
+
+
+
+
         }
     }
 

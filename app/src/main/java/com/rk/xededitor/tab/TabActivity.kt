@@ -25,24 +25,39 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.xededitor.MainActivity.ActionPopup
-import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
+import java.util.LinkedList
+import java.util.Queue
+import java.util.WeakHashMap
 
 
 class TabActivity : AppCompatActivity() {
+
+    companion object{
+        var activityRef = WeakReference<TabActivity?>(null)
+    }
+
     lateinit var binding: ActivityTabBinding
     private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
     private lateinit var drawerToggle: ActionBarDrawerToggle
-    private lateinit var fm: FM
+    private lateinit var fm: FileManager
     lateinit var menu:Menu
+    private val pausedQueue:Queue<Runnable> = LinkedList()
+
+    fun postPausedQueue(runnable: Runnable){
+        pausedQueue.add(runnable)
+    }
+
 
 
     val fragmentFiles = mutableListOf<File>()
@@ -52,6 +67,7 @@ class TabActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        activityRef = WeakReference(this)
         binding = ActivityTabBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -69,7 +85,7 @@ class TabActivity : AppCompatActivity() {
         setupTabLayout()
 
 
-        fm = FM(this)
+        fm = FileManager(this)
         setupNavigationRail()
 
         savedInstanceState?.let { restoreState(it) }
@@ -110,7 +126,14 @@ class TabActivity : AppCompatActivity() {
 
     override fun onResume() {
         isPaused = false
-
+        lifecycleScope.launch(Dispatchers.Main){
+            while (pausedQueue.isNotEmpty()) {
+                delay(100)
+                withContext(Dispatchers.Main) {
+                    pausedQueue.poll()?.run()
+                }
+            }
+        }
         ProjectManager.processQueue(this)
         super.onResume()
     }
@@ -251,9 +274,12 @@ class TabActivity : AppCompatActivity() {
                 override fun onTabSelected(tab: Tab?) {
                     viewPager.setCurrentItem(tab!!.position, false)
                     MenuItemHandler.update(this@TabActivity)
+                    tab.text = tab.text
                 }
 
-                override fun onTabUnselected(tab: Tab?) {}
+                override fun onTabUnselected(tab: Tab?) {
+
+                }
                 override fun onTabReselected(tab: Tab?) {
                     val popupMenu = PopupMenu(this@TabActivity, tab!!.view)
                     popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
@@ -325,17 +351,24 @@ class TabActivity : AppCompatActivity() {
         fragmentFiles.add(file)
         fragmentTitles.add(file.name)
         (viewPager.adapter as? FragmentAdapter)?.notifyItemInsertedX(fragmentFiles.size - 1)
+        binding.tabs.visibility = View.VISIBLE
+        binding.mainView.visibility = View.VISIBLE
+        binding.openBtn.visibility = View.GONE
     }
 
     private fun removeFragment(position: Int) {
         if (position >= 0 && position < fragmentFiles.size) {
             fragmentFiles.removeAt(position)
             fragmentTitles.removeAt(position)
-
             (viewPager.adapter as? FragmentAdapter)?.apply {
                 notifyItemRemovedX(position)
             }
 
+        }
+        if (fragmentFiles.isEmpty()){
+            binding.tabs.visibility = View.GONE
+            binding.mainView.visibility = View.GONE
+            binding.openBtn.visibility = View.VISIBLE
         }
 
     }
@@ -345,6 +378,9 @@ class TabActivity : AppCompatActivity() {
         fragmentFiles.clear()
         fragmentTitles.clear()
         (viewPager.adapter as? FragmentAdapter)?.notifyDataSetChanged()
+        binding.tabs.visibility = View.GONE
+        binding.mainView.visibility = View.GONE
+        binding.openBtn.visibility = View.VISIBLE
     }
 
     private fun clearAllFragmentsExceptSelected() {
@@ -361,10 +397,10 @@ class TabActivity : AppCompatActivity() {
     }
 
     private var nextItemId = 0L
-    val tabFragments = ArrayList<WeakReference<TabFragment>>()
+    val tabFragments = WeakHashMap<Int,TabFragment>()
 
-    fun getCurrentFragment():WeakReference<TabFragment>?{
-        return tabFragments.getOrNull(tabLayout.selectedTabPosition)
+    fun getCurrentFragment():TabFragment?{
+        return tabFragments[tabLayout.selectedTabPosition]
     }
 
     inner class FragmentAdapter(activity: AppCompatActivity, lifecycle: Lifecycle) :
@@ -375,7 +411,7 @@ class TabActivity : AppCompatActivity() {
 
         override fun createFragment(position: Int): Fragment {
             val file = fragmentFiles[position]
-            return TabFragment.newInstance(file).apply { tabFragments.add(WeakReference(this)) }
+            return TabFragment.newInstance(file).apply { tabFragments[position] = this }
         }
 
         override fun getItemId(position: Int): Long {

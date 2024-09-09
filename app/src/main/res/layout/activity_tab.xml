@@ -27,6 +27,7 @@
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:tabGravity="fill"
                 app:tabIndicatorHeight="4dp"
                 app:tabMode="scrollable"
@@ -38,6 +39,7 @@
             android:id="@+id/mainView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.viewpager2.widget.ViewPager2
@@ -51,7 +53,7 @@
                 android:layout_height="1px"
                 android:layout_alignTop="@+id/main_bottom_bar"
                 android:background="@color/invert_dull"
-                />
+                android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/main_bottom_bar"
@@ -173,7 +175,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"
             android:background="@android:color/transparent"
             android:onClick="openDrawer"
             android:text="@string/open_file_or_folder"
