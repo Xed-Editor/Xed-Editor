@@ -265,9 +265,9 @@ object ProjectManager {
                         if (!SettingsData.getBoolean(Keys.KEEP_DRAWER_LOCKED, false)) {
                             rkUtils.runOnUiThread {
                                 it.binding.drawerLayout.close()
-                                loading.hide()
                             }
                         }
+                        loading.hide()
                     }
                 }
             }

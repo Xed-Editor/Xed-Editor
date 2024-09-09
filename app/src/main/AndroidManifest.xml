@@ -24,10 +24,7 @@
             android:name=".tab.TabActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+
         </activity>
         <activity
             android:name=".PluginClient.ManagePlugin"
@@ -89,8 +86,7 @@
             android:theme="@style/Theme.Fragments"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
-
-
+                <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
