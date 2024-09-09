@@ -105,9 +105,11 @@ object MenuClickHandler {
                                 View.VISIBLE
                             val branchedit = view.findViewById<EditText>(R.id.name).apply {
                                 hint = "Branch"
+                                
                             }
                             val commitedit = view.findViewById<EditText>(R.id.mime).apply {
                                 hint = "Commit message"
+                                setText("")
                             }
                             MaterialAlertDialogBuilder(activity).setTitle("Push")
                                 .setView(view).setNegativeButton("Cancel", null)
