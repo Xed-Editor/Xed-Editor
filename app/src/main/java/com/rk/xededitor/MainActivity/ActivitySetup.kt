@@ -13,6 +13,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
+import com.rk.libcommons.LoadingPopup
 import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
@@ -32,6 +33,7 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -112,7 +114,7 @@ object ActivitySetup{
                                     try {
                                         Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).call()
                                         withContext(Dispatchers.Main) {
-                                            loading.hide()
+                                            loadingPopup.hide()
                                             ProjectManager.addProject(repoDir)
                                         }
                                     }
@@ -120,7 +122,7 @@ object ActivitySetup{
                                         val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                                         if (credentials.size != 2) {
                                             withContext(Dispatchers.Main) {
-                                                loading.hide()
+                                                loadingPopup.hide()
                                                 rkUtils.toast(activity, "Repository is private. Check your credentials")
                                             }
                                         }
@@ -128,13 +130,13 @@ object ActivitySetup{
                                             try {
                                                 Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
                                                 withContext(Dispatchers.Main) {
-                                                    loading.hide()
+                                                    loadingPopup.hide()
                                                     ProjectManager.addProject(repoDir)
                                                 }
                                             }
                                             catch (e: Exception) {
                                                 withContext(Dispatchers.Main) {
-                                                    loading.hide()
+                                                    loadingPopup.hide()
                                                     rkUtils.toast(activity, "Error: ${e.message}")
                                                 }
                                             }
