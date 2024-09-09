@@ -11,6 +11,7 @@ import com.rk.xededitor.MainActivity.handlers.MenuClickHandler.showSearchMenuIte
 import com.rk.xededitor.MainActivity.StaticData.fragments
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.StaticData.menu
+import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
@@ -51,6 +52,7 @@ object MenuItemHandler {
 			val shouldShowRun = visible && fragments[mTabLayout.selectedTabPosition].file != null
 					&& Runner.isRunnable(fragments[mTabLayout.selectedTabPosition].file!!)
 			findItem(R.id.run).setVisible(shouldShowRun)
+			findItem(R.id.git).setVisible(visible && fragments[mTabLayout.selectedTabPosition].file != null && FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file) != null)
 		}
 		
 		

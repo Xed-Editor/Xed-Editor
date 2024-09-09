@@ -101,6 +101,9 @@
         <activity
             android:name=".Settings.SettingsPlugins"
             android:exported="false" />
+        <activity
+            android:name=".Settings.GitSettings"
+            android:exported="false" />
     </application>
 
 </manifest>

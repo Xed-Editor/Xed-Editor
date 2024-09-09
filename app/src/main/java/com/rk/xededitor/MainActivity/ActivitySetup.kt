@@ -124,6 +124,7 @@ object ActivitySetup{
 
 					val fragment = StaticData.fragments[mTabLayout.selectedTabPosition]
 					fragment.updateUndoRedo()
+					StaticData.menu?.findItem(R.id.git)?.setVisible(fragment.file != null && FileManager.findGitRoot(fragment.file) != null)
 					StaticData.menu?.findItem(R.id.run)?.setVisible(fragment.file != null && Runner.isRunnable(fragment.file!!))
 
 					if (!fragment.isSearching) {

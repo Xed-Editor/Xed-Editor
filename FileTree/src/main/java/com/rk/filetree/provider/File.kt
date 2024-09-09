@@ -22,7 +22,6 @@ class file(val file: File) : FileObject {
         return file
     }
 
-
     override fun isDirectory(): Boolean {
         return isDir
     }

@@ -27,6 +27,10 @@ object Keys {
     const val START_SHELL_PREF="start_shell"
     const val SHELL="shell"
     const val FAIL_SAFE="failsafe"
+    const val GIT_CREDENTIALS="git_credentials"
+    const val GIT_CRED="git_cred"
+    const val GIT_USER="git_user"
+    const val GIT_USER_DATA="git_user_data"
     const val TERMINAL_TEXT_SIZE_PREF="terminal_text_size_pref"
     const val TERMINAL_TEXT_SIZE="terminal_text_size"
     const val VIEWPAGER_SMOOTH_SCROLL="viewpager_smooth_scroll"
@@ -35,4 +39,5 @@ object Keys {
     const val EDITOR="editor_"
     const val PLUGINS="plugins_"
     const val TERMINAL="terminal_"
+    const val GIT="git_"
 }
