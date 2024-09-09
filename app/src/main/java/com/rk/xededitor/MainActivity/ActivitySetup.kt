@@ -16,6 +16,8 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
+import com.rk.xededitor.Settings.Keys
+import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
@@ -31,6 +33,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.errors.GitAPIException
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 
 
@@ -58,6 +63,7 @@ object ActivitySetup{
 	private val openFileId = View.generateViewId()
 	private val openDirId = View.generateViewId()
 	private val openPathId = View.generateViewId()
+    private val cloneRepo = View.generateViewId()
 
 	private fun setupNavigationRail(activity: MainActivity){
 		var dialog:AlertDialog? = null
@@ -73,6 +79,20 @@ object ActivitySetup{
 				openPathId -> {
 					FileManager.openFromPath()
 				}
+                cloneRepo -> {
+                    var dialog: AlertDialog? = null
+                    val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+                    val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
+                    if (credentials.size != 2) {
+                        rkUtils.toast(activity, "Credentials does not valid. Change it in settings")
+                        return
+                    }
+                    else if (userdata.size != 2) {
+                        rkUtils.toast(activity, "User data does not valid. Change it in settings")
+                        return
+                    }
+                    // todo
+                }
 			}
 			dialog?.hide()
 			dialog = null
@@ -83,6 +103,7 @@ object ActivitySetup{
 				addItem("Open a File","Choose a file from storage to directly edit it",ContextCompat.getDrawable(activity,R.drawable.outline_insert_drive_file_24),listener,openFileId)
 				addItem("Open a Directory","Choose a directory from storage as a project",ContextCompat.getDrawable(activity,R.drawable.outline_folder_24),listener,openDirId)
 				addItem("Open from Path","Open a project/file from a path",ContextCompat.getDrawable(activity,R.drawable.android),listener,openPathId)
+                addItem("Clone repository","Clone repository using Git",ContextCompat.getDrawable(activity,R.drawable.git),listener,cloneRepo)
 				setTitle("Add")
 				getDialogBuilder().setNegativeButton("Cancel",null)
 				dialog = show()

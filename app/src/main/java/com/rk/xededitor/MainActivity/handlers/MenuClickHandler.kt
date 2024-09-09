@@ -58,12 +58,12 @@ object MenuClickHandler {
             R.id.git -> {
                 var dialog: AlertDialog? = null
                 val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+                val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
                 if (credentials.size != 2) {
                     rkUtils.toast(activity, "Credentials does not valid. Change it in settings")
                     return true
                 }
-                val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
-                if (userdata.size != 2) {
+                else if (userdata.size != 2) {
                     rkUtils.toast(activity, "User data does not valid. Change it in settings")
                     return true
                 }
