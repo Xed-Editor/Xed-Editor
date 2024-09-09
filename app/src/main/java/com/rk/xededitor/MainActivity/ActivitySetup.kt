@@ -16,8 +16,6 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.StaticData.mTabLayout
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
