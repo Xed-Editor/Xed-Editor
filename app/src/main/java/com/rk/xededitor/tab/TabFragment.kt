@@ -5,12 +5,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.rk.xededitor.MainActivity.StaticData
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
+import com.rk.xededitor.rkUtils
+import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers
@@ -18,12 +22,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 
 class TabFragment : Fragment() {
 
-    private lateinit var file: File
+    lateinit var file: File
     var editor:CodeEditor? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,11 +86,50 @@ class TabFragment : Fragment() {
             typefaceText = Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
             setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
         }
+    }
+
+    fun save() {
+        if (file.exists().not()) {
+            rkUtils.runOnUiThread {
+                Toast.makeText(context, "File no longer exists", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val content = editor?.text
+                val outputStream = FileOutputStream(file, false)
+                if (content != null) {
+                    ContentIO.writeTo(content, outputStream, true)
+                    withContext(Dispatchers.Main){
+                        rkUtils.toast(context,"saved")
+                    }
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                withContext(Dispatchers.Main) {
+                    rkUtils.toast(context, e.message)
+                }
 
 
+            }
+
+        }
 
 
+    }
 
+    fun undo(){
+        editor?.undo()
+    }
+
+    fun redo(){
+        editor?.redo()
+    }
+
+    fun isSearching():Boolean{
+        return false
     }
 
     override fun onCreateView(
@@ -93,6 +138,7 @@ class TabFragment : Fragment() {
     ): View? {
         return editor
     }
+
 
 
     companion object {

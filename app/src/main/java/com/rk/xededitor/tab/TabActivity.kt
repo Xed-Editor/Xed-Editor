@@ -1,5 +1,6 @@
 package com.rk.xededitor.tab
 
+
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.Color
@@ -23,16 +24,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
-
-
 import com.rk.xededitor.MainActivity.ActionPopup
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.StaticData
-import com.rk.xededitor.MainActivity.file.FileManager
-
-
-
-
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
@@ -40,6 +33,7 @@ import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.lang.ref.WeakReference
 
 
 class TabActivity : AppCompatActivity() {
@@ -48,6 +42,8 @@ class TabActivity : AppCompatActivity() {
     private lateinit var tabLayout: TabLayout
     private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var fm: FM
+    lateinit var menu:Menu
+
 
     val fragmentFiles = mutableListOf<File>()
     private val fragmentTitles = mutableListOf<String>()
@@ -76,10 +72,10 @@ class TabActivity : AppCompatActivity() {
         fm = FM(this)
         setupNavigationRail()
 
+        savedInstanceState?.let { restoreState(it) }
+
         if (savedInstanceState == null){
-            repeat(4) {
-                addFragment(File(filesDir.parentFile, "proot.sh"))
-            }
+           //restore state from disk
         }else{
             restoreState(savedInstanceState)
         }
@@ -88,10 +84,14 @@ class TabActivity : AppCompatActivity() {
         setupAdapter()
     }
 
+    fun isMenuInitialized(): Boolean {
+        return this::menu.isInitialized
+    }
+
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        StaticData.menu = menu
+        menuInflater.inflate(R.menu.menu_tab_activity, menu)
+        this.menu = menu
 
         if (menu is MenuBuilder) {
             menu.setOptionalIconsVisible(true)
@@ -200,7 +200,7 @@ class TabActivity : AppCompatActivity() {
             if (drawerToggle.onOptionsItemSelected(item)) {
                 return true
             }
-           // return handle(this, item)
+            MenuClickHandler.handle(this,item)
             return false
         }
     }
@@ -250,6 +250,7 @@ class TabActivity : AppCompatActivity() {
             addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
                 override fun onTabSelected(tab: Tab?) {
                     viewPager.setCurrentItem(tab!!.position, false)
+                    MenuItemHandler.update(this@TabActivity)
                 }
 
                 override fun onTabUnselected(tab: Tab?) {}
@@ -271,6 +272,7 @@ class TabActivity : AppCompatActivity() {
                                 clearAllFragments()
                             }
                         }
+                        MenuItemHandler.update(this@TabActivity)
 
                         true
                     }
@@ -359,6 +361,12 @@ class TabActivity : AppCompatActivity() {
     }
 
     private var nextItemId = 0L
+    val tabFragments = ArrayList<WeakReference<TabFragment>>()
+
+    fun getCurrentFragment():WeakReference<TabFragment>?{
+        return tabFragments.getOrNull(tabLayout.selectedTabPosition)
+    }
+
     inner class FragmentAdapter(activity: AppCompatActivity, lifecycle: Lifecycle) :
         FragmentStateAdapter(activity.supportFragmentManager, lifecycle) {
         private val itemIds = mutableMapOf<Int, Long>()
@@ -367,7 +375,7 @@ class TabActivity : AppCompatActivity() {
 
         override fun createFragment(position: Int): Fragment {
             val file = fragmentFiles[position]
-            return TabFragment.newInstance(file)
+            return TabFragment.newInstance(file).apply { tabFragments.add(WeakReference(this)) }
         }
 
         override fun getItemId(position: Int): Long {

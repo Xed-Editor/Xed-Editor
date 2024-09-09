@@ -277,9 +277,11 @@ object ProjectManager {
 
     private val fileLongClickListener = object : FileLongClickListener {
         override fun onLongClick(node: Node<FileObject>) {
-           // getSelectedProjectRootFilePath()?.let {
-                //FileAction(this, File(it), File(node.value.getAbsolutePath()))
-           // }
+            activityRef?.get()?.apply {
+                getSelectedProjectRootFilePath(this)?.let {
+                    FileAction(this, File(it), File(node.value.getAbsolutePath()))
+                }
+            }
         }
 
     }
