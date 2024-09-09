@@ -108,6 +108,27 @@ class GitSettings : BaseActivity() {
                         }.show()
                 }
             }
+            pref(Keys.GIT_DIR) {
+                title = "Repository folder"
+                summary = "Folder for cloning repositories"
+                iconRes = R.drawable.outline_folder_24
+                onClickView {
+                    val view = LayoutInflater.from(this@GitSettings).inflate(R.layout.popup_new, null)
+                    val edittext = view.findViewById<EditText>(R.id.name).apply {
+                        hint = "/storage/emulated/0"
+                        setText(SettingsData.getString(Keys.GIT_REPO_DIR, "/storage/emulated/0"))
+                    }
+                    MaterialAlertDialogBuilder(this@GitSettings).setTitle("User data")
+                        .setView(view).setNegativeButton("Cancel", null)
+                        .setPositiveButton("Apply") { _, _ ->
+                            val repodir = edittext.text.toString()
+                            if (repodir.isEmpty()) {
+                                return@setPositiveButton
+                            }
+                            SettingsData.setString(Keys.GIT_REPO_DIR, repodir)
+                        }.show()
+                }
+            }
         }
     }
 
