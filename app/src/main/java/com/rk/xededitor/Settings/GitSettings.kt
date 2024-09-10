@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.Maxr1998.modernpreferences.PreferenceScreen
@@ -17,6 +18,7 @@ import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.screen
 import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.onClickView
+import java.io.File
 
 class GitSettings : BaseActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -118,11 +120,15 @@ class GitSettings : BaseActivity() {
                         hint = "/storage/emulated/0"
                         setText(SettingsData.getString(Keys.GIT_REPO_DIR, "/storage/emulated/0"))
                     }
-                    MaterialAlertDialogBuilder(this@GitSettings).setTitle("User data")
+                    MaterialAlertDialogBuilder(this@GitSettings).setTitle("Repository folder")
                         .setView(view).setNegativeButton("Cancel", null)
                         .setPositiveButton("Apply") { _, _ ->
                             val repodir = edittext.text.toString()
                             if (repodir.isEmpty()) {
+                                return@setPositiveButton
+                            }
+                            if (!File(repoDir).exists()) {
+                                rkUtils.toast(this@GitSettings, "Folder does not exists")
                                 return@setPositiveButton
                             }
                             SettingsData.setString(Keys.GIT_REPO_DIR, repodir)
