@@ -88,7 +88,7 @@ object ActivitySetup{
                     val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
                     view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
                     val repolinkedit = view.findViewById<EditText>(R.id.name).apply {
-                        hint = "eg. https://github.com/UserName/repo.git"
+                        hint = "https://github.com/UserName/repo.git"
                     }
                     val branchedit = view.findViewById<EditText>(R.id.mime).apply {
                         hint = "Branch"
