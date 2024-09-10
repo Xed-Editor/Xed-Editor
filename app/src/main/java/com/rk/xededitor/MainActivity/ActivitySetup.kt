@@ -6,13 +6,18 @@ import android.graphics.Rect
 import android.view.KeyEvent
 import android.view.Surface
 import android.view.View
+import android.view.LayoutInflater
+import android.widget.LinearLayout
 import android.view.WindowManager
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
+import com.rk.libcommons.LoadingPopup
 import androidx.lifecycle.lifecycleScope
 import com.blankj.utilcode.util.KeyboardUtils
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.rk.libcommons.After
 import com.rk.librunner.Runner
@@ -28,9 +33,13 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.errors.GitAPIException
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 
 
@@ -58,6 +67,7 @@ object ActivitySetup{
 	private val openFileId = View.generateViewId()
 	private val openDirId = View.generateViewId()
 	private val openPathId = View.generateViewId()
+    private val cloneRepo = View.generateViewId()
 
 	private fun setupNavigationRail(activity: MainActivity){
 		var dialog:AlertDialog? = null
@@ -73,6 +83,69 @@ object ActivitySetup{
 				openPathId -> {
 					FileManager.openFromPath()
 				}
+                cloneRepo -> {
+                    var dialog: AlertDialog? = null
+                    val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
+                    view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
+                    val repolinkedit = view.findViewById<EditText>(R.id.name).apply {
+                        hint = "Repository git link"
+                    }
+                    val branchedit = view.findViewById<EditText>(R.id.mime).apply {
+                        hint = "Branch"
+                        setText("")
+                    }
+                    MaterialAlertDialogBuilder(activity).setTitle("Clone repository")
+                        .setView(view).setNegativeButton("Cancel", null)
+                        .setPositiveButton("Apply") { _, _ ->
+                            val repoLink = repolinkedit.text.toString()
+                            val branch = branchedit.text.toString()
+                            val repoName = repoLink.substringAfterLast("/").removeSuffix(".git")
+                            val repoDir = File(SettingsData.getString(Keys.GIT_REPO_DIR, "/storage/emulated/0") + "/" + repoName)
+                            if (repoLink.isEmpty() || branch.isEmpty()) {
+                                rkUtils.toast(activity, "Please fill in both fields")
+                            }
+                            else if (repoDir.exists()) {
+                                rkUtils.toast(activity, "$repoDir already exists!")
+                            }
+                            else {
+                                val loadingPopup = LoadingPopup(activity, null).setMessage("Cloning repository...")
+                                loadingPopup.show()
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    try {
+                                        Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).call()
+                                        withContext(Dispatchers.Main) {
+                                            loadingPopup.hide()
+                                            ProjectManager.addProject(repoDir)
+                                        }
+                                    }
+                                    catch (e: Exception) {
+                                        val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+                                        if (credentials.size != 2) {
+                                            withContext(Dispatchers.Main) {
+                                                loadingPopup.hide()
+                                                rkUtils.toast(activity, "Repository is private. Check your credentials")
+                                            }
+                                        }
+                                        else {
+                                            try {
+                                                Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).setCredentialsProvider(UsernamePasswordCredentialsProvider(credentials[0], credentials[1])).call()
+                                                withContext(Dispatchers.Main) {
+                                                    loadingPopup.hide()
+                                                    ProjectManager.addProject(repoDir)
+                                                }
+                                            }
+                                            catch (e: Exception) {
+                                                withContext(Dispatchers.Main) {
+                                                    loadingPopup.hide()
+                                                    rkUtils.toast(activity, "Error: ${e.message}")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }.show()
+                }
 			}
 			dialog?.hide()
 			dialog = null
@@ -83,6 +156,7 @@ object ActivitySetup{
 				addItem("Open a File","Choose a file from storage to directly edit it",ContextCompat.getDrawable(activity,R.drawable.outline_insert_drive_file_24),listener,openFileId)
 				addItem("Open a Directory","Choose a directory from storage as a project",ContextCompat.getDrawable(activity,R.drawable.outline_folder_24),listener,openDirId)
 				addItem("Open from Path","Open a project/file from a path",ContextCompat.getDrawable(activity,R.drawable.android),listener,openPathId)
+                addItem("Clone repository","Clone repository using Git",ContextCompat.getDrawable(activity,R.drawable.git),listener,cloneRepo)
 				setTitle("Add")
 				getDialogBuilder().setNegativeButton("Cancel",null)
 				dialog = show()

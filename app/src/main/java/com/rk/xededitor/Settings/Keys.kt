@@ -31,6 +31,8 @@ object Keys {
     const val GIT_CRED="git_cred"
     const val GIT_USER="git_user"
     const val GIT_USER_DATA="git_user_data"
+    const val GIT_DIR="git_dir"
+    const val GIT_REPO_DIR="git_repo_dir"
     const val TERMINAL_TEXT_SIZE_PREF="terminal_text_size_pref"
     const val TERMINAL_TEXT_SIZE="terminal_text_size"
     const val VIEWPAGER_SMOOTH_SCROLL="viewpager_smooth_scroll"
