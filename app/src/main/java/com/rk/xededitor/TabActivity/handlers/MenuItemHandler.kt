@@ -6,6 +6,7 @@ import com.rk.librunner.Runner
 import com.rk.xededitor.R
 import com.rk.xededitor.TabActivity.TabActivity
 import com.rk.xededitor.TabActivity.editor.TabFragment
+import com.rk.xededitor.TabActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
@@ -15,18 +16,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 
 object MenuItemHandler {
-
-    fun findGitRoot(file: File?): File? {
-        var currentFile = file
-        while (currentFile?.parentFile != null) {
-            if (File(currentFile.parentFile, ".git").exists()) {
-                return currentFile.parentFile
-            }
-            currentFile = currentFile.parentFile
-        }
-        return null
-    }
-
     fun update(activity: TabActivity) {
         activity.lifecycleScope.launch(Dispatchers.Default) {
             //wait until the menu is Initialized

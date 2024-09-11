@@ -23,9 +23,11 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.TabActivity.BatchReplacement
 import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.TabActivity.file.FileManager
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -37,6 +39,7 @@ object MenuClickHandler {
 
     private var searchText: String? = ""
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: TabActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
         when (id) {
@@ -88,7 +91,6 @@ object MenuClickHandler {
             }
 
             R.id.batchrep -> {
-                // Handle batchrep
                 activity.startActivity(Intent(activity, BatchReplacement::class.java))
                 return true
             }
@@ -152,8 +154,7 @@ object MenuClickHandler {
                             loadingPopup.show()
                             GlobalScope.launch(Dispatchers.IO) {
                                 try {
-                                    //todo
-                                    val gitRoot = File("afnFHA")
+                                    val gitRoot = FileManager.findGitRoot(activity.getCurrentFragment()?.file)
                                     if (gitRoot != null) {
                                         val git = Git.open(gitRoot)
                                         git.pull().setCredentialsProvider(
@@ -201,8 +202,7 @@ object MenuClickHandler {
                                     loadingPopup.show()
                                     GlobalScope.launch(Dispatchers.IO) {
                                         try {
-                                            //todo
-                                            val gitRoot = File("afnFHA")
+                                            val gitRoot = FileManager.findGitRoot(activity.getCurrentFragment()?.file)
                                             if (gitRoot != null) {
                                                 val git = Git.open(gitRoot)
                                                 val ref = git.repository.findRef(branch)
