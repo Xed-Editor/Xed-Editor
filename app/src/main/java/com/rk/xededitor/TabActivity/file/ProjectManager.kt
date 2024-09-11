@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.TabActivity.file
 
 import android.view.MenuItem
 import android.view.View
@@ -14,10 +14,10 @@ import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.TabActivity.file.FileTreeScrollViewManager
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.TabActivity.TabActivity
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

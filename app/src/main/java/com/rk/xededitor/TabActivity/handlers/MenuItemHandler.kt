@@ -1,9 +1,11 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.TabActivity.handlers
 
 import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.rk.librunner.Runner
 import com.rk.xededitor.R
+import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.TabActivity.editor.TabFragment
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers

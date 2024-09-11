@@ -3,6 +3,7 @@ package com.rk.librunner.runners.web
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -14,12 +15,11 @@ import com.rk.librunner.databinding.ActivityMarkdownBinding
 
 abstract class WebActivity: AppCompatActivity()  {
     lateinit var binding:ActivityMarkdownBinding
-    var isDebugMode = true
-
-
+    private var isDebugMode = true
+    
     @SuppressLint("SetJavaScriptEnabled")
-    fun setupWebView(webview: WebView) {
-        val webSettings = webview.settings
+    fun setupWebView(webView: WebView) {
+        val webSettings = webView.settings
         webSettings.javaScriptEnabled = true
         webSettings.databaseEnabled = true
         webSettings.domStorageEnabled = true
@@ -27,9 +27,8 @@ abstract class WebActivity: AppCompatActivity()  {
         webSettings.allowContentAccess = true
         webSettings.allowFileAccess = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-        
-        webview.setWebChromeClient(WebChromeClient());
-
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+        webView.setWebChromeClient(WebChromeClient());
         WebView.setWebContentsDebuggingEnabled(isDebugMode)
         
     }

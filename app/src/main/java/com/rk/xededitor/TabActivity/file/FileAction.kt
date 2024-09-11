@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.TabActivity.file
 
 import android.content.Context
 import android.content.DialogInterface
@@ -16,8 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.TabActivity.file.FileClipboard
 import com.rk.xededitor.R
+import com.rk.xededitor.TabActivity.TabActivity
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

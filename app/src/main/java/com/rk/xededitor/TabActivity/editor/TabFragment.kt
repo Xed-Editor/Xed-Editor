@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.TabActivity.editor
 
 import android.graphics.Typeface
 import android.os.Bundle

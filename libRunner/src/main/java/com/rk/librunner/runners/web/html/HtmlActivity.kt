@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
@@ -31,8 +32,7 @@ class HtmlActivity : WebActivity() {
         file = File(intent.getStringExtra("filepath").toString())
 
         httpServer = HttpServer(PORT, file.parentFile!!)
-
-
+        
         lifecycleScope.launch(Dispatchers.Default){
             val sb = StringBuilder(withContext(Dispatchers.IO) {
                 FileInputStream(file).bufferedReader()

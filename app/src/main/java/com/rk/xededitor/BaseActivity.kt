@@ -18,12 +18,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
   companion object {
     val activityMap = ArrayMap<Class<out BaseActivity>,WeakReference<Activity>>()
-
-//    @Suppress("UNCHECKED_CAST")
-//    fun <T : BaseActivity> getActivity(activityClass: Class<T>): T? {
-//      return activityMap[activityClass]!!.get() as? T
-//    }
-
+    
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {

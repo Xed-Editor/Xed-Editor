@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.TabActivity.handlers
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -21,6 +21,8 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsMainActivity
+import com.rk.xededitor.TabActivity.BatchReplacement
+import com.rk.xededitor.TabActivity.TabActivity
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
