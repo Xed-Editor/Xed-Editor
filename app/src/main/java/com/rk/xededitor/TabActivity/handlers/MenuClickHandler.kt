@@ -175,7 +175,7 @@ object MenuClickHandler {
                         }
 
                         push -> {
-                            val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
+                            val gitRoot = FileManager.findGitRoot(activity.getCurrentFragment()?.file)
                             if (gitRoot != null) {
                                 val git = Git.open(gitRoot)
                                 val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
