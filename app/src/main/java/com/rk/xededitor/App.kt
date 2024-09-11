@@ -31,6 +31,9 @@ class App : Application() {
         }
       }
     }
+    
+    
+    SetupEditor.init(this)
 
 
     //verify if assets are extracted or not

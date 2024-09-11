@@ -39,6 +39,7 @@ import com.rk.xededitor.TabActivity.file.FileManager
 import com.rk.xededitor.TabActivity.file.ProjectManager
 import com.rk.xededitor.TabActivity.handlers.MenuClickHandler
 import com.rk.xededitor.TabActivity.handlers.MenuItemHandler
+import com.rk.xededitor.TabActivity.handlers.PermissionHandler
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -128,6 +129,15 @@ class TabActivity : AppCompatActivity() {
       menu.setOptionalIconsVisible(true)
     }
     return true
+  }
+  
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<String>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    PermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
   }
   
   var isPaused = true
