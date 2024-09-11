@@ -100,7 +100,6 @@ class TabActivity : AppCompatActivity() {
     
     ProjectManager.restoreProjects(this)
     
-    
     fm = FileManager(this)
     setupNavigationRail()
     
@@ -112,8 +111,8 @@ class TabActivity : AppCompatActivity() {
       restoreState(savedInstanceState)
     }
     
-    
     setupAdapter()
+   
   }
   
   fun isMenuInitialized(): Boolean {
@@ -412,6 +411,11 @@ class TabActivity : AppCompatActivity() {
   }
   
   private fun restoreState(state: Bundle) {
+    if (fragmentFiles.isNotEmpty()){
+      binding.tabs.visibility = View.VISIBLE
+      binding.mainView.visibility = View.VISIBLE
+      binding.openBtn.visibility = View.GONE
+    }
     fragmentFiles.clear()
     fragmentTitles.clear()
     @Suppress("DEPRECATION")

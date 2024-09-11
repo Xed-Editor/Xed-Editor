@@ -18,6 +18,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.TabActivity.TabActivity.Companion.activityRef
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,9 +36,7 @@ object ProjectManager {
 
 
     fun processQueue(activity: TabActivity) {
-        if (activityRef == null) {
-            activityRef = WeakReference(activity)
-        }else if (activityRef!!.get() == null){
+        if (activityRef.get() == null){
             activityRef = WeakReference(activity)
         }
         activity.lifecycleScope.launch(Dispatchers.Default) {
@@ -51,8 +50,6 @@ object ProjectManager {
         }
 
     }
-
-    var activityRef:WeakReference<TabActivity>? = null
 
     fun addProject(activity: TabActivity, file: File) {
         if (activityRef == null) {
@@ -246,9 +243,11 @@ object ProjectManager {
                 return
             }
 
-                activityRef?.get()?.let {
-
-
+                activityRef.get()?.let {
+                    if (it.isPaused){
+                        println("activity is paused")
+                        return@let
+                    }
                 val loading = LoadingPopup(it, null).show()
                 val file = File(node.value.getAbsolutePath())
 
@@ -275,7 +274,7 @@ object ProjectManager {
 
     private val fileLongClickListener = object : FileLongClickListener {
         override fun onLongClick(node: Node<FileObject>) {
-            activityRef?.get()?.apply {
+            activityRef.get()?.apply {
                 getSelectedProjectRootFilePath(this)?.let {
                     FileAction(this, File(it), File(node.value.getAbsolutePath()))
                 }
