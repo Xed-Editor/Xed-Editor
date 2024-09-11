@@ -175,36 +175,36 @@ object MenuClickHandler {
                         }
 
                         push -> {
-                            val view =
-                                LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
-                            view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility =
-                                View.VISIBLE
-                            val branchedit = view.findViewById<EditText>(R.id.name).apply {
-                                hint = "eg. main"
-                            }
-                            val commitedit = view.findViewById<EditText>(R.id.mime).apply {
-                                hint = "eg. Changed something"
-                                setText("Changed something")
-                            }
-                            MaterialAlertDialogBuilder(activity).setTitle("Push")
-                                .setView(view).setNegativeButton("Cancel", null)
-                                .setPositiveButton("Apply") { _, _ ->
-                                    val branch = branchedit.text.toString()
-                                    val commit = commitedit.text.toString()
-                                    if (branch.isEmpty() || commit.isEmpty()) {
-                                        rkUtils.toast(activity, "Please fill in both fields")
-                                        return@setPositiveButton
-                                    }
-                                    val loadingPopup = LoadingPopup(
-                                        activity,
-                                        null
-                                    ).setMessage("Pushing to remote repository...")
-                                    loadingPopup.show()
-                                    GlobalScope.launch(Dispatchers.IO) {
-                                        try {
-                                            val gitRoot = FileManager.findGitRoot(activity.getCurrentFragment()?.file)
-                                            if (gitRoot != null) {
-                                                val git = Git.open(gitRoot)
+                            val gitRoot = FileManager.findGitRoot(fragments[mTabLayout.selectedTabPosition].file)
+                            if (gitRoot != null) {
+                                val git = Git.open(gitRoot)
+                                val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
+                                view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility =
+                                    View.VISIBLE
+                                val branchedit = view.findViewById<EditText>(R.id.name).apply {
+                                    hint = "Branch. Example: main"
+                                    setText(git.repository.branch)
+                                }
+                                val commitedit = view.findViewById<EditText>(R.id.mime).apply {
+                                    hint = "Commit message"
+                                    setText("")
+                                }
+                                MaterialAlertDialogBuilder(activity).setTitle("Push")
+                                    .setView(view).setNegativeButton("Cancel", null)
+                                    .setPositiveButton("Apply") { _, _ ->
+                                        val branch = branchedit.text.toString()
+                                        val commit = commitedit.text.toString()
+                                        if (branch.isEmpty() || commit.isEmpty()) {
+                                            rkUtils.toast(activity, "Please fill in both fields")
+                                            return@setPositiveButton
+                                        }
+                                        val loadingPopup = LoadingPopup(
+                                            activity,
+                                            null
+                                        ).setMessage("Pushing to remote repository...")
+                                        loadingPopup.show()
+                                        GlobalScope.launch(Dispatchers.IO) {
+                                            try {
                                                 val ref = git.repository.findRef(branch)
                                                 if (ref == null) {
                                                     git.branchCreate().setName(branch).call()
@@ -224,16 +224,19 @@ object MenuClickHandler {
                                                         credentials[1]
                                                     )
                                                 ).call()
+                                            } catch (e: GitAPIException) {
+                                                rkUtils.toast(activity, e.message)
                                             }
-                                        } catch (e: GitAPIException) {
-                                            rkUtils.toast(activity, e.message)
+                                            withContext(Dispatchers.Main) {
+                                                rkUtils.toast(activity, "Successfully")
+                                                loadingPopup.hide()
+                                            }
                                         }
-                                        withContext(Dispatchers.Main) {
-                                            rkUtils.toast(activity, "Successfully")
-                                            loadingPopup.hide()
-                                        }
-                                    }
-                                }.show()
+                                    }.show()
+                            }
+                            else {
+                                rkUtils.toast(activity, "Error: .git folder not found")
+                            }
                         }
                     }
                     dialog?.hide()

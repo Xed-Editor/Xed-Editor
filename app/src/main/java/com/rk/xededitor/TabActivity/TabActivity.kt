@@ -189,11 +189,11 @@ class TabActivity : AppCompatActivity() {
           val view = LayoutInflater.from(this@TabActivity).inflate(R.layout.popup_new, null)
           view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
           val repolinkedit = view.findViewById<EditText>(R.id.name).apply {
-            hint = "Repository git link"
+            hint = "https://github.com/UserName/repo.git"
           }
           val branchedit = view.findViewById<EditText>(R.id.mime).apply {
-            hint = "Branch"
-            setText("main")
+            hint = "Branch. Example: main"
+            setText("")
           }
           MaterialAlertDialogBuilder(this).setTitle("Clone repository")
             .setView(view).setNegativeButton("Cancel", null)
