@@ -328,6 +328,7 @@ class TabActivity : AppCompatActivity() {
   
   
   private fun setupTheme() {
+    SetupEditor.init(this)
     if (SettingsData.isDarkMode(this)) {
       if (SettingsData.isOled()) {
         val black = Color.BLACK
