@@ -1,4 +1,4 @@
-package com.rk.xededitor.tab
+package com.rk.xededitor.TabActivity
 
 import android.view.MenuItem
 import android.view.View
@@ -14,9 +14,7 @@ import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.FileTreeScrollViewManager
+import com.rk.xededitor.TabActivity.file.FileTreeScrollViewManager
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData

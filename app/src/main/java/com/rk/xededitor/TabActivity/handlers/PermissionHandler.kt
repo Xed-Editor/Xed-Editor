@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.handlers
+package com.rk.xededitor.TabActivity.handlers
 
 import android.Manifest
 import android.app.Activity
@@ -12,13 +12,22 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.MainActivity.StaticData
 
 object PermissionHandler {
+    //todo
+    val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
+    val MANAGE_EXTERNAL_STORAGE = 98421
+
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray,activity: Activity) {
 
         //check permission for old devices
-        if (requestCode == StaticData.REQUEST_CODE_STORAGE_PERMISSIONS) {
+
+
+
+
+
+
+        if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // permission denied ask again
                 verifyStoragePermission(activity)
@@ -56,7 +65,7 @@ object PermissionHandler {
                                 val intent =
                                     Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                                 intent.setData(Uri.parse("package:$packageName"))
-                                startActivityForResult(intent, StaticData.MANAGE_EXTERNAL_STORAGE)
+                                startActivityForResult(intent, MANAGE_EXTERNAL_STORAGE)
                             } else {
                                 //below 11
                                 // Request permissions
@@ -65,7 +74,7 @@ object PermissionHandler {
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                                 )
                                 ActivityCompat.requestPermissions(
-                                    this, perms, StaticData.REQUEST_CODE_STORAGE_PERMISSIONS
+                                    this, perms, REQUEST_CODE_STORAGE_PERMISSIONS
                                 )
                             }
                         }.setCancelable(false).show()

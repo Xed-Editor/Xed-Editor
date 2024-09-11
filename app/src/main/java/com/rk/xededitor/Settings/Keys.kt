@@ -36,7 +36,7 @@ object Keys {
     const val TERMINAL_TEXT_SIZE_PREF="terminal_text_size_pref"
     const val TERMINAL_TEXT_SIZE="terminal_text_size"
     const val VIEWPAGER_SMOOTH_SCROLL="viewpager_smooth_scroll"
-    //used in SettingsMainActivity
+    //used in SettingsMainActivity and these not real settings
     const val APPLICATION="app_"
     const val EDITOR="editor_"
     const val PLUGINS="plugins_"

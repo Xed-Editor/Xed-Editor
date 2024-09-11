@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.file
+package com.rk.xededitor.TabActivity
 
 import android.content.Context
 import android.content.DialogInterface
@@ -16,11 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.StaticData.fragments
-import com.rk.xededitor.MainActivity.StaticData.mTabLayout
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler.updateMenuItems
+import com.rk.xededitor.TabActivity.file.FileClipboard
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +27,7 @@ import java.util.Locale
 import kotlin.random.Random
 
 class FileAction(
-    private val context: MainActivity,
+    private val context: TabActivity,
     private val rootFolder: File,
     private val file: File,
 ) {
@@ -122,19 +118,13 @@ class FileAction(
             }
 
             R.id.refresh -> {
-                ProjectManager.currentProject.refresh()
+                ProjectManager.currentProject.refresh(context)
                 true
             }
 
             R.id.reselect -> {
                 // Handle reselect action
-                FileManager.openDir(reselecting = true)
-                true
-            }
 
-            R.id.openFile -> {
-                // Handle openFile action
-                context.openFile(null)
                 true
             }
 
@@ -168,10 +158,7 @@ class FileAction(
                 to_save_file = file
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                 startActivityForResult(
-                    context,
-                    intent,
-                    REQUEST_CODE_OPEN_DIRECTORY,
-                    null
+                    context, intent, REQUEST_CODE_OPEN_DIRECTORY, null
                 )
                 true
             }
@@ -190,8 +177,10 @@ class FileAction(
                     return false
                 }
 
+
+
                 LoadingPopup(context, 350)
-                BaseActivity.getActivity(MainActivity::class.java)?.let {
+                context.let {
                     it.lifecycleScope.launch(Dispatchers.Default) {
                         if (!FileClipboard.isEmpty()) {
                             val sourceFile = FileClipboard.getFile()
@@ -215,7 +204,9 @@ class FileAction(
 //                                            TreeView(context, rootFolder)
 //                                        }
                                         //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                        ProjectManager.currentProject.updateFileAdded(targetPath.toFile())
+                                        ProjectManager.currentProject.updateFileAdded(
+                                            context, targetPath.toFile()
+                                        )
 
                                     }
 
@@ -252,22 +243,12 @@ class FileAction(
                     ) { _: DialogInterface?, _: Int ->
 
 
-                        if (file == rootFolder) {
-                            context.binding.mainView.visibility = View.GONE
-                            context.binding.maindrawer.visibility = View.GONE
-                            context.adapter?.clear()
+                        ProjectManager.currentProject.updateFileDeleted(context, file)
 
+                        if (file.isFile) {
+                            file.delete()
                         } else {
-                            ProjectManager.currentProject.updateFileDeleted(file)
-
-                            if (file.isFile) {
-
-                                file.delete()
-                            } else {
-
-                                file.deleteRecursively()
-                            }
-
+                            file.deleteRecursively()
                         }
 
 
@@ -329,20 +310,8 @@ class FileAction(
     }
 
     private fun close() {
-        //context.adapter?.clear()
-        for (i in 0 until mTabLayout.tabCount) {
-            mTabLayout.getTabAt(i)?.apply {
-                text = fragments[i].fileName
-            }
-        }
-        if (mTabLayout.tabCount < 1) {
-            context.binding.tabs.visibility = View.GONE
-            context.binding.mainView.visibility = View.GONE
-            context.binding.openBtn.visibility = View.VISIBLE
-        }
-        updateMenuItems()
-        // context.binding.maindrawer.visibility = View.GONE
-        ProjectManager.removeProject(rootFolder)
+        //todo
+        ProjectManager.removeProject(context, rootFolder)
     }
 
     private fun new(createFile: Boolean) {
@@ -384,7 +353,7 @@ class FileAction(
                     File(file, fileName).mkdir()
                 }
 
-                ProjectManager.currentProject.updateFileAdded(file)
+                ProjectManager.currentProject.updateFileAdded(context, file)
 
                 loading.hide()
             }.show()
@@ -398,8 +367,7 @@ class FileAction(
         editText.hint = "file name"
 
         MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.rename))
-            .setView(popupView)
-            .setNegativeButton(context.getString(R.string.cancel), null)
+            .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
             .setPositiveButton(
                 context.getString(R.string.rename)
             ) { _: DialogInterface?, _: Int ->
@@ -432,15 +400,18 @@ class FileAction(
                             run("mv ${file.canonicalPath} ${file.parentFile}/$xf")
                             run("mv ${file.parentFile}/$xf ${file.parentFile}/$to")
                             shutdown()
-                            withContext(Dispatchers.Main){
-                                ProjectManager.currentProject.updateFileRenamed(file,File(file.parentFile,newFileName))
+                            withContext(Dispatchers.Main) {
+                                ProjectManager.currentProject.updateFileRenamed(
+                                    context, file, File(file.parentFile, newFileName)
+                                )
                             }
-                            fragments.forEach { f ->
-                                if(f.file?.absolutePath == file.absolutePath){
-                                    f.file = file
-                                    f.fileName = File("${file.parentFile}/$to").name
-                                }
-                            }
+//                            fragments.forEach { f ->
+//                                if (f.file?.absolutePath == file.absolutePath) {
+//                                    f.file = file
+//                                    f.fileName = File("${file.parentFile}/$to").name
+//                                }
+//                            }
+                            //todo
                         }
                     }
 

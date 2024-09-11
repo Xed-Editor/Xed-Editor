@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
-import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
+import com.rk.xededitor.TabActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 

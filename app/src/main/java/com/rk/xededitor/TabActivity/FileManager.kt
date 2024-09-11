@@ -1,4 +1,4 @@
-package com.rk.xededitor.tab
+package com.rk.xededitor.TabActivity
 
 import android.app.Activity
 import android.content.Intent
@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
+import com.rk.xededitor.TabActivity.file.PathUtils.convertUriToPath
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File

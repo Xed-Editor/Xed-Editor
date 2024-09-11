@@ -14,7 +14,7 @@ import com.rk.libPlugin.server.PluginInstaller
 import com.rk.libPlugin.server.PluginUtils
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.ActionPopup
+import com.rk.libcommons.ActionPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityPluginsBinding

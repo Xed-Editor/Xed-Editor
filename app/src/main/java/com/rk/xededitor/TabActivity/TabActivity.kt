@@ -1,13 +1,16 @@
-package com.rk.xededitor.tab
+package com.rk.xededitor.TabActivity
 
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.Color
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -21,18 +24,26 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.xededitor.MainActivity.ActionPopup
+import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.ActionPopup
 import com.rk.xededitor.R
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.rkUtils
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.LinkedList
@@ -138,11 +149,14 @@ class TabActivity : AppCompatActivity() {
         super.onResume()
     }
 
+    @SuppressLint("SetTextI18n")
+    @OptIn(DelicateCoroutinesApi::class)
     private fun setupNavigationRail(){
         val openFileId = View.generateViewId()
         val openDirId = View.generateViewId()
         val openPathId = View.generateViewId()
         val privateFilesId = View.generateViewId()
+        val cloneRepo = View.generateViewId()
 
         var dialog: AlertDialog? = null
 
@@ -160,6 +174,70 @@ class TabActivity : AppCompatActivity() {
                 privateFilesId -> {
                     ProjectManager.addProject(this,filesDir.parentFile!!)
                 }
+                cloneRepo -> {
+                    val view = LayoutInflater.from(this@TabActivity).inflate(R.layout.popup_new, null)
+                    view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
+                    val repolinkedit = view.findViewById<EditText>(R.id.name).apply {
+                        hint = "Repository git link"
+                    }
+                    val branchedit = view.findViewById<EditText>(R.id.mime).apply {
+                        hint = "Branch"
+                        setText("main")
+                    }
+                    MaterialAlertDialogBuilder(this).setTitle("Clone repository")
+                        .setView(view).setNegativeButton("Cancel", null)
+                        .setPositiveButton("Apply") { _, _ ->
+                            val repoLink = repolinkedit.text.toString()
+                            val branch = branchedit.text.toString()
+                            val repoName = repoLink.substringAfterLast("/").removeSuffix(".git")
+                            val repoDir = File(SettingsData.getString(Keys.GIT_REPO_DIR, "/storage/emulated/0") + "/" + repoName)
+                            if (repoLink.isEmpty() || branch.isEmpty()) {
+                                rkUtils.toast(this, "Please fill in both fields")
+                            }
+                            else if (repoDir.exists()) {
+                                rkUtils.toast(this, "$repoDir already exists!")
+                            }
+                            else {
+                                val loadingPopup = LoadingPopup(this, null).setMessage("Cloning repository...")
+                                loadingPopup.show()
+                                GlobalScope.launch(Dispatchers.IO) {
+                                    try {
+                                        Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).call()
+                                        withContext(Dispatchers.Main) {
+                                            loadingPopup.hide()
+                                            ProjectManager.addProject(this@TabActivity,repoDir)
+                                        }
+                                    }
+                                    catch (e: Exception) {
+                                        val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+                                        if (credentials.size != 2) {
+                                            withContext(Dispatchers.Main) {
+                                                loadingPopup.hide()
+                                                rkUtils.toast(this@TabActivity, "Repository is private. Check your credentials")
+                                            }
+                                        }
+                                        else {
+                                            try {
+                                                Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).setCredentialsProvider(
+                                                    UsernamePasswordCredentialsProvider(credentials[0], credentials[1])
+                                                ).call()
+                                                withContext(Dispatchers.Main) {
+                                                    loadingPopup.hide()
+                                                    ProjectManager.addProject(this@TabActivity,repoDir)
+                                                }
+                                            }
+                                            catch (e: Exception) {
+                                                withContext(Dispatchers.Main) {
+                                                    loadingPopup.hide()
+                                                    rkUtils.toast(this@TabActivity, "Error: ${e.message}")
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }.show()
+                }
             }
             dialog?.hide()
             dialog = null
@@ -173,7 +251,9 @@ class TabActivity : AppCompatActivity() {
                     ContextCompat.getDrawable(this@TabActivity,R.drawable.outline_folder_24),listener,openDirId)
                 addItem("Open from Path","Open a project/file from a path",
                     ContextCompat.getDrawable(this@TabActivity,R.drawable.android),listener,openPathId)
-
+                addItem("Clone repository","Clone repository using Git",ContextCompat.getDrawable(this@TabActivity,R.drawable.git),listener,
+                    cloneRepo
+                )
                 addItem("Private Files","Private files of karbon",ContextCompat.getDrawable(this@TabActivity,R.drawable.android),listener,privateFilesId)
 
 

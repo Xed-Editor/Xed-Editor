@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.BatchReplacement
+package com.rk.xededitor.TabActivity
 
 import android.graphics.Color
 import android.os.Bundle
@@ -9,10 +9,8 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
-import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.MainActivity.StaticData
-import com.rk.xededitor.MainActivity.editor.TabAdapter.Companion.currentEditor
+import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SimpleEditor.SimpleEditor
@@ -21,7 +19,7 @@ import com.rk.xededitor.rkUtils.dpToPx
 import com.rk.xededitor.rkUtils.toast
 
 class BatchReplacement : BaseActivity() {
-    private var binding: ActivityBatchReplacementBinding? = null
+    private lateinit var binding: ActivityBatchReplacementBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,18 +27,18 @@ class BatchReplacement : BaseActivity() {
         binding = ActivityBatchReplacementBinding.inflate(
             layoutInflater
         )
-        setContentView(binding!!.root)
+        setContentView(binding.root)
 
-        val toolbar = binding!!.toolbar
+        val toolbar = binding.toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = resources.getString(R.string.title_activity_batch_replacement)
 
         if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-            findViewById<View>(R.id.drawer_layout).setBackgroundColor(Color.BLACK)
-            findViewById<View>(R.id.appbar).setBackgroundColor(Color.BLACK)
-            findViewById<View>(R.id.mainBody).setBackgroundColor(Color.BLACK)
-            findViewById<View>(R.id.toolbar).setBackgroundColor(Color.BLACK)
+            binding.drawerLayout.setBackgroundColor(Color.BLACK)
+            binding.appbar.setBackgroundColor(Color.BLACK)
+            binding.mainBody.setBackgroundColor(Color.BLACK)
+            binding.toolbar.setBackgroundColor(Color.BLACK)
             window.navigationBarColor = Color.BLACK
             val window = window
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -148,11 +146,13 @@ class BatchReplacement : BaseActivity() {
                     val keyword = editText.text.toString()
                     val replacement = editTextx.text.toString()
 
-                    if (StaticData.fragments != null) {
-                        val editor = currentEditor
-                        editor?.setText(
-                            editor.text.toString().replace(keyword, replacement)
-                        )
+
+                    if (TabActivity.activityRef.get() != null) {
+                        TabActivity.activityRef.get()?.getCurrentFragment()?.let {
+                            it.editor?.setText(
+                                it.editor?.text.toString().replace(keyword, replacement)
+                            )
+                        }
                     } else if (intent.extras?.getBoolean("isExt", false) == true) {
                         //if we are working with external editor
                         SimpleEditor.editor?.setText(

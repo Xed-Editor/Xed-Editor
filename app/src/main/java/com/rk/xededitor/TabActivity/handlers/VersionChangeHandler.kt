@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.handlers
+package com.rk.xededitor.TabActivity.handlers
 
 import android.os.Build
 import com.rk.xededitor.App

@@ -7,13 +7,12 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
-import com.rk.xededitor.MainActivity.BatchReplacement.BatchReplacement
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.TabActivity.BatchReplacement
 import com.rk.xededitor.terminal.Terminal
-import com.rk.xededitor.terminal.TerminalBackEnd
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -1,6 +1,5 @@
-package com.rk.xededitor.MainActivity
+package com.rk.libcommons
 
-import android.content.ClipDescription
 import android.content.Context
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -12,11 +11,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
-import androidx.core.view.setPadding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils.dpToPx
 
 class ActionPopup(val context:Context) {
     private val dialogBuilder: MaterialAlertDialogBuilder
@@ -25,6 +20,10 @@ class ActionPopup(val context:Context) {
     private val rootView:LinearLayout
     private val typedValue = TypedValue()
 
+    fun dpToPx(dp: Float, ctx: Context): Int {
+        val density = ctx.resources.displayMetrics.density
+        return Math.round(dp * density)
+    }
 
     init {
 
@@ -38,7 +37,7 @@ class ActionPopup(val context:Context) {
 
     }
 
-    fun setTitle(title:String) : ActionPopup{
+    fun setTitle(title:String) : ActionPopup {
         dialogBuilder.setTitle(title)
         return this
     }
@@ -52,7 +51,7 @@ class ActionPopup(val context:Context) {
         return dialog
     }
 
-    fun hide() : ActionPopup{
+    fun hide() : ActionPopup {
         dialog?.hide()
         return this
     }

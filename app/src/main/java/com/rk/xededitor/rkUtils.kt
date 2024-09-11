@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
-import com.rk.xededitor.MainActivity.StaticData
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.io.File
 import java.io.FileOutputStream
@@ -20,9 +19,6 @@ object rkUtils {
     fun runOnUiThread(runnable: Runnable) {
         mHandler.post(runnable)
     }
-
-    val currentEditor: CodeEditor
-        get() = StaticData.fragments[StaticData.mTabLayout.selectedTabPosition].editor
 
     fun shareText(ctx: Context, text: String?) {
         val sendIntent = Intent()

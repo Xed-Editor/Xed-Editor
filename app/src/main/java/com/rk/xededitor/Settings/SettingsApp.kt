@@ -17,11 +17,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.theme.ThemeManager
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
@@ -152,18 +149,8 @@ class SettingsApp : BaseActivity() {
         defaultValue = false
         onCheckedChange {
           LoadingPopup(this@SettingsApp, 180)
-          getActivity(MainActivity::class.java)?.recreate()
+          //getActivity(MainActivity::class.java)?.recreate()
           return@onCheckedChange true
-        }
-      }
-
-      pref(Keys.PRIVATE_DATA) {
-        title = "Private App Files"
-        summary = "Access private app files"
-        iconRes = R.drawable.android
-        onClickView {
-          FileManager.privateDir()
-          rkUtils.toast(this@SettingsApp, "Opened in File Browser")
         }
       }
       pref(Keys.THEMES) {

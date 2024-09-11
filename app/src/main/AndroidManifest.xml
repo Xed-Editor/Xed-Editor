@@ -21,9 +21,13 @@
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
         <activity
-            android:name=".tab.TabActivity"
+            android:name=".TabActivity.TabActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
         <activity
@@ -50,12 +54,7 @@
             android:name=".CrashHandler.CrashActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity.BatchReplacement.BatchReplacement"
-            android:exported="false"
-            android:label="@string/title_activity_batch_replacement"
-            android:theme="@style/Theme.Fragments.NoActionBar" />
-        <activity
-            android:name=".tab.BatchReplacement"
+            android:name=".TabActivity.BatchReplacement"
             android:exported="false"
             android:label="@string/title_activity_batch_replacement"
             android:theme="@style/Theme.Fragments.NoActionBar" />
@@ -78,23 +77,6 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainActivity.MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Fragments"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="text/*" />
             </intent-filter>
         </activity>
         <activity
