@@ -378,7 +378,7 @@ class TabActivity : AppCompatActivity() {
     tabLayout = binding.tabs.apply {
       addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: Tab?) {
-          viewPager.setCurrentItem(tab!!.position, false)
+          viewPager.setCurrentItem(tab!!.position, true)
           MenuItemHandler.update(this@TabActivity)
           tab.text = tab.text
         }
@@ -468,6 +468,7 @@ class TabActivity : AppCompatActivity() {
     tabViewModel.fragmentFiles.add(file)
     tabViewModel.fragmentTitles.add(file.name)
     (viewPager.adapter as? FragmentAdapter)?.notifyItemInsertedX(tabViewModel.fragmentFiles.size - 1)
+    if (tabViewModel.fragmentFiles.size > 1) viewPager.setCurrentItem(tabViewModel.fragmentFiles.size - 1, true)
     binding.tabs.visibility = View.VISIBLE
     binding.mainView.visibility = View.VISIBLE
     binding.openBtn.visibility = View.GONE
