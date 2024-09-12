@@ -110,11 +110,11 @@ class TabActivity : AppCompatActivity() {
     
     savedInstanceState?.let { restoreState(it) }
     
-    if (savedInstanceState == null){
-      //restore state from disk
-    }else{
-      restoreState(savedInstanceState)
-    }
+//    if (savedInstanceState == null){
+//      //restore state from disk
+//    }else{
+//      restoreState(savedInstanceState)
+//    }
     
     setupAdapter()
     
@@ -123,6 +123,8 @@ class TabActivity : AppCompatActivity() {
       binding.mainView.visibility = View.VISIBLE
       binding.openBtn.visibility = View.GONE
     }
+    
+    
    
   }
   
@@ -167,6 +169,7 @@ class TabActivity : AppCompatActivity() {
         }
       }
     }
+    PermissionHandler.verifyStoragePermission(this)
     ProjectManager.processQueue(this)
     super.onResume()
   }
