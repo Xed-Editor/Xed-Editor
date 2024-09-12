@@ -468,6 +468,7 @@ class TabActivity : AppCompatActivity() {
     tabViewModel.fragmentFiles.add(file)
     tabViewModel.fragmentTitles.add(file.name)
     (viewPager.adapter as? FragmentAdapter)?.notifyItemInsertedX(tabViewModel.fragmentFiles.size - 1)
+    if (tabViewModel.fragmentFiles.size > 1) viewPager.setCurrentItem(tabViewModel.fragmentFiles.size - 1, true)
     binding.tabs.visibility = View.VISIBLE
     binding.mainView.visibility = View.VISIBLE
     binding.openBtn.visibility = View.GONE
