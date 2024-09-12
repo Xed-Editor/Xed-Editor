@@ -378,7 +378,7 @@ class TabActivity : AppCompatActivity() {
     tabLayout = binding.tabs.apply {
       addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: Tab?) {
-          viewPager.setCurrentItem(tab!!.position, false)
+          viewPager.setCurrentItem(tab!!.position, true)
           MenuItemHandler.update(this@TabActivity)
           tab.text = tab.text
         }
