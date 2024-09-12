@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.LinearLayout
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +22,7 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -74,14 +76,17 @@ class TabActivity : AppCompatActivity() {
   fun postPausedQueue(runnable: Runnable){
     pausedQueue.add(runnable)
   }
-  
-  
-  
-  val fragmentFiles = mutableListOf<File>()
-  private val fragmentTitles = mutableListOf<String>()
-  
   private val TAB_LIMIT = 50
   
+  
+  class TabViewModel : ViewModel() {
+    val fragmentFiles = mutableListOf<File>()
+    val fragmentTitles = mutableListOf<String>()
+    val fileSet = HashSet<String>()
+    // Additional states you want to store
+  }
+  
+  val tabViewModel: TabViewModel by viewModels() // Lazy initialization
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     activityRef = WeakReference(this)
@@ -112,6 +117,12 @@ class TabActivity : AppCompatActivity() {
     }
     
     setupAdapter()
+    
+    if (tabViewModel.fragmentFiles.isNotEmpty()){
+      binding.tabs.visibility = View.VISIBLE
+      binding.mainView.visibility = View.VISIBLE
+      binding.openBtn.visibility = View.GONE
+    }
    
   }
   
@@ -406,31 +417,32 @@ class TabActivity : AppCompatActivity() {
     
     
     TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-      tab.text = fragmentTitles[position]
+      tab.text = tabViewModel.fragmentTitles[position]
     }.attach()
     
   }
   
   private fun restoreState(state: Bundle) {
-    if (fragmentFiles.isNotEmpty()){
-      binding.tabs.visibility = View.VISIBLE
-      binding.mainView.visibility = View.VISIBLE
-      binding.openBtn.visibility = View.GONE
-    }
-    fragmentFiles.clear()
-    fragmentTitles.clear()
-    @Suppress("DEPRECATION")
-    state.getSerializable("fileUris")?.let {
-      @Suppress("UNCHECKED_CAST")
-      fragmentFiles.addAll(it as List<File>)
-    }
-    state.getStringArrayList("titles")?.let { fragmentTitles.addAll(it) }
-  }
+//    if (fragmentFiles.isNotEmpty()){
+//      binding.tabs.visibility = View.VISIBLE
+//      binding.mainView.visibility = View.VISIBLE
+//      binding.openBtn.visibility = View.GONE
+//    }
+//    fragmentFiles.clear()
+//    fragmentTitles.clear()
+//    @Suppress("DEPRECATION")
+//    state.getSerializable("fileUris")?.let {
+//      @Suppress("UNCHECKED_CAST")
+//      fragmentFiles.addAll(it as List<File>)
+//    }
+//    state.getStringArrayList("titles")?.let { fragmentTitles.addAll(it) }
+ }
   
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
-    outState.putSerializable("fileUris", ArrayList(fragmentFiles))
-    outState.putStringArrayList("titles", ArrayList(fragmentTitles))
+//    super.onSaveInstanceState(outState)
+//    outState.putSerializable("fileUris", ArrayList(fragmentFiles))
+//    outState.putStringArrayList("titles", ArrayList(fragmentTitles))
   }
   //view click listeners
 //    fun openFile(v: View?) {
@@ -445,24 +457,30 @@ class TabActivity : AppCompatActivity() {
   
   //adapter related stuff
   fun addFragment(file: File) {
-    fragmentFiles.add(file)
-    fragmentTitles.add(file.name)
-    (viewPager.adapter as? FragmentAdapter)?.notifyItemInsertedX(fragmentFiles.size - 1)
+    if (tabViewModel.fileSet.contains(file.absolutePath)){
+      rkUtils.toast(this,"File already opened")
+      return
+    }
+    tabViewModel.fileSet.add(file.absolutePath)
+    tabViewModel.fragmentFiles.add(file)
+    tabViewModel.fragmentTitles.add(file.name)
+    (viewPager.adapter as? FragmentAdapter)?.notifyItemInsertedX(tabViewModel.fragmentFiles.size - 1)
     binding.tabs.visibility = View.VISIBLE
     binding.mainView.visibility = View.VISIBLE
     binding.openBtn.visibility = View.GONE
   }
   
   private fun removeFragment(position: Int) {
-    if (position >= 0 && position < fragmentFiles.size) {
-      fragmentFiles.removeAt(position)
-      fragmentTitles.removeAt(position)
+    if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
+      tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
+      tabViewModel.fragmentFiles.removeAt(position)
+      tabViewModel.fragmentTitles.removeAt(position)
       (viewPager.adapter as? FragmentAdapter)?.apply {
         notifyItemRemovedX(position)
       }
       
     }
-    if (fragmentFiles.isEmpty()){
+    if (tabViewModel.fragmentFiles.isEmpty()){
       binding.tabs.visibility = View.GONE
       binding.mainView.visibility = View.GONE
       binding.openBtn.visibility = View.VISIBLE
@@ -472,8 +490,9 @@ class TabActivity : AppCompatActivity() {
   
   @SuppressLint("NotifyDataSetChanged")
   private fun clearAllFragments() {
-    fragmentFiles.clear()
-    fragmentTitles.clear()
+    tabViewModel.fileSet.clear()
+    tabViewModel.fragmentFiles.clear()
+    tabViewModel.fragmentTitles.clear()
     (viewPager.adapter as? FragmentAdapter)?.notifyDataSetChanged()
     binding.tabs.visibility = View.GONE
     binding.mainView.visibility = View.GONE
@@ -504,10 +523,10 @@ class TabActivity : AppCompatActivity() {
     FragmentStateAdapter(activity.supportFragmentManager, lifecycle) {
     private val itemIds = mutableMapOf<Int, Long>()
     
-    override fun getItemCount(): Int = fragmentFiles.size
+    override fun getItemCount(): Int = tabViewModel.fragmentFiles.size
     
     override fun createFragment(position: Int): Fragment {
-      val file = fragmentFiles[position]
+      val file = tabViewModel.fragmentFiles[position]
       return TabFragment.newInstance(file).apply { tabFragments[position] = this }
     }
     

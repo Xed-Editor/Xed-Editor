@@ -40,16 +40,14 @@ class TabFragment : Fragment() {
                 file = File(filePath)
             }
         }
+        
+        val context = requireContext()
 
-        editor = CodeEditor(requireContext())
+        editor = CodeEditor(context)
 
-        val setupEditor = SetupEditor(editor!!, requireContext())
-        val isDarkMode = SettingsData.isDarkMode(requireContext())
-
-        if (isDarkMode) {
-            setupEditor.ensureTextmateTheme()
-        }
-
+        val setupEditor = SetupEditor(editor!!,context)
+        setupEditor.ensureTextmateTheme(context)
+        
         lifecycleScope.launch(Dispatchers.Default) {
             launch(Dispatchers.IO) {
                 try {
@@ -62,11 +60,6 @@ class TabFragment : Fragment() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                     editor!!.setText("file not found")
-                }
-            }
-            launch(Dispatchers.Default) {
-                if (isDarkMode.not()) {
-                    setupEditor.ensureTextmateTheme()
                 }
             }
             launch(Dispatchers.Default) {

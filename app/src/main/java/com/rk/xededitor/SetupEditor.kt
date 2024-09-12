@@ -141,7 +141,9 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         editor.setEditorLanguage(language as Language)
     }
 
-    fun ensureTextmateTheme() {
+    fun ensureTextmateTheme(context:Context) {
+        Assets.verify(context)
+        init(context)
         val themeRegistry = when {
             isDarkMode(ctx) && SettingsData.isOled() -> oledThemeRegistry
             isDarkMode(ctx) -> darkThemeRegistry

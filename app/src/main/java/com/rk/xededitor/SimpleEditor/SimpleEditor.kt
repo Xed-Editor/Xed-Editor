@@ -52,8 +52,10 @@ class SimpleEditor : BaseActivity() {
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-
+        
+        SetupEditor.init(this@SimpleEditor)
+        SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this)
+        
         if (!isDarkMode(this)) {
             //light mode
             window.navigationBarColor = Color.parseColor("#FEF7FF")
@@ -80,10 +82,7 @@ class SimpleEditor : BaseActivity() {
         val wordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
         editor!!.isWordwrap = wordwrap
 
-        lifecycleScope.launch(Dispatchers.Default){
-            SetupEditor.init(this@SimpleEditor)
-            SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme()
-        }
+       
 
 
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {

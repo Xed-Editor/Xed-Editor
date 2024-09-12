@@ -52,7 +52,7 @@ class CrashActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowTitleEnabled(true)
             error_editor = findViewById(R.id.error_editor)
-            SetupEditor(error_editor,this).ensureTextmateTheme()
+            SetupEditor(error_editor,this).ensureTextmateTheme(this)
 
 
 

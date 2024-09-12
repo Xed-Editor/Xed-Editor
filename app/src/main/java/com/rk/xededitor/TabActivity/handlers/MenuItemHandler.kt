@@ -26,7 +26,7 @@ object MenuItemHandler {
             withContext(Dispatchers.Main) {
                 val menu = activity.menu
 
-                val show = activity.fragmentFiles.isNotEmpty()
+                val show = activity.tabViewModel.fragmentFiles.isNotEmpty()
                 editorMenu(menu,show)
 
                 if(show){

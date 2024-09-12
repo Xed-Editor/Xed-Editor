@@ -31,14 +31,9 @@ class App : Application() {
         }
       }
     }
-    
-    
-    //SetupEditor.init(this)
 
-
-    //verify if assets are extracted or not
     Assets.verify(this)
-
+    
     //start plugin server
     After(200){
       if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS,false)){
@@ -46,7 +41,8 @@ class App : Application() {
         pluginLoader.start()
       }
     }
-
+    
+    SetupEditor.init(this)
 
   }
 }
