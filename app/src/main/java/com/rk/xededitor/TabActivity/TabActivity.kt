@@ -36,6 +36,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
+import com.rk.xededitor.TabActivity.editor.AutoSaver
 import com.rk.xededitor.TabActivity.editor.TabFragment
 import com.rk.xededitor.TabActivity.file.FileManager
 import com.rk.xededitor.TabActivity.file.ProjectManager
@@ -172,6 +173,7 @@ class TabActivity : AppCompatActivity() {
     PermissionHandler.verifyStoragePermission(this)
     ProjectManager.processQueue(this)
     super.onResume()
+    AutoSaver.start(this)
   }
   
   @SuppressLint("SetTextI18n")
