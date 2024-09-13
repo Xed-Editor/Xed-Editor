@@ -55,12 +55,12 @@ object MenuItemHandler {
     menu.findItem(R.id.undo).isEnabled = currentFragment?.editor?.canUndo() == true
     
     if (currentFragment?.setListener?.not() == true) {
-      currentFragment.let { it ->
+      currentFragment.let {
         it.editor?.subscribeAlways(
           ContentChangeEvent::class.java
         ) {
-          
-          
+          menu.findItem(R.id.redo).isEnabled = currentFragment.editor?.canRedo() == true
+          menu.findItem(R.id.undo).isEnabled = currentFragment.editor?.canUndo() == true
           
           currentFragment.lifecycleScope.launch(Dispatchers.Default) {
             try {
@@ -83,18 +83,10 @@ object MenuItemHandler {
             } catch (_: Exception) {}
           }
           
-          
-          
-          rkUtils.runOnUiThread {
-            menu.findItem(R.id.redo).isEnabled = it.editor.canRedo() == true
-            menu.findItem(R.id.undo).isEnabled = it.editor.canUndo() == true
-          }
-          
         }
-        
-        it.setListener = true
-        
-        
+        if (it.setListener.not()){
+          it.setListener = true
+        }
       }
     }
     

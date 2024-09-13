@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
@@ -140,10 +141,18 @@ class TabFragment : Fragment() {
   
   fun undo() {
     editor?.undo()
+    TabActivity.activityRef.get()?.let {
+      it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
+      it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+    }
   }
   
   fun redo() {
     editor?.redo()
+    TabActivity.activityRef.get()?.let {
+      it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
+      it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+    }
   }
   
   private var isSearching: Boolean = false

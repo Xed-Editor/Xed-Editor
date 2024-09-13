@@ -5,11 +5,14 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.MenuItem
+import android.view.View
 import android.view.WindowManager
 import android.widget.EditText
+import android.widget.RelativeLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.TabActivity.TabActivity
@@ -155,37 +158,35 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.double_arrows
         defaultValue = false
         onCheckedChange { isChecked ->
-//                    if (StaticData.fragments == null || StaticData.fragments.isEmpty()) {
-//                        return@onCheckedChange true
-//                    }
-//                    LoadingPopup(this@SettingsEditor, 200)
-//
-//                    if (isChecked) {
-//                        getActivity(MainActivity::class.java)?.binding?.divider?.visibility =
-//                            View.VISIBLE
-//                        getActivity(MainActivity::class.java)?.binding?.mainBottomBar?.visibility =
-//                            View.VISIBLE
-//                        val vp = getActivity(MainActivity::class.java)?.binding?.viewpager
-//                        val layoutParams = vp?.layoutParams as RelativeLayout.LayoutParams
-//                        layoutParams.bottomMargin = rkUtils.dpToPx(
-//                            40f, getActivity(MainActivity::class.java)!!
-//                        ) // Convert dp to pixels as needed
-//                        vp.setLayoutParams(layoutParams)
-//                    } else {
-//                        getActivity(MainActivity::class.java)?.binding?.divider?.visibility =
-//                            View.GONE
-//                        getActivity(MainActivity::class.java)?.binding?.mainBottomBar?.visibility =
-//                            View.GONE
-//                        val vp = getActivity(MainActivity::class.java)?.binding?.viewpager
-//                        val layoutParams = vp?.layoutParams as RelativeLayout.LayoutParams
-//                        layoutParams.bottomMargin = rkUtils.dpToPx(
-//                            0f, getActivity(MainActivity::class.java)!!
-//                        ) // Convert dp to pixels as needed
-//                        vp.setLayoutParams(layoutParams)
-//                    }
-//
-//                    getActivity(MainActivity::class.java)?.recreate()
-          
+          TabActivity.activityRef.get()?.let { activity ->
+            if (activity.tabViewModel.fragmentFiles.isEmpty()) {
+              return@onCheckedChange true
+            }
+            LoadingPopup(this@SettingsEditor, 200)
+            if (isChecked) {
+              activity.binding.apply {
+                divider.visibility = View.VISIBLE
+                mainBottomBar.visibility = View.VISIBLE
+              }
+            } else {
+              activity.binding.apply {
+                divider.visibility = View.GONE
+                mainBottomBar.visibility = View.GONE
+              }
+            }
+            
+            val viewpager = activity.binding.viewpager2
+            val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
+            layoutParams.bottomMargin = rkUtils.dpToPx(
+              if (isChecked) {
+                40f
+              } else {
+                0f
+              }, activity
+            )
+            viewpager.setLayoutParams(layoutParams)
+            
+          }
           return@onCheckedChange true
         }
       }
