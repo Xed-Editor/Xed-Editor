@@ -30,8 +30,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
@@ -62,29 +62,30 @@ import java.util.WeakHashMap
 
 class TabActivity : AppCompatActivity() {
   
-  companion object{
+  companion object {
     var activityRef = WeakReference<TabActivity?>(null)
   }
   
   lateinit var binding: ActivityTabBinding
   private lateinit var viewPager: ViewPager2
-  private lateinit var tabLayout: TabLayout
+  lateinit var tabLayout: TabLayout
   private lateinit var drawerToggle: ActionBarDrawerToggle
   private lateinit var fm: FileManager
-  lateinit var menu:Menu
-  private val pausedQueue:Queue<Runnable> = LinkedList()
+  lateinit var menu: Menu
+  var smoothTabs = true
+  private val pausedQueue: Queue<Runnable> = LinkedList()
   
-  fun postPausedQueue(runnable: Runnable){
+  fun postPausedQueue(runnable: Runnable) {
     pausedQueue.add(runnable)
   }
-  private val TAB_LIMIT = 50
+  
+  private val tabLimit = 20
   
   
   class TabViewModel : ViewModel() {
     val fragmentFiles = mutableListOf<File>()
     val fragmentTitles = mutableListOf<String>()
     val fileSet = HashSet<String>()
-    // Additional states you want to store
   }
   
   val tabViewModel: TabViewModel by viewModels() // Lazy initialization
@@ -109,24 +110,17 @@ class TabActivity : AppCompatActivity() {
     fm = FileManager(this)
     setupNavigationRail()
     
-    savedInstanceState?.let { restoreState(it) }
-    
-//    if (savedInstanceState == null){
-//      //restore state from disk
-//    }else{
-//      restoreState(savedInstanceState)
-//    }
-    
     setupAdapter()
     
-    if (tabViewModel.fragmentFiles.isNotEmpty()){
+    if (tabViewModel.fragmentFiles.isNotEmpty()) {
       binding.tabs.visibility = View.VISIBLE
       binding.mainView.visibility = View.VISIBLE
       binding.openBtn.visibility = View.GONE
     }
     
+    smoothTabs = SettingsData.getBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, true)
     
-   
+    
   }
   
   fun isMenuInitialized(): Boolean {
@@ -145,9 +139,7 @@ class TabActivity : AppCompatActivity() {
   }
   
   override fun onRequestPermissionsResult(
-    requestCode: Int,
-    permissions: Array<String>,
-    grantResults: IntArray
+    requestCode: Int, permissions: Array<String>, grantResults: IntArray
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     PermissionHandler.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
@@ -162,7 +154,7 @@ class TabActivity : AppCompatActivity() {
   
   override fun onResume() {
     isPaused = false
-    lifecycleScope.launch(Dispatchers.Main){
+    lifecycleScope.launch(Dispatchers.Main) {
       while (pausedQueue.isNotEmpty()) {
         delay(100)
         withContext(Dispatchers.Main) {
@@ -178,7 +170,7 @@ class TabActivity : AppCompatActivity() {
   
   @SuppressLint("SetTextI18n")
   @OptIn(DelicateCoroutinesApi::class)
-  private fun setupNavigationRail(){
+  private fun setupNavigationRail() {
     val openFileId = View.generateViewId()
     val openDirId = View.generateViewId()
     val openPathId = View.generateViewId()
@@ -187,73 +179,79 @@ class TabActivity : AppCompatActivity() {
     
     var dialog: AlertDialog? = null
     
-    val listener = View.OnClickListener { v->
-      when(v.id){
+    val listener = View.OnClickListener { v ->
+      when (v.id) {
         openFileId -> {
           fm.requestOpenFile()
         }
+        
         openDirId -> {
           fm.requestOpenDirectory()
         }
+        
         openPathId -> {
           fm.requestOpenFromPath()
         }
+        
         privateFilesId -> {
-          ProjectManager.addProject(this,filesDir.parentFile!!)
+          ProjectManager.addProject(this, filesDir.parentFile!!)
         }
+        
         cloneRepo -> {
           val view = LayoutInflater.from(this@TabActivity).inflate(R.layout.popup_new, null)
           view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
-          val repolinkedit = view.findViewById<EditText>(R.id.name).apply {
+          val repoLinkEdit = view.findViewById<EditText>(R.id.name).apply {
             hint = "https://github.com/UserName/repo.git"
           }
-          val branchedit = view.findViewById<EditText>(R.id.mime).apply {
+          val branchEdit = view.findViewById<EditText>(R.id.mime).apply {
             hint = "Branch. Example: main"
             setText("")
           }
-          MaterialAlertDialogBuilder(this).setTitle("Clone repository")
-            .setView(view).setNegativeButton("Cancel", null)
-            .setPositiveButton("Apply") { _, _ ->
-              val repoLink = repolinkedit.text.toString()
-              val branch = branchedit.text.toString()
+          MaterialAlertDialogBuilder(this).setTitle("Clone repository").setView(view)
+            .setNegativeButton("Cancel", null).setPositiveButton("Apply") { _, _ ->
+              val repoLink = repoLinkEdit.text.toString()
+              val branch = branchEdit.text.toString()
               val repoName = repoLink.substringAfterLast("/").removeSuffix(".git")
-              val repoDir = File(SettingsData.getString(Keys.GIT_REPO_DIR, "/storage/emulated/0") + "/" + repoName)
+              val repoDir = File(
+                SettingsData.getString(
+                  Keys.GIT_REPO_DIR, "/storage/emulated/0"
+                ) + "/" + repoName
+              )
               if (repoLink.isEmpty() || branch.isEmpty()) {
                 rkUtils.toast(this, "Please fill in both fields")
-              }
-              else if (repoDir.exists()) {
+              } else if (repoDir.exists()) {
                 rkUtils.toast(this, "$repoDir already exists!")
-              }
-              else {
+              } else {
                 val loadingPopup = LoadingPopup(this, null).setMessage("Cloning repository...")
                 loadingPopup.show()
                 GlobalScope.launch(Dispatchers.IO) {
                   try {
-                    Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).call()
+                    Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch)
+                      .call()
                     withContext(Dispatchers.Main) {
                       loadingPopup.hide()
-                      ProjectManager.addProject(this@TabActivity,repoDir)
+                      ProjectManager.addProject(this@TabActivity, repoDir)
                     }
-                  }
-                  catch (e: Exception) {
+                  } catch (e: Exception) {
                     val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                     if (credentials.size != 2) {
                       withContext(Dispatchers.Main) {
                         loadingPopup.hide()
-                        rkUtils.toast(this@TabActivity, "Repository is private. Check your credentials")
+                        rkUtils.toast(
+                          this@TabActivity, "Repository is private. Check your credentials"
+                        )
                       }
-                    }
-                    else {
+                    } else {
                       try {
-                        Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch).setCredentialsProvider(
-                          UsernamePasswordCredentialsProvider(credentials[0], credentials[1])
-                        ).call()
+                        Git.cloneRepository().setURI(repoLink).setDirectory(repoDir)
+                          .setBranch(branch).setCredentialsProvider(
+                            UsernamePasswordCredentialsProvider(credentials[0], credentials[1])
+                          ).call()
                         withContext(Dispatchers.Main) {
                           loadingPopup.hide()
-                          ProjectManager.addProject(this@TabActivity,repoDir)
+                          ProjectManager.addProject(this@TabActivity, repoDir)
                         }
-                      }
-                      catch (e: Exception) {
+                      } catch (e: Exception) {
                         withContext(Dispatchers.Main) {
                           loadingPopup.hide()
                           rkUtils.toast(this@TabActivity, "Error: ${e.message}")
@@ -270,22 +268,47 @@ class TabActivity : AppCompatActivity() {
       dialog = null
     }
     
-    fun handleAddNew(){
+    fun handleAddNew() {
       ActionPopup(this).apply {
-        addItem("Open a File","Choose a file from storage to directly edit it",
-          ContextCompat.getDrawable(this@TabActivity,R.drawable.outline_insert_drive_file_24),listener,openFileId)
-        addItem("Open a Directory","Choose a directory from storage as a project",
-          ContextCompat.getDrawable(this@TabActivity,R.drawable.outline_folder_24),listener,openDirId)
-        addItem("Open from Path","Open a project/file from a path",
-          ContextCompat.getDrawable(this@TabActivity,R.drawable.android),listener,openPathId)
-        addItem("Clone repository","Clone repository using Git",ContextCompat.getDrawable(this@TabActivity,R.drawable.git),listener,
+        addItem(
+          "Open a File",
+          "Choose a file from storage to directly edit it",
+          ContextCompat.getDrawable(this@TabActivity, R.drawable.outline_insert_drive_file_24),
+          listener,
+          openFileId
+        )
+        addItem(
+          "Open a Directory",
+          "Choose a directory from storage as a project",
+          ContextCompat.getDrawable(this@TabActivity, R.drawable.outline_folder_24),
+          listener,
+          openDirId
+        )
+        addItem(
+          "Open from Path",
+          "Open a project/file from a path",
+          ContextCompat.getDrawable(this@TabActivity, R.drawable.android),
+          listener,
+          openPathId
+        )
+        addItem(
+          "Clone repository",
+          "Clone repository using Git",
+          ContextCompat.getDrawable(this@TabActivity, R.drawable.git),
+          listener,
           cloneRepo
         )
-        addItem("Private Files","Private files of karbon",ContextCompat.getDrawable(this@TabActivity,R.drawable.android),listener,privateFilesId)
+        addItem(
+          "Private Files",
+          "Private files of karbon",
+          ContextCompat.getDrawable(this@TabActivity, R.drawable.android),
+          listener,
+          privateFilesId
+        )
         
         
         setTitle("Add")
-        getDialogBuilder().setNegativeButton("Cancel",null)
+        getDialogBuilder().setNegativeButton("Cancel", null)
         dialog = show()
       }
       
@@ -295,10 +318,9 @@ class TabActivity : AppCompatActivity() {
       if (item.itemId == R.id.add_new) {
         handleAddNew()
         false
-      }
-      else {
+      } else {
         ProjectManager.projects[item.itemId]?.let {
-          ProjectManager.changeProject(File(it),this)
+          ProjectManager.changeProject(File(it), this)
         }
         true
       }
@@ -330,14 +352,14 @@ class TabActivity : AppCompatActivity() {
       if (drawerToggle.onOptionsItemSelected(item)) {
         return true
       }
-      MenuClickHandler.handle(this,item)
+      MenuClickHandler.handle(this, item)
       return false
     }
   }
   
   private fun setupViewPager() {
     viewPager = binding.viewpager2.apply {
-      offscreenPageLimit = TAB_LIMIT
+      offscreenPageLimit = tabLimit
       isUserInputEnabled = false
     }
   }
@@ -376,18 +398,23 @@ class TabActivity : AppCompatActivity() {
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
     
   }
+  
+  
   private fun setupTabLayout() {
     tabLayout = binding.tabs.apply {
       addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: Tab?) {
-          viewPager.setCurrentItem(tab!!.position, true)
+          if (smoothTabs.not()) {
+            viewPager.setCurrentItem(tab!!.position, false)
+          }
           MenuItemHandler.update(this@TabActivity)
-          tab.text = tab.text
+          tab!!.text = tab.text
         }
         
         override fun onTabUnselected(tab: Tab?) {
         
         }
+        
         override fun onTabReselected(tab: Tab?) {
           val popupMenu = PopupMenu(this@TabActivity, tab!!.view)
           popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
@@ -427,50 +454,27 @@ class TabActivity : AppCompatActivity() {
     
   }
   
-  private fun restoreState(state: Bundle) {
-//    if (fragmentFiles.isNotEmpty()){
-//      binding.tabs.visibility = View.VISIBLE
-//      binding.mainView.visibility = View.VISIBLE
-//      binding.openBtn.visibility = View.GONE
-//    }
-//    fragmentFiles.clear()
-//    fragmentTitles.clear()
-//    @Suppress("DEPRECATION")
-//    state.getSerializable("fileUris")?.let {
-//      @Suppress("UNCHECKED_CAST")
-//      fragmentFiles.addAll(it as List<File>)
-//    }
-//    state.getStringArrayList("titles")?.let { fragmentTitles.addAll(it) }
- }
-  
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-//    super.onSaveInstanceState(outState)
-//    outState.putSerializable("fileUris", ArrayList(fragmentFiles))
-//    outState.putStringArrayList("titles", ArrayList(fragmentTitles))
-  }
-  //view click listeners
-//    fun openFile(v: View?) {
-//        FileManager.openFile()
-//    }
-  
   fun openDrawer(v: View?) {
     binding.drawerLayout.open()
   }
   
-  // ----------------------------------------------------------------------------
-  
   //adapter related stuff
   fun addFragment(file: File) {
-    if (tabViewModel.fileSet.contains(file.absolutePath)){
-      rkUtils.toast(this,"File already opened")
+    if (tabViewModel.fileSet.contains(file.absolutePath)) {
+      rkUtils.toast(this, "File already opened")
+      return
+    }
+    if (tabViewModel.fragmentFiles.size >= tabLimit) {
+      rkUtils.toast(this, "Cannot open more than $tabLimit files")
       return
     }
     tabViewModel.fileSet.add(file.absolutePath)
     tabViewModel.fragmentFiles.add(file)
     tabViewModel.fragmentTitles.add(file.name)
     (viewPager.adapter as? FragmentAdapter)?.notifyItemInsertedX(tabViewModel.fragmentFiles.size - 1)
-    if (tabViewModel.fragmentFiles.size > 1) viewPager.setCurrentItem(tabViewModel.fragmentFiles.size - 1, true)
+    if (tabViewModel.fragmentFiles.size > 1) viewPager.setCurrentItem(
+      tabViewModel.fragmentFiles.size - 1, true
+    )
     binding.tabs.visibility = View.VISIBLE
     binding.mainView.visibility = View.VISIBLE
     binding.openBtn.visibility = View.GONE
@@ -486,7 +490,7 @@ class TabActivity : AppCompatActivity() {
       }
       
     }
-    if (tabViewModel.fragmentFiles.isEmpty()){
+    if (tabViewModel.fragmentFiles.isEmpty()) {
       binding.tabs.visibility = View.GONE
       binding.mainView.visibility = View.GONE
       binding.openBtn.visibility = View.VISIBLE
@@ -521,7 +525,7 @@ class TabActivity : AppCompatActivity() {
   private var nextItemId = 0L
   val tabFragments = WeakHashMap<Int, TabFragment>()
   
-  fun getCurrentFragment(): TabFragment?{
+  fun getCurrentFragment(): TabFragment? {
     return tabFragments[tabLayout.selectedTabPosition]
   }
   
