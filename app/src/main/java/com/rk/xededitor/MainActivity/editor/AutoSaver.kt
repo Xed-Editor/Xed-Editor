@@ -1,8 +1,9 @@
-package com.rk.xededitor.TabActivity.editor
+package com.rk.xededitor.MainActivity.editor
 
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.tabFragments
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -17,7 +18,7 @@ object AutoSaver {
   private var job: Job? = null
   
   @OptIn(DelicateCoroutinesApi::class)
-  fun start(activity: TabActivity) {
+  fun start(activity: MainActivity) {
     job?.let {
       if (it.isActive) {
         return
@@ -35,7 +36,7 @@ object AutoSaver {
           activity.let {
             if (it.tabViewModel.fragmentFiles.isNotEmpty() and it.isPaused.not() and it.isFinishing.not() and it.isDestroyed.not()) {
               withContext(Dispatchers.Main) {
-                it.tabFragments.values.forEach { f ->
+                tabFragments.values.forEach { f ->
                   f?.save(false)
                 }
               }

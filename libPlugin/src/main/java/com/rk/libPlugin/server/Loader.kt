@@ -11,7 +11,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class Loader(val app: Application) {
-
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
         GlobalScope.launch(Dispatchers.Default) {

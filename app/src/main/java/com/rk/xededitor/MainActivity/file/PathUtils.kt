@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity.file
+package com.rk.xededitor.MainActivity.file
 
 import android.content.Context
 import android.net.Uri

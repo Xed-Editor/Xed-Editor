@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.MainActivity
 
 
 import android.annotation.SuppressLint
@@ -25,12 +25,12 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.TabActivity.editor.AutoSaver
-import com.rk.xededitor.TabActivity.file.FileManager
-import com.rk.xededitor.TabActivity.file.ProjectManager
-import com.rk.xededitor.TabActivity.handlers.MenuClickHandler
-import com.rk.xededitor.TabActivity.handlers.MenuItemHandler
-import com.rk.xededitor.TabActivity.handlers.PermissionHandler
+import com.rk.xededitor.MainActivity.editor.AutoSaver
+import com.rk.xededitor.MainActivity.file.FileManager
+import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -42,10 +42,10 @@ import java.util.LinkedList
 import java.util.Queue
 
 
-class TabActivity : BaseActivity() {
+class MainActivity : BaseActivity() {
   
   companion object {
-    var activityRef = WeakReference<TabActivity?>(null)
+    var activityRef = WeakReference<MainActivity?>(null)
   }
   
   lateinit var binding: ActivityTabBinding
@@ -64,7 +64,6 @@ class TabActivity : BaseActivity() {
   
   class TabViewModel : ViewModel() {
     val fragmentFiles = mutableListOf<File>()
-    val projectFileMap = HashMap<File,File>()
     val fragmentTitles = mutableListOf<String>()
     val fileSet = HashSet<String>()
   }
@@ -218,14 +217,14 @@ class TabActivity : BaseActivity() {
           if (smoothTabs.not()) {
             viewPager.setCurrentItem(tab!!.position, false)
           }
-          MenuItemHandler.update(this@TabActivity)
+          MenuItemHandler.update(this@MainActivity)
           tab!!.text = tab.text
         }
         
         override fun onTabUnselected(tab: Tab?) {}
         
         override fun onTabReselected(tab: Tab?) {
-          val popupMenu = PopupMenu(this@TabActivity, tab!!.view)
+          val popupMenu = PopupMenu(this@MainActivity, tab!!.view)
           popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
           popupMenu.setOnMenuItemClickListener { item ->
             val id = item.itemId
@@ -242,7 +241,7 @@ class TabActivity : BaseActivity() {
                 adapter.clearAllFragments()
               }
             }
-            MenuItemHandler.update(this@TabActivity)
+            MenuItemHandler.update(this@MainActivity)
             
             true
           }

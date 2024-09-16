@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity.file
+package com.rk.xededitor.MainActivity.file
 
 import android.app.Activity
 import android.content.Intent
@@ -8,27 +8,27 @@ import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.xededitor.TabActivity.file.PathUtils.convertUriToPath
+import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
 import com.rk.xededitor.R
-import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
 import java.io.File
 
-class FileManager(private val tabActivity: TabActivity) {
+class FileManager(private val mainActivity: MainActivity) {
 
     private var requestOpenFile =
-        tabActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(convertUriToPath(tabActivity, it.data!!.data))
-                tabActivity.addFragment(file)
+                val file = File(convertUriToPath(mainActivity, it.data!!.data))
+                mainActivity.adapter.addFragment(file)
             }
         }
 
     private var requestOpenDir =
-        tabActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(convertUriToPath(tabActivity, it.data!!.data))
-                ProjectManager.addProject(tabActivity,file)
+                val file = File(convertUriToPath(mainActivity, it.data!!.data))
+                ProjectManager.addProject(mainActivity,file)
             }
         }
 
@@ -46,15 +46,15 @@ class FileManager(private val tabActivity: TabActivity) {
     }
 
     fun requestOpenFromPath() {
-        val popupView = LayoutInflater.from(tabActivity).inflate(R.layout.popup_new, null)
+        val popupView = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
         val editText = popupView.findViewById<View>(R.id.name) as EditText
 
         editText.setText(Environment.getExternalStorageDirectory().absolutePath)
         editText.hint = "file or folder path"
 
-        MaterialAlertDialogBuilder(tabActivity).setView(popupView).setTitle("Path")
+        MaterialAlertDialogBuilder(mainActivity).setView(popupView).setTitle("Path")
             .setNegativeButton(
-                tabActivity.getString(
+                mainActivity.getString(
                     R.string.cancel
                 ), null
             ).setPositiveButton("Open") { dialog, which ->
@@ -63,25 +63,25 @@ class FileManager(private val tabActivity: TabActivity) {
 
 
                 if (path.isEmpty()) {
-                    rkUtils.toast(tabActivity, "Please enter a path")
+                    rkUtils.toast(mainActivity, "Please enter a path")
                     return@setPositiveButton
                 }
 
                 if (!file.exists()) {
-                    rkUtils.toast(tabActivity, "Path does not exist")
+                    rkUtils.toast(mainActivity, "Path does not exist")
                     return@setPositiveButton
                 }
 
                 if (!file.canRead() && file.canWrite()) {
-                    rkUtils.toast(tabActivity, "Permission Denied")
+                    rkUtils.toast(mainActivity, "Permission Denied")
                     return@setPositiveButton
                 }
 
 
                 if (file.isDirectory) {
-                    ProjectManager.addProject(tabActivity,file)
+                    ProjectManager.addProject(mainActivity,file)
                 } else {
-                    tabActivity.addFragment(file)
+                    mainActivity.adapter.addFragment(file)
                 }
 
 
@@ -92,7 +92,7 @@ class FileManager(private val tabActivity: TabActivity) {
     companion object{
         fun findGitRoot(file: File?): File? {
             var currentFile = file
-            while (currentFile?.parentFile != null) {
+            while (currentFile?.parentFile != null &&  ProjectManager.projects.values.contains(currentFile.parentFile?.absolutePath).not()) {
                 if (File(currentFile.parentFile, ".git").exists()) {
                     return currentFile.parentFile
                 }

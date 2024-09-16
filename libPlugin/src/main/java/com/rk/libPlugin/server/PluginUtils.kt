@@ -34,24 +34,24 @@ object PluginUtils {
 
     private val InstalledPlugins = ArrayList<Plugin>()
 
-    @JvmStatic
+    
     fun getInstalledPlugins(): List<Plugin> {
         return synchronized(InstalledPlugins) { InstalledPlugins }
     }
 
-    @JvmStatic
+    
     fun Context.getPluginRoot(): File {
         return File(filesDir.parentFile, "plugins")
     }
 
-    @JvmStatic
+    
     fun isPluginActive(context: Context, packageName: String, default: Boolean): Boolean {
         val sharedPreferences =
             context.applicationContext.getSharedPreferences("PluginPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getBoolean(packageName, default)
     }
 
-    @JvmStatic
+    
     fun setPluginActive(context: Context, packageName: String, active: Boolean) {
         val sharedPreferences =
             context.applicationContext.getSharedPreferences("PluginPrefs", Context.MODE_PRIVATE)

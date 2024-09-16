@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity.handlers
+package com.rk.xededitor.MainActivity.handlers
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -21,9 +21,10 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsMainActivity
-import com.rk.xededitor.TabActivity.BatchReplacement
-import com.rk.xededitor.TabActivity.TabActivity
-import com.rk.xededitor.TabActivity.file.FileManager
+import com.rk.xededitor.MainActivity.BatchReplacement
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.file.FileManager
+import com.rk.xededitor.MainActivity.tabFragments
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -32,7 +33,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 object MenuClickHandler {
 
@@ -40,17 +40,17 @@ object MenuClickHandler {
     private var searchText: String? = ""
 
     @OptIn(DelicateCoroutinesApi::class)
-    fun handle(activity: TabActivity, menuItem: MenuItem): Boolean {
+    fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
         when (id) {
 
             R.id.run -> {
-                activity.getCurrentFragment()?.let { Runner.run(it.file, activity) }
+                activity.adapter.getCurrentFragment()?.let { Runner.run(it.file, activity) }
                 return true
             }
 
             R.id.action_all -> {
-                activity.tabFragments.values.forEach { f ->
+                tabFragments.values.forEach { f ->
                     f?.save(false)
                 }
                 rkUtils.toast(activity, "Saved all files")
@@ -58,17 +58,17 @@ object MenuClickHandler {
             }
 
             R.id.action_save -> {
-                activity.getCurrentFragment()?.save()
+                activity.adapter.getCurrentFragment()?.save()
                 return true
             }
 
             R.id.undo -> {
-                activity.getCurrentFragment()?.undo()
+                activity.adapter.getCurrentFragment()?.undo()
                 return true
             }
 
             R.id.redo -> {
-                activity.getCurrentFragment()?.redo()
+                activity.adapter.getCurrentFragment()?.redo()
                 return true
             }
 
@@ -85,7 +85,7 @@ object MenuClickHandler {
 
             R.id.action_print -> {
                 Printer.print(
-                    activity, activity.getCurrentFragment()?.editor?.text.toString()
+                    activity, activity.adapter.getCurrentFragment()?.editor?.text.toString()
                 )
                 return true
             }
@@ -102,12 +102,12 @@ object MenuClickHandler {
             }
 
             R.id.search_next -> {
-                activity.getCurrentFragment()?.editor?.searcher?.gotoNext()
+                activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoNext()
                 return true
             }
 
             R.id.search_previous -> {
-                activity.getCurrentFragment()?.editor?.searcher?.gotoPrevious()
+                activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoPrevious()
                 return true
             }
 
@@ -125,7 +125,7 @@ object MenuClickHandler {
 
             R.id.share -> {
                 rkUtils.shareText(
-                    activity, activity.getCurrentFragment()?.editor?.text.toString()
+                    activity, activity.adapter.getCurrentFragment()?.editor?.text.toString()
                 )
                 return true
             }
@@ -152,9 +152,10 @@ object MenuClickHandler {
                                 null
                             ).setMessage("Please wait while the files are being downloaded.")
                             loadingPopup.show()
+                            
                             GlobalScope.launch(Dispatchers.IO) {
                                 try {
-                                    val gitRoot = FileManager.findGitRoot(activity.getCurrentFragment()?.file)
+                                    val gitRoot = FileManager.findGitRoot(activity.adapter.getCurrentFragment()?.file)
                                     if (gitRoot != null) {
                                         val git = Git.open(gitRoot)
                                         git.pull().setCredentialsProvider(
@@ -175,7 +176,7 @@ object MenuClickHandler {
                         }
 
                         push -> {
-                            val gitRoot = FileManager.findGitRoot(activity.getCurrentFragment()?.file)
+                            val gitRoot = FileManager.findGitRoot(activity.adapter.getCurrentFragment()?.file)
                             if (gitRoot != null) {
                                 val git = Git.open(gitRoot)
                                 val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
@@ -270,7 +271,7 @@ object MenuClickHandler {
 
     }
 
-    private fun handleReplace(activity: TabActivity): Boolean {
+    private fun handleReplace(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
         MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace))
             .setView(popupView).setNegativeButton(activity.getString(R.string.cancel), null)
@@ -280,27 +281,27 @@ object MenuClickHandler {
         return true
     }
 
-    private fun replaceAll(popupView: View,activity: TabActivity) {
+    private fun replaceAll(popupView: View,activity: MainActivity) {
         val editText = popupView.findViewById<EditText>(R.id.replace_replacement)
         val text = editText.text.toString()
 
-        activity.getCurrentFragment()?.editor?.apply {
+        activity.adapter.getCurrentFragment()?.editor?.apply {
             setText(searchText?.let { getText().toString().replace(it,text) })
         }
 
     }
 
 
-    private fun handleSearchClose(activity: TabActivity): Boolean {
+    private fun handleSearchClose(activity: MainActivity): Boolean {
         searchText = ""
-        activity.getCurrentFragment()?.editor?.searcher?.stopSearch()
-        activity.getCurrentFragment()?.setSearching(false)
-        activity.getCurrentFragment()?.editor?.invalidate()
+        activity.adapter.getCurrentFragment()?.editor?.searcher?.stopSearch()
+        activity.adapter.getCurrentFragment()?.setSearching(false)
+        activity.adapter.getCurrentFragment()?.editor?.invalidate()
         MenuItemHandler.update(activity)
         return true
     }
 
-    private fun handleSearch(activity: TabActivity): Boolean {
+    private fun handleSearch(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
         val searchBox = popupView.findViewById<EditText>(R.id.searchbox)
 
@@ -319,7 +320,7 @@ object MenuClickHandler {
     }
 
 
-    private fun initiateSearch(activity: TabActivity, searchBox: EditText, popupView: View) {
+    private fun initiateSearch(activity: MainActivity, searchBox: EditText, popupView: View) {
         searchText = searchBox.text.toString()
 
         if (searchText?.isBlank() == true) {
@@ -328,7 +329,7 @@ object MenuClickHandler {
 
         //search
         val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
-        activity.getCurrentFragment()?.let {
+        activity.adapter.getCurrentFragment()?.let {
             it.editor?.searcher?.search(
                 searchText!!, EditorSearcher.SearchOptions(
                     EditorSearcher.SearchOptions.TYPE_NORMAL, !checkBox.isChecked

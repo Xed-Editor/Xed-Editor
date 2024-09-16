@@ -21,7 +21,7 @@
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
         <activity
-            android:name=".TabActivity.TabActivity"
+            android:name=".MainActivity.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -54,7 +54,7 @@
             android:name=".CrashHandler.CrashActivity"
             android:exported="false" />
         <activity
-            android:name=".TabActivity.BatchReplacement"
+            android:name=".MainActivity.BatchReplacement"
             android:exported="false"
             android:label="@string/title_activity_batch_replacement"
             android:theme="@style/Theme.Fragments.NoActionBar" />

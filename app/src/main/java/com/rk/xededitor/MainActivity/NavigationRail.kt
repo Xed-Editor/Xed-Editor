@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -9,26 +9,22 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.TabActivity.file.ProjectManager
+import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.git.git
 import com.rk.xededitor.rkUtils
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 
 object NavigationRail {
   @SuppressLint("SetTextI18n")
-  fun setupNavigationRail(activity: TabActivity) {
+  fun setupNavigationRail(activity: MainActivity) {
     with(activity) {
       
       val openFileId = View.generateViewId()
@@ -59,7 +55,7 @@ object NavigationRail {
           }
           
           pluginDir -> {
-          
+            ProjectManager.addProject(this,getPluginRoot().also { if (it.exists().not()){it.mkdirs()} })
           }
           
           cloneRepo -> {
@@ -106,6 +102,7 @@ object NavigationRail {
                   lifecycleScope.launch(Dispatchers.Main) {
                     if (status == git.RESULT.OK) {
                       ProjectManager.addProject(this@with, repoDir)
+                      loadingPopup.hide()
                       return@launch
                     }
                     
@@ -113,12 +110,14 @@ object NavigationRail {
                       it.printStackTrace()
                       
                       if (status != git.RESULT.ERROR){
+                        loadingPopup.hide()
                         return@launch
                       }
                       
                       val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                       if (credentials.size != 2) {
-                        rkUtils.toast(this@with, "Repository is private. Check your credentials")
+                        rkUtils.toast(this@with, "Check the repo url or your credentials")
+                        loadingPopup.hide()
                         return@launch
                       }
                       

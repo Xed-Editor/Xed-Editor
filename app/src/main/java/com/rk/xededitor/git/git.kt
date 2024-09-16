@@ -90,41 +90,4 @@ object git {
     }
   }
   
-  @OptIn(DelicateCoroutinesApi::class)
-  fun commitAndPush(
-    gitRoot: File,
-    name:String,
-    email:String,
-    username: String,
-    password: String,
-    branch: String,
-    commitMessage:String,
-    onComplete: (RESULT, Exception?) -> Unit
-  ) {
-    GlobalScope.launch(Dispatchers.IO){
-      try {
-        val git = Git.open(gitRoot)
-        val ref = git.repository.findRef(branch)
-        if (ref == null) {
-          git.branchCreate().setName(branch).call()
-          git.checkout().setName(branch).call()
-        } else if (git.repository.branch != branch) {
-          git.checkout().setName(branch).call()
-        }
-        val config = git.repository.config
-        config.setString("user", null, "name", name)
-        config.setString("user", null, "email",email)
-        config.save()
-        git.add().addFilepattern(".").call()
-        git.commit().setMessage(commitMessage).call()
-        git.push().setCredentialsProvider(
-          UsernamePasswordCredentialsProvider(
-            username, password)
-        ).call()
-        onComplete.invoke(RESULT.OK,null)
-      } catch (e: Exception) {
-        onComplete.invoke(RESULT.ERROR,e)
-      }
-    }
-  }
 }

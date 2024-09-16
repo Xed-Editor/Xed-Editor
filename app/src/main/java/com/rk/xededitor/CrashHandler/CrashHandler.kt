@@ -35,8 +35,8 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
           Looper.loop()
           return  // Quit loop if no exception
         } catch (t: Throwable) {
+          //process cannot be recovered, exit
           exitProcess(1)
-
         }
 
       }

@@ -8,6 +8,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.collection.ArrayMap
+import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.theme.ThemeManager
@@ -19,17 +20,19 @@ abstract class BaseActivity : AppCompatActivity() {
   companion object {
     val activityMap = ArrayMap<Class<out BaseActivity>,WeakReference<Activity>>()
     
+    //used by plugins
+    fun getActivity(clazz:Class<out BaseActivity>):Activity?{
+      return activityMap[clazz]?.get()
+    }
+    
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ThemeManager.applyTheme(this)
     super.onCreate(savedInstanceState)
-
     activityMap[javaClass] = WeakReference(this)
-
-
-
-
+    PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
+    
     if (!SettingsData.isDarkMode(this)) {
       //light mode
       window.navigationBarColor = Color.parseColor("#FEF7FF")
@@ -50,9 +53,22 @@ abstract class BaseActivity : AppCompatActivity() {
 
 
   }
+  
+  override fun onResume() {
+    super.onResume()
+    PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.RESUMED)
+  }
+  
 
   override fun onPause() {
     super.onPause()
     ThemeManager.applyTheme(this)
+    PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.PAUSED)
   }
+  
+  override fun onDestroy() {
+    super.onDestroy()
+    PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.DESTROY)
+  }
+  
 }

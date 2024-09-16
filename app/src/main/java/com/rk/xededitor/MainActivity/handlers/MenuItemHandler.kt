@@ -1,13 +1,12 @@
-package com.rk.xededitor.TabActivity.handlers
+package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.rk.librunner.Runner
 import com.rk.xededitor.R
-import com.rk.xededitor.TabActivity.TabActivity
-import com.rk.xededitor.TabActivity.editor.TabFragment
-import com.rk.xededitor.TabActivity.file.FileManager.Companion.findGitRoot
-import com.rk.xededitor.rkUtils
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -15,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object MenuItemHandler {
-  fun update(activity: TabActivity) {
+  fun update(activity: MainActivity) {
     activity.lifecycleScope.launch(Dispatchers.Default) {
       //wait until the menu is Initialized
       while (activity.isMenuInitialized().not()) {
@@ -29,18 +28,18 @@ object MenuItemHandler {
         editorMenu(menu, show)
         
         if (show) {
-          activity.getCurrentFragment()?.file?.let {
+          activity.adapter.getCurrentFragment()?.file?.let {
             menu.findItem(R.id.run).isVisible = Runner.isRunnable(it)
           }
         } else {
           menu.findItem(R.id.run).isVisible = false
         }
         
-        menu.findItem(R.id.git).isVisible = findGitRoot(activity.getCurrentFragment()?.file) != null
+        menu.findItem(R.id.git).isVisible = findGitRoot(activity.adapter.getCurrentFragment()?.file) != null
         
-        updateUndoRedo(menu, activity.getCurrentFragment(), activity)
+        updateUndoRedo(menu, activity.adapter.getCurrentFragment(), activity)
         
-        searchMenu(menu, activity.getCurrentFragment()?.isSearching() ?: false)
+        searchMenu(menu, activity.adapter.getCurrentFragment()?.isSearching() ?: false)
         
         
       }
@@ -49,7 +48,7 @@ object MenuItemHandler {
   
   
   private val set = HashSet<String>()
-  private fun updateUndoRedo(menu: Menu, currentFragment: TabFragment?, activity: TabActivity) {
+  private fun updateUndoRedo(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
     
     menu.findItem(R.id.redo).isEnabled = currentFragment?.editor?.canRedo() == true
     menu.findItem(R.id.undo).isEnabled = currentFragment?.editor?.canUndo() == true

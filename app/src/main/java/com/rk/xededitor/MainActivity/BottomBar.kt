@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.MainActivity
 
 import android.view.KeyEvent
 import android.view.View
@@ -9,7 +9,7 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
 
 object BottomBar {
-  fun setupBottomBar(activity: TabActivity) {
+  fun setupBottomBar(activity: MainActivity) {
     with(activity) {
       
       

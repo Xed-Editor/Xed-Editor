@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity.file
+package com.rk.xededitor.MainActivity.file
 
 import android.view.MenuItem
 import android.view.View
@@ -17,8 +17,8 @@ import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.TabActivity.TabActivity
-import com.rk.xededitor.TabActivity.TabActivity.Companion.activityRef
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,7 +35,7 @@ object ProjectManager {
     private val queue: Queue<File> = LinkedList()
 
 
-    fun processQueue(activity: TabActivity) {
+    fun processQueue(activity: MainActivity) {
         if (activityRef.get() == null){
             activityRef = WeakReference(activity)
         }
@@ -51,7 +51,7 @@ object ProjectManager {
 
     }
 
-    fun addProject(activity: TabActivity, file: File) {
+    fun addProject(activity: MainActivity, file: File) {
         if (activityRef == null) {
             activityRef = WeakReference(activity)
         }else if (activityRef!!.get() == null){
@@ -109,7 +109,7 @@ object ProjectManager {
     }
 
 
-    fun removeProject(activity: TabActivity, file: File, saveState: Boolean = true) {
+    fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
         val filePath = file.absolutePath
         // BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
         val rail = activity.binding.navigationRail
@@ -162,7 +162,7 @@ object ProjectManager {
 
 
     private var currentProjectId: Int = -1
-    fun changeProject(file: File, activity: TabActivity) {
+    fun changeProject(file: File, activity: MainActivity) {
         for (i in 0 until activity.binding.maindrawer.childCount) {
             val view = activity.binding.maindrawer.getChildAt(i)
             if (view is ViewGroup) {
@@ -176,7 +176,7 @@ object ProjectManager {
         }
     }
 
-    fun clear(activity: TabActivity) {
+    fun clear(activity: MainActivity) {
         projects.clear()
         for (i in 0 until activity.binding.maindrawer.childCount) {
             val view = activity.binding.maindrawer.getChildAt(i)
@@ -186,41 +186,41 @@ object ProjectManager {
         }
     }
 
-    fun getSelectedProjectRootFilePath(activity: TabActivity): String? {
+    fun getSelectedProjectRootFilePath(activity: MainActivity): String? {
         return projects[activity.binding.navigationRail.selectedItemId]
     }
 
-    private fun getSelectedView(activity: TabActivity): FileTree {
+    private fun getSelectedView(activity: MainActivity): FileTree {
         val view: ViewGroup = activity.binding.maindrawer.findViewById(currentProjectId)
         return (view.getChildAt(0) as ViewGroup).getChildAt(0) as FileTree
     }
 
 
     object currentProject {
-        fun refresh(activity: TabActivity) {
+        fun refresh(activity: MainActivity) {
             getSelectedView(activity).reloadFileTree()
         }
 
-        fun updateFileRenamed(activity: TabActivity, file: File, newFile: File) {
+        fun updateFileRenamed(activity: MainActivity, file: File, newFile: File) {
             getSelectedView(activity).onFileRenamed(file(file), file(newFile))
         }
 
-        fun updateFileDeleted(activity: TabActivity, file: File) {
+        fun updateFileDeleted(activity: MainActivity, file: File) {
             getSelectedView(activity).onFileRemoved(file(file))
         }
 
-        fun updateFileAdded(activity: TabActivity, file: File) {
+        fun updateFileAdded(activity: MainActivity, file: File) {
             getSelectedView(activity).onFileAdded(file(file))
 
         }
 
     }
 
-    fun changeCurrentProjectRoot(file: FileObject, activity: TabActivity) {
+    fun changeCurrentProjectRoot(file: FileObject, activity: MainActivity) {
         getSelectedView(activity).loadFiles(file)
     }
 
-    fun restoreProjects(activity: TabActivity) {
+    fun restoreProjects(activity: MainActivity) {
         clear(activity)
         val jsonString = SettingsData.getString(Keys.PROJECTS, "")
         if (jsonString.isNotEmpty()) {
@@ -255,7 +255,7 @@ object ProjectManager {
                 //opening a file always take more than 500ms because of these delays
                 After(100) {
                     rkUtils.runOnUiThread {
-                        it.addFragment(file)
+                        it.adapter.addFragment(file)
                     }
 
                     //delay close drawer after 400ms
@@ -284,7 +284,7 @@ object ProjectManager {
     }
 
 
-    private fun saveProjects(activity: TabActivity) {
+    private fun saveProjects(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val gson = Gson()
             val uniqueProjects = projects.values.toSet()

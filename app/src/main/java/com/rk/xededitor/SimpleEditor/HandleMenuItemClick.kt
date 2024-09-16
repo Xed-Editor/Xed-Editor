@@ -11,7 +11,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.TabActivity.BatchReplacement
+import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.text.SimpleDateFormat

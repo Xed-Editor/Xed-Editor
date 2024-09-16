@@ -15,8 +15,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.TabActivity.TabActivity
-import com.rk.xededitor.TabActivity.editor.AutoSaver
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
@@ -84,7 +84,7 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.animation
         defaultValue = true
         onCheckedChange { isChecked ->
-          TabActivity.activityRef.get()?.smoothTabs = isChecked
+          MainActivity.activityRef.get()?.smoothTabs = isChecked
           return@onCheckedChange true
         }
       }
@@ -158,7 +158,7 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.double_arrows
         defaultValue = false
         onCheckedChange { isChecked ->
-          TabActivity.activityRef.get()?.let { activity ->
+          MainActivity.activityRef.get()?.let { activity ->
             if (activity.tabViewModel.fragmentFiles.isEmpty()) {
               return@onCheckedChange true
             }

@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity.file
+package com.rk.xededitor.MainActivity.file
 
 import android.content.Context
 import android.content.DialogInterface
@@ -17,7 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
-import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,7 +27,7 @@ import java.util.Locale
 import kotlin.random.Random
 
 class FileAction(
-    private val context: TabActivity,
+    private val context: MainActivity,
     private val rootFolder: File,
     private val file: File,
 ) {

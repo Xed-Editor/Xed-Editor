@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.MainActivity
 
 import android.graphics.Color
 import android.os.Bundle
@@ -147,8 +147,8 @@ class BatchReplacement : BaseActivity() {
                     val replacement = editTextx.text.toString()
 
 
-                    if (TabActivity.activityRef.get() != null) {
-                        TabActivity.activityRef.get()?.getCurrentFragment()?.let {
+                    if (MainActivity.activityRef.get() != null) {
+                        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.let {
                             it.editor?.setText(
                                 it.editor?.text.toString().replace(keyword, replacement)
                             )

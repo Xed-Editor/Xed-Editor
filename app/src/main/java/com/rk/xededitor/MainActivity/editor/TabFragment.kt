@@ -1,7 +1,8 @@
-package com.rk.xededitor.TabActivity.editor
+package com.rk.xededitor.MainActivity.editor
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,7 @@ import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.TabActivity.TabActivity
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -46,6 +47,9 @@ class TabFragment : Fragment() {
     val context = requireContext()
     
     editor = CodeEditor(context)
+    
+    editor!!.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+    editor!!.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     
     val setupEditor = SetupEditor(editor!!, context)
     setupEditor.ensureTextmateTheme(context)
@@ -110,7 +114,7 @@ class TabFragment : Fragment() {
         
         
         try {
-          TabActivity.activityRef.get()?.let { activity ->
+          MainActivity.activityRef.get()?.let { activity ->
             val index = activity.tabViewModel.fragmentFiles.indexOf(file)
             activity.tabViewModel.fragmentTitles.let {
               if (file.name != it[index]) {
@@ -141,7 +145,7 @@ class TabFragment : Fragment() {
   
   fun undo() {
     editor?.undo()
-    TabActivity.activityRef.get()?.let {
+    MainActivity.activityRef.get()?.let {
       it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
       it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
     }
@@ -149,7 +153,7 @@ class TabFragment : Fragment() {
   
   fun redo() {
     editor?.redo()
-    TabActivity.activityRef.get()?.let {
+    MainActivity.activityRef.get()?.let {
       it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
       it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
     }

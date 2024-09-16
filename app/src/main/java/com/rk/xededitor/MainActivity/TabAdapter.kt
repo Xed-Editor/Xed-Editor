@@ -1,4 +1,4 @@
-package com.rk.xededitor.TabActivity
+package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -7,7 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.TabActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,21 +18,21 @@ private var nextItemId = 0L
 val tabFragments = WeakHashMap<Int, TabFragment>()
 const val tabLimit = 20
 
-class TabAdapter(private val tabActivity: TabActivity) :
-  FragmentStateAdapter(tabActivity.supportFragmentManager, tabActivity.lifecycle) {
+class TabAdapter(private val mainActivity: MainActivity) :
+  FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
   
   
   fun getCurrentFragment(): TabFragment? {
-    return tabFragments[tabActivity.tabLayout.selectedTabPosition]
+    return tabFragments[mainActivity.tabLayout.selectedTabPosition]
   }
   
   private val itemIds = mutableMapOf<Int, Long>()
   
-  override fun getItemCount(): Int = tabActivity.tabViewModel.fragmentFiles.size
+  override fun getItemCount(): Int = mainActivity.tabViewModel.fragmentFiles.size
   
   override fun createFragment(position: Int): Fragment {
-    val file = tabActivity.tabViewModel.fragmentFiles[position]
-    return TabFragment.newInstance(file,tabActivity.tabViewModel.projectFileMap[file]!!).apply { tabFragments[position] = this }
+    val file = mainActivity.tabViewModel.fragmentFiles[position]
+    return TabFragment.newInstance(file).apply { tabFragments[position] = this }
   }
   
   override fun getItemId(position: Int): Long {
@@ -70,11 +70,10 @@ class TabAdapter(private val tabActivity: TabActivity) :
   
   @SuppressLint("NotifyDataSetChanged")
   fun clearAllFragments() {
-    with(tabActivity) {
+    with(mainActivity) {
       tabViewModel.fileSet.clear()
       tabViewModel.fragmentFiles.clear()
       tabViewModel.fragmentTitles.clear()
-      tabViewModel.projectFileMap.clear()
       (viewPager.adapter as? TabAdapter)?.notifyDataSetChanged()
       binding.tabs.visibility = View.GONE
       binding.mainView.visibility = View.GONE
@@ -83,12 +82,11 @@ class TabAdapter(private val tabActivity: TabActivity) :
   }
   
   fun removeFragment(position: Int) {
-    with(tabActivity) {
+    with(mainActivity) {
       
       
       if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
         tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
-        tabViewModel.projectFileMap.remove(tabViewModel.fragmentFiles[position])
         tabViewModel.fragmentFiles.removeAt(position)
         tabViewModel.fragmentTitles.removeAt(position)
         (viewPager.adapter as? TabAdapter)?.apply {
@@ -110,11 +108,11 @@ class TabAdapter(private val tabActivity: TabActivity) :
   }
   
   fun clearAllFragmentsExceptSelected() {
-    tabActivity.lifecycleScope.launch(Dispatchers.Main) {
-      val selectedTabPosition = tabActivity.tabLayout.selectedTabPosition
+    mainActivity.lifecycleScope.launch(Dispatchers.Main) {
+      val selectedTabPosition = mainActivity.tabLayout.selectedTabPosition
       
       // Iterate backwards to avoid index shifting issues when removing fragments
-      for (i in tabActivity.tabLayout.tabCount - 1 downTo 0) {
+      for (i in mainActivity.tabLayout.tabCount - 1 downTo 0) {
         if (i != selectedTabPosition) {
           removeFragment(i)
         }
@@ -122,8 +120,8 @@ class TabAdapter(private val tabActivity: TabActivity) :
     }
   }
   
-  fun addFragment(file: File,projectFile: File) {
-    with(tabActivity) {
+  fun addFragment(file: File) {
+    with(mainActivity) {
       if (tabViewModel.fileSet.contains(file.absolutePath)) {
         rkUtils.toast(this, "File already opened")
         return
@@ -135,7 +133,6 @@ class TabAdapter(private val tabActivity: TabActivity) :
       tabViewModel.fileSet.add(file.absolutePath)
       tabViewModel.fragmentFiles.add(file)
       tabViewModel.fragmentTitles.add(file.name)
-      tabViewModel.projectFileMap[file] = projectFile
       (viewPager.adapter as? TabAdapter)?.notifyItemInsertedX(tabViewModel.fragmentFiles.size - 1)
       if (tabViewModel.fragmentFiles.size > 1) viewPager.setCurrentItem(
         tabViewModel.fragmentFiles.size - 1, true
