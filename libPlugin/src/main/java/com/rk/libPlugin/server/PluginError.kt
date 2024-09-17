@@ -8,21 +8,26 @@ import com.rk.libPlugin.server.api.API
 
 object PluginError : Thread.UncaughtExceptionHandler {
   
-  fun showError(e:Exception){
+  fun showError(e: Exception) {
     try {
-      API.runOnUiThread{
-        API.getMainActivity()
-          ?.let { MaterialAlertDialogBuilder(it).setTitle("Error").setNeutralButton("Copy"){
-              _, _ ->
-            val clipboard = it.application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("label", e.toString())
+      API.runOnUiThread {
+        val activity = API.getActivityContext()
+        if (activity == null){
+          e.printStackTrace()
+        }
+        activity?.let {
+          MaterialAlertDialogBuilder(it).setTitle("Error").setNeutralButton("Copy") { _, _ ->
+            val clipboard =
+              it.application.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("label", e.stackTraceToString())
             clipboard.setPrimaryClip(clip)
-          }.setPositiveButton("OK", null).setMessage(e.message).show() }
+          }.setPositiveButton("OK", null).setMessage(e.message).show()
+        }
       }
-    }catch (e:Exception){
+    } catch (e: Exception) {
       e.printStackTrace()
     }
-   
+    
   }
   
   override fun uncaughtException(t: Thread, e: Throwable) {

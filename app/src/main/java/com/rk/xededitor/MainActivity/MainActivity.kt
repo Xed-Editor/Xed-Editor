@@ -4,6 +4,7 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -12,11 +13,13 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
@@ -32,6 +35,7 @@ import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,7 +55,7 @@ class MainActivity : BaseActivity() {
   lateinit var binding: ActivityTabBinding
   lateinit var viewPager: ViewPager2
   lateinit var tabLayout: TabLayout
-  private lateinit var drawerToggle: ActionBarDrawerToggle
+  lateinit var drawerToggle: ActionBarDrawerToggle
   var fm = FileManager(this)
   lateinit var menu: Menu
   var smoothTabs = SettingsData.getBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, true)
@@ -96,6 +100,28 @@ class MainActivity : BaseActivity() {
     }
     
     BottomBar.setupBottomBar(this)
+    
+  }
+  
+  @JvmOverloads
+  fun addMenu(title:String,icon:Drawable? = ContextCompat.getDrawable(this
+  ,R.drawable.extension),runnable: Runnable):MenuItem?{
+    var item:MenuItem? = null
+    lifecycleScope.launch(Dispatchers.Default){
+      //wait until menu is available
+      while (isMenuInitialized().not()){
+        delay(800)
+      }
+      withContext(Dispatchers.Main){
+        item = menu.add(title).apply {
+          setIcon(icon)
+          setOnMenuItemClickListener {
+            Thread(runnable).start()
+            return@setOnMenuItemClickListener false }
+        }
+      }
+    }
+    return item
   }
   
   

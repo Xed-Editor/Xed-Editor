@@ -10,20 +10,25 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.rk.libPlugin.R
 import com.rk.libPlugin.server.PluginError
 import com.rk.libPlugin.server.api.PluginLifeCycle.ActivityEvent
 import com.rk.libPlugin.server.api.PluginLifeCycle.LifeCycleType
+import java.lang.ref.WeakReference
 
 // This class will be available to every plugin
 object API {
   var application: Application? = null
+  private var ActivityContext = WeakReference<Activity?>(null)
+  val handler = Handler(Looper.getMainLooper())
+  
+  
   
   //not for plugin use
   fun getInstance(): Any? {
     return try {
-      val apiClass = this::class.java
-      val instanceField = apiClass.getDeclaredField("INSTANCE").apply {
+      val instanceField = this::class.java.getDeclaredField("INSTANCE").apply {
         isAccessible = true
       }
       instanceField.get(null)
@@ -34,21 +39,25 @@ object API {
   }
   
   
-  /**
-   * Retrieves the current MainActivity instance.
-   *
-   * Usage:
-   *
-   * ```java
-   * mainActivity = api.getMainActivity();
-   * if (mainActivity != null) {
-   *     print("MainActivity obtained successfully.");
-   *     //do something
-   * } else {
-   *     print("Failed to obtain MainActivity.");
-   * }
-   * ```
-   */
+  
+  
+  
+  
+  fun getActivityContext():Activity?{
+    return if (ActivityContext.get() != null){
+      ActivityContext.get()
+    }else{
+      getMainActivity().also { ActivityContext = WeakReference(it) }
+    }
+  }
+  
+  fun setActivityContext(activity: Activity?){
+    ActivityContext = WeakReference(activity)
+  }
+  fun resetActivityContext(){
+    ActivityContext = WeakReference(getMainActivity())
+  }
+  
   fun getMainActivity(): Activity? {
     val companionField =
       Class.forName("com.rk.xededitor.BaseActivity").getDeclaredField("Companion").apply {
@@ -64,15 +73,7 @@ object API {
     ) as Activity?
   }
   
-  /**
-   * Displays a Toast message on the screen.
-   *
-   * Usage:
-   *
-   * ```java
-   * api.toast("Hello from BeanShell!");
-   * ```
-   */
+ 
   
   fun toast(message: String) {
     runOnUiThread {
@@ -81,37 +82,14 @@ object API {
   }
   
   
-  /**
-   * Runs the specified code on the UI thread.
-   *
-   * Usage:
-   *
-   * ```java
-   * api.runOnUiThread(new Runnable() {
-   *     public void run() {
-   *         print("Running on the UI thread!");
-   *     }
-   * });
-   * ```
-   */
-  val handler = Handler(Looper.getMainLooper())
   fun runOnUiThread(runnable: Runnable?) {
-    handler.post(runnable!!)
+    runnable?.let { handler.post(it) }
   }
   
-  /**
-   * Displays a popup dialog with the specified title and message.
-   *
-   * Usage:
-   *
-   * ```java
-   * dialog = api.showPopup("Hello", "This is a popup message!");
-   * ```
-   */
-  fun showPopup(title: String, message: String): AlertDialog? {
+  fun popup(title: String, message: String): AlertDialog? {
     var popup: AlertDialog? = null
     runOnUiThread {
-      getMainActivity()?.let {
+      getActivityContext()?.let {
         popup = MaterialAlertDialogBuilder(it).setTitle(title).setMessage(message)
           .setPositiveButton("OK", null).show()
       }
@@ -119,21 +97,7 @@ object API {
     return popup
   }
   
-  /**
-   * Displays an input dialog and processes the user input using the InputInterface.
-   *
-   * Usage:
-   *
-   * ```java
-   * inputInterface = new com.rk.libPlugin.server.api.API$InputInterface() {
-   *     public void onInputOK(String input) {
-   *         print("User input: " + input);
-   *     }
-   * };
-   *
-   * api.input("Enter Name", "Please enter your name:", inputInterface);
-   * ```
-   */
+  
   interface InputInterface {
     fun onInputOK(input: String)
   }
@@ -141,11 +105,11 @@ object API {
   fun input(title: String, message: String, inputInterface: InputInterface) {
     runOnUiThread {
       val popupView: View =
-        LayoutInflater.from(getMainActivity()).inflate(R.layout.popup_new, null)
+        LayoutInflater.from(getActivityContext()).inflate(R.layout.popup_new, null)
       val editText = popupView.findViewById<EditText>(R.id.name)
       editText.setHint("Input")
       
-      MaterialAlertDialogBuilder(getMainActivity()!!).setTitle(title).setMessage(message)
+      MaterialAlertDialogBuilder(getActivityContext()!!).setTitle(title).setMessage(message)
         .setView(popupView)
         .setPositiveButton("OK") { _, _ ->
           val text = editText.text.toString()
@@ -157,35 +121,25 @@ object API {
     }
   }
   
-  /**
-   * Displays an error dialog with the option to copy the error message to the clipboard.
-   *
-   * Usage:
-   *
-   * ```java
-   * api.showError("Something went wrong.");
-   * ```
-   */
-  fun showError(error: String) {
+  fun error(error: String) {
     PluginError.showError(Exception(error))
   }
   
   
   
-  //todo add examples
-  fun registerActivityCreate(id:String,activityEvent: ActivityEvent) {
+  fun onActivityCreate(id:String,activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id,LifeCycleType.CREATE, activityEvent)
   }
   
-  fun registerActivityDestroy(id:String,activityEvent: ActivityEvent) {
+  fun onActivityDestroy(id:String,activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id,LifeCycleType.DESTROY, activityEvent)
   }
   
-  fun registerActivityPause(id:String,activityEvent: ActivityEvent) {
+  fun onActivityPause(id:String,activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id,LifeCycleType.PAUSED, activityEvent)
   }
   
-  fun registerActivityResume(id:String,activityEvent: ActivityEvent) {
+  fun onActivityResume(id:String,activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id,LifeCycleType.RESUMED, activityEvent)
   }
   

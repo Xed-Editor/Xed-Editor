@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.Toast
+import com.google.android.material.snackbar.Snackbar
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.io.File
 import java.io.FileOutputStream
@@ -32,6 +34,10 @@ object rkUtils {
 
     fun toast(context: Context?, message: String?) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+    
+    fun snackbar(rootView: View){
+        Snackbar.make(rootView,"Text", Snackbar.LENGTH_SHORT).show()
     }
 
     fun dpToPx(dp: Float, ctx: Context): Int {

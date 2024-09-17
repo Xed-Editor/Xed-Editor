@@ -35,20 +35,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 object MenuClickHandler {
-
-
+    
+    
     private var searchText: String? = ""
-
+    
     @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
         when (id) {
-
+            
             R.id.run -> {
                 activity.adapter.getCurrentFragment()?.let { Runner.run(it.file, activity) }
                 return true
             }
-
+            
             R.id.action_all -> {
                 tabFragments.values.forEach { f ->
                     f?.save(false)
@@ -56,73 +56,73 @@ object MenuClickHandler {
                 rkUtils.toast(activity, "Saved all files")
                 return true
             }
-
+            
             R.id.action_save -> {
                 activity.adapter.getCurrentFragment()?.save()
                 return true
             }
-
+            
             R.id.undo -> {
                 activity.adapter.getCurrentFragment()?.undo()
                 return true
             }
-
+            
             R.id.redo -> {
                 activity.adapter.getCurrentFragment()?.redo()
                 return true
             }
-
+            
             R.id.action_settings -> {
                 activity.startActivity(Intent(activity, SettingsMainActivity::class.java))
                 return true
             }
-
+            
             R.id.terminal -> {
                 // Handle terminal
                 activity.startActivity(Intent(activity, Terminal::class.java))
                 return true
             }
-
+            
             R.id.action_print -> {
                 Printer.print(
                     activity, activity.adapter.getCurrentFragment()?.editor?.text.toString()
                 )
                 return true
             }
-
+            
             R.id.batchrep -> {
                 activity.startActivity(Intent(activity, BatchReplacement::class.java))
                 return true
             }
-
+            
             R.id.search -> {
                 // Handle search
                 handleSearch(activity)
                 return true
             }
-
+            
             R.id.search_next -> {
                 activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoNext()
                 return true
             }
-
+            
             R.id.search_previous -> {
                 activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoPrevious()
                 return true
             }
-
+            
             R.id.search_close -> {
                 // Handle search_close
                 handleSearchClose(activity)
                 return true
             }
-
+            
             R.id.replace -> {
                 // Handle replace
                 handleReplace(activity)
                 return true
             }
-
+            
             R.id.share -> {
                 rkUtils.shareText(
                     activity, activity.adapter.getCurrentFragment()?.editor?.text.toString()
@@ -132,7 +132,7 @@ object MenuClickHandler {
             R.id.git -> {
                 val pull = View.generateViewId()
                 val push = View.generateViewId()
-
+                
                 var dialog: AlertDialog? = null
                 val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                 if (credentials.size != 2) {
@@ -174,7 +174,7 @@ object MenuClickHandler {
                                 }
                             }
                         }
-
+                        
                         push -> {
                             val gitRoot = FileManager.findGitRoot(activity.adapter.getCurrentFragment()?.file)
                             if (gitRoot != null) {
@@ -264,13 +264,13 @@ object MenuClickHandler {
                 }
                 return true;
             }
-
+            
             else -> return false
         }
-
-
+        
+        
     }
-
+    
     private fun handleReplace(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
         MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace))
@@ -280,18 +280,18 @@ object MenuClickHandler {
             }.show()
         return true
     }
-
+    
     private fun replaceAll(popupView: View,activity: MainActivity) {
         val editText = popupView.findViewById<EditText>(R.id.replace_replacement)
         val text = editText.text.toString()
-
+        
         activity.adapter.getCurrentFragment()?.editor?.apply {
             setText(searchText?.let { getText().toString().replace(it,text) })
         }
-
+        
     }
-
-
+    
+    
     private fun handleSearchClose(activity: MainActivity): Boolean {
         searchText = ""
         activity.adapter.getCurrentFragment()?.editor?.searcher?.stopSearch()
@@ -300,15 +300,15 @@ object MenuClickHandler {
         MenuItemHandler.update(activity)
         return true
     }
-
+    
     private fun handleSearch(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
         val searchBox = popupView.findViewById<EditText>(R.id.searchbox)
-
+        
         if (!searchText.isNullOrEmpty()) {
             searchBox.setText(searchText)
         }
-
+        
         MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.search))
             .setView(popupView).setNegativeButton(activity.getString(R.string.cancel), null)
             .setPositiveButton(activity.getString(R.string.search)) { _, _ ->
@@ -318,15 +318,15 @@ object MenuClickHandler {
             }.show()
         return true
     }
-
-
+    
+    
     private fun initiateSearch(activity: MainActivity, searchBox: EditText, popupView: View) {
         searchText = searchBox.text.toString()
-
+        
         if (searchText?.isBlank() == true) {
             return
         }
-
+        
         //search
         val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
         activity.adapter.getCurrentFragment()?.let {
@@ -338,7 +338,7 @@ object MenuClickHandler {
             it.setSearching(true)
             MenuItemHandler.update(activity)
         }
-
+        
     }
-
+    
 }

@@ -16,10 +16,14 @@ import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.file.ProjectManager
-import com.rk.xededitor.git.git
+
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 
 object NavigationRail {
@@ -66,7 +70,7 @@ object NavigationRail {
             }
             val branchEdit = view.findViewById<EditText>(R.id.mime).apply {
               hint = "Branch. Example: main"
-              setText("main")
+              setText("")
             }
             MaterialAlertDialogBuilder(this).setTitle("Clone repository").setView(view)
               .setNegativeButton("Cancel", null).setPositiveButton("Apply") { _, _ ->
@@ -74,71 +78,54 @@ object NavigationRail {
                 val branch = branchEdit.text.toString()
                 val repoName = repoLink.substringAfterLast("/").removeSuffix(".git")
                 val repoDir = File(
-                  "${
-                    SettingsData.getString(
-                      Keys.GIT_REPO_DIR,
-                      "/storage/emulated/0"
-                    )
-                  }/$repoName"
+                  SettingsData.getString(
+                    Keys.GIT_REPO_DIR, "/storage/emulated/0"
+                  ) + "/" + repoName
                 )
-                
-                
-                
                 if (repoLink.isEmpty() || branch.isEmpty()) {
                   rkUtils.toast(this, "Please fill in both fields")
-                  return@setPositiveButton
                 } else if (repoDir.exists()) {
                   rkUtils.toast(this, "$repoDir already exists!")
-                  return@setPositiveButton
-                }
-                
-                
-                val loadingPopup = LoadingPopup(this, null).setMessage("Cloning repository...")
-                loadingPopup.show()
-                
-                
-                
-                git.clone(repoLink, branch, repoDir) { status, exception ->
-                  lifecycleScope.launch(Dispatchers.Main) {
-                    if (status == git.RESULT.OK) {
-                      ProjectManager.addProject(this@with, repoDir)
-                      loadingPopup.hide()
-                      return@launch
-                    }
-                    
-                    exception?.let {
-                      it.printStackTrace()
-                      
-                      if (status != git.RESULT.ERROR){
+                } else {
+                  val loadingPopup = LoadingPopup(this, null).setMessage("Cloning repository...")
+                  loadingPopup.show()
+                  GlobalScope.launch(Dispatchers.IO) {
+                    try {
+                      Git.cloneRepository().setURI(repoLink).setDirectory(repoDir).setBranch(branch)
+                        .call()
+                      withContext(Dispatchers.Main) {
                         loadingPopup.hide()
-                        return@launch
+                        ProjectManager.addProject(this@with, repoDir)
                       }
-                      
+                    } catch (e: Exception) {
                       val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                       if (credentials.size != 2) {
-                        rkUtils.toast(this@with, "Check the repo url or your credentials")
-                        loadingPopup.hide()
-                        return@launch
-                      }
-                      
-                      git.clone(
-                        repoLink,
-                        branch,
-                        repoDir,
-                        credentials[0],
-                        credentials[1]
-                      ) { status, exception1 ->
-                        if (status == git.RESULT.ERROR){
-                          rkUtils.toast(this@with,"Error : ${exception1?.message}")
+                        withContext(Dispatchers.Main) {
+                          loadingPopup.hide()
+                          rkUtils.toast(
+                            this@with, "Repository is private. Check your credentials"
+                          )
                         }
-                        exception1?.printStackTrace()
+                      } else {
+                        try {
+                          Git.cloneRepository().setURI(repoLink).setDirectory(repoDir)
+                            .setBranch(branch).setCredentialsProvider(
+                              UsernamePasswordCredentialsProvider(credentials[0], credentials[1])
+                            ).call()
+                          withContext(Dispatchers.Main) {
+                            loadingPopup.hide()
+                            ProjectManager.addProject(this@with, repoDir)
+                          }
+                        } catch (e: Exception) {
+                          withContext(Dispatchers.Main) {
+                            loadingPopup.hide()
+                            rkUtils.toast(this@with, "Error: ${e.message}")
+                          }
+                        }
                       }
                     }
-                    
-                    loadingPopup.hide()
                   }
                 }
-                
               }.show()
           }
         }
