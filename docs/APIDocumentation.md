@@ -1,6 +1,6 @@
 # Complete API Documentation
 
-This document provides comprehensive documentation for all methods available in the API class. and can be used in plugins beanshell scripts
+This document provides comprehensive documentation for all methods available in the API class. and can be used in plugins and beanshell scripts
 
 ## Table of Contents
 
