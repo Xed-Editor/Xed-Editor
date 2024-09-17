@@ -11,7 +11,8 @@ This document provides comprehensive documentation for all methods available in 
 
 ## Activity Context Methods
 
-### `getActivityContext(): Activity?`
+### ```kotlin
+getActivityContext(): Activity?```
 
 Retrieves the current activity context.
 
