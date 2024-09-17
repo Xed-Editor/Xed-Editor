@@ -1,85 +1,176 @@
-## **API Class Documentation**
-The `API` class is a singleton object that provides various utility methods and properties to interact with the Android application environment. It is intended for use by plugins to perform tasks such as displaying toasts, running commands, showing dialogs, and interacting with the main activity.
+# Complete API Documentation
 
-### **Package**
-`com.rk.libPlugin.server.api`
+This document provides comprehensive documentation for all methods available in the API class. and can be used in plugins beanshell scripts
 
-### **Properties**
+## Table of Contents
 
-- **`application: Application?`**
-  - **Description:** This property holds a reference to the application's `Application` instance. It is used internally by the API methods to interact with the Android context.
-  - **Usage:** This is a nullable property and is generally managed by the API class itself. Plugins typically do not need to interact with it directly.
+1. [Activity Context Methods](#activity-context-methods)
+2. [Activity Lifecycle Methods](#activity-lifecycle-methods)
+3. [UI Interaction Methods](#ui-interaction-methods)
+4. [Utility Methods](#utility-methods)
 
-- **`handler: Handler`**
-  - **Description:** This property holds a `Handler` associated with the main thread's `Looper`. It is used to execute code on the main UI thread.
-  - **Usage:** Used internally by the `runOnUiThread` method to post tasks to the main thread.
+## Activity Context Methods
 
-### **Methods**
+### `getActivityContext(): Activity?`
 
-- **`fun getInstance(): Any?`**
-  - **Description:** Retrieves the singleton instance of the `API` class.
-  - **Returns:** The instance of the `API` class or `null` if an error occurs.
-  - **Usage:** This method is typically not necessary for plugin developers to call directly.
+Retrieves the current activity context.
 
-- **`fun getMainActivity(): Activity?`**
-  - **Description:** Attempts to retrieve the current instance of the `MainActivity` by reflecting on the `BaseActivity` class.
-  - **Returns:** The `Activity` instance representing the main activity or `null` if not found.
-  - **Usage:** Plugins can use this method to obtain the main activity instance, which is useful for UI-related tasks.
+**Returns:** The current `Activity` context, or `null` if not available.
 
-- **`fun toast(message: String)`**
-  - **Description:** Displays a toast message to the user.
-  - **Parameters:** 
-    - `message`: The message string to be displayed in the toast.
-  - **Usage:** Call this method to show a brief message to the user, e.g., 
-    ```bsh
-    api.toast("Hello, World!");
-    ```
+### `setActivityContext(activity: Activity?)`
 
-- **`fun runCommand(command: String): Command`**
-  - **Description:** Executes a command string and returns a `Command` object that represents the execution.
-  - **Parameters:**
-    - `command`: The command string to be executed.
-  - **Returns:** A `Command` object.
-  - **Usage:** Call this method to execute commands within the plugin environment, e.g., 
-    ```bsh
-    Command result = api.runCommand("some_command");
-    ```
+Sets the current activity context.
 
-- **`fun runOnUiThread(runnable: Runnable?)`**
-  - **Description:** Executes the provided `Runnable` on the main UI thread.
-  - **Parameters:**
-    - `runnable`: A `Runnable` object containing the code to be executed on the UI thread.
-  - **Usage:** Use this method when you need to interact with the UI from a background thread, e.g., 
-    ```bsh
-    api.runOnUiThread(new Runnable() {
-        public void run() {
-            // UI code here
-        }
-    });
-    ```
+**Parameters:**
+- `activity`: The `Activity` to set as the current context.
 
-- **`fun showPopup(title: String, message: String): AlertDialog?`**
-  - **Description:** Displays a popup dialog with a title and message.
-  - **Parameters:**
-    - `title`: The title of the popup dialog.
-    - `message`: The message body of the popup dialog.
-  - **Returns:** The `AlertDialog` instance if successfully displayed, otherwise `null`.
-  - **Usage:** Call this method to show a simple alert dialog, e.g., 
-    ```bsh
-    api.showPopup("Notice", "This is a popup message.");
-    ```
+### `resetActivityContext()`
 
-- **`fun showError(error: String)`**
-  - **Description:** Displays an error dialog with the option to copy the error message to the clipboard.
-  - **Parameters:**
-    - `error`: The error message to be displayed.
-  - **Usage:** Call this method to alert the user of an error and offer to copy the error message, e.g., 
-    ```bsh
-    api.showError("An unexpected error occurred.");
-    ```
+Resets the activity context to the main activity.
 
----
+### `getMainActivity(): Activity?`
 
-### **General Usage Notes**
-- The `API` class is designed to be accessed by plugins to simplify common tasks like UI updates and command execution.
-- Most methods that interact with the UI should be called from the main UI thread. The `runOnUiThread` method is provided to help plugins run UI-related code safely from background threads.
+Retrieves the current MainActivity instance.
+
+**Returns:** The current `MainActivity` instance, or `null` if not available.
+
+**Usage Example:**
+```java
+mainActivity = api.getMainActivity();
+if (mainActivity != null) {
+    System.out.println("MainActivity obtained successfully.");
+    // Do something with mainActivity
+} else {
+    System.out.println("Failed to obtain MainActivity.");
+}
+```
+
+## Activity Lifecycle Methods
+
+### `onActivityCreate(id: String, activityEvent: PluginLifeCycle.ActivityEvent)`
+
+Registers a callback to be executed when an activity is created.
+
+**Parameters:**
+- `id`: A unique identifier for this callback.
+- `activityEvent`: An implementation of `PluginLifeCycle.ActivityEvent` interface.
+
+### `onActivityDestroy(id: String, activityEvent: PluginLifeCycle.ActivityEvent)`
+
+Registers a callback to be executed when an activity is destroyed.
+
+**Parameters:**
+- `id`: A unique identifier for this callback.
+- `activityEvent`: An implementation of `PluginLifeCycle.ActivityEvent` interface.
+
+### `onActivityPause(id: String, activityEvent: PluginLifeCycle.ActivityEvent)`
+
+Registers a callback to be executed when an activity is paused.
+
+**Parameters:**
+- `id`: A unique identifier for this callback.
+- `activityEvent`: An implementation of `PluginLifeCycle.ActivityEvent` interface.
+
+### `onActivityResume(id: String, activityEvent: PluginLifeCycle.ActivityEvent)`
+
+Registers a callback to be executed when an activity is resumed.
+
+**Parameters:**
+- `id`: A unique identifier for this callback.
+- `activityEvent`: An implementation of `PluginLifeCycle.ActivityEvent` interface.
+
+### `unregisterEvent(id: String)`
+
+Unregisters a previously registered activity event callback.
+
+**Parameters:**
+- `id`: The unique identifier of the callback to unregister.
+
+**Usage Example:**
+```java
+api.onActivityCreate("idCreate", new PluginLifeCycle.ActivityEvent() {
+    public void onEvent(String id, Activity activity) {
+        // Do something when the activity is created
+    }
+});
+
+// Later, to unregister:
+api.unregisterEvent("idCreate");
+```
+
+## UI Interaction Methods
+
+### `toast(message: String)`
+
+Displays a Toast message on the screen.
+
+**Parameters:**
+- `message`: The message to display in the toast.
+
+**Usage Example:**
+```java
+api.toast("Hello from BeanShell!");
+```
+
+### `popup(title: String, message: String): AlertDialog?`
+
+Displays a popup dialog with the specified title and message.
+
+**Parameters:**
+- `title`: The title of the popup dialog.
+- `message`: The message to display in the dialog.
+
+**Returns:** The `AlertDialog` object, or `null` if the dialog couldn't be created.
+
+**Usage Example:**
+```java
+dialog = api.popup("Hello", "This is a popup message!");
+```
+
+### `input(title: String, message: String, inputInterface: InputInterface)`
+
+Displays an input dialog and processes the user input using the InputInterface.
+
+**Parameters:**
+- `title`: The title of the input dialog.
+- `message`: The message to display in the dialog.
+- `inputInterface`: An implementation of the `InputInterface` to handle the user's input.
+
+**Usage Example:**
+```java
+api.input("Enter Name", "Please enter your name:",new API.InputInterface() {
+    public void onInputOK(String input) {
+        System.out.println("User input: " + input);
+    }
+});
+```
+
+### `error(error: String)`
+
+Displays an error dialog with the option to copy the error message to the clipboard.
+
+**Parameters:**
+- `error`: The error message to display.
+
+**Usage Example:**
+```java
+api.error("Something went wrong.");
+```
+
+## Utility Methods
+
+### `runOnUiThread(runnable: Runnable?)`
+
+Runs the specified code on the UI thread.
+
+**Parameters:**
+- `runnable`: The `Runnable` to be executed on the UI thread.
+
+**Usage Example:**
+```java
+api.runOnUiThread(new Runnable() {
+    public void run() {
+        System.out.println("Running on the UI thread!");
+    }
+});
+```
