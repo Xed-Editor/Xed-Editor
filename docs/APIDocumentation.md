@@ -20,6 +20,7 @@ Retrieves the current activity context.
 ### `setActivityContext(activity: Activity?)`
 
 Sets the current activity context.
+**Note**: when you set activity context any popups and error messages will use that activity
 
 **Parameters:**
 - `activity`: The `Activity` to set as the current context.
