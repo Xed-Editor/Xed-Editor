@@ -3,21 +3,23 @@ package com.rk.xededitor.MainActivity.file
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.webkit.MimeTypeMap
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
+import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.R
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,403 +28,300 @@ import java.io.File
 import java.util.Locale
 import kotlin.random.Random
 
+const val REQUEST_ADD_FILE = 38758
+const val REQUEST_CODE_OPEN_DIRECTORY = 8359487
+
 class FileAction(
-    private val context: MainActivity,
-    private val rootFolder: File,
-    private val file: File,
+  private val mainActivity: MainActivity,
+  private val rootFolder: File,
+  private val file: File,
 ) {
-
-    companion object {
-        const val REQUEST_CODE_OPEN_DIRECTORY = 17618
-        const val REQUEST_ADD_FILE = 824689
-        var to_save_file: File? = null
-        var Staticfile: File? = null
+  
+  companion object {
+    var to_save_file: File? = null
+  }
+  
+  init {
+    fun getDrawable(id: Int): Drawable? {
+      return ContextCompat.getDrawable(mainActivity, id)
     }
-
-    private var popupView: View
-
-    init {
-        Staticfile = file
-        val inflater = context.layoutInflater
-        popupView = inflater.inflate(R.layout.file_action, null)
-        handleOptionsVisibility()
-        val popup =
-            MaterialAlertDialogBuilder(context).setView(popupView).setTitle("Actions").show()
-
-
-        val root = popupView.findViewById<LinearLayout>(R.id.root)
-        for (i in 0 until root.childCount) {
-            val child = root.getChildAt(i)
-            child.setOnClickListener {
-                popup.dismiss()
-                handleMenuItemClick(child.id)
-
-            }
+    
+    ActionPopup(mainActivity, true).apply {
+      
+      if (file == rootFolder) {
+        addItem("Refresh", "Reload File Browser", getDrawable(R.drawable.sync)) {
+          ProjectManager.currentProject.refresh(mainActivity)
         }
-
-
-    }
-
-
-    private fun handleOptionsVisibility() {
-        val openWith = popupView.findViewById<LinearLayout>(R.id.openWith)
-        val saveas = popupView.findViewById<LinearLayout>(R.id.save_as)
-        val close = popupView.findViewById<LinearLayout>(R.id.close)
-        val delete = popupView.findViewById<LinearLayout>(R.id.delete)
-        val refresh = popupView.findViewById<LinearLayout>(R.id.refresh)
-        val reselect = popupView.findViewById<LinearLayout>(R.id.reselect)
-        val openFile = popupView.findViewById<LinearLayout>(R.id.openFile)
-        val newfile = popupView.findViewById<LinearLayout>(R.id.createFile)
-        val newfolder = popupView.findViewById<LinearLayout>(R.id.createFolder)
-        val paste = popupView.findViewById<LinearLayout>(R.id.paste)
-        val copy = popupView.findViewById<LinearLayout>(R.id.copy)
-        val rename = popupView.findViewById<LinearLayout>(R.id.rename)
-        val addFile = popupView.findViewById<LinearLayout>(R.id.addFile)
-
-
-        if (file.isDirectory) {
-            saveas.visibility = View.GONE
-        } else {
-            newfile.visibility = View.GONE
-            newfolder.visibility = View.GONE
-            paste.visibility = View.GONE
-            addFile.visibility = View.GONE
+        addItem("Close", "Close current project", getDrawable(R.drawable.close)) {
+          ProjectManager.removeProject(mainActivity, rootFolder)
         }
-
-        if (file == rootFolder) {
-            openWith.visibility = View.GONE
-            delete.visibility = View.GONE
-            copy.visibility = View.GONE
-            rename.visibility = View.GONE
-        } else {
-            close.visibility = View.GONE
-            refresh.visibility = View.GONE
-            reselect.visibility = View.GONE
-            openFile.visibility = View.GONE
+        
+      } else {
+        addItem("Rename", "Rename the selected file/folder", getDrawable(R.drawable.edit)) {
+          rename()
         }
-
-
-    }
-
-
-    private fun handleMenuItemClick(id: Int): Boolean {
-        return when (id) {
-
-            R.id.addFile -> {
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.setType("*/*")
-
-                context.startActivityForResult(intent, REQUEST_ADD_FILE)
-                return true
-            }
-
-            R.id.refresh -> {
-                ProjectManager.currentProject.refresh(context)
-                true
-            }
-
-            R.id.reselect -> {
-                // Handle reselect action
-
-                true
-            }
-
-            R.id.createFolder -> {
-                // Handle createFolder action
-                new(false)
-
-                true
-            }
-
-            R.id.createFile -> {
-                // Handle createFile action
-                new(true)
-                true
-            }
-
-            R.id.rename -> {
-                // Handle rename action
-                rename()
-                true
-            }
-
-            R.id.openWith -> {
-                // Handle openWith action
-                openWith(context, file)
-                true
-            }
-
-            R.id.save_as -> {
-                // Handle save_as action
-                to_save_file = file
-                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                startActivityForResult(
-                    context, intent, REQUEST_CODE_OPEN_DIRECTORY, null
-                )
-                true
-            }
-
-            R.id.copy -> {
-                // Handle copy action
-                FileClipboard.setFile(file)
-                true
-            }
-
-            R.id.paste -> {
-                // Handle paste action
-
-                if (FileClipboard.isEmpty()) {
-                    rkUtils.toast("File Clipboard is empty")
-                    return false
-                }
-
-
-
-                LoadingPopup(context, 350)
-                context.let {
-                    it.lifecycleScope.launch(Dispatchers.Default) {
-                        if (!FileClipboard.isEmpty()) {
-                            val sourceFile = FileClipboard.getFile()
-                            if (file.isDirectory && sourceFile != null) {
-                                try {
-                                    val targetPath = file.toPath().resolve(sourceFile.name)
-
-                                    // Move the source file to the target directory
-                                    withContext(Dispatchers.IO) {
-                                        Shell.SH.apply {
-                                            run("cp -r ${sourceFile.absolutePath} $targetPath")
-                                            shutdown()
-                                        }
-                                    }
-
-
-                                    // Update the TreeView to reflect the changes
-                                    withContext(Dispatchers.Main) {
+        addItem("Open With", "Open selected file in other apps", getDrawable(R.drawable.android)) {
+          openWith(mainActivity, file)
+        }
+        addItem("Delete", "Delete selected file/folder", getDrawable(R.drawable.delete)) {
+          MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.delete))
+            .setMessage(context.getString(R.string.ask_del) + " ${file.name} ")
+            .setNegativeButton(context.getString(R.string.cancel), null).setPositiveButton(
+              context.getString(R.string.delete)
+            ) { _: DialogInterface?, _: Int ->
+              
+              
+              ProjectManager.currentProject.updateFileDeleted(mainActivity, file)
+              
+              if (file.isFile) {
+                file.delete()
+              } else {
+                file.deleteRecursively()
+              }
+              
+              
+            }.show()
+        }
+      }
+      
+      val fileDrawable = getDrawable(R.drawable.outline_insert_drive_file_24)
+      if (file.isDirectory) {
+        addItem("Add File", "Select a new file to be added here", fileDrawable) {
+          val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+          intent.addCategory(Intent.CATEGORY_OPENABLE)
+          intent.setType("*/*")
+          mainActivity.startActivityForResult(intent, REQUEST_ADD_FILE)
+        }
+        addItem("New File", "Create a new file under selected folder", fileDrawable) {
+          new(createFile = true)
+        }
+        addItem(
+          "New Folder",
+          "Create a new folder under selected folder",
+          getDrawable(R.drawable.outline_folder_24)
+        ) {
+          new(createFile = false)
+        }
+        addItem("Paste", "Paste selected file/folder", fileDrawable) {
+          if (FileClipboard.isEmpty()) {
+            rkUtils.toast("File Clipboard is empty")
+          } else {
+            LoadingPopup(mainActivity, 350)
+            mainActivity.let {
+              it.lifecycleScope.launch(Dispatchers.Default) {
+                if (!FileClipboard.isEmpty()) {
+                  val sourceFile = FileClipboard.getFile()
+                  if (file.isDirectory && sourceFile != null) {
+                    try {
+                      val targetPath = file.toPath().resolve(sourceFile.name)
+                      
+                      // Move the source file to the target directory
+                      withContext(Dispatchers.IO) {
+                        Shell.SH.apply {
+                          run("cp -r ${sourceFile.absolutePath} $targetPath")
+                          shutdown()
+                        }
+                      }
+                      
+                      
+                      // Update the TreeView to reflect the changes
+                      withContext(Dispatchers.Main) {
 //                                        adapter?.newFile(file)
 //                                        if (file == rootFolder) {
 //                                            TreeView(context, rootFolder)
 //                                        }
-                                        //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                        ProjectManager.currentProject.updateFileAdded(
-                                            context, targetPath.toFile()
-                                        )
-
-                                    }
-
-                                    // Optionally, clear the clipboard after pasting
-                                    FileClipboard.clear()
-
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    withContext(Dispatchers.Main) {
-                                        Toast.makeText(
-                                            context,
-                                            "Failed to move file: ${e.message}",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
-
-                                }
-                            }
-                        }
+                        //BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+                        ProjectManager.currentProject.updateFileAdded(
+                          mainActivity, targetPath.toFile()
+                        )
+                        
+                      }
+                      
+                      // Optionally, clear the clipboard after pasting
+                      FileClipboard.clear()
+                      
+                    } catch (e: Exception) {
+                      e.printStackTrace()
+                      withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                          context, "Failed to move file: ${e.message}", Toast.LENGTH_SHORT
+                        ).show()
+                      }
+                      
                     }
+                  }
                 }
-
-                true
+              }
             }
-
-
-            R.id.delete -> {
-                // Handle delete action
-
-                MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.delete))
-                    .setMessage(context.getString(R.string.ask_del) + " this file?")
-                    .setNegativeButton(context.getString(R.string.cancel), null).setPositiveButton(
-                        context.getString(R.string.delete)
-                    ) { _: DialogInterface?, _: Int ->
-
-
-                        ProjectManager.currentProject.updateFileDeleted(context, file)
-
-                        if (file.isFile) {
-                            file.delete()
-                        } else {
-                            file.deleteRecursively()
-                        }
-
-
-                    }.show()
-
-                true
-            }
-
-            R.id.close -> {
-                // Handle close action
-                close()
-
-
-                true
-            }
-
-            else -> false
+          }
         }
-    }
-
-
-    private fun getMimeType(context: Context, file: File): String? {
-        val uri: Uri = Uri.fromFile(file)
-        val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-        return if (extension != null) {
-            MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(extension.lowercase(Locale.getDefault()))
-        } else {
-            context.contentResolver.getType(uri)
+      }
+      
+      
+      if (file.isFile) {
+        addItem("Save As", "Save the selected file somewhere else", getDrawable(R.drawable.save)) {
+          to_save_file = file
+          val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+          startActivityForResult(
+            mainActivity, intent, REQUEST_CODE_OPEN_DIRECTORY, null
+          )
         }
+      }
+      
+      
+      addItem("Copy", "Copy selected file/folder", fileDrawable) {
+        FileClipboard.setFile(file)
+      }
+      
+      
+    }.show()
+  }
+  
+  private fun new(createFile: Boolean) {
+    val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
+    val editText = popupView.findViewById<EditText>(R.id.name)
+    
+    var title = mainActivity.getString(R.string.new_folder)
+    if (createFile) {
+      editText.hint = mainActivity.getString(R.string.newFile_hint)
+      title = mainActivity.getString(R.string.new_file)
+    } else {
+      editText.hint = mainActivity.getString(R.string.dir_example)
     }
-
-    private fun openWith(context: Context, file: File) {
-        try {
-            val uri: Uri = FileProvider.getUriForFile(
-                context, context.applicationContext.packageName + ".fileprovider", file
-            )
-            val mimeType = getMimeType(context, file)
-
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, mimeType)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-            }
-
-            // Check if there's an app to handle this intent
-            if (intent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(intent)
-            } else {
-                Toast.makeText(context, context.getString(R.string.canthandle), Toast.LENGTH_SHORT)
-                    .show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            rkUtils.toast("opening this file with other apps is not permitted")
+    
+    MaterialAlertDialogBuilder(mainActivity).setTitle(title).setView(popupView)
+      .setNegativeButton(mainActivity.getString(R.string.cancel), null).setPositiveButton(
+        mainActivity.getString(R.string.create)
+      ) { _: DialogInterface?, _: Int ->
+        if (editText.getText().toString().isEmpty()) {
+          rkUtils.toast(mainActivity.getString(R.string.ask_enter_name))
+          return@setPositiveButton
         }
-    }
-
-    private fun close() {
-        //todo
-        ProjectManager.removeProject(context, rootFolder)
-    }
-
-    private fun new(createFile: Boolean) {
-        val popupView: View = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
-        val editText = popupView.findViewById<EditText>(R.id.name)
-
-        var title = context.getString(R.string.new_folder)
+        
+        val loading = LoadingPopup(mainActivity, null)
+        
+        loading.show()
+        val fileName = editText.getText().toString()
+        for (xfile in file.listFiles()!!) {
+          if (xfile.name == fileName) {
+            rkUtils.toast(mainActivity.getString(R.string.already_exists))
+            loading.hide()
+            return@setPositiveButton
+          }
+        }
+        
         if (createFile) {
-            editText.hint = context.getString(R.string.newFile_hint)
-            title = context.getString(R.string.new_file)
+          File(file, fileName).createNewFile()
         } else {
-            editText.hint = context.getString(R.string.dir_example)
+          File(file, fileName).mkdir()
         }
-
-        MaterialAlertDialogBuilder(context).setTitle(title).setView(popupView)
-            .setNegativeButton(context.getString(R.string.cancel), null).setPositiveButton(
-                context.getString(R.string.create)
-            ) { _: DialogInterface?, _: Int ->
-                if (editText.getText().toString().isEmpty()) {
-                    rkUtils.toast( context.getString(R.string.ask_enter_name))
-                    return@setPositiveButton
-                }
-
-                val loading = LoadingPopup(context, null)
-
-                loading.show()
-                val fileName = editText.getText().toString()
-                for (xfile in file.listFiles()!!) {
-                    if (xfile.name == fileName) {
-                        rkUtils.toast(context.getString(R.string.already_exists))
-                        loading.hide()
-                        return@setPositiveButton
-                    }
-                }
-
-                if (createFile) {
-                    File(file, fileName).createNewFile()
-                } else {
-                    File(file, fileName).mkdir()
-                }
-
-                ProjectManager.currentProject.updateFileAdded(context, file)
-
-                loading.hide()
-            }.show()
-    }
-
-    private fun rename() {
-        val popupView: View = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
-        val editText = popupView.findViewById<EditText>(R.id.name)
-
-        editText.setText(file.name)
-        editText.hint = "file name"
-
-        MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.rename))
-            .setView(popupView).setNegativeButton(context.getString(R.string.cancel), null)
-            .setPositiveButton(
-                context.getString(R.string.rename)
-            ) { _: DialogInterface?, _: Int ->
-                val newFileName = editText.text.toString()
-
-                if (newFileName.isEmpty()) {
-                    rkUtils.toast( context.getString(R.string.ask_enter_name))
-                    return@setPositiveButton
-                }
-
-                val loading = LoadingPopup(context, null)
-                loading.show()
-
-                // Check if the new file name already exists
-                val parentDir = file.parentFile
-                val fileExists =
-                    parentDir?.list()?.any { it.equals(newFileName, ignoreCase = false) } == true
-
-                if (fileExists) {
-                    rkUtils.toast( context.getString(R.string.already_exists))
-                    loading.hide()
-                    return@setPositiveButton
-                }
-
-                fun rename(file: File, to: String) {
-                    context.lifecycleScope.launch(Dispatchers.IO) {
-                        val random = Random(28958510971)
-                        val xf = (random.nextInt() + random.nextInt()).toString()
-                        Shell.SH.apply {
-                            run("mv ${file.canonicalPath} ${file.parentFile}/$xf")
-                            run("mv ${file.parentFile}/$xf ${file.parentFile}/$to")
-                            shutdown()
-                            withContext(Dispatchers.Main) {
-                                ProjectManager.currentProject.updateFileRenamed(
-                                    context, file, File(file.parentFile, newFileName)
-                                )
-                            }
+        
+        ProjectManager.currentProject.updateFileAdded(mainActivity, file)
+        
+        loading.hide()
+      }.show()
+  }
+  
+  private fun rename() {
+    val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
+    val editText = popupView.findViewById<EditText>(R.id.name)
+    
+    editText.setText(file.name)
+    editText.hint = "file name"
+    
+    MaterialAlertDialogBuilder(mainActivity).setTitle(mainActivity.getString(R.string.rename))
+      .setView(popupView).setNegativeButton(mainActivity.getString(R.string.cancel), null)
+      .setPositiveButton(
+        mainActivity.getString(R.string.rename)
+      ) { _: DialogInterface?, _: Int ->
+        val newFileName = editText.text.toString()
+        
+        if (newFileName.isEmpty()) {
+          rkUtils.toast(mainActivity.getString(R.string.ask_enter_name))
+          return@setPositiveButton
+        }
+        
+        val loading = LoadingPopup(mainActivity, null)
+        loading.show()
+        
+        // Check if the new file name already exists
+        val parentDir = file.parentFile
+        val fileExists =
+          parentDir?.list()?.any { it.equals(newFileName, ignoreCase = false) } == true
+        
+        if (fileExists) {
+          rkUtils.toast(mainActivity.getString(R.string.already_exists))
+          loading.hide()
+          return@setPositiveButton
+        }
+        
+        fun rename(file: File, to: String) {
+          mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+            val random = Random(28958510971)
+            val xf = (random.nextInt() + random.nextInt()).toString()
+            Shell.SH.apply {
+              run("mv ${file.canonicalPath} ${file.parentFile}/$xf")
+              run("mv ${file.parentFile}/$xf ${file.parentFile}/$to")
+              shutdown()
+              withContext(Dispatchers.Main) {
+                ProjectManager.currentProject.updateFileRenamed(
+                  mainActivity, file, File(file.parentFile, newFileName)
+                )
+              }
 //                            fragments.forEach { f ->
 //                                if (f.file?.absolutePath == file.absolutePath) {
 //                                    f.file = file
 //                                    f.fileName = File("${file.parentFile}/$to").name
 //                                }
 //                            }
-                            //todo
-                        }
-                    }
-
-                }
-
-                rename(file, newFileName)
-
-
-                loading.hide()
-            }.show()
+              //todo
+            }
+          }
+          
+        }
+        
+        rename(file, newFileName)
+        
+        
+        loading.hide()
+      }.show()
+  }
+  
+  
+  private fun openWith(context: Context, file: File) {
+    fun getMimeType(context: Context, file: File): String? {
+      val uri: Uri = Uri.fromFile(file)
+      val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+      return if (extension != null) {
+        MimeTypeMap.getSingleton()
+          .getMimeTypeFromExtension(extension.lowercase(Locale.getDefault()))
+      } else {
+        context.contentResolver.getType(uri)
+      }
     }
-
-
+    try {
+      val uri: Uri = FileProvider.getUriForFile(
+        context, context.applicationContext.packageName + ".fileprovider", file
+      )
+      val mimeType = getMimeType(context, file)
+      
+      val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, mimeType)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+        addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+      }
+      
+      // Check if there's an app to handle this intent
+      if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+      } else {
+        Toast.makeText(context, context.getString(R.string.canthandle), Toast.LENGTH_SHORT).show()
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
+      rkUtils.toast("opening this file with other apps is not permitted")
+    }
+  }
 }

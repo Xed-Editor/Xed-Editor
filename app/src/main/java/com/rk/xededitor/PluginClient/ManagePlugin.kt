@@ -67,25 +67,28 @@ class ManagePlugin : BaseActivity() {
                 setTitle("Install Plugin")
 
                 addItem("Zip Install","Install Plugin from local storage",ContextCompat.getDrawable(this@ManagePlugin,com.rk.libcommons.R.drawable.archive),
-                    {
-                        hide()
-                        MaterialAlertDialogBuilder(this@ManagePlugin).setTitle("Add Plugin")
-                            .setMessage("Choose the plugin zip file from storage to install it.")
-                            .setNegativeButton("Cancel", null).setPositiveButton("Choose") { dialog, which ->
-                                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                                intent.type = "*/*"
-                                startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
-                            }.show()
-
-
-                    }, View.generateViewId())
-
-
+                    View.generateViewId()
+                ) {
+                    hide()
+                    MaterialAlertDialogBuilder(this@ManagePlugin).setTitle("Add Plugin")
+                        .setMessage("Choose the plugin zip file from storage to install it.")
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("Choose") { dialog, which ->
+                            val intent = Intent(Intent.ACTION_GET_CONTENT)
+                            intent.type = "*/*"
+                            startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
+                        }.show()
+                    
+                    
+                }
+                
+                
                 addItem("Download","Download Plugins from repository",ContextCompat.getDrawable(this@ManagePlugin,R.drawable.download),
-                    {
-                        hide()
-                        startActivity(Intent(this@ManagePlugin,ActivityPluginRepo::class.java))
-                    }, View.generateViewId())
+                    View.generateViewId()
+                ) {
+                    hide()
+                    startActivity(Intent(this@ManagePlugin, ActivityPluginRepo::class.java))
+                }
                 getDialogBuilder().setNegativeButton("Cancel",null)
                 show()
             }

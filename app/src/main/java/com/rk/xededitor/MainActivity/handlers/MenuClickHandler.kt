@@ -247,16 +247,15 @@ object MenuClickHandler {
                     addItem(
                         "Pull",
                         "Sync local repository with remote repository",
-                        ContextCompat.getDrawable(activity, R.drawable.sync),
-                        listener,
-                        pull
+                        ContextCompat.getDrawable(activity, R.drawable.sync),pull,
+                        listener
+                        
                     )
                     addItem(
                         "Commit and push",
                         "Create a commit and push changes to the remote repository",
-                        ContextCompat.getDrawable(activity, R.drawable.upload),
-                        listener,
-                        push
+                        ContextCompat.getDrawable(activity, R.drawable.upload),push,
+                        listener
                     )
                     setTitle("Git")
                     getDialogBuilder().setNegativeButton("Cancel", null)

@@ -13,7 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class ActionPopup(val context:Context) {
+class ActionPopup(val context:Context,val autoHideOnClick:Boolean = false) {
     private val dialogBuilder: MaterialAlertDialogBuilder
     private var dialog:AlertDialog? = null
     private val scrollView = ScrollView(context)
@@ -52,12 +52,16 @@ class ActionPopup(val context:Context) {
     }
 
     fun hide() : ActionPopup {
-        dialog?.hide()
+        if (dialog?.isShowing == true){
+            dialog?.hide()
+        }
+        
         return this
     }
 
 
-    fun addItem(title:String?,description:String?,icon:Drawable?,listener: View.OnClickListener?,viewid:Int){
+    @JvmOverloads
+    fun addItem(title:String?,description:String?,icon:Drawable?,viewid:Int = View.generateViewId(),listener: View.OnClickListener?){
         fun Int.toPx(): Int = (this * context.resources.displayMetrics.density).toInt()
 
         val itemView = LinearLayout(context).apply {
@@ -120,7 +124,17 @@ class ActionPopup(val context:Context) {
 
         itemView.addView(imageView)
         itemView.addView(textLayout)
-        itemView.setOnClickListener(listener)
+        listener?.let {
+            if (autoHideOnClick){
+                itemView.setOnClickListener{ v ->
+                    hide()
+                    it.onClick(v)
+                }
+            }else{
+              itemView.setOnClickListener(listener)
+            }
+        }
+        
         rootView.addView(itemView)
     }
 }

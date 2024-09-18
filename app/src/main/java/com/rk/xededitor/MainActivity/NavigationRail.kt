@@ -139,43 +139,37 @@ object NavigationRail {
             "Open a Directory",
             "Choose a directory as a project",
             ContextCompat.getDrawable(this@with, R.drawable.outline_folder_24),
-            listener,
-            openDirId
+            openDirId,listener
           )
           addItem(
             "Open a File",
             "Choose a file to directly edit it",
             ContextCompat.getDrawable(this@with, R.drawable.outline_insert_drive_file_24),
-            listener,
-            openFileId
+            openFileId,listener
           )
           addItem(
             "Open from Path",
             "Open a project/file from a path",
             ContextCompat.getDrawable(this@with, R.drawable.android),
-            listener,
-            openPathId
+            openPathId,listener
           )
           addItem(
             "Clone repository",
             "Clone repository using Git",
             ContextCompat.getDrawable(this@with, R.drawable.git),
-            listener,
-            cloneRepo
+            cloneRepo,listener
           )
           addItem(
             "Plugins",
             "Plugins Directory",
             ContextCompat.getDrawable(this@with, R.drawable.extension),
-            listener,
-            pluginDir
+            pluginDir,listener
           )
           addItem(
             "Private Files",
             "Private files of karbon",
             ContextCompat.getDrawable(this@with, R.drawable.android),
-            listener,
-            privateFilesId
+            privateFilesId,listener
           )
          
           
