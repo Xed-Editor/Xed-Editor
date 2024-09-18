@@ -76,6 +76,14 @@ android {
         versionCode = 31
         versionName = "2.7.1"
     }
+    
+//    packaging {
+//        resources {
+//            excludes.add("kotlin/coroutines/coroutines.kotlin_builtins")
+//        }
+//    }
+
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -131,5 +139,6 @@ dependencies {
     implementation(libs.swiperefreshlayout)
     implementation(libs.okhttp)
     implementation(libs.org.eclipse.jgit)
+   
 
 }

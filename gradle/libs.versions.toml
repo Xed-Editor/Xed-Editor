@@ -39,6 +39,7 @@ bsh = { module = "org.beanshell:bsh", version.ref = "bsh" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 ktsh = { module = "com.jaredrummler:ktsh", version.ref = "ktsh" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }

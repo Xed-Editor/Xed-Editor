@@ -70,7 +70,7 @@ object NavigationRail {
             }
             val branchEdit = view.findViewById<EditText>(R.id.mime).apply {
               hint = "Branch. Example: main"
-              setText("")
+              setText("main")
             }
             MaterialAlertDialogBuilder(this).setTitle("Clone repository").setView(view)
               .setNegativeButton("Cancel", null).setPositiveButton("Apply") { _, _ ->

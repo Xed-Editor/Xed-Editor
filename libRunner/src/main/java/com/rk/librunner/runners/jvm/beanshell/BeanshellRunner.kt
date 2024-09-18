@@ -1,4 +1,4 @@
-package com.rk.librunner.runners.beanshell
+package com.rk.librunner.runners.jvm.beanshell
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -9,10 +9,10 @@ import android.os.Looper
 import bsh.Interpreter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.api.API
-import com.rk.librunner.RunnableInterface
+import com.rk.librunner.RunnerImpl
 import java.io.File
 
-class BeanshellRunner : RunnableInterface {
+class BeanshellRunner : RunnerImpl(listOf("bsh")) {
 
     override fun run(file: File, context: Context) {
         val handler = Handler(Looper.getMainLooper())

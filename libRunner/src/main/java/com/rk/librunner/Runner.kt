@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.librunner.runners.beanshell.BeanshellRunner
+import com.rk.librunner.runners.jvm.beanshell.BeanshellRunner
 import com.rk.librunner.runners.web.html.HtmlRunner
 import com.rk.librunner.runners.web.markdown.MarkDownRunner
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -16,23 +16,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-interface RunnableInterface {
-    fun run(file: File, context: Context)
-    fun getName(): String
-    fun getDescription(): String
-    fun getIcon(context: Context): Drawable?
+abstract class RunnerImpl(runnableFileExt:List<String>){
+    init {
+      runnableFileExt.forEach { ext ->
+          Runner.registry[ext]?.add(this)
+      }
+    }
+    abstract fun run(file: File, context: Context)
+    abstract fun getName(): String
+    abstract fun getDescription(): String
+    abstract fun getIcon(context: Context): Drawable?
 }
 
 object Runner {
-
-    private val registry = HashMap<String, List<RunnableInterface>>()
-
-    init {
-        registry["bsh"] = arrayListOf(BeanshellRunner())
-        registry["md"] = arrayListOf(MarkDownRunner())
-        registry["html"] = arrayListOf(HtmlRunner())
-    }
-
+    val registry = HashMap<String, MutableList<RunnerImpl>>()
+    
     fun isRunnable(file: File): Boolean {
         val ext = file.name.substringAfterLast('.', "")
         return registry.keys.any { it == ext }
@@ -64,8 +62,8 @@ object Runner {
 
     private fun showRunnerSelectionDialog(
         context: Context,
-        runners: List<RunnableInterface>,
-        onRunnerSelected: (RunnableInterface) -> Unit
+        runners: List<RunnerImpl>,
+        onRunnerSelected: (RunnerImpl) -> Unit
     ) {
         val dialogView =
             LayoutInflater.from(context).inflate(R.layout.dialog_runner_selection, null)
