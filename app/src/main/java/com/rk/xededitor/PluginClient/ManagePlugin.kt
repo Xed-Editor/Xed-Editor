@@ -103,7 +103,7 @@ class ManagePlugin : BaseActivity() {
             data?.data?.let { uri ->
                 val fileName = getFileName(uri).toString()
                 if (fileName.endsWith(".zip").not()) {
-                    rkUtils.toast(this, "Invalid file type, zip file expected")
+                    rkUtils.toast( "Invalid file type, zip file expected")
                     return
                 }
 
@@ -111,10 +111,10 @@ class ManagePlugin : BaseActivity() {
                 val isInstalled = contentResolver.openInputStream(uri)?.let { PluginInstaller.installFromZip(this, it) } ?: false
 
                 if (isInstalled){
-                    rkUtils.toast(this, "Installed Successfully")
+                    rkUtils.toast( "Installed Successfully")
                     recreate()
                 }else{
-                    rkUtils.toast(this, "Failed to install")
+                    rkUtils.toast( "Failed to install")
                 }
 
 

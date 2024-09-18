@@ -154,7 +154,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
             val failure = Runnable {
                 GlobalScope.launch(Dispatchers.Main) {
-                    rkUtils.toast(terminal, "package download failed")
+                    rkUtils.toast( "package download failed")
                     loadingPopup.hide()
                     terminal.finish()
                 }

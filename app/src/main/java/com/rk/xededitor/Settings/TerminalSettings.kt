@@ -112,7 +112,7 @@ class TerminalSettings : BaseActivity() {
                             if (absoluteShell.exists()
                                     .not() && !Files.isSymbolicLink(absoluteShell.toPath())
                             ) {
-                                rkUtils.toast(this@TerminalSettings, "File does not exist")
+                                rkUtils.toast("File does not exist")
                                 return@setPositiveButton
                             }
 
@@ -144,17 +144,17 @@ class TerminalSettings : BaseActivity() {
                             val text = edittext.text.toString()
                             for (c in text) {
                                 if (!c.isDigit()) {
-                                    rkUtils.toast(this@TerminalSettings,"invalid value")
+                                    rkUtils.toast("invalid value")
                                     return@setPositiveButton
                                 }
                             }
                             if (text.toInt() > 32) {
-                                rkUtils.toast(this@TerminalSettings,"Value too large")
+                                rkUtils.toast("Value too large")
                                 return@setPositiveButton
                             }
 
                             if (text.toInt() < 8){
-                                rkUtils.toast(this@TerminalSettings,"Value too small")
+                                rkUtils.toast("Value too small")
                                 return@setPositiveButton
                             }
                             SettingsData.setString(Keys.TERMINAL_TEXT_SIZE, text)

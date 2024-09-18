@@ -63,17 +63,17 @@ class FileManager(private val mainActivity: MainActivity) {
 
 
                 if (path.isEmpty()) {
-                    rkUtils.toast(mainActivity, "Please enter a path")
+                    rkUtils.toast( "Please enter a path")
                     return@setPositiveButton
                 }
 
                 if (!file.exists()) {
-                    rkUtils.toast(mainActivity, "Path does not exist")
+                    rkUtils.toast( "Path does not exist")
                     return@setPositiveButton
                 }
 
                 if (!file.canRead() && file.canWrite()) {
-                    rkUtils.toast(mainActivity, "Permission Denied")
+                    rkUtils.toast("Permission Denied")
                     return@setPositiveButton
                 }
 

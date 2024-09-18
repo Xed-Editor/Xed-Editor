@@ -90,13 +90,12 @@ class TabFragment : Fragment() {
   }
   
   fun save(showToast: Boolean = true) {
-    if (file.exists().not()) {
-      rkUtils.runOnUiThread {
-        Toast.makeText(context, "File no longer exists", Toast.LENGTH_SHORT).show()
-      }
-    }
-    
     lifecycleScope.launch(Dispatchers.IO) {
+      if (file.exists().not() and showToast){
+        withContext(Dispatchers.Main){
+          rkUtils.toast("File no longer exists")
+        }
+      }
       try {
         val content = withContext(Dispatchers.Main) {
           editor?.text
@@ -107,7 +106,7 @@ class TabFragment : Fragment() {
           ContentIO.writeTo(content, outputStream, true)
           if (showToast) {
             withContext(Dispatchers.Main) {
-              rkUtils.toast(context, "saved")
+              rkUtils.toast("saved")
             }
           }
         }
@@ -132,7 +131,7 @@ class TabFragment : Fragment() {
       } catch (e: Exception) {
         e.printStackTrace()
         withContext(Dispatchers.Main) {
-          rkUtils.toast(context, e.message)
+          rkUtils.toast(e.message)
         }
         
         

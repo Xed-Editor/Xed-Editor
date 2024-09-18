@@ -164,7 +164,7 @@ class BatchReplacement : BaseActivity() {
             }
         }
 
-        toast(this, "Action Completed")
+        toast("Action Completed")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

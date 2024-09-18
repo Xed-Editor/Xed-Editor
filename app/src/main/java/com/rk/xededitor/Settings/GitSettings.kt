@@ -128,7 +128,7 @@ class GitSettings : BaseActivity() {
                                 return@setPositiveButton
                             }
                             if (!File(repodir).exists()) {
-                                rkUtils.toast(this@GitSettings, "Folder does not exists")
+                                rkUtils.toast("Folder does not exists")
                                 return@setPositiveButton
                             }
                             SettingsData.setString(Keys.GIT_REPO_DIR, repodir)

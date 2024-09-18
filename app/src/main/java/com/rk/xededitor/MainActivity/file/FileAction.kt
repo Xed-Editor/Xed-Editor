@@ -173,7 +173,7 @@ class FileAction(
                 // Handle paste action
 
                 if (FileClipboard.isEmpty()) {
-                    rkUtils.toast(context, "File Clipboard is empty")
+                    rkUtils.toast("File Clipboard is empty")
                     return false
                 }
 
@@ -305,7 +305,7 @@ class FileAction(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            rkUtils.toast(context, "opening this file with other apps is not permitted")
+            rkUtils.toast("opening this file with other apps is not permitted")
         }
     }
 
@@ -331,7 +331,7 @@ class FileAction(
                 context.getString(R.string.create)
             ) { _: DialogInterface?, _: Int ->
                 if (editText.getText().toString().isEmpty()) {
-                    rkUtils.toast(context, context.getString(R.string.ask_enter_name))
+                    rkUtils.toast( context.getString(R.string.ask_enter_name))
                     return@setPositiveButton
                 }
 
@@ -341,7 +341,7 @@ class FileAction(
                 val fileName = editText.getText().toString()
                 for (xfile in file.listFiles()!!) {
                     if (xfile.name == fileName) {
-                        rkUtils.toast(context, context.getString(R.string.already_exists))
+                        rkUtils.toast(context.getString(R.string.already_exists))
                         loading.hide()
                         return@setPositiveButton
                     }
@@ -374,7 +374,7 @@ class FileAction(
                 val newFileName = editText.text.toString()
 
                 if (newFileName.isEmpty()) {
-                    rkUtils.toast(context, context.getString(R.string.ask_enter_name))
+                    rkUtils.toast( context.getString(R.string.ask_enter_name))
                     return@setPositiveButton
                 }
 
@@ -387,7 +387,7 @@ class FileAction(
                     parentDir?.list()?.any { it.equals(newFileName, ignoreCase = false) } == true
 
                 if (fileExists) {
-                    rkUtils.toast(context, context.getString(R.string.already_exists))
+                    rkUtils.toast( context.getString(R.string.already_exists))
                     loading.hide()
                     return@setPositiveButton
                 }

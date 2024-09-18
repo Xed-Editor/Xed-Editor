@@ -32,8 +32,8 @@ object rkUtils {
         ctx.startActivity(shareIntent)
     }
 
-    fun toast(context: Context?, message: String?) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    fun toast(message: String?) {
+        Toast.makeText(App.app, message, Toast.LENGTH_SHORT).show()
     }
     
     fun snackbar(rootView: View){

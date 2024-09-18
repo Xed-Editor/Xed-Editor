@@ -83,9 +83,9 @@ object NavigationRail {
                   ) + "/" + repoName
                 )
                 if (repoLink.isEmpty() || branch.isEmpty()) {
-                  rkUtils.toast(this, "Please fill in both fields")
+                  rkUtils.toast("Please fill in both fields")
                 } else if (repoDir.exists()) {
-                  rkUtils.toast(this, "$repoDir already exists!")
+                  rkUtils.toast("$repoDir already exists!")
                 } else {
                   val loadingPopup = LoadingPopup(this, null).setMessage("Cloning repository...")
                   loadingPopup.show()
@@ -103,7 +103,7 @@ object NavigationRail {
                         withContext(Dispatchers.Main) {
                           loadingPopup.hide()
                           rkUtils.toast(
-                            this@with, "Repository is private. Check your credentials"
+                            "Repository is private. Check your credentials"
                           )
                         }
                       } else {
@@ -119,7 +119,7 @@ object NavigationRail {
                         } catch (e: Exception) {
                           withContext(Dispatchers.Main) {
                             loadingPopup.hide()
-                            rkUtils.toast(this@with, "Error: ${e.message}")
+                            rkUtils.toast("Error: ${e.message}")
                           }
                         }
                       }

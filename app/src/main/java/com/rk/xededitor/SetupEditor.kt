@@ -70,7 +70,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
                     val path = File(context.filesDir.parentFile, "unzip/textmate/darcula.json").absolutePath
                     if (!File(path).exists()) {
                         runOnUiThread {
-                            rkUtils.toast(context, context.resources.getString(R.string.theme_not_found_err))
+                            rkUtils.toast( context.resources.getString(R.string.theme_not_found_err))
                         }
                         return
                     }
@@ -89,7 +89,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
                     val path = File(context.filesDir.parentFile, "unzip/textmate/black/darcula.json").absolutePath
                     if (!File(path).exists()) {
                         runOnUiThread {
-                            rkUtils.toast(context, context.resources.getString(R.string.theme_not_found_err))
+                            rkUtils.toast( context.resources.getString(R.string.theme_not_found_err))
                         }
                         return
                     }
@@ -108,7 +108,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
                     val path = File(context.filesDir.parentFile, "unzip/textmate/quietlight.json").absolutePath
                     if (!File(path).exists()) {
                         runOnUiThread {
-                            rkUtils.toast(context, context.resources.getString(R.string.theme_not_found_err))
+                            rkUtils.toast( context.resources.getString(R.string.theme_not_found_err))
                         }
                         return
                     }

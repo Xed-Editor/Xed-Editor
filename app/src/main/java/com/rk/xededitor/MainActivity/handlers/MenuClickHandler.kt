@@ -53,7 +53,7 @@ object MenuClickHandler {
                 tabFragments.values.forEach { f ->
                     f?.save(false)
                 }
-                rkUtils.toast(activity, "Saved all files")
+                rkUtils.toast("Saved all files")
                 return true
             }
             
@@ -136,12 +136,12 @@ object MenuClickHandler {
                 var dialog: AlertDialog? = null
                 val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                 if (credentials.size != 2) {
-                    rkUtils.toast(activity, "Credentials does not valid. Change it in settings")
+                    rkUtils.toast( "Credentials does not valid. Change it in settings")
                     return true
                 }
                 val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
                 if (userdata.size != 2) {
-                    rkUtils.toast(activity, "User data does not valid. Change it in settings")
+                    rkUtils.toast("User data does not valid. Change it in settings")
                     return true
                 }
                 val listener = View.OnClickListener { v ->
@@ -166,10 +166,10 @@ object MenuClickHandler {
                                         ).call()
                                     }
                                 } catch (e: GitAPIException) {
-                                    rkUtils.toast(activity, e.message)
+                                    rkUtils.toast(e.message)
                                 }
                                 withContext(Dispatchers.Main) {
-                                    rkUtils.toast(activity, "Successfully")
+                                    rkUtils.toast("Successfully")
                                     loadingPopup.hide()
                                 }
                             }
@@ -196,7 +196,7 @@ object MenuClickHandler {
                                         val branch = branchedit.text.toString()
                                         val commit = commitedit.text.toString()
                                         if (branch.isEmpty() || commit.isEmpty()) {
-                                            rkUtils.toast(activity, "Please fill in both fields")
+                                            rkUtils.toast("Please fill in both fields")
                                             return@setPositiveButton
                                         }
                                         val loadingPopup = LoadingPopup(
@@ -226,17 +226,17 @@ object MenuClickHandler {
                                                     )
                                                 ).call()
                                             } catch (e: GitAPIException) {
-                                                rkUtils.toast(activity, e.message)
+                                                rkUtils.toast(e.message)
                                             }
                                             withContext(Dispatchers.Main) {
-                                                rkUtils.toast(activity, "Successfully")
+                                                rkUtils.toast("Successfully")
                                                 loadingPopup.hide()
                                             }
                                         }
                                     }.show()
                             }
                             else {
-                                rkUtils.toast(activity, "Error: .git folder not found")
+                                rkUtils.toast("Error: .git folder not found")
                             }
                         }
                     }

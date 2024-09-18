@@ -163,7 +163,7 @@ class SimpleEditor : BaseActivity() {
                 val mimeType = contentResolver.getType(uri!!)
                 if (mimeType != null) {
                     if (mimeType.isEmpty() || mimeType.contains("directory")) {
-                        toast(this, resources.getString(R.string.unsupported_contnt))
+                        toast(resources.getString(R.string.unsupported_contnt))
                         finish()
                     }
                 }
@@ -226,7 +226,7 @@ class SimpleEditor : BaseActivity() {
             }
 
             withContext(Dispatchers.Main){
-                toast(this@SimpleEditor, s)
+                toast(s)
             }
         }
     }

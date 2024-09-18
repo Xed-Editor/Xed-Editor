@@ -24,7 +24,7 @@ object VersionChangeHandler {
             //clear data
             app.filesDir.parentFile?.deleteRecursively()
             SettingsData.setString(Keys.VERSION_CODE,currentVersionCode.toString())
-            rkUtils.toast(app,"App data is cleared")
+            rkUtils.toast("App data is cleared")
             return
         }else if (previousVersionCode.toLong() != currentVersionCode){
             //user updated the app

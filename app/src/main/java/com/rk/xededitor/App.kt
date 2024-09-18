@@ -10,9 +10,15 @@ import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 
 class App : Application() {
-
+  
+ 
+  
+  companion object{
+    lateinit var app:Application
+  }
  
   override fun onCreate() {
+    app = this
     super.onCreate()
 
     //create crash handler

@@ -112,7 +112,7 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.diagonal_scroll
         defaultValue = false
         onCheckedChange {
-          rkUtils.toast(this@SettingsEditor, "restart required")
+          rkUtils.toast("restart required")
           return@onCheckedChange true
         }
       }
@@ -228,12 +228,12 @@ class SettingsEditor : BaseActivity() {
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast(this@SettingsEditor, "invalid value")
+                  rkUtils.toast("invalid value")
                   return@setPositiveButton
                 }
               }
               if (text.toInt() < 1000) {
-                rkUtils.toast(this@SettingsEditor, "Value too small")
+                rkUtils.toast( "Value too small")
                 return@setPositiveButton
               }
               
@@ -268,16 +268,16 @@ class SettingsEditor : BaseActivity() {
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast(this@SettingsEditor, "invalid value")
+                  rkUtils.toast("invalid value")
                   return@setPositiveButton
                 }
               }
               if (text.toInt() > 32) {
-                rkUtils.toast(this@SettingsEditor, "Value too large")
+                rkUtils.toast("Value too large")
                 return@setPositiveButton
               }
               if (text.toInt() < 8) {
-                rkUtils.toast(this@SettingsEditor, "Value too small")
+                rkUtils.toast("Value too small")
                 return@setPositiveButton
               }
               SettingsData.setString(Keys.TEXT_SIZE, text)
@@ -309,12 +309,12 @@ class SettingsEditor : BaseActivity() {
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast(this@SettingsEditor, "invalid value")
+                  rkUtils.toast("invalid value")
                   return@setPositiveButton
                 }
               }
               if (text.toInt() > 16) {
-                rkUtils.toast(this@SettingsEditor, "Value too large")
+                rkUtils.toast("Value too large")
                 return@setPositiveButton
               }
               
