@@ -12,7 +12,7 @@ import com.rk.libPlugin.server.api.API
 import com.rk.librunner.RunnerImpl
 import java.io.File
 
-class BeanshellRunner : RunnerImpl(listOf("bsh")) {
+class BeanshellRunner : RunnerImpl {
 
     override fun run(file: File, context: Context) {
         val handler = Handler(Looper.getMainLooper())

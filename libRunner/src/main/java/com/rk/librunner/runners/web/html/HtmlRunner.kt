@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable
 import com.rk.librunner.RunnerImpl
 import java.io.File
 
-class HtmlRunner : RunnerImpl(listOf("html")) {
+class HtmlRunner : RunnerImpl {
 	override fun run(file: File, context: Context) {
 		val intent = Intent(context, HtmlActivity::class.java)
 		intent.putExtra("filepath",file.absolutePath)

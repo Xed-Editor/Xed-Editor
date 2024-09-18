@@ -8,7 +8,7 @@ import com.rk.librunner.R
 import com.rk.librunner.RunnerImpl
 import java.io.File
 
-class MarkDownRunner : RunnerImpl(listOf("md")) {
+class MarkDownRunner : RunnerImpl {
 	override fun run(file: File, context: Context) {
 		val intent = Intent(context, MDViewer::class.java)
 		intent.putExtra("filepath",file.absolutePath)
