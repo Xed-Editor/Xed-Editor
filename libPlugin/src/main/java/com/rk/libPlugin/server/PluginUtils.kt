@@ -2,11 +2,16 @@ package com.rk.libPlugin.server
 
 import android.app.Application
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 object PluginUtils {
+    private val InstalledPlugins = ArrayList<Plugin>()
     fun Application.indexPlugins() {
         InstalledPlugins.clear()
         val root = getPluginRoot()
@@ -25,14 +30,17 @@ object PluginUtils {
                 manifest = gson.fromJson(json, Manifest::class.java)
             } catch (e: Exception) {
                 e.printStackTrace()
-                Toast.makeText(this, "PluginError ${e.message}", Toast.LENGTH_LONG).show()
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(this, "PluginError ${e.message}", Toast.LENGTH_LONG).show()
+                }
+                
             }
 
             InstalledPlugins.add(Plugin(manifest!!, plugin.absolutePath, this))
         }
     }
 
-    private val InstalledPlugins = ArrayList<Plugin>()
+   
 
     
     fun getInstalledPlugins(): List<Plugin> {

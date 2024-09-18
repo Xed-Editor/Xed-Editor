@@ -34,11 +34,6 @@ android {
     buildFeatures {
         viewBinding = true
     }
-//    packaging {
-//        resources {
-//            excludes.add("kotlin/coroutines/coroutines.kotlin_builtins")
-//        }
-//    }
 }
 
 dependencies {

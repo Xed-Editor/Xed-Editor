@@ -41,24 +41,24 @@ object API {
   
   
   
-  
+  fun getCurrentActivity(){
+    onActivityResume("apiGetCurrentActivity",object : ActivityEvent {
+      override fun onEvent(id: String, activity: Activity) {
+        ActivityContext = WeakReference(activity)
+      }
+    })
+  }
   
   fun getActivityContext():Activity?{
-    return if (ActivityContext.get() != null){
-      ActivityContext.get()
-    }else{
-      getMainActivity().also { ActivityContext = WeakReference(it) }
-    }
+    return ActivityContext.get()
   }
   
   fun setActivityContext(activity: Activity?){
     ActivityContext = WeakReference(activity)
   }
-  fun resetActivityContext(){
-    ActivityContext = WeakReference(getMainActivity())
-  }
   
-  fun getMainActivity(): Activity? {
+  
+  fun getMainActivityx(): Activity? {
     val companionField =
       Class.forName("com.rk.xededitor.BaseActivity").getDeclaredField("Companion").apply {
         isAccessible = true

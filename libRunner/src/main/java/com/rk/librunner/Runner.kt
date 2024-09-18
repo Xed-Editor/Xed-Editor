@@ -19,7 +19,12 @@ import java.io.File
 abstract class RunnerImpl(runnableFileExt:List<String>){
     init {
       runnableFileExt.forEach { ext ->
-          Runner.registry[ext]?.add(this)
+          val x = Runner.registry[ext]
+          if(x != null){
+              x.add(this)
+          }else{
+              Runner.registry[ext] = mutableListOf(this)
+          }
       }
     }
     abstract fun run(file: File, context: Context)
