@@ -56,6 +56,12 @@ Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xe
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png"
 alt="Get it on GitHub"
 height="80">](https://github.com/RohitKushvaha01/Xed-Editor/releases/latest)
+
+## Community
+
+Join the community of karbon
+[Telegram](https://t.me/+o7Rwpa_WT8A5YzQ9)
+
 ## Screenshots
 
 <div >
