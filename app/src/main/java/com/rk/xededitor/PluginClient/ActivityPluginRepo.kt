@@ -1,5 +1,6 @@
 package com.rk.xededitor.PluginClient
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
@@ -65,7 +66,9 @@ class ActivityPluginRepo : BaseActivity() {
     //todo see easy componets in rooboko
     
     val xadapter = RepoPluginAdapter() { pluginItem ->
-      rkUtils.toast(pluginItem.title)
+      startActivity(Intent(this,PluginInfo::class.java).also {
+        it.putExtra("plugin",pluginItem)
+      })
     }
     
     binding.recyclerView.apply {
