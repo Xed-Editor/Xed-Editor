@@ -101,9 +101,7 @@ class MainActivity : BaseActivity() {
     
     BottomBar.setupBottomBar(this)
     
-    After(1000){
-      throw RuntimeException("test")
-    }
+    
     
   }
   
