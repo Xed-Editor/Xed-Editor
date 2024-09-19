@@ -92,7 +92,7 @@ object RepoManager {
               
               val iconBitmap = fetchBitmapFromUrl(iconUrl)
               
-              val pluginItem = PluginItem(iconBitmap, name, packageName, description, versionCode)
+              val pluginItem = PluginItem(iconBitmap, name, packageName, description, versionCode,pluginsArray.getString(i))
               
               plugins.add(pluginItem)
             } catch (e: Exception) {

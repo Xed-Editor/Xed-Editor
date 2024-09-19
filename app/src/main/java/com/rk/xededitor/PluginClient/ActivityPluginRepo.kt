@@ -62,6 +62,7 @@ class ActivityPluginRepo : BaseActivity() {
     
     setContentView(binding.root)
     
+    //todo see easy componets in rooboko
     
     val xadapter = RepoPluginAdapter() { pluginItem ->
       rkUtils.toast(pluginItem.title)
@@ -76,9 +77,9 @@ class ActivityPluginRepo : BaseActivity() {
     if (pluginModel.getPlugins().isEmpty()) {
       val loading = LoadingPopup(this, null).setMessage("Loading plugins from repo").show()
       RepoManager.getPluginsCallback { plugins ->
-        pluginModel.updatePlugin(plugins)
-        xadapter.submitList(plugins)
         lifecycleScope.launch(Dispatchers.Main) {
+          pluginModel.updatePlugin(plugins)
+          xadapter.submitList(plugins)
           if (plugins.isEmpty()) {
             rkUtils.toast("Unable to load plugins")
           }

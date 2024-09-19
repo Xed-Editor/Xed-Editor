@@ -21,14 +21,17 @@
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
         <activity
+            android:name=".PluginClient.PluginInfo"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity.MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".PluginClient.ManagePlugin"
@@ -38,7 +41,7 @@
             android:exported="false" />
         <activity
             android:name=".PluginClient.ActivityPluginRepo"
-            android:exported="true" />
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

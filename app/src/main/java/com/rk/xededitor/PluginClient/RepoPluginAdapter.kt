@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.R
 
-class PluginItem(val icon: Bitmap?, val title: String, val packageName: String,val description:String,val versionCode:Int)
+class PluginItem(val icon: Bitmap?, val title: String, val packageName: String,val description:String,val versionCode:Int,val repo:String)
 
 class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val icon: ImageView = v.findViewById(R.id.icon)

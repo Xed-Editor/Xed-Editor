@@ -29,8 +29,7 @@ import kotlin.system.exitProcess
 
 class CrashActivity : AppCompatActivity() {
     private lateinit var error_editor: CodeEditor
-
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
