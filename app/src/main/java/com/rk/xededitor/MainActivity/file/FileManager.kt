@@ -92,7 +92,7 @@ class FileManager(private val mainActivity: MainActivity) {
     companion object{
         fun findGitRoot(file: File?): File? {
             var currentFile = file
-            while (currentFile?.parentFile != null &&  ProjectManager.projects.values.contains(currentFile.parentFile?.absolutePath).not()) {
+            while (currentFile?.parentFile != null) {
                 if (File(currentFile.parentFile, ".git").exists()) {
                     return currentFile.parentFile
                 }

@@ -11,9 +11,6 @@ class Plugin(
   val pluginHome: String,
   val app: Application
 ) : Thread() {
-  init {
-    setDefaultUncaughtExceptionHandler(PluginError)
-  }
   
   private lateinit var interpreter: Interpreter
   override fun run() {
@@ -21,7 +18,8 @@ class Plugin(
       with(info) {
         interpreter = Interpreter()
         interpreter.setClassLoader(app.classLoader)
-        interpreter.set("manifest", info)
+        interpreter.set("info", info)
+        interpreter.set("home",pluginHome)
         interpreter.set("app", app)
         interpreter.set("api", API.getInstance())
         interpreter.eval(

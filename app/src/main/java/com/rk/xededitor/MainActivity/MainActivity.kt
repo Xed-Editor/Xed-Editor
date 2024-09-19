@@ -22,6 +22,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.libPlugin.server.api.API
+import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
@@ -99,7 +101,9 @@ class MainActivity : BaseActivity() {
     
     BottomBar.setupBottomBar(this)
     
-    
+    After(1000){
+      throw RuntimeException("test")
+    }
     
   }
   

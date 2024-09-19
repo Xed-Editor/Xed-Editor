@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import bsh.Interpreter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libPlugin.server.PluginError
 import com.rk.libPlugin.server.api.API
 import com.rk.librunner.RunnerImpl
 import java.io.File
@@ -15,7 +16,6 @@ import java.io.File
 class BeanshellRunner : RunnerImpl {
 
     override fun run(file: File, context: Context) {
-        val handler = Handler(Looper.getMainLooper())
         try {
             val interpreter = Interpreter()
             interpreter.setClassLoader(context.applicationContext.classLoader)
@@ -32,14 +32,7 @@ class BeanshellRunner : RunnerImpl {
             """)
             interpreter.source(file)
         }catch (e:Exception){
-            handler.post {
-                MaterialAlertDialogBuilder(context).setTitle("Error").setNeutralButton("Copy"){
-                        _, _ ->
-                    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("label", e.toString())
-                    clipboard.setPrimaryClip(clip)
-                }.setPositiveButton("OK", null).setMessage(e.toString()).show()
-            }
+           PluginError.showError(e)
         }
 
     }

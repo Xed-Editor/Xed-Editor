@@ -10,19 +10,26 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.rk.libPlugin.R
 import com.rk.libPlugin.server.PluginError
 import com.rk.libPlugin.server.api.PluginLifeCycle.ActivityEvent
 import com.rk.libPlugin.server.api.PluginLifeCycle.LifeCycleType
+import dalvik.system.DexClassLoader
 import java.lang.ref.WeakReference
 
 // This class will be available to every plugin
 object API {
+  init {
+    onActivityResume("apiGetCurrentActivity", object : ActivityEvent {
+      override fun onEvent(id: String, activity: Activity) {
+        ActivityContext = WeakReference(activity)
+      }
+    })
+  }
+  
   var application: Application? = null
   private var ActivityContext = WeakReference<Activity?>(null)
   val handler = Handler(Looper.getMainLooper())
-  
   
   
   //not for plugin use
@@ -38,27 +45,15 @@ object API {
     }
   }
   
-  
-  
-  
-  fun getCurrentActivity(){
-    onActivityResume("apiGetCurrentActivity",object : ActivityEvent {
-      override fun onEvent(id: String, activity: Activity) {
-        ActivityContext = WeakReference(activity)
-      }
-    })
-  }
-  
-  fun getActivityContext():Activity?{
+  fun getActivityContext(): Activity? {
     return ActivityContext.get()
   }
   
-  fun setActivityContext(activity: Activity?){
+  fun setActivityContext(activity: Activity?) {
     ActivityContext = WeakReference(activity)
   }
   
-  
-  fun getMainActivityx(): Activity? {
+  fun getMainActivity(): Activity? {
     val companionField =
       Class.forName("com.rk.xededitor.BaseActivity").getDeclaredField("Companion").apply {
         isAccessible = true
@@ -73,7 +68,6 @@ object API {
     ) as Activity?
   }
   
- 
   
   fun toast(message: String) {
     runOnUiThread {
@@ -84,6 +78,28 @@ object API {
   
   fun runOnUiThread(runnable: Runnable?) {
     runnable?.let { handler.post(it) }
+  }
+  
+  private val dexMap = HashMap<String, DexClassLoader>()
+  
+  fun loadDex(id:String,dexPath: String):DexClassLoader? {
+    try {
+      if (dexMap.containsKey(id)){
+        return dexMap[id]!!
+      }
+      return DexClassLoader(
+        dexPath,
+        application!!.codeCacheDir.absolutePath,
+        null,
+        application!!.classLoader
+      ).also { dexMap[id] = it }
+    }catch (e:Exception){
+      e.printStackTrace()
+      return null
+    }
+  }
+  fun unloadDex(id: String){
+    dexMap.remove(id)
   }
   
   fun popup(title: String, message: String): AlertDialog? {
@@ -126,24 +142,23 @@ object API {
   }
   
   
-  
-  fun onActivityCreate(id:String,activityEvent: ActivityEvent) {
-    PluginLifeCycle.registerLifeCycle(id,LifeCycleType.CREATE, activityEvent)
+  fun onActivityCreate(id: String, activityEvent: ActivityEvent) {
+    PluginLifeCycle.registerLifeCycle(id, LifeCycleType.CREATE, activityEvent)
   }
   
-  fun onActivityDestroy(id:String,activityEvent: ActivityEvent) {
-    PluginLifeCycle.registerLifeCycle(id,LifeCycleType.DESTROY, activityEvent)
+  fun onActivityDestroy(id: String, activityEvent: ActivityEvent) {
+    PluginLifeCycle.registerLifeCycle(id, LifeCycleType.DESTROY, activityEvent)
   }
   
-  fun onActivityPause(id:String,activityEvent: ActivityEvent) {
-    PluginLifeCycle.registerLifeCycle(id,LifeCycleType.PAUSED, activityEvent)
+  fun onActivityPause(id: String, activityEvent: ActivityEvent) {
+    PluginLifeCycle.registerLifeCycle(id, LifeCycleType.PAUSED, activityEvent)
   }
   
-  fun onActivityResume(id:String,activityEvent: ActivityEvent) {
-    PluginLifeCycle.registerLifeCycle(id,LifeCycleType.RESUMED, activityEvent)
+  fun onActivityResume(id: String, activityEvent: ActivityEvent) {
+    PluginLifeCycle.registerLifeCycle(id, LifeCycleType.RESUMED, activityEvent)
   }
   
-  fun unregisterEvent(id: String){
+  fun unregisterEvent(id: String) {
     PluginLifeCycle.unregisterActivityEvent(id)
   }
   

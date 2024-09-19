@@ -71,13 +71,19 @@ class FileAction(
             ) { _: DialogInterface?, _: Int ->
               
               
+              val loading = LoadingPopup(mainActivity,null).show()
               ProjectManager.currentProject.updateFileDeleted(mainActivity, file)
-              
-              if (file.isFile) {
-                file.delete()
-              } else {
-                file.deleteRecursively()
+              mainActivity.lifecycleScope.launch(Dispatchers.IO){
+                if (file.isFile) {
+                  file.delete()
+                } else {
+                  file.deleteRecursively()
+                }
+                withContext(Dispatchers.Main){
+                  loading.hide()
+                }
               }
+              
               
               
             }.show()

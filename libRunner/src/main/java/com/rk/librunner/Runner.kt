@@ -48,11 +48,17 @@ object Runner {
           return@launch
         }
         if (runners.size == 1) {
-          runners[0].run(file, context)
+          Thread{
+            runners[0].run(file, context)
+          }.start()
+         
         } else {
           withContext(Dispatchers.Main) {
             showRunnerSelectionDialog(context, runners) { selectedRunner ->
-              selectedRunner.run(file, context)
+              Thread{
+                selectedRunner.run(file, context)
+              }.start()
+              
             }
           }
           

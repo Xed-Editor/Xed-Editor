@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -87,8 +88,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
       
       if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
         tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
+        MenuItemHandler.set.remove(tabViewModel.fragmentFiles[position].name)
         tabViewModel.fragmentFiles.removeAt(position)
         tabViewModel.fragmentTitles.removeAt(position)
+        
         (viewPager.adapter as? TabAdapter)?.apply {
           notifyItemRemovedX(position)
         }

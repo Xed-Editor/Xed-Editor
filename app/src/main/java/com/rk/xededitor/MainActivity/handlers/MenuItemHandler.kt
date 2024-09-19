@@ -34,8 +34,12 @@ object MenuItemHandler {
         } else {
           menu.findItem(R.id.run).isVisible = false
         }
-        
-        menu.findItem(R.id.git).isVisible = findGitRoot(activity.adapter.getCurrentFragment()?.file) != null
+        withContext(Dispatchers.Default){
+          val gitRoot =  findGitRoot(activity.adapter.getCurrentFragment()?.file) != null
+          withContext(Dispatchers.Main){
+            menu.findItem(R.id.git).isVisible = gitRoot
+          }
+        }
         
         updateUndoRedo(menu, activity.adapter.getCurrentFragment(), activity)
         
@@ -47,7 +51,7 @@ object MenuItemHandler {
   }
   
   
-  private val set = HashSet<String>()
+  val set = HashSet<String>()
   private fun updateUndoRedo(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
     
     menu.findItem(R.id.redo).isEnabled = currentFragment?.editor?.canRedo() == true

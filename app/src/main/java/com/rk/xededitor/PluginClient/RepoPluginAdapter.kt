@@ -19,12 +19,16 @@ class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val description: TextView = v.findViewById(R.id.description)
 }
 
-class RepoPluginAdapter : ListAdapter<PluginItem, ViewHolder>(DiffCallback()) {
-
+class RepoPluginAdapter(private val itemClick:(PluginItem) -> Unit) : ListAdapter<PluginItem, ViewHolder>(DiffCallback()) {
+    
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.plugin_repo_item, parent, false)
-        return ViewHolder(view)
+        val holder = ViewHolder(view)
+        view.setOnClickListener{
+            itemClick.invoke(currentList[holder.adapterPosition])
+        }
+        return holder
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
