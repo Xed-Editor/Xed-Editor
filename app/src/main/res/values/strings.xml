@@ -87,6 +87,7 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
+    <string name="plugin_icon">Plugin Icon</string>
 
 
 </resources>

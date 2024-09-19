@@ -34,4 +34,4 @@ include(":editor-lsp")
 include(":language-textmate")
 include(":commons")
 include(":FileTree")
-include(":libmarkdown")
+

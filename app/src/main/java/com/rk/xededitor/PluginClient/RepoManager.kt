@@ -16,7 +16,7 @@ import java.io.InputStream
 
 object RepoManager {
   
-  private fun fetch(url: String): String? {
+  suspend fun fetch(url: String): String? {
     val client = OkHttpClient()
     val request = Request.Builder().url(url).build()
     
@@ -48,7 +48,7 @@ object RepoManager {
     }
   }
   
-  private fun getRawGithubUrl(url: String): String {
+   fun getRawGithubUrl(url: String): String {
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
   }
   

@@ -15,7 +15,7 @@ import com.rk.librunner.databinding.ActivityMarkdownBinding
 
 abstract class WebActivity: AppCompatActivity()  {
     lateinit var binding:ActivityMarkdownBinding
-    private var isDebugMode = true
+    
     
     @SuppressLint("SetJavaScriptEnabled")
     fun setupWebView(webView: WebView) {
@@ -29,7 +29,6 @@ abstract class WebActivity: AppCompatActivity()  {
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.setWebChromeClient(WebChromeClient());
-        WebView.setWebContentsDebuggingEnabled(isDebugMode)
         
     }
 

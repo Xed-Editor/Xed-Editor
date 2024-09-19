@@ -17,7 +17,6 @@
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/language-textmate" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libPlugin" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libRunner" />
-            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libmarkdown" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/libsettings" />
           </set>
         </option>

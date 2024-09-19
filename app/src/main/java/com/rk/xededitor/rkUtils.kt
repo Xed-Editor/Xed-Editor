@@ -21,7 +21,13 @@ object rkUtils {
     fun runOnUiThread(runnable: Runnable) {
         mHandler.post(runnable)
     }
-
+    
+    fun readAssetFile(context: Context, fileName: String): String {
+        val assetManager = context.assets
+        val inputStream = assetManager.open(fileName)
+        return inputStream.bufferedReader().use { it.readText() }
+    }
+    
     fun shareText(ctx: Context, text: String?) {
         val sendIntent = Intent()
         sendIntent.setAction(Intent.ACTION_SEND)

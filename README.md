@@ -31,6 +31,12 @@ Karbon is a powerful text editor for developers, programmers, and power users on
 - [x] Print text
 - [x] Plugins (Read [Creating Plugins](/docs/CREATE_PLUGIN.md))
 
+## Community
+
+Join the community of karbon
+
+[Telegram](https://t.me/+o7Rwpa_WT8A5YzQ9)
+
 ## Installation
 
 <div>
@@ -57,10 +63,7 @@ Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xe
 alt="Get it on GitHub"
 height="80">](https://github.com/RohitKushvaha01/Xed-Editor/releases/latest)
 
-## Community
 
-Join the community of karbon
-[Telegram](https://t.me/+o7Rwpa_WT8A5YzQ9)
 
 ## Screenshots
 
