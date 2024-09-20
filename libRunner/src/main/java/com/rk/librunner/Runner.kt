@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.runners.jvm.beanshell.BeanshellRunner
+import com.rk.librunner.runners.shell.ShellRunner
 import com.rk.librunner.runners.web.html.HtmlRunner
 import com.rk.librunner.runners.web.markdown.MarkDownRunner
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -30,6 +31,10 @@ object Runner {
     registry["bsh"] = mutableListOf(BeanshellRunner())
     registry["html"] = mutableListOf(HtmlRunner())
     registry["md"] = mutableListOf(MarkDownRunner())
+    mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
+      registry["sh"] = it
+      registry["bash"] = it
+    }
   }
   
   fun isRunnable(file: File): Boolean {
@@ -48,14 +53,14 @@ object Runner {
           return@launch
         }
         if (runners.size == 1) {
-          Thread{
+          Thread {
             runners[0].run(file, context)
           }.start()
-         
+          
         } else {
           withContext(Dispatchers.Main) {
             showRunnerSelectionDialog(context, runners) { selectedRunner ->
-              Thread{
+              Thread {
                 selectedRunner.run(file, context)
               }.start()
               
