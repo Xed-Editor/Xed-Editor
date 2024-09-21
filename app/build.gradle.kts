@@ -86,8 +86,8 @@ android {
         minSdk = 26
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
-        versionCode = 31
-        versionName = "2.7.1"
+        versionCode = 32
+        versionName = "2.7.2"
     }
     
 //    packaging {

@@ -17,6 +17,7 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.AutoSaver
+import com.rk.xededitor.MainActivity.tabFragments
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
@@ -95,7 +96,9 @@ class SettingsEditor : BaseActivity() {
         summary = "Enable Word Wrap in all editors"
         iconRes = R.drawable.reorder
         onCheckedChange { isChecked ->
-          //todo
+          tabFragments.forEach{ f ->
+            f.value.editor?.isWordwrap = isChecked
+          }
           return@onCheckedChange true
         }
       }
@@ -124,7 +127,9 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.animation
         defaultValue = true
         onCheckedChange { isChecked ->
-          //todo
+          tabFragments.forEach{ f ->
+            f.value.editor?.isCursorAnimationEnabled = isChecked
+          }
           
           return@onCheckedChange true
         }
@@ -136,7 +141,9 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.linenumbers
         defaultValue = true
         onCheckedChange { isChecked ->
-          //todo
+          tabFragments.forEach{ f ->
+            f.value.editor?.isLineNumberEnabled = isChecked
+          }
           return@onCheckedChange true
         }
       }
@@ -147,7 +154,9 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.linenumbers
         defaultValue = false
         onCheckedChange { isChecked ->
-          //todo
+          tabFragments.forEach{ f ->
+            f.value.editor?.setPinLineNumber(isChecked)
+          }
           return@onCheckedChange true
         }
       }
@@ -204,7 +213,12 @@ class SettingsEditor : BaseActivity() {
         iconRes = R.drawable.save
         defaultValue = false
         onCheckedChange { isChecked ->
-          //todo
+          if (isChecked){
+            MainActivity.activityRef.get()?.let { AutoSaver.start(it) }
+          }else{
+            AutoSaver.stop()
+          }
+
           return@onCheckedChange true
         }
       }
@@ -281,8 +295,9 @@ class SettingsEditor : BaseActivity() {
                 return@setPositiveButton
               }
               SettingsData.setString(Keys.TEXT_SIZE, text)
-//todo
-            
+              tabFragments.forEach{ f ->
+                f.value.editor?.setTextSize(text.toFloat())
+              }
             
             }.show()
           
@@ -319,7 +334,10 @@ class SettingsEditor : BaseActivity() {
               }
               
               SettingsData.setString(Keys.TAB_SIZE, text)
-//todo
+
+              tabFragments.forEach{ f ->
+                f.value.editor?.tabWidth = text.toInt()
+              }
             
             }.show()
           
