@@ -88,6 +88,7 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="plugin_icon">Plugin Icon</string>
+    <string name="download">Download</string>
 
 
 </resources>
