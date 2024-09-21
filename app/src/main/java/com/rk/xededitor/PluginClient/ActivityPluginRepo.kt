@@ -10,13 +10,20 @@ import androidx.activity.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.rk.libPlugin.server.PluginInstaller
+import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityPluginsBinding
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import java.io.File
 
 class PluginViewModel : ViewModel() {
   private val plugins = mutableListOf<PluginItem>()
@@ -32,7 +39,6 @@ class PluginViewModel : ViewModel() {
 
 
 class ActivityPluginRepo : BaseActivity() {
-  private val pluginModel: PluginViewModel by viewModels()
   lateinit var binding: ActivityPluginsBinding
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -65,10 +71,34 @@ class ActivityPluginRepo : BaseActivity() {
     
     //todo see easy componets in rooboko
     
-    val xadapter = RepoPluginAdapter() { pluginItem ->
+    val xadapter = RepoPluginAdapter({pluginItem ->
+      //whole item clciked
       startActivity(Intent(this,PluginInfo::class.java).also {
         it.putExtra("plugin",pluginItem)
       })
+    }) { pluginItem,button ->
+      //download button clicked
+      val loading = LoadingPopup(this, null).setMessage("Downloading plugin").show()
+      lifecycleScope.launch(Dispatchers.IO){
+        try {
+          Git.cloneRepository().setURI(pluginItem.repo).setDirectory(File(getPluginRoot(),pluginItem.title)).setBranch("main")
+            .call()
+          withContext(Dispatchers.Main) {
+            loading.hide()
+            ManagePlugin.activityRef.get()?.recreate()
+            button.visibility = View.GONE
+            rkUtils.toast("Successfully Downloaded.")
+          }
+        } catch (e: Exception) {
+          e.printStackTrace()
+          withContext(Dispatchers.Main){
+            loading.hide()
+            rkUtils.toast("Unable to downloaded plugin : ${e.message}")
+          }
+       
+        }
+        
+      }
     }
     
     binding.recyclerView.apply {
@@ -77,21 +107,24 @@ class ActivityPluginRepo : BaseActivity() {
       itemAnimator = null
     }
     
-    if (pluginModel.getPlugins().isEmpty()) {
-      val loading = LoadingPopup(this, null).setMessage("Loading plugins from repo").show()
-      RepoManager.getPluginsCallback { plugins ->
-        lifecycleScope.launch(Dispatchers.Main) {
-          pluginModel.updatePlugin(plugins)
-          xadapter.submitList(plugins)
-          if (plugins.isEmpty()) {
-            rkUtils.toast("Unable to load plugins")
+    ManagePlugin.activityRef.get()?.let {
+      if (it.pluginModel.getPlugins().isEmpty()) {
+        val loading = LoadingPopup(this, null).setMessage("Loading plugins from repo").show()
+        RepoManager.getPluginsCallback { plugins ->
+          lifecycleScope.launch(Dispatchers.Main) {
+            it.pluginModel.updatePlugin(plugins)
+            xadapter.submitList(plugins)
+            if (plugins.isEmpty()) {
+              rkUtils.toast("Unable to load plugins")
+            }
+            loading.hide()
           }
-          loading.hide()
         }
+      }else{
+        xadapter.submitList(it.pluginModel.getPlugins())
       }
-    }else{
-      xadapter.submitList(pluginModel.getPlugins())
     }
+    
     
     
   }

@@ -51,10 +51,7 @@ object PluginInstaller {
 
     }
 
-    fun installFromRepo(packageName: String) {
-        throw RuntimeException("Not Implemented")
-    }
-
+    
     private fun copyDirectory(sourceDir: File, targetDir: File, context: Context) {
         if (!sourceDir.exists()) return
         if (!targetDir.exists()) targetDir.mkdirs()

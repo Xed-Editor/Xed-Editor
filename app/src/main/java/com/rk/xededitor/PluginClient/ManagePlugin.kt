@@ -1,5 +1,6 @@
 package com.rk.xededitor.PluginClient
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
@@ -8,11 +9,13 @@ import android.provider.OpenableColumns
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.PluginInstaller
 import com.rk.libPlugin.server.PluginUtils
+import com.rk.libPlugin.server.PluginUtils.getInstalledPlugins
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
@@ -24,17 +27,24 @@ import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 
 
 const val PICK_FILE_REQUEST_CODE = 37579
 
+
 class ManagePlugin : BaseActivity() {
+  companion object{
+    var activityRef = WeakReference<ManagePlugin?>(null)
+  }
+  
+  val pluginModel: PluginViewModel by viewModels()
   lateinit var binding: ActivityPluginsBinding
   lateinit var madapter: InstalledPluginListAdapter
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityPluginsBinding.inflate(layoutInflater)
-    
+    activityRef = WeakReference(this)
     val toolbar = binding.toolbar
     setSupportActionBar(toolbar)
     supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -59,8 +69,10 @@ class ManagePlugin : BaseActivity() {
     
     application?.indexPlugins()
     madapter = InstalledPluginListAdapter(
-      this, PluginUtils.getInstalledPlugins()
+      this, getInstalledPlugins()
     )
+    
+   
     binding.listView.adapter = madapter
     
     binding.fab.setOnClickListener {
