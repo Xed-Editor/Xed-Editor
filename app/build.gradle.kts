@@ -1,4 +1,5 @@
 import java.util.Properties
+import java.io.ByteArrayOutputStream
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -7,9 +8,23 @@ plugins {
 }
 
 
+
+
+fun getGitCommitHash(): String {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+
 android {
     namespace = "com.rk.xededitor"
     compileSdk = 34
+    
+    println("Building for commit ${getGitCommitHash()}")
 
     lintOptions {
         disable("MissingTranslation")
@@ -24,8 +39,6 @@ android {
 
     signingConfigs {
         create("release") {
-
-
             val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
 
             val propertiesFilePath = if (isGITHUB_ACTION) {
@@ -100,6 +113,10 @@ android {
         jvmTarget = "17"
     }
 }
+
+
+
+
 
 dependencies {
     implementation(libs.appcompat)
