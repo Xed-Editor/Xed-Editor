@@ -21,6 +21,7 @@ import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -92,6 +93,11 @@ class FileAction(
       
       val fileDrawable = getDrawable(R.drawable.outline_insert_drive_file_24)
       if (file.isDirectory) {
+        addItem("Open In Terminal","Open Directory in Terminal",getDrawable(R.drawable.terminal)){
+          val intent = Intent(context,Terminal::class.java)
+          intent.putExtra("PWD",file.absolutePath)
+          context.startActivity(intent)
+        }
         addItem("Add File", "Select a new file to be added here", fileDrawable) {
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
           intent.addCategory(Intent.CATEGORY_OPENABLE)

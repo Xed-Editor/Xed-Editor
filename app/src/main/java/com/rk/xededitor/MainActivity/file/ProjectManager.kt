@@ -197,6 +197,9 @@ object ProjectManager {
 
 
     object currentProject {
+        fun get(activity: MainActivity):File{
+            return  File(getSelectedView(activity).getRootFileObject().getAbsolutePath())
+        }
         fun refresh(activity: MainActivity) {
             getSelectedView(activity).reloadFileTree()
         }

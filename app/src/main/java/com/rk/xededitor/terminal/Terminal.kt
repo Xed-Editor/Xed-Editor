@@ -7,6 +7,8 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import com.blankj.utilcode.util.SizeUtils
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
@@ -116,10 +118,15 @@ class Terminal : BaseActivity() {
     binding.root.addView(terminal, 0, params)
     
   }
-  
-  
+
   private fun createSession(): TerminalSession {
-    val workingDir = SettingsData.getString(Keys.LAST_OPENED_PATH, filesDir.absolutePath)
+    val workingDir = if (intent.getStringExtra("PWD") != null){
+      intent.getStringExtra("PWD")
+    }else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()){
+     ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
+    }else{
+      filesDir.absolutePath
+    }
     val tmpDir = File(filesDir.parentFile, "tmp")
     
     if (tmpDir.exists()) {
