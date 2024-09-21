@@ -33,6 +33,23 @@ class Terminal : BaseActivity() {
       setupTerminalView()
       setContentView(binding.root)
       setupVirtualKeys()
+      var lastBackPressedTime: Long = 0
+      val doubleBackPressTimeInterval: Long = 2000
+      onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+          val currentTime = System.currentTimeMillis()
+          
+          if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
+            terminal.mTermSession.finishIfRunning()
+            finish()
+          } else {
+            lastBackPressedTime = currentTime
+            Toast.makeText(
+              this@Terminal, "Press back again to exit", Toast.LENGTH_SHORT
+            ).show()
+          }
+        }
+      })
       return
     }
     
@@ -40,6 +57,8 @@ class Terminal : BaseActivity() {
     SetupBootstrap(this) {
       setupTerminalView()
       setContentView(binding.root)
+      setupVirtualKeys()
+      
       var lastBackPressedTime: Long = 0
       val doubleBackPressTimeInterval: Long = 2000
       onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -58,7 +77,6 @@ class Terminal : BaseActivity() {
         }
       })
       
-      setupVirtualKeys()
     }.init()
     
     
