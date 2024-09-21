@@ -21,6 +21,7 @@ dependencyResolutionManagement {
         mavenCentral()
         maven { url = uri("https://jitpack.io")}
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
 

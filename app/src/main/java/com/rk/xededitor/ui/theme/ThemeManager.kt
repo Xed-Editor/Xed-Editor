@@ -1,4 +1,4 @@
-package com.rk.xededitor.theme
+package com.rk.xededitor.ui.theme
 
 import android.content.Context
 import android.content.res.Resources

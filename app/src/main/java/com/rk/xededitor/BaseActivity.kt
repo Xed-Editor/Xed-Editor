@@ -6,12 +6,10 @@ import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
-import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.theme.ThemeManager
+import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
 
 

@@ -19,7 +19,7 @@ import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.theme.ThemeManager
+import com.rk.xededitor.ui.theme.ThemeManager
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange

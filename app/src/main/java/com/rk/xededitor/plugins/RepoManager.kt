@@ -1,4 +1,4 @@
-package com.rk.xededitor.PluginClient
+package com.rk.xededitor.plugins
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -27,7 +27,7 @@ object RepoManager {
     }
   }
   
-  private suspend fun fetchBitmapFromUrl(url: String): Bitmap? {
+  suspend fun fetchBitmapFromUrl(url: String): Bitmap? {
     return withContext(Dispatchers.IO) {
       val client = OkHttpClient()
       
@@ -90,9 +90,9 @@ object RepoManager {
               val icon = manifestJson.getString("icon")
               val iconUrl = "$pluginUrl/main/$icon"
               
-              val iconBitmap = fetchBitmapFromUrl(iconUrl)
+              //val iconBitmap = fetchBitmapFromUrl(iconUrl)
               
-              val pluginItem = PluginItem(iconBitmap, name, packageName, description, versionCode,pluginsArray.getString(i))
+              val pluginItem = PluginItem(icon, name, packageName, description, versionCode,pluginsArray.getString(i))
               
               plugins.add(pluginItem)
             } catch (e: Exception) {

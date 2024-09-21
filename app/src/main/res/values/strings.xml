@@ -89,6 +89,7 @@
     <string name="description">Description</string>
     <string name="plugin_icon">Plugin Icon</string>
     <string name="download">Download</string>
+    <string name="title_activity_xactivity">XActivity</string>
 
 
 </resources>

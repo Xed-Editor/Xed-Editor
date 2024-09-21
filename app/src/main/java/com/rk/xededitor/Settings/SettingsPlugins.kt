@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.xededitor.PluginClient.ManagePlugin
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
@@ -20,6 +19,7 @@ import de.Maxr1998.modernpreferences.helpers.onClickView
 import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.screen
 import de.Maxr1998.modernpreferences.helpers.switch
+import com.rk.xededitor.plugins.ManagePlugins
 
 class SettingsPlugins : BaseActivity() {
     private lateinit var recyclerView: RecyclerView
@@ -89,7 +89,7 @@ class SettingsPlugins : BaseActivity() {
                     summary = "on/off installed plugins"
                     iconRes = R.drawable.extension
                     onClickView {
-                        startActivity(Intent(this@SettingsPlugins, ManagePlugin::class.java))
+                        startActivity(Intent(this@SettingsPlugins, ManagePlugins::class.java))
                     }
                 }
             }
