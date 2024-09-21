@@ -3,13 +3,14 @@ package com.rk.xededitor.Settings
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.WindowManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rk.libPlugin.client.ManagePlugin
+import com.rk.xededitor.PluginClient.ManagePlugin
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.LoadingPopup
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import de.Maxr1998.modernpreferences.PreferenceScreen
@@ -50,7 +51,7 @@ class SettingsPlugins : BaseActivity() {
         binding.toolbar.title = "Plugins"
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
+        if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
             binding.root.setBackgroundColor(Color.BLACK)
             binding.toolbar.setBackgroundColor(Color.BLACK)
             binding.appbar.setBackgroundColor(Color.BLACK)
@@ -68,14 +69,13 @@ class SettingsPlugins : BaseActivity() {
 
     fun getScreen(): PreferenceScreen {
         return screen(this) {
-            switch("plugins") {
+            switch(Keys.ENABLE_PLUGINS) {
                 title = "Enable Plugins"
                 summary = "Execute active plugins"
                 iconRes = R.drawable.extension
                 onCheckedChange { isChecked ->
-                    SettingsData.setBoolean(this@SettingsPlugins, "enablePlugin", isChecked)
                     LoadingPopup(this@SettingsPlugins, 200)
-                    com.rk.libcommons.After(230) {
+                    After(230) {
                         runOnUiThread {
                             this@SettingsPlugins.recreate()
                         }
@@ -83,7 +83,7 @@ class SettingsPlugins : BaseActivity() {
                     return@onCheckedChange true
                 }
             }
-            if (SettingsData.getBoolean(this@SettingsPlugins, "enablePlugin", false)) {
+            if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS, false)) {
                 pref("managePlugin") {
                     title = "Manage Plugins"
                     summary = "on/off installed plugins"
@@ -96,5 +96,16 @@ class SettingsPlugins : BaseActivity() {
         }
 
 
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            // Handle the back arrow click here
+            onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

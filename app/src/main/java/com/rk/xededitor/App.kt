@@ -1,30 +1,56 @@
 package com.rk.xededitor
 
 import android.app.Application
-import com.rk.libPlugin.server.Server
+import androidx.appcompat.app.AppCompatDelegate
+import com.rk.libPlugin.server.Loader
+import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
+import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
+import com.rk.xededitor.Settings.Keys
+import com.rk.xededitor.Settings.SettingsData
 
 class App : Application() {
-
+  
+ 
+  
   companion object{
-    private var application:Application? = null
-    fun getApplicationInstance() : Application{
-      return application!!
-    }
+    lateinit var app:Application
   }
-
+ 
   override fun onCreate() {
-    application = this
+    app = this
     super.onCreate()
 
-    rkUtils.initUi()
+    //create crash handler
+    CrashHandler.INSTANCE.init(this).let {
+      //initialize shared preferences
+      SettingsData.initPref(this).let {
+        //handle version change
+        //blocking code
+        VersionChangeHandler.handle(this)
+        
+        val settingDefaultNightMode = SettingsData.getString(
+          Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+        ).toInt()
 
-    CrashHandler.INSTANCE.init(this)
+        if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
+          AppCompatDelegate.setDefaultNightMode(settingDefaultNightMode)
+        }
+      }
+    }
 
-    val pluginServer = Server(this)
-    pluginServer.start()
-
-
+    //extract assets
+    Assets.verify(this)
+    
+    //start plugin loader
+    After(200){
+      if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS,false)){
+        val pluginLoader = Loader(this)
+        pluginLoader.start()
+      }
+    }
+    
+    SetupEditor.init(this)
 
   }
 }

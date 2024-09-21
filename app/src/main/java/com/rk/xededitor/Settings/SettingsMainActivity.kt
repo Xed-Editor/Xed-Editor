@@ -26,7 +26,7 @@ class SettingsMainActivity : BaseActivity() {
     var settingsMain: SettingsMainActivity? = null
   }
 
-  fun get_recycler_view(): RecyclerView {
+  private fun getRecyclerView(): RecyclerView {
     binding = ActivitySettingsMainBinding.inflate(layoutInflater)
     recyclerView = binding.recyclerView
     return recyclerView
@@ -40,7 +40,7 @@ class SettingsMainActivity : BaseActivity() {
       ?.let(padapter::loadSavedState)
 
     playoutManager = LinearLayoutManager(this)
-    get_recycler_view().apply {
+    getRecyclerView().apply {
       layoutManager = playoutManager
       adapter = padapter
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
@@ -51,7 +51,7 @@ class SettingsMainActivity : BaseActivity() {
     binding.toolbar.title = "Settings"
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
-    if (SettingsData.isDarkMode(this) && SettingsData.isOled(this)) {
+    if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
       binding.root.setBackgroundColor(Color.BLACK)
       binding.toolbar.setBackgroundColor(Color.BLACK)
       binding.appbar.setBackgroundColor(Color.BLACK)
@@ -71,9 +71,9 @@ class SettingsMainActivity : BaseActivity() {
     super.onDestroy()
   }
 
-  fun getScreen(): PreferenceScreen {
+  private fun getScreen(): PreferenceScreen {
     return screen(this) {
-      pref("Application") {
+      pref(Keys.APPLICATION) {
         title = "Application"
         summary = "General settings for the application"
         iconRes = R.drawable.android
@@ -81,7 +81,7 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsApp::class.java))
         }
       }
-      pref("editor") {
+      pref(Keys.EDITOR) {
         title = "Editor"
         summary = "General settings for the editor"
         iconRes = R.drawable.edit
@@ -89,12 +89,30 @@ class SettingsMainActivity : BaseActivity() {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
         }
       }
-      pref("plugins_") {
+      pref(Keys.PLUGINS) {
         title = "Plugins"
         summary = "General settings for plugins"
         iconRes = R.drawable.extension
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, SettingsPlugins::class.java))
+        }
+      }
+
+      pref(Keys.TERMINAL) {
+        title = "Terminal"
+        summary = "General settings for terminal"
+        iconRes = R.drawable.terminal
+        onClickView {
+          startActivity(Intent(this@SettingsMainActivity, TerminalSettings::class.java))
+        }
+      }
+
+      pref(Keys.GIT) {
+        title = "Git"
+        summary = "General settings for git"
+        iconRes = R.drawable.git
+        onClickView {
+          startActivity(Intent(this@SettingsMainActivity, GitSettings::class.java))
         }
       }
 

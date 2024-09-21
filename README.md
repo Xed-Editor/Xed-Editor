@@ -11,7 +11,8 @@
 
 
 
-Karbon is a versatile text editor designed specifically for Android devices, offering users the ability to create, edit, and manage their text files with ease on their mobile devices.
+Karbon is a powerful text editor for developers, programmers, and power users on Android. It offers syntax highlighting, and robust customization, making it a perfect tool for coding and text management on the go.
+
 
 
 ## Features
@@ -23,11 +24,18 @@ Karbon is a versatile text editor designed specifically for Android devices, off
 - [x] Batch Replacement
 - [x] Word Wrap
 - [x] File Browser
+- [x] Terminal
 - [x] Creating files and folders
 - [x] Copy Pasting files and Folders
 - [x] Rename, Delete files and folders
 - [x] Print text
-- [x] Plugins (Read [CreatingPlugins](/CREATE_PLUGIN.md))
+- [x] Plugins (Read [Creating Plugins](/docs/CREATE_PLUGIN.md))
+
+## Community
+
+Join the community of karbon
+
+[Telegram](https://t.me/+o7Rwpa_WT8A5YzQ9)
 
 ## Installation
 
@@ -54,6 +62,9 @@ Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xe
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png"
 alt="Get it on GitHub"
 height="80">](https://github.com/RohitKushvaha01/Xed-Editor/releases/latest)
+
+
+
 ## Screenshots
 
 <div >

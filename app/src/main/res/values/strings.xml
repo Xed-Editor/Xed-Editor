@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name" translatable="false">KarbonEdit</string>
+    <string name="app_name" translatable="false">Karbon</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_batch_replacement">BatchReplacement</string>
-      <string name="ni">This feature is not implemented</string>
+    <string name="ni">This feature is not implemented</string>
     <string name="unsupported_contnt">Unsupported content</string>
     <string name="null_contnt">Error: Content is null</string>
     <string name="restart_required">Restart Required</string>
@@ -77,6 +77,17 @@
     <string name="clipboardempty">Clipboard is empty</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Add File</string>
+    <string name="keyword_regex">keyword (Regex)</string>
+    <string name="replaceall">ReplaceAll</string>
+    <string name="add_new_replacement_batch">Add new replacement batch</string>
+    <string name="remove_a_search_batch">remove a search batch</string>
+    <string name="replacement">replacement</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="plugin_icon">Plugin Icon</string>
 
 
 </resources>

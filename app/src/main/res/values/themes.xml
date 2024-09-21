@@ -1,8 +1,8 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.Fragments" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/berryX</item>
+        <item name="colorSurface">#FEF7FF</item>
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>
@@ -15,11 +15,13 @@
     </style>
 
 
-
-
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
         <item name="android:fontFamily">@font/outfit_regular</item>
     </style>
+
+    <style name="Theme.Fragments.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Fragments.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 
 </resources>

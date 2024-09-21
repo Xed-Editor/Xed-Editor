@@ -1,32 +1,46 @@
 [versions]
 agp = "8.5.2"
 appcompat = "1.7.0"
+browser = "1.5.0"
 bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.9.0"
+desugar_jdk_libs = "2.1.2"
+ktsh = "1.0.0"
+lsp4j = "0.22.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 modernandroidpreferences = "2.4.0-beta1"
-navigationFragment = "2.7.7"
-navigationUi = "2.7.7"
+navigationFragment = "2.8.0"
+navigationUi = "2.8.0"
 kotlin = "2.0.0"
 asynclayoutinflater = "1.0.0"
-navigationFragmentKtx = "2.7.7"
-navigationUiKtx = "2.7.7"
+navigationFragmentKtx = "2.8.0"
+navigationUiKtx = "2.8.0"
 coreKtx = "1.13.1"
-activity = "1.9.1"
+activity = "1.9.2"
 nbJavacAndroid = "17.0.0.3"
+okhttp = "4.12.0"
+orgEclipseJgit = "6.2.0.202206071550-r"
 sshj = "0.38.0"
+swiperefreshlayout = "1.1.0"
 terminalView = "0.118.0"
 kotlinPlugin = "1.8.10"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+coordinatorlayout = "1.2.0"
+lifecycleLivedataKtx = "2.8.4"
+lifecycleViewmodelKtx = "2.8.4"
 
 [libraries]
 
+browser = { module = "androidx.browser:browser", version.ref = "browser" }
 bsh = { module = "org.beanshell:bsh", version.ref = "bsh" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+ktsh = { module = "com.jaredrummler:ktsh", version.ref = "ktsh" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigationFragment" }
@@ -36,11 +50,14 @@ navigation-fragment-ktx = { group = "androidx.navigation", name = "navigation-fr
 navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-
+lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version.ref = "lsp4j" }
 nb-javac-android = { module = "io.github.itsaky:nb-javac-android", version.ref = "nbJavacAndroid" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+org-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "orgEclipseJgit" }
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
+swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
-
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.8.0" }
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
 gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
@@ -51,8 +68,13 @@ jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", versio
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
+lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycleLivedataKtx" }
+lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 [plugins]
+
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-kotlinAndroid = { id = "org.jetbrains.kotlin.android", version = "2.0.0" }
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin"  }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref = "kotlinPlugin"  }

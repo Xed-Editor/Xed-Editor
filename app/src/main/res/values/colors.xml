@@ -2,7 +2,8 @@
 <resources>
     <color name="dark">#1C1B20</color>
     <color name="invert_dull">@color/dark</color>
+    <color name="invert">@color/dark</color>
     <color name="berryX">#485D91</color>
 
-    <color name="bg">@android:color/white</color>
+    <color name="bg">#f5f5f5</color>
 </resources>

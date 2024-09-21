@@ -3,7 +3,9 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    //alias(libs.plugins.compose.compiler)
 }
+
 
 android {
     namespace = "com.rk.xededitor"
@@ -12,6 +14,7 @@ android {
     lintOptions {
         disable("MissingTranslation")
     }
+
 
 
     dependenciesInfo {
@@ -61,15 +64,26 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
+
+
     }
 
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
-        targetSdk = 34
-        versionCode = 30
-        versionName = "2.6.0"
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 28
+        versionCode = 31
+        versionName = "2.7.1"
     }
+    
+//    packaging {
+//        resources {
+//            excludes.add("kotlin/coroutines/coroutines.kotlin_builtins")
+//        }
+//    }
+
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -79,6 +93,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+       // compose = true
     }
 
     kotlinOptions {
@@ -96,21 +111,23 @@ dependencies {
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.activity)
-    implementation("org.apache.commons:commons-vfs2:2.9.0")
-    implementation("com.github.mwiede:jsch:0.2.8")
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    implementation(project(":editor"))
+    implementation(project(":language-textmate"))
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
 
+    // implementation("org.apache.commons:commons-vfs2:2.9.0")
+    //implementation("com.github.mwiede:jsch:0.2.8")
 
-
-
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
     implementation(project(":libsettings"))
     implementation(project(":libPlugin"))
     implementation(project(":libRunner"))
-    implementation(project(":libEditor"))
-    implementation(project(":libCommons"))
+    implementation(project(":commons"))
+    implementation(project(":FileTree"))
     implementation(libs.sshj)
     implementation(libs.commons.net)
     implementation(libs.gson)
@@ -118,6 +135,10 @@ dependencies {
     implementation(libs.joni)
     implementation(libs.snakeyaml.engine)
     implementation(libs.jdt.annotation)
-
+    implementation(libs.ktsh)
+    implementation(libs.swiperefreshlayout)
+    implementation(libs.okhttp)
+    implementation(libs.org.eclipse.jgit)
+   
 
 }

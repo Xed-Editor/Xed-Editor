@@ -1,30 +1,46 @@
 package com.rk.libPlugin.server
 
 import android.app.Application
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
 import bsh.Interpreter
+import com.rk.libPlugin.server.api.API
+import com.rk.libPlugin.server.api.PluginLifeCycle
 import java.io.File
 
 class Plugin(
-    private val api: API,
-    val info: Manifest,
-    val pluginHome: String,
-    val app: Application
+  val info: Manifest,
+  val pluginHome: String,
+  val app: Application
 ) : Thread() {
-    lateinit var interpreter: Interpreter
-    override fun run() {
-        with(info) {
-            interpreter = Interpreter()
-            interpreter.setClassLoader(app.classLoader)
-            interpreter.set("manifest", info)
-            interpreter.set("app", app)
-            interpreter.set("api", api)
-            interpreter.source(File(pluginHome, script))
-        }
-
+  
+  private lateinit var interpreter: Interpreter
+  override fun run() {
+    try {
+      with(info) {
+        interpreter = Interpreter()
+        interpreter.setClassLoader(app.classLoader)
+        interpreter.set("info", info)
+        interpreter.set("home",pluginHome)
+        interpreter.set("app", app)
+        interpreter.set("api", API.getInstance())
+        interpreter.eval(
+          """
+                import com.rk.xededitor.MainActivity.*;
+                import com.rk.xededitor.*;
+                import com.rk.libPlugin.*;
+                import com.rk.libPlugin.server.*;
+                import com.rk.libPlugin.server.api.*;
+                import com.rk.libPlugin.server.api.PluginLifeCycle;
+                import com.rk.libcommons.*;
+                import android.app.Activity;
+                import com.jaredrummler.ktsh.Shell;"""
+        )
+        
+        interpreter.source(File(pluginHome, script))
+      }
+    } catch (e: Exception) {
+      PluginError.showError(e)
     }
-
-
+  }
+  
+  
 }

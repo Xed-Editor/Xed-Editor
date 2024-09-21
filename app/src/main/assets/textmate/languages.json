@@ -70,6 +70,12 @@
       "languageConfiguration": "textmate/csharp/language-configuration.json"
     },
     {
+      "grammar": "textmate/yaml/syntaxes/yaml.tmLanguage.json",
+      "name": "yaml",
+      "scopeName": "source.yaml",
+      "languageConfiguration": "textmate/yaml/language-configuration.json"
+    },
+    {
       "name": "markdown",
       "scopeName": "text.html.markdown",
       "grammar": "textmate/markdown/syntaxes/markdown.tmLanguage.json",
