@@ -1,4 +1,4 @@
-package com.rk.xededitor.plugins
+package com.rk.xededitor.pluginClient
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -65,7 +65,6 @@ class PluginItem(
   val title: String,
   val packageName: String,
   val description: String,
-  val versionCode: Int,
   val repo: String
 ) : Serializable
 
@@ -247,31 +246,33 @@ class ManagePlugins : ComponentActivity() {
                     rkUtils.toast("Already Installed")
                   }
                 } else {
-                  MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("Download")
-                    .setMessage("Are you sure you want to download ${plugin.title}?").setNegativeButton("Cancel", null)
-                    .setPositiveButton("Yes") { _, _ ->
-                      val loading =
-                        LoadingPopup(this@ManagePlugins, null).setMessage("Downloading plugin")
-                          .show()
-                      lifecycleScope.launch(Dispatchers.IO) {
-                        try {
-                          Git.cloneRepository().setURI(plugin.repo)
-                            .setDirectory(File(getPluginRoot(), plugin.title)).setBranch("main")
-                            .call()
-                          withContext(Dispatchers.Main) {
-                            loading.hide()
-                            rkUtils.toast("Successfully Downloaded.")
-                          }
-                        } catch (e: Exception) {
-                          e.printStackTrace()
-                          withContext(Dispatchers.Main) {
-                            loading.hide()
-                            rkUtils.toast("Unable to downloaded plugin : ${e.message}")
-                          }
+                  withContext(Dispatchers.Main) {
+                    MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("Download")
+                      .setMessage("Are you sure you want to download ${plugin.title}?")
+                      .setNegativeButton("Cancel", null).setPositiveButton("Yes") { _, _ ->
+                        val loading =
+                          LoadingPopup(this@ManagePlugins, null).setMessage("Downloading plugin")
+                            .show()
+                        lifecycleScope.launch(Dispatchers.IO) {
+                          try {
+                            Git.cloneRepository().setURI(plugin.repo)
+                              .setDirectory(File(getPluginRoot(), plugin.title)).setBranch("main")
+                              .call()
+                            withContext(Dispatchers.Main) {
+                              loading.hide()
+                              rkUtils.toast("Successfully Downloaded.")
+                            }
+                          } catch (e: Exception) {
+                            e.printStackTrace()
+                            withContext(Dispatchers.Main) {
+                              loading.hide()
+                              rkUtils.toast("Unable to downloaded plugin : ${e.message}")
+                            }
 
+                          }
                         }
-                      }
-                    }.show()
+                      }.show()
+                  }
                 }
               }
 

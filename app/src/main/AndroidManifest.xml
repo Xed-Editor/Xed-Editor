@@ -21,12 +21,14 @@
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
         <activity
-            android:name=".plugins.ManagePlugins"
-            android:exported="true"
+            android:name=".Settings.v2.Settings"
+            android:exported="false"
+            android:label="@string/title_activity_settings"
             android:theme="@style/Theme.Fragments" />
         <activity
-            android:name=".PluginClient.PluginInfo"
-            android:exported="false" />
+            android:name=".pluginClient.ManagePlugins"
+            android:exported="true"
+            android:theme="@style/Theme.Fragments" />
         <activity
             android:name=".MainActivity.MainActivity"
             android:alwaysRetainTaskState="true"
@@ -40,13 +42,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PluginClient.ManagePlugin"
-            android:exported="false" />
-        <activity
             android:name=".Settings.TerminalSettings"
-            android:exported="false" />
-        <activity
-            android:name=".PluginClient.ActivityPluginRepo"
             android:exported="false" />
 
         <provider

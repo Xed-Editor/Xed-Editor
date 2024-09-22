@@ -1,7 +1,5 @@
-package com.rk.xededitor.plugins
+package com.rk.xededitor.pluginClient
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -12,11 +10,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.InputStream
 
 object RepoManager {
   
-  suspend fun fetch(url: String): String? {
+  fun fetch(url: String): String? {
     val client = OkHttpClient()
     val request = Request.Builder().url(url).build()
     
@@ -27,27 +24,7 @@ object RepoManager {
     }
   }
   
-  suspend fun fetchBitmapFromUrl(url: String): Bitmap? {
-    return withContext(Dispatchers.IO) {
-      val client = OkHttpClient()
-      
-      val request = Request.Builder().url(url).build()
-      
-      // Execute the request and get the response
-      client.newCall(request).execute().use { response ->
-        if (response.isSuccessful) {
-          // Get the InputStream of the response body
-          val inputStream: InputStream? = response.body?.byteStream()
-          
-          // Decode the InputStream into a Bitmap
-          inputStream?.let {
-            BitmapFactory.decodeStream(it)
-          }
-        } else null
-      }
-    }
-  }
-  
+
    fun getRawGithubUrl(url: String): String {
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
   }
@@ -92,7 +69,13 @@ object RepoManager {
               
               //val iconBitmap = fetchBitmapFromUrl(iconUrl)
               
-              val pluginItem = PluginItem(icon, name, packageName, description, versionCode,pluginsArray.getString(i))
+              val pluginItem = PluginItem(
+                icon,
+                name,
+                packageName,
+                description,
+                pluginsArray.getString(i)
+              )
               
               plugins.add(pluginItem)
             } catch (e: Exception) {

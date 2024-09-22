@@ -141,6 +141,8 @@ dependencies {
   implementation(libs.ui.graphics)
   implementation(libs.ui.tooling.preview)
   implementation(libs.material3)
+  androidTestImplementation(platform(libs.compose.bom))
+  androidTestImplementation(libs.ui.test.junit4)
   //androidTestImplementation(platform(libs.compose.bom))
   //androidTestImplementation(libs.ui.test.junit4)
   
@@ -168,6 +170,8 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
+  debugImplementation(libs.ui.tooling)
+  debugImplementation(libs.ui.test.manifest)
   //debugImplementation(libs.ui.tooling)
   //debugImplementation(libs.ui.test.manifest)
   
