@@ -21,11 +21,6 @@
         android:theme="@style/Theme.Fragments"
         tools:targetApi="31">
         <activity
-            android:name=".Settings.v2.Settings"
-            android:exported="false"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/Theme.Fragments" />
-        <activity
             android:name=".pluginClient.ManagePlugins"
             android:exported="true"
             android:theme="@style/Theme.Fragments" />

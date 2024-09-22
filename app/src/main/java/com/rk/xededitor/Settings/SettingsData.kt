@@ -4,15 +4,25 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import androidx.appcompat.app.AppCompatDelegate
 
 @SuppressLint("ApplySharedPref")
 object SettingsData {
     private const val PREFNAME = "Settings"
 
-    
-    fun isDarkMode(ctx: Context): Boolean {
-        return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK)
-                == Configuration.UI_MODE_NIGHT_YES)
+    fun isDarkMode(ctx: Context) : Boolean{
+        val mode = getString(Keys.DEFAULT_NIGHT_MODE,"")
+        return when (mode) {
+          AppCompatDelegate.MODE_NIGHT_YES.toString() -> {
+              true
+          }
+          AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString() -> {
+              ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
+          }
+          else -> {
+              false
+          }
+        }
     }
 
     
