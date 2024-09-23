@@ -56,10 +56,10 @@ android {
         properties.load(propertiesFile.inputStream())
         keyAlias = properties["keyAlias"] as String?
         keyPassword = properties["keyPassword"] as String?
-        if (isGITHUB_ACTION) {
-          storeFile = File("/tmp/xed.keystore")
+        storeFile = if (isGITHUB_ACTION) {
+          File("/tmp/xed.keystore")
         } else {
-          storeFile = File(properties["storeFile"] as String?)
+          File(properties["storeFile"] as String?)
         }
         
         storePassword = properties["storePassword"] as String?
@@ -72,9 +72,9 @@ android {
   
   buildTypes {
     getByName("release") {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       isCrunchPngs = false
-      isShrinkResources = false
+      isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
       )
