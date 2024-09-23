@@ -51,15 +51,15 @@ android {
       if (propertiesFile.exists()) {
         val properties = Properties()
         properties.load(propertiesFile.inputStream())
-        keyAlias = properties["keyAlias"] as String
-        keyPassword = properties["keyPassword"] as String
+        keyAlias = properties["keyAlias"] as String?
+        keyPassword = properties["keyPassword"] as String?
         if (isGITHUB_ACTION) {
           storeFile = File("/tmp/xed.keystore")
         } else {
-          storeFile = File(properties["storeFile"] as String)
+          storeFile = File(properties["storeFile"] as String?)
         }
         
-        storePassword = properties["storePassword"] as String
+        storePassword = properties["storePassword"] as String?
       } else {
         println("Signing properties file not found at $propertiesFilePath")
       }
