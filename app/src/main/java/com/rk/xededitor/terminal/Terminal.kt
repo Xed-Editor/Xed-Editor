@@ -163,7 +163,7 @@ class Terminal : BaseActivity() {
 
       var cwd = intent.getStringExtra("cwd")
 
-      if (cwd.isNullOrEmpty()) {
+      if (cwd!!.isEmpty()) {
         cwd = workingDir
       }
 
@@ -181,9 +181,9 @@ class Terminal : BaseActivity() {
 
 
       if (alpine) {
-        val pShell = intent.getStringExtra("shell")
-        //todo accept provided shell and args
-        args = arrayOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath)
+        args = mutableListOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath,intent.getStringExtra("shell")!!).also {
+          it.addAll(intent.getStringArrayExtra("args")!!.toList())
+        }.toTypedArray()
       } else {
         shell = intent.getStringExtra("shell").toString()
         args = intent.getStringArrayExtra("args")!!

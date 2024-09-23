@@ -34,5 +34,4 @@ if [ -n "$missing_packages" ]; then
     fi
 fi
 
-
-$START_SHELL
+$START_SHELL -c "$@"

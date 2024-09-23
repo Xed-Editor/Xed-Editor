@@ -15,17 +15,18 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
         alpine = false,
         shell = "/system/bin/sh",
         args = arrayOf("-c",file.absolutePath),
+        workingDir = file.parentFile!!.absolutePath,
         context = context
       )
     }else{
       runCommand(
         alpine = true,
-        shell = "/bin/sh",
-        args = arrayOf("-c",file.absolutePath),
+        shell = "/bin/bash",
+        args = arrayOf(file.absolutePath),
+        workingDir = file.parentFile!!.absolutePath,
         context = context
       )
     }
-
   }
 
 
@@ -36,9 +37,9 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
     shell: String,
     //arguments passed to shell or binary
     args: Array<String> = arrayOf(),
-    //working directory leave empty for default
-    workingDir: String = "",
-    //environment variables with key value pair eg HOME=/sdcard,TMP=/tmp
+    //working directory
+    workingDir: String,
+    //array of environment variables with key value pair eg. HOME=/sdcard,TMP=/tmp
     environmentVars: Array<String>? = arrayOf(),
     //should override default environment variables or not
     overrideEnv: Boolean = false,
@@ -68,9 +69,9 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
 
   override fun getDescription(): String {
     return if (failsafe) {
-      "/system/bin/sh"
+      "Alpine"
     } else {
-      "/bin/sh"
+      "Android"
     }
   }
 
