@@ -13,6 +13,7 @@ import java.io.File
 object PluginUtils {
     private val InstalledPlugins = ArrayList<Plugin>()
     fun Application.indexPlugins() {
+
         InstalledPlugins.clear()
         val root = getPluginRoot()
         val pluginsFiles = root.listFiles()

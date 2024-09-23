@@ -1,5 +1,10 @@
 package com.rk.libPlugin.server
 
+import androidx.annotation.Keep
+import com.google.gson.annotations.SerializedName
+import java.io.Serializable
+
+@Keep
 data class Manifest(
     val name:String,
     val packageName:String,
@@ -9,4 +14,4 @@ data class Manifest(
     val versionCode:Int,
     val script:String,
     val icon:String
-)
+) : Serializable

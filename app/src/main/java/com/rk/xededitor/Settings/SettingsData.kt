@@ -11,7 +11,7 @@ object SettingsData {
     private const val PREFNAME = "Settings"
 
     fun isDarkMode(ctx: Context) : Boolean{
-        val mode = getString(Keys.DEFAULT_NIGHT_MODE,"")
+        val mode = getString(Keys.DEFAULT_NIGHT_MODE,AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())
         return when (mode) {
           AppCompatDelegate.MODE_NIGHT_YES.toString() -> {
               true

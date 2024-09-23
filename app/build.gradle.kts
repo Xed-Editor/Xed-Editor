@@ -23,9 +23,12 @@ fun getGitCommitHash(): String {
 android {
   namespace = "com.rk.xededitor"
   compileSdk = 34
-  
+
+
   println("Building for commit ${getGitCommitHash()}")
-  
+
+
+  //todo remove this before release
   lintOptions {
     disable("MissingTranslation")
   }
@@ -142,12 +145,6 @@ dependencies {
   implementation(libs.ui.tooling.preview)
   implementation(libs.material3)
   implementation(libs.navigation.compose)
-  //androidTestImplementation(platform(libs.compose.bom))
-  //androidTestImplementation(libs.ui.test.junit4)
-  
-  // implementation("org.apache.commons:commons-vfs2:2.9.0")
-  //implementation("com.github.mwiede:jsch:0.2.8")
-  
   coreLibraryDesugaring(libs.desugar.jdk.libs)
   implementation(libs.terminal.view)
   implementation(libs.terminal.emulator)
@@ -169,8 +166,4 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
-  //debugImplementation(libs.ui.tooling)
-  //debugImplementation(libs.ui.test.manifest)
-  
-  
 }
