@@ -131,6 +131,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                         run("mv ${bootstrap.parentFile!!.absolutePath}/root ${terminal.filesDir.parentFile!!.absolutePath}")
                         run("chmod +x ${terminal.filesDir.parentFile!!.absolutePath}/root/bin/proot")
                         run("rm -rf ${terminal.cacheDir.absolutePath}/*")
+                        run("chmod +x ${terminal.filesDir.parentFile!!.absolutePath}/rootfs/python.sh")
                         // run("echo \"${terminal.filesDir.parentFile!!.absolutePath}/root/bin/proot -S ${terminal.filesDir.parentFile!!.absolutePath}/rootfs\" > ${terminal.filesDir.parentFile!!.absolutePath}/proot.sh")
 
                         //fix internet
