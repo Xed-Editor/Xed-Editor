@@ -10,8 +10,8 @@ class PythonRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
         runCommand(
             alpine = true,
-            shell = "/bin/bash",
-            args = arrayOf("-c", "/karbon/rootfs/python.sh ${file.name}"),
+            shell = "/karbon/rootfs/python.sh",
+            args = arrayOf(file.name),
             workingDir = file.parentFile!!.absolutePath,
             context = context
         )
