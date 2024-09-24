@@ -95,7 +95,7 @@ class FileAction(
       if (file.isDirectory) {
         addItem("Open In Terminal","Open Directory in Terminal",getDrawable(R.drawable.terminal)){
           val intent = Intent(context,Terminal::class.java)
-          intent.putExtra("PWD",file.absolutePath)
+          intent.putExtra("cwd",file.absolutePath)
           context.startActivity(intent)
         }
         addItem("Add File", "Select a new file to be added here", fileDrawable) {

@@ -14,11 +14,11 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
       runCommand(
         alpine = false,
         shell = "/system/bin/sh",
-        args = arrayOf("-c",file.absolutePath),
+        args = arrayOf("-c", file.absolutePath),
         workingDir = file.parentFile!!.absolutePath,
         context = context
       )
-    }else{
+    } else {
       runCommand(
         alpine = true,
         shell = "/bin/bash",
