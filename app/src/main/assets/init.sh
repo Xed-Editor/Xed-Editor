@@ -1,5 +1,7 @@
 # inside alpine linux
 
+chmod +x /karbon/rootfs/python.sh
+
 unset LD_LIBRARY_PATH
 unset PROOT_TMP_DIR
 
@@ -40,5 +42,3 @@ else
     # shellcheck disable=SC2068
     $@
 fi
-
-
