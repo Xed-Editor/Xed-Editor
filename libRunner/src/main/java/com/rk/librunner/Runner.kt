@@ -9,6 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.runners.jvm.beanshell.BeanshellRunner
 import com.rk.librunner.runners.shell.ShellRunner
 import com.rk.librunner.runners.web.html.HtmlRunner
+import com.rk.librunner.runners.python.PythonRunner
 import com.rk.librunner.runners.web.markdown.MarkDownRunner
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,7 @@ object Runner {
     registry["bsh"] = mutableListOf(BeanshellRunner())
     registry["html"] = mutableListOf(HtmlRunner())
     registry["md"] = mutableListOf(MarkDownRunner())
+    registry["py"] = mutableListOf(PythonRunner())
     mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
       registry["sh"] = it
       registry["bash"] = it
