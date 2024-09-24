@@ -67,6 +67,12 @@ android {
         println("Signing properties file not found at $propertiesFilePath")
       }
     }
+    getByName("debug") {
+      storeFile = file(layout.buildDirectory.dir("../testkey.keystore"))
+      storePassword = "testkey"
+      keyAlias = "testkey"
+      keyPassword = "testkey"
+    }
   }
   
   
@@ -79,12 +85,6 @@ android {
         getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
       )
       signingConfig = signingConfigs.getByName("release")
-    }
-    getByName("debug") {
-      storeFile = file(layout.buildDirectory.dir("../testkey.keystore"))
-      storePassword = "testkey"
-      keyAlias = "testkey"
-      keyPassword = "testkey"
     }
   }
   
