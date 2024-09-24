@@ -11,7 +11,7 @@ class PythonRunner : RunnerImpl {
         runCommand(
             alpine = true,
             shell = "/bin/bash",
-            args = arrayOf("-c", "/karbon/rootfs/python.sh $file"),
+            args = arrayOf("-c", "/karbon/rootfs/python.sh", file.name),
             workingDir = file.parentFile!!.absolutePath,
             context = context
         )
