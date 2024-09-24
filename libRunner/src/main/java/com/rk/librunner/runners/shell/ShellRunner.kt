@@ -69,9 +69,9 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
 
   override fun getDescription(): String {
     return if (failsafe) {
-      "Alpine"
-    } else {
       "Android"
+    } else {
+      "Alpine"
     }
   }
 
