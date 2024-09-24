@@ -11,10 +11,7 @@ class PythonRunner : RunnerImpl {
         runCommand(
             alpine = true,
             shell = "/bin/bash",
-            args = arrayOf("-c", """
-            (apk info -e python3 || apk add python3) && 
-            (apk info -e py3-pip || apk add py3-pip) && 
-            python3 $file""".trimIndent()),
+            args = arrayOf("-c", File(context.filesDir.parentFile!!, "python.sh $file"),
             workingDir = file.parentFile!!.absolutePath,
             context = context
         )
