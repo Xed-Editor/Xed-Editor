@@ -80,8 +80,12 @@ android {
       )
       signingConfig = signingConfigs.getByName("release")
     }
-    
-    
+    getByName("debug") {
+      storeFile = file(layout.buildDirectory.dir("../testkey.keystore"))
+      storePassword = "testkey"
+      keyAlias = "testkey"
+      keyPassword = "testkey"
+    }
   }
   
   defaultConfig {
