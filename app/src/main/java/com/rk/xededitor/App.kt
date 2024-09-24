@@ -8,6 +8,7 @@ import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.Settings.TerminalSettings
 
 class App : Application() {
   
@@ -51,6 +52,7 @@ class App : Application() {
     }
     
     SetupEditor.init(this)
+    TerminalSettings.updateProotArgs(this)
 
   }
 }

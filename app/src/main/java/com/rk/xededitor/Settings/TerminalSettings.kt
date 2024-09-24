@@ -1,5 +1,6 @@
 package com.rk.xededitor.Settings
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.text.InputType
@@ -25,7 +26,9 @@ import de.Maxr1998.modernpreferences.helpers.onClickView
 import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.screen
 import de.Maxr1998.modernpreferences.helpers.switch
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.file.Files
@@ -163,54 +166,32 @@ class TerminalSettings : BaseActivity() {
       }
 
       switch(Keys.LINK2SYMLINK) {
-        title = "Simulate hard links in alpine"
+        title = "Simulate hard links"
         summary = "Create a symlink where a hardlink should be created"
         iconRes = R.drawable.terminal
         defaultValue = false
         onCheckedChange { checked ->
-          
-          return@onCheckedChange updateProotArgs()
+          return@onCheckedChange updateProotArgs(this@TerminalSettings)
         }
       }
       switch(Keys.ASHMEM_MEMFD) {
-        title = "Ashmemfd"
+        title = "Ashmem_memfd"
         summary = "Simulate Ashmemfd on Android"
         iconRes = R.drawable.terminal
         defaultValue = true
         onCheckedChange { checked ->
           
-          return@onCheckedChange updateProotArgs()
+          return@onCheckedChange updateProotArgs(this@TerminalSettings)
         }
       }
       switch(Keys.SYSVIPC) {
         title = "Sysvipc"
-        summary = "Simulate sysvipc on Android"
+        summary = "Handle System V IPC syscall"
         iconRes = R.drawable.terminal
         defaultValue = true
         onCheckedChange { checked ->
           
-          return@onCheckedChange updateProotArgs()
-        }
-
-      }
-      switch(Keys.NETCOOP) {
-        title = "Network cooperation"
-        summary = "intercept bind() system calls and change it to available port"
-        iconRes = R.drawable.double_arrows
-        defaultValue = false
-        onCheckedChange { checked ->
-          
-          return@onCheckedChange updateProotArgs()
-        }
-      }
-      switch(Keys.PROOT_USERLAND) {
-        title = "Proot Userland"
-        summary = "Run proot with userland macro defined"
-        iconRes = R.drawable.terminal
-        defaultValue = false
-        onCheckedChange { checked ->
-          rkUtils.toast("Not Implemented")
-          return@onCheckedChange false
+          return@onCheckedChange updateProotArgs(this@TerminalSettings)
         }
 
       }
@@ -220,63 +201,51 @@ class TerminalSettings : BaseActivity() {
         iconRes = R.drawable.terminal
         defaultValue = true
         onCheckedChange { checked ->
-          return@onCheckedChange updateProotArgs()
+          return@onCheckedChange updateProotArgs(this@TerminalSettings)
         }
       }
-      switch(Keys.MIXED_MODE) {
-        title = "Mixed Mode"
-        summary = "Run android executables in alpine"
-        iconRes = R.drawable.terminal
-        defaultValue = false
-        onCheckedChange { checked ->
-          return@onCheckedChange updateProotArgs()
-        }
 
-      }
 
     }
   }
   
-  
-  private fun updateProotArgs():Boolean{
-    lifecycleScope.launch(Dispatchers.IO){
-      val link2sym = getBoolean(Keys.LINK2SYMLINK,false)
-      val ashmemfd = getBoolean(Keys.ASHMEM_MEMFD,true)
-      val sysvipc = getBoolean(Keys.SYSVIPC,true)
-      val netcoop = getBoolean(Keys.NETCOOP,false)
-      val killOnExit = getBoolean(Keys.KILL_ON_EXIT,true)
-      val mixedMode = getBoolean(Keys.MIXED_MODE,false)
+  companion object{
+    @OptIn(DelicateCoroutinesApi::class)
+    fun updateProotArgs(context:Context):Boolean{
+      GlobalScope.launch(Dispatchers.IO){
+        val link2sym = getBoolean(Keys.LINK2SYMLINK,false)
+        val ashmemfd = getBoolean(Keys.ASHMEM_MEMFD,true)
+        val sysvipc = getBoolean(Keys.SYSVIPC,true)
+        val killOnExit = getBoolean(Keys.KILL_ON_EXIT,true)
 
-      val sb = StringBuilder(" --mixed-mode $mixedMode")
-      if (link2sym){
-        sb.append(" --link2symlink")
-      }
-      if (ashmemfd){
-        sb.append(" --ashmem-memfd")
-      }
+        val sb = StringBuilder()
+        if (link2sym){
+          sb.append(" --link2symlink")
+        }
+        if (ashmemfd){
+          sb.append(" --ashmem-memfd")
+        }
 
-      if (sysvipc){
-        sb.append(" --sysvipc")
-      }
+        if (sysvipc){
+          sb.append(" --sysvipc")
+        }
 
-      if (netcoop){
-        sb.append(" --netcoop")
-      }
+        if (killOnExit){
+          sb.append(" --kill-on-exit ")
+        }
 
-      if (killOnExit){
-        sb.append(" --kill-on-exit ")
-      }
 
-      
-      Shell.SH.apply {
-        run("echo $sb > ${File(filesDir.parentFile,"proot_args").absolutePath}")
-        shutdown()
+        Shell.SH.apply {
+          run("echo $sb > ${File(context.filesDir.parentFile,"proot_args").absolutePath}")
+          shutdown()
+        }
+
       }
 
+      return true
     }
-
-    return true
   }
+
 
   override fun onSaveInstanceState(outState: Bundle) {
     super.onSaveInstanceState(outState)
