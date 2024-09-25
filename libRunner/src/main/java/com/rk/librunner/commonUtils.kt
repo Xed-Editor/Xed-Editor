@@ -2,8 +2,27 @@ package com.rk.librunner
 
 import android.content.Context
 import android.content.Intent
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 
 object commonUtils {
+  fun exctractAssets(context: Context, onComplete: () -> Unit) {
+    if (File("${context.filesDir.parentFile!!.absolutePath}/rootfs/python.sh").exists().not()) {
+      exctractAssets(
+        context, "python.sh", "${context.filesDir.parentFile!!.absolutePath}/rootfs/python.sh"
+      )
+    }
+
+    if (File("${context.filesDir.parentFile!!.absolutePath}/rootfs/nodejs.sh").exists().not()) {
+      exctractAssets(
+        context, "nodejs.sh", "${context.filesDir.parentFile!!.absolutePath}/rootfs/nodejs.sh"
+      )
+    }
+
+    onComplete()
+  }
+
   fun runCommand(
     //run in alpine or not
     alpine: Boolean,
@@ -20,7 +39,9 @@ object commonUtils {
     //context to launch terminal activity
     context: Context
   ) {
-    context.startActivity(Intent(context, Class.forName("com.rk.xededitor.terminal.Terminal")).also {
+    context.startActivity(Intent(
+      context, Class.forName("com.rk.xededitor.terminal.Terminal")
+    ).also {
       it.putExtra("run_cmd", true)
       it.putExtra("shell", shell)
       it.putExtra("args", args)
@@ -30,4 +51,30 @@ object commonUtils {
       it.putExtra("alpine", alpine)
     })
   }
+
+  fun exctractAssets(context: Context, assetFileName: String, outputFilePath: String) {
+    val assetManager = context.assets
+    val outputFile = File(outputFilePath)
+
+    try {
+      // Open the asset file as an InputStream
+      assetManager.open(assetFileName).use { inputStream ->
+        // Create an output file and its parent directories if they don't exist
+        outputFile.parentFile?.mkdirs()
+
+        // Write the input stream to the output file
+        FileOutputStream(outputFile).use { outputStream ->
+          val buffer = ByteArray(1024)
+          var length: Int
+          while (inputStream.read(buffer).also { length = it } > 0) {
+            outputStream.write(buffer, 0, length)
+          }
+        }
+      }
+    } catch (e: IOException) {
+      e.printStackTrace()
+      println("Failed to copy file: ${e.message}")
+    }
+  }
+
 }

@@ -100,6 +100,8 @@ class TabFragment : Fragment() {
         val content = withContext(Dispatchers.Main) {
           editor?.text
         }
+
+        println(content)
         
         val outputStream = FileOutputStream(file, false)
         if (content != null) {
@@ -126,6 +128,9 @@ class TabFragment : Fragment() {
           }
         } catch (e: Exception) {
           e.printStackTrace()
+          withContext(Dispatchers.Main) {
+            rkUtils.toast(e.message)
+          }
         }
         
       } catch (e: Exception) {

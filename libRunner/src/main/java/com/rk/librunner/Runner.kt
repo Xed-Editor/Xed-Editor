@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.librunner.runners.jvm.beanshell.BeanshellRunner
+import com.rk.librunner.runners.node.NodeRunner
 import com.rk.librunner.runners.shell.ShellRunner
 import com.rk.librunner.runners.web.html.HtmlRunner
 import com.rk.librunner.runners.python.PythonRunner
@@ -33,6 +34,11 @@ object Runner {
     registry["html"] = mutableListOf(HtmlRunner())
     registry["md"] = mutableListOf(MarkDownRunner())
     registry["py"] = mutableListOf(PythonRunner())
+
+    mutableListOf<RunnerImpl>(NodeRunner()).let {
+      registry["mjs"] = it
+      registry["js"] = it
+    }
     mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
       registry["sh"] = it
       registry["bash"] = it

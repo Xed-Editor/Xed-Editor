@@ -17,7 +17,7 @@ import java.io.File
 import java.util.WeakHashMap
 
 private var nextItemId = 0L
-val tabFragments = WeakHashMap<Int, TabFragment>()
+val tabFragments = WeakHashMap<String, TabFragment>()
 const val tabLimit = 20
 
 class TabAdapter(private val mainActivity: MainActivity) :
@@ -25,7 +25,8 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   
   fun getCurrentFragment(): TabFragment? {
-    return tabFragments[mainActivity.tabLayout.selectedTabPosition]
+    return tabFragments[mainActivity.tabLayout.getTabAt(mainActivity.tabLayout.selectedTabPosition)?.text].also { println(
+      tabFragments) }
   }
   
   private val itemIds = mutableMapOf<Int, Long>()
@@ -34,7 +35,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   override fun createFragment(position: Int): Fragment {
     val file = mainActivity.tabViewModel.fragmentFiles[position]
-    return TabFragment.newInstance(file).apply { tabFragments[position] = this }
+    return TabFragment.newInstance(file).apply { tabFragments[mainActivity.tabLayout.getTabAt(position)?.text!!.toString()] = this }
   }
   
   override fun getItemId(position: Int): Long {
@@ -55,7 +56,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
     }
     // Remove the last item
     itemIds.remove(itemIds.size - 1)
-    tabFragments.remove(position)
+    tabFragments.remove(mainActivity.tabLayout.getTabAt(position)?.text)
     notifyItemRemoved(position)
   }
   

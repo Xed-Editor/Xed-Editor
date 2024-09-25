@@ -141,7 +141,6 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                     }
 
                     exctractAssets(terminal,"init.sh","${terminal.filesDir.parentFile!!.absolutePath}/rootfs/init.sh")
-                    exctractAssets(terminal,"python.sh","${terminal.filesDir.parentFile!!.absolutePath}/rootfs/python.sh")
 
                     withContext(Dispatchers.Main) {
                         loadingPopup.hide()
