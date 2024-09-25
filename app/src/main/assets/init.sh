@@ -35,6 +35,7 @@ if [ -n "$missing_packages" ]; then
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSuccessfully Installed\e[0m"
     fi
+    echo -e "\e[32mUse apk to install new packages\e[0m"
 fi
 
 if [ "$#" -eq 0 ]; then
