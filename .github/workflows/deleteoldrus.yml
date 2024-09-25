@@ -6,11 +6,11 @@ on:
       days:
         description: 'Number of retains days.'
         required: true
-        default: '0'
+        default: '2'
       minimum_runs:
         description: 'The minimum runs to keep for each workflow.'
         required: true
-        default: '0'
+        default: '4'
 
 jobs:
   deleteWorkflowRuns:
