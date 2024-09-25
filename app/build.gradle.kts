@@ -80,8 +80,6 @@ android {
       )
       signingConfig = signingConfigs.getByName("release")
     }
-    
-    
   }
   
   defaultConfig {
