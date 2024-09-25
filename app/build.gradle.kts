@@ -72,9 +72,9 @@ android {
   
   buildTypes {
     getByName("release") {
-      isMinifyEnabled = true
+      isMinifyEnabled = false
       isCrunchPngs = false
-      isShrinkResources = true
+      isShrinkResources = false
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
       )
@@ -113,7 +113,7 @@ android {
   }
   packaging {
     resources {
-      excludes += "/META-INF/{AL2.0,LGPL2.1}"
+      exclude("META-INF/**")
     }
   }
 }
