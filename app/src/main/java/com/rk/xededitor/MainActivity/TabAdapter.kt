@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayout
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.editor.TabFragment
@@ -16,8 +17,22 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.WeakHashMap
 
+class Kee(val file: File){
+  override fun equals(other: Any?): Boolean {
+    if (other !is Kee){
+      return false
+    }
+    val otherKee = other as Kee
+    return otherKee.file.absolutePath == file.absolutePath
+  }
+
+  override fun hashCode(): Int {
+    return file.absolutePath.hashCode()
+  }
+}
+
 private var nextItemId = 0L
-val tabFragments = WeakHashMap<String, TabFragment>()
+val tabFragments = HashMap<Kee, TabFragment>()
 const val tabLimit = 20
 
 class TabAdapter(private val mainActivity: MainActivity) :
@@ -25,8 +40,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   
   fun getCurrentFragment(): TabFragment? {
-    return tabFragments[mainActivity.tabLayout.getTabAt(mainActivity.tabLayout.selectedTabPosition)?.text].also { println(
-      tabFragments) }
+    //println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
+    val f = tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition])]
+    //println(tabFragments.map { Pair(it.key.file.absolutePath,it.key.hashCode()) })
+    return f
   }
   
   private val itemIds = mutableMapOf<Int, Long>()
@@ -35,7 +52,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   override fun createFragment(position: Int): Fragment {
     val file = mainActivity.tabViewModel.fragmentFiles[position]
-    return TabFragment.newInstance(file).apply { tabFragments[mainActivity.tabLayout.getTabAt(position)?.text!!.toString()] = this }
+    return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = this }
   }
   
   override fun getItemId(position: Int): Long {
@@ -56,7 +73,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
     }
     // Remove the last item
     itemIds.remove(itemIds.size - 1)
-    tabFragments.remove(mainActivity.tabLayout.getTabAt(position)?.text)
     notifyItemRemoved(position)
   }
   
@@ -87,6 +103,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
   fun removeFragment(position: Int) {
     with(mainActivity) {
       if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
+        tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
         tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
         MenuItemHandler.set.remove(tabViewModel.fragmentFiles[position].name)
         tabViewModel.fragmentFiles.removeAt(position)

@@ -1,6 +1,8 @@
 # inside alpine linux
 
 chmod +x /karbon/rootfs/python.sh
+chmod +x /karbon/rootfs/nodejs.sh
+
 export PIP_BREAK_SYSTEM_PACKAGES=1
 
 unset LD_LIBRARY_PATH

@@ -35,13 +35,15 @@ object MenuItemHandler {
           menu.findItem(R.id.run).isVisible = false
         }
         withContext(Dispatchers.Default){
-          activity.adapter.getCurrentFragment()?.file?.let {
-            val gitRoot =  findGitRoot(it) != null
+          val xc = activity.adapter.getCurrentFragment()?.file
+          val gitRoot = if(xc == null){
+            null
+          }else{
+            findGitRoot(activity.adapter.getCurrentFragment()?.file)
+          }
 
-            withContext(Dispatchers.Main){
-              menu.findItem(R.id.git).isVisible = gitRoot && activity.tabLayout.tabCount != 0
-            }
-
+          withContext(Dispatchers.Main){
+            menu.findItem(R.id.git).isVisible = xc != null && gitRoot != null && activity.tabLayout.tabCount > 0
           }
 
         }

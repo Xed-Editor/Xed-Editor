@@ -15,4 +15,4 @@ if [ -n "$missing_packages" ]; then
 fi
 
 # shellcheck disable=SC2068
-nodejs $@
+node $@

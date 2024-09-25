@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
+import com.rk.librunner.commonUtils
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
@@ -141,6 +142,8 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
                     }
 
                     exctractAssets(terminal,"init.sh","${terminal.filesDir.parentFile!!.absolutePath}/rootfs/init.sh")
+
+                    commonUtils.exctractAssets(terminal){}
 
                     withContext(Dispatchers.Main) {
                         loadingPopup.hide()
