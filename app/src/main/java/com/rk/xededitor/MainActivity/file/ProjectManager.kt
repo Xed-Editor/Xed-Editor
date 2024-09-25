@@ -248,7 +248,6 @@ object ProjectManager {
 
                 activityRef.get()?.let {
                     if (it.isPaused){
-                        println("activity is paused")
                         return@let
                     }
                 val loading = LoadingPopup(it, null).show()

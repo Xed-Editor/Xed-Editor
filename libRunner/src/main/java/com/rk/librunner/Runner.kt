@@ -41,7 +41,6 @@ object Runner {
   
   fun isRunnable(file: File): Boolean {
     val ext = file.name.substringAfterLast('.', "")
-    println(registry)
     return registry.keys.any { it == ext }
   }
   

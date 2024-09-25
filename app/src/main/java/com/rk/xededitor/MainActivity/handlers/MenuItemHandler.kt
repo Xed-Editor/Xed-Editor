@@ -28,17 +28,20 @@ object MenuItemHandler {
         editorMenu(menu, show)
         
         if (show) {
-          activity.adapter.getCurrentFragment()?.file?.let {
-            menu.findItem(R.id.run).isVisible = Runner.isRunnable(it)
+          activity.adapter.getCurrentFragment()?.let {
+            menu.findItem(R.id.run).isVisible = Runner.isRunnable(it.file)
           }
         } else {
           menu.findItem(R.id.run).isVisible = false
         }
         withContext(Dispatchers.Default){
-          val gitRoot =  findGitRoot(activity.adapter.getCurrentFragment()?.file) != null
-          withContext(Dispatchers.Main){
-            menu.findItem(R.id.git).isVisible = gitRoot
+          activity.adapter.getCurrentFragment()?.file?.let {
+            val gitRoot =  findGitRoot(it) != null
+            withContext(Dispatchers.Main){
+              menu.findItem(R.id.git).isVisible = gitRoot
+            }
           }
+
         }
         
         updateUndoRedo(menu, activity.adapter.getCurrentFragment(), activity)
