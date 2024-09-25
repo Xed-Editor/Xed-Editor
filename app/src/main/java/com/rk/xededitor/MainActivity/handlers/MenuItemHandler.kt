@@ -7,6 +7,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
+import com.rk.xededitor.MainActivity.tabFragments
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,11 +36,10 @@ object MenuItemHandler {
           menu.findItem(R.id.run).isVisible = false
         }
         withContext(Dispatchers.Default){
-          activity.adapter.getCurrentFragment()?.file?.let {
-            val gitRoot =  findGitRoot(it) != null
-            withContext(Dispatchers.Main){
-              menu.findItem(R.id.git).isVisible = gitRoot
-            }
+          val gitRoot =  findGitRoot(activity.adapter.getCurrentFragment()?.file)
+
+          withContext(Dispatchers.Main){
+            menu.findItem(R.id.git).isVisible = tabFragments.isEmpty().not() && gitRoot != null
           }
 
         }

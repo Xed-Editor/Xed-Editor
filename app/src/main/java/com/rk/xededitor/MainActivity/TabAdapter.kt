@@ -9,6 +9,7 @@ import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,7 +25,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   
   fun getCurrentFragment(): TabFragment? {
-    return tabFragments[mainActivity.tabLayout.selectedTabPosition].also { println(tabFragments) }
+    return tabFragments[mainActivity.tabLayout.selectedTabPosition]
   }
   
   private val itemIds = mutableMapOf<Int, Long>()
@@ -73,6 +74,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
     with(mainActivity) {
       tabViewModel.fileSet.clear()
       tabViewModel.fragmentFiles.clear()
+      tabFragments.clear()
       tabViewModel.fragmentTitles.clear()
       (viewPager.adapter as? TabAdapter)?.notifyDataSetChanged()
       binding.tabs.visibility = View.GONE
@@ -92,7 +94,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
         (viewPager.adapter as? TabAdapter)?.apply {
           notifyItemRemovedX(position)
         }
-        
       }
       if (tabViewModel.fragmentFiles.isEmpty()) {
         binding.tabs.visibility = View.GONE
@@ -103,6 +104,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
           mainBottomBar.visibility = View.GONE
         }
       }
+
       
     }
   }
@@ -153,7 +155,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
           mainBottomBar.visibility = View.GONE
         }
       }
-      
+
     }
   }
   
