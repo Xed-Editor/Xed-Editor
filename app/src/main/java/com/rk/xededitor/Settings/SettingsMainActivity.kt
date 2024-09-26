@@ -34,6 +34,7 @@ class SettingsMainActivity : BaseActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     settingsMain = this
+    edgeToEdge()
     super.onCreate(savedInstanceState)
     padapter = PreferencesAdapter(getScreen())
     savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")

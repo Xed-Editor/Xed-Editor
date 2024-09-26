@@ -34,6 +34,7 @@ class SettingsPlugins : BaseActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    edgeToEdge()
     super.onCreate(savedInstanceState)
 
     padapter = PreferencesAdapter(getScreen())

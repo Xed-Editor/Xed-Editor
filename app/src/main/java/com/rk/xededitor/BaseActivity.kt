@@ -28,10 +28,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ThemeManager.apply(this)
-    enableEdgeToEdge()
     super.onCreate(savedInstanceState)
     activityMap[javaClass] = WeakReference(this)
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
+  }
+  
+  fun edgeToEdge() {
+    enableEdgeToEdge()
   }
   
   override fun onResume() {
