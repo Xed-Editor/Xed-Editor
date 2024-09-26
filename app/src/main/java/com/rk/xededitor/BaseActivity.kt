@@ -34,7 +34,7 @@ abstract class BaseActivity : AppCompatActivity() {
   }
   
   fun edgeToEdge() {
-    enableEdgeToEdge()
+    //enableEdgeToEdge()
   }
   
   override fun onResume() {
