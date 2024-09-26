@@ -11,25 +11,23 @@
         android:orientation="vertical"
         android:tag="keyRep">
 
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginLeft="22dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="22dp"
-            android:background="@drawable/edittext"
             android:tag="keyword">
 
             <EditText
                 android:id="@+id/searchbox"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
                 android:hint="@string/searck_keyword"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />
-        </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <CheckBox
             android:id="@+id/case_senstive"
