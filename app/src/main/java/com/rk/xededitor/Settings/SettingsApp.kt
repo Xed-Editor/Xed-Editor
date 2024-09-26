@@ -159,7 +159,7 @@ class SettingsApp : BaseActivity() {
         }
       }
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-         switch(Keys.MONEY) {
+         switch(Keys.MONET) {
               titleRes = R.string.monet
               summary = getString(R.string.monet_desc)
               iconRes = R.drawable.palette
