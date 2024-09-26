@@ -2,6 +2,7 @@ package com.rk.xededitor.Settings
 
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Build
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -10,16 +11,20 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.ui.theme.ThemeManager
+
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -153,16 +158,18 @@ class SettingsApp : BaseActivity() {
           return@onCheckedChange true
         }
       }
-      switch(Keys.MONEY) {
-        titleRes = R.string.monet
-        summary = getString(R.string.monet_desc)
-        iconRes = R.drawable.palette
-        defaultValue = false
-        onCheckedChange {
-          LoadingPopup(this@SettingsApp, 180)
-          getActivity(SettingsApp::class.java)?.recreate()
-          return@onCheckedChange true
-        }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+         switch(Keys.MONEY) {
+              titleRes = R.string.monet
+              summary = getString(R.string.monet_desc)
+              iconRes = R.drawable.palette
+              defaultValue = false
+              onCheckedChange {
+                   LoadingPopup(this@SettingsApp, 180)
+                   getActivity(SettingsApp::class.java)?.recreate()
+                   return@onCheckedChange true
+              }
+         }
       }
       pref(Keys.THEMES) {
         title = getString(R.string.themes)
