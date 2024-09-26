@@ -23,11 +23,11 @@ object ThemeManager {
     * @param activity, An instance of an Activity.
     */
     fun apply(activity: Activity) {
-        if (SettingsData.isDarkMode(activity) && SettingsData.isOled()) {
-             activity.setTheme(R.style.Theme_Karbon_Oled)
-        }
         if (SettingsData.isMonet()) {
              DynamicColors.applyToActivityIfAvailable(activity)
+        }
+        if (SettingsData.isDarkMode(activity) && SettingsData.isOled()) {
+             activity.setTheme(R.style.Theme_Karbon_Oled)
         }
     }
     
