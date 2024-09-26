@@ -39,10 +39,6 @@ class App : Application() {
         if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
           AppCompatDelegate.setDefaultNightMode(settingDefaultNightMode)
         }
-        
-        if (SettingsData.getBoolean(Keys.MONET, false)) {
-            DynamicColors.applyToActivitiesIfAvailable(app);
-        }
       }
     }
 
