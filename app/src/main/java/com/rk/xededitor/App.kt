@@ -4,8 +4,6 @@ import android.app.Application
 
 import androidx.appcompat.app.AppCompatDelegate
 
-import com.google.android.material.color.DynamicColors;
-
 import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
