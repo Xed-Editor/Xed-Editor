@@ -58,7 +58,7 @@
     <string name="rapply">Перезапустите приложение для применения изменений</string>
     <string name="oled">Тема: чёрная ночь</string>
     <string name="ww">Перенос слов</string>
-    <string name="keepdl">Keep Drawer Locked</string>
+    <string name="keepdl">Оставлять ящик открытым</string>
     <string name="restart">Перезапустить</string>
     <string name="plugin">Плагины</string>
     <string name="mp">Управление плагинами</string>
@@ -155,7 +155,7 @@
     <string name="open_path">Открыть с пути</string>
     <string name="open_path_desc">Открыть проект/файл с пути</string>
     <string name="clone_repo_desc">Клонировать репозиторий используя Git</string>
-    <string name="add">Добав.</string>
+    <string name="add">Добавить</string>
     <string name="already_opened">Файл уже открыт!</string>
     <string name="open_cant">Нельзя открыть больше, чем</string>
     <string name="files">Файлы</string>
