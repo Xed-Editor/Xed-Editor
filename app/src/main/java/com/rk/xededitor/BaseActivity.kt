@@ -35,13 +35,16 @@ abstract class BaseActivity : AppCompatActivity() {
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
   }
   
-  fun edgeToEdge(vi: View) {
+  fun edgeToEdge(view: View) {
     enableEdgeToEdge()
-    ViewCompat.setOnApplyWindowInsetsListener(vi) { v, insets ->
-         val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-         v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-         insets
+    ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+        val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom)
+        WindowInsetsCompat.Builder(insets)
+            .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 0, 0, 0))
+            .build()
     }
+    view.requestApplyInsets()
   }
   
   override fun onResume() {
