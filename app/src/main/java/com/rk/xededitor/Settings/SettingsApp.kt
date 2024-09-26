@@ -152,7 +152,7 @@ class SettingsApp : BaseActivity() {
               defaultValue = false
               onCheckedChange {
                    LoadingPopup(this@SettingsApp, 180)
-                   getActivity(SettingsApp::class.java)?.recreate()
+                   /* getActivity(SettingsApp::class.java)?.recreate() */
                    return@onCheckedChange true
               }
          }
