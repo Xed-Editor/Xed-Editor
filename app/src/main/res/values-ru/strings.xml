@@ -177,7 +177,7 @@
     <string name="smooth_tabs">Плавные вкладки</string>
     <string name="smooth_tab_desc">Плавный переход между вкладками</string>
     <string name="ww_desc">Включает перенос слов в редакторк</string>
-    <string name="drawer_lock_desc">Keep drawer locked when opening a file</string>
+    <string name="drawer_lock_desc">Оставлять ящик открытым после открытия файла</string>
     <string name="diagonal_scroll">Диагональная прокрутка</string>
     <string name="diagonal_scroll_desc">Включает диагональную прокрутку в дереве файлов</string>
     <string name="cursor_anim">Анимация курсора</string>
