@@ -25,37 +25,33 @@ object SettingsData {
         }
     }
 
-    
     fun isOled(): Boolean {
-       return getBoolean(Keys.OLED,false)
+       return getBoolean(Keys.OLED, false)
     }
-
+    
+    fun isMonet(): Boolean {
+       return getBoolean(Keys.MONET, false)
+    }
     
     fun getBoolean(key: String?, default: Boolean): Boolean {
-        return sharedPreferences!!.getBoolean(key,default)
+        return sharedPreferences!!.getBoolean(key, default)
     }
 
-
-    
     fun setBoolean(key: String?, value: Boolean) {
         val editor = sharedPreferences!!.edit()
         editor.putBoolean(key, value)
         editor.commit()
     }
 
-    
     fun initPref(ctx: Context){
         sharedPreferences = ctx.applicationContext.getSharedPreferences(PREFNAME, Context.MODE_PRIVATE)
     }
 
-    
     private var sharedPreferences:SharedPreferences? = null
 
-    
     fun getString(key: String?, default: String): String {
         return sharedPreferences!!.getString(key, default) ?: default
     }
-
     
     fun setString(key: String?, value: String?) {
         val editor = sharedPreferences!!.edit()

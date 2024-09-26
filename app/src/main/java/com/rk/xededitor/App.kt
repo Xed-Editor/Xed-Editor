@@ -1,7 +1,11 @@
 package com.rk.xededitor
 
 import android.app.Application
+
 import androidx.appcompat.app.AppCompatDelegate
+
+import com.google.android.material.color.DynamicColors;
+
 import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
@@ -12,10 +16,8 @@ import com.rk.xededitor.Settings.TerminalSettings
 
 class App : Application() {
   
- 
-  
   companion object{
-    lateinit var app:Application
+    lateinit var app: Application
   }
  
   override fun onCreate() {
@@ -36,6 +38,10 @@ class App : Application() {
 
         if (settingDefaultNightMode != AppCompatDelegate.getDefaultNightMode()) {
           AppCompatDelegate.setDefaultNightMode(settingDefaultNightMode)
+        }
+        
+        if (SettingsData.getBoolean(Keys.MONET, false)) {
+            DynamicColors.applyToActivitiesIfAvailable(app);
         }
       }
     }

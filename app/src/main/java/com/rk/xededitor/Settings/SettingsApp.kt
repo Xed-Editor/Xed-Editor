@@ -153,6 +153,17 @@ class SettingsApp : BaseActivity() {
           return@onCheckedChange true
         }
       }
+      switch(Keys.MONEY) {
+        titleRes = R.string.monet
+        summary = getString(R.string.monet_desc)
+        iconRes = R.drawable.palette
+        defaultValue = false
+        onCheckedChange {
+          LoadingPopup(this@SettingsApp, 180)
+          getActivity(SettingsApp::class.java)?.recreate()
+          return@onCheckedChange true
+        }
+      }
       pref(Keys.THEMES) {
         title = getString(R.string.themes)
         summary = getString(R.string.change_theme)
