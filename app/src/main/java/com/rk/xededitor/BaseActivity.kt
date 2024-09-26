@@ -7,6 +7,8 @@ import android.view.View
 import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.Settings.SettingsData
@@ -33,8 +35,13 @@ abstract class BaseActivity : AppCompatActivity() {
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
   }
   
-  fun edgeToEdge() {
-    //enableEdgeToEdge()
+  fun edgeToEdge(vi: View) {
+    enableEdgeToEdge()
+    ViewCompat.setOnApplyWindowInsetsListener(vi) { v, insets ->
+         val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+         v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+         insets
+    }
   }
   
   override fun onResume() {

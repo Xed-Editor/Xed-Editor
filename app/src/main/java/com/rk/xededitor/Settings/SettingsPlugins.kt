@@ -34,7 +34,6 @@ class SettingsPlugins : BaseActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    edgeToEdge()
     super.onCreate(savedInstanceState)
 
     padapter = PreferencesAdapter(getScreen())
@@ -47,8 +46,10 @@ class SettingsPlugins : BaseActivity() {
       layoutManager = playoutManager
       adapter = padapter
     }
-
+    
+    edgeToEdge(binding.root)
     setContentView(binding.root)
+    
     binding.toolbar.title = "Plugins"
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

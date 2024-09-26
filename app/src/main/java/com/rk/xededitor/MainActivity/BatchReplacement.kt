@@ -41,18 +41,6 @@ class BatchReplacement : BaseActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = resources.getString(R.string.title_activity_batch_replacement)
-
-        if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-            binding.drawerLayout.setBackgroundColor(Color.BLACK)
-            binding.appbar.setBackgroundColor(Color.BLACK)
-            binding.mainBody.setBackgroundColor(Color.BLACK)
-            binding.toolbar.setBackgroundColor(Color.BLACK)
-            window.navigationBarColor = Color.BLACK
-            val window = window
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.BLACK
-            window.navigationBarColor = Color.BLACK
-        }
     }
 
     private fun newEditBox(hint: String): View {
