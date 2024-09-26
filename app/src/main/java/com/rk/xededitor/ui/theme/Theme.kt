@@ -85,7 +85,7 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun KarbonTheme(
-    darkTheme: Boolean = SettingsData.isDarkTheme(LocalContext.current),
+    darkTheme: Boolean = SettingsData.isDarkMode(LocalContext.current),
     highContrastDarkTheme: Boolean = SettingsData.isOled(),
     dynamicColor: Boolean = SettingsData.isMonet(),
     content: @Composable () -> Unit,
