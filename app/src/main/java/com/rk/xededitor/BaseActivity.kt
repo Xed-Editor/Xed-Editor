@@ -22,8 +22,6 @@ import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
 
 
-
-
 abstract class BaseActivity : AppCompatActivity() {
 
   companion object {
@@ -44,31 +42,7 @@ abstract class BaseActivity : AppCompatActivity() {
   }
   
   fun edgeToEdge(window: Window, view: View) {
-    WindowCompat.setDecorFitsSystemWindows(window, false)
-    window.statusBarColor = Color.TRANSPARENT
-    
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val insetsController = window.insetsController
-        insetsController?.setSystemBarsAppearance(
-            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
-            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
-        )
-    } else {
-        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = true
-    }
-
-    ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
-        val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(
-            systemBarsInsets.left,
-            systemBarsInsets.top,
-            systemBarsInsets.right,
-            systemBarsInsets.bottom
-        )
-        insets
-    }
-
-    view.requestApplyInsets()
+    enableEdgeToEdge()
   }
   
   override fun onResume() {
