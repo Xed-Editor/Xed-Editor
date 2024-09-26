@@ -170,4 +170,5 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
+  implementation(libs.insetter)
 }

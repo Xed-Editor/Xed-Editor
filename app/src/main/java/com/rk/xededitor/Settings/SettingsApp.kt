@@ -47,7 +47,6 @@ class SettingsApp : BaseActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    edgeToEdge()
     super.onCreate(savedInstanceState)
 
     padapter = PreferencesAdapter(getScreen())
@@ -62,7 +61,8 @@ class SettingsApp : BaseActivity() {
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
     }
     
-    setContentView(binding.root)
+    edgeToEdge(binding.root)
+        setContentView(binding.root)
     
     binding.toggleButton.visibility = View.VISIBLE
     binding.toolbar.title = getString(R.string.app)

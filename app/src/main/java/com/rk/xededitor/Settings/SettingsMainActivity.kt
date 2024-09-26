@@ -34,7 +34,6 @@ class SettingsMainActivity : BaseActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     settingsMain = this
-    edgeToEdge()
     super.onCreate(savedInstanceState)
     padapter = PreferencesAdapter(getScreen())
     savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
@@ -47,6 +46,7 @@ class SettingsMainActivity : BaseActivity() {
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
     }
 
+    edgeToEdge(binding.root)
     setContentView(binding.root)
     
     binding.toolbar.title = "Settings"
