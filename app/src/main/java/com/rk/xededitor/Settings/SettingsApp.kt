@@ -61,7 +61,7 @@ class SettingsApp : BaseActivity() {
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
     }
     
-    edgeToEdge(binding.root)
+    edgeToEdge(window, binding.root)
     setContentView(binding.root)
     
     binding.toggleButton.visibility = View.VISIBLE
