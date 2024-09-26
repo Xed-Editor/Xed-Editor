@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.enableEdgeToEdge 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
@@ -27,6 +28,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     ThemeManager.apply(this)
+    enableEdgeToEdge()
     super.onCreate(savedInstanceState)
     activityMap[javaClass] = WeakReference(this)
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
