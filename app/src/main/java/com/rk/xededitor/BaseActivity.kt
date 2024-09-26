@@ -9,12 +9,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.graphics.Insets
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
-
 
 abstract class BaseActivity : AppCompatActivity() {
 
