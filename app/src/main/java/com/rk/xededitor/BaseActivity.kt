@@ -40,7 +40,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
   override fun onPause() {
     super.onPause()
-    ThemeManager.applyTheme(this)
+    ThemeManager.apply(this)
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.PAUSED)
   }
   
