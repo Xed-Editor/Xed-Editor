@@ -206,23 +206,6 @@ class MainActivity : BaseActivity() {
   
   private fun setupTheme() {
     SetupEditor.init(this)
-    if (SettingsData.isDarkMode(this)) {
-      if (SettingsData.isOled()) {
-        val black = Color.BLACK
-        with(binding) {
-          drawerLayout.setBackgroundColor(black)
-          navView.setBackgroundColor(black)
-          main.setBackgroundColor(black)
-          appbar.setBackgroundColor(black)
-          toolbar.setBackgroundColor(black)
-          tabs.setBackgroundColor(black)
-          mainView.setBackgroundColor(black)
-        }
-      } else {
-        val window = window
-        window.navigationBarColor = Color.parseColor("#141118")
-      }
-    }
   }
   
   private fun setupDrawer() {

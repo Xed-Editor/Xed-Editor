@@ -1,71 +1,38 @@
 package com.rk.xededitor.ui.theme
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
+
+import com.google.android.material.color.DynamicColors
+
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 
+/*
+* A Basic Helper for Apply correct theme in app
+* @author Aquiles Trindade (trindadedev).
+*/
+
 object ThemeManager {
-    private const val THEME_PREFIX = "selectable_"
-
-    fun getSelectedTheme(): String {
-        return SettingsData.getString(Keys.SELECTED_THEME, "Berry")
-    }
-
-    fun setSelectedTheme(themeName: String) {
-        SettingsData.setString(Keys.SELECTED_THEME, themeName)
-    }
-
-    fun applyTheme(context: Context) {
-        setTheme(context, getSelectedTheme())
-    }
-
-    fun setTheme(context: Context, themeName: String) {
-        context.setTheme(getThemeIdByName(context, themeName))
-        setSelectedTheme(themeName)
-    }
-
-    private fun getThemeIdByName(context: Context, themeName: String): Int {
-        val themeResName = "$THEME_PREFIX$themeName"
-        return context.resources.getIdentifier(themeResName, "style", context.packageName)
-    }
-
-    fun getThemes(context: Context): List<Pair<String, Int>> {
-        val stylesClass = R.style::class.java
-        val fields = stylesClass.declaredFields
-        val themes = mutableListOf<Pair<String, Int>>()
-
-        for (field in fields) {
-            try {
-                val resourceId = field.getInt(null)
-                val resourceName = context.resources.getResourceEntryName(resourceId)
-                if (!resourceName.startsWith(THEME_PREFIX)) {
-                    continue
-                }
-                val finalName = if (resourceName.removePrefix(THEME_PREFIX) == "Berry") {
-                    "Berry (Default)"
-                } else {
-                    resourceName.removePrefix(THEME_PREFIX)
-                }
-                themes.add(Pair(finalName, resourceId))
-            } catch (e: IllegalAccessException) {
-                e.printStackTrace()
-            }
+    
+    /*
+    * Function that applies the theme
+    * Checks if the user is in the dark theme, and if they have the oled theme enabled, if so, applies the oled theme.
+    * Checks if the user has the "Dynamic Colors" function activated, if so, applies Dynamic Colors.
+    * @param activity, An instance of an Activity.
+    */
+    fun apply(activity: Activity) {
+        if (SettingsData.isMonet()) {
+             DynamicColors.applyToActivityIfAvailable(activity)
         }
-
-        return themes
+        if (SettingsData.isDarkMode(activity) && SettingsData.isOled()) {
+             activity.setTheme(R.style.Theme_Karbon_Oled)
+        }
     }
-
-    fun getCurrentTheme(context: Context): Resources.Theme? {
-        return context.theme
-    }
-
-    fun getCurrentThemeId(context: Context): Int {
-        val attrs = intArrayOf(android.R.attr.theme)
-        val typedArray = getCurrentTheme(context)!!.obtainStyledAttributes(attrs)
-        val themeId = typedArray.getResourceId(0, 0)
-        typedArray.recycle()
-        return themeId
-    }
+    
+    /*
+    * @returns Return a current theme.
+    */
+    fun getCurrentTheme(ctx: Context): Resources.Theme? = ctx.theme
 }

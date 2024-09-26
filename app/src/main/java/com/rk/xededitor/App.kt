@@ -1,7 +1,9 @@
 package com.rk.xededitor
 
 import android.app.Application
+
 import androidx.appcompat.app.AppCompatDelegate
+
 import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
@@ -12,10 +14,8 @@ import com.rk.xededitor.Settings.TerminalSettings
 
 class App : Application() {
   
- 
-  
   companion object{
-    lateinit var app:Application
+    lateinit var app: Application
   }
  
   override fun onCreate() {

@@ -50,19 +50,7 @@ class GitSettings : BaseActivity() {
         binding.toolbar.title = getString(R.string.git)
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-            binding.root.setBackgroundColor(Color.BLACK)
-            binding.toolbar.setBackgroundColor(Color.BLACK)
-            binding.appbar.setBackgroundColor(Color.BLACK)
-            window.navigationBarColor = Color.BLACK
-            val window = window
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.BLACK
-            window.navigationBarColor = Color.BLACK
-        } else if (SettingsData.isDarkMode(this)) {
-            val window = window
-            window.navigationBarColor = Color.parseColor("#141118")
-        }
+        
     }
 
     private fun getScreen(): PreferenceScreen {

@@ -2,6 +2,7 @@ package com.rk.xededitor.Settings
 
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Build
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
@@ -10,16 +11,21 @@ import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
+
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.ui.theme.ThemeManager
+
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -60,20 +66,6 @@ class SettingsApp : BaseActivity() {
     binding.toolbar.title = getString(R.string.app)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-    if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-      binding.root.setBackgroundColor(Color.BLACK)
-      binding.toolbar.setBackgroundColor(Color.BLACK)
-      binding.appbar.setBackgroundColor(Color.BLACK)
-      window.navigationBarColor = Color.BLACK
-      val window = window
-      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-      window.statusBarColor = Color.BLACK
-      window.navigationBarColor = Color.BLACK
-    } else if (SettingsData.isDarkMode(this)) {
-      val window = window
-      window.navigationBarColor = Color.parseColor("#141118")
-    }
 
     fun getCheckedBtnIdFromSettings(): Int {
       val settingDefaultNightMode = SettingsData.getString(Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
@@ -142,80 +134,33 @@ class SettingsApp : BaseActivity() {
 
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
-      switch(Keys.OLED) {
-        titleRes = R.string.oled
-        summary = getString(R.string.oled_desc)
-        iconRes = R.drawable.dark_mode
-        defaultValue = false
-        onCheckedChange {
-          LoadingPopup(this@SettingsApp, 180)
-          //getActivity(MainActivity::class.java)?.recreate()
-          return@onCheckedChange true
-        }
+      if (SettingsData.isDarkMode(this@SettingsApp)) {
+          switch(Keys.OLED) {
+               titleRes = R.string.oled
+               summary = getString(R.string.oled_desc)
+               iconRes = R.drawable.dark_mode
+               defaultValue = false
+               onCheckedChange {
+                      LoadingPopup(this@SettingsApp, 180)
+                      return@onCheckedChange true
+               }
+          }
       }
-      pref(Keys.THEMES) {
-        title = getString(R.string.themes)
-        summary = getString(R.string.change_theme)
-        iconRes = R.drawable.palette
-        onClickView {
-          val themes = ThemeManager.getThemes(this@SettingsApp)
-
-          val linearLayout = LinearLayout(this@SettingsApp).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(20.dp, 8.dp, 0, 0)
-          }
-
-          val radioGroup = RadioGroup(this@SettingsApp).apply {
-            orientation = RadioGroup.VERTICAL
-          }
-
-          themes.forEach { theme ->
-            val radioButton = RadioButton(this@SettingsApp).apply {
-              text = theme.first
-            }
-            radioGroup.addView(radioButton)
-          }
-
-          linearLayout.addView(radioGroup)
-          val selectedThemeName = ThemeManager.getSelectedTheme()
-          val selectedThemeIndex = themes.indexOfFirst { it.first == selectedThemeName }
-          if (selectedThemeIndex != -1) {
-            radioGroup.check(radioGroup.getChildAt(selectedThemeIndex).id)
-          } else {
-            radioGroup.check(radioGroup.getChildAt(0).id)
-          }
-
-          var checkID = radioGroup.checkedRadioButtonId
-
-          radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            checkID = checkedId
-          }
-
-          val dialog =
-            MaterialAlertDialogBuilder(this@SettingsApp)
-              .setView(linearLayout)
-              .setTitle(getString(R.string.themes))
-              .setNegativeButton(getString(R.string.cancel), null)
-              .setPositiveButton(getString(R.string.apply)) { _, _ ->
-                val loading = LoadingPopup(this@SettingsApp, null).show()
-
-                val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
-                ThemeManager.setSelectedTheme(selectedTheme.first)
-
-                activityMap.values.forEach { activityRef ->
-                  activityRef?.get()?.recreate()
-                }
-
-                loading.hide()
-              }.show()
-
-          dialog.window?.setLayout(
-            resources.getDimensionPixelSize(R.dimen.dialog_width), // Set your desired width here
-            ViewGroup.LayoutParams.WRAP_CONTENT
-          )
-        }
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+         switch(Keys.MONET) {
+              titleRes = R.string.monet
+              summary = getString(R.string.monet_desc)
+              iconRes = R.drawable.palette
+              defaultValue = false
+              onCheckedChange {
+                   LoadingPopup(this@SettingsApp, 180)
+                   /* getActivity(SettingsApp::class.java)?.recreate() */
+                   Toast.makeText(this@SettingsApp, getString(R.string.restart_app), 4000).show()
+                   return@onCheckedChange true
+              }
+         }
       }
-
+      // R.I.P themes 
     }
   }
 

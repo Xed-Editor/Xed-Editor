@@ -18,12 +18,11 @@
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="false"
-        android:theme="@style/Theme.Fragments"
+        android:theme="@style/Theme.Karbon"
         tools:targetApi="31">
         <activity
             android:name=".pluginClient.ManagePlugins"
-            android:exported="true"
-            android:theme="@style/Theme.Fragments" />
+            android:exported="true" />
         <activity
             android:name=".MainActivity.MainActivity"
             android:alwaysRetainTaskState="true"
@@ -53,14 +52,16 @@
         <activity
             android:name=".CrashHandler.CrashActivity"
             android:exported="false" />
+            
         <activity
             android:name=".MainActivity.BatchReplacement"
             android:exported="false"
-            android:label="@string/title_activity_batch_replacement"
-            android:theme="@style/Theme.Fragments.NoActionBar" />
+            android:label="@string/title_activity_batch_replacement" />
+            
         <activity
             android:name=".SimpleEditor.SimpleEditor"
             android:exported="true">
+            
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
@@ -70,6 +71,7 @@
                 <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name=".terminal.Terminal"
             android:exported="true"
@@ -79,18 +81,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
         <activity
             android:name=".Settings.SettingsApp"
             android:exported="false" />
+            
         <activity
             android:name=".Settings.SettingsMainActivity"
             android:exported="false" />
+            
         <activity
             android:name=".Settings.SettingsEditor"
             android:exported="false" />
+            
         <activity
             android:name=".Settings.SettingsPlugins"
             android:exported="false" />
+            
         <activity
             android:name=".Settings.GitSettings"
             android:exported="false" />

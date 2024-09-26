@@ -14,14 +14,12 @@
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:layout_height="wrap_content">
 
-            <androidx.appcompat.widget.Toolbar
+            <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
+                android:layout_height="?attr/actionBarSize"/>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"
@@ -30,8 +28,7 @@
                 android:visibility="gone"
                 app:tabGravity="fill"
                 app:tabIndicatorHeight="4dp"
-                app:tabMode="scrollable"
-                app:tabTextAppearance="@style/tab_text" />
+                app:tabMode="scrollable"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -52,7 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1px"
                 android:layout_alignTop="@+id/main_bottom_bar"
-                android:background="@color/invert_dull"
+                android:background="?colorOnSurface"
                 android:visibility="gone" />
 
             <LinearLayout
@@ -82,7 +79,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="TAB"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
                         <Button
                             android:id="@+id/untab"
@@ -92,7 +89,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="UNTAB"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
 
                         <Button
@@ -103,7 +100,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="↑"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
                         <Button
                             android:id="@+id/down_arrow"
@@ -113,7 +110,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="↓"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
                         <Button
                             android:id="@+id/left_arrow"
@@ -123,7 +120,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="←"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
                         <Button
                             android:id="@+id/right_arrow"
@@ -133,7 +130,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="→"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
 
 
@@ -148,7 +145,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="HOME"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
                         <Button
                             android:id="@+id/end"
@@ -158,7 +155,7 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="END"
-                            android:textColor="@color/invert_dull" />
+                            android:textColor="?colorOnSurface" />
 
 
                     </LinearLayout>
@@ -178,7 +175,7 @@
             android:background="@android:color/transparent"
             android:onClick="openDrawer"
             android:text="@string/open_file_or_folder"
-            android:textColor="@color/invert_dull" />
+            android:textColor="?colorOnSurface" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
