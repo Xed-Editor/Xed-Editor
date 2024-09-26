@@ -203,6 +203,6 @@
     <string name="tab_size_desc">Set tab size</string>
     <string name="monet">Dynamic Colors</string>
     <string name="monet_desc">Use device theme in app.</string>
-
+    <string name="restart_app">Please restart the application.</string>
 
 </resources>

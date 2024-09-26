@@ -153,6 +153,7 @@ class SettingsApp : BaseActivity() {
               onCheckedChange {
                    LoadingPopup(this@SettingsApp, 180)
                    /* getActivity(SettingsApp::class.java)?.recreate() */
+                   Toast.makeText(this@SettingsApp, getString(R.string.restart_app), 4000).show()
                    return@onCheckedChange true
               }
          }
