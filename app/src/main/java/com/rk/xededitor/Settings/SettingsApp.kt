@@ -47,6 +47,7 @@ class SettingsApp : BaseActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    edgeToEdge()
     super.onCreate(savedInstanceState)
 
     padapter = PreferencesAdapter(getScreen())
@@ -62,7 +63,6 @@ class SettingsApp : BaseActivity() {
     }
     
     setContentView(binding.root)
-    edgeToEdge(window, binding.root)
     
     binding.toggleButton.visibility = View.VISIBLE
     binding.toolbar.title = getString(R.string.app)

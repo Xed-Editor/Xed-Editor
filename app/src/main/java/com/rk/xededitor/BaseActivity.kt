@@ -41,7 +41,7 @@ abstract class BaseActivity : AppCompatActivity() {
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
   }
   
-  fun edgeToEdge(window: Window, view: View) {
+  fun edgeToEdge() {
     enableEdgeToEdge()
   }
   

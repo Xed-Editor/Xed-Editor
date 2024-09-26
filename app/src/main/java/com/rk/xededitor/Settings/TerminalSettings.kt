@@ -47,6 +47,7 @@ class TerminalSettings : BaseActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    edgeToEdge()
     super.onCreate(savedInstanceState)
 
     padapter = PreferencesAdapter(getScreen())
@@ -62,7 +63,6 @@ class TerminalSettings : BaseActivity() {
     }
 
     setContentView(binding.root)
-    edgeToEdge(window, binding.root)
     
     binding.toolbar.title = "Terminal"
     setSupportActionBar(binding.toolbar)

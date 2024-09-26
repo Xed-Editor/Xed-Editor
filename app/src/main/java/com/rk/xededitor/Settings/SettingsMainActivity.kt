@@ -34,6 +34,7 @@ class SettingsMainActivity : BaseActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     settingsMain = this
+    edgeToEdge()
     super.onCreate(savedInstanceState)
     padapter = PreferencesAdapter(getScreen())
     savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
@@ -47,7 +48,6 @@ class SettingsMainActivity : BaseActivity() {
     }
 
     setContentView(binding.root)
-    edgeToEdge(window, binding.root)
     
     binding.toolbar.title = "Settings"
     setSupportActionBar(binding.toolbar)

@@ -34,6 +34,7 @@ class SettingsPlugins : BaseActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    edgeToEdge()
     super.onCreate(savedInstanceState)
 
     padapter = PreferencesAdapter(getScreen())
@@ -48,7 +49,6 @@ class SettingsPlugins : BaseActivity() {
     }
     
     setContentView(binding.root)
-    edgeToEdge(window, binding.root)
     
     binding.toolbar.title = "Plugins"
     setSupportActionBar(binding.toolbar)

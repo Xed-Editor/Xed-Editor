@@ -32,6 +32,7 @@ class GitSettings : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        edgeToEdge()
         super.onCreate(savedInstanceState)
 
         padapter = PreferencesAdapter(getScreen())
@@ -47,7 +48,6 @@ class GitSettings : BaseActivity() {
         }
         
         setContentView(binding.root)
-        edgeToEdge(window, binding.root)
         
         binding.toolbar.title = getString(R.string.git)
         setSupportActionBar(binding.toolbar)

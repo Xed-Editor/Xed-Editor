@@ -42,6 +42,7 @@ class SettingsEditor : BaseActivity() {
   }
   
   override fun onCreate(savedInstanceState: Bundle?) {
+    edgeToEdge()
     super.onCreate(savedInstanceState)
     
     padapter = PreferencesAdapter(getScreen())
@@ -57,7 +58,6 @@ class SettingsEditor : BaseActivity() {
     }
     
     setContentView(binding.root)
-    edgeToEdge(window, binding.root)
     
     binding.toolbar.title = getString(R.string.editor)
     setSupportActionBar(binding.toolbar)
