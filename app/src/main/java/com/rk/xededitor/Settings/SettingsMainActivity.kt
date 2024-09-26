@@ -46,8 +46,9 @@ class SettingsMainActivity : BaseActivity() {
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
     }
 
-    edgeToEdge(window, binding.root)
     setContentView(binding.root)
+    edgeToEdge(window, binding.root)
+    
     binding.toolbar.title = "Settings"
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

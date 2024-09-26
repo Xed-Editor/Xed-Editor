@@ -47,8 +47,8 @@ class SettingsPlugins : BaseActivity() {
       adapter = padapter
     }
     
-    edgeToEdge(window, binding.root)
     setContentView(binding.root)
+    edgeToEdge(window, binding.root)
     
     binding.toolbar.title = "Plugins"
     setSupportActionBar(binding.toolbar)
