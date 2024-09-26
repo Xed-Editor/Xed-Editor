@@ -1,5 +1,5 @@
 <resources>
-    <style name="ThemeOverlay.Karbon.MediumContrast" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="ThemeOverlay.Karbon.MediumContrast" parent="Base.Theme.Karbon">
         <item name="colorPrimary">@color/md_theme_primary_mediumContrast</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary_mediumContrast</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer_mediumContrast</item>
@@ -48,7 +48,7 @@
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest_mediumContrast</item>
     </style>
     
-    <style name="ThemeOverlay.Karbon.HighContrast" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="ThemeOverlay.Karbon.HighContrast" parent="Base.Theme.Karbon">
         <item name="colorPrimary">@color/md_theme_primary_highContrast</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary_highContrast</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer_highContrast</item>

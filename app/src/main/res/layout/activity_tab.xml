@@ -30,8 +30,7 @@
                 android:visibility="gone"
                 app:tabGravity="fill"
                 app:tabIndicatorHeight="4dp"
-                app:tabMode="scrollable"
-                app:tabTextAppearance="@style/tab_text" />
+                app:tabMode="scrollable"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 

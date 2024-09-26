@@ -1,5 +1,19 @@
 <resources>
-    <style name="Theme.Karbon" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Base.Theme.Karbon" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+
+        <item name="fontFamily">@font/outfit_regular</item>
+        <item name="android:fontFamily">@font/outfit_regular</item>
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+    
+    <style name="Theme.Karbon" parent="Base.Theme.Karbon">
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
