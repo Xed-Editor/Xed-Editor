@@ -40,6 +40,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   
   fun getCurrentFragment(): TabFragment? {
+    if (mainActivity.tabLayout.selectedTabPosition == -1){
+      tabFragments.clear()
+      return null
+    }
     //println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
     val f = tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition])]
     //println(tabFragments.map { Pair(it.key.file.absolutePath,it.key.hashCode()) })
