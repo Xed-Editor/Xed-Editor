@@ -20,5 +20,5 @@ object ThemeManager {
         }
     }
     
-    fun getCurrentTheme(context: Context): Resources.Theme? = return context.theme
+    fun getCurrentTheme(context: Context): Resources.Theme? = context.theme
 }
