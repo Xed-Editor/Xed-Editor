@@ -3,8 +3,13 @@ package com.rk.xededitor
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Build
 import android.view.View
 import android.view.WindowManager
+import android.view.Window
+import android.view.WindowInsetsController
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.activity.enableEdgeToEdge 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,6 +20,9 @@ import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
+
+
+
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -35,15 +43,31 @@ abstract class BaseActivity : AppCompatActivity() {
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
   }
   
-  fun edgeToEdge(view: View) {
-    enableEdgeToEdge()
+  fun edgeToEdge(window: Window, view: View) {
+    WindowCompat.setDecorFitsSystemWindows(window, false)
+    window.statusBarColor = Color.TRANSPARENT
+    
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val insetsController = window.insetsController
+        insetsController?.setSystemBarsAppearance(
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+            WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+        )
+    } else {
+        WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = true
+    }
+
     ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
         val systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(systemBarsInsets.left, systemBarsInsets.top, systemBarsInsets.right, systemBarsInsets.bottom)
-        WindowInsetsCompat.Builder(insets)
-            .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 0, 0, 0))
-            .build()
+        v.setPadding(
+            systemBarsInsets.left,
+            systemBarsInsets.top,
+            systemBarsInsets.right,
+            systemBarsInsets.bottom
+        )
+        insets
     }
+
     view.requestApplyInsets()
   }
   
