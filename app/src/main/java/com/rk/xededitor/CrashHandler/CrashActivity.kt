@@ -36,10 +36,6 @@ class CrashActivity : AppCompatActivity() {
         try {
             enableEdgeToEdge()
             setContentView(R.layout.activity_error)
-            if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-                findViewById<Toolbar>(R.id.toolbar).setBackgroundColor(Color.BLACK)
-            }
-
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
