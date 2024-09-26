@@ -203,7 +203,7 @@ class SettingsEditor : BaseActivity() {
       }
       
       pref(Keys.AUTO_SAVE_TIME) {
-        titleRes = R.string.auto_save_desc
+        titleRes = R.string.auto_save_time
         summaryRes = R.string.auto_save_time_desc
         iconRes = R.drawable.save
         onClick {
