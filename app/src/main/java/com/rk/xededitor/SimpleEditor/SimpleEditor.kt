@@ -56,21 +56,6 @@ class SimpleEditor : BaseActivity() {
         SetupEditor.init(this@SimpleEditor)
         SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this)
         
-        if (!isDarkMode(this)) {
-            //light mode
-            window.navigationBarColor = Color.parseColor("#FEF7FF")
-            val decorView = window.decorView
-            var flags = decorView.systemUiVisibility
-            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-            decorView.systemUiVisibility = flags
-        } else if (isOled()) {
-            toolbar.setBackgroundColor(Color.BLACK)
-            val window = window
-            window.navigationBarColor = Color.BLACK
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = Color.BLACK
-        }
-        
         Assets.verify(this)
 
         editor!!.setTypefaceText(

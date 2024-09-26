@@ -66,20 +66,6 @@ class SettingsApp : BaseActivity() {
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-      binding.root.setBackgroundColor(Color.BLACK)
-      binding.toolbar.setBackgroundColor(Color.BLACK)
-      binding.appbar.setBackgroundColor(Color.BLACK)
-      window.navigationBarColor = Color.BLACK
-      val window = window
-      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-      window.statusBarColor = Color.BLACK
-      window.navigationBarColor = Color.BLACK
-    } else if (SettingsData.isDarkMode(this)) {
-      val window = window
-      window.navigationBarColor = Color.parseColor("#141118")
-    }
-
     fun getCheckedBtnIdFromSettings(): Int {
       val settingDefaultNightMode = SettingsData.getString(Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
       ).toInt()
@@ -171,69 +157,7 @@ class SettingsApp : BaseActivity() {
               }
          }
       }
-      pref(Keys.THEMES) {
-        title = getString(R.string.themes)
-        summary = getString(R.string.change_theme)
-        iconRes = R.drawable.palette
-        onClickView {
-          val themes = ThemeManager.getThemes(this@SettingsApp)
-
-          val linearLayout = LinearLayout(this@SettingsApp).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(20.dp, 8.dp, 0, 0)
-          }
-
-          val radioGroup = RadioGroup(this@SettingsApp).apply {
-            orientation = RadioGroup.VERTICAL
-          }
-
-          themes.forEach { theme ->
-            val radioButton = RadioButton(this@SettingsApp).apply {
-              text = theme.first
-            }
-            radioGroup.addView(radioButton)
-          }
-
-          linearLayout.addView(radioGroup)
-          val selectedThemeName = ThemeManager.getSelectedTheme()
-          val selectedThemeIndex = themes.indexOfFirst { it.first == selectedThemeName }
-          if (selectedThemeIndex != -1) {
-            radioGroup.check(radioGroup.getChildAt(selectedThemeIndex).id)
-          } else {
-            radioGroup.check(radioGroup.getChildAt(0).id)
-          }
-
-          var checkID = radioGroup.checkedRadioButtonId
-
-          radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            checkID = checkedId
-          }
-
-          val dialog =
-            MaterialAlertDialogBuilder(this@SettingsApp)
-              .setView(linearLayout)
-              .setTitle(getString(R.string.themes))
-              .setNegativeButton(getString(R.string.cancel), null)
-              .setPositiveButton(getString(R.string.apply)) { _, _ ->
-                val loading = LoadingPopup(this@SettingsApp, null).show()
-
-                val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]
-                ThemeManager.setSelectedTheme(selectedTheme.first)
-
-                activityMap.values.forEach { activityRef ->
-                  activityRef?.get()?.recreate()
-                }
-
-                loading.hide()
-              }.show()
-
-          dialog.window?.setLayout(
-            resources.getDimensionPixelSize(R.dimen.dialog_width), // Set your desired width here
-            ViewGroup.LayoutParams.WRAP_CONTENT
-          )
-        }
-      }
-
+      // R.I.P themes 
     }
   }
 

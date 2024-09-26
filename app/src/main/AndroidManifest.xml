@@ -18,12 +18,12 @@
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="false"
-        android:theme="@style/Theme.Fragments"
+        android:theme="@style/Theme.Karbon"
         tools:targetApi="31">
         <activity
             android:name=".pluginClient.ManagePlugins"
             android:exported="true"
-            android:theme="@style/Theme.Fragments" />
+            android:theme="@style/Theme.Karbon" />
         <activity
             android:name=".MainActivity.MainActivity"
             android:alwaysRetainTaskState="true"
@@ -57,7 +57,7 @@
             android:name=".MainActivity.BatchReplacement"
             android:exported="false"
             android:label="@string/title_activity_batch_replacement"
-            android:theme="@style/Theme.Fragments.NoActionBar" />
+            android:theme="@style/Theme.Karbon" />
         <activity
             android:name=".SimpleEditor.SimpleEditor"
             android:exported="true">

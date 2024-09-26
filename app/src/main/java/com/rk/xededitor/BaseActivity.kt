@@ -26,30 +26,10 @@ abstract class BaseActivity : AppCompatActivity() {
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {
-    ThemeManager.applyTheme(this)
+    ThemeManager.apply(this)
     super.onCreate(savedInstanceState)
     activityMap[javaClass] = WeakReference(this)
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
-    
-    if (!SettingsData.isDarkMode(this)) {
-      //light mode
-      window.navigationBarColor = Color.parseColor("#FEF7FF")
-      val decorView = window.decorView
-      var flags = decorView.systemUiVisibility
-      flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-      decorView.systemUiVisibility = flags
-      window.statusBarColor = Color.parseColor("#FEF7FF")
-    } else {
-      window.statusBarColor = Color.parseColor("#141118")
-    }
-    if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-      val window = window
-      window.navigationBarColor = Color.BLACK
-      window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-      window.statusBarColor = Color.BLACK
-    }
-
-
   }
   
   override fun onResume() {
