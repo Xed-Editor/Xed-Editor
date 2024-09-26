@@ -91,15 +91,5 @@
     <string name="download">Download</string>
 
 
-    <string name="git">Git</string>
-    <string name="cred">Credentials</string>
-    <string name="gitcred">Credentials for git</string>
-    <string name="repo_dir">Repository folder</string>
-    <string name="clone_dir">Folder for cloning repositories</string>
-    <string name="dir_exist_not">Folder does not exists</string>
-    <string name="gitKeyExample">eg. SuperKek:ghp_…</string>
-    <string name="gituserexample">eg. UserDev:example@email.com</string>
-    <string name="apply">Apply</string>
-    <string name="userdata">User data</string>
-    <string name="userdatagit">User data for git</string>
+
 </resources>
