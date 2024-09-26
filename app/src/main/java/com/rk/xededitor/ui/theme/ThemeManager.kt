@@ -16,6 +16,10 @@ object ThemeManager {
     fun setSelectedTheme(themeName: String) {
         SettingsData.setString(Keys.SELECTED_THEME, themeName)
     }
+    
+    fun apply() {
+        
+    }
 
     fun applyTheme(context: Context) {
         setTheme(context, getSelectedTheme())
