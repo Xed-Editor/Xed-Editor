@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">Karbon</string>
     <string name="open_drawer">فتح</string>
     <string name="close_drawer">إغلاق</string>
     <string name="title_activity_settings">الإعدادات</string>
