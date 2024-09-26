@@ -134,16 +134,17 @@ class SettingsApp : BaseActivity() {
 
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
-      switch(Keys.OLED) {
-        titleRes = R.string.oled
-        summary = getString(R.string.oled_desc)
-        iconRes = R.drawable.dark_mode
-        defaultValue = false
-        onCheckedChange {
-          LoadingPopup(this@SettingsApp, 180)
-          //getActivity(MainActivity::class.java)?.recreate()
-          return@onCheckedChange true
-        }
+      if (SettingsData.isDarkMode(this@SettingsApp)) {
+          switch(Keys.OLED) {
+               titleRes = R.string.oled
+               summary = getString(R.string.oled_desc)
+               iconRes = R.drawable.dark_mode
+               defaultValue = false
+               onCheckedChange {
+                      LoadingPopup(this@SettingsApp, 180)
+                      return@onCheckedChange true
+               }
+          }
       }
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
          switch(Keys.MONET) {

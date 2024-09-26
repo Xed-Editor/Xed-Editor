@@ -61,4 +61,9 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
     </style>
+    
+    <style name="Theme.Karbon.Oled" parent="Theme.Karbon">
+        <item name="android:colorBackground">@color/blck</item>
+        <item name="colorSurface">@color/black</item>
+    </style>
 </resources>

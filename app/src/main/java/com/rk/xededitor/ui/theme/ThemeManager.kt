@@ -7,67 +7,13 @@ import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 
 object ThemeManager {
-    private const val THEME_PREFIX = "selectable_"
-
-    fun getSelectedTheme(): String {
-        return SettingsData.getString(Keys.SELECTED_THEME, "Berry")
-    }
-
-    fun setSelectedTheme(themeName: String) {
-        SettingsData.setString(Keys.SELECTED_THEME, themeName)
+    
+    fun apply(context: Context) {
+        if (SettingData.isDarkMode(context) && SettingData.isOled()) {
+             context.setTheme(R.style.Theme_Karbon_Oled)
+             return
+        }
     }
     
-    fun apply(ctx: Context) {}
-
-    fun applyTheme(context: Context) {
-        setTheme(context, getSelectedTheme())
-    }
-
-    fun setTheme(context: Context, themeName: String) {
-        context.setTheme(getThemeIdByName(context, themeName))
-        setSelectedTheme(themeName)
-    }
-
-    private fun getThemeIdByName(context: Context, themeName: String): Int {
-        val themeResName = "$THEME_PREFIX$themeName"
-        return context.resources.getIdentifier(themeResName, "style", context.packageName)
-    }
-
-    fun getThemes(context: Context): List<Pair<String, Int>> {
-        val stylesClass = R.style::class.java
-        val fields = stylesClass.declaredFields
-        val themes = mutableListOf<Pair<String, Int>>()
-
-        for (field in fields) {
-            try {
-                val resourceId = field.getInt(null)
-                val resourceName = context.resources.getResourceEntryName(resourceId)
-                if (!resourceName.startsWith(THEME_PREFIX)) {
-                    continue
-                }
-                val finalName = if (resourceName.removePrefix(THEME_PREFIX) == "Berry") {
-                    "Berry (Default)"
-                } else {
-                    resourceName.removePrefix(THEME_PREFIX)
-                }
-                themes.add(Pair(finalName, resourceId))
-            } catch (e: IllegalAccessException) {
-                e.printStackTrace()
-            }
-        }
-
-        return themes
-    }
-
-    fun getCurrentTheme(context: Context): Resources.Theme? {
-        return context.theme
-    }
-
-    fun getCurrentThemeId(context: Context): Int {
-        val attrs = intArrayOf(android.R.attr.theme)
-        val typedArray = getCurrentTheme(context)!!.obtainStyledAttributes(attrs)
-        val themeId = typedArray.getResourceId(0, 0)
-        typedArray.recycle()
-        return themeId
-    }
+    fun getCurrentTheme(context: Context): Resources.Theme? = return context.theme
 }
