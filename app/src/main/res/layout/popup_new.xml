@@ -23,7 +23,6 @@
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/newFile_hint"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />
@@ -49,7 +48,6 @@
                     android:id="@+id/mime"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/mime"
                     android:paddingStart="8dp"
                     android:paddingEnd="5dp"
                     android:singleLine="true"

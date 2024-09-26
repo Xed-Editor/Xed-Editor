@@ -23,7 +23,6 @@
                 android:id="@+id/searchbox"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/searck_keyword"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />

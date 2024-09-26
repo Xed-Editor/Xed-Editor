@@ -23,7 +23,6 @@
                 android:id="@+id/replace_replacement"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:hint="@string/rep"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />
