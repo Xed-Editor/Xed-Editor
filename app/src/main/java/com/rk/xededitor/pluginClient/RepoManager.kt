@@ -1,6 +1,8 @@
 package com.rk.xededitor.pluginClient
 
+import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.getString
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,7 +39,7 @@ object RepoManager {
       
       val jsonStr = fetch(url)
       if (jsonStr == null) {
-        rkUtils.toast("fetch request returned null")
+        rkUtils.toast(getString(R.string.fetch_failed))
         return@launch
       }
       

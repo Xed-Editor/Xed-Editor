@@ -18,6 +18,14 @@ import com.rk.xededitor.databinding.ActivityBatchReplacementBinding
 import com.rk.xededitor.rkUtils.dpToPx
 import com.rk.xededitor.rkUtils.toast
 
+
+
+/*
+*
+* DO NOT TRANSLATE
+*
+* */
+
 class BatchReplacement : BaseActivity() {
     private lateinit var binding: ActivityBatchReplacementBinding
 
@@ -164,7 +172,7 @@ class BatchReplacement : BaseActivity() {
             }
         }
 
-        toast("Action Completed")
+        toast(getString(R.string.action_done))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

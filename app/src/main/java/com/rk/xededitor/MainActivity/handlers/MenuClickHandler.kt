@@ -26,6 +26,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.tabFragments
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -136,12 +137,12 @@ object MenuClickHandler {
                 var dialog: AlertDialog? = null
                 val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
                 if (credentials.size != 2) {
-                    rkUtils.toast( "Credentials does not valid. Change it in settings")
+                    rkUtils.toast(getString(R.string.inavalid_git_cred))
                     return true
                 }
                 val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
                 if (userdata.size != 2) {
-                    rkUtils.toast("User data does not valid. Change it in settings")
+                    rkUtils.toast(getString(R.string.inavalid_userdata))
                     return true
                 }
                 val listener = View.OnClickListener { v ->
@@ -150,7 +151,7 @@ object MenuClickHandler {
                             val loadingPopup = LoadingPopup(
                                 activity,
                                 null
-                            ).setMessage("Please wait while the files are being downloaded.")
+                            ).setMessage(getString(R.string.wait_download))
                             loadingPopup.show()
                             
                             GlobalScope.launch(Dispatchers.IO) {
@@ -169,7 +170,7 @@ object MenuClickHandler {
                                     rkUtils.toast(e.message)
                                 }
                                 withContext(Dispatchers.Main) {
-                                    rkUtils.toast("Successfully")
+                                    rkUtils.toast(getString(R.string.done))
                                     loadingPopup.hide()
                                 }
                             }
@@ -183,26 +184,26 @@ object MenuClickHandler {
                                 view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility =
                                     View.VISIBLE
                                 val branchedit = view.findViewById<EditText>(R.id.name).apply {
-                                    hint = "Branch. Example: main"
+                                    hint = getString(R.string.git_branch)
                                     setText(git.repository.branch)
                                 }
                                 val commitedit = view.findViewById<EditText>(R.id.mime).apply {
-                                    hint = "Commit message"
+                                    hint = getString(R.string.git_commit_msg)
                                     setText("")
                                 }
-                                MaterialAlertDialogBuilder(activity).setTitle("Push")
-                                    .setView(view).setNegativeButton("Cancel", null)
-                                    .setPositiveButton("Apply") { _, _ ->
+                                MaterialAlertDialogBuilder(activity).setTitle(getString(R.string.push))
+                                    .setView(view).setNegativeButton(getString(R.string.cancel), null)
+                                    .setPositiveButton(getString(R.string.apply)) { _, _ ->
                                         val branch = branchedit.text.toString()
                                         val commit = commitedit.text.toString()
                                         if (branch.isEmpty() || commit.isEmpty()) {
-                                            rkUtils.toast("Please fill in both fields")
+                                            rkUtils.toast(getString(R.string.fill_both))
                                             return@setPositiveButton
                                         }
                                         val loadingPopup = LoadingPopup(
                                             activity,
                                             null
-                                        ).setMessage("Pushing to remote repository...")
+                                        ).setMessage(getString(R.string.pushing))
                                         loadingPopup.show()
                                         GlobalScope.launch(Dispatchers.IO) {
                                             try {
@@ -229,14 +230,14 @@ object MenuClickHandler {
                                                 rkUtils.toast(e.message)
                                             }
                                             withContext(Dispatchers.Main) {
-                                                rkUtils.toast("Successfully")
+                                                rkUtils.toast(getString(R.string.done))
                                                 loadingPopup.hide()
                                             }
                                         }
                                     }.show()
                             }
                             else {
-                                rkUtils.toast("Error: .git folder not found")
+                                rkUtils.toast(getString(R.string.nogit))
                             }
                         }
                     }
@@ -245,20 +246,20 @@ object MenuClickHandler {
                 }
                 ActionPopup(activity).apply {
                     addItem(
-                        "Pull",
-                        "Sync local repository with remote repository",
+                        getString(R.string.pull),
+                        getString(R.string.pull_desc),
                         ContextCompat.getDrawable(activity, R.drawable.sync),pull,
                         listener
                         
                     )
                     addItem(
-                        "Commit and push",
-                        "Create a commit and push changes to the remote repository",
+                        getString(R.string.commit_push),
+                        getString(R.string.push_desc),
                         ContextCompat.getDrawable(activity, R.drawable.upload),push,
                         listener
                     )
-                    setTitle("Git")
-                    getDialogBuilder().setNegativeButton("Cancel", null)
+                    setTitle(getString(R.string.git))
+                    getDialogBuilder().setNegativeButton(getString(R.string.cancel), null)
                     dialog = show()
                 }
                 return true;
@@ -274,7 +275,7 @@ object MenuClickHandler {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
         MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace))
             .setView(popupView).setNegativeButton(activity.getString(R.string.cancel), null)
-            .setPositiveButton("replace All") { _, _ ->
+            .setPositiveButton(getString(R.string.replaceall)) { _, _ ->
                 replaceAll(popupView,activity)
             }.show()
         return true

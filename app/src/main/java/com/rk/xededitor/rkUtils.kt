@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.io.File
@@ -41,7 +42,11 @@ object rkUtils {
     fun toast(message: String?) {
         Toast.makeText(App.app, message, Toast.LENGTH_SHORT).show()
     }
-    
+
+    fun getString(stringId: Int):String{
+        return ContextCompat.getString(App.app,stringId)
+    }
+
     fun snackbar(rootView: View){
         Snackbar.make(rootView,"Text", Snackbar.LENGTH_SHORT).show()
     }

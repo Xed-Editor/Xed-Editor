@@ -57,7 +57,7 @@ class SettingsApp : BaseActivity() {
 
     setContentView(binding.root)
     binding.toggleButton.visibility = View.VISIBLE
-    binding.toolbar.title = "Application"
+    binding.toolbar.title = getString(R.string.app)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -144,7 +144,7 @@ class SettingsApp : BaseActivity() {
     return screen(this) {
       switch(Keys.OLED) {
         titleRes = R.string.oled
-        summary = "Pure Black theme for amoled devices"
+        summary = getString(R.string.oled_desc)
         iconRes = R.drawable.dark_mode
         defaultValue = false
         onCheckedChange {
@@ -154,8 +154,8 @@ class SettingsApp : BaseActivity() {
         }
       }
       pref(Keys.THEMES) {
-        title = "Themes"
-        summary = "Change themes"
+        title = getString(R.string.themes)
+        summary = getString(R.string.change_theme)
         iconRes = R.drawable.palette
         onClickView {
           val themes = ThemeManager.getThemes(this@SettingsApp)
@@ -194,9 +194,9 @@ class SettingsApp : BaseActivity() {
           val dialog =
             MaterialAlertDialogBuilder(this@SettingsApp)
               .setView(linearLayout)
-              .setTitle("Themes")
-              .setNegativeButton("Cancel", null)
-              .setPositiveButton("Apply") { _, _ ->
+              .setTitle(getString(R.string.themes))
+              .setNegativeButton(getString(R.string.cancel), null)
+              .setPositiveButton(getString(R.string.apply)) { _, _ ->
                 val loading = LoadingPopup(this@SettingsApp, null).show()
 
                 val selectedTheme = themes[radioGroup.indexOfChild(radioGroup.findViewById(checkID))]

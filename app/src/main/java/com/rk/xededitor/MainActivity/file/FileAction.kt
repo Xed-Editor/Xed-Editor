@@ -21,6 +21,7 @@ import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,21 +51,21 @@ class FileAction(
     ActionPopup(mainActivity, true).apply {
       
       if (file == rootFolder) {
-        addItem("Refresh", "Reload File Browser", getDrawable(R.drawable.sync)) {
+        addItem(getString(R.string.refresh), getString(R.string.reload_file_tree), getDrawable(R.drawable.sync)) {
           ProjectManager.currentProject.refresh(mainActivity)
         }
-        addItem("Close", "Close current project", getDrawable(R.drawable.close)) {
+        addItem(getString(R.string.close), getString(R.string.close_current_project), getDrawable(R.drawable.close)) {
           ProjectManager.removeProject(mainActivity, rootFolder)
         }
         
       } else {
-        addItem("Rename", "Rename the selected file/folder", getDrawable(R.drawable.edit)) {
+        addItem(getString(R.string.rename), getString(R.string.rename_descript), getDrawable(R.drawable.edit)) {
           rename()
         }
-        addItem("Open With", "Open selected file in other apps", getDrawable(R.drawable.android)) {
+        addItem(getString(R.string.open_with), getString(R.string.open_with_other), getDrawable(R.drawable.android)) {
           openWith(mainActivity, file)
         }
-        addItem("Delete", "Delete selected file/folder", getDrawable(R.drawable.delete)) {
+        addItem(getString(R.string.delete), getString(R.string.delete_descript), getDrawable(R.drawable.delete)) {
           MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.delete))
             .setMessage(context.getString(R.string.ask_del) + " ${file.name} ")
             .setNegativeButton(context.getString(R.string.cancel), null).setPositiveButton(
@@ -93,30 +94,30 @@ class FileAction(
       
       val fileDrawable = getDrawable(R.drawable.outline_insert_drive_file_24)
       if (file.isDirectory) {
-        addItem("Open In Terminal","Open Directory in Terminal",getDrawable(R.drawable.terminal)){
+        addItem(getString(R.string.open_in_terminal), getString(R.string.open_dir_in_terminal),getDrawable(R.drawable.terminal)){
           val intent = Intent(context,Terminal::class.java)
           intent.putExtra("cwd",file.absolutePath)
           context.startActivity(intent)
         }
-        addItem("Add File", "Select a new file to be added here", fileDrawable) {
+        addItem(getString(R.string.add_file), getString(R.string.add_file_desc), fileDrawable) {
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
           intent.addCategory(Intent.CATEGORY_OPENABLE)
           intent.setType("*/*")
           mainActivity.startActivityForResult(intent, REQUEST_ADD_FILE)
         }
-        addItem("New File", "Create a new file under selected folder", fileDrawable) {
+        addItem(getString(R.string.new_file), getString(R.string.create_new_file_desc), fileDrawable) {
           new(createFile = true)
         }
         addItem(
-          "New Folder",
-          "Create a new folder under selected folder",
+          getString(R.string.new_folder),
+          getString(R.string.create_new_file_desc),
           getDrawable(R.drawable.outline_folder_24)
         ) {
           new(createFile = false)
         }
-        addItem("Paste", "Paste selected file/folder", fileDrawable) {
+        addItem(getString(R.string.paste), getString(R.string.paste_desc), fileDrawable) {
           if (FileClipboard.isEmpty()) {
-            rkUtils.toast("File Clipboard is empty")
+            rkUtils.toast(getString(R.string.clipboardempty))
           } else {
             LoadingPopup(mainActivity, 350)
             mainActivity.let {
@@ -156,7 +157,7 @@ class FileAction(
                       e.printStackTrace()
                       withContext(Dispatchers.Main) {
                         Toast.makeText(
-                          context, "Failed to move file: ${e.message}", Toast.LENGTH_SHORT
+                          context, "${getString(R.string.failed_move)}: ${e.message}", Toast.LENGTH_SHORT
                         ).show()
                       }
                       
@@ -171,7 +172,7 @@ class FileAction(
       
       
       if (file.isFile) {
-        addItem("Save As", "Save the selected file somewhere else", getDrawable(R.drawable.save)) {
+        addItem(getString(R.string.save_as), getString(R.string.save_desc), getDrawable(R.drawable.save)) {
           to_save_file = file
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
           startActivityForResult(
@@ -181,7 +182,7 @@ class FileAction(
       }
       
       
-      addItem("Copy", "Copy selected file/folder", fileDrawable) {
+      addItem(getString(R.string.copy), getString(R.string.copy_desc), fileDrawable) {
         FileClipboard.setFile(file)
       }
       
@@ -239,7 +240,7 @@ class FileAction(
     val editText = popupView.findViewById<EditText>(R.id.name)
     
     editText.setText(file.name)
-    editText.hint = "file name"
+    editText.hint = getString(R.string.file_name)
     
     MaterialAlertDialogBuilder(mainActivity).setTitle(mainActivity.getString(R.string.rename))
       .setView(popupView).setNegativeButton(mainActivity.getString(R.string.cancel), null)
@@ -333,7 +334,7 @@ class FileAction(
       }
     } catch (e: Exception) {
       e.printStackTrace()
-      rkUtils.toast("opening this file with other apps is not permitted")
+      rkUtils.toast(getString(R.string.file_open_denied))
     }
   }
 }

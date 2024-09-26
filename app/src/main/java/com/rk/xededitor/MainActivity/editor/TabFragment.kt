@@ -65,7 +65,7 @@ class TabFragment : Fragment() {
           }
         } catch (e: Exception) {
           e.printStackTrace()
-          editor!!.setText("file not found")
+          editor!!.setText(getString(R.string.file_exist_not))
         }
       }
       launch(Dispatchers.Default) {
@@ -93,7 +93,7 @@ class TabFragment : Fragment() {
     lifecycleScope.launch(Dispatchers.IO) {
       if (file.exists().not() and showToast){
         withContext(Dispatchers.Main){
-          rkUtils.toast("File no longer exists")
+          rkUtils.toast(getString(R.string.file_exist_not))
         }
       }
       try {
@@ -108,7 +108,7 @@ class TabFragment : Fragment() {
           ContentIO.writeTo(content, outputStream, true)
           if (showToast) {
             withContext(Dispatchers.Main) {
-              rkUtils.toast("saved")
+              rkUtils.toast(getString(R.string.file_saved))
             }
           }
         }

@@ -57,7 +57,7 @@ class SettingsEditor : BaseActivity() {
     }
     
     setContentView(binding.root)
-    binding.toolbar.title = "Editor"
+    binding.toolbar.title = getString(R.string.editor)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
     if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
@@ -80,8 +80,8 @@ class SettingsEditor : BaseActivity() {
     return screen(this) {
       
       switch(Keys.VIEWPAGER_SMOOTH_SCROLL) {
-        title = "Smooth Tabs"
-        summary = "Smoothly switch between tabs"
+        title = getString(R.string.smooth_tabs)
+        summary = getString(R.string.smooth_tab_desc)
         iconRes = R.drawable.animation
         defaultValue = true
         onCheckedChange { isChecked ->
@@ -93,7 +93,7 @@ class SettingsEditor : BaseActivity() {
       
       switch(Keys.WORD_WRAP_ENABLED) {
         titleRes = R.string.ww
-        summary = "Enable Word Wrap in all editors"
+        summary = getString(R.string.ww_desc)
         iconRes = R.drawable.reorder
         onCheckedChange { isChecked ->
           tabFragments.forEach{ f ->
@@ -105,25 +105,25 @@ class SettingsEditor : BaseActivity() {
       
       switch(Keys.KEEP_DRAWER_LOCKED) {
         titleRes = R.string.keepdl
-        summary = "Keep drawer locked when opening a file"
+        summaryRes = R.string.drawer_lock_desc
         iconRes = R.drawable.lock
       }
       
       switch(Keys.DIAGONAL_SCROLL) {
-        title = "Diagonal Scrolling"
-        summary = "Enable Diagonal Scrolling in File Browser"
+        titleRes = R.string.diagonal_scroll
+        summaryRes = R.string.diagonal_scroll_desc
         iconRes = R.drawable.diagonal_scroll
         defaultValue = false
         onCheckedChange {
-          rkUtils.toast("restart required")
+          rkUtils.toast(getString(R.string.rr))
           return@onCheckedChange true
         }
       }
       
       
       switch(Keys.CURSOR_ANIMATION_ENABLED) {
-        title = "Cursor Animation"
-        summary = "Enable Smooth Cursor Animations"
+        titleRes = R.string.cursor_anim
+        summaryRes = R.string.cursor_anim_desc
         iconRes = R.drawable.animation
         defaultValue = true
         onCheckedChange { isChecked ->
@@ -136,8 +136,8 @@ class SettingsEditor : BaseActivity() {
       }
       
       switch(Keys.SHOW_LINE_NUMBERS) {
-        title = "Show Line Numbers"
-        summary = "Show Line Numbers in Editor"
+        titleRes = R.string.show_line_number
+        summaryRes = R.string.show_line_number
         iconRes = R.drawable.linenumbers
         defaultValue = true
         onCheckedChange { isChecked ->
@@ -149,8 +149,8 @@ class SettingsEditor : BaseActivity() {
       }
       
       switch(Keys.PIN_LINE_NUMBER) {
-        title = "Pin Line Numbers"
-        summary = "Pin Line Numbers in Editor"
+        titleRes = R.string.pin_line_number
+        summaryRes = R.string.pin_line_number
         iconRes = R.drawable.linenumbers
         defaultValue = false
         onCheckedChange { isChecked ->
@@ -162,8 +162,8 @@ class SettingsEditor : BaseActivity() {
       }
       
       switch(Keys.SHOW_ARROW_KEYS) {
-        title = "Extra Keys"
-        summary = "Show extra keys in the editor"
+        titleRes = R.string.extra_keys
+        summaryRes = R.string.extra_keys_desc
         iconRes = R.drawable.double_arrows
         defaultValue = false
         onCheckedChange { isChecked ->
@@ -200,16 +200,9 @@ class SettingsEditor : BaseActivity() {
         }
       }
       
-      switch(Keys.USE_SPACE_INTABS) {
-        title = "Use Space instead of Tabs"
-        summary = "write whitespaces in place of tabs"
-        iconRes = R.drawable.double_arrows
-        defaultValue = true
-      }
-      
       switch(Keys.AUTO_SAVE) {
-        title = "Auto Save"
-        summary = "automatically save file"
+        titleRes = R.string.auto_save
+        summaryRes = R.string.auto_save_desc
         iconRes = R.drawable.save
         defaultValue = false
         onCheckedChange { isChecked ->
@@ -224,30 +217,30 @@ class SettingsEditor : BaseActivity() {
       }
       
       pref(Keys.AUTO_SAVE_TIME) {
-        title = "Auto Save Time"
-        summary = "automatically save file after specified time"
+        titleRes = R.string.auto_save_desc
+        summaryRes = R.string.auto_save_time_desc
         iconRes = R.drawable.save
         onClick {
           val view =
             LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
           val edittext = view.findViewById<EditText>(R.id.name).apply {
-            hint = "Interval in milliseconds"
+            hint = getString(R.string.intervalinMs)
             setText(SettingsData.getString(Keys.AUTO_SAVE_TIME_VALUE, "10000"))
             inputType =
               InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
           }
-          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Auto Save Time")
-            .setView(view).setNegativeButton("Cancel", null)
-            .setPositiveButton("Apply") { _, _ ->
+          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle(getString(R.string.auto_save_time))
+            .setView(view).setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.apply)) { _, _ ->
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast("invalid value")
+                  rkUtils.toast(getString(R.string.inavalid_v))
                   return@setPositiveButton
                 }
               }
               if (text.toInt() < 1000) {
-                rkUtils.toast( "Value too small")
+                rkUtils.toast(getString(R.string.v_small))
                 return@setPositiveButton
               }
               
@@ -264,34 +257,34 @@ class SettingsEditor : BaseActivity() {
       }
       
       pref(Keys.TEXT_SIZE) {
-        title = "Text Size"
-        summary = "Set text size"
+        titleRes = R.string.text_size
+        summaryRes = R.string.text_size_desc
         iconRes = R.drawable.reorder
         onClick {
           val view =
             LayoutInflater.from(this@SettingsEditor).inflate(R.layout.popup_new, null)
           val edittext = view.findViewById<EditText>(R.id.name).apply {
-            hint = "Text size"
+            hint = getString(R.string.text_size)
             setText(SettingsData.getString(Keys.TEXT_SIZE, "14"))
             inputType =
               InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
           }
-          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Text Size")
-            .setView(view).setNegativeButton("Cancel", null)
-            .setPositiveButton("Apply") { _, _ ->
+          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle(getString(R.string.text_size))
+            .setView(view).setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.apply)) { _, _ ->
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast("invalid value")
+                  rkUtils.toast(getString(R.string.inavalid_v))
                   return@setPositiveButton
                 }
               }
               if (text.toInt() > 32) {
-                rkUtils.toast("Value too large")
+                rkUtils.toast(getString(R.string.v_large))
                 return@setPositiveButton
               }
               if (text.toInt() < 8) {
-                rkUtils.toast("Value too small")
+                rkUtils.toast(getString(R.string.v_small))
                 return@setPositiveButton
               }
               SettingsData.setString(Keys.TEXT_SIZE, text)
@@ -306,8 +299,8 @@ class SettingsEditor : BaseActivity() {
       }
       
       pref(Keys.TAB_SIZE) {
-        title = "Tab Size"
-        summary = "Set tab size"
+        titleRes = R.string.tab_size
+        summaryRes = R.string.tab_size_desc
         iconRes = R.drawable.double_arrows
         onClick {
           val view =
@@ -318,18 +311,18 @@ class SettingsEditor : BaseActivity() {
             inputType =
               InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
           }
-          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle("Tab Size")
-            .setView(view).setNegativeButton("Cancel", null)
-            .setPositiveButton("Apply") { _, _ ->
+          MaterialAlertDialogBuilder(this@SettingsEditor).setTitle(getString(R.string.tab_size))
+            .setView(view).setNegativeButton(getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.apply)) { _, _ ->
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast("invalid value")
+                  rkUtils.toast(getString(R.string.inavalid_v))
                   return@setPositiveButton
                 }
               }
               if (text.toInt() > 16) {
-                rkUtils.toast("Value too large")
+                rkUtils.toast(getString(R.string.v_large))
                 return@setPositiveButton
               }
               

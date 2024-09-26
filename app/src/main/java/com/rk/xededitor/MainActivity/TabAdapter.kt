@@ -147,11 +147,11 @@ class TabAdapter(private val mainActivity: MainActivity) :
   fun addFragment(file: File) {
     with(mainActivity) {
       if (tabViewModel.fileSet.contains(file.absolutePath)) {
-        rkUtils.toast("File already opened")
+        rkUtils.toast(getString(R.string.already_opened))
         return
       }
       if (tabViewModel.fragmentFiles.size >= tabLimit) {
-        rkUtils.toast("Cannot open more than $tabLimit files")
+        rkUtils.toast("${getString(R.string.open_cant)} $tabLimit ${getString(R.string.files)}")
         return
       }
       tabViewModel.fileSet.add(file.absolutePath)

@@ -69,11 +69,11 @@ object NavigationRail {
               hint = "https://github.com/UserName/repo.git"
             }
             val branchEdit = view.findViewById<EditText>(R.id.mime).apply {
-              hint = "Branch. Example: main"
+              hint = getString(R.string.git_branch)
               setText("main")
             }
-            MaterialAlertDialogBuilder(this).setTitle("Clone repository").setView(view)
-              .setNegativeButton("Cancel", null).setPositiveButton("Apply") { _, _ ->
+            MaterialAlertDialogBuilder(this).setTitle(getString(R.string.clone_repo)).setView(view)
+              .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.apply)) { _, _ ->
                 val repoLink = repoLinkEdit.text.toString()
                 val branch = branchEdit.text.toString()
                 val repoName = repoLink.substringAfterLast("/").removeSuffix(".git")
@@ -83,11 +83,11 @@ object NavigationRail {
                   ) + "/" + repoName
                 )
                 if (repoLink.isEmpty() || branch.isEmpty()) {
-                  rkUtils.toast("Please fill in both fields")
+                  rkUtils.toast(getString(R.string.fill_both))
                 } else if (repoDir.exists()) {
-                  rkUtils.toast("$repoDir already exists!")
+                  rkUtils.toast("$repoDir ${getString(R.string.exists)}")
                 } else {
-                  val loadingPopup = LoadingPopup(this, null).setMessage("Cloning repository...")
+                  val loadingPopup = LoadingPopup(this, null).setMessage(getString(R.string.cloning))
                   loadingPopup.show()
                   GlobalScope.launch(Dispatchers.IO) {
                     try {
@@ -103,7 +103,7 @@ object NavigationRail {
                         withContext(Dispatchers.Main) {
                           loadingPopup.hide()
                           rkUtils.toast(
-                            "Repository is private. Check your credentials"
+                            getString(R.string.clone_err)
                           )
                         }
                       } else {
@@ -119,7 +119,7 @@ object NavigationRail {
                         } catch (e: Exception) {
                           withContext(Dispatchers.Main) {
                             loadingPopup.hide()
-                            rkUtils.toast("Error: ${e.message}")
+                            rkUtils.toast("${getString(R.string.err)}: ${e.message}")
                           }
                         }
                       }
@@ -136,46 +136,46 @@ object NavigationRail {
       fun handleAddNew() {
         ActionPopup(this).apply {
           addItem(
-            "Open a Directory",
-            "Choose a directory as a project",
+            getString(R.string.open_directory),
+            getString(R.string.open_dir_desc),
             ContextCompat.getDrawable(this@with, R.drawable.outline_folder_24),
             openDirId,listener
           )
           addItem(
-            "Open a File",
-            "Choose a file to directly edit it",
+            getString(R.string.open_file),
+            getString(R.string.open_file_desc),
             ContextCompat.getDrawable(this@with, R.drawable.outline_insert_drive_file_24),
             openFileId,listener
           )
           addItem(
-            "Open from Path",
-            "Open a project/file from a path",
+            getString(R.string.open_path),
+            getString(R.string.open_path_desc),
             ContextCompat.getDrawable(this@with, R.drawable.android),
             openPathId,listener
           )
           addItem(
-            "Clone repository",
-            "Clone repository using Git",
+            getString(R.string.clone_repo),
+            getString(R.string.clone_repo_desc),
             ContextCompat.getDrawable(this@with, R.drawable.git),
             cloneRepo,listener
           )
           addItem(
-            "Plugins",
-            "Plugins Directory",
+            getString(R.string.plugin),
+            getString(R.string.plugin_dir),
             ContextCompat.getDrawable(this@with, R.drawable.extension),
             pluginDir,listener
           )
           addItem(
-            "Private Files",
-            "Private files of karbon",
+            getString(R.string.private_files),
+            getString(R.string.private_files_desc),
             ContextCompat.getDrawable(this@with, R.drawable.android),
             privateFilesId,listener
           )
          
           
           
-          setTitle("Add")
-          getDialogBuilder().setNegativeButton("Cancel", null)
+          setTitle(getString(R.string.add))
+          getDialogBuilder().setNegativeButton(getString(R.string.cancel), null)
           dialog = show()
         }
         

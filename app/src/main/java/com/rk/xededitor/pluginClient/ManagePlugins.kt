@@ -51,6 +51,7 @@ import com.rk.libPlugin.server.PluginUtils
 import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
 import com.rk.libcommons.LoadingPopup
+import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.Dispatchers
@@ -97,7 +98,7 @@ class ManagePlugins : ComponentActivity() {
     setContent {
       KarbonTheme {
         Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-          TopAppBar(title = { Text(text = "Manage Plugins") }, navigationIcon = {
+          TopAppBar(title = { Text(text = getString(R.string.manage_plugins)) }, navigationIcon = {
             IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
               Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -107,7 +108,7 @@ class ManagePlugins : ComponentActivity() {
           })
         }) { innerPadding ->
           var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
-          val tabs = listOf("Installed", "Available")
+          val tabs = listOf(getString(R.string.installed), getString(R.string.available))
 
           Column {
             TabRow(
@@ -243,15 +244,15 @@ class ManagePlugins : ComponentActivity() {
                 if (PluginUtils.getInstalledPlugins().map { it.info.packageName }
                     .contains(plugin.packageName)) {
                   withContext(Dispatchers.Main) {
-                    rkUtils.toast("Already Installed")
+                    rkUtils.toast(getString(R.string.already_installed))
                   }
                 } else {
                   withContext(Dispatchers.Main) {
-                    MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("Download")
-                      .setMessage("Are you sure you want to download ${plugin.title}?")
-                      .setNegativeButton("Cancel", null).setPositiveButton("Yes") { _, _ ->
+                    MaterialAlertDialogBuilder(this@ManagePlugins).setTitle(getString(R.string.download))
+                      .setMessage("${getString(R.string.download_sure)} ${plugin.title}?")
+                      .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.yes)) { _, _ ->
                         val loading =
-                          LoadingPopup(this@ManagePlugins, null).setMessage("Downloading plugin")
+                          LoadingPopup(this@ManagePlugins, null).setMessage(getString(R.string.downloading_plugin))
                             .show()
                         lifecycleScope.launch(Dispatchers.IO) {
                           try {
@@ -260,13 +261,13 @@ class ManagePlugins : ComponentActivity() {
                               .call()
                             withContext(Dispatchers.Main) {
                               loading.hide()
-                              rkUtils.toast("Successfully Downloaded.")
+                              rkUtils.toast(getString(R.string.download_done))
                             }
                           } catch (e: Exception) {
                             e.printStackTrace()
                             withContext(Dispatchers.Main) {
                               loading.hide()
-                              rkUtils.toast("Unable to downloaded plugin : ${e.message}")
+                              rkUtils.toast("${getString(R.string.plugin_download_failed)} : ${e.message}")
                             }
 
                           }
@@ -281,7 +282,7 @@ class ManagePlugins : ComponentActivity() {
             Row(modifier = Modifier.padding(8.dp)) {
               AsyncImage(
                 model = plugin.icon,
-                contentDescription = "Plugin Icon",
+                contentDescription = getString(R.string.plugin_icon),
                 modifier = Modifier
                   .size(45.dp)
                   .padding(4.dp),

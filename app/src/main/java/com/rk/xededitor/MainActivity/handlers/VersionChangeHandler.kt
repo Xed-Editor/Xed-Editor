@@ -2,9 +2,11 @@ package com.rk.xededitor.MainActivity.handlers
 
 import android.os.Build
 import com.rk.xededitor.App
+import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.rkUtils.getString
 
 //blocking code
 object VersionChangeHandler {
@@ -24,7 +26,7 @@ object VersionChangeHandler {
             //clear data
             app.filesDir.parentFile?.deleteRecursively()
             SettingsData.setString(Keys.VERSION_CODE,currentVersionCode.toString())
-            rkUtils.toast("App data is cleared")
+            rkUtils.toast(getString(R.string.data_clear))
             return
         }else if (previousVersionCode.toLong() != currentVersionCode){
             //user updated the app

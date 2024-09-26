@@ -12,6 +12,7 @@ import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.xededitor.R
 
 object PermissionHandler {
     //todo
@@ -56,11 +57,11 @@ object PermissionHandler {
                 }
                 
                 if (shouldAsk) {
-                    MaterialAlertDialogBuilder(this).setTitle("Manage Storage")
-                        .setMessage("App needs access to edit files in your storage. Please allow the access in the upcoming system setting.")
-                        .setNegativeButton("Exit App") { dialog: DialogInterface?, which: Int ->
+                    MaterialAlertDialogBuilder(this).setTitle(getString(R.string.manage_storage))
+                        .setMessage(getString(R.string.manage_storage_reason))
+                        .setNegativeButton(getString(R.string.exit)) { dialog: DialogInterface?, which: Int ->
                             finishAffinity()
-                        }.setPositiveButton("OK") { dialog: DialogInterface?, which: Int ->
+                        }.setPositiveButton(getString(R.string.ok)) { dialog: DialogInterface?, which: Int ->
                             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                                 val intent =
                                     Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)

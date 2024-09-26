@@ -28,10 +28,7 @@ object Keys {
     const val LINK2SYMLINK="link2symlink"
     const val ASHMEM_MEMFD="ashmem_memfd"
     const val SYSVIPC="sysvipc"
-    const val PROOT_USERLAND="proot_usr"
-    const val NETCOOP="proot_netcoop"
     const val KILL_ON_EXIT="kill-on_exit"
-    const val MIXED_MODE="proot_mixed_mode"
     //todo encrypt git keys
     const val GIT_CREDENTIALS="git_credentials"
     const val GIT_CRED="git_cred"
