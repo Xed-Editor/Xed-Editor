@@ -202,6 +202,32 @@
     <string name="monet_desc">Использовать в приложении тему устройства</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение!</string>
     <string name="old_android">Неподдерживаемая версия Android!</string>
+    <string name="app_desc">Настройки приложения</string>
+    <string name="editor_desc">Настройки редактора</string>
+    <string name="plugin_desc">Настройки плагинов</string>
+    <string name="terminal_desc">Настройки терминала</string>
+    <string name="git_desc">Настройки git</string>
+    <string name="enable_plugins">Включить плагины</string>
+    <string name="fail_safe">Обратный режим</string>
+    <string name="failsafe_desc">Использовать оболочку android вместо alpine</string>
+    <string name="Lshell">Команда запуска</string>
+    <string name="Lshell_desc">Выполнять при запуске терминала</string>
+    <string name="terminal_text_size">Размер текста в терминале</string>
+    <string name="terminal_text_size_desc">Установить размер текста в терминале</string>
+    <string name="sim_hard_links">Симуляция symlink</string>
+    <string name="sim_hard_links_desc">Симулировать symlink вместо hardlink</string>
+    <string name="sim_ashmem">Симулировать Ashmemfd в Android</string>
+    <string name="sysvipc">Обрабатывать системный вызов v IPC</string>
+    <string name="kill_on_exit">Убить при выходе</string>
+    <string name="kill_on_exit_desc">Уничтожать все процессы при выходе с терминала</string>
+    <string name="u_err">Неизвестная ошибка</string>
+    <string name="saved">Сохранено!</string>
+    <string name="is_null">InputStream пустой</string>
+    <string name="press_again_exit">Нажмите "назад" снова для выхода</string>
+    <string name="wait_pkg">Пожалуйста, дождитесь загрузки необходимых пакетов...</string>
+    <string name="unsupported_aarch">Неподдерживамая платформа. Используйте обратный режим!</string>
+    <string name="pkg_download_failed">Не удалось скачать пакет</string>
+    <string name="copy_failed">Не удалось скопировать файл</string>
 
 </resources>
         
