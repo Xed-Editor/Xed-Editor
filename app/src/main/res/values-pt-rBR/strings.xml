@@ -202,4 +202,32 @@
     <string name="monet">Cores Dinâmicas</string>
     <string name="monet_desc">Usar tema do dispositivo no app.</string>
     <string name="restart_app">Por favor, reinicie o aplicativo.</string>
+    
+    <string name="old_android">Versão do Android não suportada</string>
+    <string name="app_desc">Configurações gerais do aplicativo</string>
+    <string name="editor_desc">Configurações gerais do editor</string>
+    <string name="plugin_desc">Configurações gerais dos plugins</string>
+    <string name="terminal_desc">Configurações gerais do terminal</string>
+    <string name="git_desc">Configurações gerais do git</string>
+    <string name="enable_plugins">Ativar Plugins</string>
+    <string name="fail_safe">Modo de Segurança</string>
+    <string name="failsafe_desc">Usar shell do Android em vez de Alpine</string>
+    <string name="Lshell">Iniciar Shell</string>
+    <string name="Lshell_desc">Executado quando o terminal é iniciado.</string>
+    <string name="terminal_text_size">Tamanho do texto do terminal</string>
+    <string name="terminal_text_size_desc">Definir tamanho do texto do terminal</string>
+    <string name="sim_hard_links">Simular hard links</string>
+    <string name="sim_hard_links_desc">Criar um link simbólico onde um hard link deveria ser criado</string>
+    <string name="sim_ashmem">Simular Ashmemfd no Android</string>
+    <string name="sysvipc">Lidar com a chamada de sistema System V IPC</string>
+    <string name="kill_on_exit">Encerrar ao sair</string>
+    <string name="kill_on_exit_desc">Encerrar todos os processos ao sair do terminal</string>
+    <string name="u_err">Erro Desconhecido</string>
+    <string name="saved">Salvo</string>
+    <string name="is_null">InputStream é nulo</string>
+    <string name="press_again_exit">Pressione voltar novamente para sair</string>
+    <string name="wait_pkg">Aguarde enquanto os pacotes estão sendo baixados.</string>
+    <string name="unsupported_aarch">Plataforma não suportada, use Modo de Segurança</string>
+    <string name="pkg_download_failed">Falha no download do pacote</string>
+    <string name="copy_failed">Falha ao copiar o arquivo</string>
 </resources>
