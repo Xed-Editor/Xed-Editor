@@ -98,8 +98,6 @@ class MainActivity : BaseActivity() {
     
     BottomBar.setupBottomBar(this)
     
-    
-    
   }
   
   @JvmOverloads
@@ -196,6 +194,7 @@ class MainActivity : BaseActivity() {
   
   private fun setupViewPager() {
     viewPager = binding.viewpager2.apply {
+      //do not remove .toInt
       offscreenPageLimit = tabLimit.toInt()
       isUserInputEnabled = false
     }
@@ -227,7 +226,7 @@ class MainActivity : BaseActivity() {
             viewPager.setCurrentItem(tab!!.position, false)
           }
           MenuItemHandler.update(this@MainActivity)
-          tab!!.text = tab.text
+          tab?.text = tab?.text
         }
         
         override fun onTabUnselected(tab: Tab?) {}
@@ -248,8 +247,16 @@ class MainActivity : BaseActivity() {
               
               R.id.close_all -> {
                 adapter.clearAllFragments()
+                
               }
             }
+            binding.tabs.invalidate()
+            binding.tabs.requestLayout()
+            
+            // Detach and re-attach the TabLayoutMediator
+            TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
+              tab.text = tabViewModel.fragmentTitles[position]
+            }.attach()
             MenuItemHandler.update(this@MainActivity)
             
             true

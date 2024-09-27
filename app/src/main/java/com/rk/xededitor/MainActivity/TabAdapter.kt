@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.editor.TabFragment
@@ -49,6 +50,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
       tabFragments.clear()
       return null
     }
+    
     currentTab.get()?.let { tab -> tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[tab.position])]?.get()?.let { return it } }
     //println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
     val f = tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition])]
@@ -132,8 +134,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
           mainBottomBar.visibility = View.GONE
         }
       }
-      
-      
     }
   }
   
