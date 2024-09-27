@@ -15,7 +15,6 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
-import com.rk.xededitor.Assets
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
@@ -55,8 +54,7 @@ class SimpleEditor : BaseActivity() {
         
         SetupEditor.init(this@SimpleEditor)
         SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this)
-        
-        Assets.verify(this)
+
 
         editor!!.setTypefaceText(
             Typeface.createFromAsset(

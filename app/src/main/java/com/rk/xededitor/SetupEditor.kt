@@ -60,77 +60,42 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         }
 
         private fun initTextMateTheme(context: Context) {
-            Assets.verify(context)
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
 
+
+
+            val darcula = context.assets.open("textmate/darcula.json")
+            val darcula_oled = context.assets.open("textmate/black/darcula.json")
+            val quietlight = context.assets.open("textmate/quietlight.json")
+
+
             try {
-                fun registerDarkTheme() {
-                    val path = File(context.filesDir.parentFile, "unzip/textmate/darcula.json").absolutePath
-                    if (!File(path).exists()) {
-                        runOnUiThread {
-                            rkUtils.toast( context.resources.getString(R.string.theme_not_found_err))
-                        }
-                        return
-                    }
-                    darkThemeRegistry?.loadTheme(
-                        ThemeModel(
-                            IThemeSource.fromInputStream(
-                                FileProviderRegistry.getInstance().tryGetInputStream(path),
-                                path,
-                                null
-                            ), "darcula"
-                        )
-                    )
+                darkThemeRegistry?.loadTheme(
+                    ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
+                )
+                oledThemeRegistry?.loadTheme(
+                    ThemeModel(IThemeSource.fromInputStream(darcula_oled, "darcula.json", null))
+                )
+                lightThemeRegistry?.loadTheme(
+                    ThemeModel(IThemeSource.fromInputStream(quietlight, "quietlight.json", null))
+                )
+            }catch (e:Exception){
+                throw RuntimeException(e)
+            }finally {
+                try {
+                    darcula.close()
+                    darcula_oled.close()
+                    quietlight.close()
+                }catch (e:Exception){
+                    throw RuntimeException(e)
                 }
-
-                fun registerOledTheme() {
-                    val path = File(context.filesDir.parentFile, "unzip/textmate/black/darcula.json").absolutePath
-                    if (!File(path).exists()) {
-                        runOnUiThread {
-                            rkUtils.toast( context.resources.getString(R.string.theme_not_found_err))
-                        }
-                        return
-                    }
-                    oledThemeRegistry?.loadTheme(
-                        ThemeModel(
-                            IThemeSource.fromInputStream(
-                                FileProviderRegistry.getInstance().tryGetInputStream(path),
-                                path,
-                                null
-                            ), "darcula-oled"
-                        )
-                    )
-                }
-
-                fun registerLightTheme() {
-                    val path = File(context.filesDir.parentFile, "unzip/textmate/quietlight.json").absolutePath
-                    if (!File(path).exists()) {
-                        runOnUiThread {
-                            rkUtils.toast( context.resources.getString(R.string.theme_not_found_err))
-                        }
-                        return
-                    }
-
-                    lightThemeRegistry?.loadTheme(
-                        ThemeModel(
-                            IThemeSource.fromInputStream(
-                                FileProviderRegistry.getInstance().tryGetInputStream(path),
-                                path,
-                                null
-                            ), "quietlight"
-                        )
-                    )
-                }
-
-                registerDarkTheme()
-                registerOledTheme()
-                registerLightTheme()
-
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
+
+
+
+
         }
     }
 
@@ -142,7 +107,6 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
     }
 
     fun ensureTextmateTheme(context:Context) {
-        Assets.verify(context)
         init(context)
         val themeRegistry = when {
             isDarkMode(ctx) && SettingsData.isOled() -> oledThemeRegistry

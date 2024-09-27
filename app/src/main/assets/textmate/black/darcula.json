@@ -2,7 +2,7 @@
     "name": "darcula",
     "settings": [{
         "settings": {
-            "background": "#1C1B20",
+            "background": "#000000",
             "foreground": "#cccccc",
             "lineHighlight": "#2B2B2B",
             "selection": "#214283",

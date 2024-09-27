@@ -39,9 +39,6 @@ class App : Application() {
         }
       }
     }
-
-    //extract assets
-    Assets.verify(this)
     
     //start plugin loader
     After(200){
