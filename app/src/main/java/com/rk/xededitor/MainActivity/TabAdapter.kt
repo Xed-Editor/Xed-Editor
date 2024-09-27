@@ -26,24 +26,30 @@ class Kee(val file: File){
     val otherKee = other as Kee
     return otherKee.file.absolutePath == file.absolutePath
   }
-
+  
   override fun hashCode(): Int {
     return file.absolutePath.hashCode()
   }
 }
 
+
+
 private var nextItemId = 0L
 const val tabLimit = 20
+var currentTab:WeakReference<TabLayout.Tab?> = WeakReference(null)
 
 class TabAdapter(private val mainActivity: MainActivity) :
   FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
-
+  
+  
   val tabFragments = HashMap<Kee, WeakReference<TabFragment>>()
+  //this is hell
   fun getCurrentFragment(): TabFragment? {
-    if (mainActivity.tabLayout.selectedTabPosition == -1){
+    if (mainActivity.tabLayout.selectedTabPosition == -1 || mainActivity.tabViewModel.fragmentFiles.isEmpty()){
       tabFragments.clear()
       return null
     }
+    currentTab.get()?.let { tab -> tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[tab.position])]?.get()?.let { return it } }
     //println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
     val f = tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition])]
     //println(tabFragments.map { Pair(it.key.file.absolutePath,it.key.hashCode()) })
@@ -126,7 +132,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
           mainBottomBar.visibility = View.GONE
         }
       }
-
+      
       
     }
   }
@@ -177,7 +183,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
           mainBottomBar.visibility = View.GONE
         }
       }
-
+      
     }
   }
   

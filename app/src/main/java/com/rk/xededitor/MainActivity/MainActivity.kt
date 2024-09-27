@@ -222,6 +222,7 @@ class MainActivity : BaseActivity() {
     tabLayout = binding.tabs.apply {
       addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: Tab?) {
+          currentTab = WeakReference(tab)
           if (smoothTabs.not()) {
             viewPager.setCurrentItem(tab!!.position, false)
           }
