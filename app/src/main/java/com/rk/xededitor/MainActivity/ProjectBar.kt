@@ -7,7 +7,6 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.ActionPopup
@@ -26,7 +25,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
 
-object NavigationRail {
+object ProjectBar {
   @SuppressLint("SetTextI18n")
   fun setupNavigationRail(activity: MainActivity) {
     with(activity) {
@@ -129,7 +128,7 @@ object NavigationRail {
               }.show()
           }
         }
-        dialog?.hide()
+        dialog?.dismiss()
         dialog = null
       }
       

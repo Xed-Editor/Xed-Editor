@@ -240,7 +240,7 @@ object MenuClickHandler {
                             }
                         }
                     }
-                    dialog?.hide()
+                    dialog?.dismiss()
                     dialog = null
                 }
                 ActionPopup(activity).apply {

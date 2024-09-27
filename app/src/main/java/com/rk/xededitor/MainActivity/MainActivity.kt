@@ -3,7 +3,6 @@ package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
@@ -22,8 +21,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.libPlugin.server.api.API
-import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
@@ -91,7 +88,7 @@ class MainActivity : BaseActivity() {
     setupAdapter()
     
     ProjectManager.restoreProjects(this)
-    NavigationRail.setupNavigationRail(this)
+    ProjectBar.setupNavigationRail(this)
     
     if (tabViewModel.fragmentFiles.isNotEmpty()) {
       binding.tabs.visibility = View.VISIBLE
