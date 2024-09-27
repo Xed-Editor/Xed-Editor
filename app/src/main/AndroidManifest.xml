@@ -17,6 +17,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
+        android:enableOnBackInvokedCallback="true"
         android:supportsRtl="false"
         android:theme="@style/Theme.Karbon"
         tools:targetApi="31">

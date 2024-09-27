@@ -56,7 +56,9 @@ class SettingsEditor : BaseActivity() {
       //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
     }
     
+    edgeToEdge(binding.root)
     setContentView(binding.root)
+    
     binding.toolbar.title = getString(R.string.editor)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -46,8 +46,10 @@ class SettingsPlugins : BaseActivity() {
       layoutManager = playoutManager
       adapter = padapter
     }
-
+    
+    edgeToEdge(binding.root)
     setContentView(binding.root)
+    
     binding.toolbar.title = "Plugins"
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)

@@ -3,15 +3,24 @@ package com.rk.xededitor
 import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Build
 import android.view.View
 import android.view.WindowManager
+import android.view.Window
+import android.view.WindowInsetsController
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.activity.enableEdgeToEdge 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.graphics.Insets
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
-
+import dev.chrisbanes.insetter.Insetter;
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -30,6 +39,13 @@ abstract class BaseActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     activityMap[javaClass] = WeakReference(this)
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
+  }
+  
+  fun edgeToEdge(v: View) {
+    enableEdgeToEdge()
+    Insetter.builder()
+      .padding(WindowInsetsCompat.Type.navigationBars())
+      .applyToView(v);
   }
   
   override fun onResume() {

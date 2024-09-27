@@ -67,6 +67,12 @@ android {
         println("Signing properties file not found at $propertiesFilePath")
       }
     }
+    getByName("debug") {
+      storeFile = file(layout.buildDirectory.dir("../testkey.keystore"))
+      storePassword = "testkey"
+      keyAlias = "testkey"
+      keyPassword = "testkey"
+    }
   }
   
   
@@ -164,4 +170,5 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
+  implementation(libs.insetter)
 }

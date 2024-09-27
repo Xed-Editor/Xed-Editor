@@ -11,25 +11,22 @@
         android:orientation="vertical"
         android:tag="keyRep">
 
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="22dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="22dp"
-            android:background="@drawable/edittext"
             android:tag="keyword">
 
             <EditText
                 android:id="@+id/name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:hint="@string/newFile_hint"
                 android:paddingStart="8dp"
                 android:paddingEnd="5dp"
                 android:singleLine="true" />
-        </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:id="@+id/mimeTypeEditor"
@@ -39,26 +36,23 @@
             android:tag="keyRep"
             android:visibility="gone">
 
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="22dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="22dp"
-                android:background="@drawable/edittext"
                 android:tag="keyword">
 
                 <EditText
                     android:id="@+id/mime"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/mime"
                     android:paddingStart="8dp"
                     android:paddingEnd="5dp"
                     android:singleLine="true"
                     android:text="text/plain" />
-            </LinearLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
 
         </LinearLayout>
