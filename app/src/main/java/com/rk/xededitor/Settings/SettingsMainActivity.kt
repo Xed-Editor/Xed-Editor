@@ -62,24 +62,24 @@ class SettingsMainActivity : BaseActivity() {
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
       pref(Keys.APPLICATION) {
-        title = "Application"
-        summary = "General settings for the application"
+        titleRes = R.string.app
+        summaryRes = R.string.app_desc
         iconRes = R.drawable.android
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, SettingsApp::class.java))
         }
       }
       pref(Keys.EDITOR) {
-        title = "Editor"
-        summary = "General settings for the editor"
+        titleRes = R.string.editor
+        summaryRes = R.string.editor_desc
         iconRes = R.drawable.edit
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, SettingsEditor::class.java))
         }
       }
       pref(Keys.PLUGINS) {
-        title = "Plugins"
-        summary = "General settings for plugins"
+        titleRes = R.string.plugin
+        summaryRes = R.string.plugin_desc
         iconRes = R.drawable.extension
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, SettingsPlugins::class.java))
@@ -87,8 +87,8 @@ class SettingsMainActivity : BaseActivity() {
       }
 
       pref(Keys.TERMINAL) {
-        title = "Terminal"
-        summary = "General settings for terminal"
+        titleRes = R.string.terminal
+        summaryRes = R.string.terminal_desc
         iconRes = R.drawable.terminal
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, TerminalSettings::class.java))
@@ -96,8 +96,8 @@ class SettingsMainActivity : BaseActivity() {
       }
 
       pref(Keys.GIT) {
-        title = "Git"
-        summary = "General settings for git"
+        titleRes = R.string.git
+        summaryRes = R.string.git_desc
         iconRes = R.drawable.git
         onClickView {
           startActivity(Intent(this@SettingsMainActivity, GitSettings::class.java))

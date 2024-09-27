@@ -206,5 +206,32 @@
     <string name="restart_app">Please restart the application.</string>
 
     <string name="old_android">Unsupported Android version</string>
+    <string name="app_desc">General settings for the application</string>
+    <string name="editor_desc">General settings for the editor</string>
+    <string name="plugin_desc">General settings for plugins</string>
+    <string name="terminal_desc">General settings for terminal</string>
+    <string name="git_desc">General settings for git</string>
+    <string name="enable_plugins">Enable Plugins</string>
+    <string name="fail_safe">Fail Safe</string>
+    <string name="failsafe_desc">Use android shell instead of alpine</string>
+    <string name="Lshell">Launch Shell</string>
+    <string name="Lshell_desc">Executed when the terminal is launched.</string>
+    <string name="terminal_text_size">Terminal text size</string>
+    <string name="terminal_text_size_desc">Set terminal text size</string>
+    <string name="sim_hard_links">Simulate hard links</string>
+    <string name="sim_hard_links_desc">Create a symlink where a hardlink should be created</string>
+    <string name="sim_ashmem">Simulate Ashmemfd on Android</string>
+    <string name="sysvipc">Handle System V IPC syscall</string>
+    <string name="kill_on_exit">Kill on exit</string>
+    <string name="kill_on_exit_desc">Terminate all processes when exiting terminal</string>
+    <string name="u_err">Unknown Error</string>
+    <string name="saved">Saved</string>
+    <string name="is_null">InputStream is null</string>
+    <string name="press_again_exit">Press back again to exit</string>
+    <string name="wait_pkg">Please wait while the packages are being downloaded.</string>
+    <string name="unsupported_aarch">Unsupported Platform, Use Fail Safe</string>
+    <string name="pkg_download_failed">Package download failed</string>
+    <string name="copy_failed">Failed to copy file</string>
+
 
 </resources>

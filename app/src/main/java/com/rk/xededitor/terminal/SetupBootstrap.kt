@@ -5,6 +5,7 @@ import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
 import com.rk.librunner.commonUtils
+import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.rkUtils
@@ -31,7 +32,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
         loadingPopup = LoadingPopup(
             terminal, null
-        ).setMessage("Please wait while the packages are being downloaded.")
+        ).setMessage(rkUtils.getString(R.string.wait_pkg))
 
         if (File(terminal.filesDir, "bootstrap.tar").exists().not()) {
             loadingPopup.show()
@@ -65,7 +66,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
             AARCH.NONE -> {
 
-                throw RuntimeException("Unsupported Platform, Use Fail Safe")
+                throw RuntimeException(rkUtils.getString(R.string.unsupported_aarch))
             }
         }
     }
@@ -157,7 +158,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
 
             val failure = Runnable {
                 GlobalScope.launch(Dispatchers.Main) {
-                    rkUtils.toast( "package download failed")
+                    rkUtils.toast(rkUtils.getString(R.string.pkg_download_failed))
                     loadingPopup.hide()
                     terminal.finish()
                 }
@@ -240,7 +241,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            println("Failed to copy file: ${e.message}")
+            println("${rkUtils.getString(R.string.copy_failed)}: ${e.message}")
         }
     }
 

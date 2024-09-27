@@ -64,7 +64,7 @@ class TerminalSettings : BaseActivity() {
     edgeToEdge(binding.root)
     setContentView(binding.root)
     
-    binding.toolbar.title = "Terminal"
+    binding.toolbar.title = rkUtils.getString(R.string.terminal)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
   }
@@ -72,13 +72,13 @@ class TerminalSettings : BaseActivity() {
   private fun getScreen(): PreferenceScreen {
     return screen(this) {
       switch(Keys.FAIL_SAFE) {
-        title = "Fail Safe"
-        summary = "Use android shell instead of alpine"
+        titleRes = R.string.fail_safe
+        summaryRes = R.string.failsafe_desc
         iconRes = R.drawable.android
       }
       pref(Keys.START_SHELL_PREF) {
-        title = "Launch Shell"
-        summary = "Executed when the terminal is launched."
+        titleRes = R.string.Lshell
+        summaryRes = R.string.Lshell_desc
         iconRes = R.drawable.terminal
         onClickView {
 
@@ -90,8 +90,8 @@ class TerminalSettings : BaseActivity() {
                 .removePrefix(File(filesDir.parentFile, "rootfs/").absolutePath)
             )
           }
-          MaterialAlertDialogBuilder(this@TerminalSettings).setTitle("Launch Shell").setView(view)
-            .setNegativeButton("Cancel", null).setPositiveButton("Apply") { _, _ ->
+          MaterialAlertDialogBuilder(this@TerminalSettings).setTitle(rkUtils.getString(R.string.Lshell)).setView(view)
+            .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.apply)) { _, _ ->
               val shell = edittext.text.toString()
 
               if (shell.isEmpty()) {
@@ -101,7 +101,7 @@ class TerminalSettings : BaseActivity() {
               //verify shell exists
               val absoluteShell = File(filesDir.parentFile, "rootfs/$shell")
               if (absoluteShell.exists().not() && !Files.isSymbolicLink(absoluteShell.toPath())) {
-                rkUtils.toast("File does not exist")
+                rkUtils.toast(rkUtils.getString(R.string.file_exist_not))
                 return@setPositiveButton
               }
 
@@ -114,33 +114,33 @@ class TerminalSettings : BaseActivity() {
         }
       }
       pref(Keys.TERMINAL_TEXT_SIZE_PREF) {
-        title = "Terminal text size"
-        summary = "Set terminal text size"
+        titleRes = R.string.terminal_text_size
+        summaryRes = R.string.terminal_text_size_desc
         iconRes = R.drawable.terminal
         onClick {
           val view = LayoutInflater.from(this@TerminalSettings).inflate(R.layout.popup_new, null)
           val edittext = view.findViewById<EditText>(R.id.name).apply {
-            hint = "Terminal Text size"
+            hint = rkUtils.getString(R.string.terminal_text_size)
             setText(SettingsData.getString(Keys.TERMINAL_TEXT_SIZE, "14"))
             inputType =
               InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
           }
-          MaterialAlertDialogBuilder(this@TerminalSettings).setTitle("Text Size").setView(view)
-            .setNegativeButton("Cancel", null).setPositiveButton("Apply") { _, _ ->
+          MaterialAlertDialogBuilder(this@TerminalSettings).setTitle(rkUtils.getString(R.string.text_size)).setView(view)
+            .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.apply)) { _, _ ->
               val text = edittext.text.toString()
               for (c in text) {
                 if (!c.isDigit()) {
-                  rkUtils.toast("invalid value")
+                  rkUtils.toast(rkUtils.getString(R.string.inavalid_v))
                   return@setPositiveButton
                 }
               }
               if (text.toInt() > 32) {
-                rkUtils.toast("Value too large")
+                rkUtils.toast(rkUtils.getString(R.string.v_large))
                 return@setPositiveButton
               }
 
               if (text.toInt() < 8) {
-                rkUtils.toast("Value too small")
+                rkUtils.toast(rkUtils.getString(R.string.v_small))
                 return@setPositiveButton
               }
               SettingsData.setString(Keys.TERMINAL_TEXT_SIZE, text)
@@ -152,8 +152,8 @@ class TerminalSettings : BaseActivity() {
       }
 
       switch(Keys.LINK2SYMLINK) {
-        title = "Simulate hard links"
-        summary = "Create a symlink where a hardlink should be created"
+        titleRes = R.string.sim_hard_links
+        summaryRes = R.string.sim_hard_links_desc
         iconRes = R.drawable.terminal
         defaultValue = false
         onCheckedChange { checked ->
@@ -162,7 +162,7 @@ class TerminalSettings : BaseActivity() {
       }
       switch(Keys.ASHMEM_MEMFD) {
         title = "Ashmem_memfd"
-        summary = "Simulate Ashmemfd on Android"
+        summaryRes = R.string.sim_ashmem
         iconRes = R.drawable.terminal
         defaultValue = true
         onCheckedChange { checked ->
@@ -172,7 +172,7 @@ class TerminalSettings : BaseActivity() {
       }
       switch(Keys.SYSVIPC) {
         title = "Sysvipc"
-        summary = "Handle System V IPC syscall"
+        summaryRes = R.string.sysvipc
         iconRes = R.drawable.terminal
         defaultValue = true
         onCheckedChange { checked ->
@@ -182,8 +182,8 @@ class TerminalSettings : BaseActivity() {
 
       }
       switch(Keys.KILL_ON_EXIT) {
-        title = "Kill on exit"
-        summary = "Terminate all processes when exiting terminal"
+        titleRes = R.string.kill_on_exit
+        summaryRes = R.string.kill_on_exit_desc
         iconRes = R.drawable.terminal
         defaultValue = true
         onCheckedChange { checked ->

@@ -11,9 +11,11 @@ import com.blankj.utilcode.util.SizeUtils
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysListener
@@ -50,7 +52,7 @@ class Terminal : BaseActivity() {
           } else {
             lastBackPressedTime = currentTime
             Toast.makeText(
-              this@Terminal, "Press back again to exit", Toast.LENGTH_SHORT
+              this@Terminal, rkUtils.getString(R.string.press_again_exit), Toast.LENGTH_SHORT
             ).show()
           }
         }

@@ -25,6 +25,7 @@ import com.rk.xededitor.Settings.SettingsData.isDarkMode
 import com.rk.xededitor.Settings.SettingsData.isOled
 import com.rk.xededitor.rkUtils.toast
 import com.rk.xededitor.SetupEditor
+import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
@@ -199,13 +200,13 @@ class SimpleEditor : BaseActivity() {
                 val outputStream = contentResolver.openOutputStream(uri!!, "wt")
                 if (outputStream != null) {
                     ContentIO.writeTo(editor!!.text, outputStream, true)
-                    s = "saved"
+                    s = rkUtils.getString(R.string.saved)
                 } else {
-                    s = "InputStream is null"
+                    s = rkUtils.getString(R.string.is_null)
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
-                s = "Unknown Error \n$e"
+                s = "${rkUtils.getString(R.string.u_err)} \n$e"
             }
 
             withContext(Dispatchers.Main){

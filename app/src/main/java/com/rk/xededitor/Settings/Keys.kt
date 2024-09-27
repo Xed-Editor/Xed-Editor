@@ -30,6 +30,7 @@ object Keys {
     const val ASHMEM_MEMFD = "ashmem_memfd"
     const val SYSVIPC = "sysvipc"
     const val KILL_ON_EXIT = "kill-on_exit"
+    const val MANAGE_PLUGINS="manage_plugins"
     //todo encrypt git keys
     const val GIT_CREDENTIALS = "git_credentials"
     const val GIT_CRED = "git_cred"

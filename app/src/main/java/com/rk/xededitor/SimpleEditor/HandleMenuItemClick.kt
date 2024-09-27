@@ -43,8 +43,8 @@ object HandleMenuItemClick {
                         searchBox.text = SearchText
                     }
 
-                    MaterialAlertDialogBuilder(this).setTitle("Search").setView(popuopView)
-                        .setNegativeButton("Cancel", null).setPositiveButton("Search") { _, _ ->
+                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.search)).setView(popuopView)
+                        .setNegativeButton(rkUtils.getString(R.string.cancel) ,null).setPositiveButton(rkUtils.getString(R.string.search)) { _, _ ->
                             val checkBox = popuopView.findViewById<CheckBox>(R.id.case_senstive)
                             SearchText = searchBox.text.toString()
                             editor!!.searcher.search(
@@ -80,8 +80,8 @@ object HandleMenuItemClick {
 
                 R.id.replace -> {
                     val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_replace, null)
-                    MaterialAlertDialogBuilder(this).setTitle("Replace").setView(popuopView)
-                        .setNegativeButton("Cancel", null).setPositiveButton("Replace All") { _, _ ->
+                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.replace)).setView(popuopView)
+                        .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.replaceall)) { _, _ ->
                             editor!!.searcher.replaceAll(
                                 (popuopView.findViewById<View>(R.id.replace_replacement) as TextView).text.toString()
                             )

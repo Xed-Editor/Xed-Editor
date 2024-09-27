@@ -13,6 +13,7 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.pluginClient.ManagePlugins
+import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
@@ -50,7 +51,7 @@ class SettingsPlugins : BaseActivity() {
     edgeToEdge(binding.root)
     setContentView(binding.root)
     
-    binding.toolbar.title = "Plugins"
+    binding.toolbar.title = rkUtils.getString(R.string.plugin)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
   }
@@ -58,8 +59,8 @@ class SettingsPlugins : BaseActivity() {
   fun getScreen(): PreferenceScreen {
     return screen(this) {
       switch(Keys.ENABLE_PLUGINS) {
-        title = "Enable Plugins"
-        summary = "Execute active plugins"
+        titleRes = R.string.enable_plugins
+        summaryRes = R.string.enable_plugins
         iconRes = R.drawable.extension
         onCheckedChange { isChecked ->
           LoadingPopup(this@SettingsPlugins, 200)
@@ -72,9 +73,9 @@ class SettingsPlugins : BaseActivity() {
         }
       }
       if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS, false)) {
-        pref("managePlugin") {
-          title = "Manage Plugins"
-          summary = "on/off installed plugins"
+        pref(Keys.MANAGE_PLUGINS) {
+          titleRes = R.string.manage_plugins
+          summaryRes = R.string.manage_plugins
           iconRes = R.drawable.extension
           onClickView {
             startActivity(Intent(this@SettingsPlugins, ManagePlugins::class.java))
