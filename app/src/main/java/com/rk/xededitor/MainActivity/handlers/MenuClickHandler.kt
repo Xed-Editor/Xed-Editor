@@ -24,7 +24,6 @@ import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager
-import com.rk.xededitor.MainActivity.tabFragments
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.terminal.Terminal
@@ -51,8 +50,8 @@ object MenuClickHandler {
             }
             
             R.id.action_all -> {
-                tabFragments.values.forEach { f ->
-                    f?.save(false)
+                activity.adapter.tabFragments.values.forEach { f ->
+                    f?.get()?.save(false)
                 }
                 rkUtils.toast("Saved all files")
                 return true

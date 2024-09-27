@@ -205,4 +205,6 @@
     <string name="monet_desc">Use device theme in app.</string>
     <string name="restart_app">Please restart the application.</string>
 
+    <string name="old_android">Unsupported Android version</string>
+
 </resources>

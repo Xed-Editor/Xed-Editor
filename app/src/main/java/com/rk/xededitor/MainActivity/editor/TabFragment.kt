@@ -37,56 +37,66 @@ class TabFragment : Fragment() {
   
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    arguments?.let {
-      val filePath = it.getString(ARG_FILE_PATH)
-      if (filePath != null) {
-        file = File(filePath)
-      }
-    }
-    
-    val context = requireContext()
-    
-    editor = CodeEditor(context)
-    
-    editor!!.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-    editor!!.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-    
-    val setupEditor = SetupEditor(editor!!, context)
-    setupEditor.ensureTextmateTheme(context)
-    
-    lifecycleScope.launch(Dispatchers.Default) {
-      launch(Dispatchers.IO) {
-        try {
-          val inputStream: InputStream = FileInputStream(file)
-          val content = ContentIO.createFrom(inputStream)
-          inputStream.close()
-          withContext(Dispatchers.Main) {
-            editor!!.setText(content)
-          }
-        } catch (e: Exception) {
-          e.printStackTrace()
-          editor!!.setText(getString(R.string.file_exist_not))
+    try {
+      val context = requireContext()
+      arguments?.let {
+        val filePath = it.getString(ARG_FILE_PATH)
+        if (filePath != null) {
+          file = File(filePath)
         }
       }
-      launch(Dispatchers.Default) {
-        setupEditor.setupLanguage(file.name)
+      editor = CodeEditor(context)
+
+      editor!!.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+      editor!!.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+
+      val setupEditor = SetupEditor(editor!!, context)
+      setupEditor.ensureTextmateTheme(context)
+      lifecycleScope.launch(Dispatchers.Default) {
+        launch(Dispatchers.IO) {
+          try {
+            val inputStream: InputStream = FileInputStream(file)
+            val content = ContentIO.createFrom(inputStream)
+            inputStream.close()
+            withContext(Dispatchers.Main) {
+              editor!!.setText(content)
+            }
+          } catch (e: Exception) {
+            e.printStackTrace()
+            //this throw error for some reason
+            //editor!!.setText(getString(R.string.file_exist_not))
+          }
+        }
+        launch(Dispatchers.Default) {
+          setupEditor.setupLanguage(file.name)
+        }
       }
+      with(editor!!) {
+        val tabSize = SettingsData.getString(Keys.TAB_SIZE, "4").toInt()
+        props.deleteMultiSpaces = tabSize
+        tabWidth = tabSize
+        props.deleteEmptyLineFast = false
+        props.useICULibToSelectWords = true
+        setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER, false))
+        isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS, true)
+        isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
+        isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
+        typefaceText =
+          Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
+        setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
+      }
+
+    }catch (e:Exception){
+      //this fragment is detached and should be garbage collected
+      e.printStackTrace()
     }
+
     
-    with(editor!!) {
-      val tabSize = SettingsData.getString(Keys.TAB_SIZE, "4").toInt()
-      props.deleteMultiSpaces = tabSize
-      tabWidth = tabSize
-      props.deleteEmptyLineFast = false
-      props.useICULibToSelectWords = true
-      setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER, false))
-      isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS, true)
-      isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
-      isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
-      typefaceText =
-        Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
-      setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
-    }
+
+    
+
+
+
   }
   
   fun save(showToast: Boolean = true) {
@@ -101,7 +111,6 @@ class TabFragment : Fragment() {
           editor?.text
         }
 
-        println(content)
         
         val outputStream = FileOutputStream(file, false)
         if (content != null) {

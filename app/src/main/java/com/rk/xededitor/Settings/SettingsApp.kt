@@ -138,18 +138,19 @@ class SettingsApp : BaseActivity() {
                 iconRes = R.drawable.palette
                 defaultValue = false
                 onCheckedChange {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        rkUtils.toast("Unsupported Android version")
+                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not()) {
+                        rkUtils.toast(getString(R.string.old_android))
                         return@onCheckedChange false
                     }
                     LoadingPopup(this@SettingsApp, 180)
-                    Toast.makeText(this@SettingsApp, getString(R.string.restart_app), 4000)
+                    Toast.makeText(this@SettingsApp, getString(R.string.restart_app), Toast.LENGTH_SHORT)
                         .show()
                     return@onCheckedChange true
                 }
             }
 
             // R.I.P themes
+            //todo bring back themes for older android versions after release
         }
     }
 

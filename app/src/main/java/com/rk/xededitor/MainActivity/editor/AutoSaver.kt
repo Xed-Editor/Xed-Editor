@@ -3,7 +3,6 @@ package com.rk.xededitor.MainActivity.editor
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabFragments
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -36,8 +35,8 @@ object AutoSaver {
           activity.let {
             if (it.tabViewModel.fragmentFiles.isNotEmpty() and it.isPaused.not() and it.isFinishing.not() and it.isDestroyed.not()) {
               withContext(Dispatchers.Main) {
-                tabFragments.values.forEach { f ->
-                  f?.save(false)
+                it.adapter.tabFragments.values.forEach { f ->
+                  f?.get()?.save(false)
                 }
               }
             }

@@ -15,6 +15,7 @@ import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.WeakHashMap
 
 class Kee(val file: File){
@@ -32,13 +33,12 @@ class Kee(val file: File){
 }
 
 private var nextItemId = 0L
-val tabFragments = HashMap<Kee, TabFragment>()
 const val tabLimit = 20
 
 class TabAdapter(private val mainActivity: MainActivity) :
   FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
-  
-  
+
+  val tabFragments = HashMap<Kee, WeakReference<TabFragment>>()
   fun getCurrentFragment(): TabFragment? {
     if (mainActivity.tabLayout.selectedTabPosition == -1){
       tabFragments.clear()
@@ -47,7 +47,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
     //println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
     val f = tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition])]
     //println(tabFragments.map { Pair(it.key.file.absolutePath,it.key.hashCode()) })
-    return f
+    return f?.get()
   }
   
   private val itemIds = mutableMapOf<Int, Long>()
@@ -56,7 +56,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
   
   override fun createFragment(position: Int): Fragment {
     val file = mainActivity.tabViewModel.fragmentFiles[position]
-    return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = this }
+    return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = WeakReference(this) }
   }
   
   override fun getItemId(position: Int): Long {
