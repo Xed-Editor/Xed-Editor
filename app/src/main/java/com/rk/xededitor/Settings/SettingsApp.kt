@@ -1,190 +1,177 @@
 package com.rk.xededitor.Settings
 
-import android.graphics.Color
-import android.os.Bundle
 import android.os.Build
+import android.os.Bundle
 import android.util.TypedValue
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.Toast
-
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-
 import com.rk.libcommons.After
-import com.rk.xededitor.BaseActivity
 import com.rk.libcommons.LoadingPopup
+import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
-import com.rk.xededitor.ui.theme.ThemeManager
-
+import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onCheckedChange
-import de.Maxr1998.modernpreferences.helpers.onClickView
-import de.Maxr1998.modernpreferences.helpers.pref
 import de.Maxr1998.modernpreferences.helpers.screen
 import de.Maxr1998.modernpreferences.helpers.switch
 
 class SettingsApp : BaseActivity() {
-  private lateinit var recyclerView: RecyclerView
-  private lateinit var binding: ActivitySettingsMainBinding
-  private lateinit var padapter: PreferencesAdapter
-  private lateinit var playoutManager: LinearLayoutManager
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var binding: ActivitySettingsMainBinding
+    private lateinit var padapter: PreferencesAdapter
+    private lateinit var playoutManager: LinearLayoutManager
 
-  private fun getRecyclerView(): RecyclerView {
-    binding = ActivitySettingsMainBinding.inflate(layoutInflater)
-    recyclerView = binding.recyclerView
-    return recyclerView
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-
-    padapter = PreferencesAdapter(getScreen())
-
-    savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
-      ?.let(padapter::loadSavedState)
-
-    playoutManager = LinearLayoutManager(this)
-    getRecyclerView().apply {
-      layoutManager = playoutManager
-      adapter = padapter
-      //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
+    private fun getRecyclerView(): RecyclerView {
+        binding = ActivitySettingsMainBinding.inflate(layoutInflater)
+        recyclerView = binding.recyclerView
+        return recyclerView
     }
-    
-    edgeToEdge(binding.root)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        padapter = PreferencesAdapter(getScreen())
+
+        savedInstanceState?.getParcelable<PreferencesAdapter.SavedState>("padapter")
+            ?.let(padapter::loadSavedState)
+
+        playoutManager = LinearLayoutManager(this)
+        getRecyclerView().apply {
+            layoutManager = playoutManager
+            adapter = padapter
+            //layoutAnimation = AnimationUtils.loadLayoutAnimation(this@settings2, R.anim.preference_layout_fall_down)
+        }
+
+        edgeToEdge(binding.root)
         setContentView(binding.root)
-    
-    binding.toggleButton.visibility = View.VISIBLE
-    binding.toolbar.title = getString(R.string.app)
-    setSupportActionBar(binding.toolbar)
-    supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    fun getCheckedBtnIdFromSettings(): Int {
-      val settingDefaultNightMode = SettingsData.getString(Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
-      ).toInt()
+        binding.toggleButton.visibility = View.VISIBLE
+        binding.toolbar.title = getString(R.string.app)
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-      return when (settingDefaultNightMode) {
-        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> binding.auto.id
-        AppCompatDelegate.MODE_NIGHT_NO -> binding.light.id
-        AppCompatDelegate.MODE_NIGHT_YES -> binding.dark.id
-        else -> throw RuntimeException("Illegal default night mode state")
-      }
-    }
+        fun getCheckedBtnIdFromSettings(): Int {
+            val settingDefaultNightMode = SettingsData.getString(
+                Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+            ).toInt()
 
-    binding.toggleButton.check(getCheckedBtnIdFromSettings())
+            return when (settingDefaultNightMode) {
+                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> binding.auto.id
+                AppCompatDelegate.MODE_NIGHT_NO -> binding.light.id
+                AppCompatDelegate.MODE_NIGHT_YES -> binding.dark.id
+                else -> throw RuntimeException("Illegal default night mode state")
+            }
+        }
 
-    val listener = View.OnClickListener {
-      when (binding.toggleButton.checkedButtonId) {
-        binding.auto.id -> {
-          LoadingPopup(this@SettingsApp, 200)
-            After(300) {
-                SettingsData.setString(
-                    Keys.DEFAULT_NIGHT_MODE,
-                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
-                )
+        binding.toggleButton.check(getCheckedBtnIdFromSettings())
 
-                runOnUiThread {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        val listener = View.OnClickListener {
+            when (binding.toggleButton.checkedButtonId) {
+                binding.auto.id -> {
+                    LoadingPopup(this@SettingsApp, 200)
+                    After(300) {
+                        SettingsData.setString(
+                            Keys.DEFAULT_NIGHT_MODE,
+                            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
+                        )
+
+                        runOnUiThread {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                        }
+                    }
+                }
+
+                binding.light.id -> {
+                    LoadingPopup(this@SettingsApp, 200)
+                    After(300) {
+                        SettingsData.setString(
+                            Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_NO.toString()
+                        )
+
+                        runOnUiThread {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        }
+                    }
+                }
+
+                binding.dark.id -> {
+                    LoadingPopup(this@SettingsApp, 200)
+                    After(300) {
+                        SettingsData.setString(
+                            Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_YES.toString()
+                        )
+
+                        runOnUiThread {
+                            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        }
+                    }
                 }
             }
         }
 
-        binding.light.id -> {
-          LoadingPopup(this@SettingsApp, 200)
-            After(300) {
-                SettingsData.setString(
-                    Keys.DEFAULT_NIGHT_MODE,
-                    AppCompatDelegate.MODE_NIGHT_NO.toString()
-                )
+        binding.light.setOnClickListener(listener)
+        binding.dark.setOnClickListener(listener)
+        binding.auto.setOnClickListener(listener)
+    }
 
-                runOnUiThread {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+    private fun getScreen(): PreferenceScreen {
+        return screen(this) {
+            switch(Keys.OLED) {
+                titleRes = R.string.oled
+                summary = getString(R.string.oled_desc)
+                iconRes = R.drawable.dark_mode
+                defaultValue = false
+                onCheckedChange {
+                    LoadingPopup(this@SettingsApp, 180)
+                    return@onCheckedChange true
                 }
             }
-        }
-
-        binding.dark.id -> {
-          LoadingPopup(this@SettingsApp, 200)
-            After(300) {
-                SettingsData.setString(
-                    Keys.DEFAULT_NIGHT_MODE,
-                    AppCompatDelegate.MODE_NIGHT_YES.toString()
-                )
-
-                runOnUiThread {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            switch(Keys.MONET) {
+                titleRes = R.string.monet
+                summary = getString(R.string.monet_desc)
+                iconRes = R.drawable.palette
+                defaultValue = false
+                onCheckedChange {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        rkUtils.toast("Unsupported Android version")
+                        return@onCheckedChange false
+                    }
+                    LoadingPopup(this@SettingsApp, 180)
+                    Toast.makeText(this@SettingsApp, getString(R.string.restart_app), 4000)
+                        .show()
+                    return@onCheckedChange true
                 }
             }
+
+            // R.I.P themes
         }
-      }
     }
 
-    binding.light.setOnClickListener(listener)
-    binding.dark.setOnClickListener(listener)
-    binding.auto.setOnClickListener(listener)
-  }
-
-  private fun getScreen(): PreferenceScreen {
-    return screen(this) {
-      if (SettingsData.isDarkMode(this@SettingsApp)) {
-          switch(Keys.OLED) {
-               titleRes = R.string.oled
-               summary = getString(R.string.oled_desc)
-               iconRes = R.drawable.dark_mode
-               defaultValue = false
-               onCheckedChange {
-                      LoadingPopup(this@SettingsApp, 180)
-                      return@onCheckedChange true
-               }
-          }
-      }
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-         switch(Keys.MONET) {
-              titleRes = R.string.monet
-              summary = getString(R.string.monet_desc)
-              iconRes = R.drawable.palette
-              defaultValue = false
-              onCheckedChange {
-                   LoadingPopup(this@SettingsApp, 180)
-                   /* getActivity(SettingsApp::class.java)?.recreate() */
-                   Toast.makeText(this@SettingsApp, getString(R.string.restart_app), 4000).show()
-                   return@onCheckedChange true
-              }
-         }
-      }
-      // R.I.P themes 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Save the padapter state as a parcelable into the Android-managed instance state
+        outState.putParcelable("padapter", padapter.getSavedState())
     }
-  }
 
-  override fun onSaveInstanceState(outState: Bundle) {
-    super.onSaveInstanceState(outState)
-    // Save the padapter state as a parcelable into the Android-managed instance state
-    outState.putParcelable("padapter", padapter.getSavedState())
-  }
+    val Int.dp: Int
+        get() = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), resources.displayMetrics
+        ).toInt()
 
-  val Int.dp: Int
-    get() = TypedValue.applyDimension(
-      TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), resources.displayMetrics
-    ).toInt()
-
-  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-    // Handle action bar item clicks here
-    val id = item.itemId
-    if (id == android.R.id.home) {
-      // Handle the back arrow click here
-      onBackPressedDispatcher.onBackPressed()
-      return true
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            // Handle the back arrow click here
+            onBackPressedDispatcher.onBackPressed()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
-    return super.onOptionsItemSelected(item)
-  }
 }
