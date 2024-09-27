@@ -12,6 +12,10 @@
         <item name="android:fontFamily">@font/outfit_regular</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
+
+    <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
+        <item name="fontFamily">@font/outfit_regular</item>
+    </style>
     
     <style name="Theme.Karbon" parent="Base.Theme.Karbon">
         <item name="colorPrimary">@color/md_theme_primary</item>

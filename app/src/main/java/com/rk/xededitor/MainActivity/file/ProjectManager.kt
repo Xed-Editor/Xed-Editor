@@ -144,6 +144,8 @@ object ProjectManager {
                     }
                 }
 
+                //todo select first project
+
                 if (i > 0) {
                     selectItem(rail.menu.getItem(i - 1).also { it.isChecked = true })
                 } else if (i < rail.menu.size() - 1) {
