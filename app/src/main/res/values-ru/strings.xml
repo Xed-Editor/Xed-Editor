@@ -43,7 +43,7 @@
     <string name="open_with">Открыть как...</string>
     <string name="save_as">Сохранить как</string>
     <string name="paste">Вставить</string>
-    <string name="delete">Удалитт</string>
+    <string name="delete">Удалить</string>
     <string name="close_this">Закрыть это</string>
     <string name="close_others">Закрыть другие</string>
     <string name="close_all">Закрыть всё</string>
@@ -176,7 +176,7 @@
     <string name="editor">Редактор</string>
     <string name="smooth_tabs">Плавные вкладки</string>
     <string name="smooth_tab_desc">Плавный переход между вкладками</string>
-    <string name="ww_desc">Включает перенос слов в редакторк</string>
+    <string name="ww_desc">Включает перенос слов в редакторе</string>
     <string name="drawer_lock_desc">Оставлять ящик открытым после открытия файла</string>
     <string name="diagonal_scroll">Диагональная прокрутка</string>
     <string name="diagonal_scroll_desc">Включает диагональную прокрутку в дереве файлов</string>
@@ -201,6 +201,7 @@
     <string name="monet">Динамические цвета</string>
     <string name="monet_desc">Использовать в приложении тему устройства</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение!</string>
+    <string name="old_android">Неподдерживаемая версия Android!</string>
 
 </resources>
         
