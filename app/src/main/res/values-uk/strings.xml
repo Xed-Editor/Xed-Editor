@@ -2,7 +2,6 @@
 <resources>
     <string name="open_drawer">відкрити</string>
     <string name="close_drawer">закрити</string>
-    <string name="title_activity_settings">Налаштування</string>
     <string name="title_activity_batch_replacement">Масова заміна</string>
     <string name="ni">Ця функція не реалізована</string>
     <string name="unsupported_contnt">Непідтримуваний вміст</string>

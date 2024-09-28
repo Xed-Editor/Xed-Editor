@@ -2,7 +2,6 @@
 <resources>
     <string name="open_drawer">aç</string>
     <string name="close_drawer">kapat</string>
-    <string name="title_activity_settings">Ayarlar Etkinliği</string>
     <string name="title_activity_batch_replacement">Toplu Değiştirme</string>
     <string name="ni">Bu özellik uygulanmadı</string>
     <string name="unsupported_contnt">Desteklenmeyen içerik</string>

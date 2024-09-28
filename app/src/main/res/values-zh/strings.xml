@@ -2,7 +2,6 @@
 <resources>
     <string name="open_drawer">打开</string>
     <string name="close_drawer">关闭</string>
-    <string name="title_activity_settings">设置活动</string>
     <string name="title_activity_batch_replacement">批量替换</string>
     <string name="ni">此功能未实现</string>
     <string name="unsupported_contnt">不支持的内容</string>
