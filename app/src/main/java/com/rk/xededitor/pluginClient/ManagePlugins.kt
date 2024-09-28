@@ -1,6 +1,10 @@
 package com.rk.xededitor.pluginClient
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,9 +23,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +54,7 @@ import androidx.lifecycle.viewModelScope
 import coil.compose.AsyncImage
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.Plugin
+import com.rk.libPlugin.server.PluginInstaller
 import com.rk.libPlugin.server.PluginUtils
 import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
@@ -90,6 +98,54 @@ class PluginModel : ViewModel() {
 class ManagePlugins : ComponentActivity() {
   private val model: PluginModel by viewModels()
 
+  private val PICK_FILE_REQUEST_CODE = 46547
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    fun getFileName(uri: Uri): String? {
+      var result: String? = null
+      val cursor = contentResolver.query(uri, null, null, null, null)
+      cursor?.use {
+        if (it.moveToFirst()) {
+          val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+          result = if (nameIndex != -1) {
+            it.getString(nameIndex)
+          } else {
+            null
+          }
+        }
+      }
+      return result
+    }
+    if (resultCode == RESULT_OK && requestCode == PICK_FILE_REQUEST_CODE) {
+      data?.data?.let { uri ->
+        val fileName = getFileName(uri).toString()
+        if (fileName.endsWith(".zip").not()) {
+          rkUtils.toast("Invalid file type, zip file expected")
+          return
+        }
+        val loading = LoadingPopup(this, null).show()
+        lifecycleScope.launch(Dispatchers.IO) {
+          val isInstalled = contentResolver.openInputStream(uri)
+            ?.let { PluginInstaller.installFromZip(this@ManagePlugins, it) } ?: false
+
+          withContext(Dispatchers.Main) {
+            if (isInstalled) {
+              rkUtils.toast("Installed Successfully")
+              recreate()
+            } else {
+              rkUtils.toast("Failed to install")
+            }
+            loading.hide()
+          }
+
+        }
+
+
+      }
+    }
+
+  }
+
   @OptIn(ExperimentalMaterial3Api::class)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -97,18 +153,41 @@ class ManagePlugins : ComponentActivity() {
 
     setContent {
       KarbonTheme {
-        Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-          TopAppBar(title = { Text(text = getString(R.string.manage_plugins)) }, navigationIcon = {
-            IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
-              Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-              )
+        Scaffold(
+          modifier = Modifier.fillMaxSize(),
+          topBar = {
+            TopAppBar(title = { Text(text = getString(R.string.manage_plugins)) },
+              navigationIcon = {
+                IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                  Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                  )
+                }
+              })
+          },
+          floatingActionButton = {
+            FloatingActionButton(
+              onClick = {
+                MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("Add Plugin")
+                  .setMessage("Choose the plugin zip file from storage to install it.")
+                  .setNegativeButton("Cancel", null).setPositiveButton("Choose") { dialog, which ->
+                    val intent = Intent(Intent.ACTION_GET_CONTENT)
+                    intent.type = "*/*"
+                    startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
+                  }.show()
+              },
+              modifier = Modifier.padding(8.dp),
+            ) {
+              Icon(Icons.Filled.Add, "Floating action button.")
             }
-          })
-        }) { innerPadding ->
+          },
+          floatingActionButtonPosition = FabPosition.End,
+        ) { innerPadding ->
           var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
           val tabs = listOf(getString(R.string.installed), getString(R.string.available))
+
+
 
           Column {
             TabRow(
@@ -132,6 +211,7 @@ class ManagePlugins : ComponentActivity() {
             }
           }
 
+
         }
       }
     }
@@ -153,6 +233,8 @@ class ManagePlugins : ComponentActivity() {
 
       }
     }
+
+
 
     LazyColumn {
       items(plugins) { plugin ->
@@ -248,17 +330,21 @@ class ManagePlugins : ComponentActivity() {
                   }
                 } else {
                   withContext(Dispatchers.Main) {
-                    MaterialAlertDialogBuilder(this@ManagePlugins).setTitle(getString(R.string.download))
-                      .setMessage("${getString(R.string.download_sure)} ${plugin.title}?")
-                      .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.yes)) { _, _ ->
-                        val loading =
-                          LoadingPopup(this@ManagePlugins, null).setMessage(getString(R.string.downloading_plugin))
-                            .show()
+                    MaterialAlertDialogBuilder(this@ManagePlugins).setTitle(
+                      getString(R.string.download)
+                    ).setMessage("${getString(R.string.download_sure)} ${plugin.title}?")
+                      .setNegativeButton(getString(R.string.cancel), null)
+                      .setPositiveButton(getString(R.string.yes)) { _, _ ->
+                        val loading = LoadingPopup(
+                          this@ManagePlugins, null
+                        ).setMessage(getString(R.string.downloading_plugin)).show()
                         lifecycleScope.launch(Dispatchers.IO) {
                           try {
-                            Git.cloneRepository().setURI(plugin.repo)
-                              .setDirectory(File(getPluginRoot(), plugin.title)).setBranch("main")
-                              .call()
+                            Git.cloneRepository().setURI(plugin.repo).setDirectory(
+                              File(
+                                getPluginRoot(), plugin.title
+                              )
+                            ).setBranch("main").call()
                             withContext(Dispatchers.Main) {
                               loading.hide()
                               rkUtils.toast(getString(R.string.download_done))
