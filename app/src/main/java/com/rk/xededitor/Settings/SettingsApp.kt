@@ -137,6 +137,7 @@ class SettingsApp : BaseActivity() {
                 summary = getString(R.string.monet_desc)
                 iconRes = R.drawable.palette
                 defaultValue = false
+                enabled = if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not()) false else true
                 onCheckedChange {
                     if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not()) {
                         rkUtils.toast(getString(R.string.old_android))
@@ -148,9 +149,9 @@ class SettingsApp : BaseActivity() {
                     return@onCheckedChange true
                 }
             }
-
-            // R.I.P themes
-            //todo bring back themes for older android versions after release
+            /*
+            * TO-DO: Implement the themes again, but with the Material Design 3 Color Scheme.
+            */
         }
     }
 

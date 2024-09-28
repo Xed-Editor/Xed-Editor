@@ -41,7 +41,7 @@
 
     <item
         android:id="@+id/add_new"
-        android:title="Add"
+        android:title="@string/add"
         android:icon="@drawable/add"
         app:showAsAction="ifRoom" />
 
