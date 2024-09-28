@@ -2,7 +2,6 @@
     <string name="app_name" translatable="false">Karbon</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
-    <string name="title_activity_settings">Settings</string>
     <string name="title_activity_batch_replacement">BatchReplacement</string>
     <string name="ni">This feature is not implemented</string>
     <string name="unsupported_contnt">Unsupported content</string>
