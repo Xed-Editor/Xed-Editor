@@ -78,8 +78,8 @@
     <string name="add_file">Добавить файл</string>
     <string name="keyword_regex">Ключевое слово (регулярное выражение)</string>
     <string name="replaceall">Заменить всё</string>
-    <string name="add_new_replacement_batch">Добавить поисковую замену</string>
-    <string name="remove_a_search_batch">Убрать поисковую замену</string>
+    <string name="add_new_replacement_batch">Добавить новый пакет замены</string>
+    <string name="remove_a_search_batch">Удалить пакет поиска</string>
     <string name="replacement">Заменить</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="tab_text_1">Вкладка 1</string>
@@ -159,7 +159,7 @@
     <string name="already_opened">Файл уже открыт!</string>
     <string name="open_cant">Нельзя открыть больше, чем</string>
     <string name="files">Файлы</string>
-    <string name="manage_plugins">Упралвение плагинами</string>
+    <string name="manage_plugins">Управление плагинами</string>
     <string name="installed">Установлено</string>
     <string name="available">Доступно</string>
     <string name="already_installed">Уже установлен!</string>

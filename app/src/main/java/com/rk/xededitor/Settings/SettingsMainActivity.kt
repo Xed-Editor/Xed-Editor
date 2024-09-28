@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
+import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen
 import de.Maxr1998.modernpreferences.PreferencesAdapter
 import de.Maxr1998.modernpreferences.helpers.onClickView
@@ -49,7 +50,7 @@ class SettingsMainActivity : BaseActivity() {
     edgeToEdge(binding.root)
     setContentView(binding.root)
     
-    binding.toolbar.title = "Settings"
+    binding.toolbar.title = rkUtils.getString(R.string.settings)
     setSupportActionBar(binding.toolbar)
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
   }
