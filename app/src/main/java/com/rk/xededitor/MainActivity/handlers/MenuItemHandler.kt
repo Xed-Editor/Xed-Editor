@@ -29,7 +29,7 @@ object MenuItemHandler {
         
         if (show) {
           activity.adapter.getCurrentFragment()?.let {
-            menu.findItem(R.id.run).isVisible = Runner.isRunnable(it.file)
+            menu.findItem(R.id.run).isVisible = it.file?.let { it1 -> Runner.isRunnable(it1) } == true
           }
         } else {
           menu.findItem(R.id.run).isVisible = false
@@ -74,7 +74,7 @@ object MenuItemHandler {
           
           currentFragment.lifecycleScope.launch(Dispatchers.Default) {
             try {
-              val fileName = currentFragment.file.name
+              val fileName = currentFragment.file!!.name
               val index = activity.tabViewModel.fragmentFiles.indexOf(currentFragment.file)
               
               if (set.contains(fileName)) {

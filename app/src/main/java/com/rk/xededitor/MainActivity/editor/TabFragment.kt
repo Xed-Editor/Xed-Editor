@@ -28,7 +28,7 @@ import java.io.InputStream
 
 class TabFragment : Fragment() {
   
-  lateinit var file: File
+  var file: File? = null
   var editor: CodeEditor? = null
   
   // see @MenuClickHandler.update()
@@ -68,7 +68,7 @@ class TabFragment : Fragment() {
           }
         }
         launch(Dispatchers.Default) {
-          setupEditor.setupLanguage(file.name)
+          setupEditor.setupLanguage(file!!.name)
         }
       }
       with(editor!!) {
@@ -101,7 +101,7 @@ class TabFragment : Fragment() {
   
   fun save(showToast: Boolean = true) {
     lifecycleScope.launch(Dispatchers.IO) {
-      if (file.exists().not() and showToast){
+      if (file!!.exists().not() and showToast){
         withContext(Dispatchers.Main){
           rkUtils.toast(getString(R.string.file_exist_not))
         }
@@ -127,10 +127,10 @@ class TabFragment : Fragment() {
           MainActivity.activityRef.get()?.let { activity ->
             val index = activity.tabViewModel.fragmentFiles.indexOf(file)
             activity.tabViewModel.fragmentTitles.let {
-              if (file.name != it[index]) {
-                it[index] = file.name
+              if (file!!.name != it[index]) {
+                it[index] = file!!.name
                 withContext(Dispatchers.Main) {
-                  activity.tabLayout.getTabAt(index)?.text = file.name
+                  activity.tabLayout.getTabAt(index)?.text = file!!.name
                 }
               }
             }
