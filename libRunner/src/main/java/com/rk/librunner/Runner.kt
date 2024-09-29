@@ -88,8 +88,8 @@ object Runner {
     
     recyclerView.layoutManager = LinearLayoutManager(context)
     
-    val dialog = MaterialAlertDialogBuilder(context).setTitle("Choose Runtime").setView(dialogView)
-      .setNegativeButton("Cancel", null).show()
+    val dialog = MaterialAlertDialogBuilder(context).setTitle(context.getString(R.string.choose_runtime)).setView(dialogView)
+      .setNegativeButton(context.getString(R.string.cancel), null).show()
     
     recyclerView.adapter = RunnerAdapter(runners, dialog, onRunnerSelected)
   }

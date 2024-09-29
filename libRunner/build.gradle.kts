@@ -7,6 +7,12 @@ android {
     namespace = "com.rk.librunner"
     compileSdk = 34
 
+    //todo remove this before release
+    lintOptions {
+        disable("MissingTranslation")
+    }
+
+
     defaultConfig {
         minSdk = 26
 
