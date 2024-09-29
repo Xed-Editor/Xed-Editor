@@ -1,0 +1,27 @@
+v2.7.3 (33)
+
+- Added Custom tab size
+- Added Plugin API
+- Reduced Extra keys panel size
+- Fixed Crashes and Improvements
+- Added AutoSave
+- Lazy Syntax highlighting
+- Added Alpine Linux Terminal
+- Reduced Memory Usage
+- Fix Editor theme inconsistency
+- Added Project Panel
+- Brought Back old app icon
+- Added Copy-Paste in terminal
+- Added File Icons in file tree
+- Downgrade Target API to 28
+- Install Plugins via Zip
+- Install Plugins via Plugin Repo
+- Added Git support
+- Fully translated into hindi,russion,other languages
+- Added Python interpreter
+- Added Nodejs interpreter
+- Added Material You theme
+- Added Markdown Viewer
+- Added Html Viewer
+- Added SH file runner
+- Added Plugin repository

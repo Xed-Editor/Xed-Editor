@@ -52,10 +52,11 @@ object ProjectManager {
     }
 
     fun addProject(activity: MainActivity, file: File) {
-        if (activityRef == null) {
+        if (activityRef.get() == null){
             activityRef = WeakReference(activity)
-        }else if (activityRef!!.get() == null){
-            activityRef = WeakReference(activity)
+        }
+        if (projects.size >= 6){
+            return
         }
 
         //BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
@@ -144,8 +145,6 @@ object ProjectManager {
                     }
                 }
 
-                //todo select first project
-
                 if (i > 0) {
                     selectItem(rail.menu.getItem(i - 1).also { it.isChecked = true })
                 } else if (i < rail.menu.size() - 1) {
@@ -155,6 +154,15 @@ object ProjectManager {
                 if (saveState) {
                     saveProjects(activity)
                 }
+
+//                for (ix in 0 until activity.binding.maindrawer.childCount) {
+//                    val view = activity.binding.maindrawer.getChildAt(ix)
+//                    if (view is ViewGroup) {
+//                        activity.binding.maindrawer.removeView(view)
+//                    }
+//                }
+
+                activity.binding.maindrawer.removeView(activity.binding.maindrawer.findViewById(file.absolutePath.hashCode()))
 
                 break
             }
