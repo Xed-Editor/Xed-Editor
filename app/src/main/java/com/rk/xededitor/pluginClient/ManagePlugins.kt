@@ -1,6 +1,7 @@
 package com.rk.xededitor.pluginClient
 
 import android.app.Activity
+import android.app.Application
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -79,6 +80,7 @@ class PluginItem(
 
 
 class PluginModel : ViewModel() {
+  var plugins by mutableStateOf(listOf<Plugin>())
   var availablePlugins = listOf<PluginItem>()
   var isLoading by mutableStateOf(false)
 
@@ -93,7 +95,19 @@ class PluginModel : ViewModel() {
       }
     }
   }
+
+  // Load installed plugins into the plugins state
+  suspend fun loadInstalledPlugins(app:Application) {
+    withContext(Dispatchers.Default){
+      app.indexPlugins()
+      viewModelScope.launch(Dispatchers.IO) {
+        val installedPlugins = PluginUtils.getInstalledPlugins()
+        plugins = installedPlugins
+      }
+    }
+  }
 }
+
 
 class ManagePlugins : ComponentActivity() {
   private val model: PluginModel by viewModels()
@@ -120,7 +134,7 @@ class ManagePlugins : ComponentActivity() {
       data?.data?.let { uri ->
         val fileName = getFileName(uri).toString()
         if (fileName.endsWith(".zip").not()) {
-          rkUtils.toast("Invalid file type, zip file expected")
+          rkUtils.toast(rkUtils.getString(R.string.invalid_file_type))
           return
         }
         val loading = LoadingPopup(this, null).show()
@@ -130,10 +144,10 @@ class ManagePlugins : ComponentActivity() {
 
           withContext(Dispatchers.Main) {
             if (isInstalled) {
-              rkUtils.toast("Installed Successfully")
-              recreate()
+              rkUtils.toast(rkUtils.getString(R.string.install_done))
+              model.loadInstalledPlugins(application)
             } else {
-              rkUtils.toast("Failed to install")
+              rkUtils.toast(rkUtils.getString(R.string.install_failed))
             }
             loading.hide()
           }
@@ -169,9 +183,9 @@ class ManagePlugins : ComponentActivity() {
           floatingActionButton = {
             FloatingActionButton(
               onClick = {
-                MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("Add Plugin")
-                  .setMessage("Choose the plugin zip file from storage to install it.")
-                  .setNegativeButton("Cancel", null).setPositiveButton("Choose") { dialog, which ->
+                MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("${rkUtils.getString(R.string.add)} ${rkUtils.getString(R.string.plugin)}")
+                  .setMessage(rkUtils.getString(R.string.choose_zip))
+                  .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.choose_file)) { dialog, which ->
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = "*/*"
                     startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
@@ -205,7 +219,7 @@ class ManagePlugins : ComponentActivity() {
 
             Crossfade(targetState = selectedTabIndex, label = "screens") { screen ->
               when (screen) {
-                0 -> Installed()
+                0 -> Installed(viewModel = model)
                 1 -> Available(viewModel = model)
               }
             }
@@ -218,23 +232,12 @@ class ManagePlugins : ComponentActivity() {
   }
 
   @Composable
-  fun Installed() {
-    var plugins by rememberSaveable { mutableStateOf(listOf<Plugin>()) }
+  fun Installed(viewModel: PluginModel) {
+    val plugins = viewModel.plugins
 
     LaunchedEffect(Unit) {
-      withContext(Dispatchers.Default) {
-        application.indexPlugins()
-        val plugins1 = PluginUtils.getInstalledPlugins()
-        if ((plugins1 == plugins).not()) {
-          withContext(Dispatchers.Main) {
-            plugins = plugins1
-          }
-        }
-
-      }
+      viewModel.loadInstalledPlugins(application)
     }
-
-
 
     LazyColumn {
       items(plugins) { plugin ->

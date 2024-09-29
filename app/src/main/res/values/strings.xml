@@ -232,5 +232,11 @@
     <string name="pkg_download_failed">Package download failed</string>
     <string name="copy_failed">Failed to copy file</string>
 
+    <string name="install_done">Installed Successfully</string>
+    <string name="invalid_file_type">Invalid file type, zip file expected</string>
+    <string name="install_failed">Failed to install</string>
+    <string name="choose_zip">Choose the plugin zip file from storage to install it.</string>
+    <string name="choose_file">Choose file</string>
+
 
 </resources>
