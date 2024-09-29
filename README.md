@@ -76,7 +76,7 @@ height="80">](https://github.com/RohitKushvaha01/Xed-Editor/releases/latest)
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/04.jpg" width="32%" />
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.jpg" width="32%" />
 <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.png" width="32%" />
-<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/07.png" width="32%" />
+<img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/04.png" width="32%" />
 </div>
 
 ## To contribute
