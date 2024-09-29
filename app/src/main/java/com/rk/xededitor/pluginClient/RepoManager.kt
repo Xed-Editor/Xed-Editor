@@ -72,7 +72,7 @@ object RepoManager {
               //val iconBitmap = fetchBitmapFromUrl(iconUrl)
               
               val pluginItem = PluginItem(
-                icon,
+                iconUrl,
                 name,
                 packageName,
                 description,
