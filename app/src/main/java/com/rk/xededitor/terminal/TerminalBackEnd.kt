@@ -95,7 +95,7 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun shouldEnforceCharBasedInput(): Boolean {
-        return true
+        return SettingsData.getBoolean(Keys.FORCE_CHAR,true)
     }
 
     override fun shouldUseCtrlSpaceWorkaround(): Boolean {

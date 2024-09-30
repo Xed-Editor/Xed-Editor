@@ -238,5 +238,8 @@
     <string name="choose_zip">Choose the plugin zip file from storage to install it.</string>
     <string name="choose_file">Choose file</string>
 
+    <string name="force_char">Force Char</string>
+    <string name="force_char_desc">Force Char based input in Terminal</string>
+
 
 </resources>

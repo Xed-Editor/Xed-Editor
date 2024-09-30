@@ -151,6 +151,12 @@ class TerminalSettings : BaseActivity() {
         }
       }
 
+      switch(Keys.FORCE_CHAR) {
+        titleRes = R.string.force_char
+        summaryRes = R.string.force_char_desc
+        iconRes = R.drawable.edit
+        defaultValue = true
+      }
       switch(Keys.LINK2SYMLINK) {
         titleRes = R.string.sim_hard_links
         summaryRes = R.string.sim_hard_links_desc
