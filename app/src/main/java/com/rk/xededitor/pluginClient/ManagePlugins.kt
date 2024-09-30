@@ -63,6 +63,7 @@ import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.BaseActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -109,7 +110,7 @@ class PluginModel : ViewModel() {
 }
 
 
-class ManagePlugins : ComponentActivity() {
+class ManagePlugins : BaseActivity() {
   private val model: PluginModel by viewModels()
 
   private val PICK_FILE_REQUEST_CODE = 46547
