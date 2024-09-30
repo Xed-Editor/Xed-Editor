@@ -150,7 +150,12 @@ class TerminalSettings : BaseActivity() {
           return@onClick true
         }
       }
-
+      switch(Keys.CTRL_WORKAROUND){
+        titleRes = R.string.useCtrlWorkaround
+        summaryRes = R.string.useCtrlWorkaround_desc
+        iconRes = R.drawable.terminal
+        defaultValue = false
+      }
       switch(Keys.FORCE_CHAR) {
         titleRes = R.string.force_char
         summaryRes = R.string.force_char_desc
