@@ -2,5 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor" vcs="Git" />
   </component>
 </project>

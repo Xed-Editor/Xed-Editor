@@ -45,7 +45,7 @@ object MenuClickHandler {
         when (id) {
             
             R.id.run -> {
-                activity.adapter.getCurrentFragment()?.let { Runner.run(it.file, activity) }
+                activity.adapter.getCurrentFragment()?.let { it.file?.let { it1 -> Runner.run(it1, activity) } }
                 return true
             }
             
