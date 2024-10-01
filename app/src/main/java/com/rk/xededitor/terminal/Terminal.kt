@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import com.blankj.utilcode.util.SizeUtils
+import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -141,7 +142,7 @@ class Terminal : BaseActivity() {
       filesDir.absolutePath
     }
 
-    val tmpDir = File(filesDir.parentFile, "tmp")
+    val tmpDir = File(getTempDir(), "terminal")
 
     if (tmpDir.exists()) {
       tmpDir.deleteRecursively()

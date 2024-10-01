@@ -241,7 +241,7 @@
     <string name="force_char">Force Char</string>
     <string name="force_char_desc">Force Char based input in Terminal</string>
     <string name="useCtrlWorkaround">Use Ctrl Workaround</string>
-    <string name="useCtrlWorkaround_desc">should UseCtrl Space Workaround</string>
+    <string name="useCtrlWorkaround_desc">Use Ctrl Space Workaround</string>
 
 
 </resources>

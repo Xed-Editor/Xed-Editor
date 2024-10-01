@@ -18,6 +18,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
+import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -84,6 +85,7 @@ class TabFragment : Fragment() {
         typefaceText =
           Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
         setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
+        getComponent(EditorAutoCompletion::class.java).isEnabled = true
       }
 
     }catch (e:Exception){

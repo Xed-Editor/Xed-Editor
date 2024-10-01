@@ -1,6 +1,7 @@
 package com.rk.xededitor
 
 import android.app.Application
+import android.content.Context
 
 import androidx.appcompat.app.AppCompatDelegate
 
@@ -11,16 +12,40 @@ import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.TerminalSettings
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.File
 
 class App : Application() {
   
   companion object{
     lateinit var app: Application
+    fun Context.getTempDir():File{
+      val tmp = File(filesDir.parentFile,"tmp")
+      if (!tmp.exists()) {
+        tmp.mkdir()
+      }
+      return tmp
+    }
   }
  
+  @OptIn(DelicateCoroutinesApi::class)
   override fun onCreate() {
     app = this
     super.onCreate()
+
+    //create temp folder
+    GlobalScope.launch(Dispatchers.IO){
+      val tmp = File(filesDir.parentFile,"tmp")
+      if (!tmp.exists()){
+        tmp.mkdir()
+      }else{
+        tmp.deleteRecursively()
+        tmp.mkdir()
+      }
+    }
 
     //create crash handler
     CrashHandler.INSTANCE.init(this).let {
