@@ -281,13 +281,13 @@ class FileAction(
                   mainActivity, file, File(file.parentFile, newFileName)
                 )
               }
-//                            fragments.forEach { f ->
-//                                if (f.file?.absolutePath == file.absolutePath) {
-//                                    f.file = file
-//                                    f.fileName = File("${file.parentFile}/$to").name
-//                                }
-//                            }
-              //todo
+              //update file when renaming
+              MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
+                if (f.get()?.file?.absolutePath == file.absolutePath){
+                  f.get()!!.file = File(to)
+                  //todo update tab text too
+                }
+              }
             }
           }
           

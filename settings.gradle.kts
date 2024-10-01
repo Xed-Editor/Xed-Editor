@@ -27,8 +27,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "Karbon"
 include(":app")
-include(":libsettings")
-include(":libPlugin")
+include(":SettingDSL")
+include(":PluginLoader")
 include(":libRunner")
 include(":editor")
 include(":editor-lsp")

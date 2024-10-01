@@ -1,5 +1,6 @@
 # inside alpine linux
 
+#todo do to not use chmod
 chmod +x /karbon/rootfs/python.sh
 chmod +x /karbon/rootfs/nodejs.sh
 
@@ -16,10 +17,10 @@ else
     START_SHELL="/bin/sh"
 fi
 
-# setup package or start processes from before starting the shell
+# setup package or start processes before starting the shell
 
 # List of necessary packages
-required_packages="gcompat glib git bash nano sudo"
+required_packages="gcompat glib git bash nano sudo build-base"
 
 # Check if each package is installed
 missing_packages=""
@@ -33,6 +34,7 @@ done
 # Install
 if [ -n "$missing_packages" ]; then
     echo -e "\e[32mInstalling Important packages\e[0m"
+    apk update && apk upgrade
     apk add $missing_packages
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSuccessfully Installed\e[0m"

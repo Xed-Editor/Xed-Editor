@@ -15,19 +15,11 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.R
 
 object PermissionHandler {
-    //todo
-    val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
-    val MANAGE_EXTERNAL_STORAGE = 98421
+    private const val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
+    private const val MANAGE_EXTERNAL_STORAGE = 98421
 
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray,activity: Activity) {
-
         //check permission for old devices
-
-
-
-
-
-
         if (requestCode == REQUEST_CODE_STORAGE_PERMISSIONS) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // permission denied ask again

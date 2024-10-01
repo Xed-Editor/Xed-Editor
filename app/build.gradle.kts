@@ -153,8 +153,8 @@ dependencies {
   implementation(libs.terminal.view)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
-  implementation(project(":libsettings"))
-  implementation(project(":libPlugin"))
+  implementation(project(":SettingDSL"))
+  implementation(project(":PluginLoader"))
   implementation(project(":libRunner"))
   implementation(project(":commons"))
   implementation(project(":FileTree"))
@@ -171,4 +171,5 @@ dependencies {
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
   implementation(libs.insetter)
+  implementation(libs.bsh)
 }

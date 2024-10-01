@@ -494,7 +494,6 @@ public class DiagonalScrollView extends FrameLayout {
         if (pointerId == mActivePointerId) {
             // This was our active pointer going up. Choose a new
             // active pointer and adjust accordingly.
-            // TODO: Make this decision more intelligent.
             final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
             mLastMotionX = ev.getX(newPointerIndex);
             mLastMotionY = ev.getY(newPointerIndex);
