@@ -57,7 +57,6 @@ jobs:
           curl -X POST "${{ secrets.TELEGRAM_URL }}" \
             -F chat_id="-1002408175863" \
             -F message_thread_id="582" \
-            -F parse_mode="MarkdownV2" \
             -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
             -F document=@"app/karbon.apk"
 
