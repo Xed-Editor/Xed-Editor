@@ -54,7 +54,7 @@ jobs:
       - name: Send APK to Telegram
         if: success()
         run: |
-          curl -X POST "https://api.telegram.org/bot7611011157:AAGexJbzGNIbrbnfTSdF5QyH5YajeqMoZeo/sendDocument" \
+          curl -X POST ${{ secrets.TELEGRAM_URL }} \
             -F chat_id="-1002408175863" \
             -F message_thread_id="582" \
             -F document=@"app/karbon.apk"
@@ -89,11 +89,3 @@ jobs:
         with:
           name: Karbon-Debug
           path: app/karbon-debug.apk
-      
-      - name: Send APK to Telegram
-        if: success()
-        run: |
-          curl -X POST "https://api.telegram.org/bot7611011157:AAGexJbzGNIbrbnfTSdF5QyH5YajeqMoZeo/sendDocument" \
-            -F chat_id="-1002408175863" \
-            -F message_thread_id="582" \
-            -F document=@"app/karbon-debug.apk"
