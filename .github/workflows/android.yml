@@ -58,7 +58,7 @@ jobs:
             -F chat_id="-1002408175863" \
             -F message_thread_id="582" \
             -F parse_mode="MarkdownV2" \
-            -F caption="\*${{ github.actor }}\* committed to \[${{ github.repository }}\](https://github.com/${{ github.repository }})\n\nBranch: \*${{ github.head_ref || github.ref_name }}\*\nCommit message: \`${{ steps.get_commit_msg.outputs.message }}\`" \
+            -F caption="\*${{ github.actor }}\* committed to \\\[${{ github.repository }}\\](https://github.com/${{ github.repository }})\n\nBranch: \*${{ github.head_ref || github.ref_name }}\*\nCommit message: \`${{ steps.get_commit_msg.outputs.message }}\`" \
             -F document=@"app/karbon.apk"
 
   build_debug_apk:
