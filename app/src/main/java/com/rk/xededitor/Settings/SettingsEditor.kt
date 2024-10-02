@@ -330,6 +330,13 @@ class SettingsEditor : BaseActivity() {
                     return@onClick true
                 }
             }
+
+            switch(Keys.EDITOR_FONT){
+                titleRes = R.string.editor_font
+                summaryRes = R.string.editor_font_desc
+                iconRes = R.drawable.baseline_font_download_24
+            }
+
         }
     }
 

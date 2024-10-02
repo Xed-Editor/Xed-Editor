@@ -242,6 +242,8 @@
     <string name="force_char_desc">Force Char based input in Terminal</string>
     <string name="useCtrlWorkaround">Use Ctrl Workaround</string>
     <string name="useCtrlWorkaround_desc">Use Ctrl Space Workaround</string>
+    <string name="editor_font">Editor Font</string>
+    <string name="editor_font_desc">When enabled font from /sdcard/karbon/font.ttf will be used</string>
 
 
 </resources>

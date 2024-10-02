@@ -2,19 +2,19 @@ package com.rk.xededitor.MainActivity.editor
 
 import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Environment
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -28,14 +28,14 @@ import java.io.FileOutputStream
 import java.io.InputStream
 
 class TabFragment : Fragment() {
-  
+
   var file: File? = null
   var editor: CodeEditor? = null
-  
+
   // see @MenuClickHandler.update()
   var setListener = false
-  
-  
+
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     try {
@@ -82,29 +82,32 @@ class TabFragment : Fragment() {
         isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS, true)
         isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
         isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
-        typefaceText =
-          Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
         setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
         getComponent(EditorAutoCompletion::class.java).isEnabled = true
+
+
+        File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
+          typefaceText = if (getBoolean(Keys.EDITOR_FONT, false) and it.exists()) {
+            Typeface.createFromFile(it)
+          } else {
+            Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
+          }
+        }
+
       }
 
-    }catch (e:Exception){
+    } catch (e: Exception) {
       //this fragment is detached and should be garbage collected
       e.printStackTrace()
     }
 
-    
-
-    
-
-
 
   }
-  
+
   fun save(showToast: Boolean = true) {
     lifecycleScope.launch(Dispatchers.IO) {
-      if (file!!.exists().not() and showToast){
-        withContext(Dispatchers.Main){
+      if (file!!.exists().not() and showToast) {
+        withContext(Dispatchers.Main) {
           rkUtils.toast(getString(R.string.file_exist_not))
         }
       }
@@ -113,7 +116,7 @@ class TabFragment : Fragment() {
           editor?.text
         }
 
-        
+
         val outputStream = FileOutputStream(file, false)
         if (content != null) {
           ContentIO.writeTo(content, outputStream, true)
@@ -123,8 +126,8 @@ class TabFragment : Fragment() {
             }
           }
         }
-        
-        
+
+
         try {
           MainActivity.activityRef.get()?.let { activity ->
             val index = activity.tabViewModel.fragmentFiles.indexOf(file)
@@ -143,21 +146,21 @@ class TabFragment : Fragment() {
             rkUtils.toast(e.message)
           }
         }
-        
+
       } catch (e: Exception) {
         e.printStackTrace()
         withContext(Dispatchers.Main) {
           rkUtils.toast(e.message)
         }
-        
-        
+
+
       }
-      
+
     }
-    
-    
+
+
   }
-  
+
   fun undo() {
     editor?.undo()
     MainActivity.activityRef.get()?.let {
@@ -165,7 +168,7 @@ class TabFragment : Fragment() {
       it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
     }
   }
-  
+
   fun redo() {
     editor?.redo()
     MainActivity.activityRef.get()?.let {
@@ -173,28 +176,27 @@ class TabFragment : Fragment() {
       it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
     }
   }
-  
+
   private var isSearching: Boolean = false
   fun isSearching(): Boolean {
     return isSearching
   }
-  
+
   fun setSearching(s: Boolean) {
     isSearching = s
   }
-  
-  
+
+
   override fun onCreateView(
-    inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?
+    inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
   ): View? {
     return editor
   }
-  
-  
+
+
   companion object {
     private const val ARG_FILE_PATH = "file_path"
-    
+
     fun newInstance(file: File): TabFragment {
       val fragment = TabFragment()
       val args = Bundle().apply {
@@ -203,9 +205,9 @@ class TabFragment : Fragment() {
       fragment.arguments = args
       return fragment
     }
-    
-    
+
+
   }
-  
-  
+
+
 }

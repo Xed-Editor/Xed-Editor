@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.OpenableColumns
 import android.view.Menu
 import android.view.MenuItem
@@ -28,6 +29,7 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 
 class SimpleEditor : BaseActivity() {
@@ -52,11 +54,15 @@ class SimpleEditor : BaseActivity() {
     SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this)
 
 
-    editor!!.setTypefaceText(
-      Typeface.createFromAsset(
-        assets, "JetBrainsMono-Regular.ttf"
-      )
-    )
+    File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
+      editor!!.typefaceText = if (getBoolean(Keys.EDITOR_FONT, false) and it.exists()) {
+        Typeface.createFromFile(it)
+      } else {
+        Typeface.createFromAsset(assets, "JetBrainsMono-Regular.ttf")
+      }
+    }
+
+
     editor!!.setTextSize(getString(Keys.TEXT_SIZE, "14").toFloat())
     val wordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
     editor!!.isWordwrap = wordwrap
