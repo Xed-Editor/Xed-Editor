@@ -30,6 +30,12 @@ Karbon is a powerful text editor for developers, programmers, and power users on
 - [x] Rename, Delete files and folders
 - [x] Print text
 - [x] Plugins (Read [Creating Plugins](/docs/CREATE_PLUGIN.md))
+- [x] Python
+- [x] NodeJs
+- [ ] Java
+- [ ] Kotlin
+- [x] Bash
+- [x] Html,css,javascript
 
 ## Community
 
