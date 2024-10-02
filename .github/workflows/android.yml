@@ -40,7 +40,7 @@ jobs:
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-        continue-on-error: true 
+        continue-on-error: true
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
@@ -50,7 +50,15 @@ jobs:
 
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
-        
+
+      - name: Send APK to Telegram
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.TELEGRAM_URL }}" \
+            -F chat_id="-1002408175863" \
+            -F message_thread_id="582" \
+            -F document=@"app/karbon.apk"
+
   build_debug_apk:
     name: Build Debug
     runs-on: ubuntu-latest
@@ -71,7 +79,7 @@ jobs:
 
       - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v4
-      
+
       - name: Build with Gradle
         id: gradle_build_debug
         run: ./gradlew assembleDebug && mv app/build/outputs/apk/debug/*apk app/karbon-debug.apk
