@@ -53,53 +53,38 @@ object BottomBar {
           
           when (v.id) {
             R.id.left_arrow -> {
-              if (cursor.leftColumn - 1 >= 0) {
-                fragment.editor?.setSelection(cursor.leftLine, cursor.leftColumn - 1)
-              }
+              fragment.editor?.dispatchKeyEvent(
+                KeyEvent(
+                  KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT
+                )
+              )
             }
             
             R.id.right_arrow -> {
-              val lineNumber = cursor.leftLine
-              val line = fragment.editor?.text!!.getLine(lineNumber)
-              
-              if (cursor.leftColumn < line.length) {
-                fragment.editor?.setSelection(cursor.leftLine, cursor.leftColumn + 1)
-                
-              }
+              fragment.editor?.dispatchKeyEvent(
+                KeyEvent(
+                  KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT
+                )
+              )
             }
             
             R.id.up_arrow -> {
-              if (cursor.leftLine - 1 >= 0) {
-                val upline = cursor.leftLine - 1
-                val uplinestr = fragment.editor?.text!!.getLine(upline)
-                
-                val columm = if (uplinestr.length < cursor.leftColumn) {
-                  uplinestr.length
-                } else {
-                  cursor.leftColumn
-                }
-                
-                
-                fragment.editor?.setSelection(cursor.leftLine - 1, columm)
-              }
+
+              fragment.editor?.dispatchKeyEvent(
+                KeyEvent(
+                  KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP
+                )
+              )
               
             }
             
             
             R.id.down_arrow -> {
-              if (cursor.leftLine + 1 < fragment.editor!!.lineCount) {
-                
-                val dnline = cursor.leftLine + 1
-                val dnlinestr = fragment.editor?.text!!.getLine(dnline)
-                
-                val columm = if (dnlinestr.length < cursor.leftColumn) {
-                  dnlinestr.length
-                } else {
-                  cursor.leftColumn
-                }
-                
-                fragment.editor?.setSelection(cursor.leftLine + 1, columm)
-              }
+              fragment.editor?.dispatchKeyEvent(
+                KeyEvent(
+                  KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN
+                )
+              )
             }
             
             R.id.tab -> {

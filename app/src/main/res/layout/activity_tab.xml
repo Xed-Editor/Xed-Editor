@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -65,6 +66,7 @@
                 <HorizontalScrollView
                     android:layout_width="match_parent"
                     android:scrollbars="none"
+                    tools:ignore="HardcodedText"
                     android:layout_height="match_parent">
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -90,6 +92,27 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="UNTAB"
+                            android:textColor="?colorOnSurface"
+                            />
+
+                        <Button
+                            android:id="@+id/left_arrow"
+                            android:textSize="20sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:backgroundTint="@android:color/transparent"
+                            android:text="←"
+                            android:textColor="?colorOnSurface" />
+
+                        <Button
+                            android:id="@+id/right_arrow"
+                            android:textSize="20sp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackground"
+                            android:backgroundTint="@android:color/transparent"
+                            android:text="→"
                             android:textColor="?colorOnSurface" />
 
 
@@ -111,27 +134,10 @@
                             android:background="?attr/selectableItemBackground"
                             android:backgroundTint="@android:color/transparent"
                             android:text="↓"
-                            android:textColor="?colorOnSurface" />
+                            android:textColor="?colorOnSurface"
+                            tools:ignore="HardcodedText" />
 
-                        <Button
-                            android:id="@+id/left_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="←"
-                            android:textColor="?colorOnSurface" />
 
-                        <Button
-                            android:id="@+id/right_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="→"
-                            android:textColor="?colorOnSurface" />
 
 
 

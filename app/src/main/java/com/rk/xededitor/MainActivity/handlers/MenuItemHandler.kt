@@ -7,6 +7,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
+import com.rk.xededitor.rkUtils.runOnUiThread
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -65,10 +66,11 @@ object MenuItemHandler {
     menu.findItem(R.id.undo).isEnabled = currentFragment?.editor?.canUndo() == true
     
     if (currentFragment?.setListener?.not() == true) {
-      currentFragment.let {
-        it.editor?.subscribeAlways(
+      currentFragment.let { tabFragment ->
+        tabFragment.editor?.subscribeAlways(
           ContentChangeEvent::class.java
         ) {
+
           menu.findItem(R.id.redo).isEnabled = currentFragment.editor?.canRedo() == true
           menu.findItem(R.id.undo).isEnabled = currentFragment.editor?.canUndo() == true
           
@@ -93,8 +95,8 @@ object MenuItemHandler {
             } catch (_: Exception) {}
           }
         }
-        if (it.setListener.not()){
-          it.setListener = true
+        if (tabFragment.setListener.not()){
+          tabFragment.setListener = true
         }
       }
     }
