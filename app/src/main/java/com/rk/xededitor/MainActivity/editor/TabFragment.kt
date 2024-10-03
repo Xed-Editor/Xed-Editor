@@ -193,6 +193,15 @@ class TabFragment : Fragment() {
     return editor
   }
 
+  override fun onDestroyView() {
+    super.onDestroyView()
+    editor?.release()
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    editor?.release()
+  }
 
   companion object {
     private const val ARG_FILE_PATH = "file_path"

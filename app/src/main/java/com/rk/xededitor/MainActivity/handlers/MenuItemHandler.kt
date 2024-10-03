@@ -92,7 +92,6 @@ object MenuItemHandler {
               }
             } catch (_: Exception) {}
           }
-          
         }
         if (it.setListener.not()){
           it.setListener = true
