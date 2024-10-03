@@ -23,6 +23,8 @@
  */
 package io.github.rosemoe.sora.widget;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
@@ -30,6 +32,7 @@ import android.view.KeyEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 import io.github.rosemoe.sora.event.EditorKeyEvent;
@@ -421,8 +424,25 @@ public class EditorKeyEventHandler {
 
             String text = new String(Character.toChars(charCode));
 
+//            ArrayList<String> list = new ArrayList<>();
+//            list.add(">");
+//            list.add("}");
+//            list.add("]");
+//            list.add(")");
+//
+//            if (editorCursor.getRightColumn() > 0 && list.contains(text) && editorText.getLine(editorCursor.getRightLine()).charAt(editorCursor.getRightColumn() - 1) == editorText.getLine(editorCursor.getRightLine()).charAt(editorCursor.getRightColumn())) {
+//                if (editorCursor.getLeftColumn() < editorText.getLine(editorCursor.getLeftLine()).length()){
+//                    editor.setSelection(editorCursor.getLeftLine(), editorCursor.getLeftColumn() + 1);
+//                }
+//            } else {
+//
+//            }
+
             editor.commitText(text);
             editor.notifyIMEExternalCursorChange();
+
+
+
 
         } else {
             return editor.onSuperKeyDown(keyCode, event);

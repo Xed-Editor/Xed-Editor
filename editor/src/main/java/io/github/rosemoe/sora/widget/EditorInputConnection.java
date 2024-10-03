@@ -40,6 +40,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.ArrayList;
+
 import io.github.rosemoe.sora.event.ContentChangeEvent;
 import io.github.rosemoe.sora.event.ImePrivateCommandEvent;
 import io.github.rosemoe.sora.event.SelectionChangeEvent;
@@ -115,7 +117,6 @@ class EditorInputConnection extends BaseInputConnection {
         return editor.getCursor();
     }
 
-    @Override
     public boolean commitText(CharSequence text, int newCursorPosition) {
         if (DEBUG)
             logger.d("commitText text = " + text + ", pos = " + newCursorPosition);
@@ -125,13 +126,35 @@ class EditorInputConnection extends BaseInputConnection {
         }
 
         if ("\n".equals(text.toString())) {
-            // #67
+            // Handle the Enter key
             sendKeyClick(KeyEvent.KEYCODE_ENTER);
         } else {
-            commitTextInternal(text, true);
+            // List of closing characters to check for
+            ArrayList<String> list = new ArrayList<>();
+            list.add(">");
+            list.add("}");
+            list.add("]");
+            list.add(")");
+
+            int cursorLine = editor.getCursor().getRightLine();
+            int cursorColumn = editor.getCursor().getRightColumn();
+            String currentLineText = editor.getText().getLine(cursorLine).toString();
+
+            // Check if the cursor is not at the end of the line and text is one of the closing characters
+            if (cursorColumn < currentLineText.length()
+                    && list.contains(text.toString())
+                    && currentLineText.charAt(cursorColumn) == text.charAt(0)) {
+
+                // Skip over the closing character by moving the cursor forward
+                editor.setSelection(cursorLine, cursorColumn + 1);
+            } else {
+                // Commit the text if not skipping
+                commitTextInternal(text, true);
+            }
         }
         return true;
     }
+
 
     @Override
     public synchronized void closeConnection() {
