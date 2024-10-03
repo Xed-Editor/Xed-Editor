@@ -423,27 +423,8 @@ public class EditorKeyEventHandler {
             }
 
             String text = new String(Character.toChars(charCode));
-
-//            ArrayList<String> list = new ArrayList<>();
-//            list.add(">");
-//            list.add("}");
-//            list.add("]");
-//            list.add(")");
-//
-//            if (editorCursor.getRightColumn() > 0 && list.contains(text) && editorText.getLine(editorCursor.getRightLine()).charAt(editorCursor.getRightColumn() - 1) == editorText.getLine(editorCursor.getRightLine()).charAt(editorCursor.getRightColumn())) {
-//                if (editorCursor.getLeftColumn() < editorText.getLine(editorCursor.getLeftLine()).length()){
-//                    editor.setSelection(editorCursor.getLeftLine(), editorCursor.getLeftColumn() + 1);
-//                }
-//            } else {
-//
-//            }
-
             editor.commitText(text);
             editor.notifyIMEExternalCursorChange();
-
-
-
-
         } else {
             return editor.onSuperKeyDown(keyCode, event);
         }
