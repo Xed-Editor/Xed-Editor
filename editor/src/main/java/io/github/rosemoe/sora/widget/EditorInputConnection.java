@@ -135,6 +135,8 @@ class EditorInputConnection extends BaseInputConnection {
             list.add("}");
             list.add("]");
             list.add(")");
+            list.add("\"");
+            list.add("'");
 
             int cursorLine = editor.getCursor().getRightLine();
             int cursorColumn = editor.getCursor().getRightColumn();
