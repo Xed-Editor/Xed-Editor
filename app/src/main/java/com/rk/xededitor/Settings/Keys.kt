@@ -34,6 +34,8 @@ object Keys {
     const val FORCE_CHAR="force_char_in_terminal"
     const val CTRL_WORKAROUND="ctrlworkaround"
     const val EDITOR_FONT="editor_font"
+    const val FORCE_DESKTOP_MODE="force_desktop_mode"
+    const val FORCE_NORMAL_MODE="force_normal_mode"
     //todo encrypt git keys
     const val GIT_CREDENTIALS = "git_credentials"
     const val GIT_CRED = "git_cred"

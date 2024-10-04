@@ -3,8 +3,10 @@ package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -33,6 +35,11 @@ import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.rkUtils.debug
+import com.rk.xededitor.rkUtils.isDesktopMode
+import com.rk.xededitor.rkUtils.isLandscape
+import com.rk.xededitor.rkUtils.isLargeScreen
+import com.rk.xededitor.rkUtils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,7 +104,11 @@ class MainActivity : BaseActivity() {
     }
     
     BottomBar.setupBottomBar(this)
-    
+
+    debug("Landscape : ${isLandscape(this)}")
+    debug("LargeScreen : ${isLargeScreen(this)}")
+    debug("Desktop Mode : ${isDesktopMode(this)}")
+
   }
   
   @JvmOverloads
@@ -214,7 +225,7 @@ class MainActivity : BaseActivity() {
     drawerLayout.addDrawerListener(drawerToggle)
     drawerToggle.syncState()
     drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-    
+
   }
   
   private fun setupTabLayout() {

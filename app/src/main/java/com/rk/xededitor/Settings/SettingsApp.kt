@@ -137,20 +137,39 @@ class SettingsApp : BaseActivity() {
                 summary = getString(R.string.monet_desc)
                 iconRes = R.drawable.palette
                 defaultValue = false
-                enabled = if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not()) false else true
+                enabled = !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not()
                 onCheckedChange {
-                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not()) {
-                        rkUtils.toast(getString(R.string.old_android))
-                        return@onCheckedChange false
-                    }
-                    LoadingPopup(this@SettingsApp, 180)
                     Toast.makeText(this@SettingsApp, getString(R.string.restart_app), Toast.LENGTH_SHORT)
                         .show()
                     return@onCheckedChange true
                 }
             }
+            if (rkUtils.isDesktopMode(this@SettingsApp).not() and (SettingsData.getBoolean(Keys.FORCE_DESKTOP_MODE,false))){
+                switch(Keys.FORCE_DESKTOP_MODE){
+                    titleRes = R.string.force_desktop
+                    summaryRes = R.string.force_desktop_desc
+                    iconRes = R.drawable.moniter
+                    onCheckedChange {
+                        rkUtils.toast("Not Implemented")
+                        return@onCheckedChange false
+                    }
+                }
+            }
+
+            if (rkUtils.isDesktopMode(this@SettingsApp) and (SettingsData.getBoolean(Keys.FORCE_DESKTOP_MODE,false).not())){
+                switch(Keys.FORCE_NORMAL_MODE){
+                    titleRes = R.string.force_normal
+                    summaryRes = R.string.force_normal_desc
+                    iconRes = R.drawable.small_screen
+                    onCheckedChange {
+                        rkUtils.toast("Not Implemented")
+                        return@onCheckedChange false
+                    }
+                }
+            }
+
             /*
-            * TO-DO: Implement the themes again, but with the Material Design 3 Color Scheme.
+            * TODO: Implement the themes again, but with the Material Design 3 Color Scheme.
             */
         }
     }
