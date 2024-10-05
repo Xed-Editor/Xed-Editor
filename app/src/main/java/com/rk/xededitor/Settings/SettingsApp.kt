@@ -144,7 +144,7 @@ class SettingsApp : BaseActivity() {
                     return@onCheckedChange true
                 }
             }
-            if (rkUtils.isDesktopMode(this@SettingsApp).not() and (SettingsData.getBoolean(Keys.FORCE_DESKTOP_MODE,false))){
+            if (rkUtils.isDesktopMode(this@SettingsApp).not() and (SettingsData.getBoolean(Keys.FORCE_DESKTOP_MODE,false).not())){
                 switch(Keys.FORCE_DESKTOP_MODE){
                     titleRes = R.string.force_desktop
                     summaryRes = R.string.force_desktop_desc

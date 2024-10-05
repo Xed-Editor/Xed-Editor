@@ -105,9 +105,7 @@ class MainActivity : BaseActivity() {
     
     BottomBar.setupBottomBar(this)
 
-    debug("Landscape : ${isLandscape(this)}")
-    debug("LargeScreen : ${isLargeScreen(this)}")
-    debug("Desktop Mode : ${isDesktopMode(this)}")
+    
 
   }
   

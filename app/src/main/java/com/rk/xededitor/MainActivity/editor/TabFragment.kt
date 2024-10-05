@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Environment
 import android.text.InputType
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,9 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
+import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.event.KeyBindingEvent
+import io.github.rosemoe.sora.interfaces.KeyEventHandler
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
@@ -85,7 +89,6 @@ class TabFragment : Fragment() {
         setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
         getComponent(EditorAutoCompletion::class.java).isEnabled = true
 
-
         File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
           typefaceText = if (getBoolean(Keys.EDITOR_FONT, false) and it.exists()) {
             Typeface.createFromFile(it)
@@ -93,6 +96,8 @@ class TabFragment : Fragment() {
             Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")
           }
         }
+
+        setKeyEventHandler(editorKeyEventHandler)
 
       }
 
@@ -214,6 +219,15 @@ class TabFragment : Fragment() {
       fragment.arguments = args
       return fragment
     }
+
+    val editorKeyEventHandler =
+      KeyEventHandler { event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
+
+
+
+        //return false if you want to allow editor to process it also
+        false
+      }
 
 
   }

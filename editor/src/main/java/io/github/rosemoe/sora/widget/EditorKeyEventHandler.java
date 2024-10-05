@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import io.github.rosemoe.sora.event.EditorKeyEvent;
+import io.github.rosemoe.sora.interfaces.KeyEventHandler;
 import io.github.rosemoe.sora.event.InterceptTarget;
 import io.github.rosemoe.sora.event.KeyBindingEvent;
 import io.github.rosemoe.sora.event.SelectionChangeEvent;
@@ -159,6 +160,11 @@ public class EditorKeyEventHandler {
         return editorKeyEvent.result(editor.onSuperKeyDown(keyCode, event));
     }
 
+    private KeyEventHandler userKeyEventHandler = null;
+    public void setUserKeyEventHandler(KeyEventHandler keyEventHandler) {
+        userKeyEventHandler = keyEventHandler;
+    }
+
     private Boolean handleKeyEvent(KeyEvent event,
                                    EditorKeyEvent editorKeyEvent,
                                    KeyBindingEvent keybindingEvent,
@@ -167,6 +173,13 @@ public class EditorKeyEventHandler {
                                    boolean isAltPressed,
                                    boolean isCtrlPressed
     ) {
+
+        if (userKeyEventHandler != null){
+            if(userKeyEventHandler.onKeyEvent(event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed)){
+                return true;
+            }
+        }
+
         final var connection = editor.inputConnection;
         final var editorCursor = editor.getCursor();
         final var editorText = editor.getText();

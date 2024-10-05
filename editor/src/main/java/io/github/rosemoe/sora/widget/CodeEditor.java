@@ -99,6 +99,7 @@ import io.github.rosemoe.sora.event.SelectionChangeEvent;
 import io.github.rosemoe.sora.event.SubscriptionReceipt;
 import io.github.rosemoe.sora.event.TextSizeChangeEvent;
 import io.github.rosemoe.sora.graphics.Paint;
+import io.github.rosemoe.sora.interfaces.KeyEventHandler;
 import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.analysis.StyleUpdateRange;
@@ -447,6 +448,12 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
     protected void cancelAnimation() {
         lastMakeVisible = System.currentTimeMillis();
     }
+
+    public void setKeyEventHandler(io.github.rosemoe.sora.interfaces.KeyEventHandler UserkeyEventHandler){
+        this.keyEventHandler.setUserKeyEventHandler(UserkeyEventHandler);
+    }
+
+
 
     /**
      * Get the width of line number and divider line
