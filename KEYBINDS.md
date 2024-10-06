@@ -12,18 +12,14 @@ Supported KeyBindings on Karbon
 - **CTRL+F**: Find text in the document
 - **CTRL+H**: Find and replace text
 - **CTRL+P**: Print the document
-- **CTRL+Q**: Quit the application
-
-
-# NOT IMPLEMENTED
-- **CTRL+N**: Create a new file/document
-- **CTRL+W**: Close the current file or tab
-- **CTRL+Tab**: Switch between open tabs
-- **CTRL+SHIFT+Tab**: Switch to the previous tab
+- **CTRL+W**: Close the current tab
+- **CTRL+K**: Switch to the previous tab
+- **CTRL+L**: Switch to the next tab 
 - **CTRL+SHIFT+S**: Save As
-- **CTRL+SHIFT+N**: Open a new window
-- **CTRL+L**: Select the current line
-- **CTRL+Home**: Move the cursor to the beginning of the document
-- **CTRL+End**: Move the cursor to the end of the document
+- **CTRL+G**: Move the cursor to the beginning of the document
+- **CTRL+B**: Move the cursor to the end of the document
+
+## NOT IMPLEMENTED
+
 - **F3**: Find the next occurrence of the search term
 - **SHIFT+F3**: Find the previous occurrence of the search term
