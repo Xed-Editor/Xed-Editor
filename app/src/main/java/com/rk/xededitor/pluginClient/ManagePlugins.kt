@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -38,22 +39,30 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+
 import coil.compose.AsyncImage
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import com.rk.libPlugin.server.Plugin
 import com.rk.libPlugin.server.PluginInstaller
 import com.rk.libPlugin.server.PluginUtils
@@ -64,10 +73,13 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.theme.KarbonTheme
 import com.rk.xededitor.BaseActivity
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 import org.eclipse.jgit.api.Git
+
 import java.io.File
 import java.io.Serializable
 
@@ -114,7 +126,6 @@ class ManagePlugins : BaseActivity() {
   private val model: PluginModel by viewModels()
 
   private val PICK_FILE_REQUEST_CODE = 46547
-
 
   @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -168,8 +179,8 @@ class ManagePlugins : BaseActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
-
     setContent {
+      var showAddPluginDialog by remember { mutableStateOf(false) }
       KarbonTheme {
         Scaffold(
           modifier = Modifier.fillMaxSize(),
@@ -187,13 +198,7 @@ class ManagePlugins : BaseActivity() {
           floatingActionButton = {
             FloatingActionButton(
               onClick = {
-                MaterialAlertDialogBuilder(this@ManagePlugins).setTitle("${rkUtils.getString(R.string.add)} ${rkUtils.getString(R.string.plugin)}")
-                  .setMessage(rkUtils.getString(R.string.choose_zip))
-                  .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.choose_file)) { dialog, which ->
-                    val intent = Intent(Intent.ACTION_GET_CONTENT)
-                    intent.type = "*/*"
-                    startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
-                  }.show()
+                showAddPluginDialog = true
               },
               modifier = Modifier.padding(8.dp),
             ) {
@@ -204,8 +209,6 @@ class ManagePlugins : BaseActivity() {
         ) { innerPadding ->
           var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
           val tabs = listOf(getString(R.string.installed), getString(R.string.available))
-
-
 
           Column {
             TabRow(
@@ -228,8 +231,36 @@ class ManagePlugins : BaseActivity() {
               }
             }
           }
-
-
+          if (showAddPluginDialog) {
+             AlertDialog(
+                onDismissRequest = {
+                    showAddPluginDialog = false
+                },
+                title = { Text(text = "${rkUtils.getString(R.string.add)} ${rkUtils.getString(R.string.plugin)}") },
+                text = { Text(text = stringResource(id = R.string.choose_zip)) },
+                confirmButton = {
+                   Button(
+                      onClick = { 
+                         val intent = Intent(Intent.ACTION_GET_CONTENT)
+                         intent.type = "*/*"
+                         startActivityForResult(intent, PICK_FILE_REQUEST_CODE)
+                         showAddPluginDialog = false
+                      }
+                   ) {
+                       Text(stringResource(id = R.string.choose_file))
+                   }
+                },
+                dismissButton = {
+                   OutlinedButton(
+                      onClick = { 
+                        showAddPluginDialog = false
+                      }
+                   ) {
+                       Text(stringResource(id = R.string.cancel))
+                   }
+                }
+             )
+          }
         }
       }
     }
