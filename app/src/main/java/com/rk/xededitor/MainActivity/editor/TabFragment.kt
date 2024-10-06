@@ -17,8 +17,6 @@ import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.Settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
-import io.github.rosemoe.sora.event.EditorKeyEvent
-import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.interfaces.KeyEventHandler
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -223,8 +221,33 @@ class TabFragment : Fragment() {
     val editorKeyEventHandler =
       KeyEventHandler { editor, event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
 
-        if (event.keyCode == KeyEvent.KEYCODE_S && isCtrlPressed){
-          MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.save(true)
+        fun currentEditor(): TabFragment? {
+          return MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
+        }
+
+        if (isCtrlPressed) {
+          when (event.keyCode) {
+            KeyEvent.KEYCODE_S -> {
+              currentEditor()?.save(false)
+            }
+
+            KeyEvent.KEYCODE_PLUS, 70 -> {
+              currentEditor()?.editor?.let {
+                if (it.textSizePx < 57){
+                  it.textSizePx += 2
+                }
+              }
+            }
+
+            KeyEvent.KEYCODE_MINUS -> {
+              currentEditor()?.editor?.let {
+                if (it.textSizePx > 8){
+                  it.textSizePx -= 2
+                }
+              }
+            }
+          }
+
         }
 
         //return false if you want to allow editor to process it also
