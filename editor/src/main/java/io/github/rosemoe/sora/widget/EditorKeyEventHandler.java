@@ -175,7 +175,7 @@ public class EditorKeyEventHandler {
     ) {
 
         if (userKeyEventHandler != null){
-            if(userKeyEventHandler.onKeyEvent(event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed)){
+            if(userKeyEventHandler.onKeyEvent(editor,event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed)){
                 return true;
             }
         }

@@ -221,15 +221,15 @@ class TabFragment : Fragment() {
     }
 
     val editorKeyEventHandler =
-      KeyEventHandler { event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
+      KeyEventHandler { editor, event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
 
-
+        if (event.keyCode == KeyEvent.KEYCODE_S && isCtrlPressed){
+          MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.save(true)
+        }
 
         //return false if you want to allow editor to process it also
         false
       }
-
-
   }
 
 
