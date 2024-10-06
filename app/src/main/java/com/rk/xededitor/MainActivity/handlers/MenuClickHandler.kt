@@ -7,27 +7,33 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
+
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libcommons.LoadingPopup
-import com.rk.libcommons.Printer
-import com.rk.libcommons.ActionPopup
-import com.rk.librunner.Runner
+
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.Settings.SettingsMainActivity
+import com.rk.xededitor.ui.activities.SettingsActivity
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.terminal.Terminal
+import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.Printer
+import com.rk.libcommons.ActionPopup
+import com.rk.librunner.Runner
+
 import io.github.rosemoe.sora.widget.EditorSearcher
+
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -73,7 +79,7 @@ object MenuClickHandler {
             }
             
             R.id.action_settings -> {
-                activity.startActivity(Intent(activity, SettingsMainActivity::class.java))
+                activity.startActivity(Intent(activity, SettingsActivity::class.java))
                 return true
             }
             

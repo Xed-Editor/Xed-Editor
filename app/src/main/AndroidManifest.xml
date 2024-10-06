@@ -36,9 +36,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Settings.TerminalSettings"
-            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -84,23 +81,7 @@
         </activity>
 
         <activity
-            android:name=".Settings.SettingsApp"
-            android:exported="false" />
-
-        <activity
-            android:name=".Settings.SettingsMainActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".Settings.SettingsEditor"
-            android:exported="false" />
-
-        <activity
-            android:name=".Settings.SettingsPlugins"
-            android:exported="false" />
-
-        <activity
-            android:name=".Settings.GitSettings"
+            android:name=".ui.activities.SettingsActivity"
             android:exported="false" />
     </application>
 

@@ -36,3 +36,4 @@ include(":language-textmate")
 include(":commons")
 include(":FileTree")
 
+include("core:components")
