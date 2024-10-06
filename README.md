@@ -36,6 +36,7 @@ Karbon is a powerful text editor for developers, programmers, and power users on
 - [ ] Kotlin
 - [x] Bash
 - [x] Html,css,javascript
+- [x] Keybindings (Read [Available Keybindings](/KEYBINDS.md))
 
 ## Community
 
