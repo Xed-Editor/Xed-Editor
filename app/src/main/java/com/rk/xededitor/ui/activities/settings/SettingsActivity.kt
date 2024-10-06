@@ -1,13 +1,12 @@
-package com.rk.xededitor.ui.activities
+package com.rk.xededitor.ui.activities.settings
 
 import android.os.Bundle
-
 import androidx.activity.compose.setContent
 
-import com.rk.xededitor.R
+import androidx.navigation.compose.rememberNavController
+
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.ui.theme.KarbonTheme
-import com.rk.xededitor.ui.screens.settings.SettingsScreen
 
 class SettingsActivity : BaseActivity() {
 
@@ -15,7 +14,8 @@ class SettingsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KarbonTheme {
-               SettingsScreen()
+                val navController = rememberNavController()
+                SettingsNavHost(navController)
             }
         }
     }

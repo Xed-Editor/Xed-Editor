@@ -81,7 +81,7 @@
         </activity>
 
         <activity
-            android:name=".ui.activities.SettingsActivity"
+            android:name=".ui.activities.settings.SettingsActivity"
             android:exported="false" />
     </application>
 
