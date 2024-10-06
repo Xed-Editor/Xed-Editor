@@ -54,13 +54,15 @@ jobs:
         run: rm /tmp/xed.keystore /tmp/signing.properties
 
       - name: Send APK to Telegram
-        if: success()
-        run: |
-          curl -X POST "${{ secrets.TELEGRAM_URL }}" \
-            -F chat_id="-1002408175863" \
-            -F message_thread_id="582" \
-            -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
-            -F document=@"app/karbon-${COMMIT_HASH}.apk"
+  if: success()
+  run: |
+    COMMIT_HASH=$(git rev-parse --short HEAD)
+    curl -X POST "${{ secrets.TELEGRAM_URL }}" \
+      -F chat_id="-1002408175863" \
+      -F message_thread_id="582" \
+      -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }" \
+      -F document=@"app/karbon-${COMMIT_HASH}.apk"
+
 
   build_debug_apk:
     name: Build Debug
