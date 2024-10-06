@@ -1,5 +1,6 @@
 package com.rk.xededitor.MainActivity.editor
 
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Environment
@@ -10,7 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.rk.libcommons.Printer
+import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.handlers.KeyEventHandler.editorKeyEventHandler
+import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.Settings.Keys
 import com.rk.xededitor.Settings.SettingsData
@@ -218,41 +223,7 @@ class TabFragment : Fragment() {
       return fragment
     }
 
-    val editorKeyEventHandler =
-      KeyEventHandler { editor, event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
 
-        fun currentEditor(): TabFragment? {
-          return MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
-        }
-
-        if (isCtrlPressed) {
-          when (event.keyCode) {
-            KeyEvent.KEYCODE_S -> {
-              currentEditor()?.save(false)
-            }
-
-            KeyEvent.KEYCODE_PLUS, 70 -> {
-              currentEditor()?.editor?.let {
-                if (it.textSizePx < 57){
-                  it.textSizePx += 2
-                }
-              }
-            }
-
-            KeyEvent.KEYCODE_MINUS -> {
-              currentEditor()?.editor?.let {
-                if (it.textSizePx > 8){
-                  it.textSizePx -= 2
-                }
-              }
-            }
-          }
-
-        }
-
-        //return false if you want to allow editor to process it also
-        false
-      }
   }
 
 

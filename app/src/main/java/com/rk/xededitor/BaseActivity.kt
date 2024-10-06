@@ -4,6 +4,7 @@ import android.app.Activity
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Build
+import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.Window
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.graphics.Insets
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
+import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.Settings.SettingsData
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
@@ -32,6 +34,13 @@ abstract class BaseActivity : AppCompatActivity() {
       return activityMap[clazz]?.get()
     }
     
+  }
+
+  override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+    if (event != null) {
+      KeyEventHandler.onAppKeyEvent(event)
+    }
+    return super.onKeyDown(keyCode, event)
   }
 
   override fun onCreate(savedInstanceState: Bundle?) {

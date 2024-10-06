@@ -77,4 +77,6 @@ class App : Application() {
     TerminalSettings.updateProotArgs(this)
 
   }
+
+
 }
