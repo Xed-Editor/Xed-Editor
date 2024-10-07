@@ -10,6 +10,7 @@ import com.google.android.material.color.DynamicColors
 
 import com.rk.xededitor.R
 import com.rk.xededitor.SettingsData
+import com.rk.xededitor.Keys
 
 /**
  * A basic helper for applying the correct theme in the app.
