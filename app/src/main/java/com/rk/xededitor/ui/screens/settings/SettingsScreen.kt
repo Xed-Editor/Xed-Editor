@@ -1,13 +1,15 @@
 package com.rk.xededitor.ui.screens.settings
 
 import android.content.Intent
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+
 import com.rk.xededitor.R
-import com.rk.xededitor.pluginClient.ManagePlugins
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -47,7 +49,7 @@ private fun Categories(navController: NavController) {
         description = stringResource(id = R.string.plugin_desc),
         iconResource = R.drawable.extension,
         onNavigate = {
-            context.let { it.startActivity(Intent(it, ManagePlugins::class.java)) }
+            navController.navigate(SettingsRoutes.ManagePlugins.route)
         }
     )
 

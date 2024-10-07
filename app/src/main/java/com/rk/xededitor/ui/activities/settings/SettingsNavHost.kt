@@ -16,7 +16,7 @@ import com.rk.xededitor.ui.screens.settings.manage.ManagePluginsScreen
 
 @Composable
 fun SettingsNavHost(
-    navController: NavHostController
+    navController: NavHostController,
     context: Context
 ) {
     NavHost(navController = navController, startDestination = SettingsRoutes.Settings.route) {
