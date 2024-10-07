@@ -32,16 +32,16 @@ object ThemeManager {
 
         // apply OLED theme if dark mode and OLED setting is enable
         if (SettingsData.isDarkMode(activity) && SettingsData.isOled()) {
+            if (SettingsData.isMonet()) {
+               activity.setTheme(R.style.Theme_Karbon_Oled_Monet)
+               return
+            }
             activity.setTheme(R.style.Theme_Karbon_Oled)
+            return
         }
-        
-        // enable monet theme
-        if (SettingsData.isMonet()) {
-            DynamicColors.applyToActivityIfAvailable(activity)
-            activity.setTheme(R.style.Theme_Karbon_Oled)
-        }
+        DynamicColors.applyToActivityIfAvailable(activity)
     }
-
+    
     /**
      * Returns the current theme.
      * @param ctx The context from which to get the theme.
