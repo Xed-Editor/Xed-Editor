@@ -2,9 +2,9 @@ package com.rk.xededitor.MainActivity.handlers
 
 import android.os.Build
 import com.rk.xededitor.App
+import com.rk.xededitor.Keys
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 

@@ -11,11 +11,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.file.ProjectManager
-
+import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

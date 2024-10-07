@@ -7,12 +7,12 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
+import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.SettingsMainActivity
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.terminal.Terminal
+import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -28,7 +28,7 @@ object HandleMenuItemClick {
                 }
 
                 R.id.action_settings -> {
-                    startActivity(Intent(this, SettingsMainActivity::class.java))
+                    startActivity(Intent(this, SettingsActivity::class.java))
                 }
 
                 R.id.action_save -> {

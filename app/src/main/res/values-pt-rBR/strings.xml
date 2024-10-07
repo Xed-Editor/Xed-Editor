@@ -229,4 +229,27 @@
     <string name="unsupported_aarch">Plataforma não suportada, use Modo de Segurança</string>
     <string name="pkg_download_failed">Falha no download do pacote</string>
     <string name="copy_failed">Falha ao copiar o arquivo</string>
+    
+    <string name="install_done">Instalado com Sucesso</string>
+    <string name="invalid_file_type">Tipo de arquivo inválido, Arquivo Zip Esperado</string>
+    <string name="install_failed">Falha ao instalar</string>
+    <string name="choose_zip">Selecione o arquivo zip do plugin no armazenamento para instalá-lo.</string>
+    <string name="choose_file">Escolha o arquivo</string>
+
+    <string name="force_char">Força Char</string>
+    <string name="force_char_desc">Forçar entrada baseada em Char no Terminal</string>
+    <string name="useCtrlWorkaround">Use Ctrl Solução alternativa</string>
+    <string name="useCtrlWorkaround_desc">Use Ctrl Espaço Solução alternativa</string>
+    <string name="editor_font">Fonte do editor</string>
+    <string name="editor_font_desc">Quando habilitado, a fonte de /sdcard/karbon/font.ttf será usada</string>
+    <string name="force_desktop">Forçar modo de área de trabalho</string>
+    <string name="force_desktop_desc">Forçar layout da área de trabalho em dispositivos com tela menor</string>
+    <string name="force_normal">Forçar modo normal</string>
+    <string name="force_normal_desc">Forçar layout normal em dispositivos de tela grande</string>
+    
+    <string name="light_mode">Claro</string>
+    <string name="dark_mode">Escuro</string>
+    <string name="auto_mode">Automático</string>
+    <string name="select_theme_mode" >Selecione o modo de tema</string>
+    
 </resources>

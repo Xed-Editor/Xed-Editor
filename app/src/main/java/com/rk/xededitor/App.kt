@@ -9,9 +9,7 @@ import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.Settings.TerminalSettings
+import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -66,15 +64,13 @@ class App : Application() {
     }
     
     //start plugin loader
-    After(200){
-      if (SettingsData.getBoolean(Keys.ENABLE_PLUGINS,false)){
-        val pluginLoader = Loader(this)
-        pluginLoader.start()
-      }
+    After(2000){
+      val pluginLoader = Loader(this)
+      pluginLoader.start()
     }
     
     SetupEditor.init(this)
-    TerminalSettings.updateProotArgs(this)
+    updateProotArgs(this)
 
   }
 

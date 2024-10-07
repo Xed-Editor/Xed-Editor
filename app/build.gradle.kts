@@ -59,7 +59,7 @@ android {
         storeFile = if (isGITHUB_ACTION) {
           File("/tmp/xed.keystore")
         } else {
-          File(properties["storeFile"] as String?)
+          (properties["storeFile"] as String?)?.let { File(it) }
         }
         
         storePassword = properties["storePassword"] as String?
@@ -115,7 +115,7 @@ android {
     jvmTarget = "17"
   }
   composeOptions {
-    kotlinCompilerExtensionVersion = "1.5.1"
+    kotlinCompilerExtensionVersion = "1.5.15"
   }
   packaging {
     resources {
@@ -153,7 +153,6 @@ dependencies {
   implementation(libs.terminal.view)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
-  implementation(project(":SettingDSL"))
   implementation(project(":PluginLoader"))
   implementation(project(":libRunner"))
   implementation(project(":commons"))
@@ -172,4 +171,5 @@ dependencies {
   implementation(libs.coil.compose)
   implementation(libs.insetter)
   implementation(libs.bsh)
+  implementation(project(":core:components"))
 }

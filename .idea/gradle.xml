@@ -14,6 +14,8 @@
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/SettingDSL" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/commons" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/core" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/core/components" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor-lsp" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/language-textmate" />

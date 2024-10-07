@@ -1,7 +1,7 @@
 [versions]
 agp = "8.5.2"
 appcompat = "1.7.0"
-browser = "1.5.0"
+browser = "1.8.0"
 bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.9.0"
 desugar_jdk_libs = "2.1.2"
@@ -10,12 +10,12 @@ lsp4j = "0.22.0"
 material = "1.12.0"
 constraintlayout = "2.1.4"
 modernandroidpreferences = "2.4.0-beta1"
-navigationFragment = "2.8.0"
-navigationUi = "2.8.0"
-kotlin = "2.0.0"
+navigationFragment = "2.8.2"
+navigationUi = "2.8.2"
+kotlin = "2.0.20"
 asynclayoutinflater = "1.0.0"
-navigationFragmentKtx = "2.8.0"
-navigationUiKtx = "2.8.0"
+navigationFragmentKtx = "2.8.2"
+navigationUiKtx = "2.8.2"
 coreKtx = "1.13.1"
 activity = "1.9.2"
 nbJavacAndroid = "17.0.0.3"
@@ -24,18 +24,18 @@ orgEclipseJgit = "6.2.0.202206071550-r"
 sshj = "0.38.0"
 swiperefreshlayout = "1.1.0"
 terminalView = "0.118.0"
-kotlinPlugin = "1.8.10"
+kotlinPlugin = "2.0.20"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 coordinatorlayout = "1.2.0"
-lifecycleLivedataKtx = "2.8.4"
-lifecycleViewmodelKtx = "2.8.4"
+lifecycleLivedataKtx = "2.8.6"
+lifecycleViewmodelKtx = "2.8.6"
 lifecycleRuntimeKtx = "2.8.6"
 activityCompose = "1.9.2"
-composeBom = "2024.04.01"
-coilCompose = "2.1.0"
-navigationCompose = "2.8.1"
+composeBom = "2024.09.03"
+coilCompose = "2.7.0"
+navigationCompose = "2.8.2"
 
 [libraries]
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
@@ -62,7 +62,7 @@ org-eclipse-jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref =
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
-kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.8.0" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.9.0" }
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
 gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
@@ -85,6 +85,7 @@ ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+material-compose = { group = "androidx.compose.material", name = "material", version = "1.7.3" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 insetter = { group = "dev.chrisbanes.insetter", name = "insetter", version = "0.6.1" }

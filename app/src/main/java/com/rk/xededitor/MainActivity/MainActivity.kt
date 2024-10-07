@@ -3,10 +3,8 @@ package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
 import android.content.res.Resources
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -24,22 +22,17 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.SetupEditor
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
+import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
+import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
-import com.rk.xededitor.rkUtils.debug
-import com.rk.xededitor.rkUtils.isDesktopMode
-import com.rk.xededitor.rkUtils.isLandscape
-import com.rk.xededitor.rkUtils.isLargeScreen
-import com.rk.xededitor.rkUtils.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

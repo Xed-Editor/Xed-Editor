@@ -8,8 +8,6 @@ import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
