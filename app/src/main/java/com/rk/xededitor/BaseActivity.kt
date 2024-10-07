@@ -11,7 +11,6 @@ import androidx.core.view.WindowInsetsCompat
 import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.ui.theme.ThemeManager
-import dev.chrisbanes.insetter.Insetter
 import java.lang.ref.WeakReference
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -38,13 +37,6 @@ abstract class BaseActivity : AppCompatActivity() {
     super.onCreate(savedInstanceState)
     activityMap[javaClass] = WeakReference(this)
     PluginLifeCycle.onActivityEvent(this,PluginLifeCycle.LifeCycleType.CREATE)
-  }
-  
-  fun edgeToEdge(v: View) {
-    enableEdgeToEdge()
-    Insetter.builder()
-      .padding(WindowInsetsCompat.Type.navigationBars())
-      .applyToView(v);
   }
   
   override fun onResume() {

@@ -88,7 +88,6 @@ ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 material-compose = { group = "androidx.compose.material", name = "material", version = "1.7.3" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-insetter = { group = "dev.chrisbanes.insetter", name = "insetter", version = "0.6.1" }
 [plugins]
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
