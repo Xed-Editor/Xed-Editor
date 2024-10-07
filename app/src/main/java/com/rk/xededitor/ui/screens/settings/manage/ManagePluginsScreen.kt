@@ -275,7 +275,7 @@ fun Installed(
 
                     Switch(checked = active, onCheckedChange = { checked ->
                         active = checked
-                         coroutineScope.launch(Dispatchers.IO) {
+                        coroutineScope.launch(Dispatchers.IO) {
                             PluginUtils.setPluginActive(
                                 context, plugin.info.packageName, checked
                             )
