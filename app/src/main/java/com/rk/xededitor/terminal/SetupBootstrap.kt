@@ -6,8 +6,8 @@ import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
 import com.rk.librunner.commonUtils
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers

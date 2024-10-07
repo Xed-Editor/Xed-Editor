@@ -2,8 +2,8 @@ package com.rk.xededitor
 
 import android.content.Context
 import android.graphics.Color
-import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.Settings.SettingsData.isDarkMode
+import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.settings.SettingsData.isDarkMode
 import com.rk.xededitor.rkUtils.runOnUiThread
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme

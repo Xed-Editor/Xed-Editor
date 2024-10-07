@@ -7,8 +7,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R

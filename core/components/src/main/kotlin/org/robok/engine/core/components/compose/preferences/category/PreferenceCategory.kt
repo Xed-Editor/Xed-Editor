@@ -44,6 +44,8 @@ fun PreferenceCategory(
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     description: String? = null,
+    endWidget: (@Composable () -> Unit)? = null,
+    enabled: Boolean = true
 ) {
     PreferenceTemplate(
         modifier = modifier
@@ -78,5 +80,11 @@ fun PreferenceCategory(
                 )
             }
         },
+        endWidget = {
+            endWidget?.let {
+                it()
+            }
+        },
+        enabled = enabled
     )
 }

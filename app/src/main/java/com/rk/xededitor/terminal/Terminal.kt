@@ -13,8 +13,8 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants

@@ -15,9 +15,9 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData.getBoolean
-import com.rk.xededitor.Settings.SettingsData.getString
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData.getBoolean
+import com.rk.xededitor.settings.SettingsData.getString
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.toast

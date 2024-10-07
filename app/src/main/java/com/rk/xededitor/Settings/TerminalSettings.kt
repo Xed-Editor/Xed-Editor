@@ -1,4 +1,4 @@
-package com.rk.xededitor.Settings
+package com.rk.xededitor.settings
 
 import android.content.Context
 import android.graphics.Color
@@ -15,7 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.SettingsData.getBoolean
+import com.rk.xededitor.settings.SettingsData.getBoolean
 import com.rk.xededitor.databinding.ActivitySettingsMainBinding
 import com.rk.xededitor.rkUtils
 import de.Maxr1998.modernpreferences.PreferenceScreen

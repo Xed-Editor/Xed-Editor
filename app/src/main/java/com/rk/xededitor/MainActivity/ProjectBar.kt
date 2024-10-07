@@ -12,8 +12,8 @@ import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.MainActivity.file.ProjectManager
 
 import com.rk.xededitor.rkUtils

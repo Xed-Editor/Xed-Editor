@@ -25,8 +25,8 @@ import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.file.FileManager

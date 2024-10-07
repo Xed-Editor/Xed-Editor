@@ -1,4 +1,4 @@
-package com.rk.xededitor.Settings
+package com.rk.xededitor.settings
 
 import android.os.Bundle
 import android.text.InputType

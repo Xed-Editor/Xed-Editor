@@ -1,4 +1,4 @@
-package com.rk.xededitor.Settings
+package com.rk.xededitor.settings
 
 import android.content.Intent
 import android.graphics.Color

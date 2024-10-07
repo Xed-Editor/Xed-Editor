@@ -1,4 +1,4 @@
-package com.rk.xededitor.Settings
+package com.rk.xededitor.settings
 
 import android.os.Build
 import android.os.Bundle

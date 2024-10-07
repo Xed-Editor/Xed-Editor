@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.SettingsData
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,

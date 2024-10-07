@@ -17,9 +17,9 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler.editorKeyEventHandler
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.Settings.SettingsData.getBoolean
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.settings.SettingsData.getBoolean
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.interfaces.KeyEventHandler

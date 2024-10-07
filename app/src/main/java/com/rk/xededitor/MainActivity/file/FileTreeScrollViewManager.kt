@@ -6,8 +6,8 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
 import kotlin.properties.Delegates
 
 

@@ -19,7 +19,7 @@ import androidx.core.graphics.Insets
 import androidx.collection.ArrayMap
 import com.rk.libPlugin.server.api.PluginLifeCycle
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
 import dev.chrisbanes.insetter.Insetter;

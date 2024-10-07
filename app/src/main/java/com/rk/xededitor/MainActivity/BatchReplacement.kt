@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.SettingsData
 import com.rk.xededitor.SimpleEditor.SimpleEditor
 import com.rk.xededitor.databinding.ActivityBatchReplacementBinding
 import com.rk.xededitor.rkUtils.dpToPx

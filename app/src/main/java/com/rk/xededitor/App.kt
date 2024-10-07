@@ -9,9 +9,9 @@ import com.rk.libPlugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
-import com.rk.xededitor.Settings.Keys
-import com.rk.xededitor.Settings.SettingsData
-import com.rk.xededitor.Settings.TerminalSettings
+import com.rk.xededitor.settings.Keys
+import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.settings.TerminalSettings
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

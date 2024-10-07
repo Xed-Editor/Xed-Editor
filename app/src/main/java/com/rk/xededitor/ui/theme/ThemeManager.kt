@@ -7,7 +7,7 @@ import android.content.res.Resources
 import com.google.android.material.color.DynamicColors
 
 import com.rk.xededitor.R
-import com.rk.xededitor.Settings.SettingsData
+import com.rk.xededitor.settings.SettingsData
 
 /**
 * A Basic Helper for Apply correct theme in app

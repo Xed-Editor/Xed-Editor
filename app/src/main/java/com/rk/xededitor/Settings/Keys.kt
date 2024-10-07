@@ -1,4 +1,4 @@
-package com.rk.xededitor.Settings
+package com.rk.xededitor.settings
 
 object Keys {
     //try to avoid using spacial characters in keys except _
