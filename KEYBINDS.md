@@ -18,8 +18,3 @@ Supported KeyBindings on Karbon
 - **CTRL+SHIFT+S**: Save As
 - **CTRL+G**: Move the cursor to the beginning of the document
 - **CTRL+B**: Move the cursor to the end of the document
-
-## NOT IMPLEMENTED
-
-- **F3**: Find the next occurrence of the search term
-- **SHIFT+F3**: Find the previous occurrence of the search term
