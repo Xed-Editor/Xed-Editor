@@ -115,15 +115,14 @@ fun SettingsEditorScreen() {
       onNavigate = {
         smoothTabs = !smoothTabs
         SettingsData.setBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
+        MainActivity.activityRef.get()?.smoothTabs = smoothTabs
       },
       endWidget = {
         Switch(modifier = Modifier
           .padding(12.dp)
           .height(24.dp),
           checked = smoothTabs,
-          onCheckedChange = {
-            MainActivity.activityRef.get()?.smoothTabs = it
-          })
+          onCheckedChange = null)
       })
 
     PreferenceCategory(label = stringResource(id = R.string.ww),
@@ -131,20 +130,17 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.reorder,
       onNavigate = {
         wordwrap = !wordwrap
-        SettingsData.setBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, wordwrap)
+        SettingsData.setBoolean(Keys.WORD_WRAP_ENABLED, wordwrap)
+        MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+          f.value.get()?.editor?.isWordwrap = wordwrap
+        }
       },
       endWidget = {
         Switch(modifier = Modifier
           .padding(12.dp)
           .height(24.dp),
           checked = wordwrap,
-          onCheckedChange = { isChecked ->
-            getActivity(MainActivity::class.java)?.let {
-              (it as MainActivity).adapter.tabFragments.forEach { f ->
-                f.value.get()?.editor?.isWordwrap = isChecked
-              }
-            }
-          })
+          onCheckedChange = null)
       })
 
 
@@ -193,19 +189,18 @@ fun SettingsEditorScreen() {
       onNavigate = {
         cursorAnimation = !cursorAnimation
         SettingsData.setBoolean(Keys.CURSOR_ANIMATION_ENABLED, cursorAnimation)
+        getActivity(MainActivity::class.java)?.let {
+          (it as MainActivity).adapter.tabFragments.forEach { f ->
+            f.value.get()?.editor?.isCursorAnimationEnabled = cursorAnimation
+          }
+        }
       },
       endWidget = {
         Switch(modifier = Modifier
           .padding(12.dp)
           .height(24.dp),
           checked = cursorAnimation,
-          onCheckedChange = { isChecked ->
-            getActivity(MainActivity::class.java)?.let {
-              (it as MainActivity).adapter.tabFragments.forEach { f ->
-                f.value.get()?.editor?.isCursorAnimationEnabled = isChecked
-              }
-            }
-          })
+          onCheckedChange = null)
       })
 
     PreferenceCategory(label = stringResource(id = R.string.show_line_number),
@@ -214,19 +209,18 @@ fun SettingsEditorScreen() {
       onNavigate = {
         showLineNumber = !showLineNumber
         SettingsData.setBoolean(Keys.CURSOR_ANIMATION_ENABLED, showLineNumber)
+        getActivity(MainActivity::class.java)?.let {
+          (it as MainActivity).adapter.tabFragments.forEach { f ->
+            f.value.get()?.editor?.isLineNumberEnabled = showLineNumber
+          }
+        }
       },
       endWidget = {
         Switch(modifier = Modifier
           .padding(12.dp)
           .height(24.dp),
           checked = showLineNumber,
-          onCheckedChange = { isChecked ->
-            getActivity(MainActivity::class.java)?.let {
-              (it as MainActivity).adapter.tabFragments.forEach { f ->
-                f.value.get()?.editor?.isLineNumberEnabled = isChecked
-              }
-            }
-          })
+          onCheckedChange = null)
       })
 
     PreferenceCategory(label = stringResource(id = R.string.pin_line_number),
@@ -235,19 +229,18 @@ fun SettingsEditorScreen() {
       onNavigate = {
         pinLineNumber = !pinLineNumber
         SettingsData.setBoolean(Keys.PIN_LINE_NUMBER, pinLineNumber)
+        getActivity(MainActivity::class.java)?.let {
+          (it as MainActivity).adapter.tabFragments.forEach { f ->
+            f.value.get()?.editor?.setPinLineNumber(pinLineNumber)
+          }
+        }
       },
       endWidget = {
         Switch(modifier = Modifier
           .padding(12.dp)
           .height(24.dp),
           checked = pinLineNumber,
-          onCheckedChange = { isChecked ->
-            getActivity(MainActivity::class.java)?.let {
-              (it as MainActivity).adapter.tabFragments.forEach { f ->
-                f.value.get()?.editor?.setPinLineNumber(isChecked)
-              }
-            }
-          })
+          onCheckedChange = null)
       })
 
     PreferenceCategory(label = stringResource(id = R.string.extra_keys),
@@ -256,42 +249,41 @@ fun SettingsEditorScreen() {
       onNavigate = {
         showArrowKeys = !showArrowKeys
         SettingsData.setBoolean(Keys.SHOW_ARROW_KEYS, showArrowKeys)
+        MainActivity.activityRef.get()?.let { activity ->
+          if (activity.tabViewModel.fragmentFiles.isEmpty()) {
+            return@let
+          }
+          if (showArrowKeys) {
+            activity.binding.apply {
+              divider.visibility = View.VISIBLE
+              mainBottomBar.visibility = View.VISIBLE
+            }
+          } else {
+            activity.binding.apply {
+              divider.visibility = View.GONE
+              mainBottomBar.visibility = View.GONE
+            }
+          }
+
+          val viewpager = activity.binding.viewpager2
+          val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
+          layoutParams.bottomMargin = rkUtils.dpToPx(
+            if (showArrowKeys) {
+              40f
+            } else {
+              0f
+            }, activity
+          )
+          viewpager.setLayoutParams(layoutParams)
+
+        }
       },
       endWidget = {
         Switch(modifier = Modifier
           .padding(12.dp)
           .height(24.dp),
           checked = showArrowKeys,
-          onCheckedChange = { isChecked ->
-            MainActivity.activityRef.get()?.let { activity ->
-              if (activity.tabViewModel.fragmentFiles.isEmpty()) {
-                return@Switch
-              }
-              if (isChecked) {
-                activity.binding.apply {
-                  divider.visibility = View.VISIBLE
-                  mainBottomBar.visibility = View.VISIBLE
-                }
-              } else {
-                activity.binding.apply {
-                  divider.visibility = View.GONE
-                  mainBottomBar.visibility = View.GONE
-                }
-              }
-
-              val viewpager = activity.binding.viewpager2
-              val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
-              layoutParams.bottomMargin = rkUtils.dpToPx(
-                if (isChecked) {
-                  40f
-                } else {
-                  0f
-                }, activity
-              )
-              viewpager.setLayoutParams(layoutParams)
-
-            }
-          })
+          onCheckedChange = null)
       })
 
     PreferenceCategory(label = stringResource(id = R.string.auto_save),
