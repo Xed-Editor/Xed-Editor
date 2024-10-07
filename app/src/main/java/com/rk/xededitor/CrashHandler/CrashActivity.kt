@@ -71,20 +71,6 @@ class CrashActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
             error_editor.editable = false
-            if (!SettingsData.isDarkMode(this)) {
-                //light mode
-                window.navigationBarColor = Color.parseColor("#FEF7FF")
-                val decorView = window.decorView
-                var flags = decorView.systemUiVisibility
-                flags = flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-                decorView.systemUiVisibility = flags
-            }
-            if (SettingsData.isDarkMode(this) && SettingsData.isOled()) {
-                val window = window
-                window.navigationBarColor = Color.BLACK
-                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-                window.statusBarColor = Color.BLACK
-            }
         } catch (e: Exception) {
             e.printStackTrace()
             try {
