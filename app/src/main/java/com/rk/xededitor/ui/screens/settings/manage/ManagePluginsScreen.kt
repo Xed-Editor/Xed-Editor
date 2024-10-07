@@ -69,7 +69,7 @@ fun ManagePluginsScreen(
 
     val pickFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            val fileName = getFileName(it)
+            val fileName = getFileName(uri = it, context = context)
             if (fileName?.endsWith(".zip") == true) {
                 showLoading = true
 
@@ -383,33 +383,35 @@ fun ConfirmationDialog(
 }
 
 @Composable
-    fun LoadingIndicatorDialog(
-        isShow: Boolean, 
-        onDismiss: () -> Unit
-    ) {
-        if (isShow) {
-            Dialog(
-                onDismissRequest = { onDismiss() },
-                DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(22.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .padding(16.dp)
-                        )
-                }
+fun LoadingIndicatorDialog(
+     isShow: Boolean, 
+     onDismiss: () -> Unit
+) {
+     if (isShow) {
+         Dialog(
+            onDismissRequest = { onDismiss() },
+            DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+         ) {
+            Box(
+               contentAlignment = Alignment.Center,
+               modifier = Modifier
+                   .clip(RoundedCornerShape(22.dp))
+                   .background(MaterialTheme.colorScheme.surfaceVariant)
+               ) {
+                   CircularProgressIndicator(
+                        modifier = Modifier
+                            .padding(16.dp)
+                   )
             }
-        }
-    }
-
-private fun getFileName(uri: Uri): String? {
+         }
+     }
+}
+private fun getFileName(
+    uri: Uri,
+    context: Context
+): String? {
     var result: String? = null
-    val cursor = LocalContext.current.contentResolver.query(uri, null, null, null, null)
+    val cursor = context.contentResolver.query(uri, null, null, null, null)
     cursor?.use {
         if (it.moveToFirst()) {
             val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
