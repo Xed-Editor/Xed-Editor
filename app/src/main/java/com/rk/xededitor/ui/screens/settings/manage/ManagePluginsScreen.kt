@@ -300,6 +300,7 @@ private fun PluginRow(
         else -> {
             title = "Unknown Plugin"
             packageName = "Unknown Package"
+            description = "Unknown Description"
             icon = null
         }
     }
