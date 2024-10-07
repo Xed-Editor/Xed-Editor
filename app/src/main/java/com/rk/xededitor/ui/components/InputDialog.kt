@@ -1,6 +1,7 @@
 package com.rk.xededitor.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -27,7 +28,8 @@ fun InputDialog(
                     value = inputValue,
                     onValueChange = onInputValueChange,
                     label = { Text(inputLabel) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
                 )
             }
         },
