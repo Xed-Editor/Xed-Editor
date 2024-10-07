@@ -30,7 +30,6 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceLayou
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsAppScreen() {
     PreferenceLayout(
@@ -39,7 +38,7 @@ fun SettingsAppScreen() {
     ) {
         var isOled by remember { mutableStateOf(SettingsData.isOled()) }
         var isMonet by remember { mutableStateOf(SettingsData.isMonet()) }
-        var showDayNightBottomSheet = remember { mutableStateOf(false) }
+        val showDayNightBottomSheet = remember { mutableStateOf(false) }
         val context = LocalContext.current
         
         PreferenceCategory(
@@ -58,7 +57,6 @@ fun SettingsAppScreen() {
             onNavigate = {
                  isOled = !isOled
                  SettingsData.setBoolean(Keys.OLED, isOled)
-                 ReCreate(context)
             },
             endWidget = {
                  Switch(
@@ -78,7 +76,6 @@ fun SettingsAppScreen() {
             onNavigate = {
                  isMonet = !isMonet
                  SettingsData.setBoolean(Keys.MONET, isMonet)
-                 ReCreate(context)
             },
             endWidget = {
                  Switch(
@@ -95,10 +92,6 @@ fun SettingsAppScreen() {
     }
 }
 
-private fun ReCreate(context: Context) {
-    (context as Activity).recreate()
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayNightDialog(
@@ -109,7 +102,7 @@ fun DayNightDialog(
     val btnSheetScope = rememberCoroutineScope()
 
     var selectedMode by remember {
-        mutableStateOf(
+        mutableIntStateOf(
             SettingsData.getString(
                 Keys.DEFAULT_NIGHT_MODE,
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
