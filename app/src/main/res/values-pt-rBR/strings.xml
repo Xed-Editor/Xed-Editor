@@ -254,4 +254,8 @@
     
     <string name="cannot_be_empty">Não pode ser vazio.</string>
     
+    <string namr="theme_mode">Modo do Tema</string>
+    <string namr="theme_mode_desc">Altere o modo do tema para automático, claro ou escuro.</string>
+    
+    
 </resources>

@@ -33,9 +33,9 @@ fun SettingsAppScreen() {
         val context = LocalContext.current
         
         PreferenceCategory(
-            label = stringResource(id = R.string.oled),
-            description = stringResource(id = R.string.oled_desc),
-            iconResource = R.drawable.dark_mode,
+            label = stringResource(id = R.string.theme_mode),
+            description = stringResource(id = R.string.theme_mode_desc),
+            iconResource = R.drawable.theme_mode,
             onNavigate = {
                  showDayNightBottomSheet.value = true
             }

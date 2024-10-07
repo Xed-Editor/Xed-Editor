@@ -257,4 +257,7 @@
     
     <string name="cannot_be_empty">It cannot be empty.</string>
     
+    <string namr="theme_mode">Theme Mode</string>
+    <string namr="theme_mode_desc">Change theme mode to auto, light or dark.</string>
+    
 </resources>
