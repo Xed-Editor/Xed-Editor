@@ -165,7 +165,6 @@ fun ManagePluginsScreen(
             ConfirmationDialog(
                 onDismissRequest = { 
                     showConfirmationDialog = false 
-                    selectedPlugin = null 
                 },
                 plugin = selectedPlugin!!,
                 onConfirm = {
