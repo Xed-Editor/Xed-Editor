@@ -4,35 +4,45 @@ import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 
+import androidx.appcompat.app.AppCompatDelegate
+
 import com.google.android.material.color.DynamicColors
 
 import com.rk.xededitor.R
 import com.rk.xededitor.SettingsData
 
 /**
-* A Basic Helper for Apply correct theme in app
-* @author Aquiles Trindade (trindadedev).
-*/
-
+ * A basic helper for applying the correct theme in the app.
+ * @author Aquiles Trindade (trindadedev).
+ */
 object ThemeManager {
-    
+
     /**
-    * Function that applies the theme
-    * Checks if the user is in the dark theme, and if they have the oled theme enabled, if so, applies the oled theme.
-    * Checks if the user has the "Dynamic Colors" function activated, if so, applies Dynamic Colors.
-    * @param activity, An instance of an Activity.
-    */
+     * Applies the theme based on user settings.
+     * @param activity An instance of an Activity.
+     */
     fun apply(activity: Activity) {
-        if (SettingsData.isMonet()) {
-             DynamicColors.applyToActivityIfAvailable(activity)
+        val nightMode = SettingsData.getString(Keys.DEFAULT_NIGHT_MODE, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()).toInt()
+        
+        // set theme mode
+        if (nightMode != AppCompatDelegate.getDefaultNightMode()) {
+            AppCompatDelegate.setDefaultNightMode(nightMode)
         }
+
+        // enable monet theme
+        if (SettingsData.isMonet()) {
+            DynamicColors.applyToActivityIfAvailable(activity)
+        }
+
+        // apply OLED theme if dark mode and OLED setting is enable
         if (SettingsData.isDarkMode(activity) && SettingsData.isOled()) {
-             activity.setTheme(R.style.Theme_Karbon_Oled)
+            activity.setTheme(R.style.Theme_Karbon_Oled)
         }
     }
-    
+
     /**
-    * @returns Return a current theme.
-    */
+     * Returns the current theme.
+     * @param ctx The context from which to get the theme.
+     */
     fun getCurrentTheme(ctx: Context): Resources.Theme? = ctx.theme
 }
