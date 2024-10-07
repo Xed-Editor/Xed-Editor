@@ -30,14 +30,14 @@ object ThemeManager {
             AppCompatDelegate.setDefaultNightMode(nightMode)
         }
 
-        // enable monet theme
-        if (SettingsData.isMonet()) {
-            DynamicColors.applyToActivityIfAvailable(activity)
-        }
-
         // apply OLED theme if dark mode and OLED setting is enable
         if (SettingsData.isDarkMode(activity) && SettingsData.isOled()) {
             activity.setTheme(R.style.Theme_Karbon_Oled)
+        }
+        
+        // enable monet theme
+        if (SettingsData.isMonet()) {
+            DynamicColors.applyToActivityIfAvailable(activity)
         }
     }
 
