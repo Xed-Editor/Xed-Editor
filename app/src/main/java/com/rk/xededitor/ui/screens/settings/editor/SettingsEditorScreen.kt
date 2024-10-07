@@ -1,5 +1,10 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
+import android.text.InputType
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
+import android.widget.RelativeLayout
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Switch
@@ -9,16 +14,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.settings.Keys
 import com.rk.xededitor.settings.SettingsData
-import de.Maxr1998.modernpreferences.helpers.onCheckedChange
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -85,6 +92,22 @@ fun SettingsEditorScreen() {
         )
       )
     }
+    var autoSave by remember {
+      mutableStateOf(
+        SettingsData.getBoolean(
+          Keys.AUTO_SAVE, false
+        )
+      )
+    }
+    var editorFont by remember {
+      mutableStateOf(
+        SettingsData.getBoolean(
+          Keys.EDITOR_FONT, false
+        )
+      )
+    }
+
+    val context = LocalContext.current
 
     PreferenceCategory(label = stringResource(id = R.string.smooth_tabs),
       description = stringResource(id = R.string.smooth_tab_desc),
@@ -94,15 +117,13 @@ fun SettingsEditorScreen() {
         SettingsData.setBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
       },
       endWidget = {
-        Switch(
-          modifier = Modifier
-            .padding(12.dp)
-            .height(24.dp),
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
           checked = smoothTabs,
           onCheckedChange = {
             MainActivity.activityRef.get()?.smoothTabs = it
-          }
-        )
+          })
       })
 
     PreferenceCategory(label = stringResource(id = R.string.ww),
@@ -113,10 +134,9 @@ fun SettingsEditorScreen() {
         SettingsData.setBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, wordwrap)
       },
       endWidget = {
-        Switch(
-          modifier = Modifier
-            .padding(12.dp)
-            .height(24.dp),
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
           checked = wordwrap,
           onCheckedChange = { isChecked ->
             getActivity(MainActivity::class.java)?.let {
@@ -124,8 +144,7 @@ fun SettingsEditorScreen() {
                 f.value.get()?.editor?.isWordwrap = isChecked
               }
             }
-          }
-        )
+          })
       })
 
 
@@ -176,10 +195,9 @@ fun SettingsEditorScreen() {
         SettingsData.setBoolean(Keys.CURSOR_ANIMATION_ENABLED, cursorAnimation)
       },
       endWidget = {
-        Switch(
-          modifier = Modifier
-            .padding(12.dp)
-            .height(24.dp),
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
           checked = cursorAnimation,
           onCheckedChange = { isChecked ->
             getActivity(MainActivity::class.java)?.let {
@@ -187,8 +205,7 @@ fun SettingsEditorScreen() {
                 f.value.get()?.editor?.isCursorAnimationEnabled = isChecked
               }
             }
-          }
-        )
+          })
       })
 
     PreferenceCategory(label = stringResource(id = R.string.show_line_number),
@@ -199,10 +216,9 @@ fun SettingsEditorScreen() {
         SettingsData.setBoolean(Keys.CURSOR_ANIMATION_ENABLED, showLineNumber)
       },
       endWidget = {
-        Switch(
-          modifier = Modifier
-            .padding(12.dp)
-            .height(24.dp),
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
           checked = showLineNumber,
           onCheckedChange = { isChecked ->
             getActivity(MainActivity::class.java)?.let {
@@ -210,8 +226,7 @@ fun SettingsEditorScreen() {
                 f.value.get()?.editor?.isLineNumberEnabled = isChecked
               }
             }
-          }
-        )
+          })
       })
 
     PreferenceCategory(label = stringResource(id = R.string.pin_line_number),
@@ -222,10 +237,9 @@ fun SettingsEditorScreen() {
         SettingsData.setBoolean(Keys.PIN_LINE_NUMBER, pinLineNumber)
       },
       endWidget = {
-        Switch(
-          modifier = Modifier
-            .padding(12.dp)
-            .height(24.dp),
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
           checked = pinLineNumber,
           onCheckedChange = { isChecked ->
             getActivity(MainActivity::class.java)?.let {
@@ -233,8 +247,7 @@ fun SettingsEditorScreen() {
                 f.value.get()?.editor?.setPinLineNumber(isChecked)
               }
             }
-          }
-        )
+          })
       })
 
     PreferenceCategory(label = stringResource(id = R.string.extra_keys),
@@ -245,15 +258,188 @@ fun SettingsEditorScreen() {
         SettingsData.setBoolean(Keys.SHOW_ARROW_KEYS, showArrowKeys)
       },
       endWidget = {
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
+          checked = showArrowKeys,
+          onCheckedChange = { isChecked ->
+            MainActivity.activityRef.get()?.let { activity ->
+              if (activity.tabViewModel.fragmentFiles.isEmpty()) {
+                return@Switch
+              }
+              if (isChecked) {
+                activity.binding.apply {
+                  divider.visibility = View.VISIBLE
+                  mainBottomBar.visibility = View.VISIBLE
+                }
+              } else {
+                activity.binding.apply {
+                  divider.visibility = View.GONE
+                  mainBottomBar.visibility = View.GONE
+                }
+              }
+
+              val viewpager = activity.binding.viewpager2
+              val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
+              layoutParams.bottomMargin = rkUtils.dpToPx(
+                if (isChecked) {
+                  40f
+                } else {
+                  0f
+                }, activity
+              )
+              viewpager.setLayoutParams(layoutParams)
+
+            }
+          })
+      })
+
+    PreferenceCategory(label = stringResource(id = R.string.auto_save),
+      description = stringResource(id = R.string.auto_save_desc),
+      iconResource = R.drawable.save,
+      onNavigate = {
+        autoSave = !autoSave
+        SettingsData.setBoolean(Keys.AUTO_SAVE, autoSave)
+      },
+      endWidget = {
         Switch(
           modifier = Modifier
             .padding(12.dp)
             .height(24.dp),
-          checked = showArrowKeys,
+          checked = autoSave,
           onCheckedChange = null
         )
       })
 
+    PreferenceCategory(label = stringResource(id = R.string.auto_save_time),
+      description = stringResource(id = R.string.auto_save_time_desc),
+      iconResource = R.drawable.save,
+      onNavigate = {
+        val view = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
+        val edittext = view.findViewById<EditText>(R.id.name).apply {
+          hint = getString(R.string.intervalinMs)
+          setText(SettingsData.getString(Keys.AUTO_SAVE_TIME_VALUE, "10000"))
+          inputType =
+            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        MaterialAlertDialogBuilder(context).setTitle(getString(R.string.auto_save_time))
+          .setView(view).setNegativeButton(getString(R.string.cancel), null)
+          .setPositiveButton(getString(R.string.apply)) { _, _ ->
+            val text = edittext.text.toString()
+            for (c in text) {
+              if (!c.isDigit()) {
+                rkUtils.toast(getString(R.string.inavalid_v))
+                return@setPositiveButton
+              }
+            }
+            if (text.toInt() < 1000) {
+              rkUtils.toast(getString(R.string.v_small))
+              return@setPositiveButton
+            }
 
+
+            SettingsData.setString(Keys.AUTO_SAVE_TIME_VALUE, text)
+            AutoSaver.delayTime = text.toLong()
+
+          }.show()
+      })
+
+
+
+    PreferenceCategory(label = stringResource(id = R.string.text_size),
+      description = stringResource(id = R.string.text_size_desc),
+      iconResource = R.drawable.reorder,
+      onNavigate = {
+
+        val view = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
+        val edittext = view.findViewById<EditText>(R.id.name).apply {
+          hint = getString(R.string.text_size)
+          setText(SettingsData.getString(Keys.TEXT_SIZE, "14"))
+          inputType =
+            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        MaterialAlertDialogBuilder(context).setTitle(getString(R.string.text_size)).setView(view)
+          .setNegativeButton(getString(R.string.cancel), null)
+          .setPositiveButton(getString(R.string.apply)) { _, _ ->
+            val text = edittext.text.toString()
+            for (c in text) {
+              if (!c.isDigit()) {
+                rkUtils.toast(getString(R.string.inavalid_v))
+                return@setPositiveButton
+              }
+            }
+            if (text.toInt() > 32) {
+              rkUtils.toast(getString(R.string.v_large))
+              return@setPositiveButton
+            }
+            if (text.toInt() < 8) {
+              rkUtils.toast(getString(R.string.v_small))
+              return@setPositiveButton
+            }
+            SettingsData.setString(Keys.TEXT_SIZE, text)
+            MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+              f.value.get()?.editor?.setTextSize(text.toFloat())
+            }
+
+          }.show()
+
+      })
+
+
+
+    PreferenceCategory(label = stringResource(id = R.string.tab_size),
+      description = stringResource(id = R.string.tab_size_desc),
+      iconResource = R.drawable.double_arrows,
+      onNavigate = {
+
+        val view = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
+        val edittext = view.findViewById<EditText>(R.id.name).apply {
+          hint = "Tab Size"
+          setText(SettingsData.getString(Keys.TAB_SIZE, "4"))
+          inputType =
+            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        }
+        MaterialAlertDialogBuilder(context).setTitle(getString(R.string.tab_size)).setView(view)
+          .setNegativeButton(getString(R.string.cancel), null)
+          .setPositiveButton(getString(R.string.apply)) { _, _ ->
+            val text = edittext.text.toString()
+            for (c in text) {
+              if (!c.isDigit()) {
+                rkUtils.toast(getString(R.string.inavalid_v))
+                return@setPositiveButton
+              }
+            }
+            if (text.toInt() > 16) {
+              rkUtils.toast(getString(R.string.v_large))
+              return@setPositiveButton
+            }
+
+            SettingsData.setString(Keys.TAB_SIZE, text)
+
+            MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+              f.value.get()?.editor?.tabWidth = text.toInt()
+            }
+
+          }.show()
+
+      })
+
+
+    PreferenceCategory(label = stringResource(id = R.string.editor_font),
+      description = stringResource(id = R.string.editor_font_desc),
+      iconResource = R.drawable.baseline_font_download_24,
+      onNavigate = {
+        editorFont = !editorFont
+        SettingsData.setBoolean(Keys.EDITOR_FONT, editorFont)
+      },
+      endWidget = {
+        Switch(
+          modifier = Modifier
+            .padding(12.dp)
+            .height(24.dp),
+          checked = editorFont,
+          onCheckedChange = null
+        )
+      })
   }
 }

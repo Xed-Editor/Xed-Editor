@@ -8,7 +8,6 @@ import androidx.navigation.compose.composable
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
-import com.rk.xededitor.ui.screens.settings.plugin.SettingsPluginScreen
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 
@@ -23,9 +22,6 @@ fun SettingsNavHost(navController: NavHostController) {
         }
         composable(SettingsRoutes.EditorSettings.route) {
             SettingsEditorScreen()
-        }
-        composable(SettingsRoutes.PluginSettings.route) {
-            SettingsPluginScreen()
         }
         composable(SettingsRoutes.TerminalSettings.route) {
             SettingsTerminalScreen()
