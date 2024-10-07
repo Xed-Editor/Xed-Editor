@@ -81,7 +81,7 @@
         <item name="android:forceDarkAllowed">false</item>
     </style>
     
-    <style name="Theme.Karbon.Old.Monet" parent="Theme.Karbon.Monet">
+    <style name="Theme.Karbon.Old.Monet" parent="Base.Theme.Karbon.Monet">
         <item name="android:colorBackground">@color/black</item>
         <item name="colorSurface">@color/black</item>
     </style>
