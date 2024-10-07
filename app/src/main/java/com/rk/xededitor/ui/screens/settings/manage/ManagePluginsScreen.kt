@@ -273,7 +273,7 @@ fun Installed(
 
                     Switch(checked = active, onCheckedChange = { checked ->
                         active = checked
-                        viewModelScope.launch(Dispatchers.Default) {
+                        viewModelScope.launch(Dispatchers.IO) {
                             PluginUtils.setPluginActive(
                                 context, plugin.info.packageName, checked
                             )
