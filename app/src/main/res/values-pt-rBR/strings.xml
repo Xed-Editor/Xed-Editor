@@ -252,4 +252,6 @@
     <string name="auto_mode">Automático</string>
     <string name="select_theme_mode" >Selecione o modo de tema</string>
     
+    <string name="cannot_be_empty">Não pode ser vazio.</string>
+    
 </resources>
