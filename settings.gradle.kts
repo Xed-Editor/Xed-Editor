@@ -27,7 +27,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "Karbon"
 include(":app")
-include(":SettingDSL")
 include(":PluginLoader")
 include(":libRunner")
 include(":editor")

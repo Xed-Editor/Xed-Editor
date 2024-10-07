@@ -8,9 +8,9 @@ import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
 import com.rk.xededitor.R
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import java.io.File

@@ -5,9 +5,9 @@ import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
 import com.rk.librunner.commonUtils
+import com.rk.xededitor.Keys
 import com.rk.xededitor.R
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers

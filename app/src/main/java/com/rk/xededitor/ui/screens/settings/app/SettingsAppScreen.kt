@@ -1,33 +1,24 @@
 package com.rk.xededitor.ui.screens.settings.app
 
-import android.app.Activity
-import android.os.Build
 import android.content.Context
-
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.*
-import androidx.compose.material3.*
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.*
-import androidx.compose.foundation.text.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.unit.*
-import androidx.compose.ui.res.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
-
-import kotlinx.coroutines.launch
-
+import androidx.compose.ui.res.*
+import androidx.compose.ui.unit.*
+import com.rk.xededitor.Keys
 import com.rk.xededitor.R
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.ui.components.BottomSheetContent
-
-import org.robok.engine.core.components.compose.radio.IntRadioController
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
+import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
 @Composable

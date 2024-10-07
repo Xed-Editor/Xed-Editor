@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.xededitor.Keys
 import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 import java.io.File

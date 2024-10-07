@@ -10,11 +10,11 @@ import androidx.activity.OnBackPressedCallback
 import com.blankj.utilcode.util.SizeUtils
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants

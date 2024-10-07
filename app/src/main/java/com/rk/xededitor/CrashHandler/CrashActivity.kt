@@ -17,7 +17,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.R
-import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.net.URLEncoder

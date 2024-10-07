@@ -3,11 +3,10 @@ package com.rk.xededitor.MainActivity.handlers
 import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.rk.librunner.Runner
-import com.rk.xededitor.R
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
-import com.rk.xededitor.rkUtils.runOnUiThread
+import com.rk.xededitor.R
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

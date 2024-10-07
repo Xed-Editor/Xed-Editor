@@ -1,8 +1,8 @@
 package com.rk.xededitor.MainActivity.editor
 
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.SettingsData
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

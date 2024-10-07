@@ -5,14 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.io.Writer
-import java.text.SimpleDateFormat
-import java.util.Date
 import kotlin.system.exitProcess
 
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {

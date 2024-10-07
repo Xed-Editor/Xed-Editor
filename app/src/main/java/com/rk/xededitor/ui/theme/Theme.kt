@@ -2,9 +2,7 @@ package com.rk.xededitor.ui.theme
 
 import android.app.Activity
 import android.os.Build
-
 import androidx.annotation.ChecksSdkIntAtLeast
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -16,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.rk.xededitor.SettingsData
 
-import com.rk.xededitor.settings.SettingsData
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,

@@ -6,18 +6,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
-import java.util.WeakHashMap
 
 class Kee(val file: File){
   override fun equals(other: Any?): Boolean {

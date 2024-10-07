@@ -7,38 +7,32 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
-
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.errors.GitAPIException
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
-
-import com.rk.xededitor.R
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
-import com.rk.xededitor.ui.activities.settings.SettingsActivity
+import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.Printer
+import com.rk.librunner.Runner
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager
+import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.terminal.Terminal
-import com.rk.libcommons.LoadingPopup
-import com.rk.libcommons.Printer
-import com.rk.libcommons.ActionPopup
-import com.rk.librunner.Runner
-
+import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
-
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.errors.GitAPIException
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 object MenuClickHandler {
     

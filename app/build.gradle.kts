@@ -59,7 +59,7 @@ android {
         storeFile = if (isGITHUB_ACTION) {
           File("/tmp/xed.keystore")
         } else {
-          File(properties["storeFile"] as String?)
+          (properties["storeFile"] as String?)?.let { File(it) }
         }
         
         storePassword = properties["storePassword"] as String?
@@ -153,7 +153,6 @@ dependencies {
   implementation(libs.terminal.view)
   implementation(libs.terminal.emulator)
   implementation(libs.utilcode)
-  implementation(project(":SettingDSL"))
   implementation(project(":PluginLoader"))
   implementation(project(":libRunner"))
   implementation(project(":commons"))

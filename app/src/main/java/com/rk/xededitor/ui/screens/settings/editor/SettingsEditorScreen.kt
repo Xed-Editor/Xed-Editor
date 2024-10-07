@@ -19,13 +19,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.BaseActivity.Companion.getActivity
+import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 

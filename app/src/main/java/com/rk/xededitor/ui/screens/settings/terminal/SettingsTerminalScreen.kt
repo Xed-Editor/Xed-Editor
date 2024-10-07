@@ -18,11 +18,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
+import com.rk.xededitor.Keys
 import com.rk.xededitor.R
+import com.rk.xededitor.SettingsData
+import com.rk.xededitor.SettingsData.getBoolean
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.settings.Keys
-import com.rk.xededitor.settings.SettingsData
-import com.rk.xededitor.settings.SettingsData.getBoolean
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

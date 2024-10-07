@@ -1,4 +1,4 @@
-package com.rk.xededitor.settings
+package com.rk.xededitor
 
 import android.annotation.SuppressLint
 import android.content.Context
