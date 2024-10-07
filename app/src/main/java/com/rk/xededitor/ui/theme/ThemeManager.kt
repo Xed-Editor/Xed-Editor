@@ -38,6 +38,7 @@ object ThemeManager {
         // enable monet theme
         if (SettingsData.isMonet()) {
             DynamicColors.applyToActivityIfAvailable(activity)
+            activity.setTheme(R.style.Theme_Karbon_Oled)
         }
     }
 
