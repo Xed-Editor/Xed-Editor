@@ -281,16 +281,19 @@ private fun PluginRow(
 ) {
     val title: String
     val packageName: String
+    val description: String
     val icon: String?
 
     when (plugin) {
         is Plugin -> {
             title = plugin.info.name
+            description = plugin.info.description
             packageName = plugin.info.packageName
             icon = plugin.pluginHome + plugin.info.icon
         }
         is PluginItem -> {
             title = plugin.title
+            description = plugin.description
             packageName = plugin.packageName
             icon = plugin.icon
         }
@@ -326,7 +329,7 @@ private fun PluginRow(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = packageName,
+                    text = description,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
