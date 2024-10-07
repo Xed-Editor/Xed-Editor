@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class PluginModel : ViewModel() {
+class PluginViewModel : ViewModel() {
     var plugins by mutableStateOf(listOf<Plugin>())
     var availablePlugins = listOf<PluginItem>()
     var isLoading by mutableStateOf(false)
