@@ -169,7 +169,6 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
-  implementation(libs.insetter)
   implementation(libs.bsh)
   implementation(project(":core:components"))
 }
