@@ -60,19 +60,21 @@ import java.io.File
 fun ManagePluginsScreen(
     onBackPressed: () -> Unit,
     context: Context,
-    viewModel: PluginModel = viewModel()
+    viewModel: PluginViewModel = viewModel()
 ) {
     var showAddPluginDialog by remember { mutableStateOf(false) }
-    var showConfirmationDialog by remember { mutableStateOf(false) }
+    var showDownloadDialog by remember { mutableStateOf(false) }
+    var showLoadingDialog by remember { mutableStateOf(false) }
+    
     var selectedPlugin by remember { mutableStateOf<PluginItem?>(null) }
+    
     val coroutineScope = rememberCoroutineScope() 
-    var showLoading by remember { mutableStateOf(false) }
-
+    
     val pickFileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             val fileName = getFileName(uri = it, context = context)
             if (fileName?.endsWith(".zip") == true) {
-                showLoading = true
+                showLoadingDialog = true
 
                 coroutineScope.launch(Dispatchers.IO) {
                     val isInstalled = context.contentResolver.openInputStream(it)
@@ -85,7 +87,7 @@ fun ManagePluginsScreen(
                         } else {
                             rkUtils.toast(rkUtils.getString(R.string.install_failed))
                         }
-                        showLoading = false
+                        showLoadingDialog = false
                     }
                 }
             } else {
@@ -113,7 +115,7 @@ fun ManagePluginsScreen(
                 onClick = { showAddPluginDialog = true },
                 modifier = Modifier.padding(8.dp),
             ) {
-                Icon(Icons.Filled.Add, "Floating action button.")
+                Icon(Icons.Filled.Add, "FAB")
             }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -139,14 +141,13 @@ fun ManagePluginsScreen(
 
             Crossfade(targetState = selectedTabIndex, label = "screens") { screen ->
                 when (screen) {
-                    0 -> Installed(viewModel = viewModel, context = context)
-                    1 -> Available(
-                        viewModel = viewModel,
-                        onPluginSelected = { plugin ->
-                            selectedPlugin = plugin
-                            showConfirmationDialog = true
-                        }
-                    )
+                    0 -> InstalledPlugins(viewModel = viewModel, context = context)
+                    1 -> AvailablePlugins(viewModel = viewModel, context = context,
+                            onPluginSelected = { plugin ->
+                                selectedPlugin = plugin
+                                showDownloadDialog = true
+                            }
+                         )
                 }
             }
         }
@@ -161,10 +162,10 @@ fun ManagePluginsScreen(
             )
         }
 
-        if (showConfirmationDialog && selectedPlugin != null) {
-            ConfirmationDialog(
+        if (showDownloadDialog && selectedPlugin != null) {
+            DownloadDialog(
                 onDismissRequest = { 
-                    showConfirmationDialog = false 
+                    showDownloadDialog = false 
                 },
                 plugin = selectedPlugin!!,
                 onConfirm = {
@@ -176,7 +177,7 @@ fun ManagePluginsScreen(
                                 rkUtils.toast(context.getString(R.string.already_installed))
                             }
                         } else {
-                            showLoading = true
+                            showLoadingDialog = true
 
                             try {
                                 Git.cloneRepository()
@@ -186,27 +187,27 @@ fun ManagePluginsScreen(
                                     .call()
 
                                 withContext(Dispatchers.Main) {
-                                    showLoading = false
+                                    showLoadingDialog = false
                                     rkUtils.toast(context.getString(R.string.download_done))
                                 }
                             } catch (e: Exception) {
                                 e.printStackTrace()
                                 withContext(Dispatchers.Main) {
-                                    showLoading = false
+                                    showLoadingDialog = false
                                     rkUtils.toast("${context.getString(R.string.plugin_download_failed)} : ${e.message}")
                                 }
                             }
                         }
                     }
-                    showConfirmationDialog = false
+                    showDownloadDialog = false
                 }
             )
         }
-        if (showLoading) {
-            LoadingIndicatorDialog(
-               isShow = showLoading,
+        if (showLoadingDialog && viewModel.isLoading) {
+            LoadingDialog(
+               isShow = showLoadingDialog,
                onDismiss = {
-                   showLoading = false
+                   showLoadingDialog = false
                }
             )
         }
@@ -214,8 +215,8 @@ fun ManagePluginsScreen(
 }
 
 @Composable
-fun Installed(
-    viewModel: PluginModel,
+fun InstalledPlugins(
+    viewModel: PluginViewModel,
     context: Context
 ) {
     val plugins = viewModel.plugins
@@ -227,10 +228,6 @@ fun Installed(
 
     LazyColumn {
         items(plugins) { plugin ->
-            val title = plugin.info.name
-            val packageName = plugin.info.packageName
-            val icon = plugin.info.icon
-
             var active by remember {
                 mutableStateOf(
                     PluginUtils.isPluginActive(
@@ -238,55 +235,24 @@ fun Installed(
                     )
                 )
             }
-
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                onClick = {
-                    active = !active
-                },
-            ) {
-                Row(modifier = Modifier.padding(8.dp)) {
-                    AsyncImage(
-                        model = plugin.pluginHome + "/$icon",
-                        contentDescription = "Plugin Icon",
-                        modifier = Modifier
-                            .size(45.dp)
-                            .padding(4.dp),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Column(
-                        modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = title, style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = packageName, style = MaterialTheme.typography.bodySmall
-                        )
-
-                    }
-
-                    Switch(checked = active, onCheckedChange = { checked ->
-                        active = checked
-                        coroutineScope.launch(Dispatchers.IO) {
-                            PluginUtils.setPluginActive(
-                                context, plugin.info.packageName, checked
-                            )
-                        }
-                    })
-                }
+            PluginRow(plugin, true, active) {
+               active = !active
+               coroutineScope.launch(Dispatchers.IO) {
+                   PluginUtils.setPluginActive(
+                      context, plugin.info.packageName, active
+                   )
+               }
             }
         }
     }
 }
 
 @Composable
-fun Available(viewModel: PluginModel, onPluginSelected: (PluginItem) -> Unit) {
+fun AvailablePlugins(
+    viewModel: PluginViewModel,
+    context: Context,
+    onPluginSelected: (PluginItem) -> Unit
+) {
     if (viewModel.isLoading) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -298,40 +264,74 @@ fun Available(viewModel: PluginModel, onPluginSelected: (PluginItem) -> Unit) {
     } else {
         LazyColumn {
             items(viewModel.availablePlugins) { plugin ->
-                val title = plugin.title
-
-                ElevatedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    onClick = {
-                        onPluginSelected(plugin)
-                    },
-                ) {
-                    Row(modifier = Modifier.padding(8.dp)) {
-                        AsyncImage(
-                            model = plugin.icon,
-                            contentDescription = stringResource(R.string.plugin_icon),
-                            modifier = Modifier
-                                .size(45.dp)
-                                .padding(4.dp),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Column(
-                            modifier = Modifier.weight(1f), verticalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                text = title, style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                text = plugin.description, style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
+                PluginRow(plugin, false) {
+                    onPluginSelected(plugin)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PluginRow(
+    plugin: Any,
+    installed: Boolean,
+    active: Boolean = false,
+    onClick: () -> Unit = {},
+) {
+    val title: String
+    val packageName: String
+    val icon: String?
+
+    when (plugin) {
+        is Plugin -> {
+            title = plugin.info.name
+            packageName = plugin.info.packageName
+            icon = plugin.pluginHome + plugin.info.icon
+        }
+        is PluginItem -> {
+            title = plugin.title
+            packageName = plugin.packageName
+            icon = plugin.icon
+        }
+        else -> {
+            title = "Unknown Plugin"
+            packageName = "Unknown Package"
+            icon = null
+        }
+    }
+
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        onClick = onClick
+    ) {
+        Row(modifier = Modifier.padding(8.dp)) {
+            AsyncImage(
+                model = icon?.let { it } ?: R.drawable.android,
+                contentDescription = title,
+                modifier = Modifier
+                    .size(45.dp)
+                    .padding(4.dp),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = packageName,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (installed) {
+                Switch(checked = active, onCheckedChange = null)
             }
         }
     }
@@ -360,7 +360,7 @@ fun AddPluginDialog(
 }
 
 @Composable
-fun ConfirmationDialog(
+fun DownloadDialog(
     onDismissRequest: () -> Unit,
     plugin: PluginItem,
     onConfirm: () -> Unit
@@ -383,7 +383,7 @@ fun ConfirmationDialog(
 }
 
 @Composable
-fun LoadingIndicatorDialog(
+fun LoadingDialog(
      isShow: Boolean, 
      onDismiss: () -> Unit
 ) {
