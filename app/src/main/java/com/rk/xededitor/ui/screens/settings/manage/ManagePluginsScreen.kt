@@ -221,7 +221,8 @@ fun Installed(
     context: Context
 ) {
     val plugins = viewModel.plugins
-
+    val coroutineScope = rememberCoroutineScope() 
+    
     LaunchedEffect(Unit) {
         viewModel.loadInstalledPlugins(context.applicationContext as Application)
     }
@@ -274,7 +275,7 @@ fun Installed(
 
                     Switch(checked = active, onCheckedChange = { checked ->
                         active = checked
-                        viewModelScope.launch {
+                         coroutineScope.launch(Dispatchers.IO) {
                             PluginUtils.setPluginActive(
                                 context, plugin.info.packageName, checked
                             )
