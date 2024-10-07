@@ -199,7 +199,6 @@ fun ManagePluginsScreen(
                         }
                     }
                     showConfirmationDialog = false
-                    selectedPlugin = null
                 }
             )
         }
