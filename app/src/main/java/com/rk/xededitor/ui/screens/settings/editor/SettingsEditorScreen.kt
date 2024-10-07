@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.RelativeLayout
+
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Switch
@@ -17,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.Keys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -26,6 +27,8 @@ import com.rk.xededitor.R
 import com.rk.xededitor.SettingsData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
+import com.rk.xededitor.ui.components.InputDialog
+
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -303,135 +306,114 @@ fun SettingsEditorScreen() {
         )
       })
 
-    PreferenceCategory(label = stringResource(id = R.string.auto_save_time),
-      description = stringResource(id = R.string.auto_save_time_desc),
-      iconResource = R.drawable.save,
-      onNavigate = {
-        val view = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
-        val edittext = view.findViewById<EditText>(R.id.name).apply {
-          hint = getString(R.string.intervalinMs)
-          setText(SettingsData.getString(Keys.AUTO_SAVE_TIME_VALUE, "10000"))
-          inputType =
-            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        MaterialAlertDialogBuilder(context).setTitle(getString(R.string.auto_save_time))
-          .setView(view).setNegativeButton(getString(R.string.cancel), null)
-          .setPositiveButton(getString(R.string.apply)) { _, _ ->
-            val text = edittext.text.toString()
-            for (c in text) {
-              if (!c.isDigit()) {
-                rkUtils.toast(getString(R.string.inavalid_v))
-                return@setPositiveButton
-              }
-            }
-            if (text.toInt() < 1000) {
-              rkUtils.toast(getString(R.string.v_small))
-              return@setPositiveButton
-            }
+    
+     var showAutoSaveDialog by remember { mutableStateOf(false) }
+     var showTextSizeDialog by remember { mutableStateOf(false) }
+     var showTabSizeDialog by remember { mutableStateOf(false) }
+     var autoSaveTimeValue by remember { mutableStateOf(SettingsData.getString(Keys.AUTO_SAVE_TIME_VALUE, "10000")) }
+     var textSizeValue by remember { mutableStateOf(SettingsData.getString(Keys.TEXT_SIZE, "14")) }
+     var tabSizeValue by remember { mutableStateOf(SettingsData.getString(Keys.TAB_SIZE, "4")) }
 
+     PreferenceCategory(
+        label = stringResource(id = R.string.auto_save_time),
+        description = stringResource(id = R.string.auto_save_time_desc),
+        iconResource = R.drawable.save,
+        onNavigate = { showAutoSaveDialog = true }
+     )
+     PreferenceCategory(
+        label = stringResource(id = R.string.text_size),
+        description = stringResource(id = R.string.text_size_desc),
+        iconResource = R.drawable.reorder,
+        onNavigate = { showTextSizeDialog = true }
+     )
+     PreferenceCategory(
+       label = stringResource(id = R.string.tab_size),
+       description = stringResource(id = R.string.tab_size_desc),
+       iconResource = R.drawable.double_arrows,
+        onNavigate = { showTabSizeDialog = true }
+     )
 
-            SettingsData.setString(Keys.AUTO_SAVE_TIME_VALUE, text)
-            AutoSaver.delayTime = text.toLong()
-
-          }.show()
-      })
-
-
-
-    PreferenceCategory(label = stringResource(id = R.string.text_size),
-      description = stringResource(id = R.string.text_size_desc),
-      iconResource = R.drawable.reorder,
-      onNavigate = {
-
-        val view = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
-        val edittext = view.findViewById<EditText>(R.id.name).apply {
-          hint = getString(R.string.text_size)
-          setText(SettingsData.getString(Keys.TEXT_SIZE, "14"))
-          inputType =
-            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        MaterialAlertDialogBuilder(context).setTitle(getString(R.string.text_size)).setView(view)
-          .setNegativeButton(getString(R.string.cancel), null)
-          .setPositiveButton(getString(R.string.apply)) { _, _ ->
-            val text = edittext.text.toString()
-            for (c in text) {
-              if (!c.isDigit()) {
-                rkUtils.toast(getString(R.string.inavalid_v))
-                return@setPositiveButton
-              }
-            }
-            if (text.toInt() > 32) {
-              rkUtils.toast(getString(R.string.v_large))
-              return@setPositiveButton
-            }
-            if (text.toInt() < 8) {
-              rkUtils.toast(getString(R.string.v_small))
-              return@setPositiveButton
-            }
-            SettingsData.setString(Keys.TEXT_SIZE, text)
-            MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-              f.value.get()?.editor?.setTextSize(text.toFloat())
-            }
-
-          }.show()
-
-      })
-
-
-
-    PreferenceCategory(label = stringResource(id = R.string.tab_size),
-      description = stringResource(id = R.string.tab_size_desc),
-      iconResource = R.drawable.double_arrows,
-      onNavigate = {
-
-        val view = LayoutInflater.from(context).inflate(R.layout.popup_new, null)
-        val edittext = view.findViewById<EditText>(R.id.name).apply {
-          hint = "Tab Size"
-          setText(SettingsData.getString(Keys.TAB_SIZE, "4"))
-          inputType =
-            InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED or InputType.TYPE_NUMBER_FLAG_DECIMAL
-        }
-        MaterialAlertDialogBuilder(context).setTitle(getString(R.string.tab_size)).setView(view)
-          .setNegativeButton(getString(R.string.cancel), null)
-          .setPositiveButton(getString(R.string.apply)) { _, _ ->
-            val text = edittext.text.toString()
-            for (c in text) {
-              if (!c.isDigit()) {
-                rkUtils.toast(getString(R.string.inavalid_v))
-                return@setPositiveButton
-              }
-            }
-            if (text.toInt() > 16) {
-              rkUtils.toast(getString(R.string.v_large))
-              return@setPositiveButton
-            }
-
-            SettingsData.setString(Keys.TAB_SIZE, text)
-
-            MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-              f.value.get()?.editor?.tabWidth = text.toInt()
-            }
-
-          }.show()
-
-      })
-
-
-    PreferenceCategory(label = stringResource(id = R.string.editor_font),
-      description = stringResource(id = R.string.editor_font_desc),
-      iconResource = R.drawable.baseline_font_download_24,
-      onNavigate = {
-        editorFont = !editorFont
-        SettingsData.setBoolean(Keys.EDITOR_FONT, editorFont)
-      },
-      endWidget = {
-        Switch(
-          modifier = Modifier
-            .padding(12.dp)
-            .height(24.dp),
-          checked = editorFont,
-          onCheckedChange = null
+     if (showAutoSaveDialog) {
+        InputDialog(
+            title = stringResource(id = R.string.auto_save_time),
+            inputLabel = stringResource(id = R.string.intervalinMs),
+            inputValue = autoSaveTimeValue,
+            onInputValueChange = { autoSaveTimeValue = it },
+            onConfirm = {
+                if (autoSaveTimeValue.any { !it.isDigit() }) {
+                    rkUtils.toast(context.getString(R.string.inavalid_v))
+                } else if (autoSaveTimeValue.toInt() < 1000) {
+                    rkUtils.toast(context.getString(R.string.v_small))
+                } else {
+                    SettingsData.setString(Keys.AUTO_SAVE_TIME_VALUE, autoSaveTimeValue)
+                    AutoSaver.delayTime = autoSaveTimeValue.toLong()
+                }
+                showAutoSaveDialog = false
+            },
+            onDismiss = { showAutoSaveDialog = false }
         )
-      })
-  }
+     }
+     
+     if (showTextSizeDialog) {
+        InputDialog(
+            title = stringResource(id = R.string.text_size),
+            inputLabel = stringResource(id = R.string.text_size),
+            inputValue = textSizeValue,
+            onInputValueChange = { textSizeValue = it },
+            onConfirm = {
+               if (textSizeValue.any { !it.isDigit() }) {
+                    rkUtils.toast(context.getString(R.string.inavalid_v))
+               } else if (textSizeValue.toInt() > 32) {
+                   rkUtils.toast(context.getString(R.string.v_large))
+               } else if (textSizeValue.toInt() < 8) {
+                   rkUtils.toast(context.getString(R.string.v_small))
+               } else {
+                   SettingsData.setString(Keys.TEXT_SIZE, textSizeValue)
+                   MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                      f.value.get()?.editor?.setTextSize(textSizeValue.toFloat())
+                   }
+               }
+                showTextSizeDialog = false
+            },
+           onDismiss = { showTextSizeDialog = false }
+        )
+     }
+     if (showTabSizeDialog) {
+        InputDialog(
+           title = stringResource(id = R.string.tab_size),
+           inputLabel = stringResource(id = R.string.tab_size),
+           inputValue = tabSizeValue,
+           onInputValueChange = { tabSizeValue = it },
+           onConfirm = {
+               if (tabSizeValue.any { !it.isDigit() }) {
+                   rkUtils.toast(context.getString(R.string.inavalid_v))
+               } else if (tabSizeValue.toInt() > 16) {
+                   rkUtils.toast(context.getString(R.string.v_large))
+               }
+               SettingsData.setString(Keys.TAB_SIZE, tabSizeValue)
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                    f.value.get()?.editor?.tabWidth = tabSizeValue.toInt()
+                }
+                showTabSizeDialog = false
+           },
+           onDismiss = { showTabSizeDialog = false }
+        )
+     }
+     PreferenceCategory(label = stringResource(id = R.string.editor_font),
+         description = stringResource(id = R.string.editor_font_desc),
+         iconResource = R.drawable.baseline_font_download_24,
+         onNavigate = {
+            editorFont = !editorFont
+            SettingsData.setBoolean(Keys.EDITOR_FONT, editorFont)
+         },
+         endWidget = {
+            Switch(
+              modifier = Modifier
+                .padding(12.dp)
+                .height(24.dp),
+              checked = editorFont,
+              onCheckedChange = null
+            )
+         })
+     }
 }

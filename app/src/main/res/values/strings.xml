@@ -255,4 +255,6 @@
     <string name="auto_mode">Auto</string>
     <string name="select_theme_mode" >Select Theme Mode</string>
     
+    <string name="cannot_be_empty">It cannot be empty.</string>
+    
 </resources>
