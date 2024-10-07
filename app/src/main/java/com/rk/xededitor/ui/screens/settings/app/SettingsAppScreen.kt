@@ -65,8 +65,10 @@ fun SettingsAppScreen() {
             iconResource = R.drawable.palette,
             enabled = !(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S).not(),
             onNavigate = {
-                 isMonet = !isMonet
-                 SettingsData.setBoolean(Keys.MONET, isMonet)
+                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                     isMonet = !isMonet
+                     SettingsData.setBoolean(Keys.MONET, isMonet)
+                 }
             },
             endWidget = {
                  Switch(

@@ -1,4 +1,4 @@
-package com.rk.xededitor.pluginClient
+package com.rk.xededitor.plugin
 
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils

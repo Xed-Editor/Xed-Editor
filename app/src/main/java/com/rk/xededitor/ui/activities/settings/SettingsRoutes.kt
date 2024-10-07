@@ -7,4 +7,5 @@ sealed class SettingsRoutes(val route: String) {
     object PluginSettings : SettingsRoutes("plugin_settings")
     object TerminalSettings : SettingsRoutes("terminal_settings")
     object GitSettings : SettingsRoutes("git_settings")
+    object ManagePlugins: SettingsRoutes("manage_plugins")
 }
