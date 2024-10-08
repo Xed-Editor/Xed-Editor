@@ -257,5 +257,5 @@
     <string name="theme_mode">Modo do Tema</string>
     <string name="theme_mode_desc">Altere o modo do tema para automático, claro ou escuro.</string>
     
-    
+    <string name="no_plugins_available">Nenhum Plugin Disponível</string>
 </resources>

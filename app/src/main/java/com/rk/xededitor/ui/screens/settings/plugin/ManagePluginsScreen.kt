@@ -4,10 +4,12 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +18,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -36,6 +41,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -49,6 +55,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.rk.libPlugin.server.PluginInfo
@@ -63,7 +71,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
+import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,12 +145,14 @@ fun ManagePluginsScreen(
   ) { innerPadding ->
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(stringResource(R.string.installed), stringResource(R.string.available))
+    val layoutDirection = LocalLayoutDirection.current
     
     Column {
       TabRow(
         selectedTabIndex = selectedTabIndex, modifier = Modifier
           .fillMaxWidth()
           .padding(innerPadding)
+          .padding(top = 5.dp)
       ) {
         tabs.forEachIndexed { index, title ->
           Tab(selected = selectedTabIndex == index, onClick = { selectedTabIndex = index }, text = { Text(title) })
@@ -215,7 +226,8 @@ fun ManagePluginsScreen(
 
 @Composable
 fun InstalledPlugins(
-  viewModel: PluginViewModel, activity: Context
+  viewModel: PluginViewModel, 
+  activity: Context
 ) {
   val plugins = viewModel.plugins
   val coroutineScope = rememberCoroutineScope()
@@ -224,36 +236,37 @@ fun InstalledPlugins(
     viewModel.loadInstalledPlugins(activity.applicationContext as Application)
   }
   
-  LazyColumn(Modifier.padding(5.dp)) {
-    items(plugins) { plugin ->
-      var active by remember {
-        mutableStateOf(
-          PluginUtils.isPluginActive(
-            activity, plugin.info.packageName, false
-          )
-        )
-      }
-      PluginRow(plugin.info, true, active) {
-        active = !active
-        coroutineScope.launch(Dispatchers.IO) {
-          PluginUtils.setPluginActive(
-            activity, plugin.info.packageName, active
-          )
+  Column {
+    if (!viewModel.isLoading && plugins.isNotEmpty()) {
+      PreferenceGroup(heading = stringResource(id = R.string.installed)) {
+        plugins.forEach { plugin ->
+          var active by remember {
+            mutableStateOf(
+              PluginUtils.isPluginActive(
+                activity, plugin.info.packageName, false
+              )
+            )
+          }
+          PluginRow(plugin.info, true, active) {
+            active = !active
+            coroutineScope.launch(Dispatchers.IO) {
+              PluginUtils.setPluginActive(
+                activity, plugin.info.packageName, active
+              )
+            }
+          }
         }
       }
-      HorizontalDivider(
-        modifier = Modifier
-          .fillMaxWidth()
-          .padding(start = 27.dp, end = 27.dp)
-      )
-      
+    } else if (!viewModel.isLoading) {
+      NoContentScreen(label = stringResource(id = R.string.nip))
     }
   }
 }
 
 @Composable
 fun AvailablePlugins(
-  viewModel: PluginViewModel, onPluginSelected: (PluginInfo) -> Unit
+  viewModel: PluginViewModel, 
+  onPluginSelected: (PluginInfo) -> Unit
 ) {
   if (viewModel.isLoading) {
     Column(
@@ -261,20 +274,18 @@ fun AvailablePlugins(
     ) {
       CircularProgressIndicator()
     }
-  } else {
-    LazyColumn(Modifier.padding(5.dp)) {
-      items(viewModel.availablePlugins) { plugin ->
-        PluginRow(plugin, false) {
-          onPluginSelected(plugin)
+  } else if (viewModel.availablePlugins.isNotEmpty()) {
+    Column {
+      PreferenceGroup(heading = stringResource(id = R.string.available)) {
+        viewModel.availablePlugins.forEach { plugin ->
+          PluginRow(plugin, false) {
+            onPluginSelected(plugin)
+          }
         }
-        HorizontalDivider(
-          modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 27.dp, end = 27.dp)
-        )
-        
       }
     }
+  } else {
+    NoContentScreen(label = stringResource(id = R.string.no_plugins_available))
   }
 }
 
@@ -285,30 +296,66 @@ private fun PluginRow(
   active: Boolean = false,
   onClick: () -> Unit = {},
 ) {
-  PreferenceCategory(
-    label = plugin.title,
-    description = plugin.description,
-    onNavigate = onClick,
-    startWidget = {
-      AsyncImage(
-        model = plugin.icon ?: R.drawable.android,
-        contentDescription = plugin.title,
-        modifier = Modifier
-          .size(45.dp)
-          .padding(4.dp),
-        contentScale = ContentScale.Crop
+  PreferenceTemplate(
+    title = { 
+      Text(
+        text = plugin.title, 
+        style = MaterialTheme.typography.titleMedium
+      ) 
+    },
+    description = {
+      Text(
+        text = plugin.description,
+        style = MaterialTheme.typography.titleSmall
       )
+    },
+    modifier = Modifier
+      .fillMaxWidth()
+      .clickable(
+        onClick = {
+           onClick()
+           Log.e("Plugin Icon", plugin.icon!!)
+        }
+      ),
+    startWidget = {
+      AnimatedVisibility(
+        visible = !plugin.icon.isNullOrEmpty(), 
+        enter = fadeIn(),
+        exit = fadeOut()
+      ) {
+        AsyncImage(
+          model = plugin.icon ?: R.drawable.android,
+          contentDescription = plugin.title,
+          modifier = Modifier
+            .size(45.dp)
+            .padding(4.dp),
+          contentScale = ContentScale.Crop
+        )
+      }
     },
     endWidget = {
       if (installed) {
         Switch(
           modifier = Modifier
             .padding(12.dp)
-            .height(24.dp), checked = active, onCheckedChange = null
+            .height(24.dp), 
+          checked = active, 
+          onCheckedChange = null
         )
       }
-    },
+    }
   )
+}
+
+@Composable
+fun NoContentScreen(
+   label: String
+) {
+  Column(
+    modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    Text(text = label)
+  }
 }
 
 @Composable

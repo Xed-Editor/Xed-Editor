@@ -89,7 +89,7 @@
     <string name="description">Description</string>
     <string name="plugin_icon">Plugin Icon</string>
     <string name="download">Download</string>
-
+    
 
     <string name="git">Git</string>
     <string name="cred">Credentials</string>
@@ -260,4 +260,5 @@
     <string name="theme_mode">Theme Mode</string>
     <string name="theme_mode_desc">Change theme mode to auto, light or dark.</string>
     
+    <string name="no_plugins_available">No Plugins Available</string>
 </resources>
