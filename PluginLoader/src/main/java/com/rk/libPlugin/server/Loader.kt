@@ -17,9 +17,14 @@ class Loader(val app: Application) {
             API.application = app
             app.indexPlugins()
             getInstalledPlugins().forEach { plugin: Plugin ->
-                if (isPluginActive(app, plugin.info.packageName, false)) {
-                    plugin.start()
+                try {
+                    if (isPluginActive(app, plugin.info.packageName, false)) {
+                        plugin.start()
+                    }
+                }catch (e:Exception){
+                    PluginError.showError(e)
                 }
+                
             }
         }
     }
