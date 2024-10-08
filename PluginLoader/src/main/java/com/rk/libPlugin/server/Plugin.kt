@@ -3,27 +3,33 @@ package com.rk.libPlugin.server
 import android.app.Application
 import bsh.Interpreter
 import com.rk.libPlugin.server.api.API
-import com.rk.libPlugin.server.api.PluginLifeCycle
 import java.io.File
 
 class Plugin(
-  val info: Manifest,
-  val pluginHome: String,
-  val app: Application
+    val info: PluginInfo,
+    val pluginHome: String,
+    val app: Application
 ) : Thread() {
-  
-  private lateinit var interpreter: Interpreter
-  override fun run() {
-    try {
-      with(info) {
-        interpreter = Interpreter()
-        interpreter.setClassLoader(app.classLoader)
-        interpreter.set("info", info)
-        interpreter.set("home",pluginHome)
-        interpreter.set("app", app)
-        interpreter.set("api", API.getInstance())
-        interpreter.eval(
-          """
+
+    private lateinit var interpreter: Interpreter
+
+    override fun run() {
+        try {
+            with(info) {
+                if (script == null) {
+                    throw RuntimeException("Tried to run a plugin without a script")
+                }
+                if (File(script).exists().not()){
+                    throw RuntimeException("Script : $script does not exist")
+                }
+                interpreter = Interpreter()
+                interpreter.setClassLoader(app.classLoader)
+                interpreter.set("info", info)
+                interpreter.set("home", pluginHome)
+                interpreter.set("app", app)
+                interpreter.set("api", API.getInstance())
+                interpreter.eval(
+                    """
                 import com.rk.xededitor.MainActivity.*;
                 import com.rk.xededitor.*;
                 import com.rk.libPlugin.*;
@@ -33,14 +39,14 @@ class Plugin(
                 import com.rk.libcommons.*;
                 import android.app.Activity;
                 import com.jaredrummler.ktsh.Shell;"""
-        )
-        
-        interpreter.source(File(pluginHome, script))
-      }
-    } catch (e: Exception) {
-      PluginError.showError(e)
+                )
+
+                interpreter.source(File(pluginHome, script))
+            }
+        } catch (e: Exception) {
+            PluginError.showError(e)
+        }
     }
-  }
-  
-  
+
+
 }

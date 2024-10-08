@@ -1,5 +1,6 @@
-package com.rk.xededitor.plugin
+package com.rk.xededitor.ui.screens.settings.plugin
 
+import com.rk.libPlugin.server.PluginInfo
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -15,7 +16,7 @@ import org.json.JSONObject
 
 object RepoManager {
   
-  fun fetch(url: String): String? {
+  private fun fetch(url: String): String? {
     val client = OkHttpClient()
     val request = Request.Builder().url(url).build()
     
@@ -27,12 +28,12 @@ object RepoManager {
   }
   
 
-   fun getRawGithubUrl(url: String): String {
+   private fun getRawGithubUrl(url: String): String {
     return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
   }
   
   @OptIn(DelicateCoroutinesApi::class)
-  fun getPluginsCallback(actionOnLoadPlugins: (List<PluginItem>) -> Unit) {
+  fun getPluginsCallback(actionOnLoadPlugins: (List<PluginInfo>) -> Unit) {
     GlobalScope.launch(Dispatchers.IO) {
       val url =
         getRawGithubUrl("https://github.com/RohitKushvaha01/Karbon-Plugins/blob/main/repo.json")
@@ -48,7 +49,7 @@ object RepoManager {
       
       
       withContext(Dispatchers.Default) {
-        val plugins = mutableListOf<PluginItem>()
+        val plugins = mutableListOf<PluginInfo>()
         try {
           val pluginsArray: JSONArray = json.getJSONArray("plugins")
           for (i in 0 until pluginsArray.length()) {
@@ -62,24 +63,27 @@ object RepoManager {
               val name = manifestJson.getString("name")
               val packageName = manifestJson.getString("packageName")
               val description = manifestJson.getString("description")
-              // val author = manifestJson.getString("author")
-              // val version = manifestJson.getString("version")
+              val author = manifestJson.getString("author")
+              val version = manifestJson.getString("version")
               val versionCode = manifestJson.getInt("versionCode")
               
               val icon = manifestJson.getString("icon")
               val iconUrl = "$pluginUrl/main/$icon"
-              
-              //val iconBitmap = fetchBitmapFromUrl(iconUrl)
-              
-              val pluginItem = PluginItem(
-                iconUrl,
-                name,
-                packageName,
-                description,
-                pluginsArray.getString(i)
+
+              val pluginInfo = PluginInfo(
+                icon = iconUrl,
+                title = name,
+                packageName = packageName,
+                description =description,
+                repo = pluginsArray.getString(i),
+                author = author,
+                version = version,
+                versionCode = versionCode,
+                script = null,
+                isLocal = false
               )
-              
-              plugins.add(pluginItem)
+
+              plugins.add(pluginInfo)
             } catch (e: Exception) {
               e.printStackTrace()
               continue

@@ -1,4 +1,4 @@
-package com.rk.xededitor.plugin
+package com.rk.xededitor.ui.screens.settings.plugin
 
 import android.app.Application
 import androidx.compose.runtime.mutableStateOf
@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
 import com.rk.libPlugin.server.Plugin
+import com.rk.libPlugin.server.PluginInfo
 import com.rk.libPlugin.server.PluginUtils
 import com.rk.libPlugin.server.PluginUtils.indexPlugins
 
@@ -17,17 +18,17 @@ import kotlinx.coroutines.withContext
 
 class PluginViewModel : ViewModel() {
     var plugins by mutableStateOf(listOf<Plugin>())
-    var availablePlugins = listOf<PluginItem>()
+    var availablePlugins = listOf<PluginInfo>()
     var isLoading by mutableStateOf(false)
 
     init {
         if (availablePlugins.isEmpty()) {
             isLoading = true
             RepoManager.getPluginsCallback { plugins ->
-               viewModelScope.launch(Dispatchers.Main) {
-                   availablePlugins = plugins
-                   isLoading = false
-               }
+                viewModelScope.launch(Dispatchers.Main) {
+                    availablePlugins = plugins
+                    isLoading = false
+                }
             }
          }
     }

@@ -38,13 +38,14 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceTempl
 
 @Composable
 fun PreferenceCategory(
-    label: String,
-    @DrawableRes iconResource: Int,
-    onNavigate: () -> Unit,
     modifier: Modifier = Modifier,
+    label: String,
+    @DrawableRes iconResource: Int? = null,
+    onNavigate: () -> Unit,
     isSelected: Boolean = false,
     description: String? = null,
     endWidget: (@Composable () -> Unit)? = null,
+    startWidget: (@Composable () -> Unit)? = null,
     enabled: Boolean = true
 ) {
     PreferenceTemplate(
@@ -72,12 +73,18 @@ fun PreferenceCategory(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(32.dp),
             ) {
-                Icon(
-                    painter = painterResource(id = iconResource),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
+                if (iconResource != null){
+                    Icon(
+                        painter = painterResource(id = iconResource),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                if (startWidget != null){
+                    startWidget()
+                }
+                
             }
         },
         endWidget = {

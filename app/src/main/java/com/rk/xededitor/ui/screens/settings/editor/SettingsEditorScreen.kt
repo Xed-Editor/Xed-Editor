@@ -112,7 +112,8 @@ fun SettingsEditorScreen() {
 
     val context = LocalContext.current
 
-    PreferenceCategory(label = stringResource(id = R.string.smooth_tabs),
+    PreferenceCategory(
+      label = stringResource(id = R.string.smooth_tabs),
       description = stringResource(id = R.string.smooth_tab_desc),
       iconResource = R.drawable.animation,
       onNavigate = {
@@ -128,7 +129,8 @@ fun SettingsEditorScreen() {
           onCheckedChange = null)
       })
 
-    PreferenceCategory(label = stringResource(id = R.string.ww),
+    PreferenceCategory(
+      label = stringResource(id = R.string.ww),
       description = stringResource(id = R.string.ww_desc),
       iconResource = R.drawable.reorder,
       onNavigate = {
@@ -148,7 +150,8 @@ fun SettingsEditorScreen() {
 
 
 
-    PreferenceCategory(label = stringResource(id = R.string.keepdl),
+    PreferenceCategory(
+      label = stringResource(id = R.string.keepdl),
       description = stringResource(id = R.string.drawer_lock_desc),
       iconResource = R.drawable.lock,
       onNavigate = {
@@ -166,7 +169,8 @@ fun SettingsEditorScreen() {
       })
 
 
-    PreferenceCategory(label = stringResource(id = R.string.diagonal_scroll),
+    PreferenceCategory(
+      label = stringResource(id = R.string.diagonal_scroll),
       description = stringResource(id = R.string.diagonal_scroll_desc),
       iconResource = R.drawable.diagonal_scroll,
       onNavigate = {
@@ -186,7 +190,8 @@ fun SettingsEditorScreen() {
 
 
 
-    PreferenceCategory(label = stringResource(id = R.string.cursor_anim),
+    PreferenceCategory(
+      label = stringResource(id = R.string.cursor_anim),
       description = stringResource(id = R.string.cursor_anim_desc),
       iconResource = R.drawable.animation,
       onNavigate = {
@@ -206,7 +211,8 @@ fun SettingsEditorScreen() {
           onCheckedChange = null)
       })
 
-    PreferenceCategory(label = stringResource(id = R.string.show_line_number),
+    PreferenceCategory(
+      label = stringResource(id = R.string.show_line_number),
       description = stringResource(id = R.string.show_line_number),
       iconResource = R.drawable.linenumbers,
       onNavigate = {
@@ -226,7 +232,8 @@ fun SettingsEditorScreen() {
           onCheckedChange = null)
       })
 
-    PreferenceCategory(label = stringResource(id = R.string.pin_line_number),
+    PreferenceCategory(
+      label = stringResource(id = R.string.pin_line_number),
       description = stringResource(id = R.string.pin_line_number),
       iconResource = R.drawable.linenumbers,
       onNavigate = {
@@ -246,7 +253,8 @@ fun SettingsEditorScreen() {
           onCheckedChange = null)
       })
 
-    PreferenceCategory(label = stringResource(id = R.string.extra_keys),
+    PreferenceCategory(
+      label = stringResource(id = R.string.extra_keys),
       description = stringResource(id = R.string.extra_keys_desc),
       iconResource = R.drawable.double_arrows,
       onNavigate = {
@@ -289,7 +297,8 @@ fun SettingsEditorScreen() {
           onCheckedChange = null)
       })
 
-    PreferenceCategory(label = stringResource(id = R.string.auto_save),
+    PreferenceCategory(
+      label = stringResource(id = R.string.auto_save),
       description = stringResource(id = R.string.auto_save_desc),
       iconResource = R.drawable.save,
       onNavigate = {
@@ -399,7 +408,8 @@ fun SettingsEditorScreen() {
            onDismiss = { showTabSizeDialog = false }
         )
      }
-     PreferenceCategory(label = stringResource(id = R.string.editor_font),
+     PreferenceCategory(
+       label = stringResource(id = R.string.editor_font),
          description = stringResource(id = R.string.editor_font_desc),
          iconResource = R.drawable.baseline_font_download_24,
          onNavigate = {

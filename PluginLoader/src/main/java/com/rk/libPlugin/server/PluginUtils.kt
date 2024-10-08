@@ -6,8 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 
 object PluginUtils {
@@ -34,33 +32,50 @@ object PluginUtils {
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(this, "PluginError ${e.message}", Toast.LENGTH_LONG).show()
                 }
-                
+                continue
             }
 
-            InstalledPlugins.add(Plugin(manifest!!, plugin.absolutePath, this))
+            if (manifest == null) {
+                continue
+            }
+
+            InstalledPlugins.add(
+                Plugin(
+                    PluginInfo(
+                        icon = manifest.icon,
+                        title = manifest.name,
+                        packageName = manifest.packageName,
+                        description = manifest.description,
+                        repo = root.absolutePath,
+                        author = manifest.author,
+                        version = manifest.version,
+                        versionCode = manifest.versionCode,
+                        script = manifest.script,
+                        isLocal = true
+                    ), plugin.absolutePath, this
+                )
+            )
         }
     }
 
-   
 
-    
     fun getInstalledPlugins(): List<Plugin> {
         return synchronized(InstalledPlugins) { InstalledPlugins }
     }
 
-    
+
     fun Context.getPluginRoot(): File {
         return File(filesDir.parentFile, "plugins")
     }
 
-    
+
     fun isPluginActive(context: Context, packageName: String, default: Boolean): Boolean {
         val sharedPreferences =
             context.applicationContext.getSharedPreferences("PluginPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getBoolean(packageName, default)
     }
 
-    
+
     fun setPluginActive(context: Context, packageName: String, active: Boolean) {
         val sharedPreferences =
             context.applicationContext.getSharedPreferences("PluginPrefs", Context.MODE_PRIVATE)

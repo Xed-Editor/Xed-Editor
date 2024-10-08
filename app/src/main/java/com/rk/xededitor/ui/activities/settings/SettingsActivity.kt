@@ -17,7 +17,7 @@ class SettingsActivity : BaseActivity() {
         setContent {
             KarbonTheme {
                 val navController = rememberNavController()
-                SettingsNavHost(context= this@SettingsActivity, navController = navController)
+                SettingsNavHost(activity = this@SettingsActivity, navController = navController)
             }
         }
     }

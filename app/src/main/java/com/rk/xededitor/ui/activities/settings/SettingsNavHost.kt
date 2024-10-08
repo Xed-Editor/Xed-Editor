@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.activities.settings
 
+import android.app.Activity
 import android.content.Context
 
 import androidx.compose.runtime.Composable
@@ -12,12 +13,12 @@ import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
-import com.rk.xededitor.ui.screens.settings.manage.ManagePluginsScreen
+import com.rk.xededitor.ui.screens.settings.plugin.ManagePluginsScreen
 
 @Composable
 fun SettingsNavHost(
     navController: NavHostController,
-    context: Context
+    activity: Activity
 ) {
     NavHost(navController = navController, startDestination = SettingsRoutes.Settings.route) {
         composable(SettingsRoutes.Settings.route) {
@@ -40,7 +41,7 @@ fun SettingsNavHost(
                onBackPressed = {
                    navController.popBackStack()
                },
-               context = context
+               activity = activity
             )
         }
     }
