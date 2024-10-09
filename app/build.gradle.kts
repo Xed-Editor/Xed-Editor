@@ -164,11 +164,11 @@ dependencies {
   implementation(libs.coil.compose)
   implementation(libs.bsh)
   coreLibraryDesugaring(libs.desugar.jdk.libs)
-  implementation(project(":core:components"))
   implementation(project(":feature:plugin"))
   implementation(project(":feature:runner"))
   implementation(project(":feature:filetree"))
-  implementation(project(":commons"))
+  implementation(project(":core:commons"))
+  implementation(project(":core:components"))
   implementation(project(":editor"))
   implementation(project(":language-textmate"))
 }
