@@ -49,8 +49,8 @@ class TabFragment : Fragment() {
       }
       editor = CodeEditor(context)
 
-      editor!!.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-      editor!!.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+    //  editor!!.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+     // editor!!.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
 
       val setupEditor = SetupEditor(editor!!, context)
       setupEditor.ensureTextmateTheme(context)

@@ -30,6 +30,7 @@
             android:name=".MainActivity.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
+          android:inputType="textFilter"
             android:persistableMode="persistAcrossReboots"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -60,7 +61,9 @@
 
         <activity
             android:name=".SimpleEditor.SimpleEditor"
-            android:exported="true">
+            android:exported="true"
+android:inputType="textFilter"
+>
 
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
