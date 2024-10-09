@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libPlugin.server.PluginUtils.getPluginRoot
+import com.rk.plugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.settings.PreferencesKeys
