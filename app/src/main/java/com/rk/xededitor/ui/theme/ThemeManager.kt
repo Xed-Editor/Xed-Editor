@@ -39,7 +39,7 @@ object ThemeManager {
             activity.setTheme(R.style.Theme_Karbon_Oled)
             return
         }
-        DynamicColors.applyToActivityIfAvailable(activity)
+        if(SettingsData.isMonet()) DynamicColors.applyToActivityIfAvailable(activity)
     }
     
     /**
