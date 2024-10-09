@@ -169,6 +169,6 @@ dependencies {
   implementation(project(":feature:filetree"))
   implementation(project(":core:commons"))
   implementation(project(":core:components"))
-  implementation(project(":editor"))
-  implementation(project(":language-textmate"))
+  implementation(project(":editor:editor"))
+  implementation(project(":editor:language-textmate"))
 }

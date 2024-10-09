@@ -29,9 +29,9 @@ rootProject.name = "Karbon"
 include(":app")
 include(":feature:plugin")
 include(":feature:runner")
-include(":editor")
-include(":editor-lsp")
-include(":language-textmate")
+include(":editor:editor")
+include(":editor:editor-lsp")
+include(":editor:language-textmate")
 include(":feature:filetree")
 
 include(":core:components")

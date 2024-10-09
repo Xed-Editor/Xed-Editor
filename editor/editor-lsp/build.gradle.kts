@@ -53,7 +53,7 @@ android {
 }
 
 dependencies {
-    compileOnly(project(":editor"))
+    compileOnly(project(":editor:editor"))
     implementation(libs.lsp4j)
     implementation(libs.kotlinx.coroutines)
 }
