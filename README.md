@@ -42,7 +42,7 @@ Karbon is a powerful text editor for developers, programmers, and power users on
 
 Join the community of karbon
 
-[Telegram](https://t.me/+o7Rwpa_WT8A5YzQ9)
+[Telegram](https://t.me/Xed_Editor)
 
 ## Installation
 
