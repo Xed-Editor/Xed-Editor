@@ -2,7 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches:
+      - main
+      - dev
     paths-ignore:
       - '**/*.md'
   workflow_dispatch:
