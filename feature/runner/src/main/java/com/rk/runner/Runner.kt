@@ -1,4 +1,4 @@
-package com.rk.librunner
+package com.rk.runner
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -6,12 +6,12 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.librunner.runners.jvm.beanshell.BeanshellRunner
-import com.rk.librunner.runners.node.NodeRunner
-import com.rk.librunner.runners.shell.ShellRunner
-import com.rk.librunner.runners.web.html.HtmlRunner
-import com.rk.librunner.runners.python.PythonRunner
-import com.rk.librunner.runners.web.markdown.MarkDownRunner
+import com.rk.runner.runners.jvm.beanshell.BeanshellRunner
+import com.rk.runner.runners.node.NodeRunner
+import com.rk.runner.runners.shell.ShellRunner
+import com.rk.runner.runners.web.html.HtmlRunner
+import com.rk.runner.runners.python.PythonRunner
+import com.rk.runner.runners.web.markdown.MarkDownRunner
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

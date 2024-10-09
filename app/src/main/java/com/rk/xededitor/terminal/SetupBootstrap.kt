@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
-import com.rk.librunner.commonUtils
+import com.rk.runner.commonUtils
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
 import com.rk.settings.PreferencesData

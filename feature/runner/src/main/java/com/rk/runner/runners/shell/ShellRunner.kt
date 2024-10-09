@@ -1,12 +1,12 @@
-package com.rk.librunner.runners.shell
+package com.rk.runner.runners.shell
 
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.libcommons.R
-import com.rk.librunner.RunnerImpl
-import com.rk.librunner.commonUtils.runCommand
+import com.rk.runner.RunnerImpl
+import com.rk.runner.commonUtils.runCommand
 import java.io.File
 
 class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
@@ -50,7 +50,7 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
   override fun getIcon(context: Context): Drawable? {
     return ContextCompat.getDrawable(
       context, if (failsafe) {
-        com.rk.librunner.R.drawable.android
+        com.rk.runner.R.drawable.android
       } else {
         R.drawable.bash
       }

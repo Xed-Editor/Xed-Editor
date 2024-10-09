@@ -1,4 +1,4 @@
-package com.rk.librunner
+package com.rk.runner
 
 import android.content.Context
 import android.content.Intent

@@ -1,12 +1,12 @@
-package com.rk.librunner.runners.node
+package com.rk.runner.runners.node
 
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.rk.librunner.RunnerImpl
-import com.rk.librunner.commonUtils
-import com.rk.librunner.commonUtils.exctractAssets
-import com.rk.librunner.commonUtils.runCommand
+import com.rk.runner.RunnerImpl
+import com.rk.runner.commonUtils
+import com.rk.runner.commonUtils.exctractAssets
+import com.rk.runner.commonUtils.runCommand
 import java.io.File
 
 class NodeRunner : RunnerImpl {

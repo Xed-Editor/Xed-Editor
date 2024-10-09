@@ -1,4 +1,4 @@
-package com.rk.librunner.runners.jvm.beanshell
+package com.rk.runner.runners.jvm.beanshell
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -10,7 +10,7 @@ import bsh.Interpreter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.plugin.server.PluginError
 import com.rk.plugin.server.api.API
-import com.rk.librunner.RunnerImpl
+import com.rk.runner.RunnerImpl
 import java.io.File
 
 class BeanshellRunner : RunnerImpl {

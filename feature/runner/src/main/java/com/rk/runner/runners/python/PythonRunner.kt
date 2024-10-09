@@ -1,13 +1,13 @@
-package com.rk.librunner.runners.python
+package com.rk.runner.runners.python
 
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.rk.librunner.R
-import com.rk.librunner.RunnerImpl
-import com.rk.librunner.commonUtils.exctractAssets
-import com.rk.librunner.commonUtils.runCommand
+import com.rk.runner.R
+import com.rk.runner.RunnerImpl
+import com.rk.runner.commonUtils.exctractAssets
+import com.rk.runner.commonUtils.runCommand
 import java.io.File
 
 class PythonRunner : RunnerImpl {

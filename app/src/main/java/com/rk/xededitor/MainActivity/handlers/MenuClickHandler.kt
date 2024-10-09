@@ -13,7 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
-import com.rk.librunner.Runner
+import com.rk.runner.Runner
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity

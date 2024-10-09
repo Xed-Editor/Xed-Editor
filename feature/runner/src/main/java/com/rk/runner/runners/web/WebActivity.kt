@@ -1,4 +1,4 @@
-package com.rk.librunner.runners.web
+package com.rk.runner.runners.web
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -9,7 +9,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import com.rk.librunner.databinding.ActivityMarkdownBinding
+import com.rk.runner.databinding.ActivityMarkdownBinding
 
 
 

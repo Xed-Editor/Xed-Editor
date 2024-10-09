@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.librunner"
+    namespace = "com.rk.runner"
     compileSdk = 34
 
     //todo remove this before release

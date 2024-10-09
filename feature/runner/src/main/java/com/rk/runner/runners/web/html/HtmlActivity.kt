@@ -1,4 +1,4 @@
-package com.rk.librunner.runners.web.html
+package com.rk.runner.runners.web.html
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -9,8 +9,8 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
-import com.rk.librunner.runners.web.HttpServer
-import com.rk.librunner.runners.web.WebActivity
+import com.rk.runner.runners.web.HttpServer
+import com.rk.runner.runners.web.WebActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

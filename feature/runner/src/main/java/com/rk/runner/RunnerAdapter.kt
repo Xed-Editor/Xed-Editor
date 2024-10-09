@@ -1,4 +1,4 @@
-package com.rk.librunner
+package com.rk.runner
 
 import android.view.LayoutInflater
 import android.view.View

@@ -1,27 +1,29 @@
-package com.rk.librunner.runners.web.html
+package com.rk.runner.runners.web.markdown
 
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import com.rk.librunner.RunnerImpl
+import androidx.core.content.ContextCompat
+import com.rk.runner.R
+import com.rk.runner.RunnerImpl
 import java.io.File
 
-class HtmlRunner : RunnerImpl {
+class MarkDownRunner : RunnerImpl {
 	override fun run(file: File, context: Context) {
-		val intent = Intent(context, HtmlActivity::class.java)
+		val intent = Intent(context, MDViewer::class.java)
 		intent.putExtra("filepath",file.absolutePath)
 		context.startActivity(intent)
 	}
 	
 	override fun getName(): String {
-		return "WebRunner"
+		return "MarkDown"
 	}
 	
 	override fun getDescription(): String {
-		return "preview html"
+		return "preview markdown"
 	}
 	
 	override fun getIcon(context: Context): Drawable? {
-		return null
+		return ContextCompat.getDrawable(context, R.drawable.markdown)
 	}
 }
