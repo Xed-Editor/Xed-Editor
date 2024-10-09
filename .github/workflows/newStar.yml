@@ -1,0 +1,22 @@
+name: newStar
+
+on:
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Print Starred Repo
+        run: echo "New Star ${{github.actor}}"
+
+      - name: Notify Telegram Group
+        env:
+          TOKEN: ${{secrets.TelegramToken}}
+          USER: ${{GitHub.actor}}
+        run: bash .github/workflows/newStar.sh
