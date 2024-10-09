@@ -120,7 +120,7 @@ fun ManagePluginsScreen(
       }
     }
   }
-  
+  var selectedTabIndex by remember { mutableIntStateOf(0) }
   Scaffold(
     modifier = Modifier.fillMaxSize(),
     topBar = {
@@ -134,16 +134,17 @@ fun ManagePluginsScreen(
       })
     },
     floatingActionButton = {
-      FloatingActionButton(
-        onClick = { showAddPluginDialog = true },
-        modifier = Modifier.padding(8.dp),
-      ) {
-        Icon(Icons.Filled.Add, "FAB")
+      if (selectedTabIndex == 0) {
+        FloatingActionButton(
+          onClick = { showAddPluginDialog = true },
+          modifier = Modifier.padding(8.dp),
+        ) {
+          Icon(Icons.Filled.Add, "FAB")
+        }
       }
     },
     floatingActionButtonPosition = FabPosition.End,
   ) { innerPadding ->
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf(stringResource(R.string.installed), stringResource(R.string.available))
     val layoutDirection = LocalLayoutDirection.current
     
