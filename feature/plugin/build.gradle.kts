@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.libPlugin"
+    namespace = "com.rk.plugin"
     compileSdk = 34
 
     defaultConfig {

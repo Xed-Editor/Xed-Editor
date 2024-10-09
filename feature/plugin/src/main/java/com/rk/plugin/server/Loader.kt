@@ -1,10 +1,10 @@
-package com.rk.libPlugin.server
+package com.rk.plugin.server
 
 import android.app.Application
-import com.rk.libPlugin.server.PluginUtils.getInstalledPlugins
-import com.rk.libPlugin.server.PluginUtils.indexPlugins
-import com.rk.libPlugin.server.PluginUtils.isPluginActive
-import com.rk.libPlugin.server.api.API
+import com.rk.plugin.server.PluginUtils.getInstalledPlugins
+import com.rk.plugin.server.PluginUtils.indexPlugins
+import com.rk.plugin.server.PluginUtils.isPluginActive
+import com.rk.plugin.server.api.API
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope

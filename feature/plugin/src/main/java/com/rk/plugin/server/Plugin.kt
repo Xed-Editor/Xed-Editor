@@ -1,8 +1,8 @@
-package com.rk.libPlugin.server
+package com.rk.plugin.server
 
 import android.app.Application
 import bsh.Interpreter
-import com.rk.libPlugin.server.api.API
+import com.rk.plugin.server.api.API
 import java.io.File
 
 class Plugin(
@@ -32,10 +32,10 @@ class Plugin(
                     """
                 import com.rk.xededitor.MainActivity.*;
                 import com.rk.xededitor.*;
-                import com.rk.libPlugin.*;
-                import com.rk.libPlugin.server.*;
-                import com.rk.libPlugin.server.api.*;
-                import com.rk.libPlugin.server.api.PluginLifeCycle;
+                import com.rk.plugin.*;
+                import com.rk.plugin.server.*;
+                import com.rk.plugin.server.api.*;
+                import com.rk.plugin.server.api.PluginLifeCycle;
                 import com.rk.libcommons.*;
                 import android.app.Activity;
                 import com.jaredrummler.ktsh.Shell;"""

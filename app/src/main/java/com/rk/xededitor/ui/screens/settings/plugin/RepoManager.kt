@@ -1,6 +1,6 @@
 package com.rk.xededitor.ui.screens.settings.plugin
 
-import com.rk.libPlugin.server.PluginInfo
+import com.rk.plugin.server.PluginInfo
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString

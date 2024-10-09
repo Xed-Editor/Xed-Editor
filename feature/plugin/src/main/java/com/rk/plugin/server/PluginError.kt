@@ -1,10 +1,10 @@
-package com.rk.libPlugin.server
+package com.rk.plugin.server
 
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libPlugin.server.api.API
+import com.rk.plugin.server.api.API
 
 object PluginError{
   fun showError(e: Exception) {

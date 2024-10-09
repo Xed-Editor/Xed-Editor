@@ -1,4 +1,4 @@
-package com.rk.libPlugin.server
+package com.rk.plugin.server
 
 import androidx.annotation.Keep
 import com.google.gson.annotations.SerializedName

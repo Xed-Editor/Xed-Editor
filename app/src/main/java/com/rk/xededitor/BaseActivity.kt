@@ -8,7 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.ArrayMap
 import androidx.core.view.WindowInsetsCompat
-import com.rk.libPlugin.server.api.PluginLifeCycle
+import com.rk.plugin.server.api.PluginLifeCycle
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference

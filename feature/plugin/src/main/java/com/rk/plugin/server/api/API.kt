@@ -1,4 +1,4 @@
-package com.rk.libPlugin.server.api
+package com.rk.plugin.server.api
 
 import android.app.Activity
 import android.app.Application
@@ -10,10 +10,10 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libPlugin.R
-import com.rk.libPlugin.server.PluginError
-import com.rk.libPlugin.server.api.PluginLifeCycle.ActivityEvent
-import com.rk.libPlugin.server.api.PluginLifeCycle.LifeCycleType
+import com.rk.plugin.R
+import com.rk.plugin.server.PluginError
+import com.rk.plugin.server.api.PluginLifeCycle.ActivityEvent
+import com.rk.plugin.server.api.PluginLifeCycle.LifeCycleType
 import dalvik.system.DexClassLoader
 import java.lang.ref.WeakReference
 

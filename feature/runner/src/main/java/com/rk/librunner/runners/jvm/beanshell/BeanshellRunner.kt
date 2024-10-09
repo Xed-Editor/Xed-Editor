@@ -8,8 +8,8 @@ import android.os.Handler
 import android.os.Looper
 import bsh.Interpreter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libPlugin.server.PluginError
-import com.rk.libPlugin.server.api.API
+import com.rk.plugin.server.PluginError
+import com.rk.plugin.server.api.API
 import com.rk.librunner.RunnerImpl
 import java.io.File
 
@@ -24,9 +24,9 @@ class BeanshellRunner : RunnerImpl {
             interpreter.eval("""
                 import com.rk.xededitor.MainActivity.*;
                 import com.rk.xededitor.*;
-                import com.rk.libPlugin.*;
-                import com.rk.libPlugin.server.*;
-                import com.rk.libPlugin.server.api.*;
+                import com.rk.plugin.*;
+                import com.rk.plugin.server.*;
+                import com.rk.plugin.server.api.*;
                 import com.rk.libcommons.*;
                 import com.jaredrummler.ktsh.Shell;
             """)

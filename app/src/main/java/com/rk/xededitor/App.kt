@@ -3,7 +3,7 @@ package com.rk.xededitor
 import android.app.Application
 import android.content.Context
 
-import com.rk.libPlugin.server.Loader
+import com.rk.plugin.server.Loader
 import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler

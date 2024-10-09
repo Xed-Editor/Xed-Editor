@@ -59,11 +59,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.rk.libPlugin.server.PluginInfo
-import com.rk.libPlugin.server.PluginInstaller
-import com.rk.libPlugin.server.PluginUtils
-import com.rk.libPlugin.server.PluginUtils.getPluginRoot
-import com.rk.libPlugin.server.PluginUtils.indexPlugins
+import com.rk.plugin.server.PluginInfo
+import com.rk.plugin.server.PluginInstaller
+import com.rk.plugin.server.PluginUtils
+import com.rk.plugin.server.PluginUtils.getPluginRoot
+import com.rk.plugin.server.PluginUtils.indexPlugins
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils

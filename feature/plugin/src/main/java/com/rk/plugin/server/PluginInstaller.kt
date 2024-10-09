@@ -1,4 +1,4 @@
-package com.rk.libPlugin.server
+package com.rk.plugin.server
 
 import android.content.Context
 import android.widget.Toast

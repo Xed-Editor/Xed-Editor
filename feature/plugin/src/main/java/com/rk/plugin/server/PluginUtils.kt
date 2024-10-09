@@ -1,4 +1,4 @@
-package com.rk.libPlugin.server
+package com.rk.plugin.server
 
 import android.app.Application
 import android.content.Context

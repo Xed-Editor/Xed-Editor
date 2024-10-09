@@ -1,4 +1,4 @@
-package com.rk.libPlugin.server.api
+package com.rk.plugin.server.api
 
 import android.app.Activity
 import kotlinx.coroutines.DelicateCoroutinesApi

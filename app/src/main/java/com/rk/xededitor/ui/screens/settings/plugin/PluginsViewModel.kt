@@ -7,10 +7,10 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
-import com.rk.libPlugin.server.Plugin
-import com.rk.libPlugin.server.PluginInfo
-import com.rk.libPlugin.server.PluginUtils
-import com.rk.libPlugin.server.PluginUtils.indexPlugins
+import com.rk.plugin.server.Plugin
+import com.rk.plugin.server.PluginInfo
+import com.rk.plugin.server.PluginUtils
+import com.rk.plugin.server.PluginUtils.indexPlugins
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
