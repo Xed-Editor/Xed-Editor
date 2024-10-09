@@ -9,10 +9,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.rk.xededitor.R
 
+/*
+* Tipography definition for theming
+*/
 val OutfitFontFamily = FontFamily(
     Font(R.font.outfit_regular, FontWeight.Normal, FontStyle.Normal),
 )
 
+/*
+* Overrides the default typo 
+*/
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = OutfitFontFamily,

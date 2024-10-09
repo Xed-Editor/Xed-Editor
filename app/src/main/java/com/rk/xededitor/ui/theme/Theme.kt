@@ -16,7 +16,13 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.rk.xededitor.SettingsData
 
+/*
+* More Themes
+*/
 
+/* 
+* Light blue color scheme definition.
+*/
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
     onPrimary = md_theme_light_onPrimary,
@@ -49,6 +55,9 @@ private val LightColorScheme = lightColorScheme(
     scrim = md_theme_light_scrim,
 )
 
+/* 
+* Dark blue color scheme definition.
+*/
 private val DarkColorScheme = darkColorScheme(
     primary = md_theme_dark_primary,
     onPrimary = md_theme_dark_onPrimary,
@@ -81,6 +90,9 @@ private val DarkColorScheme = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
+/*
+* A Basic Blue theme
+*/
 @Composable
 fun KarbonTheme(
     darkTheme: Boolean = SettingsData.isDarkMode(LocalContext.current),

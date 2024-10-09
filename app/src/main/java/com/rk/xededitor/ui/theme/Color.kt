@@ -2,6 +2,17 @@ package com.rk.xededitor.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+/*
+* A Single theme colors of Blue Theme.
+*/
+
+/*
+* TODO: More themes
+*/
+
+/*
+* Light colors
+*/
 val md_theme_light_primary = Color(0xFF445E91)
 val md_theme_light_onPrimary = Color(0xFFFFFFFF)
 val md_theme_light_primaryContainer = Color(0xFFD8E2FF)
@@ -32,6 +43,7 @@ val md_theme_light_surfaceTint = Color(0xFF445E91)
 val md_theme_light_outlineVariant = Color(0xFFC4C6D0)
 val md_theme_light_scrim = Color(0xFF000000)
 
+/* Dark Colors */
 val md_theme_dark_primary = Color(0xFFADC6FF)
 val md_theme_dark_onPrimary = Color(0xFF102F60)
 val md_theme_dark_primaryContainer = Color(0xFF2B4678)

@@ -14,6 +14,7 @@ import com.rk.xededitor.Keys
 
 /**
  * A basic helper for applying the correct theme in the app.
+ * it manage XML Theme.
  * @author Aquiles Trindade (trindadedev).
  */
 object ThemeManager {
