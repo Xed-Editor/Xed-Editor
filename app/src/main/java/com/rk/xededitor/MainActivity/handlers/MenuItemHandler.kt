@@ -2,7 +2,7 @@ package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
 import androidx.lifecycle.lifecycleScope
-import com.rk.librunner.Runner
+import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
