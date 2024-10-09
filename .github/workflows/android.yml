@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  init:
-    name: Init
+  notify_telegram:
+    name: Notify Telegram
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
