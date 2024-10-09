@@ -8,7 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
-import com.rk.xededitor.ui.animations.NavigationAnimationTransition
+import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
