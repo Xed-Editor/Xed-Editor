@@ -4,8 +4,8 @@
 
 <h2 align="center"><b>Karbon</b></h2>
 
-<div align="center"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FRohitKushvaha01%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=views%20(today/total)&edge_flat=false" alt="Hits">
-<img src="https://img.shields.io/github/downloads/RohitKushvaha01/Xed-Editor/total?label=Downloads" alt="Download Count"><a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"></a>
+<div align="center"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FXed-Editor%2FXed-Editor&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=views%20(today/total)&edge_flat=false" alt="Hits">
+<img src="https://img.shields.io/github/downloads/Xed-Editor/Xed-Editor/total?label=Downloads" alt="Download Count"><a href="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml"></a>
 <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI"></a>
 </div>
 
@@ -48,7 +48,7 @@ Join the community of karbon
 
 <div>
 
-<a href="https://github.com/RohitKushvaha01/Xed-Editor/releases"><img src="https://img.shields.io/github/v/release/Rohitkushvaha01/Xed-Editor?include_prereleases&sort=date&display_name=tag"></a>
+<a href="https://github.com/Xed-Editor/Xed-Editor/releases"><img src="https://img.shields.io/github/v/release/Rohitkushvaha01/Xed-Editor?include_prereleases&sort=date&display_name=tag"></a>
 <a href="https://android.izzysoft.de/repo/apk/com.rk.xededitor">
 <img src="https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.rk.xededitor&label=IzzyOnDroid&cacheSeconds=33000"></a>
 <a href="https://f-droid.org/packages/com.rk.xededitor">
@@ -58,9 +58,9 @@ Join the community of karbon
 </div>
 
 Download latest stable build
-from [Releases](https://github.com/RohitKushvaha01/Xed-Editor/releases)
+from [Releases](https://github.com/Xed-Editor/Xed-Editor/releases)
 
-Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xed-Editor/actions/)
+Download latest debug build from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
@@ -68,7 +68,7 @@ Download latest debug build from [Actions](https://github.com/RohitKushvaha01/Xe
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png"
 alt="Get it on GitHub"
-height="80">](https://github.com/RohitKushvaha01/Xed-Editor/releases/latest)
+height="80">](https://github.com/Xed-Editor/Xed-Editor/releases/latest)
 
 
 
