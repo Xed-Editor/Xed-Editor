@@ -14,7 +14,8 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 
 object rkUtils {
   private var mHandler = Handler(Looper.getMainLooper())
@@ -52,7 +53,7 @@ object rkUtils {
     return orientation != Configuration.ORIENTATION_PORTRAIT
   }
   fun isDesktopMode(context: Context):Boolean{
-    return SettingsData.getBoolean(Keys.FORCE_DESKTOP_MODE,false) || (isLargeScreen(context) and isLandscape(context))
+    return PreferencesData.getBoolean(PreferencesKeys.FORCE_DESKTOP_MODE,false) || (isLargeScreen(context) and isLandscape(context))
   }
 
   fun debug(string: String,tag:String = "rkUtils"){

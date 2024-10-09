@@ -6,8 +6,8 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.SizeUtils
-import com.rk.xededitor.Keys
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesKeys
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -16,7 +16,7 @@ import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
 class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessionClient {
-    private var fontSize = SizeUtils.dp2px(SettingsData.getString(Keys.TERMINAL_TEXT_SIZE,"14").toFloat())
+    private var fontSize = SizeUtils.dp2px(PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE,"14").toFloat())
     private lateinit var terminal: TerminalView
 
     fun setTerminal(terminalView: TerminalView){
@@ -96,11 +96,11 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun shouldEnforceCharBasedInput(): Boolean {
-        return SettingsData.getBoolean(Keys.FORCE_CHAR,true)
+        return PreferencesData.getBoolean(PreferencesKeys.FORCE_CHAR,true)
     }
 
     override fun shouldUseCtrlSpaceWorkaround(): Boolean {
-        return SettingsData.getBoolean(Keys.CTRL_WORKAROUND,false)
+        return PreferencesData.getBoolean(PreferencesKeys.CTRL_WORKAROUND,false)
     }
 
     override fun isTerminalViewSelected(): Boolean {

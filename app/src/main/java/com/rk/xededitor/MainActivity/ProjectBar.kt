@@ -11,10 +11,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libPlugin.server.PluginUtils.getPluginRoot
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -76,8 +76,8 @@ object ProjectBar {
                 val branch = branchEdit.text.toString()
                 val repoName = repoLink.substringAfterLast("/").removeSuffix(".git")
                 val repoDir = File(
-                  SettingsData.getString(
-                    Keys.GIT_REPO_DIR, "/storage/emulated/0"
+                  PreferencesData.getString(
+                    PreferencesKeys.GIT_REPO_DIR, "/storage/emulated/0"
                   ) + "/" + repoName
                 )
                 if (repoLink.isEmpty() || branch.isEmpty()) {
@@ -96,7 +96,7 @@ object ProjectBar {
                         ProjectManager.addProject(this@with, repoDir)
                       }
                     } catch (e: Exception) {
-                      val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+                      val credentials = PreferencesData.getString(PreferencesKeys.GIT_CRED, "").split(":")
                       if (credentials.size != 2) {
                         withContext(Dispatchers.Main) {
                           loadingPopup.hide()

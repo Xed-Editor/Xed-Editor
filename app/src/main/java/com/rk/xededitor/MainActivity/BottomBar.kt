@@ -3,9 +3,9 @@ package com.rk.xededitor.MainActivity
 import android.view.KeyEvent
 import android.view.View
 import android.widget.RelativeLayout
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 
 object BottomBar {
@@ -13,7 +13,7 @@ object BottomBar {
     with(activity) {
       
       
-      val isChecked = SettingsData.getBoolean(Keys.SHOW_ARROW_KEYS, false)
+      val isChecked = PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, false)
       val viewpager = binding.viewpager2
       val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
       layoutParams.bottomMargin = rkUtils.dpToPx(
@@ -41,8 +41,8 @@ object BottomBar {
       
       val arrows = binding.childs
       
-      val tabSize = SettingsData.getString(Keys.TAB_SIZE, "4").toInt()
-      val useSpaces = SettingsData.getBoolean(Keys.USE_SPACE_INTABS, true)
+      val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
+      val useSpaces = PreferencesData.getBoolean(PreferencesKeys.USE_SPACE_INTABS, true)
       
       val listener = View.OnClickListener { v ->
         if (isAdapterInitialized().not()) {

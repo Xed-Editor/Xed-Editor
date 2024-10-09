@@ -11,9 +11,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.components.InputDialog
@@ -39,7 +39,7 @@ fun SettingsGitScreen() {
             description = stringResource(id = R.string.gitcred),
             iconResource = R.drawable.key,
             onNavigate = {
-                inputValue = SettingsData.getString(Keys.GIT_CRED, "")
+                inputValue = PreferencesData.getString(PreferencesKeys.GIT_CRED, "")
                 dialogType = DialogType.CREDENTIALS
                 isDialogVisible = true
             }
@@ -50,7 +50,7 @@ fun SettingsGitScreen() {
             description = stringResource(id = R.string.userdatagit),
             iconResource = R.drawable.person,
             onNavigate = {
-                inputValue = SettingsData.getString(Keys.GIT_USER_DATA, "")
+                inputValue = PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "")
                 dialogType = DialogType.USER_DATA
                 isDialogVisible = true
             }
@@ -61,7 +61,7 @@ fun SettingsGitScreen() {
             description = stringResource(id = R.string.clone_dir),
             iconResource = R.drawable.outline_folder_24,
             onNavigate = {
-                inputValue = SettingsData.getString(Keys.GIT_REPO_DIR, "/storage/emulated/0")
+                inputValue = PreferencesData.getString(PreferencesKeys.GIT_REPO_DIR, "/storage/emulated/0")
                 dialogType = DialogType.REPO_DIR
                 isDialogVisible = true
             }
@@ -85,11 +85,11 @@ fun SettingsGitScreen() {
                 onInputValueChange = { inputValue = it },
                 onConfirm = {
                     when (dialogType) {
-                        DialogType.CREDENTIALS -> SettingsData.setString(Keys.GIT_CRED, inputValue)
-                        DialogType.USER_DATA -> SettingsData.setString(Keys.GIT_USER_DATA, inputValue)
+                        DialogType.CREDENTIALS -> PreferencesData.setString(PreferencesKeys.GIT_CRED, inputValue)
+                        DialogType.USER_DATA -> PreferencesData.setString(PreferencesKeys.GIT_USER_DATA, inputValue)
                         DialogType.REPO_DIR -> {
                             if (File(inputValue).exists()) {
-                                SettingsData.setString(Keys.GIT_REPO_DIR, inputValue)
+                                PreferencesData.setString(PreferencesKeys.GIT_REPO_DIR, inputValue)
                             } else {
                                 rkUtils.toast(getString(R.string.dir_exist_not))
                             }

@@ -6,8 +6,8 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.xededitor.Keys
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesKeys
+import com.rk.settings.PreferencesData
 import kotlin.properties.Delegates
 
 
@@ -23,7 +23,7 @@ object FileTreeScrollViewManager {
             fileTreeViewId = it.id
         }
         val density = context.resources.displayMetrics.density
-        val isDiagonalScroll = SettingsData.getBoolean(Keys.DIAGONAL_SCROLL, false)
+        val isDiagonalScroll = PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, false)
         val linearLayout = LinearLayout(context)
 
 

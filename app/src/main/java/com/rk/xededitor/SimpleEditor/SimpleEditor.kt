@@ -14,10 +14,10 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
-import com.rk.xededitor.SettingsData.getBoolean
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesData.getBoolean
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.toast
@@ -55,7 +55,7 @@ class SimpleEditor : BaseActivity() {
 
 
     File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
-      editor!!.typefaceText = if (getBoolean(Keys.EDITOR_FONT, false) and it.exists()) {
+      editor!!.typefaceText = if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
         Typeface.createFromFile(it)
       } else {
         Typeface.createFromAsset(assets, "JetBrainsMono-Regular.ttf")
@@ -63,8 +63,8 @@ class SimpleEditor : BaseActivity() {
     }
 
 
-    editor!!.setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
-    val wordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
+    editor!!.setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
+    val wordwrap = getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
     editor!!.isWordwrap = wordwrap
     editor!!.getComponent(EditorAutoCompletion::class.java).isEnabled = true
 

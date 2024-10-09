@@ -1,17 +1,18 @@
-package com.rk.xededitor
+package com.rk.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+
 import androidx.appcompat.app.AppCompatDelegate
 
 @SuppressLint("ApplySharedPref")
-object SettingsData {
+object PreferencesData {
     private const val PREFNAME = "Settings"
 
     fun isDarkMode(ctx: Context) : Boolean{
-        val mode = getString(Keys.DEFAULT_NIGHT_MODE,AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())
+        val mode = getString(PreferencesKeys.DEFAULT_NIGHT_MODE,AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString())
         return when (mode) {
           AppCompatDelegate.MODE_NIGHT_YES.toString() -> {
               true
@@ -26,11 +27,11 @@ object SettingsData {
     }
 
     fun isOled(): Boolean {
-       return getBoolean(Keys.OLED, false)
+       return getBoolean(PreferencesKeys.OLED, false)
     }
     
     fun isMonet(): Boolean {
-       return getBoolean(Keys.MONET, false)
+       return getBoolean(PreferencesKeys.MONET, false)
     }
     
     fun getBoolean(key: String?, default: Boolean): Boolean {

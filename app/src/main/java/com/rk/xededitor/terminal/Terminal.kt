@@ -10,11 +10,11 @@ import androidx.activity.OnBackPressedCallback
 import com.blankj.utilcode.util.SizeUtils
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants
@@ -89,7 +89,7 @@ class Terminal : BaseActivity() {
     terminal.setBackgroundColor(Color.BLACK)
     terminal.setTextSize(
       SizeUtils.dp2px(
-        SettingsData.getString(Keys.TERMINAL_TEXT_SIZE, "14").toFloat()
+        PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
       )
     )
     terminal.keepScreenOn = true
@@ -206,7 +206,7 @@ class Terminal : BaseActivity() {
 
 
     val shell = "/system/bin/sh"
-    val args = if (SettingsData.getBoolean(Keys.FAIL_SAFE, false)) {
+    val args = if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE, false)) {
       arrayOf("")
     } else {
       arrayOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath)

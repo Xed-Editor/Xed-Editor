@@ -6,11 +6,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -170,7 +170,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
       binding.openBtn.visibility = View.GONE
       
       
-      if (SettingsData.getBoolean(Keys.SHOW_ARROW_KEYS, false)) {
+      if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, false)) {
         binding.apply {
           divider.visibility = View.VISIBLE
           mainBottomBar.visibility = View.VISIBLE

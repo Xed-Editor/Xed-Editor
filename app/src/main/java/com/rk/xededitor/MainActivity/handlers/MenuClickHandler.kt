@@ -14,12 +14,12 @@ import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
 import com.rk.librunner.Runner
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.terminal.Terminal
@@ -134,12 +134,12 @@ object MenuClickHandler {
                 val push = View.generateViewId()
                 
                 var dialog: AlertDialog? = null
-                val credentials = SettingsData.getString(Keys.GIT_CRED, "").split(":")
+                val credentials = PreferencesData.getString(PreferencesKeys.GIT_CRED, "").split(":")
                 if (credentials.size != 2) {
                     rkUtils.toast(getString(R.string.inavalid_git_cred))
                     return true
                 }
-                val userdata = SettingsData.getString(Keys.GIT_USER_DATA, "").split(":")
+                val userdata = PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "").split(":")
                 if (userdata.size != 2) {
                     rkUtils.toast(getString(R.string.inavalid_userdata))
                     return true

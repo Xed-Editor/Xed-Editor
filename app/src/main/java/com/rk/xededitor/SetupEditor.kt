@@ -2,7 +2,8 @@ package com.rk.xededitor
 
 import android.content.Context
 import android.graphics.Color
-import com.rk.xededitor.SettingsData.isDarkMode
+import com.rk.settings.PreferencesData.isDarkMode
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils.runOnUiThread
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
@@ -109,14 +110,14 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
     fun ensureTextmateTheme(context:Context) {
         init(context)
         val themeRegistry = when {
-            isDarkMode(ctx) && SettingsData.isOled() -> oledThemeRegistry
+            isDarkMode(ctx) && PreferencesData.isOled() -> oledThemeRegistry
             isDarkMode(ctx) -> darkThemeRegistry
             else -> lightThemeRegistry
         }
 
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
-            if (isDarkMode(ctx) && SettingsData.isOled()) {
+            if (isDarkMode(ctx) && PreferencesData.isOled()) {
                 editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
             runOnUiThread {

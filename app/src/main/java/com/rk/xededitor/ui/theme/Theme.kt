@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 
 /*
 * More Themes
@@ -95,9 +95,9 @@ private val DarkColorScheme = darkColorScheme(
 */
 @Composable
 fun KarbonTheme(
-    darkTheme: Boolean = SettingsData.isDarkMode(LocalContext.current),
-    highContrastDarkTheme: Boolean = SettingsData.isOled(),
-    dynamicColor: Boolean = SettingsData.isMonet(),
+    darkTheme: Boolean = PreferencesData.isDarkMode(LocalContext.current),
+    highContrastDarkTheme: Boolean = PreferencesData.isOled(),
+    dynamicColor: Boolean = PreferencesData.isMonet(),
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {

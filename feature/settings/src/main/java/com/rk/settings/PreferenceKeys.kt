@@ -1,7 +1,6 @@
-package com.rk.xededitor
+package com.rk.settings
 
-object Keys {
-    //try to avoid using spacial characters in keys except _
+object PreferencesKeys {
     const val PIN_LINE_NUMBER = "pinline"
     const val WORD_WRAP_ENABLED = "wordwrap"
     const val TAB_SIZE = "tabsize"

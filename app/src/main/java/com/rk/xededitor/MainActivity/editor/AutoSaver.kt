@@ -1,8 +1,8 @@
 package com.rk.xededitor.MainActivity.editor
 
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -25,9 +25,9 @@ object AutoSaver {
     }
     
     job = GlobalScope.launch(Dispatchers.Default) {
-      if (SettingsData.getBoolean(Keys.AUTO_SAVE, false)) {
-        delayTime = SettingsData.getString(
-          Keys.AUTO_SAVE_TIME_VALUE,
+      if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
+        delayTime = PreferencesData.getString(
+          PreferencesKeys.AUTO_SAVE_TIME_VALUE,
           delayTime.toString()
         ).toLong()
         while (true) {

@@ -167,6 +167,7 @@ dependencies {
   implementation(project(":feature:plugin"))
   implementation(project(":feature:runner"))
   implementation(project(":feature:filetree"))
+  implementation(project(":feature:settings"))
   implementation(project(":core:commons"))
   implementation(project(":core:components"))
   implementation(project(":editor:editor"))

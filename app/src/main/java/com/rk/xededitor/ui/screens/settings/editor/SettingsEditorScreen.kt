@@ -20,11 +20,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 import com.rk.xededitor.BaseActivity.Companion.getActivity
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.components.InputDialog
@@ -41,71 +41,71 @@ fun SettingsEditorScreen() {
 
     var smoothTabs by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.VIEWPAGER_SMOOTH_SCROLL, true
+        PreferencesData.getBoolean(
+          PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, true
         )
       )
     }
     var wordwrap by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.WORD_WRAP_ENABLED, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.WORD_WRAP_ENABLED, false
         )
       )
     }
     var drawerLock by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.KEEP_DRAWER_LOCKED, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.KEEP_DRAWER_LOCKED, false
         )
       )
     }
     var diagonalScroll by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.DIAGONAL_SCROLL, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.DIAGONAL_SCROLL, false
         )
       )
     }
     var cursorAnimation by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.CURSOR_ANIMATION_ENABLED, true
+        PreferencesData.getBoolean(
+          PreferencesKeys.CURSOR_ANIMATION_ENABLED, true
         )
       )
     }
     var showLineNumber by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.SHOW_LINE_NUMBERS, true
+        PreferencesData.getBoolean(
+          PreferencesKeys.SHOW_LINE_NUMBERS, true
         )
       )
     }
     var pinLineNumber by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.PIN_LINE_NUMBER, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.PIN_LINE_NUMBER, false
         )
       )
     }
     var showArrowKeys by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.SHOW_ARROW_KEYS, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.SHOW_ARROW_KEYS, false
         )
       )
     }
     var autoSave by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.AUTO_SAVE, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.AUTO_SAVE, false
         )
       )
     }
     var editorFont by remember {
       mutableStateOf(
-        SettingsData.getBoolean(
-          Keys.EDITOR_FONT, false
+        PreferencesData.getBoolean(
+          PreferencesKeys.EDITOR_FONT, false
         )
       )
     }
@@ -118,7 +118,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.animation,
       onNavigate = {
         smoothTabs = !smoothTabs
-        SettingsData.setBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
+        PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
         MainActivity.activityRef.get()?.smoothTabs = smoothTabs
       },
       endWidget = {
@@ -135,7 +135,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.reorder,
       onNavigate = {
         wordwrap = !wordwrap
-        SettingsData.setBoolean(Keys.WORD_WRAP_ENABLED, wordwrap)
+        PreferencesData.setBoolean(PreferencesKeys.WORD_WRAP_ENABLED, wordwrap)
         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
           f.value.get()?.editor?.isWordwrap = wordwrap
         }
@@ -156,7 +156,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.lock,
       onNavigate = {
         drawerLock = !drawerLock
-        SettingsData.setBoolean(Keys.KEEP_DRAWER_LOCKED, drawerLock)
+        PreferencesData.setBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, drawerLock)
       },
       endWidget = {
         Switch(
@@ -175,7 +175,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.diagonal_scroll,
       onNavigate = {
         diagonalScroll = !diagonalScroll
-        SettingsData.setBoolean(Keys.DIAGONAL_SCROLL, diagonalScroll)
+        PreferencesData.setBoolean(PreferencesKeys.DIAGONAL_SCROLL, diagonalScroll)
         rkUtils.toast(getString(R.string.rr))
       },
       endWidget = {
@@ -196,7 +196,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.animation,
       onNavigate = {
         cursorAnimation = !cursorAnimation
-        SettingsData.setBoolean(Keys.CURSOR_ANIMATION_ENABLED, cursorAnimation)
+        PreferencesData.setBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, cursorAnimation)
         getActivity(MainActivity::class.java)?.let {
           (it as MainActivity).adapter.tabFragments.forEach { f ->
             f.value.get()?.editor?.isCursorAnimationEnabled = cursorAnimation
@@ -217,7 +217,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.linenumbers,
       onNavigate = {
         showLineNumber = !showLineNumber
-        SettingsData.setBoolean(Keys.CURSOR_ANIMATION_ENABLED, showLineNumber)
+        PreferencesData.setBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, showLineNumber)
         getActivity(MainActivity::class.java)?.let {
           (it as MainActivity).adapter.tabFragments.forEach { f ->
             f.value.get()?.editor?.isLineNumberEnabled = showLineNumber
@@ -238,7 +238,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.linenumbers,
       onNavigate = {
         pinLineNumber = !pinLineNumber
-        SettingsData.setBoolean(Keys.PIN_LINE_NUMBER, pinLineNumber)
+        PreferencesData.setBoolean(PreferencesKeys.PIN_LINE_NUMBER, pinLineNumber)
         getActivity(MainActivity::class.java)?.let {
           (it as MainActivity).adapter.tabFragments.forEach { f ->
             f.value.get()?.editor?.setPinLineNumber(pinLineNumber)
@@ -259,7 +259,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.double_arrows,
       onNavigate = {
         showArrowKeys = !showArrowKeys
-        SettingsData.setBoolean(Keys.SHOW_ARROW_KEYS, showArrowKeys)
+        PreferencesData.setBoolean(PreferencesKeys.SHOW_ARROW_KEYS, showArrowKeys)
         MainActivity.activityRef.get()?.let { activity ->
           if (activity.tabViewModel.fragmentFiles.isEmpty()) {
             return@let
@@ -303,7 +303,7 @@ fun SettingsEditorScreen() {
       iconResource = R.drawable.save,
       onNavigate = {
         autoSave = !autoSave
-        SettingsData.setBoolean(Keys.AUTO_SAVE, autoSave)
+        PreferencesData.setBoolean(PreferencesKeys.AUTO_SAVE, autoSave)
       },
       endWidget = {
         Switch(
@@ -319,9 +319,9 @@ fun SettingsEditorScreen() {
      var showAutoSaveDialog by remember { mutableStateOf(false) }
      var showTextSizeDialog by remember { mutableStateOf(false) }
      var showTabSizeDialog by remember { mutableStateOf(false) }
-     var autoSaveTimeValue by remember { mutableStateOf(SettingsData.getString(Keys.AUTO_SAVE_TIME_VALUE, "10000")) }
-     var textSizeValue by remember { mutableStateOf(SettingsData.getString(Keys.TEXT_SIZE, "14")) }
-     var tabSizeValue by remember { mutableStateOf(SettingsData.getString(Keys.TAB_SIZE, "4")) }
+     var autoSaveTimeValue by remember { mutableStateOf(PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")) }
+     var textSizeValue by remember { mutableStateOf(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14")) }
+     var tabSizeValue by remember { mutableStateOf(PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4")) }
 
      PreferenceCategory(
         label = stringResource(id = R.string.auto_save_time),
@@ -354,7 +354,7 @@ fun SettingsEditorScreen() {
                 } else if (autoSaveTimeValue.toInt() < 1000) {
                     rkUtils.toast(context.getString(R.string.v_small))
                 } else {
-                    SettingsData.setString(Keys.AUTO_SAVE_TIME_VALUE, autoSaveTimeValue)
+                    PreferencesData.setString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, autoSaveTimeValue)
                     AutoSaver.delayTime = autoSaveTimeValue.toLong()
                 }
                 showAutoSaveDialog = false
@@ -377,7 +377,7 @@ fun SettingsEditorScreen() {
                } else if (textSizeValue.toInt() < 8) {
                    rkUtils.toast(context.getString(R.string.v_small))
                } else {
-                   SettingsData.setString(Keys.TEXT_SIZE, textSizeValue)
+                   PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                       f.value.get()?.editor?.setTextSize(textSizeValue.toFloat())
                    }
@@ -399,7 +399,7 @@ fun SettingsEditorScreen() {
                } else if (tabSizeValue.toInt() > 16) {
                    rkUtils.toast(context.getString(R.string.v_large))
                }
-               SettingsData.setString(Keys.TAB_SIZE, tabSizeValue)
+               PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                     f.value.get()?.editor?.tabWidth = tabSizeValue.toInt()
                 }
@@ -414,7 +414,7 @@ fun SettingsEditorScreen() {
          iconResource = R.drawable.baseline_font_download_24,
          onNavigate = {
             editorFont = !editorFont
-            SettingsData.setBoolean(Keys.EDITOR_FONT, editorFont)
+            PreferencesData.setBoolean(PreferencesKeys.EDITOR_FONT, editorFont)
          },
          endWidget = {
             Switch(

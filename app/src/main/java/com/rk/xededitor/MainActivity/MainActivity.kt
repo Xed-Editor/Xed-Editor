@@ -22,7 +22,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.editor.AutoSaver
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -30,7 +30,7 @@ import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +55,7 @@ class MainActivity : BaseActivity() {
   lateinit var drawerToggle: ActionBarDrawerToggle
   var fm = FileManager(this)
   lateinit var menu: Menu
-  var smoothTabs = SettingsData.getBoolean(Keys.VIEWPAGER_SMOOTH_SCROLL, true)
+  var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, true)
   lateinit var adapter: TabAdapter
   private val pausedQueue: Queue<Runnable> = LinkedList()
   

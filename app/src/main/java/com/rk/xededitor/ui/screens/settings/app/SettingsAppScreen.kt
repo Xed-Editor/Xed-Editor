@@ -12,9 +12,9 @@ import androidx.compose.ui.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.*
 import androidx.compose.ui.unit.*
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.ui.components.BottomSheetContent
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
@@ -27,8 +27,8 @@ fun SettingsAppScreen() {
         label = stringResource(id = R.string.app),
         backArrowVisible = true,
     ) {
-        var isOled by remember { mutableStateOf(SettingsData.isOled()) }
-        var isMonet by remember { mutableStateOf(SettingsData.isMonet()) }
+        var isOled by remember { mutableStateOf(PreferencesData.isOled()) }
+        var isMonet by remember { mutableStateOf(PreferencesData.isMonet()) }
         val showDayNightBottomSheet = remember { mutableStateOf(false) }
         val context = LocalContext.current
         
@@ -47,7 +47,7 @@ fun SettingsAppScreen() {
             iconResource = R.drawable.dark_mode,
             onNavigate = {
                  isOled = !isOled
-                 SettingsData.setBoolean(Keys.OLED, isOled)
+                 PreferencesData.setBoolean(PreferencesKeys.OLED, isOled)
             },
             endWidget = {
                  Switch(
@@ -67,7 +67,7 @@ fun SettingsAppScreen() {
             onNavigate = {
                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                      isMonet = !isMonet
-                     SettingsData.setBoolean(Keys.MONET, isMonet)
+                     PreferencesData.setBoolean(PreferencesKeys.MONET, isMonet)
                  }
             },
             endWidget = {
@@ -96,8 +96,8 @@ fun DayNightDialog(
 
     var selectedMode by remember {
         mutableIntStateOf(
-            SettingsData.getString(
-                Keys.DEFAULT_NIGHT_MODE,
+            PreferencesData.getString(
+                PreferencesKeys.DEFAULT_NIGHT_MODE,
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
             ).toInt()
         )
@@ -141,7 +141,7 @@ fun DayNightDialog(
                             title = { Text(text = modeLabels[index]) },
                             modifier = Modifier.clickable {
                                 selectedMode = mode
-                                SettingsData.setString(Keys.DEFAULT_NIGHT_MODE, selectedMode.toString())
+                                PreferencesData.setString(PreferencesKeys.DEFAULT_NIGHT_MODE, selectedMode.toString())
                                 AppCompatDelegate.setDefaultNightMode(selectedMode)
                                 btnSheetScope.launch {
                                     btnSheetState.hide()

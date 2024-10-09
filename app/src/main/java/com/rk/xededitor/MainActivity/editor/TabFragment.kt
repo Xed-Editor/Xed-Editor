@@ -9,12 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler.editorKeyEventHandler
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
-import com.rk.xededitor.SettingsData.getBoolean
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesData.getBoolean
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
@@ -74,20 +74,20 @@ class TabFragment : Fragment() {
         }
       }
       with(editor!!) {
-        val tabSize = SettingsData.getString(Keys.TAB_SIZE, "4").toInt()
+        val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
         props.deleteEmptyLineFast = false
         props.useICULibToSelectWords = true
-        setPinLineNumber(getBoolean(Keys.PIN_LINE_NUMBER, false))
-        isLineNumberEnabled = getBoolean(Keys.SHOW_LINE_NUMBERS, true)
-        isCursorAnimationEnabled = getBoolean(Keys.CURSOR_ANIMATION_ENABLED, true)
-        isWordwrap = getBoolean(Keys.WORD_WRAP_ENABLED, false)
-        setTextSize(SettingsData.getString(Keys.TEXT_SIZE, "14").toFloat())
+        setPinLineNumber(getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
+        isLineNumberEnabled = getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
+        isCursorAnimationEnabled = getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
+        isWordwrap = getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
+        setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
         getComponent(EditorAutoCompletion::class.java).isEnabled = true
 
         File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
-          typefaceText = if (getBoolean(Keys.EDITOR_FONT, false) and it.exists()) {
+          typefaceText = if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
             Typeface.createFromFile(it)
           } else {
             Typeface.createFromAsset(requireContext().assets, "JetBrainsMono-Regular.ttf")

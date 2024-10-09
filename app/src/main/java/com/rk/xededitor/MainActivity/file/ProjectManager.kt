@@ -14,11 +14,11 @@ import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
 import com.rk.libcommons.LoadingPopup
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -235,7 +235,7 @@ object ProjectManager {
 
     fun restoreProjects(activity: MainActivity) {
         clear(activity)
-        val jsonString = SettingsData.getString(Keys.PROJECTS, "")
+        val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
         if (jsonString.isNotEmpty()) {
             val gson = Gson()
             val projectsList = gson.fromJson(jsonString, Array<String>::class.java)
@@ -272,7 +272,7 @@ object ProjectManager {
 
                     //delay close drawer after 400ms
                     After(400) {
-                        if (!SettingsData.getBoolean(Keys.KEEP_DRAWER_LOCKED, false)) {
+                        if (!PreferencesData.getBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, false)) {
                             rkUtils.runOnUiThread {
                                 it.binding.drawerLayout.close()
                             }
@@ -301,7 +301,7 @@ object ProjectManager {
             val gson = Gson()
             val uniqueProjects = projects.values.toSet()
             val jsonString = gson.toJson(uniqueProjects.toList())
-            SettingsData.setString(Keys.PROJECTS, jsonString)
+            PreferencesData.setString(PreferencesKeys.PROJECTS, jsonString)
         }
     }
 }

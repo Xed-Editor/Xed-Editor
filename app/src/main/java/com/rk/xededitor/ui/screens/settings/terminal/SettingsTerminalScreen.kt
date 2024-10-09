@@ -20,10 +20,10 @@ import androidx.compose.ui.unit.dp
 
 import com.jaredrummler.ktsh.Shell
 
-import com.rk.xededitor.Keys
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
-import com.rk.xededitor.SettingsData
-import com.rk.xededitor.SettingsData.getBoolean
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesData.getBoolean
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.InputDialog
 
@@ -41,10 +41,10 @@ import java.nio.file.Files
 @OptIn(DelicateCoroutinesApi::class)
 fun updateProotArgs(context: Context): Boolean {
     GlobalScope.launch(Dispatchers.IO) {
-        val link2sym = getBoolean(Keys.LINK2SYMLINK, false)
-        val ashmemfd = getBoolean(Keys.ASHMEM_MEMFD, true)
-        val sysvipc = getBoolean(Keys.SYSVIPC, true)
-        val killOnExit = getBoolean(Keys.KILL_ON_EXIT, true)
+        val link2sym = getBoolean(PreferencesKeys.LINK2SYMLINK, false)
+        val ashmemfd = getBoolean(PreferencesKeys.ASHMEM_MEMFD, true)
+        val sysvipc = getBoolean(PreferencesKeys.SYSVIPC, true)
+        val killOnExit = getBoolean(PreferencesKeys.KILL_ON_EXIT, true)
 
         val sb = StringBuilder()
         if (link2sym) {
@@ -77,31 +77,31 @@ fun SettingsTerminalScreen() {
         val context = LocalContext.current
 
         var failSafe by remember {
-            mutableStateOf(getBoolean(Keys.FAIL_SAFE, false))
+            mutableStateOf(getBoolean(PreferencesKeys.FAIL_SAFE, false))
         }
 
         var ctrlWorkAround by remember {
-            mutableStateOf(getBoolean(Keys.CTRL_WORKAROUND, false))
+            mutableStateOf(getBoolean(PreferencesKeys.CTRL_WORKAROUND, false))
         }
 
         var forceChar by remember {
-            mutableStateOf(getBoolean(Keys.FORCE_CHAR, false))
+            mutableStateOf(getBoolean(PreferencesKeys.FORCE_CHAR, false))
         }
 
         var link2sym by remember {
-            mutableStateOf(getBoolean(Keys.LINK2SYMLINK, true))
+            mutableStateOf(getBoolean(PreferencesKeys.LINK2SYMLINK, true))
         }
 
         var ashememFd by remember {
-            mutableStateOf(getBoolean(Keys.ASHMEM_MEMFD, true))
+            mutableStateOf(getBoolean(PreferencesKeys.ASHMEM_MEMFD, true))
         }
 
         var sysvipc by remember {
-            mutableStateOf(getBoolean(Keys.SYSVIPC, true))
+            mutableStateOf(getBoolean(PreferencesKeys.SYSVIPC, true))
         }
 
         var killOnExit by remember {
-            mutableStateOf(getBoolean(Keys.KILL_ON_EXIT, true))
+            mutableStateOf(getBoolean(PreferencesKeys.KILL_ON_EXIT, true))
         }
 
         PreferenceCategory(
@@ -110,7 +110,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.android,
             onNavigate = {
                 failSafe = !failSafe
-                SettingsData.setBoolean(Keys.FAIL_SAFE, failSafe)
+                PreferencesData.setBoolean(PreferencesKeys.FAIL_SAFE, failSafe)
             },
             endWidget = {
                 Switch(
@@ -134,7 +134,7 @@ fun SettingsTerminalScreen() {
         )
 
         if (showLShellDialog) {
-            var inputValue by remember { mutableStateOf(SettingsData.getString(Keys.SHELL, "/bin/sh").removePrefix(File(context.filesDir.parentFile, "rootfs/").absolutePath)) }
+            var inputValue by remember { mutableStateOf(PreferencesData.getString(PreferencesKeys.SHELL, "/bin/sh").removePrefix(File(context.filesDir.parentFile, "rootfs/").absolutePath)) }
             InputDialog(
                 title = stringResource(id = R.string.Lshell),
                 inputLabel = "eg. /bin/sh",
@@ -147,7 +147,7 @@ fun SettingsTerminalScreen() {
                     if (shell.isNotEmpty()) {
                         val absoluteShell = File(context.filesDir.parentFile, "rootfs/$shell")
                         if (absoluteShell.exists() || Files.isSymbolicLink(absoluteShell.toPath())) {
-                            SettingsData.setString(Keys.SHELL, absoluteShell.absolutePath)
+                            PreferencesData.setString(PreferencesKeys.SHELL, absoluteShell.absolutePath)
                             Shell.SH.run("echo \"$shell\" > ${context.filesDir.parentFile.absolutePath}/shell")
                         } else {
                             rkUtils.toast(rkUtils.getString(R.string.file_exist_not))
@@ -171,7 +171,7 @@ fun SettingsTerminalScreen() {
         )
 
         if (showTextSizeDialog) {
-            var inputValue by remember { mutableStateOf(SettingsData.getString(Keys.TERMINAL_TEXT_SIZE, "14")) }
+            var inputValue by remember { mutableStateOf(PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14")) }
             InputDialog(
                 title = stringResource(id = R.string.text_size),
                 inputLabel = stringResource(R.string.terminal_text_size),
@@ -184,7 +184,7 @@ fun SettingsTerminalScreen() {
                     if (text.all { it.isDigit() }) {
                         val size = text.toIntOrNull()
                         if (size != null && size in 8..32) {
-                            SettingsData.setString(Keys.TERMINAL_TEXT_SIZE, text)
+                            PreferencesData.setString(PreferencesKeys.TERMINAL_TEXT_SIZE, text)
                         } else {
                             rkUtils.toast(if (size != null && size > 32) rkUtils.getString(R.string.v_large) else rkUtils.getString(R.string.v_small))
                         }
@@ -202,7 +202,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.terminal,
             onNavigate = {
                 ctrlWorkAround = !ctrlWorkAround
-                SettingsData.setBoolean(Keys.CTRL_WORKAROUND, ctrlWorkAround)
+                PreferencesData.setBoolean(PreferencesKeys.CTRL_WORKAROUND, ctrlWorkAround)
             },
             endWidget = {
                 Switch(
@@ -221,7 +221,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.edit,
             onNavigate = {
                 forceChar = !forceChar
-                SettingsData.setBoolean(Keys.FORCE_CHAR, forceChar)
+                PreferencesData.setBoolean(PreferencesKeys.FORCE_CHAR, forceChar)
             },
             endWidget = {
                 Switch(
@@ -240,7 +240,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.terminal,
             onNavigate = {
                 link2sym = !link2sym
-                SettingsData.setBoolean(Keys.LINK2SYMLINK, link2sym)
+                PreferencesData.setBoolean(PreferencesKeys.LINK2SYMLINK, link2sym)
                 updateProotArgs(context)
             },
             endWidget = {
@@ -260,7 +260,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.terminal,
             onNavigate = {
                 ashememFd = !ashememFd
-                SettingsData.setBoolean(Keys.ASHMEM_MEMFD, ashememFd)
+                PreferencesData.setBoolean(PreferencesKeys.ASHMEM_MEMFD, ashememFd)
                 updateProotArgs(context)
             },
             endWidget = {
@@ -280,7 +280,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.terminal,
             onNavigate = {
                 sysvipc = !sysvipc
-                SettingsData.setBoolean(Keys.SYSVIPC, sysvipc)
+                PreferencesData.setBoolean(PreferencesKeys.SYSVIPC, sysvipc)
                 updateProotArgs(context)
             },
             endWidget = {
@@ -300,7 +300,7 @@ fun SettingsTerminalScreen() {
             iconResource = R.drawable.terminal,
             onNavigate = {
                 killOnExit = !killOnExit
-                SettingsData.setBoolean(Keys.KILL_ON_EXIT, killOnExit)
+                PreferencesData.setBoolean(PreferencesKeys.KILL_ON_EXIT, killOnExit)
                 updateProotArgs(context)
             },
             endWidget = {

@@ -8,6 +8,7 @@ import com.rk.libcommons.After
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
+import com.rk.settings.PreferencesData
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -46,7 +47,7 @@ class App : Application() {
     //create crash handler
     CrashHandler.INSTANCE.init(this).let {
       //initialize shared preferences
-      SettingsData.initPref(this).let {
+      PreferencesData.initPref(this).let {
         //handle version change
         //blocking code
         VersionChangeHandler.handle(this)
