@@ -8,6 +8,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 
+import com.rk.xededitor.ui.animations.NavigationAnimationTransition
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
@@ -20,7 +21,14 @@ fun SettingsNavHost(
     navController: NavHostController,
     activity: Activity
 ) {
-    NavHost(navController = navController, startDestination = SettingsRoutes.Settings.route) {
+    NavHost(
+        navController = navController,
+        startDestination = SettingsRoutes.Settings.route,
+        enterTransition = { NavigationAnimationTransitions.enterTransition() },
+        exitTransition = { NavigationAnimationTransitions.exitTransition() },
+        popEnterTransition = { NavigationAnimationTransitions.popEnterTransition() },
+        popExitTransition = { NavigationAnimationTransitions.popExitTransition() }
+    ) {
         composable(SettingsRoutes.Settings.route) {
             SettingsScreen(navController)
         }

@@ -163,6 +163,7 @@ dependencies {
   implementation(libs.org.eclipse.jgit)
   implementation(libs.coil.compose)
   implementation(libs.bsh)
+  implementation(libs.material.motion.compose.core)
   coreLibraryDesugaring(libs.desugar.jdk.libs)
   implementation(project(":feature:plugin"))
   implementation(project(":feature:runner"))
