@@ -47,7 +47,7 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.bsh)
-    implementation(project(":PluginLoader"))
+    implementation(project(":feature:plugin"))
     implementation(project(":commons"))
     implementation("org.nanohttpd:nanohttpd:2.3.1")
 }

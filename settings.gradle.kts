@@ -27,12 +27,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "Karbon"
 include(":app")
-include(":PluginLoader")
-include(":libRunner")
+include(":feature:plugin")
+include(":feature:runner")
 include(":editor")
 include(":editor-lsp")
 include(":language-textmate")
 include(":commons")
-include(":FileTree")
+include(":feature:filetree")
 
 include("core:components")
