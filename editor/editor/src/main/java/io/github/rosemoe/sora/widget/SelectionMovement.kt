@@ -40,31 +40,43 @@ private typealias SelectionMovementComputeFunc = ((CodeEditor, CharPosition) -> 
  */
 enum class SelectionMovement(
     private val computeFunc: SelectionMovementComputeFunc,
-    val basePosition: MovingBasePosition = MovingBasePosition.SELECTION_ANCHOR
+    val basePosition: MovingBasePosition = MovingBasePosition.SELECTION_ANCHOR,
 ) {
     /** Move Up */
-    UP({ editor, pos ->
-        val newPos = editor.layout.getUpPosition(pos.line, pos.column)
-        editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
-    }, MovingBasePosition.LEFT_SELECTION),
+    UP(
+        { editor, pos ->
+            val newPos = editor.layout.getUpPosition(pos.line, pos.column)
+            editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
+        },
+        MovingBasePosition.LEFT_SELECTION,
+    ),
 
     /** Move Down */
-    DOWN({ editor, pos ->
-        val newPos = editor.layout.getDownPosition(pos.line, pos.column)
-        editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
-    }, MovingBasePosition.RIGHT_SELECTION),
+    DOWN(
+        { editor, pos ->
+            val newPos = editor.layout.getDownPosition(pos.line, pos.column)
+            editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
+        },
+        MovingBasePosition.RIGHT_SELECTION,
+    ),
 
     /** Move Left */
-    LEFT({ editor, pos ->
-        val newPos = editor.cursor.getLeftOf(pos.toIntPair())
-        editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
-    }, MovingBasePosition.LEFT_SELECTION),
+    LEFT(
+        { editor, pos ->
+            val newPos = editor.cursor.getLeftOf(pos.toIntPair())
+            editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
+        },
+        MovingBasePosition.LEFT_SELECTION,
+    ),
 
     /** Move Right */
-    RIGHT({ editor, pos ->
-        val newPos = editor.cursor.getRightOf(pos.toIntPair())
-        editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
-    }, MovingBasePosition.RIGHT_SELECTION),
+    RIGHT(
+        { editor, pos ->
+            val newPos = editor.cursor.getRightOf(pos.toIntPair())
+            editor.text.indexer.getCharPosition(IntPair.getFirst(newPos), IntPair.getSecond(newPos))
+        },
+        MovingBasePosition.RIGHT_SELECTION,
+    ),
 
     /** Move To Previous Word Boundary */
     PREVIOUS_WORD_BOUNDARY({ editor, pos ->
@@ -135,11 +147,10 @@ enum class SelectionMovement(
     /** Move To Line Start */
     LINE_START({ editor, pos ->
         if (editor.props.enhancedHomeAndEnd) {
-            val column = IntPair.getFirst(
-                TextUtils.findLeadingAndTrailingWhitespacePos(
-                    editor.text.getLine(pos.line)
+            val column =
+                IntPair.getFirst(
+                    TextUtils.findLeadingAndTrailingWhitespacePos(editor.text.getLine(pos.line))
                 )
-            )
             if (pos.column != column) {
                 editor.text.indexer.getCharPosition(pos.line, column)
             } else {
@@ -154,11 +165,10 @@ enum class SelectionMovement(
     LINE_END({ editor, pos ->
         val colNum = editor.text.getColumnCount(pos.line)
         if (editor.props.enhancedHomeAndEnd) {
-            val column = IntPair.getSecond(
-                TextUtils.findLeadingAndTrailingWhitespacePos(
-                    editor.text.getLine(pos.line)
+            val column =
+                IntPair.getSecond(
+                    TextUtils.findLeadingAndTrailingWhitespacePos(editor.text.getLine(pos.line))
                 )
-            )
             if (pos.column != column) {
                 editor.text.indexer.getCharPosition(pos.line, column)
             } else {
@@ -170,22 +180,16 @@ enum class SelectionMovement(
     }),
 
     /** Move To Text Start */
-    TEXT_START({ _, _ ->
-        CharPosition().toBOF()
-    }),
+    TEXT_START({ _, _ -> CharPosition().toBOF() }),
 
     /** Move To Text End */
-    TEXT_END({ editor, _ ->
-        editor.text.indexer.getCharPosition(editor.text.length)
-    });
+    TEXT_END({ editor, _ -> editor.text.indexer.getCharPosition(editor.text.length) });
 
-    /**
-     * For [CodeEditor.moveSelection]
-     */
+    /** For [CodeEditor.moveSelection] */
     enum class MovingBasePosition {
         LEFT_SELECTION,
         RIGHT_SELECTION,
-        SELECTION_ANCHOR
+        SELECTION_ANCHOR,
     }
 
     @UnsupportedUserUsage

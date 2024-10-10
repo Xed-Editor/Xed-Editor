@@ -6,10 +6,9 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.settings.PreferencesKeys
 import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import kotlin.properties.Delegates
-
 
 object FileTreeScrollViewManager {
     private fun dpToPx(dp: Int, density: Float): Int {
@@ -18,32 +17,28 @@ object FileTreeScrollViewManager {
 
     var fileTreeViewId by Delegates.notNull<Int>()
 
-    fun getFileTreeParentScrollView(context: Context, fileTree: FileTree?) : ViewGroup {
-        fileTree?.let {
-            fileTreeViewId = it.id
-        }
+    fun getFileTreeParentScrollView(context: Context, fileTree: FileTree?): ViewGroup {
+        fileTree?.let { fileTreeViewId = it.id }
         val density = context.resources.displayMetrics.density
         val isDiagonalScroll = PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, false)
         val linearLayout = LinearLayout(context)
 
-
-        val params = ViewGroup.MarginLayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        val scrollView = if (isDiagonalScroll) {
-            DiagonalScrollView(context).apply {
-                layoutParams = params.apply {
-                    setMargins(0, dpToPx(10, density), 0, 0)
+        val params =
+            ViewGroup.MarginLayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+        val scrollView =
+            if (isDiagonalScroll) {
+                DiagonalScrollView(context).apply {
+                    layoutParams = params.apply { setMargins(0, dpToPx(10, density), 0, 0) }
+                }
+            } else {
+                HorizontalScrollView(context).apply {
+                    layoutParams = params
+                    isHorizontalScrollBarEnabled = false
                 }
             }
-        } else {
-            HorizontalScrollView(context).apply {
-                layoutParams = params
-                isHorizontalScrollBarEnabled = false
-            }
-        }
-
 
         fileTree?.let {
             it.layoutParams = params
@@ -55,7 +50,6 @@ object FileTreeScrollViewManager {
                 }
             }
             linearLayout.addView(fileTree)
-
         }
 
         linearLayout.apply {
@@ -69,10 +63,6 @@ object FileTreeScrollViewManager {
             scrollView.addView(this)
         }
 
-
-
         return scrollView
     }
-
-
 }

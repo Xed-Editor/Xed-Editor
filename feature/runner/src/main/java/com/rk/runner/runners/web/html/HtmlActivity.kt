@@ -1,26 +1,21 @@
 package com.rk.runner.runners.web.html
 
-import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
+import java.io.File
+import java.io.FileInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileInputStream
-
 
 private const val PORT = 8080
 
-//random characters for javascript variable name
+// random characters for javascript variable name
 private const val C = "ceskhbfbdnjjdd"
 
 class HtmlActivity : WebActivity() {
@@ -32,52 +27,56 @@ class HtmlActivity : WebActivity() {
         file = File(intent.getStringExtra("filepath").toString())
 
         httpServer = HttpServer(PORT, file.parentFile!!)
-        
-        lifecycleScope.launch(Dispatchers.Default){
-            val sb = StringBuilder(withContext(Dispatchers.IO) {
-                FileInputStream(file).bufferedReader()
-            }.use { it.readText() })
+
+        lifecycleScope.launch(Dispatchers.Default) {
+            val sb =
+                StringBuilder(
+                    withContext(Dispatchers.IO) { FileInputStream(file).bufferedReader() }
+                        .use { it.readText() }
+                )
             val erudaJs = readAssetFile(this@HtmlActivity, "eruda.js")
             val js =
-                """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);""".trimIndent()
-            val injectHtml = """
+                """eruda.init();eruda.remove('elements');eruda.remove('network');eruda.remove('sources');eruda.remove('snippets');let $C = eruda.get('console');$C.config.set('catchGlobalErr',true);$C.config.set('overrideConsole',true);$C.config.set('displayExtraInfo',true);"""
+                    .trimIndent()
+            val injectHtml =
+                """
                 <script>$erudaJs</script>
                 <script>$js</script>
-            """.trimIndent()
+            """
+                    .trimIndent()
             sb.insert(0, injectHtml)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 with(binding.webview) {
-                    webViewClient = object : WebViewClient() {
-                        override fun onPageFinished(view: WebView?, url: String?) {
-                            with(binding.webview.title) {
-                                if (isNullOrEmpty().not()) {
-                                    supportActionBar!!.title = this
-                                } else {
-                                    supportActionBar!!.title = file.name
+                    webViewClient =
+                        object : WebViewClient() {
+                            override fun onPageFinished(view: WebView?, url: String?) {
+                                with(binding.webview.title) {
+                                    if (isNullOrEmpty().not()) {
+                                        supportActionBar!!.title = this
+                                    } else {
+                                        supportActionBar!!.title = file.name
+                                    }
                                 }
+                                super.onPageFinished(view, url)
                             }
-                            super.onPageFinished(view, url)
                         }
-                    }
                     loadDataWithBaseURL(
                         "http://localhost:$PORT",
                         sb.toString(),
                         "text/html",
                         "utf-8",
-                        null
+                        null,
                     )
                 }
             }
         }
     }
 
-
     private fun readAssetFile(context: Context, fileName: String): String {
         val assetManager = context.assets
         val inputStream = assetManager.open(fileName)
         return inputStream.bufferedReader().use { it.readText() }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

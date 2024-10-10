@@ -25,22 +25,22 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Color
-
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 
 /**
  * A Preference that provides a two-state toggleable option.
+ *
  * @author Aquiles Trindade (trindadedev).
  */
 @Composable
@@ -56,48 +56,45 @@ fun PreferenceSwitch(
     val interactionSource = remember { MutableInteractionSource() }
 
     PreferenceTemplate(
-        modifier = modifier.clickable(
-            enabled = enabled,
-            indication = ripple(),
-            interactionSource = interactionSource,
-        ) {
-            if (onClick != null) {
-                onClick()
-            } else {
-                onCheckedChange(!checked)
-            }
-        },
-        contentModifier = Modifier
-            .fillMaxHeight()
-            .padding(vertical = 16.dp)
-            .padding(start = 16.dp),
+        modifier =
+            modifier.clickable(
+                enabled = enabled,
+                indication = ripple(),
+                interactionSource = interactionSource,
+            ) {
+                if (onClick != null) {
+                    onClick()
+                } else {
+                    onCheckedChange(!checked)
+                }
+            },
+        contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = { description?.let { Text(text = it) } },
         endWidget = {
             if (onClick != null) {
                 Spacer(
-                    modifier = Modifier
-                        .height(32.dp)
-                        .width(1.dp)
-                        .fillMaxHeight()
-                        .background(MaterialTheme.colorScheme.outlineVariant),
+                    modifier =
+                        Modifier.height(32.dp)
+                            .width(1.dp)
+                            .fillMaxHeight()
+                            .background(MaterialTheme.colorScheme.outlineVariant)
                 )
             }
             Switch(
-                modifier = Modifier
-                    .padding(all = 16.dp)
-                    .height(24.dp),
+                modifier = Modifier.padding(all = 16.dp).height(24.dp),
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 enabled = enabled,
                 interactionSource = interactionSource,
-                colors = SwitchDefaults.colors().copy(
-                    uncheckedThumbColor = MaterialTheme.colorScheme.background,
-                    uncheckedTrackColor = MaterialTheme.colorScheme.onBackground.copy(
-                        alpha = 0.5f
-                    ),
-                    uncheckedBorderColor = Color.Transparent,
-                    )
+                colors =
+                    SwitchDefaults.colors()
+                        .copy(
+                            uncheckedThumbColor = MaterialTheme.colorScheme.background,
+                            uncheckedTrackColor =
+                                MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                            uncheckedBorderColor = Color.Transparent,
+                        ),
             )
         },
         enabled = enabled,

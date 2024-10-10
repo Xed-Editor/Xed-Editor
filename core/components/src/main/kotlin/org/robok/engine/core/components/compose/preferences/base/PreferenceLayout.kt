@@ -24,15 +24,15 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * Represents the layout of all Preference screens.
- * Uses a combination of [PreferenceScaffold] and [PreferenceColumn] to represent the layout.
+ * Represents the layout of all Preference screens. Uses a combination of [PreferenceScaffold] and
+ * [PreferenceColumn] to represent the layout.
  *
  * @param label the text to be displayed at the top of the screen
  * @param backArrowVisible whether to show the back arrow or not
@@ -78,9 +78,9 @@ fun PreferenceLayout(
 }
 
 /**
- * Represents the layout of all Preference screens.
- * This composable only composes and lays out the currently visible items.
- * Uses a combination of [PreferenceScaffold] and [PreferenceLazyColumn] to represent the layout.
+ * Represents the layout of all Preference screens. This composable only composes and lays out the
+ * currently visible items. Uses a combination of [PreferenceScaffold] and [PreferenceLazyColumn] to
+ * represent the layout.
  *
  * @param label the text to be displayed at the top of the screen
  * @param modifier the [Modifier] to apply at [PreferenceLazyColumn]
@@ -119,6 +119,5 @@ fun PreferenceLayoutLazyColumn(
         )
     }
 }
-
 
 val LocalIsExpandedScreen = compositionLocalOf { false }

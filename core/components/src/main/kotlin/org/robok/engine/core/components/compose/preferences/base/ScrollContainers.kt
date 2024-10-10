@@ -15,7 +15,7 @@ package org.robok.engine.core.components.compose.preferences.base
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -35,10 +35,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-
-import org.robok.engine.core.components.compose.utils.addIf
-
 import kotlinx.coroutines.awaitCancellation
+import org.robok.engine.core.components.compose.utils.addIf
 
 @Composable
 fun PreferenceColumn(
@@ -49,20 +47,15 @@ fun PreferenceColumn(
     scrollState: ScrollState? = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    NestedScrollStretch(
-        modifier = modifier,
-    ) {
+    NestedScrollStretch(modifier = modifier) {
         Column(
             verticalArrangement = verticalArrangement,
             horizontalAlignment = horizontalAlignment,
-            modifier = Modifier
-                .fillMaxHeight()
-                .addIf(scrollState != null) {
-                    this
-                        .verticalScroll(scrollState!!)
-                }
-                .padding(contentPadding)
-                .padding(top = 8.dp, bottom = 16.dp),
+            modifier =
+                Modifier.fillMaxHeight()
+                    .addIf(scrollState != null) { this.verticalScroll(scrollState!!) }
+                    .padding(contentPadding)
+                    .padding(top = 8.dp, bottom = 16.dp),
             content = content,
         )
     }
@@ -79,19 +72,12 @@ fun PreferenceLazyColumn(
 ) {
     if (!enabled) {
         LaunchedEffect(key1 = null) {
-            state.scroll(scrollPriority = MutatePriority.PreventUserInput) {
-                awaitCancellation()
-            }
+            state.scroll(scrollPriority = MutatePriority.PreventUserInput) { awaitCancellation() }
         }
     }
-    NestedScrollStretch(
-        modifier = modifier,
-    ) {
+    NestedScrollStretch(modifier = modifier) {
         LazyColumn(
-            modifier = Modifier
-                .addIf(!isChild) {
-                    fillMaxHeight()
-                },
+            modifier = Modifier.addIf(!isChild) { fillMaxHeight() },
             contentPadding = contentPadding,
             state = state,
             content = content,

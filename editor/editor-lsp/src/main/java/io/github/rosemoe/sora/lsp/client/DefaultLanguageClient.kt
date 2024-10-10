@@ -1,33 +1,30 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.client
 
 import android.util.Log
-
-
 import io.github.rosemoe.sora.lsp.utils.toFileUri
+import java.net.URI
+import java.util.concurrent.CompletableFuture
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams
 import org.eclipse.lsp4j.ApplyWorkspaceEditResponse
 import org.eclipse.lsp4j.ConfigurationParams
@@ -39,37 +36,32 @@ import org.eclipse.lsp4j.ShowMessageRequestParams
 import org.eclipse.lsp4j.UnregistrationParams
 import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.services.LanguageClient
-import java.net.URI
-import java.util.concurrent.CompletableFuture
 
+open class DefaultLanguageClient(protected val context: ClientContext) : LanguageClient {
 
-open class DefaultLanguageClient(protected val context: ClientContext) :
-    LanguageClient {
-
-    override fun applyEdit(params: ApplyWorkspaceEditParams): CompletableFuture<ApplyWorkspaceEditResponse> {
+    override fun applyEdit(
+        params: ApplyWorkspaceEditParams
+    ): CompletableFuture<ApplyWorkspaceEditResponse> {
         /* boolean response = WorkspaceEditHandler.applyEdit(params.getEdit(), "LSP edits");*/
         // FIXME: Support it?
-        return CompletableFuture.supplyAsync {
-            ApplyWorkspaceEditResponse(
-                false
-            )
-        }
+        return CompletableFuture.supplyAsync { ApplyWorkspaceEditResponse(false) }
     }
 
-    override fun configuration(configurationParams: ConfigurationParams): CompletableFuture<List<Any>> {
+    override fun configuration(
+        configurationParams: ConfigurationParams
+    ): CompletableFuture<List<Any>> {
         return super.configuration(configurationParams)
     }
 
     override fun workspaceFolders(): CompletableFuture<List<WorkspaceFolder>> {
         val workSpaceFolder = WorkspaceFolder()
-        workSpaceFolder.uri =
-            context.projectPath.toFileUri()
+        workSpaceFolder.uri = context.projectPath.toFileUri()
         // Always return the current project path
         return CompletableFuture.completedFuture(listOf(workSpaceFolder))
     }
 
     override fun registerCapability(params: RegistrationParams): CompletableFuture<Void> {
-        //Not prepared to support this feature
+        // Not prepared to support this feature
         return CompletableFuture.completedFuture(null)
     }
 
@@ -88,15 +80,11 @@ open class DefaultLanguageClient(protected val context: ClientContext) :
         val diagnosticsContainer = context.project.diagnosticsContainer
         val uri = URI(publishDiagnosticsParams.uri).toFileUri()
 
-        diagnosticsContainer.addDiagnostics(
-            uri,
-            publishDiagnosticsParams.diagnostics
-        )
+        diagnosticsContainer.addDiagnostics(uri, publishDiagnosticsParams.diagnostics)
 
         val editor = context.getEditor(uri)
 
         editor?.onDiagnosticsUpdate()
-
     }
 
     override fun refreshDiagnostics(): CompletableFuture<Void> {
@@ -108,7 +96,9 @@ open class DefaultLanguageClient(protected val context: ClientContext) :
         context.eventListener.onShowMessage(messageParams)
     }
 
-    override fun showMessageRequest(showMessageRequestParams: ShowMessageRequestParams): CompletableFuture<MessageActionItem> {
+    override fun showMessageRequest(
+        showMessageRequestParams: ShowMessageRequestParams
+    ): CompletableFuture<MessageActionItem> {
         return CompletableFuture.completedFuture(MessageActionItem())
     }
 

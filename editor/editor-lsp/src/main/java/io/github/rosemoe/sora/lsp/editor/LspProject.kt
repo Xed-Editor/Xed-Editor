@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.editor
 
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.LanguageServerDefinition
@@ -42,16 +39,14 @@ import io.github.rosemoe.sora.lsp.events.format.RangeFormattingEvent
 import io.github.rosemoe.sora.lsp.events.signature.SignatureHelpEvent
 import io.github.rosemoe.sora.lsp.utils.FileUri
 import io.github.rosemoe.sora.lsp.utils.toFileUri
+import java.util.concurrent.ForkJoinPool
+import kotlin.reflect.KFunction0
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancelChildren
-import java.util.concurrent.ForkJoinPool
-import kotlin.reflect.KFunction0
 
-class LspProject(
-    private val projectPath: String,
-) {
+class LspProject(private val projectPath: String) {
 
     val projectUri = FileUri(projectPath)
 
@@ -106,9 +101,7 @@ class LspProject(
     }
 
     fun closeAllEditors() {
-        editors.forEach {
-            it.value.dispose()
-        }
+        editors.forEach { it.value.dispose() }
         editors.clear()
     }
 
@@ -121,8 +114,9 @@ class LspProject(
     }
 
     internal fun createLanguageServerWrapper(ext: String): LanguageServerWrapper {
-        val definition = serverDefinitions[ext]
-            ?: throw IllegalArgumentException("No server definition for extension $ext")
+        val definition =
+            serverDefinitions[ext]
+                ?: throw IllegalArgumentException("No server definition for extension $ext")
         val wrapper = LanguageServerWrapper(definition, this)
         languageServerWrappers[ext] = wrapper
         return wrapper
@@ -130,9 +124,7 @@ class LspProject(
 
     fun dispose() {
         closeAllEditors()
-        languageServerWrappers.forEach {
-            it.value.stop(false)
-        }
+        languageServerWrappers.forEach { it.value.stop(false) }
         serverDefinitions.clear()
         coroutineScope.coroutineContext.cancelChildren()
     }
@@ -145,18 +137,22 @@ class LspProject(
     }
 
     private fun initEventEmitter() {
-        val events: List<KFunction0<EventListener>> = listOf(
-            ::SignatureHelpEvent, ::DocumentChangeEvent,
-            ::DocumentCloseEvent, ::DocumentSaveEvent,
-            ::ApplyEditsEvent, ::CompletionEvent,
-            ::PublishDiagnosticsEvent, ::FullFormattingEvent,
-            ::RangeFormattingEvent, ::QueryDocumentDiagnosticsEvent,
-            ::DocumentOpenEvent
-        )
+        val events: List<KFunction0<EventListener>> =
+            listOf(
+                ::SignatureHelpEvent,
+                ::DocumentChangeEvent,
+                ::DocumentCloseEvent,
+                ::DocumentSaveEvent,
+                ::ApplyEditsEvent,
+                ::CompletionEvent,
+                ::PublishDiagnosticsEvent,
+                ::FullFormattingEvent,
+                ::RangeFormattingEvent,
+                ::QueryDocumentDiagnosticsEvent,
+                ::DocumentOpenEvent,
+            )
 
-        events.forEach {
-            eventEmitter.addListener(it.invoke())
-        }
+        events.forEach { eventEmitter.addListener(it.invoke()) }
     }
 
     internal fun removeEditor(editor: LspEditor) {

@@ -28,13 +28,14 @@ import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 /**
  * Creates new instance with the given language id which is different from the file extension.
  *
- * @param ext             The extension.
- * @param languageIds     The language server ids mapping to extension(s).
+ * @param ext The extension.
+ * @param languageIds The language server ids mapping to extension(s).
  * @param connectProvider The connect provider.
  */
-open class CustomLanguageServerDefinition
-    (
-    ext: String, languageIds: Map<String, String>, serverConnectProvider: ServerConnectProvider
+open class CustomLanguageServerDefinition(
+    ext: String,
+    languageIds: Map<String, String>,
+    serverConnectProvider: ServerConnectProvider,
 ) : LanguageServerDefinition() {
     protected var serverConnectProvider: ServerConnectProvider
 
@@ -47,13 +48,14 @@ open class CustomLanguageServerDefinition
     /**
      * Creates new instance.
      *
-     * @param ext             The extension.
+     * @param ext The extension.
      * @param serverConnectProvider The connect provider.
      */
     @Suppress("unused")
-    constructor(ext: String, serverConnectProvider: ServerConnectProvider) : this(
-        ext, emptyMap(), serverConnectProvider
-    )
+    constructor(
+        ext: String,
+        serverConnectProvider: ServerConnectProvider,
+    ) : this(ext, emptyMap(), serverConnectProvider)
 
     override fun toString(): String {
         return "CustomLanguageServerDefinition : $serverConnectProvider"

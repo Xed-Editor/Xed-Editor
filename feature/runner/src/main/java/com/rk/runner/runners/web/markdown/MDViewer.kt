@@ -4,17 +4,16 @@ import android.content.Context
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
-import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.HttpServer
+import com.rk.runner.runners.web.WebActivity
+import java.io.File
+import java.io.FileInputStream
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.InputStream
 
-private const val PORT=8357
+private const val PORT = 8357
+
 class MDViewer : WebActivity() {
     private lateinit var file: File
     private lateinit var httpServer: HttpServer
@@ -27,37 +26,36 @@ class MDViewer : WebActivity() {
 
         httpServer = HttpServer(PORT, file.parentFile!!)
 
-
-        //todo set dynamic background color
-        //val themeColorHex = "#000"
-        //<style>
+        // todo set dynamic background color
+        // val themeColorHex = "#000"
+        // <style>
         //				body{
         //					background:$themeColorHex
         //				}
         //				</style>
 
-
         /*
-		* https://cdn.jsdelivr.net/npm/marked@0/marked.min.js
-		* https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js
-		* https://cdn.jsdelivr.net/npm/github-markdown-css@2/github-markdown.min.css
-		* https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css
-		* */
+         * https://cdn.jsdelivr.net/npm/marked@0/marked.min.js
+         * https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js
+         * https://cdn.jsdelivr.net/npm/github-markdown-css@2/github-markdown.min.css
+         * https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css
+         * */
 
+        lifecycleScope.launch(Dispatchers.Default) {
+            val sb =
+                StringBuilder(
+                    withContext(Dispatchers.IO) { FileInputStream(file).bufferedReader() }
+                        .use { it.readText() }
+                )
 
-
-        lifecycleScope.launch(Dispatchers.Default){
-            val sb = StringBuilder(withContext(Dispatchers.IO) {
-                FileInputStream(file).bufferedReader()
-            }.use { it.readText() })
-
-            val injectHtml = """
+            val injectHtml =
+                """
                 <!DOCTYPE html>
 			<html lang="en">
 			<head>
 			    <meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				
+
 				<script type="module">${readAssetFile(this@MDViewer,"zeromd.js")}</script>
 			</head>
 			<body>
@@ -65,9 +63,10 @@ class MDViewer : WebActivity() {
 			</body>
 			</html>
                 
-            """.trimIndent()
+            """
+                    .trimIndent()
             sb.insert(0, injectHtml)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 with(binding.webview) {
                     webViewClient = WebViewClient()
                     loadDataWithBaseURL(
@@ -75,14 +74,12 @@ class MDViewer : WebActivity() {
                         sb.toString(),
                         "text/html",
                         "utf-8",
-                        null
+                        null,
                     )
-
                 }
             }
         }
     }
-
 
     private fun readAssetFile(context: Context, fileName: String): String {
         val assetManager = context.assets
@@ -90,17 +87,10 @@ class MDViewer : WebActivity() {
         return inputStream.bufferedReader().use { it.readText() }
     }
 
-
     override fun onDestroy() {
         super.onDestroy()
         if (httpServer.isAlive) {
             httpServer.stop()
         }
-
     }
-
-
-
-
-
 }

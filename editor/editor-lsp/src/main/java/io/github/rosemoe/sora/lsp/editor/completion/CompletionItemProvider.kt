@@ -30,6 +30,6 @@ fun interface CompletionItemProvider<T : CompletionItem> {
     fun createCompletionItem(
         completionItem: org.eclipse.lsp4j.CompletionItem,
         eventManager: LspEventManager,
-        prefixLength: Int
+        prefixLength: Int,
     ): T
 }

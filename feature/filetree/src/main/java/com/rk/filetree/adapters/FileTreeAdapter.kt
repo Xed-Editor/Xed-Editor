@@ -27,15 +27,11 @@ class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 }
 
 class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
-    override fun areItemsTheSame(
-        oldItem: Node<FileObject>, newItem: Node<FileObject>
-    ): Boolean {
+    override fun areItemsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
         return oldItem.value.getAbsolutePath() == newItem.value.getAbsolutePath()
     }
 
-    override fun areContentsTheSame(
-        oldItem: Node<FileObject>, newItem: Node<FileObject>
-    ): Boolean {
+    override fun areContentsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
         return areItemsTheSame(oldItem, newItem)
     }
 }
@@ -47,33 +43,32 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     var onLongClickListener: FileLongClickListener? = null
     var iconProvider: FileIconProvider? = null
 
-
     private var animator = fileTree.itemAnimator
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View =
             LayoutInflater.from(context).inflate(R.layout.recycler_view_item, parent, false)
         val holder = ViewHolder(view)
 
+        val clickListener =
+            View.OnClickListener {
+                val adapterPosition = holder.adapterPosition
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    val clickedNode = getItem(adapterPosition)
 
-        val clickListener = View.OnClickListener {
-            val adapterPosition = holder.adapterPosition
-            if (adapterPosition != RecyclerView.NO_POSITION) {
-                val clickedNode = getItem(adapterPosition)
-
-                if (clickedNode.value.isDirectory()) {
-                    if (!clickedNode.isExpand) {
-                        fileTree.itemAnimator = animator
-                        expandNode(clickedNode)
-                    } else {
-                        fileTree.itemAnimator = null
-                        collapseNode(clickedNode)
+                    if (clickedNode.value.isDirectory()) {
+                        if (!clickedNode.isExpand) {
+                            fileTree.itemAnimator = animator
+                            expandNode(clickedNode)
+                        } else {
+                            fileTree.itemAnimator = null
+                            collapseNode(clickedNode)
+                        }
+                        notifyItemChanged(adapterPosition)
                     }
-                    notifyItemChanged(adapterPosition)
+                    onClickListener?.onClick(clickedNode)
                 }
-                onClickListener?.onClick(clickedNode)
             }
-        }
-
 
         holder.itemView.setOnClickListener(clickListener)
 
@@ -86,12 +81,10 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             true
         }
 
-
         holder.expandView.setOnClickListener(clickListener)
         holder.fileView.setPadding(0, 0, 0, 0)
         return holder
     }
-
 
     fun newFile(file: FileObject) {
         val tempData = currentList.toMutableList()
@@ -105,19 +98,16 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
         val cache = Sorter.sort(file)
 
-
         val children1 = TreeViewModel.getChildren(xnode!!)
         tempData.removeAll(children1.toSet())
         TreeViewModel.remove(xnode, xnode.child)
         xnode.isExpand = false
-
 
         val index = tempData.indexOf(xnode)
 
         tempData.addAll(index + 1, cache)
         TreeViewModel.add(xnode, cache)
         xnode.isExpand = true
-
 
         submitList(tempData)
     }
@@ -155,7 +145,6 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
     }
 
-
     fun renameFile(child: FileObject, newFile: FileObject) {
         val tempData = currentList.toMutableList()
         for (node in tempData) {
@@ -172,13 +161,10 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
     }
 
-
-
     private fun dpToPx(dpValue: Float): Int {
         val scale: Float = context.resources.displayMetrics.density
         return (dpValue * scale + 0.5f).toInt()
     }
-
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -203,7 +189,6 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             expandView.visibility = View.VISIBLE
             if (!node.isExpand) {
                 expandView.setImageDrawable(icChevronRight)
-
             } else {
                 expandView.setImageDrawable(iconProvider?.getExpandMore())
             }
@@ -234,5 +219,4 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         clickedNode.isExpand = false
         submitList(tempData)
     }
-
 }

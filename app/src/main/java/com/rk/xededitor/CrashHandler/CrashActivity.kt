@@ -4,20 +4,16 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.R
-import com.rk.settings.PreferencesData
 import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.net.URLEncoder
@@ -26,10 +22,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
 
-
 class CrashActivity : AppCompatActivity() {
     private lateinit var error_editor: CodeEditor
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -48,23 +43,25 @@ class CrashActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(true)
             error_editor = findViewById(R.id.error_editor)
             error_editor.setTextSize(11f)
-            SetupEditor(error_editor,this).ensureTextmateTheme(this)
-
-
-
+            SetupEditor(error_editor, this).ensureTextmateTheme(this)
 
             try {
                 val sb = StringBuilder()
                 sb.append("Fatal Crash occurred on Thread named '")
-                    .append(intent.getStringExtra("thread")).append("'\nUnix Time : ")
-                    .append(System.currentTimeMillis()).append("\n")
-                sb.append("LocalTime : ").append(
+                    .append(intent.getStringExtra("thread"))
+                    .append("'\nUnix Time : ")
+                    .append(System.currentTimeMillis())
+                    .append("\n")
+                sb.append("LocalTime : ")
+                    .append(
                         SimpleDateFormat.getDateTimeInstance()
                             .format(Date(System.currentTimeMillis()))
-                    ).append("\n\n")
+                    )
+                    .append("\n\n")
                 sb.append(intent.getStringExtra("info")).append("\n\n")
                 sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
-                sb.append("Error Cause : ").append(intent.getStringExtra("error_cause"))
+                sb.append("Error Cause : ")
+                    .append(intent.getStringExtra("error_cause"))
                     .append("\n")
                 sb.append("Error StackTrace : \n\n").append(intent.getStringExtra("stacktrace"))
                 error_editor.setText(sb.toString())
@@ -82,9 +79,6 @@ class CrashActivity : AppCompatActivity() {
             exitProcess(1)
         }
     }
-
-    
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.crash_menu, menu)
@@ -106,17 +100,20 @@ class CrashActivity : AppCompatActivity() {
             }
 
             R.id.report_issue -> {
-                val browserIntent = Intent(
-                    Intent.ACTION_VIEW, Uri.parse(
-                        "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" + URLEncoder.encode(
-                            error_editor.text.toString(), StandardCharsets.UTF_8.toString()
-                        )
+                val browserIntent =
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(
+                            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                                URLEncoder.encode(
+                                    error_editor.text.toString(),
+                                    StandardCharsets.UTF_8.toString(),
+                                )
+                        ),
                     )
-                )
                 startActivity(browserIntent)
             }
         }
-
 
         return super.onOptionsItemSelected(item)
     }
@@ -126,5 +123,4 @@ class CrashActivity : AppCompatActivity() {
         val clip = ClipData.newPlainText("label", text)
         clipboard.setPrimaryClip(clip)
     }
-
 }

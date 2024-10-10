@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2024  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2024 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.widget.ext
 
 import android.content.Intent
@@ -43,13 +40,11 @@ import io.github.rosemoe.sora.widget.REGION_TEXT
 import io.github.rosemoe.sora.widget.resolveTouchRegion
 
 /**
- * Handle span interaction for editor. This is a optional part of editor currently.
- * If you need to handle span interaction,
- * create this handler with the target editor.
+ * Handle span interaction for editor. This is a optional part of editor currently. If you need to
+ * handle span interaction, create this handler with the target editor.
  *
- * Note that do not create multiple handler of the same type for editor.
- * Otherwise, single span interaction event will
- *  be handled multiple times.
+ * Note that do not create multiple handler of the same type for editor. Otherwise, single span
+ * interaction event will be handled multiple times.
  *
  * @author Rosemoe
  */
@@ -64,7 +59,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
                     event,
                     SpanInteractionInfo::isClickable,
                     ::handleSpanClick,
-                    !event.isFromMouse
+                    !event.isFromMouse,
                 )
             }
         }
@@ -73,7 +68,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
                 event,
                 SpanInteractionInfo::isDoubleClickable,
                 ::handleSpanDoubleClick,
-                !event.isFromMouse
+                !event.isFromMouse,
             )
         }
         eventManager.subscribeAlways<LongPressEvent> { event ->
@@ -81,7 +76,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
                 event,
                 SpanInteractionInfo::isLongClickable,
                 ::handleSpanLongClick,
-                !event.isFromMouse
+                !event.isFromMouse,
             )
         }
     }
@@ -90,14 +85,16 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
         event: EditorMotionEvent,
         predicate: (interactionInfo: SpanInteractionInfo) -> Boolean,
         handler: (Span, SpanInteractionInfo, TextRange) -> Boolean,
-        checkCursorRange: Boolean = true
+        checkCursorRange: Boolean = true,
     ) {
         val regionInfo = editor.resolveTouchRegion(event.causingEvent)
         val span = event.span
         val spanRange = event.spanRange
-        if (IntPair.getFirst(regionInfo) == REGION_TEXT &&
-            IntPair.getSecond(regionInfo) == IN_BOUND &&
-            span != null && spanRange != null
+        if (
+            IntPair.getFirst(regionInfo) == REGION_TEXT &&
+                IntPair.getSecond(regionInfo) == IN_BOUND &&
+                span != null &&
+                spanRange != null
         ) {
             if (!checkCursorRange || spanRange.isPositionInside(editor.cursor.left())) {
                 span.getSpanExt<SpanInteractionInfo>(SpanExtAttrs.EXT_INTERACTION_INFO)?.let {
@@ -114,7 +111,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
     open fun handleSpanClick(
         span: Span,
         interactionInfo: SpanInteractionInfo,
-        spanRange: TextRange
+        spanRange: TextRange,
     ): Boolean {
         return false
     }
@@ -122,17 +119,16 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
     open fun handleSpanDoubleClick(
         span: Span,
         interactionInfo: SpanInteractionInfo,
-        spanRange: TextRange
+        spanRange: TextRange,
     ): Boolean {
         when (interactionInfo) {
             is SpanClickableUrl -> {
                 val uri = interactionInfo.getData()
-                runCatching {
-                    Uri.parse(uri)
-                }.onSuccess {
-                    val intent = Intent(Intent.ACTION_VIEW, it)
-                    editor.context.startActivity(intent)
-                }
+                runCatching { Uri.parse(uri) }
+                    .onSuccess {
+                        val intent = Intent(Intent.ACTION_VIEW, it)
+                        editor.context.startActivity(intent)
+                    }
                 return true
             }
         }
@@ -142,7 +138,7 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
     open fun handleSpanLongClick(
         span: Span,
         interactionInfo: SpanInteractionInfo,
-        spanRange: TextRange
+        spanRange: TextRange,
     ): Boolean {
         return false
     }
@@ -152,6 +148,4 @@ open class EditorSpanInteractionHandler(val editor: CodeEditor) {
     fun setEnabled(enabled: Boolean) {
         eventManager.isEnabled = enabled
     }
-
-
 }

@@ -17,7 +17,6 @@ package org.robok.engine.core.components.compose.preferences.normal
  *   along with Robok.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -27,46 +26,36 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 
 /*
-* A Normal preference used in settings
-* @author Aquiles Trindade (trindadedev).
-*/
+ * A Normal preference used in settings
+ * @author Aquiles Trindade (trindadedev).
+ */
 
 @Composable
 fun Preference(
     modifier: Modifier = Modifier,
     icon: @Composable (() -> Unit)? = null,
     text: @Composable () -> Unit,
-    secondaryText: @Composable (() -> Unit) = { },
-    trailing: @Composable (() -> Unit) = { },
-    onClick: (() -> Unit)? = null
+    secondaryText: @Composable (() -> Unit) = {},
+    trailing: @Composable (() -> Unit) = {},
+    onClick: (() -> Unit)? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
     PreferenceTemplate(
-        modifier = modifier.clickable(
-            indication = ripple(),
-            interactionSource = interactionSource,
-            onClick = { onClick?.invoke() }
-        ),
-        contentModifier = Modifier
-            .fillMaxHeight()
-            .padding(vertical = 16.dp)
-            .padding(start = 16.dp),
+        modifier =
+            modifier.clickable(
+                indication = ripple(),
+                interactionSource = interactionSource,
+                onClick = { onClick?.invoke() },
+            ),
+        contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = {
-            ProvideTextStyle(
-                MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 19.sp
-                )
-            ) {
-                text()
-            }
+            ProvideTextStyle(MaterialTheme.typography.titleLarge.copy(fontSize = 19.sp)) { text() }
         },
         description = {
             ProvideTextStyle(
@@ -79,13 +68,11 @@ fun Preference(
         },
         endWidget = {
             if (icon != null) {
-                Box(modifier = Modifier.padding(8.dp)) {
-                    icon()
-                }
+                Box(modifier = Modifier.padding(8.dp)) { icon() }
             }
             trailing()
         },
-        enabled = true, 
-        applyPaddings = false
+        enabled = true,
+        applyPaddings = false,
     )
 }

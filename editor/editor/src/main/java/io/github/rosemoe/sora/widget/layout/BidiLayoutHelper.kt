@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2024  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2024 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.widget.layout
 
 import io.github.rosemoe.sora.graphics.CharPosDesc
@@ -38,7 +35,7 @@ object BidiLayoutHelper {
         line: Int,
         rowStart: Int,
         rowEnd: Int,
-        targetColumn: Int
+        targetColumn: Int,
     ): Float {
         val dirs = text.getLineDirections(line)
         val lineText = text.getLine(line)
@@ -50,7 +47,7 @@ object BidiLayoutHelper {
             lineText.length,
             layout.getSpans(line),
             editor.textPaint,
-            editor.renderContext
+            editor.renderContext,
         )
         if (layout is WordwrapLayout) {
             gtr.setSoftBreaks(layout.getSoftBreaksForLine(line))
@@ -63,15 +60,16 @@ object BidiLayoutHelper {
             if (runStart > column || runStart > runEnd) {
                 break
             }
-            offset += if (runEnd < column) {
-                gtr.measureText(runStart, runEnd)
-            } else { //runEnd > targetColumn
-                if (dirs.isRunRtl(i)) {
-                    gtr.measureText(targetColumn, runEnd)
-                } else {
-                    gtr.measureText(runStart, column)
+            offset +=
+                if (runEnd < column) {
+                    gtr.measureText(runStart, runEnd)
+                } else { // runEnd > targetColumn
+                    if (dirs.isRunRtl(i)) {
+                        gtr.measureText(targetColumn, runEnd)
+                    } else {
+                        gtr.measureText(runStart, column)
+                    }
                 }
-            }
         }
         gtr.recycle()
         return offset
@@ -84,7 +82,7 @@ object BidiLayoutHelper {
         line: Int,
         rowStart: Int,
         rowEnd: Int,
-        targetOffset: Float
+        targetOffset: Float,
     ): Int {
         val dirs = text.getLineDirections(line)
         val lineText = text.getLine(line)
@@ -96,7 +94,7 @@ object BidiLayoutHelper {
             lineText.length,
             layout.getSpans(line),
             editor.textPaint,
-            editor.renderContext
+            editor.renderContext,
         )
         if (layout is WordwrapLayout) {
             gtr.setSoftBreaks(layout.getSoftBreaksForLine(line))
@@ -118,21 +116,16 @@ object BidiLayoutHelper {
             }
             val width = gtr.measureText(runStart, runEnd)
             if (offset + width >= targetOffset) {
-                val res = if (dirs.isRunRtl(i)) {
-                    CharPosDesc.getTextOffset(
-                        gtr.findOffsetByAdvance(
-                            runStart,
-                            offset + width - targetOffset
+                val res =
+                    if (dirs.isRunRtl(i)) {
+                        CharPosDesc.getTextOffset(
+                            gtr.findOffsetByAdvance(runStart, offset + width - targetOffset)
                         )
-                    )
-                } else {
-                    CharPosDesc.getTextOffset(
-                        gtr.findOffsetByAdvance(
-                            runStart,
-                            targetOffset - offset
+                    } else {
+                        CharPosDesc.getTextOffset(
+                            gtr.findOffsetByAdvance(runStart, targetOffset - offset)
                         )
-                    )
-                }
+                    }
                 gtr.recycle()
                 return res
             } else {
@@ -148,5 +141,4 @@ object BidiLayoutHelper {
             dirs.getRunEnd(j).coerceIn(rowStart, rowEnd)
         }
     }
-
 }

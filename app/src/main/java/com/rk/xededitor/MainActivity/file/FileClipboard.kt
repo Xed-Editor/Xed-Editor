@@ -36,10 +36,8 @@ object FileClipboard {
             return fileClipboard == null
         }
     }
+
     fun markAsPasted() {
-        synchronized(this) {
-            isPasted = true
-        }
+        synchronized(this) { isPasted = true }
     }
 }
-

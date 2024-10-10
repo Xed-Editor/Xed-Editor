@@ -7,7 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-
 import com.rk.xededitor.R
 
 @Composable
@@ -17,7 +16,7 @@ fun InputDialog(
     inputValue: String,
     onInputValueChange: (String) -> Unit,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -29,22 +28,22 @@ fun InputDialog(
                     onValueChange = onInputValueChange,
                     label = { Text(inputLabel) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
                 )
             }
         },
         confirmButton = {
-            Button(onClick = {
-                onConfirm()
-                onDismiss()
-            }) {
+            Button(
+                onClick = {
+                    onConfirm()
+                    onDismiss()
+                }
+            ) {
                 Text(stringResource(id = R.string.apply))
             }
         },
         dismissButton = {
-            OutlinedButton(onClick = { onDismiss() }) {
-                Text(stringResource(id = R.string.cancel))
-            }
-        }
+            OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = R.string.cancel)) }
+        },
     )
 }

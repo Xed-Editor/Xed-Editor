@@ -11,22 +11,17 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
     private var dialog: AlertDialog? = null
     private lateinit var dialogView: View
 
-
     init {
         // Create the dialog on the UI thread
         ctx.runOnUiThread {
             val inflater1: LayoutInflater = ctx.layoutInflater
             dialogView = inflater1.inflate(R.layout.progress_dialog, null)
-            dialog = MaterialAlertDialogBuilder(ctx).setView(dialogView)
-                .setCancelable(false).create()
+            dialog =
+                MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
 
             if (hideAfterMillis != null) {
                 show()
-                After(hideAfterMillis) {
-                    ctx.runOnUiThread {
-                        hide()
-                    }
-                }
+                After(hideAfterMillis) { ctx.runOnUiThread { hide() } }
             }
         }
     }
@@ -41,7 +36,6 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
             if (dialog?.isShowing?.not() == true) {
                 dialog?.show()
             }
-
         }
         return this
     }

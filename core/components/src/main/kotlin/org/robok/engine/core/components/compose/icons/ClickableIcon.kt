@@ -37,18 +37,10 @@ fun ClickableIcon(
     enabled: Boolean = true,
     tint: Color = LocalContentColor.current,
 ) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-    ) {
+    IconButton(onClick = onClick, modifier = modifier, enabled = enabled) {
         val contentAlpha = if (enabled) tint.alpha else 0.38f
         val alpha by animateFloatAsState(targetValue = contentAlpha, label = "")
-        Icon(
-            painter = painter,
-            contentDescription = null,
-            tint = tint.copy(alpha = alpha),
-        )
+        Icon(painter = painter, contentDescription = null, tint = tint.copy(alpha = alpha))
     }
 }
 

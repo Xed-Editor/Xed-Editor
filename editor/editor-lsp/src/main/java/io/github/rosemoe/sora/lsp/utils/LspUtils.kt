@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.utils
 
 import android.util.Log
@@ -32,6 +29,7 @@ import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.TextRange
 import io.github.rosemoe.sora.util.ArrayList
 import io.github.rosemoe.sora.widget.CodeEditor
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import org.eclipse.lsp4j.CompletionContext
 import org.eclipse.lsp4j.CompletionParams
 import org.eclipse.lsp4j.CompletionTriggerKind
@@ -48,7 +46,6 @@ import org.eclipse.lsp4j.TextDocumentContentChangeEvent
 import org.eclipse.lsp4j.TextDocumentIdentifier
 import org.eclipse.lsp4j.TextDocumentItem
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier
-import java.util.concurrent.locks.ReentrantReadWriteLock
 
 private val versionMap = HashMap<FileUri, Int>()
 
@@ -76,14 +73,13 @@ fun FileUri.createDidChangeTextDocumentParams(
 }
 
 fun FileUri.createTextDocumentContentChangeEvent(
-    range: Range, text: String
+    range: Range,
+    text: String,
 ): TextDocumentContentChangeEvent {
     return TextDocumentContentChangeEvent(range, text)
 }
 
-fun FileUri.createTextDocumentContentChangeEvent(
-    text: String
-): TextDocumentContentChangeEvent {
+fun FileUri.createTextDocumentContentChangeEvent(text: String): TextDocumentContentChangeEvent {
     return TextDocumentContentChangeEvent(text)
 }
 
@@ -109,9 +105,8 @@ fun TextRange.asLspRange(): Range {
 
 fun LspEditor.createDidOpenTextDocumentParams(): DidOpenTextDocumentParams {
     val params = DidOpenTextDocumentParams()
-    params.textDocument = TextDocumentItem(
-        this.uri.toFileUri(), this.fileExt, getVersion(this.uri), editorContent
-    )
+    params.textDocument =
+        TextDocumentItem(this.uri.toFileUri(), this.fileExt, getVersion(this.uri), editorContent)
     return params
 }
 
@@ -120,7 +115,8 @@ fun FileUri.createDocumentDiagnosticParams(): DocumentDiagnosticParams {
 }
 
 fun FileUri.createCompletionParams(
-    position: Position, context: CompletionContext
+    position: Position,
+    context: CompletionContext,
 ): CompletionParams {
     val params = CompletionParams()
     params.textDocument = this.createTextDocumentIdentifier()
@@ -129,7 +125,6 @@ fun FileUri.createCompletionParams(
     context.triggerKind = CompletionTriggerKind.TriggerCharacter
     return params
 }
-
 
 fun LspEditor.createDidSaveTextDocumentParams(): DidSaveTextDocumentParams {
     val params = DidSaveTextDocumentParams()
@@ -147,15 +142,19 @@ fun List<Diagnostic>.transformToEditorDiagnostics(editor: CodeEditor): List<Diag
     var id = 0L
     for (diagnosticSource in this) {
         Log.w("diagnostic message", "diagnostic: " + diagnosticSource.message)
-        val diagnostic = DiagnosticRegion(
-            diagnosticSource.range.start.getIndex(editor),
-            diagnosticSource.range.end.getIndex(editor),
-            diagnosticSource.severity.toEditorLevel(),
-            id++,
-            DiagnosticDetail(
-                diagnosticSource.severity.name, diagnosticSource.message, null, null
+        val diagnostic =
+            DiagnosticRegion(
+                diagnosticSource.range.start.getIndex(editor),
+                diagnosticSource.range.end.getIndex(editor),
+                diagnosticSource.severity.toEditorLevel(),
+                id++,
+                DiagnosticDetail(
+                    diagnosticSource.severity.name,
+                    diagnosticSource.message,
+                    null,
+                    null,
+                ),
             )
-        )
         result.add(diagnostic)
     }
     return result
@@ -163,7 +162,8 @@ fun List<Diagnostic>.transformToEditorDiagnostics(editor: CodeEditor): List<Diag
 
 fun DiagnosticSeverity.toEditorLevel(): Short {
     return when (this) {
-        DiagnosticSeverity.Hint, DiagnosticSeverity.Information -> DiagnosticRegion.SEVERITY_TYPO
+        DiagnosticSeverity.Hint,
+        DiagnosticSeverity.Information -> DiagnosticRegion.SEVERITY_TYPO
         DiagnosticSeverity.Error -> DiagnosticRegion.SEVERITY_ERROR
         DiagnosticSeverity.Warning -> DiagnosticRegion.SEVERITY_WARNING
     }

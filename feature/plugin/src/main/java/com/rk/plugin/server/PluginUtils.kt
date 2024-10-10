@@ -10,6 +10,7 @@ import java.io.File
 
 object PluginUtils {
     private val InstalledPlugins = ArrayList<Plugin>()
+
     fun Application.indexPlugins() {
 
         InstalledPlugins.clear()
@@ -51,23 +52,22 @@ object PluginUtils {
                         version = manifest.version,
                         versionCode = manifest.versionCode,
                         script = manifest.script,
-                        isLocal = true
-                    ), plugin.absolutePath, this
+                        isLocal = true,
+                    ),
+                    plugin.absolutePath,
+                    this,
                 )
             )
         }
     }
 
-
     fun getInstalledPlugins(): List<Plugin> {
         return synchronized(InstalledPlugins) { InstalledPlugins }
     }
 
-
     fun Context.getPluginRoot(): File {
         return File(filesDir.parentFile, "plugins")
     }
-
 
     fun isPluginActive(context: Context, packageName: String, default: Boolean): Boolean {
         val sharedPreferences =
@@ -75,11 +75,9 @@ object PluginUtils {
         return sharedPreferences.getBoolean(packageName, default)
     }
 
-
     fun setPluginActive(context: Context, packageName: String, active: Boolean) {
         val sharedPreferences =
             context.applicationContext.getSharedPreferences("PluginPrefs", Context.MODE_PRIVATE)
         sharedPreferences.edit().putBoolean(packageName, active).apply()
     }
-
 }

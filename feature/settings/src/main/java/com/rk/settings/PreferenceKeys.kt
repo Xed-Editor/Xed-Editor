@@ -24,12 +24,12 @@ object PreferencesKeys {
     const val ASHMEM_MEMFD = "ashmem_memfd"
     const val SYSVIPC = "sysvipc"
     const val KILL_ON_EXIT = "kill-on_exit"
-    const val FORCE_CHAR="force_char_in_terminal"
-    const val CTRL_WORKAROUND="ctrlworkaround"
-    const val EDITOR_FONT="editor_font"
-    const val SHOW_SUGGESTIONS="show_suggestions"
-    const val SHOW_VIRTUAL_KEYBOARD="show_virtual_keyboard"
-    //todo encrypt git keys
+    const val FORCE_CHAR = "force_char_in_terminal"
+    const val CTRL_WORKAROUND = "ctrlworkaround"
+    const val EDITOR_FONT = "editor_font"
+    const val SHOW_SUGGESTIONS = "show_suggestions"
+    const val SHOW_VIRTUAL_KEYBOARD = "show_virtual_keyboard"
+    // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"
     const val GIT_REPO_DIR = "git_repo_dir"

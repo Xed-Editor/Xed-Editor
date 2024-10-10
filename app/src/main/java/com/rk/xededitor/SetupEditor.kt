@@ -2,8 +2,8 @@ package com.rk.xededitor
 
 import android.content.Context
 import android.graphics.Color
-import com.rk.settings.PreferencesData.isDarkMode
 import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesData.isDarkMode
 import com.rk.xededitor.rkUtils.runOnUiThread
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
@@ -21,20 +21,28 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
 
     fun setupLanguage(fileName: String) {
         when (fileName.substringAfterLast('.', "")) {
-            "java", "bsh" -> setLanguage("source.java")
+            "java",
+            "bsh" -> setLanguage("source.java")
             "html" -> setLanguage("text.html.basic")
-            "kt", "kts" -> setLanguage("source.kotlin")
+            "kt",
+            "kts" -> setLanguage("source.kotlin")
             "py" -> setLanguage("source.python")
             "xml" -> setLanguage("text.xml")
             "js" -> setLanguage("source.js")
             "md" -> setLanguage("text.html.markdown")
             "c" -> setLanguage("source.c")
-            "cpp", "h" -> setLanguage("source.cpp")
+            "cpp",
+            "h" -> setLanguage("source.cpp")
             "json" -> setLanguage("source.json")
             "css" -> setLanguage("source.css")
             "cs" -> setLanguage("source.cs")
-            "yml", "eyaml", "eyml", "yaml", "cff" -> setLanguage("source.yaml")
-            "sh", "bash" -> setLanguage("source.shell")
+            "yml",
+            "eyaml",
+            "eyml",
+            "yaml",
+            "cff" -> setLanguage("source.yaml")
+            "sh",
+            "bash" -> setLanguage("source.shell")
             "rs" -> setLanguage("source.rust")
         }
     }
@@ -54,9 +62,8 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         }
 
         private fun initGrammarRegistry(context: Context) {
-            FileProviderRegistry.getInstance().addFileProvider(
-                AssetsFileResolver(context.applicationContext?.assets)
-            )
+            FileProviderRegistry.getInstance()
+                .addFileProvider(AssetsFileResolver(context.applicationContext?.assets))
             GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
         }
 
@@ -65,12 +72,9 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
 
-
-
             val darcula = context.assets.open("textmate/darcula.json")
             val darcula_oled = context.assets.open("textmate/black/darcula.json")
             val quietlight = context.assets.open("textmate/quietlight.json")
-
 
             try {
                 darkThemeRegistry?.loadTheme(
@@ -82,47 +86,41 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
                 lightThemeRegistry?.loadTheme(
                     ThemeModel(IThemeSource.fromInputStream(quietlight, "quietlight.json", null))
                 )
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 throw RuntimeException(e)
-            }finally {
+            } finally {
                 try {
                     darcula.close()
                     darcula_oled.close()
                     quietlight.close()
-                }catch (e:Exception){
+                } catch (e: Exception) {
                     throw RuntimeException(e)
                 }
             }
-
-
-
-
         }
     }
 
     private fun setLanguage(languageScopeName: String) {
-        val language = TextMateLanguage.create(
-            languageScopeName, true /* true for enabling auto-completion */
-        )
+        val language =
+            TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
         editor.setEditorLanguage(language as Language)
     }
 
-    fun ensureTextmateTheme(context:Context) {
+    fun ensureTextmateTheme(context: Context) {
         init(context)
-        val themeRegistry = when {
-            isDarkMode(ctx) && PreferencesData.isOled() -> oledThemeRegistry
-            isDarkMode(ctx) -> darkThemeRegistry
-            else -> lightThemeRegistry
-        }
+        val themeRegistry =
+            when {
+                isDarkMode(ctx) && PreferencesData.isOled() -> oledThemeRegistry
+                isDarkMode(ctx) -> darkThemeRegistry
+                else -> lightThemeRegistry
+            }
 
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
             if (isDarkMode(ctx) && PreferencesData.isOled()) {
                 editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
-            runOnUiThread {
-                editor.colorScheme = editorColorScheme
-            }
+            runOnUiThread { editor.colorScheme = editorColorScheme }
         }
     }
 }

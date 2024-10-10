@@ -12,8 +12,6 @@ object PathUtils {
         return path.replace("/document", "/storage").replace(":", "/")
     }
 
-
-
     private fun internalConvertUriToPath(context: Context, uri: Uri?): String {
         uri?.let {
             when {
@@ -67,14 +65,18 @@ object PathUtils {
                             val type = split[0]
                             var contentUri: Uri? = null
                             when (type) {
-                                "image" -> contentUri =
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                                "image" ->
+                                    contentUri =
+                                        android.provider.MediaStore.Images.Media
+                                            .EXTERNAL_CONTENT_URI
 
-                                "video" -> contentUri =
-                                    android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                                "video" ->
+                                    contentUri =
+                                        android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
 
-                                "audio" -> contentUri =
-                                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                                "audio" ->
+                                    contentUri =
+                                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                             }
                             val selection = "_id=?"
                             val selectionArgs = arrayOf(split[1])
@@ -104,18 +106,18 @@ object PathUtils {
         context: Context,
         uri: Uri?,
         selection: String?,
-        selectionArgs: Array<String>?
+        selectionArgs: Array<String>?,
     ): String? {
         val column = "_data"
         val projection = arrayOf(column)
         try {
-            context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
-                ?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val columnIndex = cursor.getColumnIndexOrThrow(column)
-                        return cursor.getString(columnIndex)
-                    }
+            context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)?.use {
+                cursor ->
+                if (cursor.moveToFirst()) {
+                    val columnIndex = cursor.getColumnIndexOrThrow(column)
+                    return cursor.getString(columnIndex)
                 }
+            }
         } catch (e: Exception) {
             // Log the exception or handle it as needed
         }

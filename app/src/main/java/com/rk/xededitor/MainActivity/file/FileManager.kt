@@ -29,10 +29,9 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(convertUriToPath(mainActivity, it.data!!.data))
-                ProjectManager.addProject(mainActivity,file)
+                ProjectManager.addProject(mainActivity, file)
             }
         }
-
 
     fun requestOpenFile() {
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -53,15 +52,13 @@ class FileManager(private val mainActivity: MainActivity) {
         editText.setText(Environment.getExternalStorageDirectory().absolutePath)
         editText.hint = getString(R.string.ff_path)
 
-        MaterialAlertDialogBuilder(mainActivity).setView(popupView).setTitle(getString(R.string.path))
-            .setNegativeButton(
-                mainActivity.getString(
-                    R.string.cancel
-                ), null
-            ).setPositiveButton(getString(R.string.open)) { _, _ ->
+        MaterialAlertDialogBuilder(mainActivity)
+            .setView(popupView)
+            .setTitle(getString(R.string.path))
+            .setNegativeButton(mainActivity.getString(R.string.cancel), null)
+            .setPositiveButton(getString(R.string.open)) { _, _ ->
                 val path = editText.text.toString()
                 val file = File(path)
-
 
                 if (path.isEmpty()) {
                     rkUtils.toast(getString(R.string.enter_path))
@@ -78,19 +75,16 @@ class FileManager(private val mainActivity: MainActivity) {
                     return@setPositiveButton
                 }
 
-
                 if (file.isDirectory) {
-                    ProjectManager.addProject(mainActivity,file)
+                    ProjectManager.addProject(mainActivity, file)
                 } else {
                     mainActivity.adapter.addFragment(file)
                 }
-
-
-            }.show()
-
+            }
+            .show()
     }
-    
-    companion object{
+
+    companion object {
         fun findGitRoot(file: File?): File? {
             var currentFile = file
             while (currentFile?.parentFile != null) {
@@ -102,5 +96,4 @@ class FileManager(private val mainActivity: MainActivity) {
             return null
         }
     }
-    
 }

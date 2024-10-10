@@ -16,12 +16,11 @@ import com.rk.xededitor.databinding.ActivityBatchReplacementBinding
 import com.rk.xededitor.rkUtils.dpToPx
 import com.rk.xededitor.rkUtils.toast
 
-
 /*
-*
-* DO NOT TRANSLATE
-*
-* */
+ *
+ * DO NOT TRANSLATE
+ *
+ * */
 
 class BatchReplacement : BaseActivity() {
     private lateinit var binding: ActivityBatchReplacementBinding
@@ -29,9 +28,7 @@ class BatchReplacement : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityBatchReplacementBinding.inflate(
-            layoutInflater
-        )
+        binding = ActivityBatchReplacementBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val toolbar = binding.toolbar
@@ -42,19 +39,21 @@ class BatchReplacement : BaseActivity() {
 
     private fun newEditBox(hint: String): View {
         val rootLinearLayout = LinearLayout(this)
-        rootLinearLayout.layoutParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        rootLinearLayout.layoutParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
         rootLinearLayout.tag = "keyRep"
         rootLinearLayout.orientation = LinearLayout.VERTICAL
 
         // Create the inner LinearLayout
         val innerLinearLayout = LinearLayout(this)
-        val innerParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            dpToPx(50f, this)
-        ) // height is 50dp
+        val innerParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dpToPx(50f, this),
+            ) // height is 50dp
         innerParams.setMargins(dpToPx(22f, this), dpToPx(10f, this), dpToPx(22f, this), 0)
         innerLinearLayout.layoutParams = innerParams
         innerLinearLayout.tag = "keyword"
@@ -65,16 +64,17 @@ class BatchReplacement : BaseActivity() {
 
         // Create the EditText
         val editText = EditText(this)
-        val editTextParams = LinearLayout.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
+        val editTextParams =
+            LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
         editText.layoutParams = editTextParams
         editText.setPadding(
             dpToPx(8f, this),
             0,
             dpToPx(5f, this),
-            0
+            0,
         ) // paddingStart 8dp, paddingEnd 5dp
         editText.id = View.generateViewId()
         editText.isSingleLine = true
@@ -94,15 +94,15 @@ class BatchReplacement : BaseActivity() {
         val view = View(this)
 
         // Set the width and height of the View
-        val params = LinearLayout.LayoutParams(
-            dpToPx(0f, this),  // Width in dp
-            dpToPx(20f, this) // Height in dp
-        )
+        val params =
+            LinearLayout.LayoutParams(
+                dpToPx(0f, this), // Width in dp
+                dpToPx(20f, this), // Height in dp
+            )
         view.layoutParams = params
         (findViewById<View>(R.id.mainBody) as LinearLayout).addView(view)
 
-        findViewById<View>(R.id.removeBatch).visibility =
-            View.VISIBLE
+        findViewById<View>(R.id.removeBatch).visibility = View.VISIBLE
     }
 
     fun removeBatch(v: View?) {
@@ -119,8 +119,7 @@ class BatchReplacement : BaseActivity() {
                 findViewById<View>(R.id.removeBatch).visibility = View.GONE
             }
         } else {
-            findViewById<View>(R.id.removeBatch).visibility =
-                View.GONE
+            findViewById<View>(R.id.removeBatch).visibility = View.GONE
         }
     }
 
@@ -139,7 +138,6 @@ class BatchReplacement : BaseActivity() {
                     val keyword = editText.text.toString()
                     val replacement = editTextx.text.toString()
 
-
                     if (MainActivity.activityRef.get() != null) {
                         MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.let {
                             it.editor?.setText(
@@ -147,10 +145,9 @@ class BatchReplacement : BaseActivity() {
                             )
                         }
                     } else if (intent.extras?.getBoolean("isExt", false) == true) {
-                        //if we are working with external editor
+                        // if we are working with external editor
                         SimpleEditor.editor?.setText(
-                            SimpleEditor.editor!!.text.toString()
-                                .replace(keyword, replacement)
+                            SimpleEditor.editor!!.text.toString().replace(keyword, replacement)
                         )
                     }
                 }

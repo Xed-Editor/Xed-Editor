@@ -2,10 +2,6 @@ package com.rk.plugin.server
 
 import android.content.Context
 import android.widget.Toast
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -15,6 +11,10 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 object PluginInstaller {
     fun installFromZip(context: Context, file: File): Boolean {
@@ -32,26 +32,21 @@ object PluginInstaller {
             pluginsDir.mkdirs()
         }
 
-
         extractZip(inputStream, tempDir)
 
         var isInstalled = false
         tempDir.listFiles()?.forEach { f ->
             if (f.isDirectory && File(f, "manifest.json").exists()) {
-                copyDirectory(f.parentFile!!, pluginsDir,context)
+                copyDirectory(f.parentFile!!, pluginsDir, context)
                 isInstalled = true
             }
         }
 
-        GlobalScope.launch(Dispatchers.IO){
-            tempDir.deleteRecursively()
-        }
+        GlobalScope.launch(Dispatchers.IO) { tempDir.deleteRecursively() }
 
         return isInstalled
-
     }
 
-    
     private fun copyDirectory(sourceDir: File, targetDir: File, context: Context) {
         if (!sourceDir.exists()) return
         if (!targetDir.exists()) targetDir.mkdirs()
@@ -70,7 +65,7 @@ object PluginInstaller {
         }
     }
 
-    private fun extractZip(inputStream: InputStream, tmpDir:File) {
+    private fun extractZip(inputStream: InputStream, tmpDir: File) {
         ZipInputStream(inputStream).use { zipInputStream ->
             var entry: ZipEntry? = zipInputStream.nextEntry
             while (entry != null) {
@@ -91,7 +86,5 @@ object PluginInstaller {
                 entry = zipInputStream.nextEntry
             }
         }
-
     }
-
 }

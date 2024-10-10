@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.editor
 
 import androidx.annotation.WorkerThread
@@ -43,6 +40,8 @@ import io.github.rosemoe.sora.lsp.utils.FileUri
 import io.github.rosemoe.sora.lsp.utils.clearVersions
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.subscribeEvent
+import java.lang.ref.WeakReference
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.runBlocking
@@ -50,13 +49,8 @@ import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.Diagnostic
 import org.eclipse.lsp4j.SignatureHelp
 import org.eclipse.lsp4j.TextDocumentSyncKind
-import java.lang.ref.WeakReference
-import java.util.concurrent.TimeoutException
 
-class LspEditor(
-    val project: LspProject,
-    val uri: FileUri,
-) {
+class LspEditor(val project: LspProject, val uri: FileUri) {
 
     private val serverDefinition: LanguageServerDefinition
 
@@ -103,9 +97,7 @@ class LspEditor(
             editorContentChangeEventReceiver = LspEditorContentChangeEventReceiver(this)
 
             val subscriptionReceipt =
-                currentEditor.subscribeEvent<ContentChangeEvent>(
-                    editorContentChangeEventReceiver
-                )
+                currentEditor.subscribeEvent<ContentChangeEvent>(editorContentChangeEventReceiver)
 
             unsubscribeFunction = Runnable { subscriptionReceipt.unsubscribe() }
         }
@@ -145,38 +137,40 @@ class LspEditor(
         get() = languageServerWrapper.requestManager
 
     init {
-        serverDefinition = project.getServerDefinition(fileExt)
-            ?: throw Exception("No server definition for extension $fileExt")
+        serverDefinition =
+            project.getServerDefinition(fileExt)
+                ?: throw Exception("No server definition for extension $fileExt")
 
         currentLanguage = LspLanguage(this)
     }
 
-
     /**
-     * Connect to the language server to provide the capabilities, this will cause threads blocking. Note: An error will be thrown if the language server is not connected after some time.
+     * Connect to the language server to provide the capabilities, this will cause threads blocking.
+     * Note: An error will be thrown if the language server is not connected after some time.
      *
      * @see io.github.rosemoe.sora.lsp.requests.Timeouts
-     *
      * @see io.github.rosemoe.sora.lsp.requests.Timeout
      */
-
     @Throws(TimeoutException::class)
-    suspend fun connect(throwException: Boolean = true): Boolean = withContext(Dispatchers.IO) {
-        eventManager.init()
-        runCatching {
-            languageServerWrapper.start()
+    suspend fun connect(throwException: Boolean = true): Boolean =
+        withContext(Dispatchers.IO) {
+            eventManager.init()
+            runCatching {
+                    languageServerWrapper.start()
 
-            //wait for language server start
-            languageServerWrapper.getServerCapabilities()
-                ?: throw TimeoutException("Unable to connect language server")
+                    // wait for language server start
+                    languageServerWrapper.getServerCapabilities()
+                        ?: throw TimeoutException("Unable to connect language server")
 
-            languageServerWrapper.connect(this@LspEditor)
-        }.onFailure {
-            if (throwException) {
-                throw it
-            }
-        }.isSuccess
-    }
+                    languageServerWrapper.connect(this@LspEditor)
+                }
+                .onFailure {
+                    if (throwException) {
+                        throw it
+                    }
+                }
+                .isSuccess
+        }
 
     @WorkerThread
     fun connectBlocking(throwException: Boolean = true): Boolean = runBlocking {
@@ -184,10 +178,10 @@ class LspEditor(
     }
 
     /**
-     * Try to connect to the language server repeatedly, this will cause threads blocking. Note: An error will be thrown if the language server is not connected after some time.
+     * Try to connect to the language server repeatedly, this will cause threads blocking. Note: An
+     * error will be thrown if the language server is not connected after some time.
      *
      * @see io.github.rosemoe.sora.lsp.requests.Timeouts
-     *
      * @see io.github.rosemoe.sora.lsp.requests.Timeout
      */
     @Throws(InterruptedException::class, TimeoutException::class)
@@ -204,7 +198,7 @@ class LspEditor(
                 isConnected = true
                 break
             } catch (exception: java.lang.Exception) {
-                exception.printStackTrace();
+                exception.printStackTrace()
             }
             start = System.currentTimeMillis()
             Thread.sleep((retryTime / 10).toLong())
@@ -215,58 +209,34 @@ class LspEditor(
         } else if (!isConnected) {
             connect()
         }
-
     }
 
-    @WorkerThread
-    fun connectWithTimeoutBlocking() = runBlocking {
-        connectWithTimeout()
-    }
+    @WorkerThread fun connectWithTimeoutBlocking() = runBlocking { connectWithTimeout() }
 
-    /**
-     * disconnect to the language server
-     */
+    /** disconnect to the language server */
     @WorkerThread
     fun disconnect() {
         runCatching {
-            coroutineScope.future {
-                eventManager.emitAsync(EventType.documentClose)
-            }.get()
+                coroutineScope.future { eventManager.emitAsync(EventType.documentClose) }.get()
 
-            languageServerWrapper.disconnect(
-                this@LspEditor
-            )
-
-        }.onFailure {
-            throw it
-        }
+                languageServerWrapper.disconnect(this@LspEditor)
+            }
+            .onFailure { throw it }
     }
 
-    /**
-     * Notify the language server to open the document
-     */
+    /** Notify the language server to open the document */
     suspend fun openDocument() {
         eventManager.emitAsync(EventType.documentOpen)
     }
 
-    @WorkerThread
-    fun openDocumentBlocking() = runBlocking {
-        openDocument()
-    }
+    @WorkerThread fun openDocumentBlocking() = runBlocking { openDocument() }
 
-
-    /**
-     * Notify language servers the document is saved
-     */
+    /** Notify language servers the document is saved */
     suspend fun saveDocument() {
         eventManager.emitAsync(EventType.documentSave)
     }
 
-    @WorkerThread
-    fun saveDocumentBlocking() = runBlocking {
-        saveDocument()
-    }
-
+    @WorkerThread fun saveDocumentBlocking() = runBlocking { saveDocument() }
 
     fun onDiagnosticsUpdate() {
         publishDiagnostics(diagnostics)
@@ -304,7 +274,6 @@ class LspEditor(
         return false
     }
 
-
     @WorkerThread
     fun dispose() {
         if (isClose) {
@@ -314,14 +283,10 @@ class LspEditor(
         disconnect()
         unsubscribeFunction?.run()
         _currentEditor.clear()
-        clearVersions {
-            it == this.uri
-        }
+        clearVersions { it == this.uri }
         project.removeEditor(this)
         isClose = true
     }
 
-    suspend fun disposeAsync() = withContext(Dispatchers.IO) {
-        dispose()
-    }
+    suspend fun disposeAsync() = withContext(Dispatchers.IO) { dispose() }
 }
