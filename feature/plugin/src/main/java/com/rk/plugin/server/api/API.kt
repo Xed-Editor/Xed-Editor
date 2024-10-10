@@ -46,7 +46,11 @@ object API {
   }
   
   fun getActivityContext(): Activity? {
-    return ActivityContext.get()
+    var activity = ActivityContext.get()
+    if (activity == null){
+      activity = getMainActivity()
+    }
+    return activity
   }
   
   fun setActivityContext(activity: Activity?) {

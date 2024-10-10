@@ -19,7 +19,7 @@ class Plugin(
                 if (script == null) {
                     throw RuntimeException("Tried to run a plugin without a script")
                 }
-                if (File(script).exists().not()){
+                if (File(pluginHome,script).exists().not()){
                     throw RuntimeException("Script : $script does not exist")
                 }
                 interpreter = Interpreter()
