@@ -54,8 +54,8 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.GitSettings.route) },
     )
     PreferenceCategory(
-        label = stringResource(id = R.string.app_name),
-        description = stringResource(id = R.string.app_name),
+        label = stringResource(id = R.string.about),
+        description = stringResource(id = R.string.about_desc),
         iconResource = R.drawable.android,
         onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )

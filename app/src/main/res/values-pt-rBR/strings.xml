@@ -258,4 +258,15 @@
     <string name="theme_mode_desc">Altere o modo do tema para automático, claro ou escuro.</string>
     
     <string name="no_plugins_available">Nenhum Plugin Disponível</string>
+    <string name="show_suggestions">Mostrar Sugestões</string>
+    
+    <string name="about">Sobre</string>
+    <string name="about_desc">Sobre o Karbon</string>
+    <string name="version">Versão</string>
+    <string name="version_code">Código da Versão</string>
+    <string name="github">GitHub</string>
+    <string name="github_desc">Karbon é de Código Aberto!</string>
+    <string name="telegram">Grupo do Telegram</string>
+    <string name="telegram_desc">Junte-se à comunidade do Telegram</string>
+    <string name="join">Entrar</string>
 </resources>
