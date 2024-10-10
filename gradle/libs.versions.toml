@@ -89,6 +89,7 @@ material-compose = { group = "androidx.compose.material", name = "material", ver
 material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
+datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 [plugins]
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
