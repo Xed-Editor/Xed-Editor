@@ -122,11 +122,9 @@ object HandleMenuItemClick {
                     rkUtils.shareText(this,(editor?.text ?: "").toString())
                 }
 
-                R.id.insertdate -> {
-                    editor?.pasteText(
-                        " " + SimpleDateFormat.getDateTimeInstance()
-                            .format(Date(System.currentTimeMillis())) + " "
-                    )
+                
+                R.id.suggestions -> {
+                    editorActivity.showSuggestions(editorActivity.isShowSuggestion().not())
                 }
 
 

@@ -101,5 +101,12 @@
         android:title="Git"
         android:visible="false"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/suggestions"
+        android:icon="@drawable/baseline_font_download_24"
+        android:title="Toggle Suggestion"
+        android:visible="false"
+        app:showAsAction="never"/>
+
 
 </menu>

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.*
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
 import com.rk.settings.PreferencesData
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
@@ -48,6 +49,7 @@ fun SettingsAppScreen() {
             onNavigate = {
                  isOled = !isOled
                  PreferencesData.setBoolean(PreferencesKeys.OLED, isOled)
+                 rkUtils.toast(rkUtils.getString(R.string.restart_required))
             },
             endWidget = {
                  Switch(

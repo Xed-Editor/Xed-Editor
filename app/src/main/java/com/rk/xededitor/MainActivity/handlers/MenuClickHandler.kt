@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity.handlers
 
 import android.content.Intent
+import android.text.InputType
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -129,6 +130,12 @@ object MenuClickHandler {
                 )
                 return true
             }
+            
+            R.id.suggestions -> {
+                activity.adapter.getCurrentFragment()?.let { it.showSuggestions(it.isShowSuggestion().not())}
+                return true
+            }
+            
             R.id.git -> {
                 val pull = View.generateViewId()
                 val push = View.generateViewId()

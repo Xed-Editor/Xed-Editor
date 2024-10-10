@@ -36,6 +36,17 @@ class TabFragment : Fragment() {
   // see @MenuClickHandler.update()
   var setListener = false
 
+  fun showSuggestions(yes:Boolean){
+    if (yes){
+      editor?.inputType = InputType.TYPE_TEXT_VARIATION_NORMAL
+    }else{
+      editor?.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+    }
+  }
+  
+  fun isShowSuggestion():Boolean{
+    return editor?.inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+  }
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -48,10 +59,8 @@ class TabFragment : Fragment() {
         }
       }
       editor = CodeEditor(context)
-
-    //  editor!!.inputType = InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
-     // editor!!.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-
+      showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false))
+      
       val setupEditor = SetupEditor(editor!!, context)
       setupEditor.ensureTextmateTheme(context)
       lifecycleScope.launch(Dispatchers.Default) {
@@ -101,6 +110,8 @@ class TabFragment : Fragment() {
     } catch (e: Exception) {
       //this fragment is detached and should be garbage collected
       e.printStackTrace()
+      editor?.release()
+      editor = null
     }
 
 

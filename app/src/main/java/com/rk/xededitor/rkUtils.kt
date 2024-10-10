@@ -53,7 +53,7 @@ object rkUtils {
     return orientation != Configuration.ORIENTATION_PORTRAIT
   }
   fun isDesktopMode(context: Context):Boolean{
-    return PreferencesData.getBoolean(PreferencesKeys.FORCE_DESKTOP_MODE,false) || (isLargeScreen(context) and isLandscape(context))
+    return isLargeScreen(context) and isLandscape(context)
   }
 
   fun debug(string: String,tag:String = "rkUtils"){

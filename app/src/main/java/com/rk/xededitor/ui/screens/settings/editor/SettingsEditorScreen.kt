@@ -109,6 +109,13 @@ fun SettingsEditorScreen() {
         )
       )
     }
+    var showSuggestions by remember {
+      mutableStateOf(
+        PreferencesData.getBoolean(
+          PreferencesKeys.SHOW_SUGGESTIONS, false
+        )
+      )
+    }
 
     val context = LocalContext.current
 
@@ -250,6 +257,22 @@ fun SettingsEditorScreen() {
           .padding(12.dp)
           .height(24.dp),
           checked = pinLineNumber,
+          onCheckedChange = null)
+      })
+    
+    PreferenceCategory(
+      label = stringResource(id = R.string.show_suggestions),
+      description = stringResource(id = R.string.show_suggestions),
+      iconResource = R.drawable.baseline_font_download_24,
+      onNavigate = {
+        showSuggestions = !showSuggestions
+        PreferencesData.setBoolean(PreferencesKeys.SHOW_SUGGESTIONS,showSuggestions)
+      },
+      endWidget = {
+        Switch(modifier = Modifier
+          .padding(12.dp)
+          .height(24.dp),
+          checked = showSuggestions,
           onCheckedChange = null)
       })
 

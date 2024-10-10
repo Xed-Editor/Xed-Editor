@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.OpenableColumns
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.view.menu.MenuBuilder
@@ -67,7 +68,7 @@ class SimpleEditor : BaseActivity() {
     val wordwrap = getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
     editor!!.isWordwrap = wordwrap
     editor!!.getComponent(EditorAutoCompletion::class.java).isEnabled = true
-
+    showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false))
     editor!!.subscribeAlways(ContentChangeEvent::class.java) {
       if (redo != null) {
         redo!!.setEnabled(editor!!.canRedo())
@@ -85,10 +86,22 @@ class SimpleEditor : BaseActivity() {
     HandleMenuItemClick.handle(this, id)
     return super.onOptionsItemSelected(item)
   }
-
+  
+  fun showSuggestions(yes:Boolean){
+    if (yes){
+      editor?.inputType = InputType.TYPE_TEXT_VARIATION_NORMAL
+    }else{
+      editor?.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+    }
+  }
+  
+  fun isShowSuggestion():Boolean{
+    return editor?.inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+  }
+  
   @SuppressLint("RestrictedApi")
   override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    menuInflater.inflate(R.menu.menu_main, menu)
+    menuInflater.inflate(R.menu.menu_simple_editor, menu)
     this.menu = menu
 
     if (menu is MenuBuilder) {

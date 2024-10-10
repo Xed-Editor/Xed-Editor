@@ -112,6 +112,7 @@ object MenuItemHandler {
       findItem(R.id.share).isVisible = show
       findItem(R.id.undo).isVisible = show
       findItem(R.id.redo).isVisible = show
+      findItem(R.id.suggestions).isVisible = show
       
     }
   }

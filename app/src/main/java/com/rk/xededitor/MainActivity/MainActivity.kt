@@ -97,9 +97,7 @@ class MainActivity : BaseActivity() {
     }
     
     BottomBar.setupBottomBar(this)
-
     
-
   }
   
   @JvmOverloads

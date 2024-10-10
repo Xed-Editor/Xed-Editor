@@ -261,4 +261,5 @@
     <string name="theme_mode_desc">Change theme mode to auto, light or dark.</string>
     
     <string name="no_plugins_available">No Plugins Available</string>
+    <string name="show_suggestions">Show Suggestions</string>
 </resources>

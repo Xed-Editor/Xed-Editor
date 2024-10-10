@@ -27,8 +27,7 @@ object PreferencesKeys {
     const val FORCE_CHAR="force_char_in_terminal"
     const val CTRL_WORKAROUND="ctrlworkaround"
     const val EDITOR_FONT="editor_font"
-    const val FORCE_DESKTOP_MODE="force_desktop_mode"
-    const val FORCE_NORMAL_MODE="force_normal_mode"
+    const val SHOW_SUGGESTIONS="show_suggestions"
     //todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"
