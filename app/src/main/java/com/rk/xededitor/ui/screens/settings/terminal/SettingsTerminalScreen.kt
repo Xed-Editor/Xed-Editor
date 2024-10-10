@@ -104,8 +104,8 @@ fun SettingsTerminalScreen() {
         )
 
         PreferenceCategory(
-            label = "Show Virtual Keyboard",
-            description = "Show virtual keyboard when Physical keyboard is connected",
+            label = stringResource(id = R.string.show_virtual_keyboard),
+            description = stringResource(id = R.string.show_virtual_keyboard_desc),
             iconResource = R.drawable.edit,
             onNavigate = {
                 showVirtualKeyboard = !showVirtualKeyboard
