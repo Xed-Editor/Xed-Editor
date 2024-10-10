@@ -33,6 +33,7 @@ import com.rk.xededitor.R
 import com.rk.settings.PreferencesData
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,6 +98,9 @@ class MainActivity : BaseActivity() {
     }
     
     BottomBar.setupBottomBar(this)
+    
+    
+    
     
   }
   
@@ -206,9 +210,6 @@ class MainActivity : BaseActivity() {
   
   private fun setupDrawer() {
     val drawerLayout = binding.drawerLayout
-    val navigationView = binding.navView
-    navigationView.layoutParams?.width =
-      (Resources.getSystem().displayMetrics.widthPixels * 0.87).toInt()
     drawerToggle =
       ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
     drawerLayout.addDrawerListener(drawerToggle)

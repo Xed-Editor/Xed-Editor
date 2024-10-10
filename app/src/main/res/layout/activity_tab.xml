@@ -36,6 +36,8 @@
 
         <RelativeLayout
             android:id="@+id/mainView"
+            android:focusable="false"
+            android:clickable="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
@@ -137,13 +139,6 @@
                             android:textColor="?colorOnSurface"
                             tools:ignore="HardcodedText" />
 
-
-
-
-
-
-
-
                         <Button
                             android:id="@+id/home"
                             android:textStyle="bold"
@@ -181,6 +176,8 @@
             android:layout_gravity="center"
             android:background="@android:color/transparent"
             android:onClick="openDrawer"
+            android:focusable="false"
+            android:textStyle="bold"
             android:text="@string/open_file_or_folder"
             android:textColor="?colorOnSurface" />
 
@@ -228,11 +225,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:orientation="vertical">
-
-
-
-
-
                 </LinearLayout>
 
             </LinearLayout>

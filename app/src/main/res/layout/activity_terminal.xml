@@ -8,6 +8,10 @@
         android:id="@+id/extra_keys"
         style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
+        android:focusable="false"
+        android:clickable="false"
+        android:focusedByDefault="false"
+        android:longClickable="false"
         android:layout_height="75dp"
         android:background="#1C1B20" />
 

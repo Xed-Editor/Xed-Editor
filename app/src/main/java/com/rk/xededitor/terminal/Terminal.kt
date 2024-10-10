@@ -58,6 +58,7 @@ class Terminal : BaseActivity() {
           }
         }
       })
+      
 
     }.init()
 
@@ -96,7 +97,8 @@ class Terminal : BaseActivity() {
     val params = LinearLayout.LayoutParams(-1, 0)
     params.weight = 1f
     binding.root.addView(terminal, 0, params)
-
+    terminal.requestFocus()
+    terminal.setFocusableInTouchMode(true)
   }
 
 
@@ -131,8 +133,7 @@ class Terminal : BaseActivity() {
       })
     }
   }
-
-
+  
   private fun createSession(): TerminalSession {
     val workingDir = if (intent.hasExtra("cwd")) {
       intent.getStringExtra("cwd")

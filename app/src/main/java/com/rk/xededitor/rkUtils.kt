@@ -3,9 +3,11 @@ package com.rk.xededitor
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.hardware.input.InputManager
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.InputDevice
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import java.io.File
@@ -14,8 +16,7 @@ import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+
 
 object rkUtils {
   private var mHandler = Handler(Looper.getMainLooper())
@@ -65,9 +66,20 @@ object rkUtils {
   fun warn(string: String,tag:String = "rkUtils"){
     Log.w(tag,string)
   }
-
-
-
+  
+  
+  fun isPhysicalKeyboardConnected(context: Context): Boolean {
+    val inputManager = context.getSystemService(Context.INPUT_SERVICE) as InputManager
+    
+    val deviceIds = inputManager.inputDeviceIds
+    for (id in deviceIds) {
+      val inputDevice = inputManager.getInputDevice(id)
+      if (inputDevice != null && inputDevice.sources == InputDevice.SOURCE_KEYBOARD) {
+        return true
+      }
+    }
+    return false
+  }
 
   fun getString(stringId: Int): String {
     return ContextCompat.getString(App.app, stringId)

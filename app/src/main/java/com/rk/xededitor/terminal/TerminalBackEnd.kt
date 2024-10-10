@@ -8,6 +8,7 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.SizeUtils
 import com.rk.settings.PreferencesKeys
 import com.rk.settings.PreferencesData
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -88,7 +89,12 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun onSingleTapUp(e: MotionEvent) {
-        showSoftInput()
+        if (rkUtils.isPhysicalKeyboardConnected(activity).not()){
+            showSoftInput()
+        }else{
+            activity.terminal.requestFocus()
+            activity.terminal.setFocusableInTouchMode(true)
+        }
     }
 
     override fun shouldBackButtonBeMappedToEscape(): Boolean {
