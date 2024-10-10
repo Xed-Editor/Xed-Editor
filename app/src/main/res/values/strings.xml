@@ -272,4 +272,7 @@
     <string name="telegram">Telegram Group</string>
     <string name="telegram_desc">Join Telegram community</string>
     <string name="join">Join</string>
+    
+    <string name="show_virtual_keyboard">Show Virtual Keyboard</string>
+    <string name="show_virtual_keyboard_desc">Show virtual keyboard when Physical keyboard is connected</string>
 </resources>
