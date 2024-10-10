@@ -33,11 +33,9 @@ import io.github.rosemoe.sora.util.ArrayList
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.util.Collections
 import java.util.Stack
-import java.util.function.Consumer
 
 /**
- * Hardware accelerated text render, which manages [RenderNode]
- * to speed up rendering.
+ * Hardware accelerated text render, which manages [RenderNode] to speed up rendering.
  *
  * @author Rosemoe
  */
@@ -66,9 +64,8 @@ class RenderNodeHolder(private val editor: CodeEditor) {
     }
 
     /**
-     * Called by editor when text style changes.
-     * Such as text size/typeface.
-     * Also called when wordwrap state changes from true to false
+     * Called by editor when text style changes. Such as text size/typeface. Also called when
+     * wordwrap state changes from true to false
      */
     fun invalidate() {
         cache.forEach { it.isDirty = true }
@@ -105,7 +102,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
         canvas: Canvas,
         line: Int,
         offsetX: Float,
-        offsetY: Float
+        offsetY: Float,
     ): Int {
         if (!canvas.isHardwareAccelerated) {
             throw UnsupportedOperationException("Only hardware-accelerated canvas can be used")
@@ -163,10 +160,7 @@ class RenderNodeHolder(private val editor: CodeEditor) {
     }
 
     class TextRenderNode(
-        /**
-         * The target line of this node.
-         * -1 for unavailable
-         */
+        /** The target line of this node. -1 for unavailable */
         var line: Int
     ) {
         var renderNode: RenderNode = RenderNode("editorRenderNode")

@@ -1,13 +1,8 @@
 package com.rk.runner.runners.jvm.beanshell
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
 import bsh.Interpreter
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.plugin.server.PluginError
 import com.rk.plugin.server.api.API
 import com.rk.runner.RunnerImpl
@@ -21,7 +16,8 @@ class BeanshellRunner : RunnerImpl {
             interpreter.setClassLoader(context.applicationContext.classLoader)
             interpreter.set("app", context.applicationContext)
             interpreter.set("api", API.getInstance())
-            interpreter.eval("""
+            interpreter.eval(
+                """
                 import com.rk.xededitor.MainActivity.*;
                 import com.rk.xededitor.*;
                 import com.rk.plugin.*;
@@ -29,12 +25,12 @@ class BeanshellRunner : RunnerImpl {
                 import com.rk.plugin.server.api.*;
                 import com.rk.libcommons.*;
                 import com.jaredrummler.ktsh.Shell;
-            """)
+            """
+            )
             interpreter.source(file)
-        }catch (e:Exception){
-           PluginError.showError(e)
+        } catch (e: Exception) {
+            PluginError.showError(e)
         }
-
     }
 
     override fun getName(): String {

@@ -7,16 +7,12 @@ import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.runner.databinding.ActivityMarkdownBinding
 
+abstract class WebActivity : AppCompatActivity() {
+    lateinit var binding: ActivityMarkdownBinding
 
-
-abstract class WebActivity: AppCompatActivity()  {
-    lateinit var binding:ActivityMarkdownBinding
-    
-    
     @SuppressLint("SetJavaScriptEnabled")
     fun setupWebView(webView: WebView) {
         val webSettings = webView.settings
@@ -28,8 +24,7 @@ abstract class WebActivity: AppCompatActivity()  {
         webSettings.allowFileAccess = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        webView.setWebChromeClient(WebChromeClient());
-        
+        webView.setWebChromeClient(WebChromeClient())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,19 +38,14 @@ abstract class WebActivity: AppCompatActivity()  {
         supportActionBar!!.setDisplayShowTitleEnabled(true)
 
         setupWebView(binding.webview)
-
-
-
     }
-
-
 
     override fun onLowMemory() {
         super.onLowMemory()
         System.gc()
         finish()
     }
-    
+
     override fun onDestroy() {
         super.onDestroy()
         System.gc()

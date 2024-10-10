@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2024  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2024 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.widget.snippet
 
 import android.util.Log
@@ -57,13 +54,12 @@ import io.github.rosemoe.sora.widget.subscribeEvent
  */
 class SnippetController(private val editor: CodeEditor) {
 
-    /**
-     * Language based variable resolver. User should set valid values when change language.
-     */
+    /** Language based variable resolver. User should set valid values when change language. */
     val commentVariableResolver = CommentBasedSnippetVariableResolver(null)
 
     /**
-     * File based variable resolver. User should implement this class and set it when opening a new file in editor
+     * File based variable resolver. User should implement this class and set it when opening a new
+     * file in editor
      */
     var fileVariableResolver: FileBasedSnippetVariableResolver? = null
         set(value) {
@@ -78,7 +74,8 @@ class SnippetController(private val editor: CodeEditor) {
         }
 
     /**
-     * Workspace based variable resolver. User should implement this class and set it when workspace is updated
+     * Workspace based variable resolver. User should implement this class and set it when workspace
+     * is updated
      */
     var workspaceVariableResolver: WorkspaceBasedSnippetVariableResolver? = null
         set(value) {
@@ -98,13 +95,14 @@ class SnippetController(private val editor: CodeEditor) {
     private var currentTabStopIndex = -1
     private var inSequenceEdits = false
 
-    private val variableResolver = CompositeSnippetVariableResolver().also {
-        it.addResolver(ClipboardBasedSnippetVariableResolver(editor.clipboardManager))
-        it.addResolver(EditorBasedSnippetVariableResolver(editor))
-        it.addResolver(RandomBasedSnippetVariableResolver())
-        it.addResolver(TimeBasedSnippetVariableResolver())
-        it.addResolver(commentVariableResolver)
-    }
+    private val variableResolver =
+        CompositeSnippetVariableResolver().also {
+            it.addResolver(ClipboardBasedSnippetVariableResolver(editor.clipboardManager))
+            it.addResolver(EditorBasedSnippetVariableResolver(editor))
+            it.addResolver(RandomBasedSnippetVariableResolver())
+            it.addResolver(TimeBasedSnippetVariableResolver())
+            it.addResolver(commentVariableResolver)
+        }
 
     init {
         editor.subscribeEvent<SelectionChangeEvent> { event, _ ->
@@ -120,13 +118,14 @@ class SnippetController(private val editor: CodeEditor) {
                     stopSnippet()
                 } else if (event.action == ContentChangeEvent.ACTION_INSERT) {
                     if (checkIndex(event.changeStart.index)) {
-                        var exitOnEnd = false;
-                        val addedTextLength = if (event.changedText.contains(lineSeparatorRegex)) {
-                            exitOnEnd = true
-                            event.changedText.indexOfFirst { it == '\r' || it == '\n' }
-                        } else {
-                            event.changedText.length
-                        }
+                        var exitOnEnd = false
+                        val addedTextLength =
+                            if (event.changedText.contains(lineSeparatorRegex)) {
+                                exitOnEnd = true
+                                event.changedText.indexOfFirst { it == '\r' || it == '\n' }
+                            } else {
+                                event.changedText.length
+                            }
                         // Shift current text
                         val editing = getEditingTabStop()!!
                         editing.setIndex(editing.startIndex, editing.endIndex + addedTextLength)
@@ -147,15 +146,16 @@ class SnippetController(private val editor: CodeEditor) {
                             if (isEditingRelated(snippetItem)) {
                                 hasChangedText = true
                                 val deltaIndex =
-                                    replacement.length - (snippetItem.endIndex - snippetItem.startIndex)
+                                    replacement.length -
+                                        (snippetItem.endIndex - snippetItem.startIndex)
                                 text.replace(
                                     snippetItem.startIndex,
                                     snippetItem.endIndex,
-                                    replacement
+                                    replacement,
                                 )
                                 snippetItem.setIndex(
                                     snippetItem.startIndex,
-                                    snippetItem.endIndex + deltaIndex
+                                    snippetItem.endIndex + deltaIndex,
                                 )
                                 shiftItemsFrom(index + 1, deltaIndex)
                             }
@@ -171,7 +171,9 @@ class SnippetController(private val editor: CodeEditor) {
                         stopSnippet()
                     }
                 } else if (event.action == ContentChangeEvent.ACTION_DELETE) {
-                    if (!checkIndex(event.changeStart.index) || !checkIndex(event.changeEnd.index)) {
+                    if (
+                        !checkIndex(event.changeStart.index) || !checkIndex(event.changeEnd.index)
+                    ) {
                         stopSnippet()
                     } else {
                         editor.text.undoManager.exitReplaceMode()
@@ -193,15 +195,16 @@ class SnippetController(private val editor: CodeEditor) {
                         currentSnippet!!.items.forEachIndexed { index, snippetItem ->
                             if (isEditingRelated(snippetItem)) {
                                 val deltaIndex =
-                                    replacement.length - (snippetItem.endIndex - snippetItem.startIndex)
+                                    replacement.length -
+                                        (snippetItem.endIndex - snippetItem.startIndex)
                                 text.replace(
                                     snippetItem.startIndex,
                                     snippetItem.endIndex,
-                                    replacement
+                                    replacement,
                                 )
                                 snippetItem.setIndex(
                                     snippetItem.startIndex,
-                                    snippetItem.endIndex + deltaIndex
+                                    snippetItem.endIndex + deltaIndex,
                                 )
                                 shiftItemsFrom(index + 1, deltaIndex)
                             }
@@ -220,10 +223,10 @@ class SnippetController(private val editor: CodeEditor) {
     }
 
     /**
-     * Start a new snippet editing. The given [CodeSnippet] must pass the checks in [CodeSnippet.checkContent].
-     * Otherwise, the snippet editing will not be started.
-     * No matter whether a new snippet editing is started, the existing snippet editing will get cancelled after
-     *  calling this method.
+     * Start a new snippet editing. The given [CodeSnippet] must pass the checks in
+     * [CodeSnippet.checkContent]. Otherwise, the snippet editing will not be started. No matter
+     * whether a new snippet editing is started, the existing snippet editing will get cancelled
+     * after calling this method.
      */
     fun startSnippet(index: Int, snippet: CodeSnippet, selectedText: String = "") {
         if (snippetIndex != -1) {
@@ -241,7 +244,7 @@ class SnippetController(private val editor: CodeEditor) {
         // Stage 2: resolve the variables and execute shell codes
         val elements = clonedSnippet.items!!
         val variableItemMapping = mutableMapOf<String, PlaceholderDefinition>()
-        var maxTabStop = 0;
+        var maxTabStop = 0
         elements.forEach {
             if (it is PlaceholderItem && it.definition.id > maxTabStop) {
                 maxTabStop = it.definition.id
@@ -250,64 +253,65 @@ class SnippetController(private val editor: CodeEditor) {
         for (i in 0 until elements.size) {
             val item = elements[i]
             if (item is VariableItem) {
-                var value = when {
-                    variableResolver.canResolve(item.name) -> variableResolver.resolve(item.name)
-                    item.name == "selection" -> selectedText
-                    item.defaultValue != null -> item.defaultValue
-                    else -> null
-                }
+                var value =
+                    when {
+                        variableResolver.canResolve(item.name) ->
+                            variableResolver.resolve(item.name)
+                        item.name == "selection" -> selectedText
+                        item.defaultValue != null -> item.defaultValue
+                        else -> null
+                    }
                 if (value != null) {
                     // Resolved variable value
                     value = TransformApplier.doTransform(value, item.transform)
                     val deltaIndex = value.length - (item.endIndex - item.startIndex)
-                    elements[i] = PlainTextItem(
-                        value,
-                        item.startIndex,
-                        item.startIndex + value.length
-                    )
+                    elements[i] =
+                        PlainTextItem(value, item.startIndex, item.startIndex + value.length)
                     shiftItemsFrom(i + 1, deltaIndex)
                 } else {
                     // Convert to placeholder
-                    val def = if (variableItemMapping.contains(item.name)) {
-                        variableItemMapping[item.name]!!
-                    } else {
-                        val definition = PlaceholderDefinition(++maxTabStop)
-                        definition.text = item.name
-                        variableItemMapping[item.name] = definition
-                        definition
-                    }
+                    val def =
+                        if (variableItemMapping.contains(item.name)) {
+                            variableItemMapping[item.name]!!
+                        } else {
+                            val definition = PlaceholderDefinition(++maxTabStop)
+                            definition.text = item.name
+                            variableItemMapping[item.name] = definition
+                            definition
+                        }
                     elements[i] = PlaceholderItem(def, item.startIndex)
                     val deltaIndex = item.name.length - (item.endIndex - item.startIndex)
                     shiftItemsFrom(i + 1, deltaIndex)
                 }
             } else if (item is InterpolatedShellItem) {
-                var value = try {
-                    val proc = Runtime.getRuntime().exec("sh")
-                    proc.outputStream.apply {
-                        write(item.shellCode.encodeToByteArray())
-                        write("\nexit\n".encodeToByteArray())
-                        flush()
+                var value =
+                    try {
+                        val proc = Runtime.getRuntime().exec("sh")
+                        proc.outputStream.apply {
+                            write(item.shellCode.encodeToByteArray())
+                            write("\nexit\n".encodeToByteArray())
+                            flush()
+                        }
+                        proc.inputStream.bufferedReader().readText()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        ""
                     }
-                    proc.inputStream.bufferedReader().readText()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    ""
-                }
                 val lastChar = value[value.lastIndex]
                 if (value.isNotEmpty() && lastChar == '\n' || lastChar == '\r') {
                     value =
-                        if (lastChar == '\r' || (value.lastIndex > 0 && value[value.lastIndex - 1] != '\r') || value.lastIndex == 0) {
+                        if (
+                            lastChar == '\r' ||
+                                (value.lastIndex > 0 && value[value.lastIndex - 1] != '\r') ||
+                                value.lastIndex == 0
+                        ) {
                             value.substring(0, value.lastIndex)
                         } else {
                             value.substring(0, value.lastIndex - 1)
                         }
                 }
                 val deltaIndex = value.length - (item.endIndex - item.startIndex)
-                elements[i] = PlainTextItem(
-                    value,
-                    item.startIndex,
-                    item.startIndex + value.length
-                )
+                elements[i] = PlainTextItem(value, item.startIndex, item.startIndex + value.length)
                 shiftItemsFrom(i + 1, deltaIndex)
             }
         }
@@ -346,9 +350,7 @@ class SnippetController(private val editor: CodeEditor) {
                         sb.append(it)
                         first = false
                     } else {
-                        sb.append(editor.lineSeparator.content)
-                            .append(indentText)
-                            .append(it)
+                        sb.append(editor.lineSeparator.content).append(indentText).append(it)
                     }
                 }
                 val deltaIndex = sb.length - snippetItem.text.length
@@ -368,12 +370,14 @@ class SnippetController(private val editor: CodeEditor) {
                         sb.append(element.text)
                         deltaIndex += element.text.length
                     } else if (element is VariableItem) {
-                        var value = when {
-                            variableResolver.canResolve(element.name) -> variableResolver.resolve(element.name)
-                            element.name == "selection" -> selectedText
-                            element.defaultValue != null -> element.defaultValue
-                            else -> null
-                        }
+                        var value =
+                            when {
+                                variableResolver.canResolve(element.name) ->
+                                    variableResolver.resolve(element.name)
+                                element.name == "selection" -> selectedText
+                                element.defaultValue != null -> element.defaultValue
+                                else -> null
+                            }
 
                         if (value != null) {
                             value = TransformApplier.doTransform(value, element.transform)
@@ -395,20 +399,20 @@ class SnippetController(private val editor: CodeEditor) {
         val tabStops = mutableListOf<PlaceholderItem>()
         clonedSnippet.items.forEach { item ->
             if (item is PlaceholderItem) {
-                if (item.definition.id != 0 && tabStops.find { it.definition == item.definition } == null) {
+                if (
+                    item.definition.id != 0 &&
+                        tabStops.find { it.definition == item.definition } == null
+                ) {
                     tabStops.add(item)
                 }
             }
         }
-        tabStops.sortWith { a, b ->
-            a.definition.id.compareTo(b.definition.id)
-        }
+        tabStops.sortWith { a, b -> a.definition.id.compareTo(b.definition.id) }
         var end =
-            clonedSnippet.items.find { it is PlaceholderItem && it.definition.id == 0 } as PlaceholderItem?
+            clonedSnippet.items.find { it is PlaceholderItem && it.definition.id == 0 }
+                as PlaceholderItem?
         if (end == null) {
-            end = PlaceholderItem(
-                PlaceholderDefinition(0), elements.last().endIndex
-            )
+            end = PlaceholderItem(PlaceholderDefinition(0), elements.last().endIndex)
             clonedSnippet.items.add(end)
         }
         tabStops.add(end)
@@ -427,13 +431,9 @@ class SnippetController(private val editor: CodeEditor) {
         }
         text.insert(pos.line, pos.column, sb)
         // Stage 7: shift to the first tab stop
-        if ((editor.dispatchEvent(
-                SnippetEvent(
-                    editor,
-                    SnippetEvent.ACTION_START,
-                    currentTabStopIndex,
-                    tabStops.size
-                )
+        if (
+            (editor.dispatchEvent(
+                SnippetEvent(editor, SnippetEvent.ACTION_START, currentTabStopIndex, tabStops.size)
             ) and InterceptTarget.TARGET_EDITOR) != 0
         ) {
             stopSnippet()
@@ -442,9 +442,7 @@ class SnippetController(private val editor: CodeEditor) {
         shiftToTabStop(0)
     }
 
-    /**
-     * Check whether the editor in snippet editing
-     */
+    /** Check whether the editor in snippet editing */
     fun isInSnippet() = snippetIndex != -1 && currentTabStopIndex != -1
 
     fun getEditingTabStop() = if (snippetIndex == -1) null else tabStops!![currentTabStopIndex]
@@ -456,7 +454,9 @@ class SnippetController(private val editor: CodeEditor) {
     fun getEditingRelatedTabStops(): List<SnippetItem> {
         val editing = getEditingTabStop()
         if (editing != null) {
-            return currentSnippet!!.items!!.filter { it is PlaceholderItem && it.definition == editing.definition && it != editing }
+            return currentSnippet!!.items!!.filter {
+                it is PlaceholderItem && it.definition == editing.definition && it != editing
+            }
         }
         return emptyList()
     }
@@ -472,7 +472,9 @@ class SnippetController(private val editor: CodeEditor) {
     fun getInactiveTabStops(): List<SnippetItem> {
         val editing = getEditingTabStop()
         if (editing != null) {
-            return currentSnippet!!.items!!.filter { (it is PlaceholderItem && it.definition != editing.definition) }
+            return currentSnippet!!.items!!.filter {
+                (it is PlaceholderItem && it.definition != editing.definition)
+            }
         }
         return emptyList()
     }
@@ -501,11 +503,9 @@ class SnippetController(private val editor: CodeEditor) {
                     tabStop.startIndex,
                     tabStop.endIndex,
                     TransformApplier.doTransform(
-                        editor.text.substring(
-                            tabStop.startIndex,
-                            tabStop.endIndex
-                        ), tabStop.definition.transform
-                    )
+                        editor.text.substring(tabStop.startIndex, tabStop.endIndex),
+                        tabStop.definition.transform,
+                    ),
                 )
             }
         }
@@ -516,12 +516,7 @@ class SnippetController(private val editor: CodeEditor) {
         currentTabStopIndex = index
         editor.setSelectionRegion(left.line, left.column, right.line, right.column)
         editor.dispatchEvent(
-            SnippetEvent(
-                editor,
-                SnippetEvent.ACTION_SHIFT,
-                currentTabStopIndex,
-                tabStops!!.size
-            )
+            SnippetEvent(editor, SnippetEvent.ACTION_SHIFT, currentTabStopIndex, tabStops!!.size)
         )
         if (index == tabStops!!.size - 1) {
             stopSnippet()
@@ -538,9 +533,7 @@ class SnippetController(private val editor: CodeEditor) {
         }
     }
 
-    /**
-     * Stop snippet editing
-     */
+    /** Stop snippet editing */
     fun stopSnippet() {
         if (!isInSnippet()) {
             return
@@ -556,6 +549,4 @@ class SnippetController(private val editor: CodeEditor) {
     companion object {
         private val lineSeparatorRegex = Regex("\\r|\\n|\\r\\n")
     }
-
-
 }

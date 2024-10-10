@@ -32,20 +32,17 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Velocity
-
 import org.robok.engine.core.components.compose.edges.*
 
 /**
  * Creates a custom overscroll effect based off the Android 12 "stretch" animation.
+ *
  * @param content The content to animate.
  *
  * TODO: Allow horizontal stretch
  */
 @Composable
-fun NestedScrollStretch(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+fun NestedScrollStretch(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val invalidateTick = remember { mutableIntStateOf(0) }
     val invalidate = Runnable { invalidateTick.intValue++ }
 
@@ -55,23 +52,28 @@ fun NestedScrollStretch(
     val tmpOut = remember { FloatArray(5) }
 
     Box(
-        modifier = modifier
-            .nestedScroll(connection)
-            .onSizeChanged {
-                connection.height = it.height
-                connection.topEdgeEffect.setSize(it.width, it.height)
-                connection.bottomEdgeEffect.setSize(it.width, it.height)
-            }
-            .drawWithContent {
-                // Redraw when this value changes
-                invalidateTick.intValue
+        modifier =
+            modifier
+                .nestedScroll(connection)
+                .onSizeChanged {
+                    connection.height = it.height
+                    connection.topEdgeEffect.setSize(it.width, it.height)
+                    connection.bottomEdgeEffect.setSize(it.width, it.height)
+                }
+                .drawWithContent {
+                    // Redraw when this value changes
+                    invalidateTick.intValue
 
-                connection.topEdgeEffect.draw(tmpOut, StretchEdgeEffect.POSITION_TOP, this) {
-                    connection.bottomEdgeEffect.draw(tmpOut, StretchEdgeEffect.POSITION_BOTTOM, this) {
-                        drawContent()
+                    connection.topEdgeEffect.draw(tmpOut, StretchEdgeEffect.POSITION_TOP, this) {
+                        connection.bottomEdgeEffect.draw(
+                            tmpOut,
+                            StretchEdgeEffect.POSITION_BOTTOM,
+                            this,
+                        ) {
+                            drawContent()
+                        }
                     }
                 }
-            },
     ) {
         content()
     }
@@ -91,9 +93,7 @@ private inline fun StretchEdgeEffect.draw(
     tmpOut[0] = 0f
     getScale(tmpOut, position)
     if (tmpOut[0] == 1f) {
-        scope.scale(tmpOut[1], tmpOut[2], pivot = Offset(tmpOut[3], tmpOut[4])) {
-            block()
-        }
+        scope.scale(tmpOut[1], tmpOut[2], pivot = Offset(tmpOut[3], tmpOut[4])) { block() }
     } else {
         block()
     }

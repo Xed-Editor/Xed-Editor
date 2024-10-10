@@ -35,12 +35,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
 import org.robok.engine.core.components.compose.utils.addIf
 
-/***
- * A template used to create most preference-related components in the Preference UI.
- */
+/** A template used to create most preference-related components in the Preference UI. */
 @Suppress("ktlint:compose:modifier-not-used-at-root")
 @Composable
 fun PreferenceTemplate(
@@ -59,13 +56,14 @@ fun PreferenceTemplate(
     Column {
         Row(
             verticalAlignment = verticalAlignment,
-            modifier = modifier
-                .height(IntrinsicSize.Min)
-                .semantics(mergeDescendants = true) {}
-                .fillMaxWidth()
-                .addIf(applyPaddings) {
-                    padding(horizontal = horizontalPadding, vertical = verticalPadding)
-                },
+            modifier =
+                modifier
+                    .height(IntrinsicSize.Min)
+                    .semantics(mergeDescendants = true) {}
+                    .fillMaxWidth()
+                    .addIf(applyPaddings) {
+                        padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                    },
         ) {
             startWidget?.let {
                 startWidget()
@@ -74,11 +72,7 @@ fun PreferenceTemplate(
                 }
             }
             Row(
-                modifier = contentModifier
-                    .weight(1f)
-                    .addIf(!enabled) {
-                        alpha(0.38f)
-                    },
+                modifier = contentModifier.weight(1f).addIf(!enabled) { alpha(0.38f) },
                 verticalAlignment = verticalAlignment,
             ) {
                 Column(Modifier.weight(1f)) {

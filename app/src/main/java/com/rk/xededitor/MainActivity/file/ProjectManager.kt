@@ -14,52 +14,47 @@ import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
 import com.rk.libcommons.LoadingPopup
+import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.R
-import com.rk.settings.PreferencesData
 import com.rk.xededitor.rkUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.LinkedList
 import java.util.Queue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object ProjectManager {
 
     val projects = HashMap<Int, String>()
     private val queue: Queue<File> = LinkedList()
 
-
     fun processQueue(activity: MainActivity) {
-        if (activityRef.get() == null){
+        if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
         }
         activity.lifecycleScope.launch(Dispatchers.Default) {
             while (queue.isNotEmpty()) {
                 delay(100)
-                withContext(Dispatchers.Main) {
-                    queue.poll()?.let { addProject(activity, it) }
-                }
-
+                withContext(Dispatchers.Main) { queue.poll()?.let { addProject(activity, it) } }
             }
         }
-
     }
 
     fun addProject(activity: MainActivity, file: File) {
-        if (activityRef.get() == null){
+        if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
         }
-        if (projects.size >= 6){
+        if (projects.size >= 6) {
             return
         }
 
-        //BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
+        // BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
         if (activity.isPaused) {
             queue.add(file)
             return
@@ -73,11 +68,7 @@ object ProjectManager {
                 item.isVisible = true
                 item.isChecked = true
 
-
-                synchronized(projects) {
-                    projects[menuItemId] = file.absolutePath
-                }
-
+                synchronized(projects) { projects[menuItemId] = file.absolutePath }
 
                 val fileObj = file(file)
 
@@ -91,11 +82,9 @@ object ProjectManager {
 
                 activity.binding.maindrawer.addView(scrollView)
 
-
                 changeProject(file, activity)
 
-
-                //hide + button if 6 projects are added
+                // hide + button if 6 projects are added
                 if (activity.binding.navigationRail.menu.getItem(5).isVisible) {
                     activity.binding.navigationRail.menu.getItem(6).isVisible = false
                 }
@@ -106,9 +95,7 @@ object ProjectManager {
         saveProjects(activity)
         // }
 
-
     }
-
 
     fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
         val filePath = file.absolutePath
@@ -130,7 +117,6 @@ object ProjectManager {
                     }
                 }
                 projects.remove(menuItemId)
-
 
                 if (!rail.menu.getItem(6).isVisible) {
                     rail.menu.getItem(6).isVisible = true
@@ -155,23 +141,25 @@ object ProjectManager {
                     saveProjects(activity)
                 }
 
-//                for (ix in 0 until activity.binding.maindrawer.childCount) {
-//                    val view = activity.binding.maindrawer.getChildAt(ix)
-//                    if (view is ViewGroup) {
-//                        activity.binding.maindrawer.removeView(view)
-//                    }
-//                }
+                //                for (ix in 0 until activity.binding.maindrawer.childCount) {
+                //                    val view = activity.binding.maindrawer.getChildAt(ix)
+                //                    if (view is ViewGroup) {
+                //                        activity.binding.maindrawer.removeView(view)
+                //                    }
+                //                }
 
-                activity.binding.maindrawer.removeView(activity.binding.maindrawer.findViewById(file.absolutePath.hashCode()))
+                activity.binding.maindrawer.removeView(
+                    activity.binding.maindrawer.findViewById(file.absolutePath.hashCode())
+                )
 
                 break
             }
         }
-        //}
+        // }
     }
 
-
     private var currentProjectId: Int = -1
+
     fun changeProject(file: File, activity: MainActivity) {
         for (i in 0 until activity.binding.maindrawer.childCount) {
             val view = activity.binding.maindrawer.getChildAt(i)
@@ -205,11 +193,11 @@ object ProjectManager {
         return (view.getChildAt(0) as ViewGroup).getChildAt(0) as FileTree
     }
 
-
     object currentProject {
-        fun get(activity: MainActivity):File{
-            return  File(getSelectedView(activity).getRootFileObject().getAbsolutePath())
+        fun get(activity: MainActivity): File {
+            return File(getSelectedView(activity).getRootFileObject().getAbsolutePath())
         }
+
         fun refresh(activity: MainActivity) {
             getSelectedView(activity).reloadFileTree()
         }
@@ -224,9 +212,7 @@ object ProjectManager {
 
         fun updateFileAdded(activity: MainActivity, file: File) {
             getSelectedView(activity).onFileAdded(file(file))
-
         }
-
     }
 
     fun changeCurrentProjectRoot(file: FileObject, activity: MainActivity) {
@@ -238,8 +224,7 @@ object ProjectManager {
         val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
         if (jsonString.isNotEmpty()) {
             val gson = Gson()
-            val projectsList = gson.fromJson(jsonString, Array<String>::class.java)
-                .toList()
+            val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
 
             projectsList.forEach {
                 val file = File(it)
@@ -249,52 +234,52 @@ object ProjectManager {
         }
     }
 
-
-    private val fileClickListener = object : FileClickListener {
-        override fun onClick(node: Node<FileObject>) {
-            if (node.value.isDirectory()) {
-                return
-            }
+    private val fileClickListener =
+        object : FileClickListener {
+            override fun onClick(node: Node<FileObject>) {
+                if (node.value.isDirectory()) {
+                    return
+                }
 
                 activityRef.get()?.let {
-                    if (it.isPaused){
+                    if (it.isPaused) {
                         return@let
                     }
-                val loading = LoadingPopup(it, null).show()
-                val file = File(node.value.getAbsolutePath())
+                    val loading = LoadingPopup(it, null).show()
+                    val file = File(node.value.getAbsolutePath())
 
-                //delay 100ms for smoother click
-                //opening a file always take more than 500ms because of these delays
-                After(100) {
-                    rkUtils.runOnUiThread {
-                        it.adapter.addFragment(file)
-                    }
+                    // delay 100ms for smoother click
+                    // opening a file always take more than 500ms because of these delays
+                    After(100) {
+                        rkUtils.runOnUiThread { it.adapter.addFragment(file) }
 
-                    //delay close drawer after 400ms
-                    After(400) {
-                        if (!PreferencesData.getBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, false)) {
-                            rkUtils.runOnUiThread {
-                                it.binding.drawerLayout.close()
+                        // delay close drawer after 400ms
+                        After(400) {
+                            if (
+                                !PreferencesData.getBoolean(
+                                    PreferencesKeys.KEEP_DRAWER_LOCKED,
+                                    false,
+                                )
+                            ) {
+                                rkUtils.runOnUiThread { it.binding.drawerLayout.close() }
                             }
+                            loading.hide()
                         }
-                        loading.hide()
                     }
                 }
             }
         }
-    }
 
-    private val fileLongClickListener = object : FileLongClickListener {
-        override fun onLongClick(node: Node<FileObject>) {
-            activityRef.get()?.apply {
-                getSelectedProjectRootFilePath(this)?.let {
-                    FileAction(this, File(it), File(node.value.getAbsolutePath()))
+    private val fileLongClickListener =
+        object : FileLongClickListener {
+            override fun onLongClick(node: Node<FileObject>) {
+                activityRef.get()?.apply {
+                    getSelectedProjectRootFilePath(this)?.let {
+                        FileAction(this, File(it), File(node.value.getAbsolutePath()))
+                    }
                 }
             }
         }
-
-    }
-
 
     private fun saveProjects(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.IO) {

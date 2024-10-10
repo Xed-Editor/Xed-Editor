@@ -29,23 +29,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 
-/**
- * Creates a spacer that respects the [navigation bars][WindowInsets.Companion.navigationBars].
- */
+/** Creates a spacer that respects the [navigation bars][WindowInsets.Companion.navigationBars]. */
 @Composable
-fun BottomSpacer(
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        contentAlignment = Alignment.BottomStart,
-        modifier = modifier,
-    ) {
+fun BottomSpacer(modifier: Modifier = Modifier) {
+    Box(contentAlignment = Alignment.BottomStart, modifier = modifier) {
         Spacer(modifier = Modifier.navigationBarsPadding().imePadding())
         Spacer(
-            modifier = Modifier
-                .windowInsetsBottomHeight(WindowInsets.navigationBars)
-                .fillMaxWidth()
-                .pointerInput(Unit) {},
+            modifier =
+                Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars)
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {}
         )
     }
 }

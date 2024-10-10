@@ -6,8 +6,8 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.blankj.utilcode.util.SizeUtils
-import com.rk.settings.PreferencesKeys
 import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.virtualkeys.SpecialButton
 import com.termux.terminal.TerminalEmulator
@@ -16,11 +16,14 @@ import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessionClient {
-    private var fontSize = SizeUtils.dp2px(PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE,"14").toFloat())
+class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSessionClient {
+    private var fontSize =
+        SizeUtils.dp2px(
+            PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
+        )
     private lateinit var terminal: TerminalView
 
-    fun setTerminal(terminalView: TerminalView){
+    fun setTerminal(terminalView: TerminalView) {
         terminal = terminalView
     }
 
@@ -30,9 +33,7 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
 
     override fun onTitleChanged(changedSession: TerminalSession) {}
 
-    override fun onSessionFinished(finishedSession: TerminalSession) {
-
-    }
+    override fun onSessionFinished(finishedSession: TerminalSession) {}
 
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         ClipboardUtils.copyText("Terminal", text)
@@ -56,27 +57,27 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun logError(tag: String?, message: String?) {
-        Log.e(tag.toString(),message.toString())
+        Log.e(tag.toString(), message.toString())
     }
 
     override fun logWarn(tag: String?, message: String?) {
-        Log.w(tag.toString(),message.toString())
+        Log.w(tag.toString(), message.toString())
     }
 
     override fun logInfo(tag: String?, message: String?) {
-        Log.i(tag.toString(),message.toString())
+        Log.i(tag.toString(), message.toString())
     }
 
     override fun logDebug(tag: String?, message: String?) {
-        Log.d(tag.toString(),message.toString())
+        Log.d(tag.toString(), message.toString())
     }
 
     override fun logVerbose(tag: String?, message: String?) {
-        Log.v(tag.toString(),message.toString())
+        Log.v(tag.toString(), message.toString())
     }
 
     override fun logStackTraceWithMessage(tag: String?, message: String?, e: Exception?) {
-        Log.e(tag.toString(),message.toString())
+        Log.e(tag.toString(), message.toString())
         e?.printStackTrace()
     }
 
@@ -89,10 +90,14 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun onSingleTapUp(e: MotionEvent) {
-        if (rkUtils.isPhysicalKeyboardConnected(activity) and rkUtils.isDesktopMode(activity) and PreferencesData.getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,true).not()){
+        if (
+            rkUtils.isPhysicalKeyboardConnected(activity) and
+                rkUtils.isDesktopMode(activity) and
+                PreferencesData.getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD, true).not()
+        ) {
             activity.terminal.requestFocus()
             activity.terminal.setFocusableInTouchMode(true)
-        }else{
+        } else {
             showSoftInput()
         }
     }
@@ -102,11 +107,11 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun shouldEnforceCharBasedInput(): Boolean {
-        return PreferencesData.getBoolean(PreferencesKeys.FORCE_CHAR,true)
+        return PreferencesData.getBoolean(PreferencesKeys.FORCE_CHAR, true)
     }
 
     override fun shouldUseCtrlSpaceWorkaround(): Boolean {
-        return PreferencesData.getBoolean(PreferencesKeys.CTRL_WORKAROUND,false)
+        return PreferencesData.getBoolean(PreferencesKeys.CTRL_WORKAROUND, false)
     }
 
     override fun isTerminalViewSelected(): Boolean {
@@ -131,8 +136,7 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
         return false
     }
 
-
-    //keys
+    // keys
     override fun readControlKey(): Boolean {
         val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.CTRL, true)
         return state != null && state
@@ -152,9 +156,6 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
         val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.FN, true)
         return state != null && state
     }
-
-
-
 
     override fun onCodePoint(codePoint: Int, ctrlDown: Boolean, session: TerminalSession): Boolean {
         return false

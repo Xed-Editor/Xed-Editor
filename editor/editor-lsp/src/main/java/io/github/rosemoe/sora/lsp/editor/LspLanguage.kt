@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.editor
 
 import android.os.Bundle
@@ -44,15 +41,13 @@ import io.github.rosemoe.sora.lsp.events.completion.completion
 import io.github.rosemoe.sora.lsp.events.document.DocumentChangeEvent
 import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
-
 import io.github.rosemoe.sora.text.CharPosition
 import io.github.rosemoe.sora.text.ContentReference
 import io.github.rosemoe.sora.util.MyCharacter
 import io.github.rosemoe.sora.widget.SymbolPairMatch
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
-
 
 class LspLanguage(var editor: LspEditor) : Language {
 
@@ -65,12 +60,11 @@ class LspLanguage(var editor: LspEditor) : Language {
     init {
         lspFormatter = LspFormatter(this)
         completionItemProvider =
-            CompletionItemProvider { completionItem: org.eclipse.lsp4j.CompletionItem, eventManager: LspEventManager, prefixLength: Int ->
-                LspCompletionItem(
-                    completionItem,
-                    eventManager,
-                    prefixLength
-                )
+            CompletionItemProvider {
+                completionItem: org.eclipse.lsp4j.CompletionItem,
+                eventManager: LspEventManager,
+                prefixLength: Int ->
+                LspCompletionItem(completionItem, eventManager, prefixLength)
             }
     }
 
@@ -87,7 +81,7 @@ class LspLanguage(var editor: LspEditor) : Language {
         content: ContentReference,
         position: CharPosition,
         publisher: CompletionPublisher,
-        extraArguments: Bundle
+        extraArguments: Bundle,
     ) {
 
         /* if (getEditor().hitTrigger(line)) {
@@ -96,44 +90,48 @@ class LspLanguage(var editor: LspEditor) : Language {
         }*/
 
         val prefix = computePrefix(content, position)
-        Log.d("prefix", prefix);
+        Log.d("prefix", prefix)
         val prefixLength = prefix.length
 
         val documentChangeEvent =
             editor.eventManager.getEventListener<DocumentChangeEvent>() ?: return
 
-        val documentChangeFuture =
-            documentChangeEvent.future
+        val documentChangeFuture = documentChangeEvent.future
 
-        if (documentChangeFuture?.isDone == false || documentChangeFuture?.isCompletedExceptionally == false || documentChangeFuture?.isCancelled == false) {
+        if (
+            documentChangeFuture?.isDone == false ||
+                documentChangeFuture?.isCompletedExceptionally == false ||
+                documentChangeFuture?.isCancelled == false
+        ) {
             runCatching {
                 documentChangeFuture[Timeout[Timeouts.WILLSAVE].toLong(), TimeUnit.MILLISECONDS]
             }
-
         }
 
         val completionList = ArrayList<CompletionItem>()
 
         val serverResultCompletionItems =
             editor.coroutineScope.future {
-                val context = editor.eventManager.emitAsync(EventType.completion,position)
+                val context = editor.eventManager.emitAsync(EventType.completion, position)
                 context.get<List<org.eclipse.lsp4j.CompletionItem>>("completion-items")
             }
 
-        serverResultCompletionItems.thenAccept { completions ->
-            completions.forEach { completionItem: org.eclipse.lsp4j.CompletionItem ->
-                completionList.add(
-                    completionItemProvider.createCompletionItem(
-                        completionItem,
-                        editor.eventManager,
-                        prefixLength
+        serverResultCompletionItems
+            .thenAccept { completions ->
+                completions.forEach { completionItem: org.eclipse.lsp4j.CompletionItem ->
+                    completionList.add(
+                        completionItemProvider.createCompletionItem(
+                            completionItem,
+                            editor.eventManager,
+                            prefixLength,
+                        )
                     )
-                )
+                }
             }
-        }.exceptionally { throwable: Throwable ->
-            publisher.cancel()
-            throw CompletionCancelledException(throwable.message)
-        }[Timeout[Timeouts.COMPLETION].toLong(), TimeUnit.MILLISECONDS]
+            .exceptionally { throwable: Throwable ->
+                publisher.cancel()
+                throw CompletionCancelledException(throwable.message)
+            }[Timeout[Timeouts.COMPLETION].toLong(), TimeUnit.MILLISECONDS]
 
         publisher.setComparator(getCompletionItemComparator(content, position, completionList))
         publisher.addItems(completionList)
@@ -141,14 +139,10 @@ class LspLanguage(var editor: LspEditor) : Language {
     }
 
     private fun computePrefix(text: ContentReference, position: CharPosition): String {
-        val delimiters: MutableList<String> = ArrayList(
-            editor.completionTriggers
-        )
+        val delimiters: MutableList<String> = ArrayList(editor.completionTriggers)
         if (delimiters.isEmpty()) {
             return CompletionHelper.computePrefix(text, position) { key: Char ->
-                MyCharacter.isJavaIdentifierPart(
-                    key
-                )
+                MyCharacter.isJavaIdentifierPart(key)
             }
         }
 
@@ -190,12 +184,7 @@ class LspLanguage(var editor: LspEditor) : Language {
         formatter.destroy()
 
         wrapperLanguage?.destroy()
-        editor.project.coroutineScope.launch {
-            editor.dispose()
-        }
+        editor.project.coroutineScope.launch { editor.dispose() }
         lspFormatter = null
     }
-
-
 }
-

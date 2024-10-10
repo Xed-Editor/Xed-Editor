@@ -46,9 +46,7 @@ fun PreferenceGroup(
     dividersToSkip: Int = 0,
     content: @Composable () -> Unit,
 ) {
-    Column(
-        modifier = modifier,
-    ) {
+    Column(modifier = modifier) {
         PreferenceGroupHeading(heading)
         Surface(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -63,9 +61,7 @@ fun PreferenceGroup(
                     dividersToSkip = dividersToSkip,
                 )
             } else {
-                Column {
-                    content()
-                }
+                Column { content() }
             }
         }
         PreferenceGroupDescription(description = description, showDescription = showDescription)
@@ -73,17 +69,11 @@ fun PreferenceGroup(
 }
 
 @Composable
-fun PreferenceGroupHeading(
-    heading: String?,
-    modifier: Modifier = Modifier,
-) {
+fun PreferenceGroupHeading(heading: String?, modifier: Modifier = Modifier) {
     if (heading != null) {
         Column(
             verticalArrangement = Arrangement.Center,
-            modifier = modifier
-                .height(48.dp)
-                .padding(horizontal = 32.dp)
-                .fillMaxWidth(),
+            modifier = modifier.height(48.dp).padding(horizontal = 32.dp).fillMaxWidth(),
         ) {
             Text(
                 text = heading,
@@ -104,10 +94,7 @@ fun PreferenceGroupDescription(
     showDescription: Boolean = true,
 ) {
     description?.let {
-        ExpandAndShrink(
-            modifier = modifier,
-            visible = showDescription,
-        ) {
+        ExpandAndShrink(modifier = modifier, visible = showDescription) {
             Row(modifier = Modifier.padding(start = 32.dp, end = 32.dp, top = 16.dp)) {
                 Text(
                     text = it,

@@ -14,14 +14,11 @@ import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
-import java.text.SimpleDateFormat
-import java.util.Date
 
 object HandleMenuItemClick {
-    fun handle(editorActivity:SimpleEditor,id:Int): Boolean {
-        with(editorActivity){
+    fun handle(editorActivity: SimpleEditor, id: Int): Boolean {
+        with(editorActivity) {
             when (id) {
-
                 android.R.id.home -> {
                     onBackPressed()
                     return true
@@ -43,19 +40,25 @@ object HandleMenuItemClick {
                         searchBox.text = SearchText
                     }
 
-                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.search)).setView(popuopView)
-                        .setNegativeButton(rkUtils.getString(R.string.cancel) ,null).setPositiveButton(rkUtils.getString(R.string.search)) { _, _ ->
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle(rkUtils.getString(R.string.search))
+                        .setView(popuopView)
+                        .setNegativeButton(rkUtils.getString(R.string.cancel), null)
+                        .setPositiveButton(rkUtils.getString(R.string.search)) { _, _ ->
                             val checkBox = popuopView.findViewById<CheckBox>(R.id.case_senstive)
                             SearchText = searchBox.text.toString()
-                            editor!!.searcher.search(
-                                SearchText,
-                                SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked)
-                            )
+                            editor!!
+                                .searcher
+                                .search(
+                                    SearchText,
+                                    SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked),
+                                )
                             menu!!.findItem(R.id.search_next).setVisible(true)
                             menu!!.findItem(R.id.search_previous).setVisible(true)
                             menu!!.findItem(R.id.search_close).setVisible(true)
                             menu!!.findItem(R.id.replace).setVisible(true)
-                        }.show()
+                        }
+                        .show()
                 }
 
                 R.id.search_next -> {
@@ -80,12 +83,21 @@ object HandleMenuItemClick {
 
                 R.id.replace -> {
                     val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_replace, null)
-                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.replace)).setView(popuopView)
-                        .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.replaceall)) { _, _ ->
-                            editor!!.searcher.replaceAll(
-                                (popuopView.findViewById<View>(R.id.replace_replacement) as TextView).text.toString()
-                            )
-                        }.show()
+                    MaterialAlertDialogBuilder(this)
+                        .setTitle(rkUtils.getString(R.string.replace))
+                        .setView(popuopView)
+                        .setNegativeButton(rkUtils.getString(R.string.cancel), null)
+                        .setPositiveButton(rkUtils.getString(R.string.replaceall)) { _, _ ->
+                            editor!!
+                                .searcher
+                                .replaceAll(
+                                    (popuopView.findViewById<View>(R.id.replace_replacement)
+                                            as TextView)
+                                        .text
+                                        .toString()
+                                )
+                        }
+                        .show()
                 }
 
                 R.id.undo -> {
@@ -119,14 +131,12 @@ object HandleMenuItemClick {
                 }
 
                 R.id.share -> {
-                    rkUtils.shareText(this,(editor?.text ?: "").toString())
+                    rkUtils.shareText(this, (editor?.text ?: "").toString())
                 }
 
-                
                 R.id.suggestions -> {
                     editorActivity.showSuggestions(editorActivity.isShowSuggestion().not())
                 }
-
 
                 else -> return false
             }

@@ -8,9 +8,9 @@ data class PluginInfo(
     val packageName: String,
     val description: String,
     val repo: String,
-    val author:String,
-    val version:String,
-    val versionCode:Int,
-    val script:String?,
-    val isLocal:Boolean
+    val author: String,
+    val version: String,
+    val versionCode: Int,
+    val script: String?,
+    val isLocal: Boolean,
 ) : Serializable

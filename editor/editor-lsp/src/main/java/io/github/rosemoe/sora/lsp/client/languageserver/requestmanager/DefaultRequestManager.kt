@@ -1,31 +1,29 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.client.languageserver.requestmanager
 
 import io.github.rosemoe.sora.lsp.client.languageserver.ServerStatus
 import io.github.rosemoe.sora.lsp.client.languageserver.wrapper.LanguageServerWrapper
+import java.util.concurrent.CompletableFuture
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams
 import org.eclipse.lsp4j.ApplyWorkspaceEditResponse
 import org.eclipse.lsp4j.CodeAction
@@ -94,25 +92,24 @@ import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageServer
 import org.eclipse.lsp4j.services.TextDocumentService
 import org.eclipse.lsp4j.services.WorkspaceService
-import java.util.concurrent.CompletableFuture
 
-
-/**
- * Default implementation for LSP requests/notifications handling.
- */
+/** Default implementation for LSP requests/notifications handling. */
 class DefaultRequestManager(
-    val wrapper: LanguageServerWrapper, val server: LanguageServer, val client: LanguageClient,
-    val serverCapabilities: ServerCapabilities
+    val wrapper: LanguageServerWrapper,
+    val server: LanguageServer,
+    val client: LanguageClient,
+    val serverCapabilities: ServerCapabilities,
 ) : RequestManager() {
 
     private val textDocumentOptions: TextDocumentSyncOptions? =
-        if (serverCapabilities.textDocumentSync.isRight) serverCapabilities.textDocumentSync.right else TextDocumentSyncOptions().apply {
-            change = serverCapabilities.textDocumentSync.left
-            openClose = true
-            save = Either.forLeft(true)
-        }
-    private val workspaceService: WorkspaceService =
-        server.workspaceService
+        if (serverCapabilities.textDocumentSync.isRight) serverCapabilities.textDocumentSync.right
+        else
+            TextDocumentSyncOptions().apply {
+                change = serverCapabilities.textDocumentSync.left
+                openClose = true
+                save = Either.forLeft(true)
+            }
+    private val workspaceService: WorkspaceService = server.workspaceService
     private val textDocumentService: TextDocumentService = server.textDocumentService
 
     // Client
@@ -120,7 +117,9 @@ class DefaultRequestManager(
         client.showMessage(messageParams)
     }
 
-    override fun showMessageRequest(showMessageRequestParams: ShowMessageRequestParams): CompletableFuture<MessageActionItem> {
+    override fun showMessageRequest(
+        showMessageRequestParams: ShowMessageRequestParams
+    ): CompletableFuture<MessageActionItem> {
         return client.showMessageRequest(showMessageRequestParams)
     }
 
@@ -140,7 +139,9 @@ class DefaultRequestManager(
         return client.unregisterCapability(params)
     }
 
-    override fun applyEdit(params: ApplyWorkspaceEditParams): CompletableFuture<ApplyWorkspaceEditResponse> {
+    override fun applyEdit(
+        params: ApplyWorkspaceEditParams
+    ): CompletableFuture<ApplyWorkspaceEditResponse> {
         return client.applyEdit(params)
     }
 
@@ -249,12 +250,14 @@ class DefaultRequestManager(
         }
     }
 
-    override fun symbol(params: WorkspaceSymbolParams): CompletableFuture<Either<List<SymbolInformation>, List<WorkspaceSymbol?>>>? {
+    override fun symbol(
+        params: WorkspaceSymbolParams
+    ): CompletableFuture<Either<List<SymbolInformation>, List<WorkspaceSymbol?>>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.workspaceSymbolProvider.right != null) workspaceService.symbol(
-                    params
-                ) else null
+                if (serverCapabilities.workspaceSymbolProvider.right != null)
+                    workspaceService.symbol(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -265,9 +268,9 @@ class DefaultRequestManager(
     override fun executeCommand(params: ExecuteCommandParams): CompletableFuture<Any>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.executeCommandProvider != null) workspaceService.executeCommand(
-                    params
-                ) else null
+                if (serverCapabilities.executeCommandProvider != null)
+                    workspaceService.executeCommand(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -312,12 +315,14 @@ class DefaultRequestManager(
         }
     }
 
-    override fun willSaveWaitUntil(params: WillSaveTextDocumentParams): CompletableFuture<List<TextEdit>>? {
+    override fun willSaveWaitUntil(
+        params: WillSaveTextDocumentParams
+    ): CompletableFuture<List<TextEdit>>? {
         return if (checkStatus()) {
             try {
-                if (textDocumentOptions?.willSaveWaitUntil == true) textDocumentService.willSaveWaitUntil(
-                    params
-                ) else null
+                if (textDocumentOptions?.willSaveWaitUntil == true)
+                    textDocumentService.willSaveWaitUntil(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -349,12 +354,14 @@ class DefaultRequestManager(
         }
     }
 
-    override fun completion(params: CompletionParams): CompletableFuture<Either<List<CompletionItem>, CompletionList>>? {
+    override fun completion(
+        params: CompletionParams
+    ): CompletableFuture<Either<List<CompletionItem>, CompletionList>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.completionProvider != null) textDocumentService.completion(
-                    params
-                ) else null
+                if (serverCapabilities.completionProvider != null)
+                    textDocumentService.completion(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -362,12 +369,14 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun resolveCompletionItem(unresolved: CompletionItem): CompletableFuture<CompletionItem>? {
+    override fun resolveCompletionItem(
+        unresolved: CompletionItem
+    ): CompletableFuture<CompletionItem>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.completionProvider.resolveProvider == true) textDocumentService.resolveCompletionItem(
-                    unresolved
-                ) else null
+                if (serverCapabilities.completionProvider.resolveProvider == true)
+                    textDocumentService.resolveCompletionItem(unresolved)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -382,7 +391,9 @@ class DefaultRequestManager(
     override fun hover(params: HoverParams): CompletableFuture<Hover>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.hoverProvider.right != null) textDocumentService.hover(params) else null
+                if (serverCapabilities.hoverProvider.right != null)
+                    textDocumentService.hover(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -390,16 +401,18 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun signatureHelp(params: TextDocumentPositionParams): CompletableFuture<SignatureHelp>? {
+    override fun signatureHelp(
+        params: TextDocumentPositionParams
+    ): CompletableFuture<SignatureHelp>? {
         return signatureHelp(SignatureHelpParams(params.textDocument, params.position))
     }
 
     override fun signatureHelp(params: SignatureHelpParams): CompletableFuture<SignatureHelp>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.signatureHelpProvider != null) textDocumentService.signatureHelp(
-                    params
-                ) else null
+                if (serverCapabilities.signatureHelpProvider != null)
+                    textDocumentService.signatureHelp(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -410,9 +423,9 @@ class DefaultRequestManager(
     override fun references(params: ReferenceParams): CompletableFuture<List<Location?>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.referencesProvider.right != null) textDocumentService.references(
-                    params
-                ) else null
+                if (serverCapabilities.referencesProvider.right != null)
+                    textDocumentService.references(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -420,16 +433,20 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun documentHighlight(params: TextDocumentPositionParams): CompletableFuture<List<DocumentHighlight>>? {
+    override fun documentHighlight(
+        params: TextDocumentPositionParams
+    ): CompletableFuture<List<DocumentHighlight>>? {
         return documentHighlight(DocumentHighlightParams(params.textDocument, params.position))
     }
 
-    override fun documentHighlight(params: DocumentHighlightParams): CompletableFuture<List<DocumentHighlight>>? {
+    override fun documentHighlight(
+        params: DocumentHighlightParams
+    ): CompletableFuture<List<DocumentHighlight>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentHighlightProvider != null) textDocumentService.documentHighlight(
-                    params
-                ) else null
+                if (serverCapabilities.documentHighlightProvider != null)
+                    textDocumentService.documentHighlight(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -437,12 +454,14 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun documentSymbol(params: DocumentSymbolParams): CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>>? {
+    override fun documentSymbol(
+        params: DocumentSymbolParams
+    ): CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentSymbolProvider != null) textDocumentService.documentSymbol(
-                    params
-                ) else null
+                if (serverCapabilities.documentSymbolProvider != null)
+                    textDocumentService.documentSymbol(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -453,9 +472,9 @@ class DefaultRequestManager(
     override fun formatting(params: DocumentFormattingParams): CompletableFuture<List<TextEdit>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentFormattingProvider != null) textDocumentService.formatting(
-                    params
-                ) else null
+                if (serverCapabilities.documentFormattingProvider != null)
+                    textDocumentService.formatting(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -465,12 +484,14 @@ class DefaultRequestManager(
         }
     }
 
-    override fun rangeFormatting(params: DocumentRangeFormattingParams): CompletableFuture<List<TextEdit>>? {
+    override fun rangeFormatting(
+        params: DocumentRangeFormattingParams
+    ): CompletableFuture<List<TextEdit>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentRangeFormattingProvider != null) textDocumentService.rangeFormatting(
-                    params
-                ) else null
+                if (serverCapabilities.documentRangeFormattingProvider != null)
+                    textDocumentService.rangeFormatting(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -478,12 +499,14 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun onTypeFormatting(params: DocumentOnTypeFormattingParams): CompletableFuture<List<TextEdit>>? {
+    override fun onTypeFormatting(
+        params: DocumentOnTypeFormattingParams
+    ): CompletableFuture<List<TextEdit>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentOnTypeFormattingProvider != null) textDocumentService.onTypeFormatting(
-                    params
-                ) else null
+                if (serverCapabilities.documentOnTypeFormattingProvider != null)
+                    textDocumentService.onTypeFormatting(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -491,16 +514,20 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun definition(params: TextDocumentPositionParams): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
+    override fun definition(
+        params: TextDocumentPositionParams
+    ): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
         return definition(DefinitionParams(params.textDocument, params.position))
     }
 
-    override fun definition(params: DefinitionParams): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
+    override fun definition(
+        params: DefinitionParams
+    ): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.definitionProvider.right != null) textDocumentService.definition(
-                    params
-                ) else null
+                if (serverCapabilities.definitionProvider.right != null)
+                    textDocumentService.definition(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -508,12 +535,14 @@ class DefaultRequestManager(
         } else null
     }
 
-    override fun codeAction(params: CodeActionParams): CompletableFuture<List<Either<Command, CodeAction>>>? {
+    override fun codeAction(
+        params: CodeActionParams
+    ): CompletableFuture<List<Either<Command, CodeAction>>>? {
         return if (checkStatus()) {
             try {
-                if (checkCodeActionProvider(serverCapabilities.codeActionProvider)) textDocumentService.codeAction(
-                    params
-                ) else null
+                if (checkCodeActionProvider(serverCapabilities.codeActionProvider))
+                    textDocumentService.codeAction(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -524,7 +553,9 @@ class DefaultRequestManager(
     override fun codeLens(params: CodeLensParams): CompletableFuture<List<CodeLens>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.codeLensProvider != null) textDocumentService.codeLens(params) else null
+                if (serverCapabilities.codeLensProvider != null)
+                    textDocumentService.codeLens(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -536,9 +567,13 @@ class DefaultRequestManager(
         return if (checkStatus()) {
             try {
                 val codeLensProvider = serverCapabilities.codeLensProvider
-                if (codeLensProvider != null && codeLensProvider.resolveProvider != null && codeLensProvider.resolveProvider) textDocumentService.resolveCodeLens(
-                    unresolved
-                ) else null
+                if (
+                    codeLensProvider != null &&
+                        codeLensProvider.resolveProvider != null &&
+                        codeLensProvider.resolveProvider
+                )
+                    textDocumentService.resolveCodeLens(unresolved)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -549,9 +584,9 @@ class DefaultRequestManager(
     override fun documentLink(params: DocumentLinkParams): CompletableFuture<List<DocumentLink>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentLinkProvider != null) textDocumentService.documentLink(
-                    params
-                ) else null
+                if (serverCapabilities.documentLinkProvider != null)
+                    textDocumentService.documentLink(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -562,9 +597,12 @@ class DefaultRequestManager(
     override fun documentLinkResolve(unresolved: DocumentLink): CompletableFuture<DocumentLink>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.documentLinkProvider != null && serverCapabilities
-                        .documentLinkProvider.resolveProvider
-                ) textDocumentService.documentLinkResolve(unresolved) else null
+                if (
+                    serverCapabilities.documentLinkProvider != null &&
+                        serverCapabilities.documentLinkProvider.resolveProvider
+                )
+                    textDocumentService.documentLinkResolve(unresolved)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -575,7 +613,8 @@ class DefaultRequestManager(
     override fun rename(params: RenameParams): CompletableFuture<WorkspaceEdit>? {
         //        if (checkStatus()) {
         //            try {
-        //                return (checkProvider((Either<Boolean, StaticRegistrationOptions>)serverCapabilities.getRenameProvider())) ?
+        //                return (checkProvider((Either<Boolean,
+        // StaticRegistrationOptions>)serverCapabilities.getRenameProvider())) ?
         //                        textDocumentService.rename(params) :
         //                        null;
         //            } catch (Exception e) {
@@ -586,28 +625,38 @@ class DefaultRequestManager(
         return null
     }
 
-    override fun implementation(params: ImplementationParams): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
+    override fun implementation(
+        params: ImplementationParams
+    ): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
         return null
     }
 
-    override fun typeDefinition(params: TypeDefinitionParams): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
+    override fun typeDefinition(
+        params: TypeDefinitionParams
+    ): CompletableFuture<Either<List<Location>, List<LocationLink>>>? {
         return null
     }
 
-    override fun documentColor(params: DocumentColorParams): CompletableFuture<List<ColorInformation>>? {
+    override fun documentColor(
+        params: DocumentColorParams
+    ): CompletableFuture<List<ColorInformation>>? {
         return null
     }
 
-    override fun colorPresentation(params: ColorPresentationParams): CompletableFuture<List<ColorPresentation>>? {
+    override fun colorPresentation(
+        params: ColorPresentationParams
+    ): CompletableFuture<List<ColorPresentation>>? {
         return null
     }
 
-    override fun foldingRange(params: FoldingRangeRequestParams): CompletableFuture<List<FoldingRange>>? {
+    override fun foldingRange(
+        params: FoldingRangeRequestParams
+    ): CompletableFuture<List<FoldingRange>>? {
         return if (checkStatus()) {
             try {
-                if (serverCapabilities.foldingRangeProvider != null) textDocumentService.foldingRange(
-                    params
-                ) else null
+                if (serverCapabilities.foldingRangeProvider != null)
+                    textDocumentService.foldingRange(params)
+                else null
             } catch (e: Exception) {
                 crashed(e)
                 null
@@ -625,7 +674,7 @@ class DefaultRequestManager(
     }
 
     private fun checkCodeActionProvider(provider: Either<Boolean, CodeActionOptions?>?): Boolean {
-        return provider != null && (provider.isLeft && provider.left || (provider.isRight
-                && provider.right != null))
+        return provider != null &&
+            (provider.isLeft && provider.left || (provider.isRight && provider.right != null))
     }
 }

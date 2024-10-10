@@ -1,27 +1,24 @@
-/*******************************************************************************
- *    sora-editor - the awesome code editor for Android
- *    https://github.com/Rosemoe/sora-editor
- *    Copyright (C) 2020-2023  Rosemoe
+/**
+ * ****************************************************************************
+ * sora-editor - the awesome code editor for Android https://github.com/Rosemoe/sora-editor
+ * Copyright (C) 2020-2023 Rosemoe
  *
- *     This library is free software; you can redistribute it and/or
- *     modify it under the terms of the GNU Lesser General Public
- *     License as published by the Free Software Foundation; either
- *     version 2.1 of the License, or (at your option) any later version.
+ * This library is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU Lesser General Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version.
  *
- *     This library is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *     Lesser General Public License for more details.
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- *     You should have received a copy of the GNU Lesser General Public
- *     License along with this library; if not, write to the Free Software
- *     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
- *     USA
+ * You should have received a copy of the GNU Lesser General Public License along with this library;
+ * if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301 USA
  *
- *     Please contact Rosemoe by email 2073412493@qq.com if you need
- *     additional information or have any questions
- ******************************************************************************/
-
+ * Please contact Rosemoe by email 2073412493@qq.com if you need additional information or have any
+ * questions
+ * ****************************************************************************
+ */
 package io.github.rosemoe.sora.lsp.client.languageserver.wrapper
 
 import android.util.Log
@@ -38,6 +35,17 @@ import io.github.rosemoe.sora.lsp.requests.Timeout
 import io.github.rosemoe.sora.lsp.requests.Timeouts
 import io.github.rosemoe.sora.lsp.utils.FileUri
 import io.github.rosemoe.sora.lsp.utils.LSPException
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.net.URI
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
+import java.util.concurrent.ForkJoinPool
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.future.future
@@ -71,20 +79,10 @@ import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.launch.LSPLauncher
 import org.eclipse.lsp4j.services.LanguageClient
 import org.eclipse.lsp4j.services.LanguageServer
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.net.URI
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.Executors
-import java.util.concurrent.ForkJoinPool
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 
 class LanguageServerWrapper(
-    val serverDefinition: LanguageServerDefinition, val project: LspProject
+    val serverDefinition: LanguageServerDefinition,
+    val project: LspProject,
 ) {
     private val TAG = "LanguageServerWrapper"
 
@@ -102,11 +100,9 @@ class LanguageServerWrapper(
     private var capabilitiesAlreadyRequested = false
     private var crashCount = 0
 
-    @Volatile
-    private var alreadyShownTimeout = false
+    @Volatile private var alreadyShownTimeout = false
 
-    @Volatile
-    private var alreadyShownCrash = false
+    @Volatile private var alreadyShownCrash = false
 
     @Volatile
     var status = ServerStatus.STOPPED
@@ -131,32 +127,30 @@ class LanguageServerWrapper(
         }
 
         try {
-            start();
+            start()
 
             initializeFuture?.get(
                 if (capabilitiesAlreadyRequested) 0L else Timeout[Timeouts.INIT].toLong(),
-                TimeUnit.MILLISECONDS
+                TimeUnit.MILLISECONDS,
             )
-
         } catch (e: TimeoutException) {
-            val msg = String.format(
-                "%s \n is not initialized after %d seconds",
-                serverDefinition.toString(),
-                Timeout[Timeouts.INIT] / 1000
-            )
-            Log.w(
-                TAG,
-                msg
-            )
+            val msg =
+                String.format(
+                    "%s \n is not initialized after %d seconds",
+                    serverDefinition.toString(),
+                    Timeout[Timeouts.INIT] / 1000,
+                )
+            Log.w(TAG, msg)
             serverDefinition.eventListener.onHandlerException(LSPException(msg))
             stop(false)
             return null
         } catch (e: Exception) {
-            Log.w(TAG, "Error while waiting for initialization", e);
-            serverDefinition.eventListener
-                .onHandlerException(LSPException("Error while waiting for initialization", e));
-            stop(false);
-            return null;
+            Log.w(TAG, "Error while waiting for initialization", e)
+            serverDefinition.eventListener.onHandlerException(
+                LSPException("Error while waiting for initialization", e)
+            )
+            stop(false)
+            return null
         }
 
         if (initializeResult != null) {
@@ -166,10 +160,7 @@ class LanguageServerWrapper(
         return initializeResult?.capabilities
     }
 
-
-    /**
-     * Starts the LanguageServer
-     */
+    /** Starts the LanguageServer */
     fun start() {
         start(false)
     }
@@ -189,8 +180,7 @@ class LanguageServerWrapper(
         status = ServerStatus.STARTING
 
         try {
-            val streams: Pair<InputStream, OutputStream> =
-                serverDefinition.start(projectRootPath)
+            val streams: Pair<InputStream, OutputStream> = serverDefinition.start(projectRootPath)
 
             val (inputStream, outputStream) = streams
 
@@ -198,18 +188,19 @@ class LanguageServerWrapper(
             // using for lsp
             val executorService = Executors.newCachedThreadPool()
 
-            eventHandler = EventHandler(
-                serverDefinition.eventListener
-            ) { status != ServerStatus.STOPPED }
-
+            eventHandler =
+                EventHandler(serverDefinition.eventListener) { status != ServerStatus.STOPPED }
 
             client =
                 DefaultLanguageClient(ServerWrapperBaseClientContext(this@LanguageServerWrapper))
 
-            val launcher = LSPLauncher
-                .createClientLauncher(
-                    client, inputStream, outputStream, executorService,
-                    eventHandler
+            val launcher =
+                LSPLauncher.createClientLauncher(
+                    client,
+                    inputStream,
+                    outputStream,
+                    executorService,
+                    eventHandler,
                 )
 
             val connectedLanguageServer = launcher.remoteProxy
@@ -221,46 +212,36 @@ class LanguageServerWrapper(
             eventHandler?.setLanguageServer(connectedLanguageServer)
 
             initializeFuture =
-                connectedLanguageServer.initialize(initParams)
-                    .thenApply { res ->
-                        initializeResult = res
-                        Log.i(
-                            TAG,
-                            "Got initializeResult for $serverDefinition ; $projectRootPath"
-                        )
+                connectedLanguageServer.initialize(initParams).thenApply { res ->
+                    initializeResult = res
+                    Log.i(TAG, "Got initializeResult for $serverDefinition ; $projectRootPath")
 
-                        requestManager = DefaultRequestManager(
+                    requestManager =
+                        DefaultRequestManager(
                             this@LanguageServerWrapper,
                             requireNotNull(languageServer),
                             requireNotNull(client),
-                            res.capabilities
+                            res.capabilities,
                         )
 
-                        status = ServerStatus.STARTED
-                        // send the initialized message since some language servers depends on this message
-                        (requestManager as DefaultRequestManager).initialized(InitializedParams())
-                        status = ServerStatus.INITIALIZED
+                    status = ServerStatus.STARTED
+                    // send the initialized message since some language servers depends on this
+                    // message
+                    (requestManager as DefaultRequestManager).initialized(InitializedParams())
+                    status = ServerStatus.INITIALIZED
 
-                        return@thenApply res
-                    }
-
+                    return@thenApply res
+                }
         } catch (e: IOException) {
-            Log.w(
-                TAG,
-                "Failed to start $serverDefinition ; $projectRootPath", e
-            )
+            Log.w(TAG, "Failed to start $serverDefinition ; $projectRootPath", e)
             serverDefinition.eventListener.onHandlerException(
-                LSPException(
-                    "Failed to start " +
-                            serverDefinition + " ; " + projectRootPath, e
-                )
+                LSPException("Failed to start " + serverDefinition + " ; " + projectRootPath, e)
             )
             if (throwException) {
                 throw RuntimeException(e)
             }
             stop(true)
         }
-
     }
 
     /*
@@ -282,14 +263,9 @@ class LanguageServerWrapper(
             if (exit && serverDefinition.callExitForLanguageServer()) {
                 languageServer?.exit()
             }
-
         } catch (e: java.lang.Exception) {
             // most likely closed externally.
-            Log.w(
-                TAG,
-                "exception occured while trying to shut down",
-                e
-            )
+            Log.w(TAG, "exception occured while trying to shut down", e)
         } finally {
             launcherFuture?.cancel(true)
             serverDefinition.stop(project.projectUri.path)
@@ -306,7 +282,6 @@ class LanguageServerWrapper(
         }
     }
 
-
     /**
      * Disconnects an editor from the LanguageServer
      *
@@ -318,9 +293,7 @@ class LanguageServerWrapper(
             return
         }
 
-        uriToLanguageServerWrapper.remove(
-            editor.uri.path + "-" + editor.project.projectUri.path
-        )
+        uriToLanguageServerWrapper.remove(editor.uri.path + "-" + editor.project.projectUri.path)
         connectedEditors.remove(editor)
         editor.dispose()
         if (connectedEditors.isEmpty()) {
@@ -329,53 +302,48 @@ class LanguageServerWrapper(
     }
 
     private fun getInitParams(): InitializeParams {
-        val initParams = InitializeParams().apply {
-            rootUri = project.projectUri.toUri().toASCIIString()
-        }
+        val initParams =
+            InitializeParams().apply { rootUri = project.projectUri.toUri().toASCIIString() }
 
-        val workspaceClientCapabilities = WorkspaceClientCapabilities().apply {
-            applyEdit = false // Not ready to support this feature
-            didChangeWatchedFiles = DidChangeWatchedFilesCapabilities()
-            executeCommand = ExecuteCommandCapabilities()
-            workspaceEdit = WorkspaceEditCapabilities()
-            symbol = SymbolCapabilities()
-            workspaceFolders = true
-            configuration = false
-        }
-        val workspaceFolder = WorkspaceFolder().apply {
-            uri = initParams.rootUri
-        }
+        val workspaceClientCapabilities =
+            WorkspaceClientCapabilities().apply {
+                applyEdit = false // Not ready to support this feature
+                didChangeWatchedFiles = DidChangeWatchedFilesCapabilities()
+                executeCommand = ExecuteCommandCapabilities()
+                workspaceEdit = WorkspaceEditCapabilities()
+                symbol = SymbolCapabilities()
+                workspaceFolders = true
+                configuration = false
+            }
+        val workspaceFolder = WorkspaceFolder().apply { uri = initParams.rootUri }
         // Maybe the user should be allowed to customize the WorkspaceFolder?
         // workspaceFolder.setName("");
         initParams.workspaceFolders = listOf(workspaceFolder)
 
-
-        val textDocumentClientCapabilities = TextDocumentClientCapabilities().apply {
-            codeAction = CodeActionCapabilities()
-            codeAction.codeActionLiteralSupport =
-                CodeActionLiteralSupportCapabilities()
-            completion =
-                CompletionCapabilities(CompletionItemCapabilities(true))
-            definition = DefinitionCapabilities()
-            documentHighlight =
-                null // The feature is not currently supported in the sora-editor
-            formatting = FormattingCapabilities()
-            hover = HoverCapabilities()
-            onTypeFormatting = OnTypeFormattingCapabilities()
-            rangeFormatting = RangeFormattingCapabilities()
-            references = ReferencesCapabilities()
-            rename = RenameCapabilities()
-            signatureHelp = SignatureHelpCapabilities()
-            synchronization =
-                SynchronizationCapabilities(true, true, true)
-        }
+        val textDocumentClientCapabilities =
+            TextDocumentClientCapabilities().apply {
+                codeAction = CodeActionCapabilities()
+                codeAction.codeActionLiteralSupport = CodeActionLiteralSupportCapabilities()
+                completion = CompletionCapabilities(CompletionItemCapabilities(true))
+                definition = DefinitionCapabilities()
+                documentHighlight =
+                    null // The feature is not currently supported in the sora-editor
+                formatting = FormattingCapabilities()
+                hover = HoverCapabilities()
+                onTypeFormatting = OnTypeFormattingCapabilities()
+                rangeFormatting = RangeFormattingCapabilities()
+                references = ReferencesCapabilities()
+                rename = RenameCapabilities()
+                signatureHelp = SignatureHelpCapabilities()
+                synchronization = SynchronizationCapabilities(true, true, true)
+            }
 
         initParams.apply {
             capabilities =
                 ClientCapabilities(
                     workspaceClientCapabilities,
                     textDocumentClientCapabilities,
-                    null
+                    null,
                 )
             initializationOptions =
                 serverDefinition.getInitializationOptions(URI.create(initParams.rootUri))
@@ -386,9 +354,7 @@ class LanguageServerWrapper(
     fun crashed(e: Exception) {
         crashCount += 1
         if (crashCount <= 3) {
-            commonCoroutineScope.launch {
-                reconnect()
-            }
+            commonCoroutineScope.launch { reconnect() }
         } else {
             serverDefinition.eventListener.onHandlerException(
                 LSPException(
@@ -396,7 +362,7 @@ class LanguageServerWrapper(
                         "LanguageServer for definition %s, project %s keeps crashing due to \n%s\n",
                         serverDefinition.toString(),
                         project.projectUri.path,
-                        e.message
+                        e.message,
                     )
                 )
             )
@@ -429,18 +395,13 @@ class LanguageServerWrapper(
 
         val capabilities = getServerCapabilities()
         if (capabilities == null) {
-            Log.w(
-                TAG,
-                "Capabilities are null for $serverDefinition"
-            )
+            Log.w(TAG, "Capabilities are null for $serverDefinition")
             return
         }
-
 
         if (connectedEditors.contains(editor)) {
             return
         }
-
 
         val localInitializeFuture = initializeFuture ?: return
 
@@ -451,50 +412,38 @@ class LanguageServerWrapper(
         localInitializeFuture.get(Timeout[Timeouts.INIT].toLong(), TimeUnit.MILLISECONDS)
 
         try {
-            val syncOptions =
-                capabilities.textDocumentSync ?: return
+            val syncOptions = capabilities.textDocumentSync ?: return
 
             connectedEditors.add(editor)
             synchronized(readyToConnect) { readyToConnect.remove(editor) }
             var textDocumentSyncKind =
-                if (syncOptions.isLeft) syncOptions.left else syncOptions.right
-                    .change
+                if (syncOptions.isLeft) syncOptions.left else syncOptions.right.change
 
-            textDocumentSyncKind =
-                textDocumentSyncKind ?: TextDocumentSyncKind.Full
+            textDocumentSyncKind = textDocumentSyncKind ?: TextDocumentSyncKind.Full
 
             editor.textDocumentSyncKind = textDocumentSyncKind
 
-            val completionTriggers = capabilities.completionProvider
-                ?.triggerCharacters ?: emptyList()
+            val completionTriggers =
+                capabilities.completionProvider?.triggerCharacters ?: emptyList()
             val signatureHelpTriggers =
-                capabilities.signatureHelpProvider
-                    ?.triggerCharacters ?: emptyList()
-            val signatureHelpReTriggers = capabilities.signatureHelpProvider
-                ?.retriggerCharacters ?: emptyList()
+                capabilities.signatureHelpProvider?.triggerCharacters ?: emptyList()
+            val signatureHelpReTriggers =
+                capabilities.signatureHelpProvider?.retriggerCharacters ?: emptyList()
 
             editor.signatureHelpTriggers = signatureHelpTriggers
             editor.signatureHelpReTriggers = signatureHelpReTriggers
             editor.completionTriggers = completionTriggers
 
-            commonCoroutineScope.future {
-                editor.openDocument()
-            }.get()
+            commonCoroutineScope.future { editor.openDocument() }.get()
 
             for (ed in readyToConnect) {
                 connect(ed)
             }
-
         } catch (e: Exception) {
 
-            Log.w(
-                TAG,
-                e
-            )
+            Log.w(TAG, e)
         }
-
     }
-
 
     /**
      * Checks if the wrapper is already connected to the document at the given path.
@@ -504,14 +453,10 @@ class LanguageServerWrapper(
      */
     fun isConnectedTo(location: String): Boolean {
         val fileUri = FileUri(location)
-        return connectedEditors.any {
-            it.uri == fileUri
-        }
+        return connectedEditors.any { it.uri == fileUri }
     }
 
-    /**
-     * @return the LanguageServer
-     */
+    /** @return the LanguageServer */
     fun getServer(): LanguageServer? {
         start()
 
@@ -522,7 +467,6 @@ class LanguageServerWrapper(
         return languageServer
     }
 
-
     private fun reconnect() {
         // Need to copy by value since connected editors gets cleared during 'stop()' invocation.
         stop(false)
@@ -531,18 +475,13 @@ class LanguageServerWrapper(
         }
     }
 
-
     /**
      * Is the language server in a state where it can be restartable. Normally language server is
      * restartable if it has timeout or has a startup error.
      */
-    val isRestartable =
-        status == ServerStatus.STOPPED && (alreadyShownTimeout || alreadyShownCrash)
+    val isRestartable = status == ServerStatus.STOPPED && (alreadyShownTimeout || alreadyShownCrash)
 
-
-    /**
-     * Reset language server wrapper state so it can be started again if it was failed earlier.
-     */
+    /** Reset language server wrapper state so it can be started again if it was failed earlier. */
     fun restart() {
         if (isRestartable) {
             alreadyShownCrash = false
@@ -554,19 +493,15 @@ class LanguageServerWrapper(
     }
 
     fun getConnectedFiles(): List<String> {
-        return connectedEditors.map {
-            it.uri.path
-        }
+        return connectedEditors.map { it.uri.path }
     }
-
 
     companion object {
 
-        private val uriToLanguageServerWrapper =
-            ConcurrentHashMap<String, LanguageServerWrapper>()
+        private val uriToLanguageServerWrapper = ConcurrentHashMap<String, LanguageServerWrapper>()
 
         /**
-         * @param uri             A file uri
+         * @param uri A file uri
          * @param projectRootPath The related project path
          * @return The wrapper for the given uri, or None
          */
@@ -579,9 +514,8 @@ class LanguageServerWrapper(
          * @return The wrapper for the given editor, or None
          */
         fun forEditor(editor: LspEditor): LanguageServerWrapper? {
-            return uriToLanguageServerWrapper["${editor.uri.path}-${editor.project.projectUri.path}"]
+            return uriToLanguageServerWrapper[
+                "${editor.uri.path}-${editor.project.projectUri.path}"]
         }
-
-
     }
 }

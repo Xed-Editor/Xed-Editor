@@ -16,13 +16,13 @@ package org.robok.engine.core.components.compose.preferences.base
  * limitations under the License.
  */
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -31,7 +31,6 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
 import kotlin.math.roundToInt
 
 @Composable
@@ -50,16 +49,16 @@ fun DividerColumn(
     val startIndentPx = with(density) { (startIndent + 16.dp).toPx() }
     val endIndentPx = with(density) { (endIndent + 16.dp).toPx() }
     Layout(
-        modifier = modifier
-            .drawDividers(state, color, thicknessPx, startIndentPx, endIndentPx),
+        modifier = modifier.drawDividers(state, color, thicknessPx, startIndentPx, endIndentPx),
         content = content,
     ) { measurables, constraints ->
         // Don't constrain child views further, measure them with given constraints
         // List of measured children
-        val placeables = measurables.map { measurable ->
-            // Measure each children
-            measurable.measure(constraints)
-        }
+        val placeables =
+            measurables.map { measurable ->
+                // Measure each children
+                measurable.measure(constraints)
+            }
 
         val width = constraints.maxWidth
         val dividersHeight = thicknessPx.roundToInt() * (placeables.size - 1)

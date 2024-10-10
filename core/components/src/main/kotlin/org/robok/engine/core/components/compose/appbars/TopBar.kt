@@ -22,16 +22,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.Typography
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
-
 import org.robok.engine.core.components.compose.icons.ClickableIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,13 +45,7 @@ fun TopBar(
     if (isExpandedScreen) {
         TopAppBar(
             modifier = modifier,
-            title = {
-                Text(
-                    text = label,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
+            title = { Text(text = label, maxLines = 1, overflow = TextOverflow.Ellipsis) },
             actions = actions,
             navigationIcon = {
                 if (backArrowVisible) {
@@ -70,11 +60,7 @@ fun TopBar(
     } else {
         LargeTopAppBar(
             modifier = modifier,
-            title = {
-                Text(
-                    text = label
-                )
-            },
+            title = { Text(text = label) },
             actions = actions,
             navigationIcon = {
                 if (backArrowVisible) {
