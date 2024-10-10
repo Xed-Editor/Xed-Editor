@@ -83,7 +83,10 @@ fun SettingsAppScreen() {
                  )
             }
         )
-        if (showDayNightBottomSheet.value) DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = context)
+        if (showDayNightBottomSheet.value) DayNightDialog(
+            showBottomSheet = showDayNightBottomSheet,
+            context = context
+        )
     }
 }
 

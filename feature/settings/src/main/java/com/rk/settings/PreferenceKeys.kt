@@ -28,6 +28,7 @@ object PreferencesKeys {
     const val CTRL_WORKAROUND="ctrlworkaround"
     const val EDITOR_FONT="editor_font"
     const val SHOW_SUGGESTIONS="show_suggestions"
+    const val SHOW_VIRTUAL_KEYBOARD="show_virtual_keyboard"
     //todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"

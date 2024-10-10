@@ -1,15 +1,11 @@
 package com.rk.xededitor.ui.screens.settings
 
-import android.content.Intent
-
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -68,6 +64,14 @@ private fun Categories(navController: NavController) {
         iconResource = R.drawable.git,
         onNavigate = {
             navController.navigate(SettingsRoutes.GitSettings.route)
+        }
+    )
+    PreferenceCategory(
+        label = stringResource(id = R.string.app_name),
+        description = stringResource(id = R.string.app_name),
+        iconResource = R.drawable.android,
+        onNavigate = {
+            navController.navigate(SettingsRoutes.Karbon.route)
         }
     )
 }

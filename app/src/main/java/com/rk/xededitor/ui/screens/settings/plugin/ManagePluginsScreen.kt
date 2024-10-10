@@ -146,7 +146,7 @@ fun ManagePluginsScreen(
     floatingActionButtonPosition = FabPosition.End,
   ) { innerPadding ->
     val tabs = listOf(stringResource(R.string.installed), stringResource(R.string.available))
-    val layoutDirection = LocalLayoutDirection.current
+    //val layoutDirection = LocalLayoutDirection.current
     
     Column {
       TabRow(

@@ -1,7 +1,6 @@
 package com.rk.xededitor.ui.activities.settings
 
 import android.app.Activity
-import android.content.Context
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -13,6 +12,7 @@ import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
+import com.rk.xededitor.ui.screens.settings.karbon.AboutKarbon
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 import com.rk.xededitor.ui.screens.settings.plugin.ManagePluginsScreen
 
@@ -52,5 +52,9 @@ fun SettingsNavHost(
                activity = activity
             )
         }
+        composable(SettingsRoutes.Karbon.route) {
+            AboutKarbon()
+        }
+        
     }
 }

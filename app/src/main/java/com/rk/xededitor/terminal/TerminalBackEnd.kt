@@ -89,11 +89,11 @@ class TerminalBackEnd(val activity:Terminal): TerminalViewClient, TerminalSessio
     }
 
     override fun onSingleTapUp(e: MotionEvent) {
-        if (rkUtils.isPhysicalKeyboardConnected(activity).not()){
-            showSoftInput()
-        }else{
+        if (rkUtils.isPhysicalKeyboardConnected(activity) and rkUtils.isDesktopMode(activity) and PreferencesData.getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,true).not()){
             activity.terminal.requestFocus()
             activity.terminal.setFocusableInTouchMode(true)
+        }else{
+            showSoftInput()
         }
     }
 
