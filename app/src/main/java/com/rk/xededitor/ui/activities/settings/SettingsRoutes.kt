@@ -13,5 +13,5 @@ sealed class SettingsRoutes(val route: String) {
 
     data object ManagePlugins : SettingsRoutes("manage_plugins")
 
-    data object Karbon : SettingsRoutes("karbon")
+    data object About : SettingsRoutes("karbon")
 }
