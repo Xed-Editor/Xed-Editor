@@ -57,6 +57,6 @@ private fun Categories(navController: NavController) {
         label = stringResource(id = R.string.app_name),
         description = stringResource(id = R.string.app_name),
         iconResource = R.drawable.android,
-        onNavigate = { navController.navigate(SettingsRoutes.Karbon.route) },
+        onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )
 }

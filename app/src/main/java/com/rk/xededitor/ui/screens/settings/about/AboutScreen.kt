@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.screens.settings.karbon
+package com.rk.xededitor.ui.screens.settings.about
 
 import android.content.Intent
 import android.net.Uri
@@ -15,7 +15,7 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceLayou
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 
 @Composable
-fun AboutKarbon() {
+fun AboutScreen() {
 
     val packageInfo =
         LocalContext.current.packageManager.getPackageInfo(LocalContext.current.packageName, 0)

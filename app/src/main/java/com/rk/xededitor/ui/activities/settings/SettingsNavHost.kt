@@ -10,7 +10,7 @@ import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
-import com.rk.xededitor.ui.screens.settings.karbon.AboutKarbon
+import com.rk.xededitor.ui.screens.settings.about.AboutScreen
 import com.rk.xededitor.ui.screens.settings.plugin.ManagePluginsScreen
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 import soup.compose.material.motion.animation.rememberSlideDistance
@@ -37,6 +37,6 @@ fun SettingsNavHost(navController: NavHostController, activity: Activity) {
                 activity = activity,
             )
         }
-        composable(SettingsRoutes.Karbon.route) { AboutKarbon() }
+        composable(SettingsRoutes.About.route) { AboutScreen() }
     }
 }
