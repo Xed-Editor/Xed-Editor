@@ -6,35 +6,35 @@ import soup.compose.material.motion.animation.materialSharedAxisXIn
 import soup.compose.material.motion.animation.materialSharedAxisXOut
 
 object NavigationAnimationTransitions {
-
-    val enterTransition: () -> EnterTransition = {
+    
+    val enterTransition: (slideDistance: Int) -> EnterTransition = { slideDistance ->
         materialSharedAxisXIn(
             forward = true,
-            slideDistance = NavigationAnimationValues.SlideDistance,
+            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
             durationMillis = NavigationAnimationValues.SlideDuration,
         )
     }
 
-    val exitTransition: () -> ExitTransition = {
+    val exitTransition: (slideDistance: Int) -> ExitTransition = { slideDistance ->
         materialSharedAxisXOut(
             forward = true,
-            slideDistance = NavigationAnimationValues.SlideDistance,
+            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
             durationMillis = NavigationAnimationValues.SlideDuration,
         )
     }
 
-    val popEnterTransition: () -> EnterTransition = {
+    val popEnterTransition: (slideDistance: Int) -> EnterTransition = { slideDistance ->
         materialSharedAxisXIn(
             forward = false,
-            slideDistance = NavigationAnimationValues.SlideDistance,
+            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
             durationMillis = NavigationAnimationValues.SlideDuration,
         )
     }
 
-    val popExitTransition: () -> ExitTransition = {
+    val popExitTransition: (slideDistance: Int) -> ExitTransition = { slideDistance ->
         materialSharedAxisXOut(
             forward = false,
-            slideDistance = NavigationAnimationValues.SlideDistance,
+            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
             durationMillis = NavigationAnimationValues.SlideDuration,
         )
     }

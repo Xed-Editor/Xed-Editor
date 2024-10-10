@@ -13,16 +13,18 @@ import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.karbon.AboutKarbon
 import com.rk.xededitor.ui.screens.settings.plugin.ManagePluginsScreen
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
+import soup.compose.material.motion.animation.rememberSlideDistance
 
 @Composable
 fun SettingsNavHost(navController: NavHostController, activity: Activity) {
+    val slideDistance = rememberSlideDistance()
     NavHost(
         navController = navController,
         startDestination = SettingsRoutes.Settings.route,
-        enterTransition = { NavigationAnimationTransitions.enterTransition() },
-        exitTransition = { NavigationAnimationTransitions.exitTransition() },
-        popEnterTransition = { NavigationAnimationTransitions.popEnterTransition() },
-        popExitTransition = { NavigationAnimationTransitions.popExitTransition() },
+        enterTransition = { NavigationAnimationTransitions.enterTransition(slideDistance) },
+        exitTransition = { NavigationAnimationTransitions.exitTransition(slideDistance) },
+        popEnterTransition = { NavigationAnimationTransitions.popEnterTransition(slideDistance) },
+        popExitTransition = { NavigationAnimationTransitions.popExitTransition(slideDistance) },
     ) {
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen() }
