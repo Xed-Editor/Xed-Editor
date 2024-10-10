@@ -1,6 +1,7 @@
 package com.rk.plugin.server.api
 
 import android.app.Activity
+import androidx.annotation.Keep
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -12,7 +13,7 @@ object PluginLifeCycle {
   }
   
   interface ActivityEvent{
-    fun onEvent(id: String,activity: Activity)
+    @Keep fun onEvent(id: String,activity: Activity)
   }
   
   private val eventMap = HashMap<LifeCycleType,MutableList<Pair<String,ActivityEvent>>>()
@@ -21,6 +22,7 @@ object PluginLifeCycle {
   
   //broadcast event
   @OptIn(DelicateCoroutinesApi::class)
+  @Keep
   fun onActivityEvent(activity: Activity, type: LifeCycleType) {
     GlobalScope.launch(Dispatchers.Default){
       eventMap[type]?.forEach { activityEvent ->
@@ -29,7 +31,7 @@ object PluginLifeCycle {
     }
   }
   
-  fun registerLifeCycle(id:String,type: LifeCycleType, activityEvent: ActivityEvent){
+  @Keep fun registerLifeCycle(id:String,type: LifeCycleType, activityEvent: ActivityEvent){
     if (listeners.contains(id)){
       return
     }
@@ -44,7 +46,7 @@ object PluginLifeCycle {
   }
   
   @OptIn(DelicateCoroutinesApi::class)
-  fun unregisterActivityEvent(id: String){
+  @Keep fun unregisterActivityEvent(id: String){
     GlobalScope.launch(Dispatchers.Default){
       synchronized(eventMap){
         eventMap.values.forEach { value ->

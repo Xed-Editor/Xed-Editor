@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel target="17">
       <module name="Karbon.commons" target="21" />
+      <module name="Karbon.dependencies" target="21" />
       <module name="Karbon.editor-lsp" target="21" />
       <module name="Karbon.FileTree" target="21" />
       <module name="Karbon.language-textmate" target="21" />

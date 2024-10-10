@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.Keep
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.plugin.R
@@ -18,10 +19,11 @@ import dalvik.system.DexClassLoader
 import java.lang.ref.WeakReference
 
 // This class will be available to every plugin
+@Keep
 object API {
   init {
     onActivityResume("apiGetCurrentActivity", object : ActivityEvent {
-      override fun onEvent(id: String, activity: Activity) {
+      override @Keep fun onEvent(id: String, activity: Activity) {
         ActivityContext = WeakReference(activity)
       }
     })
@@ -33,7 +35,7 @@ object API {
   
   
   //not for plugin use
-  fun getInstance(): Any? {
+  @Keep fun getInstance(): Any? {
     return try {
       val instanceField = this::class.java.getDeclaredField("INSTANCE").apply {
         isAccessible = true
@@ -45,7 +47,7 @@ object API {
     }
   }
   
-  fun getActivityContext(): Activity? {
+  @Keep fun getActivityContext(): Activity? {
     var activity = ActivityContext.get()
     if (activity == null){
       activity = getMainActivity()
@@ -53,11 +55,11 @@ object API {
     return activity
   }
   
-  fun setActivityContext(activity: Activity?) {
+  @Keep fun setActivityContext(activity: Activity?) {
     ActivityContext = WeakReference(activity)
   }
   
-  fun getMainActivity(): Activity? {
+  @Keep fun getMainActivity(): Activity? {
     val companionField =
       Class.forName("com.rk.xededitor.BaseActivity").getDeclaredField("Companion").apply {
         isAccessible = true
@@ -73,20 +75,20 @@ object API {
   }
   
   
-  fun toast(message: String) {
+  @Keep fun toast(message: String) {
     runOnUiThread {
       Toast.makeText(application, message, Toast.LENGTH_SHORT).show()
     }
   }
   
   
-  fun runOnUiThread(runnable: Runnable?) {
+  @Keep fun runOnUiThread(runnable: Runnable?) {
     runnable?.let { handler.post(it) }
   }
   
   private val dexMap = HashMap<String, DexClassLoader>()
   
-  fun loadDex(id:String,dexPath: String):DexClassLoader? {
+  @Keep fun loadDex(id:String,dexPath: String):DexClassLoader? {
     try {
       if (dexMap.containsKey(id)){
         return dexMap[id]!!
@@ -102,11 +104,11 @@ object API {
       return null
     }
   }
-  fun unloadDex(id: String){
+  @Keep fun unloadDex(id: String){
     dexMap.remove(id)
   }
   
-  fun popup(title: String, message: String): AlertDialog? {
+  @Keep fun popup(title: String, message: String): AlertDialog? {
     var popup: AlertDialog? = null
     runOnUiThread {
       getActivityContext()?.let {
@@ -119,10 +121,10 @@ object API {
   
   
   interface InputInterface {
-    fun onInputOK(input: String)
+    @Keep fun onInputOK(input: String)
   }
   
-  fun input(title: String, message: String, inputInterface: InputInterface) {
+  @Keep fun input(title: String, message: String, inputInterface: InputInterface) {
     runOnUiThread {
       val popupView: View =
         LayoutInflater.from(getActivityContext()).inflate(R.layout.popup_new, null)
@@ -141,28 +143,28 @@ object API {
     }
   }
   
-  fun error(error: String) {
+  @Keep fun error(error: String) {
     PluginError.showError(Exception(error))
   }
   
   
-  fun onActivityCreate(id: String, activityEvent: ActivityEvent) {
+  @Keep fun onActivityCreate(id: String, activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id, LifeCycleType.CREATE, activityEvent)
   }
   
-  fun onActivityDestroy(id: String, activityEvent: ActivityEvent) {
+  @Keep fun onActivityDestroy(id: String, activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id, LifeCycleType.DESTROY, activityEvent)
   }
   
-  fun onActivityPause(id: String, activityEvent: ActivityEvent) {
+  @Keep fun onActivityPause(id: String, activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id, LifeCycleType.PAUSED, activityEvent)
   }
   
-  fun onActivityResume(id: String, activityEvent: ActivityEvent) {
+  @Keep fun onActivityResume(id: String, activityEvent: ActivityEvent) {
     PluginLifeCycle.registerLifeCycle(id, LifeCycleType.RESUMED, activityEvent)
   }
   
-  fun unregisterEvent(id: String) {
+  @Keep fun unregisterEvent(id: String) {
     PluginLifeCycle.unregisterActivityEvent(id)
   }
   

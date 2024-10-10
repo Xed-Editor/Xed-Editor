@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.ArrayMap
 import androidx.core.view.WindowInsetsCompat
@@ -13,12 +14,14 @@ import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
 
+@Keep
 abstract class BaseActivity : AppCompatActivity() {
 
   companion object {
     val activityMap = ArrayMap<Class<out BaseActivity>,WeakReference<Activity>>()
     
     //used by plugins
+    @Keep
     fun getActivity(clazz:Class<out BaseActivity>):Activity?{
       return activityMap[clazz]?.get()
     }

@@ -21,6 +21,7 @@ class Loader(val app: Application) {
                     if (isPluginActive(app, plugin.info.packageName, false)) {
                         plugin.start()
                     }
+                    
                 }catch (e:Exception){
                     PluginError.showError(e)
                 }

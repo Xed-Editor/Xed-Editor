@@ -8,8 +8,6 @@ plugins {
 }
 
 
-
-
 fun getGitCommitHash(): String {
   val stdout = ByteArrayOutputStream()
   exec {
@@ -32,8 +30,6 @@ android {
   lintOptions {
     disable("MissingTranslation")
   }
-  
-  
   
   dependenciesInfo {
     includeInApk = false
@@ -78,9 +74,9 @@ android {
   
   buildTypes {
     getByName("release") {
-      isMinifyEnabled = false
+      isMinifyEnabled = true
       isCrunchPngs = false
-      isShrinkResources = false
+      isShrinkResources = true
       proguardFiles(
         getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
       )
@@ -93,8 +89,8 @@ android {
     minSdk = 26
     //noinspection ExpiredTargetSdkVersion
     targetSdk = 28
-    versionCode = 33
-    versionName = "2.7.3"
+    versionCode = 34
+    versionName = "2.7.4"
     vectorDrawables {
       useSupportLibrary = true
     }
@@ -123,9 +119,6 @@ android {
     }
   }
 }
-
-
-
 
 dependencies {
   implementation(libs.appcompat)
