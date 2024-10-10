@@ -262,4 +262,14 @@
     
     <string name="no_plugins_available">No Plugins Available</string>
     <string name="show_suggestions">Show Suggestions</string>
+    
+    <string name="about">About</string>
+    <string name="about_desc">About the Karbon</string>
+    <string name="version">Version</string>
+    <string name="version_code">Version Code</string>
+    <string name="github">GitHub</string>
+    <string name="github_desc">Karbon is Open Source!</string>
+    <string name="telegram">Telegram Group</string>
+    <string name="telegram_desc">Join Telegram community</string>
+    <string name="join">Join</string>
 </resources>

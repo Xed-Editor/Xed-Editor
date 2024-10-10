@@ -23,10 +23,10 @@ fun AboutScreen() {
     val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
     val context = LocalContext.current
 
-    PreferenceLayout(label = stringResource(id = R.string.app_name), backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(id = R.string.about), backArrowVisible = true) {
         PreferenceGroup(heading = stringResource(R.string.app_name)) {
             PreferenceTemplate(
-                title = { Text(text = "Version", style = MaterialTheme.typography.titleMedium) },
+                title = { Text(text = stringResource(id = R.string.version), style = MaterialTheme.typography.titleMedium) },
                 description = {
                     Text(text = versionName, style = MaterialTheme.typography.titleSmall)
                 },
@@ -34,7 +34,7 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(text = "Version Code", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(id = R.string.version_code), style = MaterialTheme.typography.titleMedium)
                 },
                 description = {
                     Text(text = versionCode.toString(), style = MaterialTheme.typography.titleSmall)
@@ -42,10 +42,10 @@ fun AboutScreen() {
             )
 
             PreferenceTemplate(
-                title = { Text(text = "Github", style = MaterialTheme.typography.titleMedium) },
+                title = { Text(text = stringResource(id = R.string.github), style = MaterialTheme.typography.titleMedium) },
                 description = {
                     Text(
-                        text = "Karbon is open source",
+                        text = stringResource(id = R.string.github_desc),
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },
@@ -57,18 +57,18 @@ fun AboutScreen() {
                             context.startActivity(intent)
                         }
                     ) {
-                        Text("Github")
+                        Text(stringResource(id = R.string.github))
                     }
                 },
             )
 
             PreferenceTemplate(
                 title = {
-                    Text(text = "Telegram Group", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(id = R.string.telegram), style = MaterialTheme.typography.titleMedium)
                 },
                 description = {
                     Text(
-                        text = "Join Telegram community",
+                        text = stringResource(id = R.string.telegram_desc),
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },
@@ -80,7 +80,7 @@ fun AboutScreen() {
                             context.startActivity(intent)
                         }
                     ) {
-                        Text("Join")
+                        Text(stringResource(id = R.string.join))
                     }
                 },
             )
