@@ -32,6 +32,7 @@ interface RunnerImpl {
     fun getIcon(context: Context): Drawable?
 }
 
+@Keep
 object Runner {
     @Keep
     val registry = HashMap<String, MutableList<RunnerImpl>>()
