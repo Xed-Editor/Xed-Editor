@@ -57,7 +57,9 @@ jobs:
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-        continue-on-error: true
+
+      - name: Verify APK Existence
+        run: ls -alh app/
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
@@ -100,6 +102,9 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug && mv app/build/outputs/apk/debug/*.apk app/karbon-debug.apk
+
+      - name: Verify APK Existence
+        run: ls -alh app/
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
