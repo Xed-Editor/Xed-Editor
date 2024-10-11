@@ -105,7 +105,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
     private fun setLanguage(languageScopeName: String) {
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
-        val kw = context.assets.open("textmate/keywords.json")
+        val kw = ctx.assets.open("textmate/keywords.json")
         val reader = InputStreamReader(kw)
         val jsonElement = JsonParser.parseReader(reader)
         val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
