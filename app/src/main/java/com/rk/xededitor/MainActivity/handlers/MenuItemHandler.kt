@@ -49,8 +49,8 @@ object MenuItemHandler {
                             xc != null && gitRoot != null && activity.tabLayout.tabCount > 0
                     }
                 }
-
-                updateUndoRedo(menu, activity.adapter.getCurrentFragment(), activity)
+                
+                updateUndoRedoAndModifiedStar(menu, activity.adapter.getCurrentFragment(), activity)
 
                 searchMenu(menu, activity.adapter.getCurrentFragment()?.isSearching() ?: false)
             }
@@ -59,7 +59,7 @@ object MenuItemHandler {
 
     val set = HashSet<String>()
 
-    private fun updateUndoRedo(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
+    private fun updateUndoRedoAndModifiedStar(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
 
         menu.findItem(R.id.redo).isEnabled = currentFragment?.editor?.canRedo() == true
         menu.findItem(R.id.undo).isEnabled = currentFragment?.editor?.canUndo() == true
@@ -89,6 +89,13 @@ object MenuItemHandler {
                                 }
                             } else {
                                 set.add(fileName)
+                                val currentTitle = activity.tabViewModel.fragmentTitles[index]
+                                activity.tabViewModel.fragmentTitles[index] = "$currentTitle*"
+                                
+                                withContext(Dispatchers.Main) {
+                                    activity.tabLayout.getTabAt(index)?.text =
+                                        activity.tabViewModel.fragmentTitles[index]
+                                }
                             }
                         } catch (_: Exception) {}
                     }
