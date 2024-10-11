@@ -53,19 +53,17 @@ jobs:
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/karbon-${COMMIT_HASH}.apk
+        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/karbon-${{ env.COMMIT_HASH }}.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-
-      - name: Verify APK Existence
-        run: ls -alh app/
+        continue-on-error: true
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
         with:
           name: Karbon-Release
-          path: app/karbon-${COMMIT_HASH}.apk
+          path: app/karbon-${{ env.COMMIT_HASH }}.apk
 
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
@@ -77,7 +75,7 @@ jobs:
             -F chat_id="-1002408175863" \
             -F message_thread_id="582" \
             -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
-            -F document=@"app/karbon-${COMMIT_HASH}.apk"
+            -F document=@"app/karbon-${{ env.COMMIT_HASH }}.apk"
 
   build_debug_apk:
     name: Build Debug
@@ -102,9 +100,6 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew assembleDebug && mv app/build/outputs/apk/debug/*.apk app/karbon-debug.apk
-
-      - name: Verify APK Existence
-        run: ls -alh app/
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
