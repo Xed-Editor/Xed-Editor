@@ -16,6 +16,8 @@ import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolve
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
+import com.google.gson.JsonParser
+import java.io.InputStreamReader
 
 class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
 
@@ -103,6 +105,15 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
     private fun setLanguage(languageScopeName: String) {
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
+        val kw = context.assets.open("textmate/keywords.json")
+        val reader = InputStreamReader(kw)
+        val jsonElement = JsonParser.parseReader(reader)
+        val keywords = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
+        val keywords = Array(keywordsArray.size()) { "" }
+        for (i in keywords.indices) {
+            keywords[i] = keywordsArray[i].asString
+        }
+        language.setCompleterKeywords(keywords)
         editor.setEditorLanguage(language as Language)
     }
 
