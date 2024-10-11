@@ -1,4 +1,4 @@
-package com.rk.plugin.server
+package com.rk.libcommons
 
 import android.content.Context
 import android.content.Intent
