@@ -14,10 +14,12 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
+import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
+import com.rk.xededitor.MainActivity.file.PathUtils
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
@@ -30,6 +32,7 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -99,7 +102,7 @@ class SimpleEditor : BaseActivity() {
 
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_simple_editor, menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         this.menu = menu
 
         if (menu is MenuBuilder) {
@@ -121,17 +124,14 @@ class SimpleEditor : BaseActivity() {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }
 
-                menu.findItem(R.id.action_settings).apply {
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                }
-
-                menu.findItem(R.id.action_save).apply { isVisible = true }
-
-                menu.findItem(R.id.action_print).apply { isVisible = true }
-
-                menu.findItem(R.id.share).apply { isVisible = true }
-
-                menu.findItem(R.id.insertdate).apply { isVisible = true }
+                menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+                menu.findItem(R.id.action_save).isVisible = true
+                menu.findItem(R.id.action_print).isVisible = true
+                menu.findItem(R.id.share).isVisible = true
+                menu.findItem(R.id.batchrep).isVisible = true
+                menu.findItem(R.id.search).isVisible = true
+                menu.findItem(R.id.share).isVisible = true
+                menu.findItem(R.id.suggestions).isVisible = true
             }
         }
 
@@ -144,6 +144,21 @@ class SimpleEditor : BaseActivity() {
                 (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)
         ) {
             uri = intent.data
+            
+            val path = PathUtils.convertUriToPath(this@SimpleEditor,uri)
+            File(path).let {
+                if (it.exists() and Runner.isRunnable(it)){
+                    lifecycleScope.launch(Dispatchers.Default){
+                        while (menu == null){
+                            delay(100)
+                        }
+                        withContext(Dispatchers.Main){
+                            menu!!.findItem(R.id.run).isVisible = true
+                        }
+                    }
+                    
+                }
+            }
 
             if (uri != null) {
                 val mimeType = contentResolver.getType(uri!!)

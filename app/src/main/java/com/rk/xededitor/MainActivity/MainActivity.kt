@@ -133,7 +133,7 @@ class MainActivity : BaseActivity() {
 
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_tab_activity, menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         this.menu = menu
 
         if (menu is MenuBuilder) {
