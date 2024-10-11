@@ -17,14 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: notify telegram
+      - name: Notify Telegram
         uses: EverythingSuckz/github-telegram-notify@main
         continue-on-error: true
         with:
           bot_token: '${{ secrets.TELEGRAM_TOKEN }}'
           chat_id: '-1002408175863'
           topic_id: '938'
-          
+
   build-release:
     name: Build Release
     runs-on: ubuntu-latest
@@ -48,10 +48,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - name: Set Commit Hash
+        id: commit_hash
+        run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - name: Build with Gradle
-        run: |
-          COMMIT_HASH=$(git rev-parse --short HEAD)
-          ./gradlew assembleRelease && mv app/build/outputs/apk/release/*apk app/karbon-${COMMIT_HASH}.apk
+        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/karbon-${COMMIT_HASH}.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
@@ -69,7 +71,6 @@ jobs:
       - name: Send APK to Telegram
         if: success()
         run: |
-          COMMIT_HASH=$(git rev-parse --short HEAD)
           curl -X POST "${{ secrets.TELEGRAM_URL }}" \
             -F chat_id="-1002408175863" \
             -F message_thread_id="582" \
@@ -98,8 +99,7 @@ jobs:
         uses: gradle/actions/wrapper-validation@v4
 
       - name: Build with Gradle
-        id: gradle_build_debug
-        run: ./gradlew assembleDebug && mv app/build/outputs/apk/debug/*apk app/karbon-debug.apk
+        run: ./gradlew assembleDebug && mv app/build/outputs/apk/debug/*.apk app/karbon-debug.apk
 
       - name: Archive APK
         uses: actions/upload-artifact@v4

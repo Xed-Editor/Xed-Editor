@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+@Keep
 object PluginLifeCycle {
     enum class LifeCycleType {
         CREATE,
@@ -15,6 +16,7 @@ object PluginLifeCycle {
         RESUMED,
     }
 
+    @Keep
     interface ActivityEvent {
         @Keep fun onEvent(id: String, activity: Activity)
     }

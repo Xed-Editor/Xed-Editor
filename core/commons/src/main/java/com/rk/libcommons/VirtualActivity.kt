@@ -3,8 +3,10 @@ package com.rk.libcommons
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 
+@Keep
 interface VirtualActivityImpl {
     fun onCreate(state: Bundle?)
 
@@ -16,7 +18,7 @@ interface VirtualActivityImpl {
 }
 
 private val activityMap = HashMap<String, VirtualActivityImpl>()
-
+@Keep
 fun launchActivity(
     context: Context,
     impl: VirtualActivityImpl,

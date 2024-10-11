@@ -49,7 +49,7 @@ class MainActivity : BaseActivity() {
     lateinit var binding: ActivityTabBinding
     lateinit var viewPager: ViewPager2
     lateinit var tabLayout: TabLayout
-    lateinit var drawerToggle: ActionBarDrawerToggle
+    private lateinit var drawerToggle: ActionBarDrawerToggle
     var fm = FileManager(this)
     lateinit var menu: Menu
     var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, true)
@@ -95,6 +95,9 @@ class MainActivity : BaseActivity() {
         }
 
         BottomBar.setupBottomBar(this)
+        
+        
+        
     }
 
     @JvmOverloads
