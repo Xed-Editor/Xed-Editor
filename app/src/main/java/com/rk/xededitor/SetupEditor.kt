@@ -108,7 +108,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         val kw = context.assets.open("textmate/keywords.json")
         val reader = InputStreamReader(kw)
         val jsonElement = JsonParser.parseReader(reader)
-        val keywords = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
+        val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
         val keywords = Array(keywordsArray.size()) { "" }
         for (i in keywords.indices) {
             keywords[i] = keywordsArray[i].asString
