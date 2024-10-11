@@ -3,6 +3,7 @@ package com.rk.runner
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
+import androidx.annotation.Keep
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -19,17 +20,20 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Keep
 interface RunnerImpl {
+    @Keep
     fun run(file: File, context: Context)
-
+    @Keep
     fun getName(): String
-
+    @Keep
     fun getDescription(): String
-
+    @Keep
     fun getIcon(context: Context): Drawable?
 }
 
 object Runner {
+    @Keep
     val registry = HashMap<String, MutableList<RunnerImpl>>()
 
     init {
