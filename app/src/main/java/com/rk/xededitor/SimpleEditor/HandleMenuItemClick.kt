@@ -7,13 +7,16 @@ import android.widget.CheckBox
 import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
+import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.BatchReplacement
+import com.rk.xededitor.MainActivity.file.PathUtils
 import com.rk.xededitor.R
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
+import java.io.File
 
 object HandleMenuItemClick {
     fun handle(editorActivity: SimpleEditor, id: Int): Boolean {
@@ -23,54 +26,48 @@ object HandleMenuItemClick {
                     onBackPressed()
                     return true
                 }
-
+                
                 R.id.action_settings -> {
                     startActivity(Intent(this, SettingsActivity::class.java))
                 }
-
+                
                 R.id.action_save -> {
                     save()
                     return true
                 }
-
+                
                 R.id.search -> {
                     val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_search, null)
                     val searchBox = popuopView.findViewById<TextView>(R.id.searchbox)
                     if (SearchText.isNotEmpty()) {
                         searchBox.text = SearchText
                     }
-
-                    MaterialAlertDialogBuilder(this)
-                        .setTitle(rkUtils.getString(R.string.search))
-                        .setView(popuopView)
-                        .setNegativeButton(rkUtils.getString(R.string.cancel), null)
-                        .setPositiveButton(rkUtils.getString(R.string.search)) { _, _ ->
+                    
+                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.search)).setView(popuopView)
+                        .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.search)) { _, _ ->
                             val checkBox = popuopView.findViewById<CheckBox>(R.id.case_senstive)
                             SearchText = searchBox.text.toString()
-                            editor!!
-                                .searcher
-                                .search(
-                                    SearchText,
-                                    SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked),
-                                )
+                            editor!!.searcher.search(
+                                SearchText,
+                                SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked),
+                            )
                             menu!!.findItem(R.id.search_next).setVisible(true)
                             menu!!.findItem(R.id.search_previous).setVisible(true)
                             menu!!.findItem(R.id.search_close).setVisible(true)
                             menu!!.findItem(R.id.replace).setVisible(true)
-                        }
-                        .show()
+                        }.show()
                 }
-
+                
                 R.id.search_next -> {
                     editor!!.searcher.gotoNext()
                     return true
                 }
-
+                
                 R.id.search_previous -> {
                     editor!!.searcher.gotoPrevious()
                     return true
                 }
-
+                
                 R.id.search_close -> {
                     editor!!.searcher.stopSearch()
                     menu!!.findItem(R.id.search_next).setVisible(false)
@@ -80,26 +77,18 @@ object HandleMenuItemClick {
                     SearchText = ""
                     return true
                 }
-
+                
                 R.id.replace -> {
                     val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_replace, null)
-                    MaterialAlertDialogBuilder(this)
-                        .setTitle(rkUtils.getString(R.string.replace))
-                        .setView(popuopView)
+                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.replace)).setView(popuopView)
                         .setNegativeButton(rkUtils.getString(R.string.cancel), null)
                         .setPositiveButton(rkUtils.getString(R.string.replaceall)) { _, _ ->
-                            editor!!
-                                .searcher
-                                .replaceAll(
-                                    (popuopView.findViewById<View>(R.id.replace_replacement)
-                                            as TextView)
-                                        .text
-                                        .toString()
-                                )
-                        }
-                        .show()
+                            editor!!.searcher.replaceAll(
+                                (popuopView.findViewById<View>(R.id.replace_replacement) as TextView).text.toString()
+                            )
+                        }.show()
                 }
-
+                
                 R.id.undo -> {
                     if (editor!!.canUndo()) {
                         editor!!.undo()
@@ -107,7 +96,7 @@ object HandleMenuItemClick {
                     redo!!.setEnabled(editor!!.canRedo())
                     undo!!.setEnabled(editor!!.canUndo())
                 }
-
+                
                 R.id.redo -> {
                     if (editor!!.canRedo()) {
                         editor!!.redo()
@@ -115,29 +104,35 @@ object HandleMenuItemClick {
                     redo!!.setEnabled(editor!!.canRedo())
                     undo!!.setEnabled(editor!!.canUndo())
                 }
-
+                
                 R.id.batchrep -> {
                     val intent = Intent(this, BatchReplacement::class.java)
                     intent.putExtra("isExt", true)
                     startActivity(intent)
                 }
-
+                
                 R.id.terminal -> {
                     startActivity(Intent(this, Terminal::class.java))
                 }
-
+                
                 R.id.action_print -> {
                     Printer.print(this, (editor?.text ?: "").toString())
                 }
-
+                
                 R.id.share -> {
                     rkUtils.shareText(this, (editor?.text ?: "").toString())
                 }
-
+                
                 R.id.suggestions -> {
                     editorActivity.showSuggestions(editorActivity.isShowSuggestion().not())
                 }
-
+                
+                R.id.run -> {
+                    val uri = intent.data
+                    val path = PathUtils.convertUriToPath(editorActivity, uri)
+                    Runner.run(File(path), editorActivity)
+                }
+                
                 else -> return false
             }
         }
