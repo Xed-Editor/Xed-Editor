@@ -14,11 +14,11 @@ import com.rk.xededitor.R
 import io.github.rosemoe.sora.interfaces.KeyEventHandler
 
 object KeyEventHandler {
-
+    
     fun onAppKeyEvent(keyEvent: KeyEvent) {
         val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
         
-        if (currentFragment?.editor == null){
+        if (currentFragment?.editor == null) {
             return
         }
         
@@ -60,7 +60,7 @@ object KeyEventHandler {
                         
                     }
                 }
-
+                
                 KeyEvent.KEYCODE_K -> {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout.selectedTabPosition == 0) {
@@ -71,7 +71,7 @@ object KeyEventHandler {
                         )
                     }
                 }
-
+                
                 KeyEvent.KEYCODE_L -> {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout.selectedTabPosition == it.tabLayout.tabCount - 1) {
@@ -82,6 +82,7 @@ object KeyEventHandler {
                         )
                     }
                 }
+                
                 KeyEvent.KEYCODE_S -> {
                     currentFragment.save(false)
                 }
@@ -132,6 +133,7 @@ object KeyEventHandler {
                     }
                     editor.cursor.set(line, column)
                 }
+                
                 KeyEvent.KEYCODE_B -> {
                     val line = editor.text.lineCount - 1
                     var column =

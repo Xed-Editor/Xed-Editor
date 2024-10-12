@@ -7,7 +7,9 @@ import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.ArrayMap
 import com.rk.plugin.server.api.PluginLifeCycle
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
+import com.rk.xededitor.SimpleEditor.SimpleEditor
 import com.rk.xededitor.ui.theme.ThemeManager
 import java.lang.ref.WeakReference
 
@@ -26,7 +28,9 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
-            KeyEventHandler.onAppKeyEvent(event)
+            if (this::class.java.name == MainActivity::class.java.name){
+                KeyEventHandler.onAppKeyEvent(event)
+            }
         }
         return super.onKeyDown(keyCode, event)
     }

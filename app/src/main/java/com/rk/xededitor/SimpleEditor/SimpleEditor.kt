@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.OpenableColumns
 import android.text.InputType
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.view.menu.MenuBuilder
@@ -43,7 +44,15 @@ class SimpleEditor : BaseActivity() {
     private var uri: Uri? = null
     var menu: Menu? = null
     var SearchText = ""
-
+    var editor: CodeEditor? = null
+    
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (event != null) {
+            editor?.let { KeyEventHandler.onKeyEvent(event, it,this) }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_simple_editor)
