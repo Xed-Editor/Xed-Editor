@@ -314,23 +314,24 @@ class FileAction(
                     loading.hide()
                     return@setPositiveButton
                 }
-
+                
                 fun rename(file: File, to: String) {
                     mainActivity.lifecycleScope.launch(Dispatchers.IO) {
                         val random = Random(28958510971)
                         val xf = (random.nextInt() + random.nextInt()).toString()
                         Shell.SH.apply {
-                            run("mv ${file.canonicalPath} ${file.parentFile}/$xf")
-                            run("mv ${file.parentFile}/$xf ${file.parentFile}/$to")
+                            // Quote the file paths to handle spaces properly
+                            run("mv \"${file.canonicalPath}\" \"${file.parentFile}/$xf\"")
+                            run("mv \"${file.parentFile}/$xf\" \"${file.parentFile}/$to\"")
                             shutdown()
                             withContext(Dispatchers.Main) {
                                 ProjectManager.currentProject.updateFileRenamed(
                                     mainActivity,
                                     file,
-                                    File(file.parentFile, newFileName),
+                                    File(file.parentFile, to),
                                 )
                             }
-                            // update file when renaming
+                            // Update file when renaming
                             MainActivity.activityRef
                                 .get()
                                 ?.adapter
@@ -339,13 +340,14 @@ class FileAction(
                                 ?.forEach { f ->
                                     if (f.get()?.file?.absolutePath == file.absolutePath) {
                                         f.get()!!.file = File(to)
-                                        // todo update tab text too
+                                        // TODO: Update tab text too
                                     }
                                 }
                         }
                     }
                 }
-
+                
+                
                 rename(file, newFileName)
 
                 loading.hide()

@@ -13,7 +13,6 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.handlers.KeyEventHandler.editorKeyEventHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
@@ -103,8 +102,7 @@ class TabFragment : Fragment() {
                             )
                         }
                 }
-
-                setKeyEventHandler(editorKeyEventHandler)
+                
             }
         } catch (e: Exception) {
             // this fragment is detached and should be garbage collected
