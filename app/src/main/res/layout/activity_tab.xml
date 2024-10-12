@@ -20,7 +20,7 @@
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"/>
+                android:layout_height="wrap_content"/>
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"
@@ -29,7 +29,7 @@
                 android:visibility="gone"
                 app:tabTextAppearance="@style/tab_text"
                 app:tabGravity="fill"
-                app:tabIndicatorHeight="4dp"
+                app:tabIndicatorHeight="2dp"
                 app:tabMode="scrollable"/>
 
         </com.google.android.material.appbar.AppBarLayout>
