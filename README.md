@@ -58,6 +58,7 @@ Join the community of karbon
 </div>
 
 **Recommended**
+
 Download latest alpha build from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
 
 
