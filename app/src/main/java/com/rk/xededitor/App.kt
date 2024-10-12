@@ -2,6 +2,7 @@ package com.rk.xededitor
 
 import android.app.Application
 import android.content.Context
+import android.os.Environment
 import com.rk.libcommons.After
 import com.rk.plugin.server.Loader
 import com.rk.settings.PreferencesData
@@ -41,6 +42,12 @@ class App : Application() {
             } else {
                 tmp.deleteRecursively()
                 tmp.mkdir()
+            }
+            
+            File(Environment.getExternalStorageDirectory(),"karbon").let {
+                if (it.exists().not()){
+                    it.mkdir()
+                }
             }
         }
 

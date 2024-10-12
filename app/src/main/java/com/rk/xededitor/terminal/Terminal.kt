@@ -3,7 +3,9 @@ package com.rk.xededitor.terminal
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Environment
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -91,12 +93,19 @@ class Terminal : BaseActivity() {
                 PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
             )
         )
+        
         terminal.keepScreenOn = true
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f
         binding.root.addView(terminal, 0, params)
         terminal.requestFocus()
         terminal.setFocusableInTouchMode(true)
+        
+        
+        val customFont = File(Environment.getExternalStorageDirectory(),"karbon/terminal_font.ttf")
+        if (customFont.exists() and customFont.isFile){
+            terminal.setTypeface(Typeface.createFromFile(customFont))
+        }
     }
 
     companion object {
