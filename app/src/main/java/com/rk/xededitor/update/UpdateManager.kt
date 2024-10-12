@@ -24,36 +24,39 @@ object UpdateManager {
     
     @OptIn(DelicateCoroutinesApi::class)
     fun fetch(branch: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            
-            if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE,true).not()){
-                return@launch
-            }
-            
-            val timeDifferenceInMillis = (PreferencesData.getString(PreferencesKeys.LAST_UPDATE_CHECK,System.currentTimeMillis().toString()).toLong() - System.currentTimeMillis()) * 1000
-            val fifteenHoursInMillis = 15 * 60 * 60 * 1000
-            
-            val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
-            
-            if (has15HoursPassed.not()){
-                return@launch
-            }
-            
-            val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
-            val client = OkHttpClient()
-            
-            val request = Request.Builder().url(url).build()
-            
-            client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("Unexpected code $response")
+        try {
+            GlobalScope.launch(Dispatchers.IO) {
                 
-                val jsonResponse = response.body?.string()
-                if (jsonResponse != null) {
-                    parseJson(jsonResponse)
+                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE,true).not()){
+                    return@launch
                 }
+                
+                val timeDifferenceInMillis = (PreferencesData.getString(PreferencesKeys.LAST_UPDATE_CHECK,System.currentTimeMillis().toString()).toLong() - System.currentTimeMillis()) * 1000
+                val fifteenHoursInMillis = 15 * 60 * 60 * 1000
+                
+                val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
+                
+                if (has15HoursPassed.not()){
+                    return@launch
+                }
+                
+                val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
+                val client = OkHttpClient()
+                
+                val request = Request.Builder().url(url).build()
+                
+                client.newCall(request).execute().use { response ->
+                    val jsonResponse = response.body?.string()
+                    if (jsonResponse != null) {
+                        parseJson(jsonResponse)
+                    }
+                }
+                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
             }
-            PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
+        }catch (e:Exception){
+            e.printStackTrace()
         }
+        
     }
     
     private suspend inline fun parseJson(jsonStr: String) {
