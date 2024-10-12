@@ -224,3 +224,11 @@
 -keepnames class com.rk.xededitor.App {*;}
 -keepnames class com.rk.xededitor.BaseActivity {*;}
 
+-dontwarn sun.security.x509.X509Key
+
+
+-dontobfuscate
+-keepattributes *Annotation*
+-keep class ** { *; }
+
+

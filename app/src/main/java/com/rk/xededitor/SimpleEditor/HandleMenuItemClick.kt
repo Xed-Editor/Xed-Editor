@@ -23,7 +23,7 @@ object HandleMenuItemClick {
         with(editorActivity) {
             when (id) {
                 android.R.id.home -> {
-                    onBackPressed()
+                    onBackPressedDispatcher.onBackPressed()
                     return true
                 }
                 
