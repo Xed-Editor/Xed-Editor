@@ -3,6 +3,7 @@ package com.rk.xededitor.MainActivity.handlers
 import android.content.Intent
 import android.view.KeyEvent
 import androidx.core.app.ActivityCompat.startActivityForResult
+import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
@@ -45,8 +46,18 @@ object KeyEventHandler {
         if (keyEvent.isCtrlPressed) {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_W -> {
-                    MainActivity.activityRef.get()?.let {
-                        it.adapter.removeFragment(it.tabLayout.selectedTabPosition)
+                    MainActivity.activityRef.get()?.apply {
+                        adapter.removeFragment(tabLayout.selectedTabPosition)
+                        binding.tabs.invalidate()
+                        binding.tabs.requestLayout()
+                        
+                        // Detach and re-attach the TabLayoutMediator
+                        TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
+                            tab.text = tabViewModel.fragmentTitles[position]
+                        }
+                            .attach()
+                        MenuItemHandler.update(this)
+                        
                     }
                 }
 
@@ -72,12 +83,12 @@ object KeyEventHandler {
                     }
                 }
                 KeyEvent.KEYCODE_S -> {
-                    currentFragment?.save(false)
+                    currentFragment.save(false)
                 }
                 
                 KeyEvent.KEYCODE_PLUS,
                 70 -> {
-                    editor?.let {
+                    editor.let {
                         if (it.textSizePx < 57) {
                             it.textSizePx += 2
                         }
@@ -85,7 +96,7 @@ object KeyEventHandler {
                 }
                 
                 KeyEvent.KEYCODE_MINUS -> {
-                    editor?.let {
+                    editor.let {
                         if (it.textSizePx > 8) {
                             it.textSizePx -= 2
                         }
