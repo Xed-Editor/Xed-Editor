@@ -57,12 +57,18 @@ object Chars {
         if (reverse) {
             position.column -= 1
         }
-        if (position.column <= 0 && position.line > 0 && reverse) {
-            val l = position.line - 1
-            val pos = CharPosition(l, text.getLine(l).length)
-            return TextRange(pos, pos)
+        if (position.column <= 0 && reverse) {
+            if (position.line > 0) {
+                val l = position.line - 1
+                val pos = CharPosition(l, text.getLine(l).length)
+                return TextRange(pos, pos)
+            } else {
+                val pos = CharPosition(0, 0)
+                return TextRange(pos, pos)
+            }
         }
-
+        
+        
         if (
             text.getColumnCount(position.line) == position.column &&
                 position.line < text.lineCount - 1 &&
