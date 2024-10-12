@@ -211,7 +211,6 @@
 -keepclasseswithmembernames class com.rk.xededitor.App {*;}
 -keepclasseswithmembernames class com.rk.xededitor.BaseActivity {*;}
 
-
 -keepclassmembernames class com.rk.plugin.server.api.API {*;}
 -keepclassmembernames class com.rk.plugin.server.api.PluginLifeCycle {*;}
 -keepclassmembernames class com.rk.plugin.server.** {*;}
@@ -225,10 +224,8 @@
 -keepnames class com.rk.xededitor.BaseActivity {*;}
 
 -dontwarn sun.security.x509.X509Key
-
-
 -dontobfuscate
+-dontshrink
 -keepattributes *Annotation*
--keep class ** { *; }
 
 
