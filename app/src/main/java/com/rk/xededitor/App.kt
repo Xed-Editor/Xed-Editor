@@ -9,6 +9,7 @@ import com.rk.settings.PreferencesData
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
+import com.rk.xededitor.update.UpdateManager
 import java.io.File
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -69,5 +70,7 @@ class App : Application() {
 
         SetupEditor.init(this)
         updateProotArgs(this)
+        
+        UpdateManager.fetch("dev")
     }
 }

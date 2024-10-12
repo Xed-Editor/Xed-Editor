@@ -275,4 +275,7 @@
     
     <string name="show_virtual_keyboard">Show Virtual Keyboard</string>
     <string name="show_virtual_keyboard_desc">Show virtual keyboard when Physical keyboard is connected</string>
+
+    <string name="GitCommit">Git Commit</string>
+
 </resources>

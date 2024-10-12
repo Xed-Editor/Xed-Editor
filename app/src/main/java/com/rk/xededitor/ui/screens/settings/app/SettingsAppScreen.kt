@@ -17,6 +17,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent
+import com.rk.xededitor.update.UpdateManager
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
@@ -27,6 +28,7 @@ fun SettingsAppScreen() {
     PreferenceLayout(label = stringResource(id = R.string.app), backArrowVisible = true) {
         var isOled by remember { mutableStateOf(PreferencesData.isOled()) }
         var isMonet by remember { mutableStateOf(PreferencesData.isMonet()) }
+        var checkForUpdates by remember { mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE,true)) }
         val showDayNightBottomSheet = remember { mutableStateOf(false) }
         val context = LocalContext.current
 
@@ -54,6 +56,24 @@ fun SettingsAppScreen() {
                 )
             },
         )
+        
+        PreferenceCategory(
+            label = "Check For Updates",
+            description = "Periodically Check For Updates",
+            iconResource = R.drawable.android,
+            onNavigate = {
+                checkForUpdates = !checkForUpdates
+                PreferencesData.setBoolean(PreferencesKeys.CHECK_UPDATE, checkForUpdates)
+            },
+            endWidget = {
+                Switch(
+                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    checked = checkForUpdates,
+                    onCheckedChange = null,
+                )
+            },
+        )
+        
         PreferenceCategory(
             label = stringResource(id = R.string.monet),
             description = stringResource(id = R.string.monet_desc),
