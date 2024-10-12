@@ -9,7 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
+import com.rk.xededitor.update.UpdateManager
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
@@ -40,6 +42,17 @@ fun AboutScreen() {
                     Text(text = versionCode.toString(), style = MaterialTheme.typography.titleSmall)
                 },
             )
+            
+            
+            PreferenceTemplate(
+                title = { Text(text = stringResource(id = R.string.GitCommit), style = MaterialTheme.typography.titleMedium) },
+                description = {
+                    Text(
+                        text = BuildConfig.GIT_SHORT_COMMIT_HASH,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                },
+            )
 
             PreferenceTemplate(
                 title = { Text(text = stringResource(id = R.string.github), style = MaterialTheme.typography.titleMedium) },
@@ -61,6 +74,8 @@ fun AboutScreen() {
                     }
                 },
             )
+            
+            
 
             PreferenceTemplate(
                 title = {
