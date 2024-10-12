@@ -57,10 +57,13 @@ Join the community of karbon
 
 </div>
 
+**Recommended**
+Download latest alpha build from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
+
+
 Download latest stable build
 from [Releases](https://github.com/Xed-Editor/Xed-Editor/releases)
 
-Download latest debug build from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
     alt="Get it on F-Droid"
