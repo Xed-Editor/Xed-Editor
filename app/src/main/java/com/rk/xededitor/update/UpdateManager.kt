@@ -22,45 +22,44 @@ object UpdateManager {
     
     @OptIn(DelicateCoroutinesApi::class)
     fun fetch(branch: String) {
-        Settings.waitForInit {
-            try {
-                GlobalScope.launch(Dispatchers.IO) {
-                    if (Settings.getPreferencesViewModel().checkUpdate.first().not()) {
-                        return@launch
-                    }
-                    
-                    val lastUpdate = Settings.getPreferencesViewModel().lastUpdate.first()
-                    val timeDifferenceInMillis = if (lastUpdate > 0) {
-                        (lastUpdate - System.currentTimeMillis()) * 1000
-                    } else {
-                        Long.MAX_VALUE
-                    }
-                    
-                    val fifteenHoursInMillis = 15 * 60 * 60 * 1000
-                    
-                    val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
-                    
-                    if (has15HoursPassed.not()) {
-                        return@launch
-                    }
-                    
-                    val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
-                    val client = OkHttpClient()
-                    
-                    val request = Request.Builder().url(url).build()
-                    
-                    client.newCall(request).execute().use { response ->
-                        val jsonResponse = response.body?.string()
-                        if (jsonResponse != null) {
-                            parseJson(jsonResponse)
-                        }
-                    }
-                    Settings.getPreferencesViewModel().setLastUpdate(System.currentTimeMillis())
+        try {
+            GlobalScope.launch(Dispatchers.IO) {
+                if (Settings.getPreferencesViewModel().checkUpdate.first().not()) {
+                    return@launch
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                
+                val lastUpdate = Settings.getPreferencesViewModel().lastUpdate.first()
+                val timeDifferenceInMillis = if (lastUpdate > 0) {
+                    (lastUpdate - System.currentTimeMillis()) * 1000
+                } else {
+                    Long.MAX_VALUE
+                }
+                
+                val fifteenHoursInMillis = 15 * 60 * 60 * 1000
+                
+                val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
+                
+                if (has15HoursPassed.not()) {
+                    return@launch
+                }
+                
+                val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
+                val client = OkHttpClient()
+                
+                val request = Request.Builder().url(url).build()
+                
+                client.newCall(request).execute().use { response ->
+                    val jsonResponse = response.body?.string()
+                    if (jsonResponse != null) {
+                        parseJson(jsonResponse)
+                    }
+                }
+                Settings.getPreferencesViewModel().setLastUpdate(System.currentTimeMillis())
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+        
         
     }
     
@@ -83,18 +82,9 @@ object UpdateManager {
                 if (commitMessage == "." || updates.contains(commitMessage)) {
                     continue
                 }
-                updates.add(
-                    commitMessage
-                        .replace("fix:", "Fixed")
-                        .replace("fix :", "Fixed")
-                        .replace("feat:", "Added")
-                        .replace("feat.", "Added")
-                        .replace("refactor:", "Improved")
-                        .replace("refactor :", "Improved")
-                        .replace("refactor.", "Improved")
-                        .replace("feat :", "Added")
-                        .replace(Regex("\\b(\\w+)\\b\\s+\\b\\1\\b", RegexOption.IGNORE_CASE), "$1")
-                        .replaceFirstChar { it.uppercaseChar() })
+                updates.add(commitMessage.replace("fix:", "Fixed").replace("fix :", "Fixed").replace("feat:", "Added").replace("feat.", "Added")
+                    .replace("refactor:", "Improved").replace("refactor :", "Improved").replace("refactor.", "Improved").replace("feat :", "Added")
+                    .replace(Regex("\\b(\\w+)\\b\\s+\\b\\1\\b", RegexOption.IGNORE_CASE), "$1").replaceFirstChar { it.uppercaseChar() })
             }
         }
         

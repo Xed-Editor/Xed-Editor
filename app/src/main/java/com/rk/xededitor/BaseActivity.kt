@@ -45,8 +45,6 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        //its completely fine to call initPref multiple times
-        Settings.initPref(this, this)
         ThemeManager.apply(this)
         super.onCreate(savedInstanceState)
         activityMap[javaClass] = WeakReference(this)

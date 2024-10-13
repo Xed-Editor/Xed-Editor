@@ -6,6 +6,7 @@ import android.os.Environment
 import com.rk.libcommons.After
 import com.rk.plugin.server.Loader
 import com.rk.settings.PreferencesData
+import com.rk.settings.Settings
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
@@ -55,6 +56,7 @@ class App : Application() {
         // create crash handler
         CrashHandler.INSTANCE.init(this).let {
             // initialize shared preferences
+            Settings.initialize(this)
             PreferencesData.initPref(this).let {
                 // handle version change
                 GlobalScope.launch(Dispatchers.Default) {
