@@ -1,6 +1,5 @@
 package com.rk.xededitor.update
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -15,7 +14,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okio.IOException
 import org.json.JSONArray
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter

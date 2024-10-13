@@ -52,7 +52,7 @@ class MainActivity : BaseActivity() {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     var fm = FileManager(this)
     lateinit var menu: Menu
-    var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, true)
+    var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
     lateinit var adapter: TabAdapter
     private val pausedQueue: Queue<Runnable> = LinkedList()
 

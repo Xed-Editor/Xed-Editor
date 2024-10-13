@@ -10,17 +10,17 @@ import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
 import com.rk.xededitor.update.UpdateManager
-import java.io.File
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.File
 
 class App : Application() {
-
+    
     companion object {
         lateinit var app: Application
-
+        
         fun Context.getTempDir(): File {
             val tmp = File(filesDir.parentFile, "tmp")
             if (!tmp.exists()) {
@@ -29,12 +29,12 @@ class App : Application() {
             return tmp
         }
     }
-
+    
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         app = this
         super.onCreate()
-
+        
         // create temp folder
         GlobalScope.launch(Dispatchers.IO) {
             val tmp = File(filesDir.parentFile, "tmp")
@@ -45,29 +45,30 @@ class App : Application() {
                 tmp.mkdir()
             }
             
-            File(Environment.getExternalStorageDirectory(),"karbon").let {
-                if (it.exists().not()){
+            File(Environment.getExternalStorageDirectory(), "karbon").let {
+                if (it.exists().not()) {
                     it.mkdir()
                 }
             }
         }
-
+        
         // create crash handler
         CrashHandler.INSTANCE.init(this).let {
             // initialize shared preferences
             PreferencesData.initPref(this).let {
                 // handle version change
-                // blocking code
-                VersionChangeHandler.handle(this)
+                GlobalScope.launch(Dispatchers.Default) {
+                    VersionChangeHandler.handle(this@App)
+                }
             }
         }
-
+        
         // start plugin loader
         After(2000) {
             val pluginLoader = Loader(this)
             pluginLoader.start()
         }
-
+        
         SetupEditor.init(this)
         updateProotArgs(this)
         

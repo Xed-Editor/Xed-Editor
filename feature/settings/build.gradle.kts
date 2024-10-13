@@ -36,4 +36,6 @@ android {
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
+    implementation(libs.datastore.preferences)
+    implementation(libs.lifecycle.viewmodel.android)
 }
