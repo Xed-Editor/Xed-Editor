@@ -1,5 +1,6 @@
 package com.rk.settings
 
+@Deprecated("Use DefaultValues instead")
 object PreferencesKeys {
     const val PIN_LINE_NUMBER = "pinline"
     const val WORD_WRAP_ENABLED = "wordwrap"

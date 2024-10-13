@@ -14,6 +14,7 @@ import androidx.compose.ui.res.*
 import androidx.compose.ui.unit.*
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent

@@ -4,6 +4,7 @@ appcompat = "1.7.0"
 browser = "1.8.0"
 bsh = "3.0.0-SNAPSHOT"
 commonsNet = "3.11.1"
+datastorePreferences = "1.1.1"
 desugar_jdk_libs = "2.1.2"
 ktsh = "1.0.0"
 lsp4j = "0.23.1"
@@ -36,6 +37,7 @@ activityCompose = "1.9.2"
 composeBom = "2024.09.03"
 coilCompose = "2.7.0"
 navigationCompose = "2.8.2"
+lifecycleViewmodelAndroid = "2.8.6"
 
 [libraries]
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
@@ -43,6 +45,7 @@ browser = { module = "androidx.browser:browser", version.ref = "browser" }
 bsh = { module = "org.beanshell:bsh", version.ref = "bsh" }
 commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 ktsh = { module = "com.jaredrummler:ktsh", version.ref = "ktsh" }
@@ -89,6 +92,7 @@ material-compose = { group = "androidx.compose.material", name = "material", ver
 material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
+lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" }
 [plugins]
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

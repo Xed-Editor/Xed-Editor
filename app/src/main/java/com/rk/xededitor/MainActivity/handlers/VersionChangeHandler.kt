@@ -8,7 +8,6 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 
-// blocking code
 object VersionChangeHandler {
     fun handle(app: App) {
         val previousVersionCode = PreferencesData.getString(PreferencesKeys.VERSION_CODE, "")

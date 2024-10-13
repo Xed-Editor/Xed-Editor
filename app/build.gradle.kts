@@ -186,6 +186,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.bsh)
     implementation(libs.material.motion.compose.core)
+    implementation(libs.datastore.preferences)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":feature:plugin"))
     implementation(project(":feature:runner"))

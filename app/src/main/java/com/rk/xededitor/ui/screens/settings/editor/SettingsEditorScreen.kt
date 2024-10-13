@@ -31,7 +31,7 @@ fun SettingsEditorScreen() {
     PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
         var smoothTabs by remember {
             mutableStateOf(
-                PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, true)
+                PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
             )
         }
         var wordwrap by remember {
