@@ -30,7 +30,13 @@ object UpdateManager {
                     return@launch
                 }
                 
-                val timeDifferenceInMillis = (Settings.getPreferencesViewModel().lastUpdate.first() - System.currentTimeMillis()) * 1000
+                val lastUpdate = Settings.getPreferencesViewModel().lastUpdate.first()
+                val timeDifferenceInMillis = if (lastUpdate > 0) {
+                    (lastUpdate - System.currentTimeMillis()) * 1000
+                } else {
+                    Long.MAX_VALUE // the check should pass.
+                }
+                
                 val fifteenHoursInMillis = 15 * 60 * 60 * 1000
                 
                 val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
