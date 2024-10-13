@@ -5,11 +5,13 @@ import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -24,12 +26,11 @@ object UpdateManager {
     fun fetch(branch: String) {
         try {
             GlobalScope.launch(Dispatchers.IO) {
-                
-                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE,true).not()){
+                if(Settings.getPreferencesViewModel().checkUpdate.first().not()){
                     return@launch
                 }
                 
-                val timeDifferenceInMillis = (PreferencesData.getString(PreferencesKeys.LAST_UPDATE_CHECK,System.currentTimeMillis().toString()).toLong() - System.currentTimeMillis()) * 1000
+                val timeDifferenceInMillis = (Settings.getPreferencesViewModel().lastUpdate.first() - System.currentTimeMillis()) * 1000
                 val fifteenHoursInMillis = 15 * 60 * 60 * 1000
                 
                 val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
@@ -49,7 +50,7 @@ object UpdateManager {
                         parseJson(jsonResponse)
                     }
                 }
-                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
+                Settings.getPreferencesViewModel().setLastUpdate(System.currentTimeMillis())
             }
         }catch (e:Exception){
             e.printStackTrace()
