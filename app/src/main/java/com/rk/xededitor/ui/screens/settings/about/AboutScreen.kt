@@ -45,7 +45,7 @@ fun AboutScreen() {
             
             
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = R.string.GitCommit), style = MaterialTheme.typography.titleMedium) },
+                title = { Text(text = stringResource(id = R.string.git_commit), style = MaterialTheme.typography.titleMedium) },
                 description = {
                     Text(
                         text = BuildConfig.GIT_SHORT_COMMIT_HASH,

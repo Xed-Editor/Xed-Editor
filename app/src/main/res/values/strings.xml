@@ -276,6 +276,9 @@
     <string name="show_virtual_keyboard">Show Virtual Keyboard</string>
     <string name="show_virtual_keyboard_desc">Show virtual keyboard when Physical keyboard is connected</string>
 
-    <string name="GitCommit">Git Commit</string>
+    <string name="git_commit">Git Commit Hash</string>
+    
+    <string name="check_for_updates">Check for Updates</string>
+    <string name="check_for_updates_desc">Periodically Check For Updates</string>
 
 </resources>

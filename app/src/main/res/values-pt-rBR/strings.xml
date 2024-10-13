@@ -272,4 +272,10 @@
     
     <string name="show_virtual_keyboard">Mostrar Teclado Virtual</string>
     <string name="show_virtual_keyboard_desc">Mostrar teclado virtual quando o teclado físico estiver conectado</string>
+    
+    <string name="git_commit">Hash do Commit Git</string>
+    
+    <string name="check_for_updates">Checar por Atualizações</string>
+    <string name="check_for_updates_desc">Verifique periodicamente se há atualizações</string>
+    
 </resources>

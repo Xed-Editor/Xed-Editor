@@ -59,8 +59,8 @@ fun SettingsAppScreen() {
         )
         
         PreferenceCategory(
-            label = "Check For Updates",
-            description = "Periodically Check For Updates",
+            label = stringResource(R.string.check_for_updates),
+            description = stringResource(R.string.check_for_updates_desc),
             iconResource = R.drawable.android,
             onNavigate = {
                 checkForUpdates = !checkForUpdates
