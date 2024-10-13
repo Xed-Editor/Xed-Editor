@@ -33,7 +33,7 @@ object UpdateManager {
                     val timeDifferenceInMillis = if (lastUpdate > 0) {
                         (lastUpdate - System.currentTimeMillis()) * 1000
                     } else {
-                        Long.MAX_VALUE // the check should pass.
+                        Long.MAX_VALUE
                     }
                     
                     val fifteenHoursInMillis = 15 * 60 * 60 * 1000

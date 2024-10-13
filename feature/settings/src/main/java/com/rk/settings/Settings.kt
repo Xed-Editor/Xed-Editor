@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.rk.settings.viewmodels.AppPreferencesViewModel
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,9 +40,10 @@ object Settings {
                 AppPreferencesViewModelFactory(context.DataStore)
             )[AppPreferencesViewModel::class.java]
             init = true
-            GlobalScope.launch {
+            
+            GlobalScope.launch(Dispatchers.Default) {
                 waiters.forEach {
-                    launch { it() }
+                    launch(Dispatchers.Default) { it() }
                 }
                 waiters.clear()
             }
