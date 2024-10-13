@@ -8,6 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.rk.settings.viewmodels.AppPreferencesViewModel
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 object Settings {
     private var preferencesViewModel: AppPreferencesViewModel? = null
@@ -16,6 +20,18 @@ object Settings {
         name = "Settings"
     )
     
+    fun isInit(): Boolean = init
+    
+    private val waiters = mutableListOf<()->Unit>()
+    fun waitForInit(onComplete:()->Unit){
+        if (init){
+            onComplete.invoke()
+        }else{
+            waiters.add(onComplete)
+        }
+    }
+    
+    @OptIn(DelicateCoroutinesApi::class)
     fun initPref(context: Context, viewModelStoreOwner: ViewModelStoreOwner) {
         if (init.not()){
             preferencesViewModel = ViewModelProvider(
@@ -23,6 +39,12 @@ object Settings {
                 AppPreferencesViewModelFactory(context.DataStore)
             )[AppPreferencesViewModel::class.java]
             init = true
+            GlobalScope.launch {
+                waiters.forEach {
+                    launch { it() }
+                }
+                waiters.clear()
+            }
         }
     }
     

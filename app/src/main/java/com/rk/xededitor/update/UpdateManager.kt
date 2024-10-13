@@ -3,8 +3,6 @@ package com.rk.xededitor.update
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
@@ -24,42 +22,44 @@ object UpdateManager {
     
     @OptIn(DelicateCoroutinesApi::class)
     fun fetch(branch: String) {
-        try {
-            GlobalScope.launch(Dispatchers.IO) {
-                if(Settings.getPreferencesViewModel().checkUpdate.first().not()){
-                    return@launch
-                }
-                
-                val lastUpdate = Settings.getPreferencesViewModel().lastUpdate.first()
-                val timeDifferenceInMillis = if (lastUpdate > 0) {
-                    (lastUpdate - System.currentTimeMillis()) * 1000
-                } else {
-                    Long.MAX_VALUE // the check should pass.
-                }
-                
-                val fifteenHoursInMillis = 15 * 60 * 60 * 1000
-                
-                val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
-                
-                if (has15HoursPassed.not()){
-                    return@launch
-                }
-                
-                val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
-                val client = OkHttpClient()
-                
-                val request = Request.Builder().url(url).build()
-                
-                client.newCall(request).execute().use { response ->
-                    val jsonResponse = response.body?.string()
-                    if (jsonResponse != null) {
-                        parseJson(jsonResponse)
+        Settings.waitForInit {
+            try {
+                GlobalScope.launch(Dispatchers.IO) {
+                    if (Settings.getPreferencesViewModel().checkUpdate.first().not()) {
+                        return@launch
                     }
+                    
+                    val lastUpdate = Settings.getPreferencesViewModel().lastUpdate.first()
+                    val timeDifferenceInMillis = if (lastUpdate > 0) {
+                        (lastUpdate - System.currentTimeMillis()) * 1000
+                    } else {
+                        Long.MAX_VALUE // the check should pass.
+                    }
+                    
+                    val fifteenHoursInMillis = 15 * 60 * 60 * 1000
+                    
+                    val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
+                    
+                    if (has15HoursPassed.not()) {
+                        return@launch
+                    }
+                    
+                    val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
+                    val client = OkHttpClient()
+                    
+                    val request = Request.Builder().url(url).build()
+                    
+                    client.newCall(request).execute().use { response ->
+                        val jsonResponse = response.body?.string()
+                        if (jsonResponse != null) {
+                            parseJson(jsonResponse)
+                        }
+                    }
+                    Settings.getPreferencesViewModel().setLastUpdate(System.currentTimeMillis())
                 }
-                Settings.getPreferencesViewModel().setLastUpdate(System.currentTimeMillis())
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        }catch (e:Exception){
-            e.printStackTrace()
         }
         
     }
@@ -109,7 +109,7 @@ object UpdateManager {
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
                         }
-                        setNegativeButton("Ignore",null)
+                        setNegativeButton("Ignore", null)
                         show()
                     }
                 }
