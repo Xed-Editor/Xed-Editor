@@ -12,9 +12,9 @@ import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import java.lang.ref.WeakReference
 
+var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
+
 class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedListener {
-    private var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
-    
     override fun onTabSelected(tab: Tab?) {
         currentTab = WeakReference(tab)
         if (smoothTabs.not()) { activity.viewPager.setCurrentItem(tab!!.position, false) }

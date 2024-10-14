@@ -19,6 +19,8 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.AutoSaver
+import com.rk.xededitor.MainActivity.file.TabSelectedListener
+import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -29,7 +31,7 @@ import org.robok.engine.core.components.compose.preferences.category.PreferenceC
 @Composable
 fun SettingsEditorScreen() {
     PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
-        var smoothTabs by remember {
+        var _smoothTabs by remember {
             mutableStateOf(
                 PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
             )
@@ -74,14 +76,14 @@ fun SettingsEditorScreen() {
             description = stringResource(id = R.string.smooth_tab_desc),
             iconResource = R.drawable.animation,
             onNavigate = {
-                smoothTabs = !smoothTabs
+                _smoothTabs = !_smoothTabs
                 PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
-                MainActivity.activityRef.get()?.smoothTabs = smoothTabs
+                smoothTabs = _smoothTabs
             },
             endWidget = {
                 Switch(
                     modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = smoothTabs,
+                    checked = _smoothTabs,
                     onCheckedChange = null,
                 )
             },
