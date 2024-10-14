@@ -27,7 +27,6 @@ import java.lang.ref.WeakReference
 abstract class BaseActivity : AppCompatActivity() {
     companion object {
         val activityMap = ArrayMap<Class<out BaseActivity>, WeakReference<Activity>>()
-
         // used by plugins
         @Keep
         fun getActivity(clazz: Class<out BaseActivity>): Activity? {

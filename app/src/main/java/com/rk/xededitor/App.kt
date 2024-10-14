@@ -74,6 +74,8 @@ class App : Application() {
         SetupEditor.init(this)
         updateProotArgs(this)
         
+        
+        //check for updates
         UpdateManager.fetch("dev")
     }
 }
