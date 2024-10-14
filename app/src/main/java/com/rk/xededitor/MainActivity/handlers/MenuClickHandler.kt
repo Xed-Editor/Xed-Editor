@@ -132,7 +132,7 @@ object MenuClickHandler {
 
             R.id.suggestions -> {
                 activity.adapter.getCurrentFragment()?.let {
-                    it.showSuggestions(it.isShowSuggestion().not())
+                    it.editor?.showSuggestions(it.editor?.isShowSuggestion()!!.not())
                 }
                 return true
             }
@@ -329,7 +329,7 @@ object MenuClickHandler {
     private fun handleSearchClose(activity: MainActivity): Boolean {
         searchText = ""
         activity.adapter.getCurrentFragment()?.editor?.searcher?.stopSearch()
-        activity.adapter.getCurrentFragment()?.setSearching(false)
+        activity.adapter.getCurrentFragment()?.editor!!.setSearching(false)
         activity.adapter.getCurrentFragment()?.editor?.invalidate()
         MenuItemHandler.update(activity)
         return true
@@ -375,7 +375,7 @@ object MenuClickHandler {
                         !checkBox.isChecked,
                     ),
                 )
-            it.setSearching(true)
+            it.editor?.setSearching(true)
             MenuItemHandler.update(activity)
         }
     }

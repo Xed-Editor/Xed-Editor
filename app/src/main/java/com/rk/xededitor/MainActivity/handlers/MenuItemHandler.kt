@@ -52,7 +52,7 @@ object MenuItemHandler {
                 
                 updateUndoRedoAndModifiedStar(menu, activity.adapter.getCurrentFragment(), activity)
 
-                searchMenu(menu, activity.adapter.getCurrentFragment()?.isSearching() ?: false)
+                searchMenu(menu, activity.adapter.getCurrentFragment()?.editor?.isSearching() ?: false)
             }
         }
     }

@@ -110,6 +110,7 @@ class Terminal : BaseActivity() {
 
     companion object {
         @JvmStatic
+        @JvmOverloads
         fun runCommand(
             // run in alpine or not
             alpine: Boolean,

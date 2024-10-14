@@ -27,6 +27,8 @@ object commonUtils {
         onComplete()
     }
 
+    @JvmOverloads
+    @JvmStatic
     fun runCommand(
         // run in alpine or not
         alpine: Boolean,
