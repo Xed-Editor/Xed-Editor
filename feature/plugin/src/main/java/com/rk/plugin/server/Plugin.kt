@@ -6,7 +6,6 @@ import com.rk.plugin.server.api.API
 import java.io.File
 
 class Plugin(val info: PluginInfo, val pluginHome: String, val app: Application) : Thread() {
-
     private lateinit var interpreter: Interpreter
 
     override fun run() {

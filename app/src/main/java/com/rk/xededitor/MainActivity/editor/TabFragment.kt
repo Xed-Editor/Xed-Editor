@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Suppress("NOTHING_TO_INLINE")
 class TabFragment : Fragment() {
 
     var file: File? = null
@@ -43,7 +44,7 @@ class TabFragment : Fragment() {
         }
     }
 
-    fun isShowSuggestion(): Boolean {
+    inline fun isShowSuggestion(): Boolean {
         return editor?.inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
 

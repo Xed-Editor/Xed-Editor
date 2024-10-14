@@ -2,25 +2,26 @@ package com.rk.xededitor.MainActivity.file
 
 import java.io.File
 
+@Suppress("NOTHING_TO_INLINE")
 object FileClipboard {
-    private var fileClipboard: File? = null
-    private var isPasted: Boolean = true
+     var fileClipboard: File? = null
+     var isPasted: Boolean = true
 
-    fun setFile(file: File?) {
+    inline fun setFile(file: File?) {
         synchronized(this) {
             fileClipboard = file
             isPasted = false
         }
     }
 
-    fun clear() {
+    inline fun clear() {
         synchronized(this) {
             fileClipboard = null
             isPasted = true
         }
     }
 
-    fun getFile(): File? {
+    inline fun getFile(): File? {
         synchronized(this) {
             val file = fileClipboard
             if (isPasted) {
@@ -31,13 +32,13 @@ object FileClipboard {
         }
     }
 
-    fun isEmpty(): Boolean {
+    inline fun isEmpty(): Boolean {
         synchronized(this) {
             return fileClipboard == null
         }
     }
 
-    fun markAsPasted() {
+    inline fun markAsPasted() {
         synchronized(this) { isPasted = true }
     }
 }

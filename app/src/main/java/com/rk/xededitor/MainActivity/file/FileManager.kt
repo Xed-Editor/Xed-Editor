@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
+import com.rk.xededitor.MainActivity.file.PathUtils.toPath
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -20,7 +21,7 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(convertUriToPath(mainActivity, it.data!!.data))
+                val file = File(it.data!!.data!!.toPath())
                 mainActivity.adapter.addFragment(file)
             }
         }
@@ -28,7 +29,7 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenDir =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(convertUriToPath(mainActivity, it.data!!.data))
+                val file = File(it.data!!.data!!.toPath())
                 ProjectManager.addProject(mainActivity, file)
             }
         }

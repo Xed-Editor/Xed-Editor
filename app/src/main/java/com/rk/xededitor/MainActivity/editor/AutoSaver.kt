@@ -23,7 +23,6 @@ object AutoSaver {
                 return
             }
         }
-
         job =
             GlobalScope.launch(Dispatchers.Default) {
                 if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
