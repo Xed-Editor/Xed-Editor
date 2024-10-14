@@ -44,6 +44,7 @@ Join the Karbon community to stay updated and engage with other users:
   <a href="https://android.izzysoft.de/repo/apk/com.rk.xededitor">
     <img src="https://img.shields.io/endpoint?url=https://apt.izzysoft.de/fdroid/api/v1/shield/com.rk.xededitor&label=IzzyOnDroid&cacheSeconds=33000">
   </a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor.svg?type=shield"/></a>
   <a href="https://f-droid.org/packages/com.rk.xededitor">
     <img src="https://img.shields.io/f-droid/v/com.rk.xededitor">
   </a>
@@ -74,3 +75,7 @@ Join the Karbon community to stay updated and engage with other users:
 ## Contributing
 
 We welcome contributions! Please read the [CONTRIBUTING.md](/CONTRIBUTING.md) file to learn how you can get involved. 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor?ref=badge_large)
