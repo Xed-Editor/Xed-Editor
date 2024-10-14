@@ -41,15 +41,15 @@ object ProjectBar {
                 View.OnClickListener { v ->
                     when (v.id) {
                         openFileId -> {
-                            fm.requestOpenFile()
+                            fileManager.requestOpenFile()
                         }
 
                         openDirId -> {
-                            fm.requestOpenDirectory()
+                            fileManager.requestOpenDirectory()
                         }
 
                         openPathId -> {
-                            fm.requestOpenFromPath()
+                            fileManager.requestOpenFromPath()
                         }
 
                         privateFilesId -> {
