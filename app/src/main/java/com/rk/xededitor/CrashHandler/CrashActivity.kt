@@ -106,7 +106,7 @@ class CrashActivity : AppCompatActivity() {
                         Uri.parse(
                             "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" +
                                 URLEncoder.encode(
-                                    error_editor.text.toString(),
+                                    "``` \n${error_editor.text}\n ```",
                                     StandardCharsets.UTF_8.toString(),
                                 )
                         ),
