@@ -1,8 +1,4 @@
-# inside alpine linux
-
-#todo do to not use chmod
-chmod +x /karbon/rootfs/python.sh
-chmod +x /karbon/rootfs/nodejs.sh
+# inside debian linux
 
 export PIP_BREAK_SYSTEM_PACKAGES=1
 
@@ -20,13 +16,13 @@ fi
 # setup package or start processes before starting the shell
 
 # List of necessary packages
-required_packages="gcompat glib git bash nano sudo build-base"
+required_packages="sudo nano"
 
 # Check if each package is installed
 missing_packages=""
 
 for pkg in $required_packages; do
-    if ! apk info -e $pkg >/dev/null 2>&1; then
+    if ! dpkg -l | grep -q $pkg; then
         missing_packages="$missing_packages $pkg"
     fi
 done
@@ -34,17 +30,17 @@ done
 # Install
 if [ -n "$missing_packages" ]; then
     echo -e "\e[32mInstalling Important packages\e[0m"
-    apk update && apk upgrade
-    apk add $missing_packages
+    apt update && apt upgrade -y
+    apt install -y $missing_packages
     if [ $? -eq 0 ]; then
         echo -e "\e[32mSuccessfully Installed\e[0m"
     fi
-    echo -e "\e[32mUse apk to install new packages\e[0m"
+    echo -e "\e[32mUse apt to install new packages\e[0m"
 fi
 
 if [ "$#" -eq 0 ]; then
     $START_SHELL
 else
     # shellcheck disable=SC2068
-    $@
+    "$@"
 fi
