@@ -73,7 +73,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
         val archName = getaarchName()
 
         val url =
-            "https://raw.githubusercontent.com/RohitKushvaha01/Karbon-Packages/main/$archName.tar"
+            "https://raw.githubusercontent.com/Xed-Editor/Karbon-Packages/main/$archName.tar"
 
         GlobalScope.launch(Dispatchers.IO) {
             if (terminal.cacheDir.exists().not()) {
