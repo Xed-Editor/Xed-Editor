@@ -3,7 +3,7 @@
 #todo do to not use chmod
 chmod +x /karbon/rootfs/python.sh
 chmod +x /karbon/rootfs/nodejs.sh
-chmod +x /Karbon/rootfs/java.sh
+chmod +x /karbon/rootfs/java.sh
 
 export PIP_BREAK_SYSTEM_PACKAGES=1
 
