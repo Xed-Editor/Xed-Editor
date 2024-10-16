@@ -9,6 +9,7 @@ import com.google.android.material.tabs.TabLayout
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -72,7 +73,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
-        return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = WeakReference(this) }
+        return TabFragment.newInstance(file,FragmentType.EDITOR).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
 
     override fun getItemId(position: Int): Long {

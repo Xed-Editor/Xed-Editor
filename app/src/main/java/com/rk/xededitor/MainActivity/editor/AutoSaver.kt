@@ -43,7 +43,7 @@ object AutoSaver {
                             ) {
                                 withContext(Dispatchers.Main) {
                                     it.adapter.tabFragments.values.forEach { f ->
-                                        f?.get()?.save(false)
+                                        //f?.get()?.save(false)
                                     }
                                 }
                             }

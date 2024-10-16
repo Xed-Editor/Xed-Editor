@@ -18,6 +18,8 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -37,36 +39,45 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 object MenuClickHandler {
 
     private var searchText: String? = ""
+    
 
     @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        }else{
+            null
+        }
+        
         when (id) {
             R.id.run -> {
-                activity.adapter.getCurrentFragment()?.let {
-                    it.file?.let { it1 -> Runner.run(it1, activity) }
-                }
+                editorFragment?.file?.let { it1 -> Runner.run(it1, activity) }
                 return true
             }
 
             R.id.action_all -> {
-                activity.adapter.tabFragments.values.forEach { f -> f?.get()?.save(false) }
+                activity.adapter.tabFragments.values.forEach { f ->
+                    if (f.get()?.type == FragmentType.EDITOR){
+                        (f.get()?.fragment as EditorFragment).save(false)
+                    }
+                }
                 rkUtils.toast("Saved all files")
                 return true
             }
 
             R.id.action_save -> {
-                activity.adapter.getCurrentFragment()?.save()
+                editorFragment?.save(true)
                 return true
             }
 
             R.id.undo -> {
-                activity.adapter.getCurrentFragment()?.undo()
+                editorFragment?.undo()
                 return true
             }
 
             R.id.redo -> {
-                activity.adapter.getCurrentFragment()?.redo()
+                editorFragment?.redo()
                 return true
             }
 
@@ -84,7 +95,7 @@ object MenuClickHandler {
             R.id.action_print -> {
                 Printer.print(
                     activity,
-                    activity.adapter.getCurrentFragment()?.editor?.text.toString(),
+                    editorFragment?.editor?.text.toString(),
                 )
                 return true
             }
@@ -101,12 +112,12 @@ object MenuClickHandler {
             }
 
             R.id.search_next -> {
-                activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoNext()
+                editorFragment?.editor?.searcher?.gotoNext()
                 return true
             }
 
             R.id.search_previous -> {
-                activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoPrevious()
+                editorFragment?.editor?.searcher?.gotoPrevious()
                 return true
             }
 
@@ -125,15 +136,13 @@ object MenuClickHandler {
             R.id.share -> {
                 rkUtils.shareText(
                     activity,
-                    activity.adapter.getCurrentFragment()?.editor?.text.toString(),
+                    editorFragment?.editor?.text.toString(),
                 )
                 return true
             }
 
             R.id.suggestions -> {
-                activity.adapter.getCurrentFragment()?.let {
-                    it.editor?.showSuggestions(it.editor?.isShowSuggestion()!!.not())
-                }
+                editorFragment?.editor?.showSuggestions(editorFragment.editor?.isShowSuggestion()?.not() == true)
                 return true
             }
 
@@ -166,7 +175,7 @@ object MenuClickHandler {
                                     try {
                                         val gitRoot =
                                             FileManager.findGitRoot(
-                                                activity.adapter.getCurrentFragment()?.file
+                                                editorFragment?.file
                                             )
                                         if (gitRoot != null) {
                                             val git = Git.open(gitRoot)
@@ -192,7 +201,7 @@ object MenuClickHandler {
                             push -> {
                                 val gitRoot =
                                     FileManager.findGitRoot(
-                                        activity.adapter.getCurrentFragment()?.file
+                                        editorFragment?.file
                                     )
                                 if (gitRoot != null) {
                                     val git = Git.open(gitRoot)
@@ -320,17 +329,27 @@ object MenuClickHandler {
     private fun replaceAll(popupView: View, activity: MainActivity) {
         val editText = popupView.findViewById<EditText>(R.id.replace_replacement)
         val text = editText.text.toString()
-
-        activity.adapter.getCurrentFragment()?.editor?.apply {
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        }else{
+            null
+        }
+        
+        editorFragment?.editor?.apply {
             setText(searchText?.let { getText().toString().replace(it, text) })
         }
     }
 
     private fun handleSearchClose(activity: MainActivity): Boolean {
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        }else{
+            null
+        }
         searchText = ""
-        activity.adapter.getCurrentFragment()?.editor?.searcher?.stopSearch()
-        activity.adapter.getCurrentFragment()?.editor!!.setSearching(false)
-        activity.adapter.getCurrentFragment()?.editor?.invalidate()
+        editorFragment?.editor?.searcher?.stopSearch()
+        editorFragment?.editor!!.setSearching(false)
+        editorFragment.editor?.invalidate()
         MenuItemHandler.update(activity)
         return true
     }
@@ -362,10 +381,15 @@ object MenuClickHandler {
         if (searchText?.isBlank() == true) {
             return
         }
-
+        
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        }else{
+            null
+        }
         // search
         val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
-        activity.adapter.getCurrentFragment()?.let {
+        editorFragment?.let {
             it.editor
                 ?.searcher
                 ?.search(

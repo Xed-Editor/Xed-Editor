@@ -5,6 +5,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -16,6 +17,11 @@ import kotlinx.coroutines.withContext
 object MenuItemHandler {
     fun update(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.Default) {
+            val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
+                activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+            }else{
+                null
+            }
             // wait until the menu is Initialized
             while (activity.isMenuInitialized().not()) {
                 delay(50)
@@ -28,7 +34,9 @@ object MenuItemHandler {
                 editorMenu(menu, show)
 
                 if (show) {
-                    activity.adapter.getCurrentFragment()?.let {
+                    
+                    
+                    editorFragment?.let {
                         menu.findItem(R.id.run).isVisible =
                             it.file?.let { it1 -> Runner.isRunnable(it1) } == true
                     }
@@ -36,12 +44,12 @@ object MenuItemHandler {
                     menu.findItem(R.id.run).isVisible = false
                 }
                 withContext(Dispatchers.Default) {
-                    val xc = activity.adapter.getCurrentFragment()?.file
+                    val xc = editorFragment?.file
                     val gitRoot =
                         if (xc == null) {
                             null
                         } else {
-                            findGitRoot(activity.adapter.getCurrentFragment()?.file)
+                            findGitRoot(editorFragment?.file)
                         }
 
                     withContext(Dispatchers.Main) {
@@ -52,7 +60,7 @@ object MenuItemHandler {
                 
                 updateUndoRedoAndModifiedStar(menu, activity.adapter.getCurrentFragment(), activity)
 
-                searchMenu(menu, activity.adapter.getCurrentFragment()?.editor?.isSearching() ?: false)
+                searchMenu(menu, editorFragment?.editor?.isSearching() ?: false)
             }
         }
     }
@@ -60,11 +68,16 @@ object MenuItemHandler {
     val set = HashSet<String>()
 
     private fun updateUndoRedoAndModifiedStar(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        }else{
+            null
+        }
+        
+        menu.findItem(R.id.redo).isEnabled = editorFragment?.editor?.canRedo() == true
+        menu.findItem(R.id.undo).isEnabled = editorFragment?.editor?.canUndo() == true
 
-        menu.findItem(R.id.redo).isEnabled = currentFragment?.editor?.canRedo() == true
-        menu.findItem(R.id.undo).isEnabled = currentFragment?.editor?.canUndo() == true
-
-        if (currentFragment?.setListener?.not() == true) {
+        /* if (currentFragment?.setListener?.not() == true) {
             currentFragment.let { tabFragment ->
                 tabFragment.editor?.subscribeAlways(ContentChangeEvent::class.java) {
                     menu.findItem(R.id.redo).isEnabled = currentFragment.editor?.canRedo() == true
@@ -104,7 +117,7 @@ object MenuItemHandler {
                     tabFragment.setListener = true
                 }
             }
-        }
+        }  */
     }
 
     private fun editorMenu(menu: Menu, show: Boolean) {
