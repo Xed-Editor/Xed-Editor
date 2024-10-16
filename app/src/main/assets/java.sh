@@ -1,6 +1,7 @@
-if [ ! apk info -e openjdk17 >/dev/null 2>&1 ]; then
+if ! apk info -e "openjdk17" >/dev/null 2>&1; then
     echo "Installing OpenJDK-17..."
     apk add openjdk17
+    clear
 fi
 
 echo "Compiling with $1..."
