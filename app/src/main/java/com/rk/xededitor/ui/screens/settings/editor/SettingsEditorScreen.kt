@@ -42,7 +42,7 @@ fun SettingsEditorScreen() {
             mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, false))
         }
         var diagonalScroll by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, false))
+            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, true))
         }
         var cursorAnimation by remember {
             mutableStateOf(
