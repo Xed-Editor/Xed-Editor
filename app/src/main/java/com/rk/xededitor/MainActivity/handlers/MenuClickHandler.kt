@@ -290,7 +290,7 @@ object MenuClickHandler {
             R.id.action_add -> {
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.setType("text/plain")
+                intent.setType("application/octet-stream")
                 intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
                 activity.fileManager.createFileLauncher.launch(intent)
                 return true
