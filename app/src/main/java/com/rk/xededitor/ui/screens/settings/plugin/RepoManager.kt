@@ -36,7 +36,7 @@ object RepoManager {
         DefaultScope.launch(Dispatchers.IO) {
             try {
                 val url = getRawGithubUrl(
-                    "https://github.com/RohitKushvaha01/Karbon-Plugins/blob/main/repo.json"
+                    "https://github.com/Xed-Editor/Karbon-Plugins/blob/main/repo.json"
                 )
                 
                 val jsonStr = fetch(url)
