@@ -13,11 +13,13 @@ import com.rk.filetree.provider.file
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File
@@ -255,6 +257,10 @@ object ProjectManager {
                         )
                     ) {
                         it.binding.drawerLayout.close()
+                    }
+                    DefaultScope.launch(Dispatchers.Main) {
+                        delay(3000)
+                        MenuItemHandler.update(it)
                     }
                 }
             }
