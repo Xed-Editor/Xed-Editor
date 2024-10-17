@@ -1,14 +1,15 @@
 package com.rk.xededitor.MainActivity.editor.fragments.core
 
-import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
-import com.rk.xededitor.MainActivity.editor.TabFragment
+import android.view.ViewGroup
 import java.io.File
 
 interface CoreFragment {
-     fun getView(): View?
-     fun onDestroy()
-     fun onCreate()
-     fun loadFile(file: File)
-     fun getFile():File?
+    fun getView(): View?
+    fun onDestroy()
+    fun onCreate()
+    fun loadFile(file: File)
+    fun getFile(): File?
 }

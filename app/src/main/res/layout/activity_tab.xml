@@ -20,16 +20,16 @@
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                app:tabTextAppearance="@style/tab_text"
                 app:tabGravity="fill"
-                app:tabMode="scrollable"/>
+                app:tabMode="scrollable"
+                app:tabTextAppearance="@style/tab_text" />
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -47,18 +47,17 @@
 
         </RelativeLayout>
 
-
         <Button
             android:id="@+id/openBtn"
+            style="@style/Widget.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            style="@style/Widget.Material3.Button.TextButton"
-            android:onClick="openDrawer"
             android:focusable="false"
-            android:textStyle="bold"
+            android:focusedByDefault="true"
+            android:onClick="openDrawer"
             android:text="@string/click_open"
-            />
+            android:textStyle="bold" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -79,12 +78,13 @@
             <com.google.android.material.navigationrail.NavigationRailView
                 android:id="@+id/navigation_rail"
                 android:layout_width="50dp"
-                app:labelVisibilityMode="labeled"
                 android:layout_height="match_parent"
+                app:labelVisibilityMode="labeled"
                 app:menu="@menu/navigation_rail_menu" />
+
             <com.google.android.material.divider.MaterialDivider
                 android:layout_width="1px"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -103,8 +103,7 @@
                     android:id="@+id/maindrawer"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-                    android:orientation="vertical">
-                </LinearLayout>
+                    android:orientation="vertical"></LinearLayout>
 
             </LinearLayout>
 

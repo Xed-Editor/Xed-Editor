@@ -41,6 +41,8 @@ class FileManager(private val mainActivity: MainActivity) {
             val file = File(path.toString())
             if (file.exists() and file.isFile){
                 mainActivity.adapter.addFragment(file)
+            }else{
+                rkUtils.toast("Unsupported file location ${data?.data}")
             }
         }
     }

@@ -2,6 +2,8 @@ package com.rk.xededitor.MainActivity.editor.fragments.editor
 
 import android.content.Context
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
 import com.rk.libcommons.CustomScope
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
@@ -23,8 +25,14 @@ class EditorFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
     var setupEditor: SetupEditor? = null
     
+    
     override fun onCreate() {
-        editor = KarbonEditor(context)
+        editor = KarbonEditor(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
         setupEditor = SetupEditor(editor!!, context)
         setupEditor?.ensureTextmateTheme(context)
     }
@@ -76,7 +84,9 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
     }
     
-    override fun getView(): View? = editor
+    override fun getView(): View?{
+        return editor
+    }
     
     override fun onDestroy() {
         scope.cancel()

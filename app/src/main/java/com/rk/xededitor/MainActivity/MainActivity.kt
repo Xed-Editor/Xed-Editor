@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -76,6 +77,7 @@ class MainActivity : BaseActivity() {
             binding.mainView.visibility = View.VISIBLE
             binding.openBtn.visibility = View.GONE
         }
+        
         
         
     }
@@ -156,6 +158,30 @@ class MainActivity : BaseActivity() {
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
+        binding.drawerLayout.setDrawerElevation(0f)
+        binding.drawerLayout.addDrawerListener(
+            object : DrawerLayout.DrawerListener {
+                var leftDrawerOffset = 0f
+                var rightDrawerOffset = 0f
+                
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                    val drawerWidth = drawerView.width
+                    leftDrawerOffset = drawerWidth * slideOffset
+                    binding.main.translationX = leftDrawerOffset
+                }
+                
+                override fun onDrawerOpened(drawerView: View) {}
+                
+                override fun onDrawerClosed(drawerView: View) {
+                    binding.main.translationX = 0f
+                    leftDrawerOffset = 0f
+                    rightDrawerOffset = 0f
+                }
+                
+                override fun onDrawerStateChanged(newState: Int) {}
+            }
+        )
     }
     
     private fun setupTabLayout() {

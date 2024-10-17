@@ -88,9 +88,14 @@ class KarbonEditor : CodeEditor {
     }
     
     suspend fun saveToFile(file:File){
-        withContext(Dispatchers.IO){
-            file.writeText(text.toString())
+        try {
+            withContext(Dispatchers.IO){
+                file.writeText(text.toString(),Charsets.UTF_8)
+            }
+        }catch (e:Exception){
+            throw RuntimeException("Error saving file ${file.absolutePath}",e)
         }
+        
     }
     private var isSearching: Boolean = false
     
