@@ -45,7 +45,13 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun getFile(): File? = file
     
     
-    fun save(showToast: Boolean = true) {
+    fun save(showToast: Boolean = true,isAutoSaver:Boolean = false) {
+        if (editor == null){
+            throw RuntimeException("editor is null")
+        }
+        if (isAutoSaver and (editor?.text?.isEmpty() == true)){
+            return
+        }
         scope.launch(Dispatchers.IO) {
             editor?.saveToFile(file!!)
             try {

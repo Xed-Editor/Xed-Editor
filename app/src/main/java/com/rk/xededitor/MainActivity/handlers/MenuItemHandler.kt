@@ -33,8 +33,6 @@ object MenuItemHandler {
                 editorMenu(menu, show)
 
                 if (show) {
-                    
-                    
                     editorFragment?.let {
                         menu.findItem(R.id.run).isVisible =
                             it.file?.let { it1 -> Runner.isRunnable(it1) } == true
@@ -48,7 +46,7 @@ object MenuItemHandler {
                         if (xc == null) {
                             null
                         } else {
-                            findGitRoot(editorFragment?.file)
+                            findGitRoot(editorFragment.file)
                         }
 
                     withContext(Dispatchers.Main) {

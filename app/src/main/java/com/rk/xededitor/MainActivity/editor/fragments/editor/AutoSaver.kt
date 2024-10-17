@@ -42,7 +42,7 @@ object AutoSaver {
                                 withContext(Dispatchers.Main) {
                                     it.adapter.tabFragments.values.forEach { f ->
                                         if(f.get() != null && f.get()?.fragment is EditorFragment){
-                                            (f.get()?.fragment as EditorFragment).save(false)
+                                            (f.get()?.fragment as EditorFragment).save(showToast = false, isAutoSaver = true)
                                         }
                                     }
                                 }
