@@ -180,6 +180,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
             binding.tabs.visibility = View.VISIBLE
             binding.mainView.visibility = View.VISIBLE
             binding.openBtn.visibility = View.GONE
+            MenuItemHandler.update(mainActivity)
         }
     }
 }
