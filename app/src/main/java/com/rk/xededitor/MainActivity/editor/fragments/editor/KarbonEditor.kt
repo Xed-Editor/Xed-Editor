@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.InputStream
 
 @Suppress("NOTHING_TO_INLINE")
@@ -90,10 +91,14 @@ class KarbonEditor : CodeEditor {
     suspend fun saveToFile(file:File){
         try {
             withContext(Dispatchers.IO){
-                file.writeText(text.toString(),Charsets.UTF_8)
+                val content = withContext(Dispatchers.Main) { text }
+                val outputStream = FileOutputStream(file, false)
+                ContentIO.writeTo(content, outputStream, true)
             }
         }catch (e:Exception){
-            throw RuntimeException("Error saving file ${file.absolutePath}",e)
+            withContext(Dispatchers.Main){
+                rkUtils.toast(e.message)
+            }
         }
         
     }
