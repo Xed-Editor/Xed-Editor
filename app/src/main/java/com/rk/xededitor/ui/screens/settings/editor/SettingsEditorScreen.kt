@@ -76,7 +76,7 @@ fun SettingsEditorScreen() {
             iconResource = R.drawable.animation,
             onNavigate = {
                 _smoothTabs = !_smoothTabs
-                PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
+                PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, _smoothTabs)
                 smoothTabs = _smoothTabs
             },
             endWidget = {
