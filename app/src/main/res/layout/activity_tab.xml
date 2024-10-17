@@ -29,15 +29,12 @@
                 android:visibility="gone"
                 app:tabTextAppearance="@style/tab_text"
                 app:tabGravity="fill"
-               
                 app:tabMode="scrollable"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
         <RelativeLayout
             android:id="@+id/mainView"
-            android:focusable="false"
-            android:clickable="false"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
@@ -47,125 +44,6 @@
                 android:id="@+id/viewpager2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1px"
-                android:layout_alignTop="@+id/main_bottom_bar"
-                android:background="?colorOnSurface"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/main_bottom_bar"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:orientation="horizontal"
-                android:visibility="gone">
-
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:scrollbars="none"
-                    tools:ignore="HardcodedText"
-                    android:layout_height="match_parent">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:id="@+id/childs"
-                        android:orientation="horizontal"
-                        android:layout_height="wrap_content">
-
-                        <Button
-                            android:id="@+id/tab"
-                            android:textStyle="bold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="TAB"
-                            android:textColor="?colorOnSurface" />
-
-                        <Button
-                            android:id="@+id/untab"
-                            android:textStyle="bold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="UNTAB"
-                            android:textColor="?colorOnSurface"
-                            />
-
-                        <Button
-                            android:id="@+id/left_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="←"
-                            android:textColor="?colorOnSurface" />
-
-                        <Button
-                            android:id="@+id/right_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="→"
-                            android:textColor="?colorOnSurface" />
-
-
-                        <Button
-                            android:id="@+id/up_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="↑"
-                            android:textColor="?colorOnSurface" />
-
-                        <Button
-                            android:id="@+id/down_arrow"
-                            android:textSize="20sp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="↓"
-                            android:textColor="?colorOnSurface"
-                            tools:ignore="HardcodedText" />
-
-                        <Button
-                            android:id="@+id/home"
-                            android:textStyle="bold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="HOME"
-                            android:textColor="?colorOnSurface" />
-
-                        <Button
-                            android:id="@+id/end"
-                            android:textStyle="bold"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:background="?attr/selectableItemBackground"
-                            android:backgroundTint="@android:color/transparent"
-                            android:text="END"
-                            android:textColor="?colorOnSurface" />
-
-
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-
-
-            </LinearLayout>
 
         </RelativeLayout>
 

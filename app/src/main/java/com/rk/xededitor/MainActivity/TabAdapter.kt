@@ -140,10 +140,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 binding.tabs.visibility = View.GONE
                 binding.mainView.visibility = View.GONE
                 binding.openBtn.visibility = View.VISIBLE
-                binding.apply {
-                    divider.visibility = View.GONE
-                    mainBottomBar.visibility = View.GONE
-                }
             }
         }
     }
@@ -184,18 +180,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
             binding.tabs.visibility = View.VISIBLE
             binding.mainView.visibility = View.VISIBLE
             binding.openBtn.visibility = View.GONE
-
-            if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, false)) {
-                binding.apply {
-                    divider.visibility = View.VISIBLE
-                    mainBottomBar.visibility = View.VISIBLE
-                }
-            } else {
-                binding.apply {
-                    divider.visibility = View.GONE
-                    mainBottomBar.visibility = View.GONE
-                }
-            }
         }
     }
 }

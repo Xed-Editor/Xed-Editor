@@ -245,26 +245,16 @@ object ProjectManager {
                     if (it.isPaused) {
                         return@let
                     }
-                    val loading = LoadingPopup(it, null).show()
                     val file = File(node.value.getAbsolutePath())
-
-                    // delay 100ms for smoother click
-                    // opening a file always take more than 500ms because of these delays
-                    After(100) {
-                        rkUtils.runOnUiThread { it.adapter.addFragment(file) }
-
-                        // delay close drawer after 400ms
-                        After(400) {
-                            if (
-                                !PreferencesData.getBoolean(
-                                    PreferencesKeys.KEEP_DRAWER_LOCKED,
-                                    false,
-                                )
-                            ) {
-                                rkUtils.runOnUiThread { it.binding.drawerLayout.close() }
-                            }
-                            loading.hide()
-                        }
+                    
+                    it.adapter.addFragment(file)
+                    if (
+                        !PreferencesData.getBoolean(
+                            PreferencesKeys.KEEP_DRAWER_LOCKED,
+                            false,
+                        )
+                    ) {
+                        rkUtils.runOnUiThread { it.binding.drawerLayout.close() }
                     }
                 }
             }

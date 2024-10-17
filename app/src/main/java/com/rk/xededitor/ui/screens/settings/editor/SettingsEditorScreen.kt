@@ -247,17 +247,9 @@ fun SettingsEditorScreen() {
                     if (activity.tabViewModel.fragmentFiles.isEmpty()) {
                         return@let
                     }
-                    if (showArrowKeys) {
-                        activity.binding.apply {
-                            divider.visibility = View.VISIBLE
-                            mainBottomBar.visibility = View.VISIBLE
-                        }
-                    } else {
-                        activity.binding.apply {
-                            divider.visibility = View.GONE
-                            mainBottomBar.visibility = View.GONE
-                        }
-                    }
+                    
+                    
+                    //todo arrow keys
 
                     val viewpager = activity.binding.viewpager2
                     val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
