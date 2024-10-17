@@ -21,7 +21,7 @@ fi
 # setup package or start processes before starting the shell
 
 # List of necessary packages
-required_packages="gcompat glib git bash nano sudo build-base"
+required_packages="gcompat glib git bash nano sudo"
 
 # Check if each package is installed
 missing_packages=""
