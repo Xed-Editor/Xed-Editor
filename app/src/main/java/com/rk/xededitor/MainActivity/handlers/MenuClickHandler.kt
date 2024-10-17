@@ -17,6 +17,7 @@ import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.BatchReplacement
+import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
@@ -29,7 +30,6 @@ import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -171,7 +171,7 @@ object MenuClickHandler {
                                         .setMessage(getString(R.string.wait_download))
                                 loadingPopup.show()
 
-                                GlobalScope.launch(Dispatchers.IO) {
+                                DefaultScope.launch(Dispatchers.IO) {
                                     try {
                                         val gitRoot =
                                             FileManager.findGitRoot(
@@ -236,7 +236,7 @@ object MenuClickHandler {
                                                 LoadingPopup(activity, null)
                                                     .setMessage(getString(R.string.pushing))
                                             loadingPopup.show()
-                                            GlobalScope.launch(Dispatchers.IO) {
+                                            DefaultScope.launch(Dispatchers.IO) {
                                                 try {
                                                     val ref = git.repository.findRef(branch)
                                                     if (ref == null) {

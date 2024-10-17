@@ -15,9 +15,9 @@ import com.rk.runner.runners.shell.ShellRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import java.io.File
+import com.rk.libcommons.DefaultScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -62,7 +62,7 @@ object Runner {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun run(file: File, context: Context) {
-        GlobalScope.launch(Dispatchers.Default) {
+        DefaultScope.launch(Dispatchers.Default) {
             if (isRunnable(file)) {
                 val ext = file.name.substringAfterLast('.', "")
                 val runners = registry[ext]

@@ -1,13 +1,13 @@
 package com.rk.xededitor.ui.screens.settings.plugin
 
 import com.rk.plugin.server.PluginInfo
+import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.rkUtils.runOnUiThread
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -32,9 +32,8 @@ object RepoManager {
         return url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
     }
     
-    @OptIn(DelicateCoroutinesApi::class)
     fun getPluginsCallback(actionOnLoadPlugins: (List<PluginInfo>) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
+        DefaultScope.launch(Dispatchers.IO) {
             try {
                 val url = getRawGithubUrl(
                     "https://github.com/RohitKushvaha01/Karbon-Plugins/blob/main/repo.json"

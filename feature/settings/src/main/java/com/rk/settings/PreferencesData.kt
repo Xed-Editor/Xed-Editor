@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
 
-@Deprecated("Use Settings.getPreferencesViewModel() instead")
+
 @SuppressLint("ApplySharedPref")
 object PreferencesData {
     private const val PREFNAME = "Settings"
@@ -39,12 +39,12 @@ object PreferencesData {
         return getBoolean(PreferencesKeys.MONET, false)
     }
     
-    @Deprecated("Use Settings.getPreferencesViewModel() instead")
+    
     fun getBoolean(key: String?, default: Boolean): Boolean {
         return sharedPreferences!!.getBoolean(key, default)
     }
     
-    @Deprecated("Use Settings.getPreferencesViewModel() instead")
+    
     fun setBoolean(key: String?, value: Boolean) {
         val editor = sharedPreferences!!.edit()
         editor.putBoolean(key, value)
@@ -58,12 +58,12 @@ object PreferencesData {
 
     private var sharedPreferences: SharedPreferences? = null
     
-    @Deprecated("Use Settings.getPreferencesViewModel() instead")
+    
     fun getString(key: String?, default: String): String {
         return sharedPreferences!!.getString(key, default) ?: default
     }
     
-    @Deprecated("Use Settings.getPreferencesViewModel() instead")
+    
     fun setString(key: String?, value: String?) {
         val editor = sharedPreferences!!.edit()
         editor.putString(key, value)

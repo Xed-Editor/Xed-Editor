@@ -2,7 +2,6 @@ package com.rk.xededitor.MainActivity.editor.fragments
 
 import android.content.Context
 import android.view.View
-import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.CustomScope
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.KarbonEditor
@@ -11,10 +10,8 @@ import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.File
 

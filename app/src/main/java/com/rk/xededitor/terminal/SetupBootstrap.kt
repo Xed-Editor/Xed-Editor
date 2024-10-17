@@ -7,6 +7,7 @@ import com.rk.libcommons.LoadingPopup
 import com.rk.runner.commonUtils
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File
@@ -14,7 +15,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -75,13 +75,13 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
         val url =
             "https://raw.githubusercontent.com/Xed-Editor/Karbon-Packages/main/$archName.tar"
 
-        GlobalScope.launch(Dispatchers.IO) {
+        DefaultScope.launch(Dispatchers.IO) {
             if (terminal.cacheDir.exists().not()) {
                 terminal.cacheDir.mkdirs()
             }
 
             val complete = Runnable {
-                GlobalScope.launch(Dispatchers.Default) {
+                DefaultScope.launch(Dispatchers.Default) {
                     val rootfsDir = File(terminal.filesDir.parentFile, "rootfs")
                     if (rootfsDir.exists().not()) {
                         rootfsDir.mkdirs()
@@ -167,7 +167,7 @@ class SetupBootstrap(val terminal: Terminal, val runnable: Runnable) {
             }
 
             val failure = Runnable {
-                GlobalScope.launch(Dispatchers.Main) {
+                DefaultScope.launch(Dispatchers.Main) {
                     rkUtils.toast(rkUtils.getString(R.string.pkg_download_failed))
                     loadingPopup.hide()
                     terminal.finish()

@@ -9,7 +9,6 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
-import com.rk.xededitor.SetupEditor
 import kotlinx.coroutines.launch
 import java.io.File
 

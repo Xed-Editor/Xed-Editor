@@ -3,13 +3,13 @@ package com.rk.xededitor.update
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.settings.Settings
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -24,11 +24,11 @@ object UpdateManager {
     fun fetch(branch: String) {
         try {
             GlobalScope.launch(Dispatchers.IO) {
-                if (Settings.getPreferencesViewModel().checkUpdate.first().not()) {
+                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, true).not()) {
                     return@launch
                 }
                 
-                val lastUpdate = Settings.getPreferencesViewModel().lastUpdate.first()
+                val lastUpdate = PreferencesData.getString(PreferencesKeys.LAST_UPDATE_CHECK, "0").toLong()
                 val timeDifferenceInMillis = if (lastUpdate > 0) {
                     (lastUpdate - System.currentTimeMillis()) * 1000
                 } else {
@@ -54,7 +54,7 @@ object UpdateManager {
                         parseJson(jsonResponse)
                     }
                 }
-                Settings.getPreferencesViewModel().setLastUpdate(System.currentTimeMillis())
+                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK,System.currentTimeMillis().toString())
             }
         } catch (e: Exception) {
             e.printStackTrace()

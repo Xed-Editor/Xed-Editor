@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.plugin.server.PluginUtils.getPluginRoot
 import com.rk.settings.PreferencesData
@@ -18,7 +19,6 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -106,7 +106,7 @@ object ProjectBar {
                                             LoadingPopup(this, null)
                                                 .setMessage(getString(R.string.cloning))
                                         loadingPopup.show()
-                                        GlobalScope.launch(Dispatchers.IO) {
+                                        DefaultScope.launch(Dispatchers.IO) {
                                             try {
                                                 Git.cloneRepository()
                                                     .setURI(repoLink)

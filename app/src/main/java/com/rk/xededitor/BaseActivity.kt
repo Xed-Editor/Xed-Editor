@@ -2,25 +2,14 @@ package com.rk.xededitor
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
 import androidx.collection.ArrayMap
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.rk.plugin.server.api.PluginLifeCycle
-import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
-import com.rk.xededitor.SimpleEditor.SimpleEditor
 import com.rk.xededitor.ui.theme.ThemeManager
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.lastOrNull
-import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 @Keep
