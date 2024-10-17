@@ -91,6 +91,8 @@ class MainActivity : BaseActivity() {
         if (menu is MenuBuilder) {
             menu.setOptionalIconsVisible(true)
         }
+        
+        menu.findItem(R.id.action_add).isVisible = true
         return true
     }
     

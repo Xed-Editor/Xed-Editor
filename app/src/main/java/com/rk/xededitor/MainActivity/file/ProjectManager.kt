@@ -254,7 +254,7 @@ object ProjectManager {
                             false,
                         )
                     ) {
-                        rkUtils.runOnUiThread { it.binding.drawerLayout.close() }
+                        it.binding.drawerLayout.close()
                     }
                 }
             }

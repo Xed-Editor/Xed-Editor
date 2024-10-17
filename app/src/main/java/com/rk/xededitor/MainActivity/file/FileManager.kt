@@ -33,6 +33,17 @@ class FileManager(private val mainActivity: MainActivity) {
                 ProjectManager.addProject(mainActivity, file)
             }
         }
+    
+    val createFileLauncher = mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            val path = data?.data?.toPath()
+            val file = File(path.toString())
+            if (file.exists() and file.isFile){
+                mainActivity.adapter.addFragment(file)
+            }
+        }
+    }
 
     fun requestOpenFile() {
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

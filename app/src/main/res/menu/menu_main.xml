@@ -2,12 +2,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!--<item
-    android:id="@+id/action_add"
-    android:icon="@drawable/add"
-    android:title="Add"
-    android:visible="true"
-    app:showAsAction="always" />-->
+    <item
+        android:id="@+id/action_add"
+        android:icon="@drawable/add"
+        android:title="@string/add"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_all"
@@ -56,8 +56,8 @@
     <item
         android:id="@+id/batchrep"
         android:icon="@drawable/find_replace"
-        android:visible="false"
         android:title="@string/batch_replacement"
+        android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/search"
@@ -100,19 +100,19 @@
         android:icon="@drawable/run"
         android:title="Run"
         android:visible="false"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
     <item
         android:id="@+id/git"
         android:icon="@drawable/git"
         android:title="Git"
         android:visible="false"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/suggestions"
         android:icon="@drawable/baseline_font_download_24"
         android:title="Toggle Suggestion"
         android:visible="false"
-        app:showAsAction="never"/>
+        app:showAsAction="never" />
 
 
 </menu>
