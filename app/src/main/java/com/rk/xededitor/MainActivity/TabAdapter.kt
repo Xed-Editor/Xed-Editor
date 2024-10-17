@@ -10,6 +10,7 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -126,7 +127,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
             if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
                 tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
                 tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
-                MenuItemHandler.set.remove(tabViewModel.fragmentFiles[position].name)
+                synchronized(EditorFragment.set){
+                    EditorFragment.set.remove(tabViewModel.fragmentFiles[position].name)
+                }
+                
                 tabViewModel.fragmentFiles.removeAt(position)
                 tabViewModel.fragmentTitles.removeAt(position)
 

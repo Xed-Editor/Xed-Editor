@@ -10,4 +10,5 @@ interface CoreFragment {
      fun onDestroy()
      fun onCreate()
      fun loadFile(file: File)
+     fun getFile():File?
 }

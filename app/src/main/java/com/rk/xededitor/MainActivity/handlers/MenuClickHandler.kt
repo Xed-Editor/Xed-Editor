@@ -19,7 +19,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R

@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.editor
+package com.rk.xededitor.MainActivity.editor.fragments.editor
 
 import android.content.Context
 import android.graphics.Typeface

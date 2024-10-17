@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import kotlinx.coroutines.launch
@@ -29,9 +29,8 @@ class TabFragment : Fragment() {
                         val file = File(filePath)
                         val editorFragment = EditorFragment(requireContext())
                         editorFragment.onCreate()
-                        lifecycleScope.launch { editorFragment.editor?.loadFile(file) }
                         fragment = editorFragment
-                        fragment!!.loadFile(file)
+                        editorFragment.loadFile(file)
                     }
                 }
             }

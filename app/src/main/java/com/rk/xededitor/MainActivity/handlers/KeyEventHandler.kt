@@ -7,13 +7,11 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.TabFragment
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.MainActivity.file.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.R
-import io.github.rosemoe.sora.interfaces.KeyEventHandler
 
 object KeyEventHandler {
     
@@ -29,18 +27,18 @@ object KeyEventHandler {
         if (keyEvent.isShiftPressed) {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_S -> {
-//                    currentFragment?.let {
-//                        to_save_file = it.file
-//                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-//                        MainActivity.activityRef.get()?.let { activity ->
-//                            startActivityForResult(
-//                                activity,
-//                                intent,
-//                                REQUEST_CODE_OPEN_DIRECTORY,
-//                                null,
-//                            )
-//                        }
-//                    }
+                    currentFragment?.fragment?.getFile()?.let {
+                        to_save_file = it
+                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                        MainActivity.activityRef.get()?.let { activity ->
+                            startActivityForResult(
+                                activity,
+                                intent,
+                                REQUEST_CODE_OPEN_DIRECTORY,
+                                null,
+                            )
+                        }
+                    }
                 }
             }
         }

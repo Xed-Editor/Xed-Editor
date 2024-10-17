@@ -5,10 +5,9 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.editor.TabFragment
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.R
-import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -65,7 +64,7 @@ object MenuItemHandler {
         }
     }
 
-    val set = HashSet<String>()
+    
 
     private fun updateUndoRedoAndModifiedStar(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
         val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment){
@@ -76,48 +75,6 @@ object MenuItemHandler {
         
         menu.findItem(R.id.redo).isEnabled = editorFragment?.editor?.canRedo() == true
         menu.findItem(R.id.undo).isEnabled = editorFragment?.editor?.canUndo() == true
-
-        /* if (currentFragment?.setListener?.not() == true) {
-            currentFragment.let { tabFragment ->
-                tabFragment.editor?.subscribeAlways(ContentChangeEvent::class.java) {
-                    menu.findItem(R.id.redo).isEnabled = currentFragment.editor?.canRedo() == true
-                    menu.findItem(R.id.undo).isEnabled = currentFragment.editor?.canUndo() == true
-
-                    currentFragment.lifecycleScope.launch(Dispatchers.Default) {
-                        try {
-                            val fileName = currentFragment.file!!.name
-                            val index =
-                                activity.tabViewModel.fragmentFiles.indexOf(currentFragment.file)
-
-                            if (set.contains(fileName)) {
-                                // Check if the title doesn't already contain a '*'
-                                val currentTitle = activity.tabViewModel.fragmentTitles[index]
-                                if (!currentTitle.endsWith("*")) {
-                                    activity.tabViewModel.fragmentTitles[index] = "$currentTitle*"
-
-                                    withContext(Dispatchers.Main) {
-                                        activity.tabLayout.getTabAt(index)?.text =
-                                            activity.tabViewModel.fragmentTitles[index]
-                                    }
-                                }
-                            } else {
-                                set.add(fileName)
-                                val currentTitle = activity.tabViewModel.fragmentTitles[index]
-                                activity.tabViewModel.fragmentTitles[index] = "$currentTitle*"
-                                
-                                withContext(Dispatchers.Main) {
-                                    activity.tabLayout.getTabAt(index)?.text =
-                                        activity.tabViewModel.fragmentTitles[index]
-                                }
-                            }
-                        } catch (_: Exception) {}
-                    }
-                }
-                if (tabFragment.setListener.not()) {
-                    tabFragment.setListener = true
-                }
-            }
-        }  */
     }
 
     private fun editorMenu(menu: Menu, show: Boolean) {

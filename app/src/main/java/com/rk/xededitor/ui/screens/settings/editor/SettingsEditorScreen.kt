@@ -16,11 +16,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.AutoSaver
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
-import com.rk.xededitor.MainActivity.file.TabSelectedListener
+import com.rk.xededitor.MainActivity.editor.fragments.editor.AutoSaver
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils

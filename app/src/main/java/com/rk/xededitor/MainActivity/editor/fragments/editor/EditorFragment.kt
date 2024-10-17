@@ -1,14 +1,14 @@
-package com.rk.xededitor.MainActivity.editor.fragments
+package com.rk.xededitor.MainActivity.editor.fragments.editor
 
 import android.content.Context
 import android.view.View
 import com.rk.libcommons.CustomScope
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.KarbonEditor
 import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
+import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,6 +17,7 @@ import java.io.File
 
 class EditorFragment(val context: Context) : CoreFragment {
     
+    @JvmField
     var file: File? = null
     var editor: KarbonEditor? = null
     val scope = CustomScope()
@@ -34,8 +35,14 @@ class EditorFragment(val context: Context) : CoreFragment {
             delay(1000)
             setupEditor?.setupLanguage(file!!.name)
             editor!!.loadFile(xfile)
+            withContext(Dispatchers.Main){
+                setChangeListener()
+            }
         }
+        
     }
+    
+    override fun getFile(): File? = file
     
     
     fun save(showToast: Boolean = true) {
@@ -71,7 +78,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
     
     
-    fun undo() {
+    inline fun undo() {
         editor?.undo()
         MainActivity.activityRef.get()?.let {
             it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
@@ -79,11 +86,63 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
     }
     
-    fun redo() {
+    inline fun redo() {
         editor?.redo()
         MainActivity.activityRef.get()?.let {
             it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
             it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+        }
+    }
+    
+    private suspend inline fun updateUndoRedo() {
+        withContext(Dispatchers.Main){
+            MainActivity.activityRef.get()?.let {
+                it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
+                it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+            }
+        }
+    }
+    
+    companion object{
+        val set = HashSet<String>()
+    }
+    
+    private var t = 0
+    private fun setChangeListener() {
+        editor!!.subscribeAlways(ContentChangeEvent::class.java) {
+            scope.launch {
+                updateUndoRedo()
+                t++
+                println(t)
+                
+                
+                try {
+                    val fileName = file!!.name
+                    fun addStar(){
+                        val index = MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles.indexOf(file)
+                        val currentTitle = MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index]
+                        // Check if the title doesn't already contain a '*'
+                        if (!currentTitle.endsWith("*")) {
+                            MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index] = "$currentTitle*"
+                            
+                            scope.launch(Dispatchers.Main) {
+                                MainActivity.activityRef.get()!!.tabLayout.getTabAt(index)?.text =
+                                    MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index]
+                            }
+                        }
+                    }
+                    
+                    if (set.contains(fileName)) {
+                        addStar()
+                    } else {
+                        set.add(fileName)
+                        addStar()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+                
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils

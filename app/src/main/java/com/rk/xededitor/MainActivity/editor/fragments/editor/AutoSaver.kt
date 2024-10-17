@@ -1,10 +1,9 @@
-package com.rk.xededitor.MainActivity.editor
+package com.rk.xededitor.MainActivity.editor.fragments.editor
 
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.EditorFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
