@@ -43,7 +43,7 @@ object Runner {
         registry["html"] = mutableListOf(HtmlRunner())
         registry["md"] = mutableListOf(MarkDownRunner())
         registry["py"] = mutableListOf(PythonRunner())
-        registry["java"] = mutableListOf(JavacRunner()) // todo: MavenRunner
+        registry["java"] = mutableListOf<RunnerImpl>(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
 
         mutableListOf<RunnerImpl>(NodeRunner()).let {
             registry["mjs"] = it
