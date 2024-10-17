@@ -47,17 +47,18 @@
 
         </RelativeLayout>
 
+
         <Button
             android:id="@+id/openBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@android:color/transparent"
+            style="@style/Widget.Material3.Button.TextButton"
             android:onClick="openDrawer"
             android:focusable="false"
             android:textStyle="bold"
-            android:text="@string/open_file_or_folder"
-            android:textColor="?colorOnSurface" />
+            android:text="@string/click_open"
+            />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -281,4 +281,6 @@
     <string name="check_for_updates">Check for Updates</string>
     <string name="check_for_updates_desc">Periodically Check For Updates</string>
 
+    <string name="click_open">Click here to open file</string>
+
 </resources>
