@@ -61,7 +61,7 @@ class FileManager(private val mainActivity: MainActivity) {
         val popupView = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
         val editText = popupView.findViewById<View>(R.id.name) as EditText
 
-        editText.setText(Environment.getExternalStorageDirectory().absolutePath)
+        editText.setText("/sdcard")
         editText.hint = getString(R.string.ff_path)
 
         MaterialAlertDialogBuilder(mainActivity)
@@ -82,7 +82,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     return@setPositiveButton
                 }
 
-                if (!file.canRead() && file.canWrite()) {
+                if (!file.canRead() || !file.canWrite()) {
                     rkUtils.toast(getString(R.string.permission_denied))
                     return@setPositiveButton
                 }

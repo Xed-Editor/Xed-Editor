@@ -179,16 +179,6 @@ object ProjectBar {
                         listener,
                     )
                     addItem(
-                        getString(R.string.open_file),
-                        getString(R.string.open_file_desc),
-                        ContextCompat.getDrawable(
-                            this@with,
-                            R.drawable.outline_insert_drive_file_24,
-                        ),
-                        openFileId,
-                        listener,
-                    )
-                    addItem(
                         getString(R.string.open_path),
                         getString(R.string.open_path_desc),
                         ContextCompat.getDrawable(this@with, R.drawable.android),
