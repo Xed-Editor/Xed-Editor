@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.activities.settings
 
+
 import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -8,9 +9,9 @@ import androidx.navigation.compose.composable
 import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
-import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.about.AboutScreen
+import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.plugin.ManagePluginsScreen
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 import soup.compose.material.motion.animation.rememberSlideDistance

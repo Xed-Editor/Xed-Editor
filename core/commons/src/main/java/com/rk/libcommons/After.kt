@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-// deprecated
+@Deprecated("Use Coroutine delay() instead")
 class After(timeInMillis: Long, runnable: Runnable) {
     var scope: CoroutineScope = GlobalScope
 

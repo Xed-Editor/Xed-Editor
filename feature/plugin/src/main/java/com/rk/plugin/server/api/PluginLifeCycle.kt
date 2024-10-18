@@ -27,6 +27,8 @@ object PluginLifeCycle {
     // broadcast event
     @OptIn(DelicateCoroutinesApi::class)
     @Keep
+    
+    //may cause a memory leak because of GlobalScope
     fun onActivityEvent(activity: Activity, type: LifeCycleType) {
         GlobalScope.launch(Dispatchers.Default) {
             eventMap[type]?.forEach { activityEvent ->

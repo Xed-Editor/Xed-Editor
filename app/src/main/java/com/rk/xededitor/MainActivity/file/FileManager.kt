@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
+import com.rk.xededitor.MainActivity.file.PathUtils.toPath
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -20,7 +21,7 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(convertUriToPath(mainActivity, it.data!!.data))
+                val file = File(it.data!!.data!!.toPath())
                 mainActivity.adapter.addFragment(file)
             }
         }
@@ -28,10 +29,23 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenDir =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(convertUriToPath(mainActivity, it.data!!.data))
+                val file = File(it.data!!.data!!.toPath())
                 ProjectManager.addProject(mainActivity, file)
             }
         }
+    
+    val createFileLauncher = mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            val path = data?.data?.toPath()
+            val file = File(path.toString())
+            if (file.exists() and file.isFile){
+                mainActivity.adapter.addFragment(file)
+            }else{
+                rkUtils.toast("Unsupported file location ${data?.data}")
+            }
+        }
+    }
 
     fun requestOpenFile() {
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
@@ -49,7 +63,7 @@ class FileManager(private val mainActivity: MainActivity) {
         val popupView = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
         val editText = popupView.findViewById<View>(R.id.name) as EditText
 
-        editText.setText(Environment.getExternalStorageDirectory().absolutePath)
+        editText.setText("/sdcard")
         editText.hint = getString(R.string.ff_path)
 
         MaterialAlertDialogBuilder(mainActivity)
@@ -70,7 +84,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     return@setPositiveButton
                 }
 
-                if (!file.canRead() && file.canWrite()) {
+                if (!file.canRead() || !file.canWrite()) {
                     rkUtils.toast(getString(R.string.permission_denied))
                     return@setPositiveButton
                 }

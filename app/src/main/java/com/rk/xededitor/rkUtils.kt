@@ -17,13 +17,14 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
+@Suppress("NOTHING_TO_INLINE")
 object rkUtils {
-    private var mHandler = Handler(Looper.getMainLooper())
-
-    fun runOnUiThread(runnable: Runnable) {
+    var mHandler = Handler(Looper.getMainLooper())
+    
+    inline fun runOnUiThread(runnable: Runnable) {
         mHandler.post(runnable)
     }
-
+    
     fun shareText(ctx: Context, text: String?) {
         try {
             val sendIntent = Intent()
@@ -38,7 +39,8 @@ object rkUtils {
         }
     }
 
-    fun toast(message: String?) {
+    
+    inline fun toast(message: String?) {
         runOnUiThread { Toast.makeText(App.app, message, Toast.LENGTH_SHORT).show() }
     }
 
@@ -56,15 +58,16 @@ object rkUtils {
         return isLargeScreen(context) and isLandscape(context)
     }
 
-    fun debug(string: String, tag: String = "rkUtils") {
+    
+    inline fun debug(string: String, tag: String = "rkUtils") {
         Log.d(tag, string)
     }
 
-    fun error(string: String, tag: String = "rkUtils") {
+    inline fun error(string: String, tag: String = "rkUtils") {
         Log.e(tag, string)
     }
 
-    fun warn(string: String, tag: String = "rkUtils") {
+    inline fun warn(string: String, tag: String = "rkUtils") {
         Log.w(tag, string)
     }
 
@@ -81,11 +84,12 @@ object rkUtils {
         return false
     }
 
-    fun getString(stringId: Int): String {
+    
+    inline fun getString(stringId: Int): String {
         return ContextCompat.getString(App.app, stringId)
     }
 
-    fun dpToPx(dp: Float, ctx: Context): Int {
+    inline fun dpToPx(dp: Float, ctx: Context): Int {
         val density = ctx.resources.displayMetrics.density
         return Math.round(dp * density)
     }

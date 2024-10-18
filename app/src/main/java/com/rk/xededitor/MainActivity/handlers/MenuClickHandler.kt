@@ -11,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
 import com.rk.runner.Runner
@@ -18,6 +19,8 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -27,257 +30,242 @@ import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
+typealias Id = R.id
+
 object MenuClickHandler {
-
+    
     private var searchText: String? = ""
-
+    
     @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        } else {
+            null
+        }
+        
         when (id) {
-            R.id.run -> {
-                activity.adapter.getCurrentFragment()?.let {
-                    it.file?.let { it1 -> Runner.run(it1, activity) }
-                }
+            Id.run -> {
+                editorFragment?.file?.let { it1 -> Runner.run(it1, activity) }
                 return true
             }
-
-            R.id.action_all -> {
-                activity.adapter.tabFragments.values.forEach { f -> f?.get()?.save(false) }
+            
+            Id.action_all -> {
+                activity.adapter.tabFragments.values.forEach { f ->
+                    if (f.get()?.type == FragmentType.EDITOR) {
+                        (f.get()?.fragment as EditorFragment).save(false)
+                    }
+                }
                 rkUtils.toast("Saved all files")
                 return true
             }
-
-            R.id.action_save -> {
-                activity.adapter.getCurrentFragment()?.save()
+            
+            Id.action_save -> {
+                editorFragment?.save(true)
                 return true
             }
-
-            R.id.undo -> {
-                activity.adapter.getCurrentFragment()?.undo()
+            
+            Id.undo -> {
+                editorFragment?.undo()
                 return true
             }
-
-            R.id.redo -> {
-                activity.adapter.getCurrentFragment()?.redo()
+            
+            Id.redo -> {
+                editorFragment?.redo()
                 return true
             }
-
-            R.id.action_settings -> {
+            
+            Id.action_settings -> {
                 activity.startActivity(Intent(activity, SettingsActivity::class.java))
                 return true
             }
-
-            R.id.terminal -> {
+            
+            Id.terminal -> {
                 // Handle terminal
                 activity.startActivity(Intent(activity, Terminal::class.java))
                 return true
             }
-
-            R.id.action_print -> {
+            
+            Id.action_print -> {
                 Printer.print(
                     activity,
-                    activity.adapter.getCurrentFragment()?.editor?.text.toString(),
+                    editorFragment?.editor?.text.toString(),
                 )
                 return true
             }
-
-            R.id.batchrep -> {
+            
+            Id.batchrep -> {
                 activity.startActivity(Intent(activity, BatchReplacement::class.java))
                 return true
             }
-
-            R.id.search -> {
+            
+            Id.search -> {
                 // Handle search
                 handleSearch(activity)
                 return true
             }
-
-            R.id.search_next -> {
-                activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoNext()
+            
+            Id.search_next -> {
+                editorFragment?.editor?.searcher?.gotoNext()
                 return true
             }
-
-            R.id.search_previous -> {
-                activity.adapter.getCurrentFragment()?.editor?.searcher?.gotoPrevious()
+            
+            Id.search_previous -> {
+                editorFragment?.editor?.searcher?.gotoPrevious()
                 return true
             }
-
-            R.id.search_close -> {
+            
+            Id.search_close -> {
                 // Handle search_close
                 handleSearchClose(activity)
                 return true
             }
-
-            R.id.replace -> {
+            
+            Id.replace -> {
                 // Handle replace
                 handleReplace(activity)
                 return true
             }
-
-            R.id.share -> {
+            
+            Id.share -> {
                 rkUtils.shareText(
                     activity,
-                    activity.adapter.getCurrentFragment()?.editor?.text.toString(),
+                    editorFragment?.editor?.text.toString(),
                 )
                 return true
             }
-
-            R.id.suggestions -> {
-                activity.adapter.getCurrentFragment()?.let {
-                    it.showSuggestions(it.isShowSuggestion().not())
-                }
+            
+            Id.suggestions -> {
+                editorFragment?.editor?.showSuggestions(editorFragment.editor?.isShowSuggestion()?.not() == true)
                 return true
             }
-
-            R.id.git -> {
+            
+            Id.git -> {
                 val pull = View.generateViewId()
                 val push = View.generateViewId()
-
+                
                 var dialog: AlertDialog? = null
                 val credentials = PreferencesData.getString(PreferencesKeys.GIT_CRED, "").split(":")
                 if (credentials.size != 2) {
                     rkUtils.toast(getString(R.string.inavalid_git_cred))
                     return true
                 }
-                val userdata =
-                    PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "").split(":")
+                val userdata = PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "").split(":")
                 if (userdata.size != 2) {
                     rkUtils.toast(getString(R.string.inavalid_userdata))
                     return true
                 }
-                val listener =
-                    View.OnClickListener { v ->
-                        when (v.id) {
-                            pull -> {
-                                val loadingPopup =
-                                    LoadingPopup(activity, null)
-                                        .setMessage(getString(R.string.wait_download))
-                                loadingPopup.show()
-
-                                GlobalScope.launch(Dispatchers.IO) {
-                                    try {
-                                        val gitRoot =
-                                            FileManager.findGitRoot(
-                                                activity.adapter.getCurrentFragment()?.file
+                val listener = View.OnClickListener { v ->
+                    when (v.id) {
+                        pull -> {
+                            val loadingPopup = LoadingPopup(activity, null).setMessage(getString(R.string.wait_download))
+                            loadingPopup.show()
+                            
+                            DefaultScope.launch(Dispatchers.IO) {
+                                try {
+                                    val gitRoot = FileManager.findGitRoot(
+                                        editorFragment?.file
+                                    )
+                                    if (gitRoot != null) {
+                                        val git = Git.open(gitRoot)
+                                        git.pull().setCredentialsProvider(
+                                            UsernamePasswordCredentialsProvider(
+                                                credentials[0],
+                                                credentials[1],
                                             )
-                                        if (gitRoot != null) {
-                                            val git = Git.open(gitRoot)
-                                            git.pull()
-                                                .setCredentialsProvider(
+                                        ).call()
+                                    }
+                                } catch (e: GitAPIException) {
+                                    rkUtils.toast(e.message)
+                                }
+                                withContext(Dispatchers.Main) {
+                                    rkUtils.toast(getString(R.string.done))
+                                    loadingPopup.hide()
+                                }
+                            }
+                        }
+                        
+                        push -> {
+                            val gitRoot = FileManager.findGitRoot(
+                                editorFragment?.file
+                            )
+                            if (gitRoot != null) {
+                                val git = Git.open(gitRoot)
+                                val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
+                                view.findViewById<LinearLayout>(Id.mimeTypeEditor).visibility = View.VISIBLE
+                                val branchedit = view.findViewById<EditText>(Id.name).apply {
+                                    hint = getString(R.string.git_branch)
+                                    setText(git.repository.branch)
+                                }
+                                val commitedit = view.findViewById<EditText>(Id.mime).apply {
+                                    hint = getString(R.string.git_commit_msg)
+                                    setText("")
+                                }
+                                MaterialAlertDialogBuilder(activity).setTitle(getString(R.string.push)).setView(view)
+                                    .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.apply)) { _, _ ->
+                                        val branch = branchedit.text.toString()
+                                        val commit = commitedit.text.toString()
+                                        if (branch.isEmpty() || commit.isEmpty()) {
+                                            rkUtils.toast(getString(R.string.fill_both))
+                                            return@setPositiveButton
+                                        }
+                                        val loadingPopup = LoadingPopup(activity, null).setMessage(getString(R.string.pushing))
+                                        loadingPopup.show()
+                                        DefaultScope.launch(Dispatchers.IO) {
+                                            try {
+                                                val ref = git.repository.findRef(branch)
+                                                if (ref == null) {
+                                                    git.branchCreate().setName(branch).call()
+                                                    git.checkout().setName(branch).call()
+                                                } else if (git.repository.branch != branch) {
+                                                    git.checkout().setName(branch).call()
+                                                }
+                                                val config = git.repository.config
+                                                config.setString(
+                                                    "user",
+                                                    null,
+                                                    "name",
+                                                    userdata[0],
+                                                )
+                                                config.setString(
+                                                    "user",
+                                                    null,
+                                                    "email",
+                                                    userdata[1],
+                                                )
+                                                config.save()
+                                                git.add().addFilepattern(".").call()
+                                                git.commit().setMessage(commit).call()
+                                                git.push().setCredentialsProvider(
                                                     UsernamePasswordCredentialsProvider(
                                                         credentials[0],
                                                         credentials[1],
                                                     )
-                                                )
-                                                .call()
-                                        }
-                                    } catch (e: GitAPIException) {
-                                        rkUtils.toast(e.message)
-                                    }
-                                    withContext(Dispatchers.Main) {
-                                        rkUtils.toast(getString(R.string.done))
-                                        loadingPopup.hide()
-                                    }
-                                }
-                            }
-
-                            push -> {
-                                val gitRoot =
-                                    FileManager.findGitRoot(
-                                        activity.adapter.getCurrentFragment()?.file
-                                    )
-                                if (gitRoot != null) {
-                                    val git = Git.open(gitRoot)
-                                    val view =
-                                        LayoutInflater.from(activity)
-                                            .inflate(R.layout.popup_new, null)
-                                    view
-                                        .findViewById<LinearLayout>(R.id.mimeTypeEditor)
-                                        .visibility = View.VISIBLE
-                                    val branchedit =
-                                        view.findViewById<EditText>(R.id.name).apply {
-                                            hint = getString(R.string.git_branch)
-                                            setText(git.repository.branch)
-                                        }
-                                    val commitedit =
-                                        view.findViewById<EditText>(R.id.mime).apply {
-                                            hint = getString(R.string.git_commit_msg)
-                                            setText("")
-                                        }
-                                    MaterialAlertDialogBuilder(activity)
-                                        .setTitle(getString(R.string.push))
-                                        .setView(view)
-                                        .setNegativeButton(getString(R.string.cancel), null)
-                                        .setPositiveButton(getString(R.string.apply)) { _, _ ->
-                                            val branch = branchedit.text.toString()
-                                            val commit = commitedit.text.toString()
-                                            if (branch.isEmpty() || commit.isEmpty()) {
-                                                rkUtils.toast(getString(R.string.fill_both))
-                                                return@setPositiveButton
+                                                ).call()
+                                            } catch (e: GitAPIException) {
+                                                rkUtils.toast(e.message)
                                             }
-                                            val loadingPopup =
-                                                LoadingPopup(activity, null)
-                                                    .setMessage(getString(R.string.pushing))
-                                            loadingPopup.show()
-                                            GlobalScope.launch(Dispatchers.IO) {
-                                                try {
-                                                    val ref = git.repository.findRef(branch)
-                                                    if (ref == null) {
-                                                        git.branchCreate().setName(branch).call()
-                                                        git.checkout().setName(branch).call()
-                                                    } else if (git.repository.branch != branch) {
-                                                        git.checkout().setName(branch).call()
-                                                    }
-                                                    val config = git.repository.config
-                                                    config.setString(
-                                                        "user",
-                                                        null,
-                                                        "name",
-                                                        userdata[0],
-                                                    )
-                                                    config.setString(
-                                                        "user",
-                                                        null,
-                                                        "email",
-                                                        userdata[1],
-                                                    )
-                                                    config.save()
-                                                    git.add().addFilepattern(".").call()
-                                                    git.commit().setMessage(commit).call()
-                                                    git.push()
-                                                        .setCredentialsProvider(
-                                                            UsernamePasswordCredentialsProvider(
-                                                                credentials[0],
-                                                                credentials[1],
-                                                            )
-                                                        )
-                                                        .call()
-                                                } catch (e: GitAPIException) {
-                                                    rkUtils.toast(e.message)
-                                                }
-                                                withContext(Dispatchers.Main) {
-                                                    rkUtils.toast(getString(R.string.done))
-                                                    loadingPopup.hide()
-                                                }
+                                            withContext(Dispatchers.Main) {
+                                                rkUtils.toast(getString(R.string.done))
+                                                loadingPopup.hide()
                                             }
                                         }
-                                        .show()
-                                } else {
-                                    rkUtils.toast(getString(R.string.nogit))
-                                }
+                                    }.show()
+                            } else {
+                                rkUtils.toast(getString(R.string.nogit))
                             }
                         }
-                        dialog?.dismiss()
-                        dialog = null
                     }
+                    dialog?.dismiss()
+                    dialog = null
+                }
                 ActionPopup(activity).apply {
                     addItem(
                         getString(R.string.pull),
@@ -299,83 +287,97 @@ object MenuClickHandler {
                 }
                 return true
             }
-
+            
+            Id.action_add -> {
+                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.setType("application/octet-stream")
+                intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
+                activity.fileManager.createFileLauncher.launch(intent)
+                return true
+            }
+            
             else -> return false
         }
     }
-
+    
     private fun handleReplace(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
-        MaterialAlertDialogBuilder(activity)
-            .setTitle(activity.getString(R.string.replace))
-            .setView(popupView)
-            .setNegativeButton(activity.getString(R.string.cancel), null)
-            .setPositiveButton(getString(R.string.replaceall)) { _, _ ->
+        MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace)).setView(popupView)
+            .setNegativeButton(activity.getString(R.string.cancel), null).setPositiveButton(getString(R.string.replaceall)) { _, _ ->
                 replaceAll(popupView, activity)
-            }
-            .show()
+            }.show()
         return true
     }
-
+    
     private fun replaceAll(popupView: View, activity: MainActivity) {
-        val editText = popupView.findViewById<EditText>(R.id.replace_replacement)
+        val editText = popupView.findViewById<EditText>(Id.replace_replacement)
         val text = editText.text.toString()
-
-        activity.adapter.getCurrentFragment()?.editor?.apply {
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        } else {
+            null
+        }
+        
+        editorFragment?.editor?.apply {
             setText(searchText?.let { getText().toString().replace(it, text) })
         }
     }
-
+    
     private fun handleSearchClose(activity: MainActivity): Boolean {
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        } else {
+            null
+        }
         searchText = ""
-        activity.adapter.getCurrentFragment()?.editor?.searcher?.stopSearch()
-        activity.adapter.getCurrentFragment()?.setSearching(false)
-        activity.adapter.getCurrentFragment()?.editor?.invalidate()
+        editorFragment?.editor?.searcher?.stopSearch()
+        editorFragment?.editor!!.setSearching(false)
+        editorFragment.editor?.invalidate()
         MenuItemHandler.update(activity)
         return true
     }
-
+    
     private fun handleSearch(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
-        val searchBox = popupView.findViewById<EditText>(R.id.searchbox)
-
+        val searchBox = popupView.findViewById<EditText>(Id.searchbox)
+        
         if (!searchText.isNullOrEmpty()) {
             searchBox.setText(searchText)
         }
-
-        MaterialAlertDialogBuilder(activity)
-            .setTitle(activity.getString(R.string.search))
-            .setView(popupView)
-            .setNegativeButton(activity.getString(R.string.cancel), null)
-            .setPositiveButton(activity.getString(R.string.search)) { _, _ ->
+        
+        MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.search)).setView(popupView)
+            .setNegativeButton(activity.getString(R.string.cancel), null).setPositiveButton(activity.getString(R.string.search)) { _, _ ->
                 // search
                 MenuItemHandler.update(activity)
                 initiateSearch(activity, searchBox, popupView)
-            }
-            .show()
+            }.show()
         return true
     }
-
+    
     private fun initiateSearch(activity: MainActivity, searchBox: EditText, popupView: View) {
         searchText = searchBox.text.toString()
-
+        
         if (searchText?.isBlank() == true) {
             return
         }
-
+        
+        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        } else {
+            null
+        }
         // search
-        val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
-        activity.adapter.getCurrentFragment()?.let {
-            it.editor
-                ?.searcher
-                ?.search(
-                    searchText!!,
-                    EditorSearcher.SearchOptions(
-                        EditorSearcher.SearchOptions.TYPE_NORMAL,
-                        !checkBox.isChecked,
-                    ),
-                )
-            it.setSearching(true)
+        val checkBox = popupView.findViewById<CheckBox>(Id.case_senstive)
+        editorFragment?.let {
+            it.editor?.searcher?.search(
+                searchText!!,
+                EditorSearcher.SearchOptions(
+                    EditorSearcher.SearchOptions.TYPE_NORMAL,
+                    !checkBox.isChecked,
+                ),
+            )
+            it.editor?.setSearching(true)
             MenuItemHandler.update(activity)
         }
     }

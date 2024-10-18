@@ -9,6 +9,8 @@ import com.google.android.material.tabs.TabLayout
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -22,8 +24,7 @@ class Kee(val file: File) {
         if (other !is Kee) {
             return false
         }
-        val otherKee = other as Kee
-        return otherKee.file.absolutePath == file.absolutePath
+        return other.file.absolutePath == file.absolutePath
     }
 
     override fun hashCode(): Int {
@@ -55,14 +56,12 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 return it
             }
         }
-        // println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
         val f =
             tabFragments[
                 Kee(
                     mainActivity.tabViewModel.fragmentFiles[
                             mainActivity.tabLayout.selectedTabPosition]
                 )]
-        // println(tabFragments.map { Pair(it.key.file.absolutePath,it.key.hashCode()) })
         return f?.get()
     }
 
@@ -72,7 +71,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
-        return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = WeakReference(this) }
+        return TabFragment.newInstance(file,FragmentType.EDITOR).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
 
     override fun getItemId(position: Int): Long {
@@ -125,7 +124,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
             if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
                 tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
                 tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
-                MenuItemHandler.set.remove(tabViewModel.fragmentFiles[position].name)
+                synchronized(EditorFragment.set){
+                    EditorFragment.set.remove(tabViewModel.fragmentFiles[position].name)
+                }
+                
                 tabViewModel.fragmentFiles.removeAt(position)
                 tabViewModel.fragmentTitles.removeAt(position)
 
@@ -135,10 +137,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 binding.tabs.visibility = View.GONE
                 binding.mainView.visibility = View.GONE
                 binding.openBtn.visibility = View.VISIBLE
-                binding.apply {
-                    divider.visibility = View.GONE
-                    mainBottomBar.visibility = View.GONE
-                }
             }
         }
     }
@@ -179,18 +177,6 @@ class TabAdapter(private val mainActivity: MainActivity) :
             binding.tabs.visibility = View.VISIBLE
             binding.mainView.visibility = View.VISIBLE
             binding.openBtn.visibility = View.GONE
-
-            if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, false)) {
-                binding.apply {
-                    divider.visibility = View.VISIBLE
-                    mainBottomBar.visibility = View.VISIBLE
-                }
-            } else {
-                binding.apply {
-                    divider.visibility = View.GONE
-                    mainBottomBar.visibility = View.GONE
-                }
-            }
         }
     }
 }

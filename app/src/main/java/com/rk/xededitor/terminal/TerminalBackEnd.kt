@@ -95,8 +95,8 @@ class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSess
                 rkUtils.isDesktopMode(activity) and
                 PreferencesData.getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD, true).not()
         ) {
-            activity.terminal.requestFocus()
-            activity.terminal.setFocusableInTouchMode(true)
+            activity.terminal?.requestFocus()
+            activity.terminal?.setFocusableInTouchMode(true)
         } else {
             showSoftInput()
         }

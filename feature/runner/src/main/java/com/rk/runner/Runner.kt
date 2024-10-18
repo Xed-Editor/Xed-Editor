@@ -8,15 +8,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.runner.runners.jvm.beanshell.BeanshellRunner
+import com.rk.runner.runners.jvm.jdk.JavaRunner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import java.io.File
+import com.rk.libcommons.DefaultScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,6 +43,7 @@ object Runner {
         registry["html"] = mutableListOf(HtmlRunner())
         registry["md"] = mutableListOf(MarkDownRunner())
         registry["py"] = mutableListOf(PythonRunner())
+        registry["java"] = mutableListOf<RunnerImpl>(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
 
         mutableListOf<RunnerImpl>(NodeRunner()).let {
             registry["mjs"] = it
@@ -60,7 +62,7 @@ object Runner {
 
     @OptIn(DelicateCoroutinesApi::class)
     fun run(file: File, context: Context) {
-        GlobalScope.launch(Dispatchers.Default) {
+        DefaultScope.launch(Dispatchers.Default) {
             if (isRunnable(file)) {
                 val ext = file.name.substringAfterLast('.', "")
                 val runners = registry[ext]

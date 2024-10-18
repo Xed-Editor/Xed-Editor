@@ -16,8 +16,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+@Suppress("NOTHING_TO_INLINE")
 object PluginInstaller {
-    fun installFromZip(context: Context, file: File): Boolean {
+    
+    inline fun installFromZip(context: Context, file: File): Boolean {
         return installFromZip(context, FileInputStream(file))
     }
 
@@ -65,7 +67,7 @@ object PluginInstaller {
         }
     }
 
-    private fun extractZip(inputStream: InputStream, tmpDir: File) {
+    private inline fun extractZip(inputStream: InputStream, tmpDir: File) {
         ZipInputStream(inputStream).use { zipInputStream ->
             var entry: ZipEntry? = zipInputStream.nextEntry
             while (entry != null) {

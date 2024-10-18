@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.plugin.server.PluginUtils.getPluginRoot
 import com.rk.settings.PreferencesData
@@ -18,7 +19,6 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -41,15 +41,15 @@ object ProjectBar {
                 View.OnClickListener { v ->
                     when (v.id) {
                         openFileId -> {
-                            fm.requestOpenFile()
+                            fileManager.requestOpenFile()
                         }
 
                         openDirId -> {
-                            fm.requestOpenDirectory()
+                            fileManager.requestOpenDirectory()
                         }
 
                         openPathId -> {
-                            fm.requestOpenFromPath()
+                            fileManager.requestOpenFromPath()
                         }
 
                         privateFilesId -> {
@@ -106,7 +106,7 @@ object ProjectBar {
                                             LoadingPopup(this, null)
                                                 .setMessage(getString(R.string.cloning))
                                         loadingPopup.show()
-                                        GlobalScope.launch(Dispatchers.IO) {
+                                        DefaultScope.launch(Dispatchers.IO) {
                                             try {
                                                 Git.cloneRepository()
                                                     .setURI(repoLink)
@@ -176,16 +176,6 @@ object ProjectBar {
                         getString(R.string.open_dir_desc),
                         ContextCompat.getDrawable(this@with, R.drawable.outline_folder_24),
                         openDirId,
-                        listener,
-                    )
-                    addItem(
-                        getString(R.string.open_file),
-                        getString(R.string.open_file_desc),
-                        ContextCompat.getDrawable(
-                            this@with,
-                            R.drawable.outline_insert_drive_file_24,
-                        ),
-                        openFileId,
                         listener,
                     )
                     addItem(

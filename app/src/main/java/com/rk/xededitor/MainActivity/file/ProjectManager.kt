@@ -13,11 +13,13 @@ import com.rk.filetree.provider.file
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.After
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File
@@ -233,54 +235,7 @@ object ProjectManager {
             }
         }
     }
-
-    private val fileClickListener =
-        object : FileClickListener {
-            override fun onClick(node: Node<FileObject>) {
-                if (node.value.isDirectory()) {
-                    return
-                }
-
-                activityRef.get()?.let {
-                    if (it.isPaused) {
-                        return@let
-                    }
-                    val loading = LoadingPopup(it, null).show()
-                    val file = File(node.value.getAbsolutePath())
-
-                    // delay 100ms for smoother click
-                    // opening a file always take more than 500ms because of these delays
-                    After(100) {
-                        rkUtils.runOnUiThread { it.adapter.addFragment(file) }
-
-                        // delay close drawer after 400ms
-                        After(400) {
-                            if (
-                                !PreferencesData.getBoolean(
-                                    PreferencesKeys.KEEP_DRAWER_LOCKED,
-                                    false,
-                                )
-                            ) {
-                                rkUtils.runOnUiThread { it.binding.drawerLayout.close() }
-                            }
-                            loading.hide()
-                        }
-                    }
-                }
-            }
-        }
-
-    private val fileLongClickListener =
-        object : FileLongClickListener {
-            override fun onLongClick(node: Node<FileObject>) {
-                activityRef.get()?.apply {
-                    getSelectedProjectRootFilePath(this)?.let {
-                        FileAction(this, File(it), File(node.value.getAbsolutePath()))
-                    }
-                }
-            }
-        }
-
+    
     private fun saveProjects(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val gson = Gson()

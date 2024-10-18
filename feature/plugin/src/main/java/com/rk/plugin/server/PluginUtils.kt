@@ -8,11 +8,11 @@ import android.widget.Toast
 import com.google.gson.Gson
 import java.io.File
 
+@Suppress("NOTHING_TO_INLINE")
 object PluginUtils {
     private val InstalledPlugins = ArrayList<Plugin>()
 
     fun Application.indexPlugins() {
-
         InstalledPlugins.clear()
         val root = getPluginRoot()
         val pluginsFiles = root.listFiles()
@@ -65,7 +65,7 @@ object PluginUtils {
         return synchronized(InstalledPlugins) { InstalledPlugins }
     }
 
-    fun Context.getPluginRoot(): File {
+    inline fun Context.getPluginRoot(): File {
         return File(filesDir.parentFile, "plugins")
     }
 

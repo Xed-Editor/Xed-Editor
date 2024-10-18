@@ -155,7 +155,7 @@ fun SettingsTerminalScreen() {
                                 absoluteShell.absolutePath,
                             )
                             Shell.SH.run(
-                                "echo \"$shell\" > ${context.filesDir.parentFile.absolutePath}/shell"
+                                "echo \"$shell\" > ${context.filesDir!!.parentFile!!.absolutePath}/shell"
                             )
                         } else {
                             rkUtils.toast(rkUtils.getString(R.string.file_exist_not))

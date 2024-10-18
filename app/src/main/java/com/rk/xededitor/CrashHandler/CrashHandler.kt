@@ -11,11 +11,12 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
 
+@Suppress("NOTHING_TO_INLINE")
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
-    private var context: Context? = null
+    var context: Context? = null
     private val info: MutableMap<String, String> = HashMap()
 
-    fun init(context: Context) {
+    inline fun init(context: Context) {
         this.context = context.applicationContext
         Thread.setDefaultUncaughtExceptionHandler(this)
     }
@@ -37,7 +38,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
         }
     }
 
-    private fun collectDeviceInfo(ctx: Context?) {
+    private inline fun collectDeviceInfo(ctx: Context?) {
         val pi = ctx!!.packageManager.getPackageInfo(ctx.packageName, PackageManager.GET_ACTIVITIES)
         if (pi != null) {
             info["app_version"] = if (pi.versionName == null) "null" else pi.versionName
@@ -72,7 +73,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
         }
     }
 
-    private fun saveCrashInfo(threadName: String, ex: Throwable) {
+    private inline fun saveCrashInfo(threadName: String, ex: Throwable) {
         // crash hander activity should never crash
         if (ex.stackTrace.toString().contains(CrashActivity::class.java.name)) {
             // if it does exit instantly or else the activity loop over and over

@@ -10,17 +10,19 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import kotlin.properties.Delegates
 
+@Suppress("NOTHING_TO_INLINE")
 object FileTreeScrollViewManager {
-    private fun dpToPx(dp: Int, density: Float): Int {
+    
+    private inline fun dpToPx(dp: Int, density: Float): Int {
         return (dp * density).toInt()
     }
 
-    var fileTreeViewId by Delegates.notNull<Int>()
+    private var fileTreeViewId by Delegates.notNull<Int>()
 
     fun getFileTreeParentScrollView(context: Context, fileTree: FileTree?): ViewGroup {
         fileTree?.let { fileTreeViewId = it.id }
         val density = context.resources.displayMetrics.density
-        val isDiagonalScroll = PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, false)
+        val isDiagonalScroll = PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, true)
         val linearLayout = LinearLayout(context)
 
         val params =

@@ -24,9 +24,19 @@ object commonUtils {
             )
         }
 
+        if (File("${context.filesDir.parentFile!!.absolutePath}/rootfs/java.sh").exists().not()) {
+            exctractAssets(
+                context,
+                "java.sh",
+                "${context.filesDir.parentFile!!.absolutePath}/rootfs/java.sh",
+            )
+        }
+
         onComplete()
     }
 
+    @JvmOverloads
+    @JvmStatic
     fun runCommand(
         // run in alpine or not
         alpine: Boolean,

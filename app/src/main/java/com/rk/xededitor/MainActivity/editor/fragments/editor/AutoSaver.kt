@@ -1,11 +1,10 @@
-package com.rk.xededitor.MainActivity.editor
+package com.rk.xededitor.MainActivity.editor.fragments.editor
 
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -15,17 +14,15 @@ object AutoSaver {
 
     var delayTime = 10000L
     private var job: Job? = null
-
-    @OptIn(DelicateCoroutinesApi::class)
+    
     fun start(activity: MainActivity) {
         job?.let {
             if (it.isActive) {
                 return
             }
         }
-
         job =
-            GlobalScope.launch(Dispatchers.Default) {
+            DefaultScope.launch(Dispatchers.Default) {
                 if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
                     delayTime =
                         PreferencesData.getString(
@@ -44,7 +41,9 @@ object AutoSaver {
                             ) {
                                 withContext(Dispatchers.Main) {
                                     it.adapter.tabFragments.values.forEach { f ->
-                                        f?.get()?.save(false)
+                                        if(f.get() != null && f.get()?.fragment is EditorFragment){
+                                            (f.get()?.fragment as EditorFragment).save(showToast = false, isAutoSaver = true)
+                                        }
                                     }
                                 }
                             }

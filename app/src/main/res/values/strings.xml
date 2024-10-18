@@ -155,8 +155,8 @@
     <string name="err">Error</string>
     <string name="open_dir_desc">Choose a directory as a project</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
-    <string name="open_path">Open from Path</string>
-    <string name="open_path_desc">Open a project/file from a path</string>
+    <string name="open_path">Internal Storage</string>
+    <string name="open_path_desc">Open internal storage</string>
     <string name="clone_repo_desc">Clone repository using Git</string>
     <string name="add">Add</string>
     <string name="already_opened">File already opened</string>
@@ -280,5 +280,7 @@
     
     <string name="check_for_updates">Check for Updates</string>
     <string name="check_for_updates_desc">Periodically Check For Updates</string>
+
+    <string name="click_open">Click here to open file</string>
 
 </resources>

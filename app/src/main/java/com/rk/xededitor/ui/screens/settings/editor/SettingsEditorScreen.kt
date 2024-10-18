@@ -16,9 +16,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.BaseActivity.Companion.getActivity
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.AutoSaver
+import com.rk.xededitor.MainActivity.editor.fragments.editor.AutoSaver
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -29,7 +30,7 @@ import org.robok.engine.core.components.compose.preferences.category.PreferenceC
 @Composable
 fun SettingsEditorScreen() {
     PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
-        var smoothTabs by remember {
+        var _smoothTabs by remember {
             mutableStateOf(
                 PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
             )
@@ -41,7 +42,7 @@ fun SettingsEditorScreen() {
             mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, false))
         }
         var diagonalScroll by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, false))
+            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, true))
         }
         var cursorAnimation by remember {
             mutableStateOf(
@@ -74,14 +75,14 @@ fun SettingsEditorScreen() {
             description = stringResource(id = R.string.smooth_tab_desc),
             iconResource = R.drawable.animation,
             onNavigate = {
-                smoothTabs = !smoothTabs
-                PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, smoothTabs)
-                MainActivity.activityRef.get()?.smoothTabs = smoothTabs
+                _smoothTabs = !_smoothTabs
+                PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, _smoothTabs)
+                smoothTabs = _smoothTabs
             },
             endWidget = {
                 Switch(
                     modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = smoothTabs,
+                    checked = _smoothTabs,
                     onCheckedChange = null,
                 )
             },
@@ -95,7 +96,10 @@ fun SettingsEditorScreen() {
                 wordwrap = !wordwrap
                 PreferencesData.setBoolean(PreferencesKeys.WORD_WRAP_ENABLED, wordwrap)
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                    f.value.get()?.editor?.isWordwrap = wordwrap
+                    if (f.value.get()?.fragment is EditorFragment){
+                        (f.value.get()?.fragment as EditorFragment).editor?.isWordwrap = wordwrap
+                    }
+                    
                 }
             },
             endWidget = {
@@ -152,10 +156,11 @@ fun SettingsEditorScreen() {
                     PreferencesKeys.CURSOR_ANIMATION_ENABLED,
                     cursorAnimation,
                 )
-                getActivity(MainActivity::class.java)?.let {
-                    (it as MainActivity).adapter.tabFragments.forEach { f ->
-                        f.value.get()?.editor?.isCursorAnimationEnabled = cursorAnimation
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                    if (f.value.get()?.fragment is EditorFragment){
+                        (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled = cursorAnimation
                     }
+                    
                 }
             },
             endWidget = {
@@ -174,10 +179,12 @@ fun SettingsEditorScreen() {
             onNavigate = {
                 showLineNumber = !showLineNumber
                 PreferencesData.setBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, showLineNumber)
-                getActivity(MainActivity::class.java)?.let {
-                    (it as MainActivity).adapter.tabFragments.forEach { f ->
-                        f.value.get()?.editor?.isLineNumberEnabled = showLineNumber
+                
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                    if (f.value.get()?.fragment is EditorFragment){
+                        (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled = showLineNumber
                     }
+                    
                 }
             },
             endWidget = {
@@ -196,10 +203,11 @@ fun SettingsEditorScreen() {
             onNavigate = {
                 pinLineNumber = !pinLineNumber
                 PreferencesData.setBoolean(PreferencesKeys.PIN_LINE_NUMBER, pinLineNumber)
-                getActivity(MainActivity::class.java)?.let {
-                    (it as MainActivity).adapter.tabFragments.forEach { f ->
-                        f.value.get()?.editor?.setPinLineNumber(pinLineNumber)
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                    if (f.value.get()?.fragment is EditorFragment){
+                        (f.value.get()?.fragment as EditorFragment).editor?.setPinLineNumber(pinLineNumber)
                     }
+                    
                 }
             },
             endWidget = {
@@ -239,17 +247,9 @@ fun SettingsEditorScreen() {
                     if (activity.tabViewModel.fragmentFiles.isEmpty()) {
                         return@let
                     }
-                    if (showArrowKeys) {
-                        activity.binding.apply {
-                            divider.visibility = View.VISIBLE
-                            mainBottomBar.visibility = View.VISIBLE
-                        }
-                    } else {
-                        activity.binding.apply {
-                            divider.visibility = View.GONE
-                            mainBottomBar.visibility = View.GONE
-                        }
-                    }
+                    
+                    
+                    //todo arrow keys
 
                     val viewpager = activity.binding.viewpager2
                     val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
@@ -363,7 +363,10 @@ fun SettingsEditorScreen() {
                     } else {
                         PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                            f.value.get()?.editor?.setTextSize(textSizeValue.toFloat())
+                            if (f.value.get()?.fragment is EditorFragment){
+                                (f.value.get()?.fragment as EditorFragment).editor?.setTextSize(textSizeValue.toFloat())
+                            }
+                            
                         }
                     }
                     showTextSizeDialog = false
@@ -384,8 +387,12 @@ fun SettingsEditorScreen() {
                         rkUtils.toast(context.getString(R.string.v_large))
                     }
                     PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
+                    
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        f.value.get()?.editor?.tabWidth = tabSizeValue.toInt()
+                        if (f.value.get()?.fragment is EditorFragment){
+                            (f.value.get()?.fragment as EditorFragment).editor?.tabWidth = tabSizeValue.toInt()
+                        }
+                        
                     }
                     showTabSizeDialog = false
                 },

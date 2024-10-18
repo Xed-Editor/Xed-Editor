@@ -22,8 +22,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
 
+@Suppress("NOTHING_TO_INLINE")
 class CrashActivity : AppCompatActivity() {
-    private lateinit var error_editor: CodeEditor
+    private lateinit var editor: CodeEditor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +42,9 @@ class CrashActivity : AppCompatActivity() {
             setSupportActionBar(toolbar)
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowTitleEnabled(true)
-            error_editor = findViewById(R.id.error_editor)
-            error_editor.setTextSize(11f)
-            SetupEditor(error_editor, this).ensureTextmateTheme(this)
+            editor = findViewById(R.id.error_editor)
+            editor.setTextSize(11f)
+            SetupEditor(editor, this).ensureTextmateTheme(this)
 
             try {
                 val sb = StringBuilder()
@@ -64,11 +65,11 @@ class CrashActivity : AppCompatActivity() {
                     .append(intent.getStringExtra("error_cause"))
                     .append("\n")
                 sb.append("Error StackTrace : \n\n").append(intent.getStringExtra("stacktrace"))
-                error_editor.setText(sb.toString())
+                editor.setText(sb.toString())
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            error_editor.editable = false
+            editor.editable = false
         } catch (e: Exception) {
             e.printStackTrace()
             try {
@@ -96,7 +97,7 @@ class CrashActivity : AppCompatActivity() {
             }
 
             R.id.copy_error -> {
-                copyToClipboard(this, error_editor.text.toString())
+                copyToClipboard(this, editor.text.toString())
             }
 
             R.id.report_issue -> {
@@ -106,7 +107,7 @@ class CrashActivity : AppCompatActivity() {
                         Uri.parse(
                             "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" +
                                 URLEncoder.encode(
-                                    error_editor.text.toString(),
+                                    "``` \n${editor.text}\n ```",
                                     StandardCharsets.UTF_8.toString(),
                                 )
                         ),
@@ -118,7 +119,7 @@ class CrashActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun copyToClipboard(context: Context, text: String) {
+    private inline fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("label", text)
         clipboard.setPrimaryClip(clip)

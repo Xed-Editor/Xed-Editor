@@ -28,7 +28,7 @@ import com.termux.view.TerminalView
 import java.io.File
 
 class Terminal : BaseActivity() {
-    lateinit var terminal: TerminalView
+    var terminal: TerminalView? = null
     lateinit var binding: ActivityTerminalBinding
     private lateinit var session: TerminalSession
     private val terminalBackend: TerminalBackEnd = TerminalBackEnd(this)
@@ -51,7 +51,7 @@ class Terminal : BaseActivity() {
                             val currentTime = System.currentTimeMillis()
 
                             if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
-                                terminal.mTermSession.finishIfRunning()
+                                terminal?.mTermSession?.finishIfRunning()
                                 finish()
                             } else {
                                 lastBackPressedTime = currentTime
@@ -70,12 +70,12 @@ class Terminal : BaseActivity() {
     }
 
     override fun onDestroy() {
-        terminal.mTermSession.finishIfRunning()
+        terminal?.mTermSession?.finishIfRunning()
         super.onDestroy()
     }
 
     private fun setupVirtualKeys() {
-        binding.extraKeys.virtualKeysViewClient = VirtualKeysListener(terminal.mTermSession)
+        binding.extraKeys.virtualKeysViewClient = terminal?.mTermSession?.let { VirtualKeysListener(it) }
         binding.extraKeys.reload(
             VirtualKeysInfo(VIRTUAL_KEYS, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES)
         )
@@ -83,33 +83,34 @@ class Terminal : BaseActivity() {
 
     private fun setupTerminalView() {
         terminal = TerminalView(this, null)
-        terminalBackend.setTerminal(terminal)
-        terminal.setTerminalViewClient(terminalBackend)
+        terminalBackend.setTerminal(terminal!!)
+        terminal!!.setTerminalViewClient(terminalBackend)
         session = createSession()
-        terminal.attachSession(session)
-        terminal.setBackgroundColor(Color.BLACK)
-        terminal.setTextSize(
+        terminal!!.attachSession(session)
+        terminal!!.setBackgroundColor(Color.BLACK)
+        terminal!!.setTextSize(
             SizeUtils.dp2px(
                 PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
             )
         )
         
-        terminal.keepScreenOn = true
+        terminal!!.keepScreenOn = true
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f
         binding.root.addView(terminal, 0, params)
-        terminal.requestFocus()
-        terminal.setFocusableInTouchMode(true)
+        terminal!!.requestFocus()
+        terminal!!.setFocusableInTouchMode(true)
         
         
         val customFont = File(Environment.getExternalStorageDirectory(),"karbon/terminal_font.ttf")
         if (customFont.exists() and customFont.isFile){
-            terminal.setTypeface(Typeface.createFromFile(customFont))
+            terminal!!.setTypeface(Typeface.createFromFile(customFont))
         }
     }
 
     companion object {
         @JvmStatic
+        @JvmOverloads
         fun runCommand(
             // run in alpine or not
             alpine: Boolean,

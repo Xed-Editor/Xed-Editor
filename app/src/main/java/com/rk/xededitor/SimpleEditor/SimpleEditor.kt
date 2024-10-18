@@ -21,6 +21,7 @@ import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.PathUtils
+import com.rk.xededitor.MainActivity.file.PathUtils.toPath
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
@@ -154,7 +155,7 @@ class SimpleEditor : BaseActivity() {
         ) {
             uri = intent.data
             
-            val path = PathUtils.convertUriToPath(this@SimpleEditor,uri)
+            val path = uri!!.toPath()
             File(path).let {
                 if (it.exists() and Runner.isRunnable(it)){
                     lifecycleScope.launch(Dispatchers.Default){

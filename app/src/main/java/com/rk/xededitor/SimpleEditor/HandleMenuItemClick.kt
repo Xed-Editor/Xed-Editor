@@ -10,6 +10,7 @@ import com.rk.libcommons.Printer
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.file.PathUtils
+import com.rk.xededitor.MainActivity.file.PathUtils.toPath
 import com.rk.xededitor.R
 import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
@@ -128,8 +129,7 @@ object HandleMenuItemClick {
                 }
                 
                 R.id.run -> {
-                    val uri = intent.data
-                    val path = PathUtils.convertUriToPath(editorActivity, uri)
+                    val path = intent.data!!.toPath()
                     Runner.run(File(path), editorActivity)
                 }
                 

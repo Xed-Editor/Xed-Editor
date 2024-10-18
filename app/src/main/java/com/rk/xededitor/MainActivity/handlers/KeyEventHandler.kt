@@ -7,28 +7,28 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.TabFragment
+import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.MainActivity.file.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.R
-import io.github.rosemoe.sora.interfaces.KeyEventHandler
 
 object KeyEventHandler {
     
     fun onAppKeyEvent(keyEvent: KeyEvent) {
         val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
         
-        if (currentFragment?.editor == null) {
-            return
+        val editor = if (currentFragment?.type == FragmentType.EDITOR) {
+            (currentFragment.fragment as EditorFragment).editor
+        }else{
+            null
         }
-        
-        val editor = currentFragment.editor!!
         
         if (keyEvent.isShiftPressed) {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_S -> {
-                    currentFragment?.let {
-                        to_save_file = it.file
+                    currentFragment?.fragment?.getFile()?.let {
+                        to_save_file = it
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                         MainActivity.activityRef.get()?.let { activity ->
                             startActivityForResult(
@@ -84,12 +84,14 @@ object KeyEventHandler {
                 }
                 
                 KeyEvent.KEYCODE_S -> {
-                    currentFragment.save(false)
+                    if (currentFragment?.fragment is EditorFragment){
+                       (currentFragment.fragment as EditorFragment).save(false)
+                    }
                 }
                 
                 KeyEvent.KEYCODE_PLUS,
                 70 -> {
-                    editor.let {
+                    editor?.let {
                         if (it.textSizePx < 57) {
                             it.textSizePx += 2
                         }
@@ -97,7 +99,7 @@ object KeyEventHandler {
                 }
                 
                 KeyEvent.KEYCODE_MINUS -> {
-                    editor.let {
+                    editor?.let {
                         if (it.textSizePx > 8) {
                             it.textSizePx -= 2
                         }
@@ -123,27 +125,33 @@ object KeyEventHandler {
                 }
                 
                 KeyEvent.KEYCODE_G -> {
-                    val line = 0
-                    var column =
-                        (editor.text.getLine(line).length).coerceAtMost(
-                            editor.cursor.leftColumn
-                        )
-                    if (column < 0) {
-                        column = 0
+                    editor?.let {
+                        val line = 0
+                        var column =
+                            (editor.text.getLine(line).length).coerceAtMost(
+                                editor.cursor.leftColumn
+                            )
+                        if (column < 0) {
+                            column = 0
+                        }
+                        editor.cursor.set(line, column)
                     }
-                    editor.cursor.set(line, column)
+                    
                 }
                 
                 KeyEvent.KEYCODE_B -> {
-                    val line = editor.text.lineCount - 1
-                    var column =
-                        (editor.text.getLine(line).length - 1).coerceAtMost(
-                            editor.cursor.leftColumn
-                        )
-                    if (column < 0) {
-                        column = 0
+                    editor?.let {
+                        val line = editor.text.lineCount - 1
+                        var column =
+                            (editor.text.getLine(line).length - 1).coerceAtMost(
+                                editor.cursor.leftColumn
+                            )
+                        if (column < 0) {
+                            column = 0
+                        }
+                        editor.cursor.set(line, column)
                     }
-                    editor.cursor.set(line, column)
+                   
                 }
             }
             
