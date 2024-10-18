@@ -235,48 +235,7 @@ object ProjectManager {
             }
         }
     }
-
-    private val fileClickListener =
-        object : FileClickListener {
-            override fun onClick(node: Node<FileObject>) {
-                if (node.value.isDirectory()) {
-                    return
-                }
-
-                activityRef.get()?.let {
-                    if (it.isPaused) {
-                        return@let
-                    }
-                    val file = File(node.value.getAbsolutePath())
-                    
-                    it.adapter.addFragment(file)
-                    if (
-                        !PreferencesData.getBoolean(
-                            PreferencesKeys.KEEP_DRAWER_LOCKED,
-                            false,
-                        )
-                    ) {
-                        it.binding.drawerLayout.close()
-                    }
-                    DefaultScope.launch(Dispatchers.Main) {
-                        delay(3000)
-                        MenuItemHandler.update(it)
-                    }
-                }
-            }
-        }
-
-    private val fileLongClickListener =
-        object : FileLongClickListener {
-            override fun onLongClick(node: Node<FileObject>) {
-                activityRef.get()?.apply {
-                    getSelectedProjectRootFilePath(this)?.let {
-                        FileAction(this, File(it), File(node.value.getAbsolutePath()))
-                    }
-                }
-            }
-        }
-
+    
     private fun saveProjects(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val gson = Gson()

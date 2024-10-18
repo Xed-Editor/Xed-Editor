@@ -24,8 +24,7 @@ class Kee(val file: File) {
         if (other !is Kee) {
             return false
         }
-        val otherKee = other as Kee
-        return otherKee.file.absolutePath == file.absolutePath
+        return other.file.absolutePath == file.absolutePath
     }
 
     override fun hashCode(): Int {
@@ -57,14 +56,12 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 return it
             }
         }
-        // println(Kee(mainActivity.tabViewModel.fragmentFiles[mainActivity.tabLayout.selectedTabPosition]).hashCode())
         val f =
             tabFragments[
                 Kee(
                     mainActivity.tabViewModel.fragmentFiles[
                             mainActivity.tabLayout.selectedTabPosition]
                 )]
-        // println(tabFragments.map { Pair(it.key.file.absolutePath,it.key.hashCode()) })
         return f?.get()
     }
 

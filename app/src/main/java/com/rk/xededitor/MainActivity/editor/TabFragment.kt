@@ -34,12 +34,11 @@ class TabFragment : Fragment() {
                     }
                 }
             }
-            FragmentType.VIDEO -> {
-            
-            }
+            FragmentType.VIDEO -> {}
             FragmentType.AUDIO -> {}
             FragmentType.IMAGE -> {}
             FragmentType.TERMINAL -> {}
+            FragmentType.WEB -> {}
             null -> {throw RuntimeException("the type is null")}
         }
         
@@ -73,20 +72,11 @@ class TabFragment : Fragment() {
                     args.putString(ARG_FILE_PATH, file.absolutePath)
                 }
                 
-                
-                FragmentType.AUDIO -> {
-                
-                }
-                
-                FragmentType.IMAGE -> {
-                
-                }
-                
-                FragmentType.VIDEO -> {
-                
-                }
-                
+                FragmentType.AUDIO -> {}
+                FragmentType.IMAGE -> {}
+                FragmentType.VIDEO -> {}
                 FragmentType.TERMINAL -> {}
+                FragmentType.WEB -> {}
             }
             
             fragment.arguments = args

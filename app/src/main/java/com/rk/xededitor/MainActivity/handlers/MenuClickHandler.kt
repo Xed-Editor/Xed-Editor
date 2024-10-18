@@ -36,10 +36,11 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
+typealias Id = R.id
+
 object MenuClickHandler {
     
     private var searchText: String? = ""
-    
     
     @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
@@ -51,12 +52,12 @@ object MenuClickHandler {
         }
         
         when (id) {
-            R.id.run -> {
+            Id.run -> {
                 editorFragment?.file?.let { it1 -> Runner.run(it1, activity) }
                 return true
             }
             
-            R.id.action_all -> {
+            Id.action_all -> {
                 activity.adapter.tabFragments.values.forEach { f ->
                     if (f.get()?.type == FragmentType.EDITOR) {
                         (f.get()?.fragment as EditorFragment).save(false)
@@ -66,33 +67,33 @@ object MenuClickHandler {
                 return true
             }
             
-            R.id.action_save -> {
+            Id.action_save -> {
                 editorFragment?.save(true)
                 return true
             }
             
-            R.id.undo -> {
+            Id.undo -> {
                 editorFragment?.undo()
                 return true
             }
             
-            R.id.redo -> {
+            Id.redo -> {
                 editorFragment?.redo()
                 return true
             }
             
-            R.id.action_settings -> {
+            Id.action_settings -> {
                 activity.startActivity(Intent(activity, SettingsActivity::class.java))
                 return true
             }
             
-            R.id.terminal -> {
+            Id.terminal -> {
                 // Handle terminal
                 activity.startActivity(Intent(activity, Terminal::class.java))
                 return true
             }
             
-            R.id.action_print -> {
+            Id.action_print -> {
                 Printer.print(
                     activity,
                     editorFragment?.editor?.text.toString(),
@@ -100,40 +101,40 @@ object MenuClickHandler {
                 return true
             }
             
-            R.id.batchrep -> {
+            Id.batchrep -> {
                 activity.startActivity(Intent(activity, BatchReplacement::class.java))
                 return true
             }
             
-            R.id.search -> {
+            Id.search -> {
                 // Handle search
                 handleSearch(activity)
                 return true
             }
             
-            R.id.search_next -> {
+            Id.search_next -> {
                 editorFragment?.editor?.searcher?.gotoNext()
                 return true
             }
             
-            R.id.search_previous -> {
+            Id.search_previous -> {
                 editorFragment?.editor?.searcher?.gotoPrevious()
                 return true
             }
             
-            R.id.search_close -> {
+            Id.search_close -> {
                 // Handle search_close
                 handleSearchClose(activity)
                 return true
             }
             
-            R.id.replace -> {
+            Id.replace -> {
                 // Handle replace
                 handleReplace(activity)
                 return true
             }
             
-            R.id.share -> {
+            Id.share -> {
                 rkUtils.shareText(
                     activity,
                     editorFragment?.editor?.text.toString(),
@@ -141,12 +142,12 @@ object MenuClickHandler {
                 return true
             }
             
-            R.id.suggestions -> {
+            Id.suggestions -> {
                 editorFragment?.editor?.showSuggestions(editorFragment.editor?.isShowSuggestion()?.not() == true)
                 return true
             }
             
-            R.id.git -> {
+            Id.git -> {
                 val pull = View.generateViewId()
                 val push = View.generateViewId()
                 
@@ -198,12 +199,12 @@ object MenuClickHandler {
                             if (gitRoot != null) {
                                 val git = Git.open(gitRoot)
                                 val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
-                                view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility = View.VISIBLE
-                                val branchedit = view.findViewById<EditText>(R.id.name).apply {
+                                view.findViewById<LinearLayout>(Id.mimeTypeEditor).visibility = View.VISIBLE
+                                val branchedit = view.findViewById<EditText>(Id.name).apply {
                                     hint = getString(R.string.git_branch)
                                     setText(git.repository.branch)
                                 }
-                                val commitedit = view.findViewById<EditText>(R.id.mime).apply {
+                                val commitedit = view.findViewById<EditText>(Id.mime).apply {
                                     hint = getString(R.string.git_commit_msg)
                                     setText("")
                                 }
@@ -287,7 +288,7 @@ object MenuClickHandler {
                 return true
             }
             
-            R.id.action_add -> {
+            Id.action_add -> {
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.setType("application/octet-stream")
@@ -310,7 +311,7 @@ object MenuClickHandler {
     }
     
     private fun replaceAll(popupView: View, activity: MainActivity) {
-        val editText = popupView.findViewById<EditText>(R.id.replace_replacement)
+        val editText = popupView.findViewById<EditText>(Id.replace_replacement)
         val text = editText.text.toString()
         val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
             activity.adapter.getCurrentFragment()?.fragment as EditorFragment
@@ -339,7 +340,7 @@ object MenuClickHandler {
     
     private fun handleSearch(activity: MainActivity): Boolean {
         val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
-        val searchBox = popupView.findViewById<EditText>(R.id.searchbox)
+        val searchBox = popupView.findViewById<EditText>(Id.searchbox)
         
         if (!searchText.isNullOrEmpty()) {
             searchBox.setText(searchText)
@@ -367,7 +368,7 @@ object MenuClickHandler {
             null
         }
         // search
-        val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
+        val checkBox = popupView.findViewById<CheckBox>(Id.case_senstive)
         editorFragment?.let {
             it.editor?.searcher?.search(
                 searchText!!,
