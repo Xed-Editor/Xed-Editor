@@ -157,7 +157,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     fun addFragment(file: File) {
         if ((file.length() / (1024.0 * 1024.0)) > 10 && file.getFragmentType() == FragmentType.EDITOR){
-            rkUtils.toast("File is too big to open")
+            rkUtils.toast(rkUtils.getString(R.string.file_too_large))
             return
         }
         

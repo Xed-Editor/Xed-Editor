@@ -283,5 +283,6 @@
 
     <string name="click_open">Click here to open file</string>
     <string name="no">No</string>
+    <string name="file_too_large">File is too big to open</string>
 
 </resources>
