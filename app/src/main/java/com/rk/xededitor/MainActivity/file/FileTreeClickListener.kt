@@ -39,7 +39,7 @@ val fileClickListener =
                 }
                 
                 DefaultScope.launch(Dispatchers.Main) {
-                    //delay(1000)
+                    delay(2000)
                     MenuItemHandler.update(it)
                 }
             }
