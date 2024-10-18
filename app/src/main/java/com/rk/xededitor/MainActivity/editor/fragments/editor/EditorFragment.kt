@@ -37,10 +37,13 @@ class EditorFragment(val context: Context) : CoreFragment {
         setupEditor?.ensureTextmateTheme(context)
     }
     
+    private inline fun getFileSizeMegaBytes(file: File): Long {
+        return (file.length() / (1024 * 1024))
+    }
+    
     override fun loadFile(xfile: File) {
         file = xfile
         scope.launch {
-            delay(1000)
             setupEditor?.setupLanguage(file!!.name)
             editor!!.loadFile(xfile)
             withContext(Dispatchers.Main){
