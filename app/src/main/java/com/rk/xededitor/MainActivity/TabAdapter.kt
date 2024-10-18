@@ -11,6 +11,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.editor.TabFragment
 import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
 import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
@@ -155,6 +156,11 @@ class TabAdapter(private val mainActivity: MainActivity) :
     }
 
     fun addFragment(file: File) {
+        if ((file.length() / (1024.0 * 1024.0)) > 10 && file.getFragmentType() == FragmentType.EDITOR){
+            rkUtils.toast("File is too big to open")
+            return
+        }
+        
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.absolutePath)) {
                 rkUtils.toast(getString(R.string.already_opened))

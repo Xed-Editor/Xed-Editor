@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+@Suppress("NOTHING_TO_INLINE")
 class EditorFragment(val context: Context) : CoreFragment {
     
     @JvmField
@@ -37,13 +38,9 @@ class EditorFragment(val context: Context) : CoreFragment {
         setupEditor?.ensureTextmateTheme(context)
     }
     
-    private inline fun getFileSizeMegaBytes(file: File): Long {
-        return (file.length() / (1024 * 1024))
-    }
-    
     override fun loadFile(xfile: File) {
         file = xfile
-        scope.launch {
+        scope.launch(Dispatchers.Default) {
             setupEditor?.setupLanguage(file!!.name)
             editor!!.loadFile(xfile)
             withContext(Dispatchers.Main){
