@@ -27,9 +27,7 @@
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
 - [x] Support for **Plugins** ([Learn more about creating plugins](/docs/CREATE_PLUGIN.md))
-- [x] Support for multiple languages: **Python**, **Node.js**, **Bash**, **HTML/CSS/JavaScript**
 - [x] **Keybindings** ([View available keybindings](/KEYBINDS.md))
-- [ ] Planned support for **Java** and **Kotlin**
 
 ## Community
 
