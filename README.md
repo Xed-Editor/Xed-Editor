@@ -28,7 +28,7 @@
 - [x] **Print** text
 - [x] Support for **Plugins** ([Learn more about creating plugins](/docs/CREATE_PLUGIN.md))
 - [x] Support for multiple languages: **Python**, **Node.js**, **Bash**, **HTML/CSS/JavaScript**
-- [x] Customizable **Keybindings** ([View available keybindings](/KEYBINDS.md))
+- [x] **Keybindings** ([View available keybindings](/KEYBINDS.md))
 - [ ] Planned support for **Java** and **Kotlin**
 
 ## Community
