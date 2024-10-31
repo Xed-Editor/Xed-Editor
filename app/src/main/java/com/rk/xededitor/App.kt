@@ -50,12 +50,24 @@ class App : Application() {
                 val pluginLoader = Loader(this@App)
                 pluginLoader.start()
             }
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 SetupEditor.init(this@App)
             }
             delay(6000)
             //check for updates
-            UpdateManager.fetch("dev")
+            
+            try {
+                UpdateManager.fetch(
+                    if (BuildConfig.DEBUG) {
+                        "dev"
+                    } else {
+                        "main"
+                    }
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            
         }
         
     }
