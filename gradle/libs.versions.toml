@@ -17,7 +17,7 @@ kotlin = "2.0.21"
 asynclayoutinflater = "1.0.0"
 navigationFragmentKtx = "2.8.3"
 navigationUiKtx = "2.8.3"
-coreKtx = "1.13.1"
+coreKtx = "1.15.0"
 activity = "1.9.3"
 nbJavacAndroid = "17.0.0.3"
 okhttp = "4.12.0"
@@ -88,7 +88,7 @@ ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-material-compose = { group = "androidx.compose.material", name = "material", version = "1.7.4" }
+material-compose = { group = "androidx.compose.material", name = "material", version = "1.7.5" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
