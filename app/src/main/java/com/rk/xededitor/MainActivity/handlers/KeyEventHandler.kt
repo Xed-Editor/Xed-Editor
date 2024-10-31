@@ -7,8 +7,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.MainActivity.file.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.R

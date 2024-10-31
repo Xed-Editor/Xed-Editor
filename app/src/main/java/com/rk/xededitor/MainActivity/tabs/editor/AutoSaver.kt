@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.editor.fragments.editor
+package com.rk.xededitor.MainActivity.tabs.editor
 
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys

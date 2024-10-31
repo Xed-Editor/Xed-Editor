@@ -1,6 +1,5 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import android.view.View
 import android.widget.RelativeLayout
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,8 +16,8 @@ import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.editor.AutoSaver
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils

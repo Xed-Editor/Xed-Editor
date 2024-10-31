@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.editor.fragments.core
+package com.rk.xededitor.MainActivity.tabs.core
 
 enum class FragmentType {
     EDITOR,

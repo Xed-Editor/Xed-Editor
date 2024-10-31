@@ -1,6 +1,6 @@
 package com.rk.xededitor.MainActivity.file
 
-import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import java.io.File
 
 fun File.getFragmentType(): FragmentType {

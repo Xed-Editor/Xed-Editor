@@ -1,14 +1,14 @@
-package com.rk.xededitor.MainActivity.editor
+package com.rk.xededitor.MainActivity
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
-import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
-import com.rk.xededitor.MainActivity.editor.fragments.media.MediaFragment
+import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.media.MediaFragment
 import java.io.File
 
 

@@ -1,11 +1,11 @@
-package com.rk.xededitor.MainActivity.editor.fragments.media
+package com.rk.xededitor.MainActivity.tabs.media
 
 import android.content.Context
 import android.view.View
 import android.webkit.WebView
 import com.rk.libcommons.CustomScope
 import com.rk.runner.runners.web.HttpServer
-import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
+import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
