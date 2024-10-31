@@ -54,7 +54,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.9.1")
-    implementation("androidx.collection:collection:1.4.4")
+    implementation("androidx.collection:collection:1.4.5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
     implementation(libs.material)
 }
