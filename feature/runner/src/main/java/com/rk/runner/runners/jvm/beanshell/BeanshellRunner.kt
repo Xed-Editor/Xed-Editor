@@ -44,4 +44,10 @@ class BeanshellRunner : RunnerImpl {
     override fun getIcon(context: Context): Drawable? {
         return null
     }
+    override fun isRunning(): Boolean {
+        return false
+    }
+    override fun stop() {
+        TODO("Not yet implemented")
+    }
 }

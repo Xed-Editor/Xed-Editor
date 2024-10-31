@@ -37,4 +37,10 @@ class JavaRunner(private val type: String) : RunnerImpl {
     override fun getIcon(context: Context): Drawable? {
         return ContextCompat.getDrawable(context, com.rk.libcommons.R.drawable.ic_language_java)
     }
+    override fun isRunning(): Boolean {
+        return false
+    }
+    override fun stop() {
+        TODO("Not yet implemented")
+    }
 }

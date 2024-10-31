@@ -55,4 +55,10 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
             },
         )
     }
+    override fun isRunning(): Boolean {
+        return false
+    }
+    override fun stop() {
+        TODO("Not yet implemented")
+    }
 }
