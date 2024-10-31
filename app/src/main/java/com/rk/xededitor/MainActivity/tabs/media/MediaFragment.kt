@@ -12,10 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.URLEncoder
 
 class MediaFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
-    @JvmField var file: File? = null
+    private var file: File? = null
     private val webView:WebView = WebView(context)
     private var httpServer:HttpServer? = null
     private val port = getAvailablePort()
@@ -44,7 +45,7 @@ class MediaFragment(val context: Context) : CoreFragment {
         scope.launch(Dispatchers.IO) {
             httpServer = HttpServer(port, file.parentFile!!)
             withContext(Dispatchers.Main){
-                webView.loadUrl("http://localhost:$port/${file.name}")
+                webView.loadUrl("http://localhost:$port/${URLEncoder.encode(file.name, "UTF-8")}")
             }
         }
     }
