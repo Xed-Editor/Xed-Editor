@@ -2,15 +2,17 @@ package com.rk.xededitor.MainActivity.tabs.media
 
 import android.content.Context
 import android.view.View
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import com.rk.libcommons.CustomScope
+import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
+import com.rk.xededitor.rkUtils.isMouseConnected
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.net.ServerSocket
 
 class MediaFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
@@ -31,7 +33,12 @@ class MediaFragment(val context: Context) : CoreFragment {
         scope.cancel()
     }
     
-    override fun onCreate() {}
+    override fun onCreate() {
+        webView.setWebChromeClient(WebChromeClient())
+        webView.settings.setSupportZoom(true)
+        webView.settings.builtInZoomControls = true
+        webView.settings.displayZoomControls = false
+    }
     
     override fun loadFile(file: File) {
         this.file = file
@@ -45,11 +52,5 @@ class MediaFragment(val context: Context) : CoreFragment {
     
     override fun getFile(): File? {
         return file
-    }
-    
-    private fun getAvailablePort(): Int {
-        ServerSocket(0).use { socket ->
-            return socket.localPort
-        }
     }
 }
