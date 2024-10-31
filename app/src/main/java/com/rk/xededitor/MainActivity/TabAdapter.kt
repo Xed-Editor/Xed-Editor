@@ -72,7 +72,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
-        return TabFragment.newInstance(file,FragmentType.EDITOR).apply { tabFragments[Kee(file)] = WeakReference(this) }
+        return TabFragment.newInstance(file,file.getFragmentType()).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
 
     override fun getItemId(position: Int): Long {
