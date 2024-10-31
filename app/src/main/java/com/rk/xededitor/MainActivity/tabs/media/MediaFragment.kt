@@ -45,7 +45,11 @@ class MediaFragment(val context: Context) : CoreFragment {
         scope.launch(Dispatchers.IO) {
             httpServer = HttpServer(port, file.parentFile!!)
             withContext(Dispatchers.Main){
-                webView.loadUrl("http://localhost:$port/${URLEncoder.encode(file.name, "UTF-8")}")
+                webView.loadUrl("http://localhost:$port/${
+                    withContext(Dispatchers.IO) {
+                        URLEncoder.encode(file.name, "UTF-8")
+                    }
+                }")
             }
         }
     }
