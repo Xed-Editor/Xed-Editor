@@ -1,28 +1,27 @@
-package com.rk.xededitor.MainActivity.editor
+package com.rk.xededitor.MainActivity
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
-import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
-import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
-import kotlinx.coroutines.launch
+import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.media.MediaFragment
 import java.io.File
 
 
 class TabFragment : Fragment() {
-    var fragment:CoreFragment? = null
-    var type:FragmentType? = null
+    var fragment: CoreFragment? = null
+    var type: FragmentType? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         type = arguments?.getSerializable("type") as FragmentType
         
-        when(type){
+        when (type) {
             FragmentType.EDITOR -> {
                 arguments?.let {
                     it.getString(ARG_FILE_PATH)?.let { filePath ->
@@ -34,12 +33,24 @@ class TabFragment : Fragment() {
                     }
                 }
             }
-            FragmentType.VIDEO -> {}
-            FragmentType.AUDIO -> {}
-            FragmentType.IMAGE -> {}
+            
+            FragmentType.AUDIO, FragmentType.VIDEO, FragmentType.IMAGE -> {
+                arguments?.let {
+                    it.getString(ARG_FILE_PATH)?.let { filePath ->
+                        val file = File(filePath)
+                        val mediaFragment = MediaFragment(requireContext())
+                        mediaFragment.onCreate()
+                        fragment = mediaFragment
+                        mediaFragment.loadFile(file)
+                    }
+                }
+            }
+            
             FragmentType.TERMINAL -> {}
             FragmentType.WEB -> {}
-            null -> {throw RuntimeException("the type is null")}
+            null -> {
+                throw RuntimeException("the type is null")
+            }
         }
         
     }
@@ -63,7 +74,7 @@ class TabFragment : Fragment() {
         fun newInstance(file: File, type: FragmentType): TabFragment {
             val fragment = TabFragment()
             val args = Bundle()
-            args.putSerializable("type",type)
+            args.putSerializable("type", type)
             
             
             
@@ -72,9 +83,10 @@ class TabFragment : Fragment() {
                     args.putString(ARG_FILE_PATH, file.absolutePath)
                 }
                 
-                FragmentType.AUDIO -> {}
-                FragmentType.IMAGE -> {}
-                FragmentType.VIDEO -> {}
+                FragmentType.IMAGE, FragmentType.AUDIO, FragmentType.VIDEO -> {
+                    args.putString(ARG_FILE_PATH, file.absolutePath)
+                }
+                
                 FragmentType.TERMINAL -> {}
                 FragmentType.WEB -> {}
             }

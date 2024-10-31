@@ -4,10 +4,9 @@ import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.TabFragment
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.TabFragment
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
-import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

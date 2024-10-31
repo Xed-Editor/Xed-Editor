@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.editor.fragments.editor
+package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
 import android.view.View
@@ -6,13 +6,12 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.rk.libcommons.CustomScope
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.core.CoreFragment
+import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File

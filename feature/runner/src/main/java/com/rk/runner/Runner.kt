@@ -31,6 +31,8 @@ interface RunnerImpl {
     fun getDescription(): String
     @Keep
     fun getIcon(context: Context): Drawable?
+    fun isRunning():Boolean
+    fun stop()
 }
 
 @Keep

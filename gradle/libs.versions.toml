@@ -17,7 +17,7 @@ kotlin = "2.0.21"
 asynclayoutinflater = "1.0.0"
 navigationFragmentKtx = "2.8.3"
 navigationUiKtx = "2.8.3"
-coreKtx = "1.13.1"
+coreKtx = "1.15.0"
 activity = "1.9.3"
 nbJavacAndroid = "17.0.0.3"
 okhttp = "4.12.0"
@@ -37,7 +37,7 @@ activityCompose = "1.9.2"
 composeBom = "2024.10.00"
 coilCompose = "2.7.0"
 navigationCompose = "2.8.3"
-lifecycleViewmodelAndroid = "2.8.6"
+lifecycleViewmodelAndroid = "2.8.7"
 
 [libraries]
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }

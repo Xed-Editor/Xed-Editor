@@ -5,6 +5,7 @@ import android.content.Intent
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.net.ServerSocket
 
 object commonUtils {
     fun exctractAssets(context: Context, onComplete: () -> Unit) {
@@ -88,6 +89,11 @@ object commonUtils {
         } catch (e: IOException) {
             e.printStackTrace()
             println("Failed to copy file: ${e.message}")
+        }
+    }
+    fun getAvailablePort(): Int {
+        ServerSocket(0).use { socket ->
+            return socket.localPort
         }
     }
 }

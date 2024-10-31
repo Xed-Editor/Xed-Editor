@@ -38,4 +38,5 @@ dependencies {
     implementation(libs.material)
     implementation(libs.datastore.preferences)
     implementation(libs.lifecycle.viewmodel.android)
+    implementation(project(":core:commons"))
 }

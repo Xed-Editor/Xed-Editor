@@ -9,6 +9,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
 import com.rk.runner.databinding.ActivityMarkdownBinding
+import java.net.ServerSocket
 
 abstract class WebActivity : AppCompatActivity() {
     lateinit var binding: ActivityMarkdownBinding
@@ -26,6 +27,8 @@ abstract class WebActivity : AppCompatActivity() {
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.setWebChromeClient(WebChromeClient())
     }
+    
+    
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -7,8 +7,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
-import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.MainActivity.file.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.R
@@ -20,7 +20,7 @@ object KeyEventHandler {
         
         val editor = if (currentFragment?.type == FragmentType.EDITOR) {
             (currentFragment.fragment as EditorFragment).editor
-        }else{
+        } else {
             null
         }
         
@@ -54,8 +54,7 @@ object KeyEventHandler {
                         // Detach and re-attach the TabLayoutMediator
                         TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
                             tab.text = tabViewModel.fragmentTitles[position]
-                        }
-                            .attach()
+                        }.attach()
                         MenuItemHandler.update(this)
                         
                     }
@@ -69,6 +68,11 @@ object KeyEventHandler {
                         it.tabLayout.selectTab(
                             it.tabLayout.getTabAt(it.tabLayout.selectedTabPosition - 1)
                         )
+                        val fragment = it.adapter.getCurrentFragment()?.fragment
+                        if (fragment is EditorFragment) {
+                            fragment.editor?.requestFocus()
+                            fragment.editor?.requestFocusFromTouch()
+                        }
                     }
                 }
                 
@@ -80,17 +84,21 @@ object KeyEventHandler {
                         it.tabLayout.selectTab(
                             it.tabLayout.getTabAt(it.tabLayout.selectedTabPosition + 1)
                         )
+                        val fragment = it.adapter.getCurrentFragment()?.fragment
+                        if (fragment is EditorFragment) {
+                            fragment.editor?.requestFocus()
+                            fragment.editor?.requestFocusFromTouch()
+                        }
                     }
                 }
                 
                 KeyEvent.KEYCODE_S -> {
-                    if (currentFragment?.fragment is EditorFragment){
-                       (currentFragment.fragment as EditorFragment).save(false)
+                    if (currentFragment?.fragment is EditorFragment) {
+                        (currentFragment.fragment as EditorFragment).save(false)
                     }
                 }
                 
-                KeyEvent.KEYCODE_PLUS,
-                70 -> {
+                KeyEvent.KEYCODE_PLUS, 70 -> {
                     editor?.let {
                         if (it.textSizePx < 57) {
                             it.textSizePx += 2
@@ -127,10 +135,9 @@ object KeyEventHandler {
                 KeyEvent.KEYCODE_G -> {
                     editor?.let {
                         val line = 0
-                        var column =
-                            (editor.text.getLine(line).length).coerceAtMost(
-                                editor.cursor.leftColumn
-                            )
+                        var column = (editor.text.getLine(line).length).coerceAtMost(
+                            editor.cursor.leftColumn
+                        )
                         if (column < 0) {
                             column = 0
                         }
@@ -142,16 +149,15 @@ object KeyEventHandler {
                 KeyEvent.KEYCODE_B -> {
                     editor?.let {
                         val line = editor.text.lineCount - 1
-                        var column =
-                            (editor.text.getLine(line).length - 1).coerceAtMost(
-                                editor.cursor.leftColumn
-                            )
+                        var column = (editor.text.getLine(line).length - 1).coerceAtMost(
+                            editor.cursor.leftColumn
+                        )
                         if (column < 0) {
                             column = 0
                         }
                         editor.cursor.set(line, column)
                     }
-                   
+                    
                 }
             }
             

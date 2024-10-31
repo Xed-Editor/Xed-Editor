@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.editor.fragments.editor
+package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
 import android.graphics.Typeface

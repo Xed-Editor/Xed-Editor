@@ -196,4 +196,5 @@ dependencies {
     implementation(project(":core:components"))
     implementation(project(":editor:editor"))
     implementation(project(":editor:language-textmate"))
+    implementation("org.nanohttpd:nanohttpd:2.3.1")
 }

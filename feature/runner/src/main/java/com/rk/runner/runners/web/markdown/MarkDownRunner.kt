@@ -26,4 +26,10 @@ class MarkDownRunner : RunnerImpl {
     override fun getIcon(context: Context): Drawable? {
         return ContextCompat.getDrawable(context, R.drawable.markdown)
     }
+    override fun isRunning(): Boolean {
+        return false
+    }
+    override fun stop() {
+        TODO("Not yet implemented")
+    }
 }

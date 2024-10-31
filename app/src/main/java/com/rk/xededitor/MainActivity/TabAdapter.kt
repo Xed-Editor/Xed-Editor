@@ -6,13 +6,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayout
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.MainActivity.editor.TabFragment
-import com.rk.xededitor.MainActivity.editor.fragments.core.FragmentType
-import com.rk.xededitor.MainActivity.editor.fragments.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.getFragmentType
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File
@@ -72,7 +68,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
-        return TabFragment.newInstance(file,FragmentType.EDITOR).apply { tabFragments[Kee(file)] = WeakReference(this) }
+        return TabFragment.newInstance(file,file.getFragmentType()).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
 
     override fun getItemId(position: Int): Long {
@@ -157,7 +153,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     fun addFragment(file: File) {
         if ((file.length() / (1024.0 * 1024.0)) > 10 && file.getFragmentType() == FragmentType.EDITOR){
-            rkUtils.toast("File is too big to open")
+            rkUtils.toast(rkUtils.getString(R.string.file_too_large))
             return
         }
         
