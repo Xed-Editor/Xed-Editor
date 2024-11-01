@@ -138,22 +138,22 @@ class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSess
 
     // keys
     override fun readControlKey(): Boolean {
-        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.CTRL, true)
+        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.CTRL, true)
         return state != null && state
     }
 
     override fun readAltKey(): Boolean {
-        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.ALT, true)
+        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.ALT, true)
         return state != null && state
     }
 
     override fun readShiftKey(): Boolean {
-        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.SHIFT, true)
+        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.SHIFT, true)
         return state != null && state
     }
 
     override fun readFnKey(): Boolean {
-        val state = activity.binding.extraKeys.readSpecialButton(SpecialButton.FN, true)
+        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.FN, true)
         return state != null && state
     }
 

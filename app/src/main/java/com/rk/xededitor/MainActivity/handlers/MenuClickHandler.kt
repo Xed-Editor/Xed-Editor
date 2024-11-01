@@ -35,6 +35,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
+import java.io.File
 
 typealias Id = R.id
 
@@ -289,11 +290,29 @@ object MenuClickHandler {
             }
             
             Id.action_add -> {
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.setType("application/octet-stream")
-                intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
-                activity.fileManager.createFileLauncher.launch(intent)
+                ActionPopup(activity,true).apply {
+                    addItem(
+                        title = getString(R.string.terminal),
+                        description = "Open terminal in tabs",
+                        icon = ContextCompat.getDrawable(activity, R.drawable.terminal),
+                        listener = {
+                            activity.adapter.addFragment(File("terminal"), FragmentType.TERMINAL)
+                        }
+                    )
+                    addItem(
+                        title = getString(R.string.new_file),
+                        description = "Create new file",
+                        icon = ContextCompat.getDrawable(activity, R.drawable.outline_insert_drive_file_24),
+                        listener = {
+                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                            intent.addCategory(Intent.CATEGORY_OPENABLE)
+                            intent.setType("application/octet-stream")
+                            intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
+                            activity.fileManager.createFileLauncher.launch(intent)
+                        }
+                    )
+                    show()
+                }
                 return true
             }
             

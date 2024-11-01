@@ -8,6 +8,7 @@ import com.rk.libcommons.CustomScope
 import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
+import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,6 +32,10 @@ class MediaFragment(val context: Context) : CoreFragment {
             httpServer?.stop()
         }
         scope.cancel()
+    }
+    
+    override fun onClosed() {
+        onDestroy()
     }
     
     override fun onCreate() {

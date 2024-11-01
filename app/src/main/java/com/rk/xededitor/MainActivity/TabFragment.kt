@@ -9,6 +9,7 @@ import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.media.MediaFragment
+import com.rk.xededitor.MainActivity.tabs.terminal.TerminalFragment
 import java.io.File
 
 
@@ -46,8 +47,11 @@ class TabFragment : Fragment() {
                 }
             }
             
-            FragmentType.TERMINAL -> {}
-            FragmentType.WEB -> {}
+            FragmentType.TERMINAL -> {
+                val terminalFragment = TerminalFragment(requireContext())
+                terminalFragment.onCreate()
+                fragment = terminalFragment
+            }
             null -> {
                 throw RuntimeException("the type is null")
             }
@@ -87,8 +91,7 @@ class TabFragment : Fragment() {
                     args.putString(ARG_FILE_PATH, file.absolutePath)
                 }
                 
-                FragmentType.TERMINAL -> {}
-                FragmentType.WEB -> {}
+                FragmentType.TERMINAL -> {/*nothing to do*/}
             }
             
             fragment.arguments = args
