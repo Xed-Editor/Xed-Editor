@@ -3,6 +3,7 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -28,6 +29,8 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
@@ -121,6 +124,23 @@ class MainActivity : BaseActivity() {
         AutoSaver.start(this)
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
+        
+        lifecycleScope.launch(Dispatchers.Main) {
+            try {
+                while (true) {
+                    val focusedView: View? = currentFocus
+                    if (focusedView != null) {
+                        Log.d("FocusedView", "Current focused view: $focusedView")
+                    } else {
+                        Log.d("FocusedView", "No view is currently focused.")
+                    }
+                    delay(1000) // Delay for 1 second
+                }
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
+            
+        }
     }
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

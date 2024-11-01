@@ -15,6 +15,7 @@ import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
+import com.rk.xededitor.rkUtils
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -47,8 +48,7 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
                 PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
             )
         )
-        terminal.requestFocus()
-        terminal.setFocusableInTouchMode(true)
+        
     }
     
     private fun createSession(): TerminalSession {
@@ -99,7 +99,17 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     }
     
     override fun onSingleTapUp(e: MotionEvent?) {
-        KeyboardUtils.showSoftInput(terminal)
+        if (
+            rkUtils.isPhysicalKeyboardConnected(context) and
+            rkUtils.isDesktopMode(context) and
+            PreferencesData.getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD, true).not()
+        ) {
+            terminal.requestFocus()
+            terminal.setFocusableInTouchMode(true)
+        } else {
+            KeyboardUtils.showSoftInput(terminal)
+        }
+        
     }
     
     override fun shouldBackButtonBeMappedToEscape(): Boolean {
@@ -124,7 +134,9 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     
     override fun onKeyDown(keyCode: Int, e: KeyEvent?, session: TerminalSession?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && session?.isRunning != true) {
-            //close tab
+            MainActivity.activityRef.get()?.let {
+                it.adapter.removeFragment(it.binding.tabs.selectedTabPosition)
+            }
             return true
         }
         return false
