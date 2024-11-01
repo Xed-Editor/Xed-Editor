@@ -158,7 +158,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     fun addFragment(file: File, fragmentType: FragmentType? = null) {
         val type = fragmentType ?: file.getFragmentType()
-        if ((file.length() / (1024.0 * 1024.0)) > 10 && (type == FragmentType.EDITOR)){
+        if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10){
             rkUtils.toast(rkUtils.getString(R.string.file_too_large))
             return
         }
@@ -177,7 +177,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
             tabViewModel.fileSet.add(file.absolutePath)
             tabViewModel.fragmentFiles.add(file)
             tabViewModel.fragmentTitles.add(file.name)
-            tabViewModel.fragmentTypes.add(fragmentType ?: file.getFragmentType())
+            tabViewModel.fragmentTypes.add(type)
             
             (viewPager.adapter as? TabAdapter)?.notifyItemInsertedX(
                 tabViewModel.fragmentFiles.size - 1

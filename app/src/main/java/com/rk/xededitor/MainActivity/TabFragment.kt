@@ -56,7 +56,6 @@ class TabFragment : Fragment() {
                 throw RuntimeException("the type is null")
             }
         }
-        
     }
     
     override fun onCreateView(
@@ -64,7 +63,7 @@ class TabFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
-        return fragment?.getView()
+        return fragment?.getView().also { it?.isFocusableInTouchMode = true;it?.requestFocus();it?.requestFocusFromTouch() }
     }
     
     override fun onDestroy() {
