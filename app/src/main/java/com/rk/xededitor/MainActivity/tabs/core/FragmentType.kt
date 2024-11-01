@@ -6,5 +6,4 @@ enum class FragmentType {
     AUDIO,
     IMAGE,
     TERMINAL,
-    WEB
 }

@@ -29,7 +29,7 @@ import java.io.File
 
 class Terminal : BaseActivity() {
     var terminal: TerminalView? = null
-    lateinit var binding: ActivityTerminalBinding
+    var binding: ActivityTerminalBinding? = null
     private lateinit var session: TerminalSession
     private val terminalBackend: TerminalBackEnd = TerminalBackEnd(this)
 
@@ -39,7 +39,7 @@ class Terminal : BaseActivity() {
 
         SetupBootstrap(this) {
                 setupTerminalView()
-                setContentView(binding.root)
+                setContentView(binding!!.root)
                 setupVirtualKeys()
 
                 var lastBackPressedTime: Long = 0
@@ -75,8 +75,8 @@ class Terminal : BaseActivity() {
     }
 
     private fun setupVirtualKeys() {
-        binding.extraKeys.virtualKeysViewClient = terminal?.mTermSession?.let { VirtualKeysListener(it) }
-        binding.extraKeys.reload(
+        binding!!.extraKeys.virtualKeysViewClient = terminal?.mTermSession?.let { VirtualKeysListener(it) }
+        binding!!.extraKeys.reload(
             VirtualKeysInfo(VIRTUAL_KEYS, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES)
         )
     }
@@ -97,7 +97,7 @@ class Terminal : BaseActivity() {
         terminal!!.keepScreenOn = true
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f
-        binding.root.addView(terminal, 0, params)
+        binding!!.root.addView(terminal, 0, params)
         terminal!!.requestFocus()
         terminal!!.setFocusableInTouchMode(true)
         

@@ -68,7 +68,8 @@ class TabAdapter(private val mainActivity: MainActivity) :
 
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
-        return TabFragment.newInstance(file,file.getFragmentType()).apply { tabFragments[Kee(file)] = WeakReference(this) }
+        val type = mainActivity.tabViewModel.fragmentTypes[position]
+        return TabFragment.newInstance(file,type).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
 
     override fun getItemId(position: Int): Long {
@@ -106,7 +107,9 @@ class TabAdapter(private val mainActivity: MainActivity) :
     fun clearAllFragments() {
         with(mainActivity) {
             tabViewModel.fileSet.clear()
+            tabFragments.values.forEach { pointer -> pointer.get()?.fragment?.onClosed() }
             tabViewModel.fragmentFiles.clear()
+            tabViewModel.fragmentTypes.clear()
             tabFragments.clear()
             tabViewModel.fragmentTitles.clear()
             (viewPager.adapter as? TabAdapter)?.notifyDataSetChanged()
@@ -119,6 +122,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
     fun removeFragment(position: Int) {
         with(mainActivity) {
             if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
+                tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]!!.get()?.fragment?.onClosed()
                 tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
                 tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
                 synchronized(EditorFragment.set){
@@ -127,6 +131,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 
                 tabViewModel.fragmentFiles.removeAt(position)
                 tabViewModel.fragmentTitles.removeAt(position)
+                tabViewModel.fragmentTypes.removeAt(position)
 
                 (viewPager.adapter as? TabAdapter)?.apply { notifyItemRemovedX(position) }
             }
@@ -151,8 +156,8 @@ class TabAdapter(private val mainActivity: MainActivity) :
         }
     }
 
-    fun addFragment(file: File) {
-        if ((file.length() / (1024.0 * 1024.0)) > 10 && file.getFragmentType() == FragmentType.EDITOR){
+    fun addFragment(file: File, fragmentType: FragmentType? = null) {
+        if ((file.length() / (1024.0 * 1024.0)) > 10 && ((fragmentType ?: file.getFragmentType()) == FragmentType.EDITOR)){
             rkUtils.toast(rkUtils.getString(R.string.file_too_large))
             return
         }
@@ -171,11 +176,13 @@ class TabAdapter(private val mainActivity: MainActivity) :
             tabViewModel.fileSet.add(file.absolutePath)
             tabViewModel.fragmentFiles.add(file)
             tabViewModel.fragmentTitles.add(file.name)
+            tabViewModel.fragmentTypes.add(fragmentType ?: file.getFragmentType())
+            
             (viewPager.adapter as? TabAdapter)?.notifyItemInsertedX(
                 tabViewModel.fragmentFiles.size - 1
             )
             if (tabViewModel.fragmentFiles.size > 1)
-                viewPager.setCurrentItem(tabViewModel.fragmentFiles.size - 1, true)
+                viewPager.setCurrentItem(tabViewModel.fragmentFiles.size - 1, false)
             binding.tabs.visibility = View.VISIBLE
             binding.mainView.visibility = View.VISIBLE
             binding.openBtn.visibility = View.GONE

@@ -24,6 +24,7 @@ import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
+import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
@@ -48,6 +49,7 @@ class MainActivity : BaseActivity() {
     
     class TabViewModel : ViewModel() {
         val fragmentFiles = mutableListOf<File>()
+        val fragmentTypes = mutableListOf<FragmentType>()
         val fragmentTitles = mutableListOf<String>()
         val fileSet = HashSet<String>()
     }

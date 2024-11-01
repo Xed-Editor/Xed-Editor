@@ -9,4 +9,5 @@ interface CoreFragment {
     fun onCreate()
     fun loadFile(file: File)
     fun getFile(): File?
+    fun onClosed()
 }

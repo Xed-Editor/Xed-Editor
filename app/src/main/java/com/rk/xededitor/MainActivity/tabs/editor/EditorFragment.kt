@@ -92,6 +92,10 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor?.release()
     }
     
+    override fun onClosed() {
+        onDestroy()
+    }
+    
     
     inline fun undo() {
         editor?.undo()
