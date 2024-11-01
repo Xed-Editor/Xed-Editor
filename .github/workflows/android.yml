@@ -1,5 +1,3 @@
-name: Android CI
-
 on:
   push:
     branches:
@@ -10,21 +8,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  notify_telegram:
-    name: Notify Telegram
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Notify Telegram
-        uses: EverythingSuckz/github-telegram-notify@main
-        continue-on-error: true
-        with:
-          bot_token: ${{ secrets.TELEGRAM_TOKEN }}
-          chat_id: '-1002408175863'
-          topic_id: '938'
-
   build-release:
     name: Build Release
     runs-on: ubuntu-latest
