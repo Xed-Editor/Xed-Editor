@@ -157,13 +157,14 @@ class TabAdapter(private val mainActivity: MainActivity) :
     }
 
     fun addFragment(file: File, fragmentType: FragmentType? = null) {
-        if ((file.length() / (1024.0 * 1024.0)) > 10 && ((fragmentType ?: file.getFragmentType()) == FragmentType.EDITOR)){
+        val type = fragmentType ?: file.getFragmentType()
+        if ((file.length() / (1024.0 * 1024.0)) > 10 && (type == FragmentType.EDITOR)){
             rkUtils.toast(rkUtils.getString(R.string.file_too_large))
             return
         }
         
         with(mainActivity) {
-            if (tabViewModel.fileSet.contains(file.absolutePath)) {
+            if (type != FragmentType.TERMINAL && tabViewModel.fileSet.contains(file.absolutePath)) {
                 rkUtils.toast(getString(R.string.already_opened))
                 return
             }
