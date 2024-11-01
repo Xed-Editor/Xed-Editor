@@ -124,23 +124,6 @@ class MainActivity : BaseActivity() {
         AutoSaver.start(this)
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
-        
-        lifecycleScope.launch(Dispatchers.Main) {
-            try {
-                while (true) {
-                    val focusedView: View? = currentFocus
-                    if (focusedView != null) {
-                        Log.d("FocusedView", "Current focused view: $focusedView")
-                    } else {
-                        Log.d("FocusedView", "No view is currently focused.")
-                    }
-                    delay(1000) // Delay for 1 second
-                }
-            }catch (e:Exception){
-                e.printStackTrace()
-            }
-            
-        }
     }
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
