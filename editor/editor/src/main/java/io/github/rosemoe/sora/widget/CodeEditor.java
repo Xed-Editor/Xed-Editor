@@ -477,7 +477,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         }
 
         // Apply a multiplier for larger screens, e.g., tablets
-        float screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        float screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels - 50;
         float screenDensity = Resources.getSystem().getDisplayMetrics().density;
 
         if (screenWidth / screenDensity > 600) { // Screen larger than 600dp

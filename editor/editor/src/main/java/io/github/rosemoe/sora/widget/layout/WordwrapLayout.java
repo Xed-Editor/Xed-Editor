@@ -181,23 +181,25 @@ public class WordwrapLayout extends AbstractLayout {
         var text = sequence.getBackingCharArray();
 
         while (start < len) {
-            var next = CharPosDesc.getTextOffset(editor.getRenderer().findFirstVisibleCharForWordwrap(width, line, start, len, 0, paint == null ? editor.getTextPaint() : paint));
-            // Force to break the text, though no space is available
+            // Find the maximum offset that fits within the specified width
+            int next = CharPosDesc.getTextOffset(editor.getRenderer().findFirstVisibleCharForWordwrap(width, line, start, len, 0, paint == null ? editor.getTextPaint() : paint));
+
+            // Look backward from `next` to find a space, allowing breaks only at spaces
+            while (next > start && text[next - 1] != ' ') {
+                next--;
+            }
+
+            // If no space is found, force a break at the width if anti-word breaking is not enforced
             if (next == start) {
-                next++;
+                next = CharPosDesc.getTextOffset(editor.getRenderer().findFirstVisibleCharForWordwrap(width, line, start, len, 0, paint == null ? editor.getTextPaint() : paint));
             }
-            if (antiWordBreaking && MyCharacter.isAlpha(text[next - 1]) && next < len && (MyCharacter.isAlpha(text[next]) || text[next] == '-')) {
-                int wordStart = next - 1;
-                while (wordStart > start && MyCharacter.isAlpha(text[wordStart - 1])) {
-                    wordStart--;
-                }
-                if (wordStart > start) {
-                    next = wordStart;
-                }
-            }
+
+            // Add break point
             breakpoints.add(next);
             start = next;
         }
+
+        // Remove last break point if it reaches the end of the line
         if (!breakpoints.isEmpty() && breakpoints.get(breakpoints.size() - 1) == sequence.length()) {
             breakpoints.remove(breakpoints.size() - 1);
         }
