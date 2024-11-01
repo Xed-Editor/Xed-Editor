@@ -132,7 +132,6 @@ class EditorFragment(val context: Context) : CoreFragment {
             scope.launch {
                 updateUndoRedo()
                 t++
-                println(t)
                 
                 
                 try {

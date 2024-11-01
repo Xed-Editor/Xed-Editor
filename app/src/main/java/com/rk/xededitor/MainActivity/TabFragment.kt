@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.image.ImageFragment
 import com.rk.xededitor.MainActivity.tabs.media.MediaFragment
 import com.rk.xededitor.MainActivity.tabs.terminal.TerminalFragment
 import java.io.File
@@ -35,7 +36,7 @@ class TabFragment : Fragment() {
                 }
             }
             
-            FragmentType.AUDIO, FragmentType.VIDEO, FragmentType.IMAGE -> {
+            FragmentType.AUDIO, FragmentType.VIDEO -> {
                 arguments?.let {
                     it.getString(ARG_FILE_PATH)?.let { filePath ->
                         val file = File(filePath)
@@ -47,11 +48,24 @@ class TabFragment : Fragment() {
                 }
             }
             
+            FragmentType.IMAGE -> {
+                arguments?.let {
+                    it.getString(ARG_FILE_PATH)?.let { filePath ->
+                        val file = File(filePath)
+                        val imageFragment = ImageFragment(requireContext())
+                        imageFragment.onCreate()
+                        fragment = imageFragment
+                        imageFragment.loadFile(file)
+                    }
+                }
+            }
+            
             FragmentType.TERMINAL -> {
                 val terminalFragment = TerminalFragment(requireContext())
                 terminalFragment.onCreate()
                 fragment = terminalFragment
             }
+            
             null -> {
                 throw RuntimeException("the type is null")
             }
@@ -90,7 +104,8 @@ class TabFragment : Fragment() {
                     args.putString(ARG_FILE_PATH, file.absolutePath)
                 }
                 
-                FragmentType.TERMINAL -> {/*nothing to do*/}
+                FragmentType.TERMINAL -> {/*nothing to do*/
+                }
             }
             
             fragment.arguments = args
