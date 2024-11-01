@@ -460,12 +460,33 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
      *
      * @return The width
      */
-    public float measureTextRegionOffset() {
+    /*public float measureTextRegionOffset() {
         return isLineNumberEnabled() ?
                 measureLineNumber() + dividerMarginLeft + dividerMarginRight + dividerWidth +
                         (renderer.hasSideHintIcons() ? getRowHeight() : 0) :
                 dpUnit * 5;
+    }*/
+
+    public float measureTextRegionOffset() {
+        float baseOffset = dpUnit * 5;
+        if (isLineNumberEnabled()) {
+            baseOffset = measureLineNumber() + dividerMarginLeft + dividerMarginRight + dividerWidth;
+            if (renderer.hasSideHintIcons()) {
+                baseOffset += getRowHeight();
+            }
+        }
+
+        // Apply a multiplier for larger screens, e.g., tablets
+        float screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        float screenDensity = Resources.getSystem().getDisplayMetrics().density;
+
+        if (screenWidth / screenDensity > 600) { // Screen larger than 600dp
+            baseOffset *= 1.2F; // Adjust multiplier as needed
+        }
+
+        return baseOffset;
     }
+
 
     /**
      * Get the rect of left selection handle painted on view
