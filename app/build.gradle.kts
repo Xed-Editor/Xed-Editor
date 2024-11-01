@@ -197,4 +197,6 @@ dependencies {
     implementation(project(":editor:editor"))
     implementation(project(":editor:language-textmate"))
     implementation("org.nanohttpd:nanohttpd:2.3.1")
+    implementation("com.github.chrisbanes:PhotoView:2.3.0")
+    implementation("com.github.bumptech.glide:glide:4.15.1")
 }
