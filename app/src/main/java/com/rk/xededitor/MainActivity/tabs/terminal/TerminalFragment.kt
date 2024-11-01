@@ -49,7 +49,6 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
         )
         terminal.requestFocus()
         terminal.setFocusableInTouchMode(true)
-        
     }
     
     private fun createSession(): TerminalSession {
