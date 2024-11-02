@@ -53,7 +53,7 @@ class ActionPopup(val context: Context, val autoHideOnClick: Boolean = false) {
 
     fun hide(): ActionPopup {
         if (dialog?.isShowing == true) {
-            dialog?.hide()
+            dialog?.dismiss()
         }
 
         return this

@@ -22,7 +22,7 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                mainActivity.adapter.addFragment(file)
+                mainActivity.adapter!!.addFragment(file)
             }
         }
 
@@ -40,7 +40,7 @@ class FileManager(private val mainActivity: MainActivity) {
             val path = data?.data?.toPath()
             val file = File(path.toString())
             if (file.exists() and file.isFile){
-                mainActivity.adapter.addFragment(file)
+                mainActivity.adapter!!.addFragment(file)
             }else{
                 rkUtils.toast("Unsupported file location ${data?.data}")
             }
@@ -92,7 +92,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 if (file.isDirectory) {
                     ProjectManager.addProject(mainActivity, file)
                 } else {
-                    mainActivity.adapter.addFragment(file)
+                    mainActivity.adapter!!.addFragment(file)
                 }
             }
             .show()

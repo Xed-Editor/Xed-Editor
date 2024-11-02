@@ -41,15 +41,15 @@ object ProjectBar {
                 View.OnClickListener { v ->
                     when (v.id) {
                         openFileId -> {
-                            fileManager.requestOpenFile()
+                            fileManager?.requestOpenFile()
                         }
 
                         openDirId -> {
-                            fileManager.requestOpenDirectory()
+                            fileManager?.requestOpenDirectory()
                         }
 
                         openPathId -> {
-                            fileManager.requestOpenFromPath()
+                            fileManager?.requestOpenFromPath()
                         }
 
                         privateFilesId -> {
@@ -213,7 +213,7 @@ object ProjectBar {
                 }
             }
 
-            binding.navigationRail.setOnItemSelectedListener { item ->
+            binding!!.navigationRail.setOnItemSelectedListener { item ->
                 if (item.itemId == R.id.add_new) {
                     handleAddNew()
                     false
@@ -222,13 +222,6 @@ object ProjectBar {
                         ProjectManager.changeProject(File(it), this)
                     }
                     true
-                }
-            }
-
-            // close drawer if same item is selected again except add_new item
-            binding.navigationRail.setOnItemReselectedListener { item ->
-                if (item.itemId == R.id.add_new) {
-                    handleAddNew()
                 }
             }
         }

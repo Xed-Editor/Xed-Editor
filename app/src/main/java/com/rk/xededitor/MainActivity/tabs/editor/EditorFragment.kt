@@ -68,7 +68,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                         if (file!!.name != it[index]) {
                             it[index] = file!!.name
                             withContext(Dispatchers.Main) {
-                                activity.tabLayout.getTabAt(index)?.text = file!!.name
+                                activity.tabLayout!!.getTabAt(index)?.text = file!!.name
                             }
                         }
                     }
@@ -100,24 +100,24 @@ class EditorFragment(val context: Context) : CoreFragment {
     inline fun undo() {
         editor?.undo()
         MainActivity.activityRef.get()?.let {
-            it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
-            it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+            it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
+            it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
         }
     }
     
     inline fun redo() {
         editor?.redo()
         MainActivity.activityRef.get()?.let {
-            it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
-            it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+            it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
+            it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
         }
     }
     
     private suspend inline fun updateUndoRedo() {
         withContext(Dispatchers.Main){
             MainActivity.activityRef.get()?.let {
-                it.menu.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
-                it.menu.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+                it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
+                it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
             }
         }
     }
@@ -144,7 +144,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                             MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index] = "$currentTitle*"
                             
                             scope.launch(Dispatchers.Main) {
-                                MainActivity.activityRef.get()!!.tabLayout.getTabAt(index)?.text =
+                                MainActivity.activityRef.get()!!.tabLayout!!.getTabAt(index)?.text =
                                     MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index]
                             }
                         }

@@ -250,7 +250,7 @@ fun SettingsEditorScreen() {
                     
                     //todo arrow keys
 
-                    val viewpager = activity.binding.viewpager2
+                    val viewpager = activity.binding!!.viewpager2
                     val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
                     layoutParams.bottomMargin =
                         rkUtils.dpToPx(

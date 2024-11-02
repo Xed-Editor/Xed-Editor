@@ -43,11 +43,10 @@ object MenuClickHandler {
     
     private var searchText: String? = ""
     
-    @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
-        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
-            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        val editorFragment = if (activity.adapter!!.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter!!.getCurrentFragment()?.fragment as EditorFragment
         } else {
             null
         }
@@ -59,7 +58,7 @@ object MenuClickHandler {
             }
             
             Id.action_all -> {
-                activity.adapter.tabFragments.values.forEach { f ->
+                activity.adapter!!.tabFragments.values.forEach { f ->
                     if (f.get()?.type == FragmentType.EDITOR) {
                         (f.get()?.fragment as EditorFragment).save(false)
                     }
@@ -296,7 +295,7 @@ object MenuClickHandler {
                         description = "Open terminal in tabs",
                         icon = ContextCompat.getDrawable(activity, R.drawable.terminal),
                         listener = {
-                            activity.adapter.addFragment(File("terminal"), FragmentType.TERMINAL)
+                            activity.adapter!!.addFragment(File("terminal"), FragmentType.TERMINAL)
                         }
                     )
                     addItem(
@@ -308,7 +307,7 @@ object MenuClickHandler {
                             intent.addCategory(Intent.CATEGORY_OPENABLE)
                             intent.setType("application/octet-stream")
                             intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
-                            activity.fileManager.createFileLauncher.launch(intent)
+                            activity.fileManager!!.createFileLauncher.launch(intent)
                         }
                     )
                     show()
@@ -332,8 +331,8 @@ object MenuClickHandler {
     private fun replaceAll(popupView: View, activity: MainActivity) {
         val editText = popupView.findViewById<EditText>(Id.replace_replacement)
         val text = editText.text.toString()
-        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
-            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        val editorFragment = if (activity.adapter!!.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter!!.getCurrentFragment()?.fragment as EditorFragment
         } else {
             null
         }
@@ -344,8 +343,8 @@ object MenuClickHandler {
     }
     
     private fun handleSearchClose(activity: MainActivity): Boolean {
-        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
-            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        val editorFragment = if (activity.adapter!!.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter!!.getCurrentFragment()?.fragment as EditorFragment
         } else {
             null
         }
@@ -381,8 +380,8 @@ object MenuClickHandler {
             return
         }
         
-        val editorFragment = if (activity.adapter.getCurrentFragment()?.fragment is EditorFragment) {
-            activity.adapter.getCurrentFragment()?.fragment as EditorFragment
+        val editorFragment = if (activity.adapter!!.getCurrentFragment()?.fragment is EditorFragment) {
+            activity.adapter!!.getCurrentFragment()?.fragment as EditorFragment
         } else {
             null
         }

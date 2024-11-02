@@ -28,14 +28,14 @@ val fileClickListener =
                 }
                 val file = File(node.value.getAbsolutePath())
                 
-                it.adapter.addFragment(file)
+                it.adapter!!.addFragment(file)
                 if (
                     !PreferencesData.getBoolean(
                         PreferencesKeys.KEEP_DRAWER_LOCKED,
                         false,
                     )
                 ) {
-                    it.binding.drawerLayout.close()
+                    it.binding!!.drawerLayout.close()
                 }
                 
                 DefaultScope.launch(Dispatchers.Main) {

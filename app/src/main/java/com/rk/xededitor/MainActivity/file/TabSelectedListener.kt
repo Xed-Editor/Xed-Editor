@@ -17,7 +17,7 @@ var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCR
 class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedListener {
     override fun onTabSelected(tab: Tab?) {
         currentTab = WeakReference(tab)
-        if (smoothTabs.not()) { activity.viewPager.setCurrentItem(tab!!.position, false) }
+        if (smoothTabs.not()) { activity.viewPager!!.setCurrentItem(tab!!.position, false) }
         MenuItemHandler.update(activity)
         tab?.text = tab?.text
     }
@@ -29,22 +29,22 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
             val id = item.itemId
             when (id) {
                 R.id.close_this -> {
-                    activity.adapter.removeFragment(tab.position)
+                    activity.adapter!!.removeFragment(tab.position)
                 }
                 
                 R.id.close_others -> {
-                    activity.adapter.clearAllFragmentsExceptSelected()
+                    activity.adapter!!.clearAllFragmentsExceptSelected()
                 }
                 
                 R.id.close_all -> {
-                    activity.adapter.clearAllFragments()
+                    activity.adapter!!.clearAllFragments()
                 }
             }
-            activity.binding.tabs.invalidate()
-            activity.binding.tabs.requestLayout()
+            activity.binding!!.tabs.invalidate()
+            activity.binding!!.tabs.requestLayout()
             
             // Detach and re-attach the TabLayoutMediator
-            TabLayoutMediator(activity.binding.tabs, activity.viewPager) { tab, position ->
+            TabLayoutMediator(activity.binding!!.tabs, activity.viewPager!!) { tab, position ->
                 tab.text = activity.tabViewModel.fragmentTitles[position]
             }
                 .attach()

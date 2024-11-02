@@ -8,8 +8,9 @@ import androidx.fragment.app.Fragment
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.MainActivity.tabs.image.ImageFragment
-import com.rk.xededitor.MainActivity.tabs.media.MediaFragment
+import com.rk.xededitor.MainActivity.tabs.media.ImageFragment
+import com.rk.xededitor.MainActivity.tabs.media.WebFragment
+import com.rk.xededitor.MainActivity.tabs.media.VideoFragment
 import com.rk.xededitor.MainActivity.tabs.terminal.TerminalFragment
 import java.io.File
 
@@ -36,11 +37,11 @@ class TabFragment : Fragment() {
                 }
             }
             
-            FragmentType.AUDIO, FragmentType.VIDEO -> {
+            FragmentType.AUDIO -> {
                 arguments?.let {
                     it.getString(ARG_FILE_PATH)?.let { filePath ->
                         val file = File(filePath)
-                        val mediaFragment = MediaFragment(requireContext())
+                        val mediaFragment = WebFragment(requireContext())
                         mediaFragment.onCreate()
                         fragment = mediaFragment
                         mediaFragment.loadFile(file)
@@ -56,6 +57,18 @@ class TabFragment : Fragment() {
                         imageFragment.onCreate()
                         fragment = imageFragment
                         imageFragment.loadFile(file)
+                    }
+                }
+            }
+            
+            FragmentType.VIDEO -> {
+                arguments?.let {
+                    it.getString(ARG_FILE_PATH)?.let { filePath ->
+                        val file = File(filePath)
+                        val videoFragment = VideoFragment(requireContext())
+                        videoFragment.onCreate()
+                        fragment = videoFragment
+                        videoFragment.loadFile(file)
                     }
                 }
             }

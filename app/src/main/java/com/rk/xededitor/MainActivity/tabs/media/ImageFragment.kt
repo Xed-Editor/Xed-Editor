@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.tabs.image
+package com.rk.xededitor.MainActivity.tabs.media
 
 import android.content.Context
 import android.view.View
