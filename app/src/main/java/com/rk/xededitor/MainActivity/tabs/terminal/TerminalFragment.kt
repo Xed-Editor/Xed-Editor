@@ -25,14 +25,24 @@ import java.io.File
 import java.lang.Exception
 
 class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient, TerminalSessionClient {
-    private lateinit var terminal:TerminalView
+    private var terminal:TerminalView? = null
     
     override fun getView(): View? {
-        return TerminalView(context,null).also { terminal = it }
+        return TerminalView(context,null).also { terminal = it
+            terminal!!.setTerminalViewClient(this)
+            val session = createSession()
+            terminal!!.attachSession(session)
+            terminal!!.setBackgroundColor(Color.BLACK)
+            terminal!!.setTextSize(
+                SizeUtils.dp2px(
+                    PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
+                )
+            )
+        }
     }
     
     override fun onDestroy() {
-        terminal.mTermSession?.finishIfRunning()
+        terminal!!.mTermSession?.finishIfRunning()
     }
     
     override fun onClosed() {
@@ -40,15 +50,7 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     }
     
     override fun onCreate() {
-        terminal.setTerminalViewClient(this)
-        val session = createSession()
-        terminal.attachSession(session)
-        terminal.setBackgroundColor(Color.BLACK)
-        terminal.setTextSize(
-            SizeUtils.dp2px(
-                PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
-            )
-        )
+    
         
     }
     
@@ -105,10 +107,10 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
             rkUtils.isDesktopMode(context) and
             PreferencesData.getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD, true).not()
         ) {
-            terminal.requestFocus()
-            terminal.setFocusableInTouchMode(true)
+            terminal!!.requestFocus()
+            terminal!!.setFocusableInTouchMode(true)
         } else {
-            KeyboardUtils.showSoftInput(terminal)
+            KeyboardUtils.showSoftInput(terminal!!)
         }
         
     }
@@ -130,7 +132,7 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     }
     
     override fun copyModeChanged(copyMode: Boolean) {
-        
+    
     }
     
     override fun onKeyDown(keyCode: Int, e: KeyEvent?, session: TerminalSession?): Boolean {
@@ -172,21 +174,21 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     }
     
     override fun onEmulatorSet() {
-        if (terminal.mEmulator != null) {
-            terminal.setTerminalCursorBlinkerState(true, true)
+        if (terminal!!.mEmulator != null) {
+            terminal!!.setTerminalCursorBlinkerState(true, true)
         }
     }
     
     override fun onTextChanged(changedSession: TerminalSession?) {
-        terminal.onScreenUpdated()
+        terminal!!.onScreenUpdated()
     }
     
     override fun onTitleChanged(changedSession: TerminalSession?) {
-        
+    
     }
     
     override fun onSessionFinished(finishedSession: TerminalSession?) {
-        
+    
     }
     
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
@@ -195,8 +197,8 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     
     override fun onPasteTextFromClipboard(session: TerminalSession) {
         val clip = ClipboardUtils.getText().toString()
-        if (clip.trim { it <= ' ' }.isNotEmpty() && terminal.mEmulator != null) {
-            terminal.mEmulator.paste(clip)
+        if (clip.trim { it <= ' ' }.isNotEmpty() && terminal!!.mEmulator != null) {
+            terminal!!.mEmulator.paste(clip)
         }
     }
     
