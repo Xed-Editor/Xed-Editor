@@ -61,7 +61,7 @@ object ProjectManager {
             queue.add(file)
             return
         }
-        val rail = activity.binding.navigationRail
+        val rail = activity.binding!!.navigationRail
         for (i in 0 until rail.menu.size()) {
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
@@ -82,13 +82,13 @@ object ProjectManager {
                     FileTreeScrollViewManager.getFileTreeParentScrollView(activity, fileTree)
                 scrollView.id = file.absolutePath.hashCode()
 
-                activity.binding.maindrawer.addView(scrollView)
+                activity.binding!!.maindrawer.addView(scrollView)
 
                 changeProject(file, activity)
 
                 // hide + button if 6 projects are added
-                if (activity.binding.navigationRail.menu.getItem(5).isVisible) {
-                    activity.binding.navigationRail.menu.getItem(6).isVisible = false
+                if (activity.binding!!.navigationRail.menu.getItem(5).isVisible) {
+                    activity.binding!!.navigationRail.menu.getItem(6).isVisible = false
                 }
 
                 break
@@ -102,7 +102,7 @@ object ProjectManager {
     fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
         val filePath = file.absolutePath
         // BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
-        val rail = activity.binding.navigationRail
+        val rail = activity.binding!!.navigationRail
         for (i in 0 until rail.menu.size()) {
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
@@ -110,11 +110,11 @@ object ProjectManager {
                 item.isChecked = false
                 item.isVisible = false
 
-                for (i in 0 until activity.binding.maindrawer.childCount) {
-                    val view = activity.binding.maindrawer.getChildAt(i)
+                for (i in 0 until activity.binding!!.maindrawer.childCount) {
+                    val view = activity.binding!!.maindrawer.getChildAt(i)
                     if (view is DiagonalScrollView) {
                         if (view.id == file.absolutePath.hashCode()) {
-                            activity.binding.maindrawer.removeView(view)
+                            activity.binding!!.maindrawer.removeView(view)
                         }
                     }
                 }
@@ -143,15 +143,15 @@ object ProjectManager {
                     saveProjects(activity)
                 }
 
-                //                for (ix in 0 until activity.binding.maindrawer.childCount) {
-                //                    val view = activity.binding.maindrawer.getChildAt(ix)
+                //                for (ix in 0 until activity.binding!!.maindrawer.childCount) {
+                //                    val view = activity.binding!!.maindrawer.getChildAt(ix)
                 //                    if (view is ViewGroup) {
-                //                        activity.binding.maindrawer.removeView(view)
+                //                        activity.binding!!.maindrawer.removeView(view)
                 //                    }
                 //                }
 
-                activity.binding.maindrawer.removeView(
-                    activity.binding.maindrawer.findViewById(file.absolutePath.hashCode())
+                activity.binding!!.maindrawer.removeView(
+                    activity.binding!!.maindrawer.findViewById(file.absolutePath.hashCode())
                 )
 
                 break
@@ -163,8 +163,8 @@ object ProjectManager {
     private var currentProjectId: Int = -1
 
     fun changeProject(file: File, activity: MainActivity) {
-        for (i in 0 until activity.binding.maindrawer.childCount) {
-            val view = activity.binding.maindrawer.getChildAt(i)
+        for (i in 0 until activity.binding!!.maindrawer.childCount) {
+            val view = activity.binding!!.maindrawer.getChildAt(i)
             if (view is ViewGroup) {
                 if (view.id != file.absolutePath.hashCode()) {
                     view.visibility = View.GONE
@@ -178,20 +178,20 @@ object ProjectManager {
 
     fun clear(activity: MainActivity) {
         projects.clear()
-        for (i in 0 until activity.binding.maindrawer.childCount) {
-            val view = activity.binding.maindrawer.getChildAt(i)
+        for (i in 0 until activity.binding!!.maindrawer.childCount) {
+            val view = activity.binding!!.maindrawer.getChildAt(i)
             if (view is DiagonalScrollView) {
-                activity.binding.maindrawer.removeView(view)
+                activity.binding!!.maindrawer.removeView(view)
             }
         }
     }
 
     fun getSelectedProjectRootFilePath(activity: MainActivity): String? {
-        return projects[activity.binding.navigationRail.selectedItemId]
+        return projects[activity.binding!!.navigationRail.selectedItemId]
     }
 
     private fun getSelectedView(activity: MainActivity): FileTree {
-        val view: ViewGroup = activity.binding.maindrawer.findViewById(currentProjectId)
+        val view: ViewGroup = activity.binding!!.maindrawer.findViewById(currentProjectId)
         return (view.getChildAt(0) as ViewGroup).getChildAt(0) as FileTree
     }
 
@@ -230,7 +230,7 @@ object ProjectManager {
 
             projectsList.forEach {
                 val file = File(it)
-                activity.binding.mainView.visibility = View.VISIBLE
+                activity.binding!!.mainView.visibility = View.VISIBLE
                 addProject(activity, file)
             }
         }

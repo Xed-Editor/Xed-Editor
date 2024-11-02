@@ -41,7 +41,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
     // this is hell
     fun getCurrentFragment(): TabFragment? {
         if (
-            mainActivity.tabLayout.selectedTabPosition == -1 ||
+            mainActivity.tabLayout!!.selectedTabPosition == -1 ||
                 mainActivity.tabViewModel.fragmentFiles.isEmpty()
         ) {
             tabFragments.clear()
@@ -57,7 +57,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
             tabFragments[
                 Kee(
                     mainActivity.tabViewModel.fragmentFiles[
-                            mainActivity.tabLayout.selectedTabPosition]
+                            mainActivity.tabLayout!!.selectedTabPosition]
                 )]
         return f?.get()
     }
@@ -112,10 +112,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
             tabViewModel.fragmentTypes.clear()
             tabFragments.clear()
             tabViewModel.fragmentTitles.clear()
-            (viewPager.adapter as? TabAdapter)?.notifyDataSetChanged()
-            binding.tabs.visibility = View.GONE
-            binding.mainView.visibility = View.GONE
-            binding.openBtn.visibility = View.VISIBLE
+            (viewPager?.adapter as? TabAdapter)?.notifyDataSetChanged()
+            binding!!.tabs.visibility = View.GONE
+            binding!!.mainView.visibility = View.GONE
+            binding!!.openBtn.visibility = View.VISIBLE
         }
     }
 
@@ -133,22 +133,22 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 tabViewModel.fragmentTitles.removeAt(position)
                 tabViewModel.fragmentTypes.removeAt(position)
 
-                (viewPager.adapter as? TabAdapter)?.apply { notifyItemRemovedX(position) }
+                (viewPager?.adapter as? TabAdapter)?.apply { notifyItemRemovedX(position) }
             }
             if (tabViewModel.fragmentFiles.isEmpty()) {
-                binding.tabs.visibility = View.GONE
-                binding.mainView.visibility = View.GONE
-                binding.openBtn.visibility = View.VISIBLE
+                binding!!.tabs.visibility = View.GONE
+                binding!!.mainView.visibility = View.GONE
+                binding!!.openBtn.visibility = View.VISIBLE
             }
         }
     }
 
     fun clearAllFragmentsExceptSelected() {
         mainActivity.lifecycleScope.launch(Dispatchers.Main) {
-            val selectedTabPosition = mainActivity.tabLayout.selectedTabPosition
+            val selectedTabPosition = mainActivity.tabLayout?.selectedTabPosition
 
             // Iterate backwards to avoid index shifting issues when removing fragments
-            for (i in mainActivity.tabLayout.tabCount - 1 downTo 0) {
+            for (i in mainActivity.tabLayout!!.tabCount - 1 downTo 0) {
                 if (i != selectedTabPosition) {
                     removeFragment(i)
                 }
@@ -179,14 +179,14 @@ class TabAdapter(private val mainActivity: MainActivity) :
             tabViewModel.fragmentTitles.add(file.name)
             tabViewModel.fragmentTypes.add(type)
             
-            (viewPager.adapter as? TabAdapter)?.notifyItemInsertedX(
+            (viewPager?.adapter as? TabAdapter)?.notifyItemInsertedX(
                 tabViewModel.fragmentFiles.size - 1
             )
             if (tabViewModel.fragmentFiles.size > 1)
-                viewPager.setCurrentItem(tabViewModel.fragmentFiles.size - 1, false)
-            binding.tabs.visibility = View.VISIBLE
-            binding.mainView.visibility = View.VISIBLE
-            binding.openBtn.visibility = View.GONE
+                viewPager?.setCurrentItem(tabViewModel.fragmentFiles.size - 1, false)
+            binding!!.tabs.visibility = View.VISIBLE
+            binding!!.mainView.visibility = View.VISIBLE
+            binding!!.openBtn.visibility = View.GONE
         }
     }
 }

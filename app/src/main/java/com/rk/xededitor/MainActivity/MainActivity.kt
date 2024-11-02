@@ -3,7 +3,6 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,18 +18,16 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
+import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
@@ -41,13 +38,13 @@ class MainActivity : BaseActivity() {
         var activityRef = WeakReference<MainActivity?>(null)
     }
     
-    lateinit var binding: ActivityTabBinding
-    lateinit var viewPager: ViewPager2
-    lateinit var tabLayout: TabLayout
-    private lateinit var drawerToggle: ActionBarDrawerToggle
-    var fileManager = FileManager(this)
-    lateinit var menu: Menu
-    lateinit var adapter: TabAdapter
+    var binding: ActivityTabBinding? = null
+    var viewPager: ViewPager2? = null
+    var tabLayout: TabLayout? = null
+    private var drawerToggle: ActionBarDrawerToggle? = null
+    var fileManager:FileManager? = FileManager(this)
+    var menu: Menu? = null
+    var adapter: TabAdapter? = null
     val tabViewModel: TabViewModel by viewModels()
     
     class TabViewModel : ViewModel() {
@@ -61,9 +58,9 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         binding = ActivityTabBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding!!.root)
         
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         
@@ -78,17 +75,15 @@ class MainActivity : BaseActivity() {
         ProjectBar.setupNavigationRail(this)
         
         if (tabViewModel.fragmentFiles.isNotEmpty()) {
-            binding.tabs.visibility = View.VISIBLE
-            binding.mainView.visibility = View.VISIBLE
-            binding.openBtn.visibility = View.GONE
+            binding!!.tabs.visibility = View.VISIBLE
+            binding!!.mainView.visibility = View.VISIBLE
+            binding!!.openBtn.visibility = View.GONE
         }
-        
         
         
     }
     
-    fun isAdapterInitialized(): Boolean = this::adapter.isInitialized
-    fun isMenuInitialized(): Boolean = this::menu.isInitialized
+    inline fun isMenuInitialized(): Boolean = menu != null
     
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -130,7 +125,7 @@ class MainActivity : BaseActivity() {
         val id = item.itemId
         
         if (id == android.R.id.home) {
-            with(binding.drawerLayout) {
+            with(binding!!.drawerLayout) {
                 val start = GravityCompat.START
                 if (isDrawerOpen(start)) {
                     closeDrawer(start)
@@ -140,7 +135,7 @@ class MainActivity : BaseActivity() {
             }
             return true
         } else {
-            if (drawerToggle.onOptionsItemSelected(item)) {
+            if (drawerToggle!!.onOptionsItemSelected(item)) {
                 return true
             }
             MenuClickHandler.handle(this, item)
@@ -149,7 +144,7 @@ class MainActivity : BaseActivity() {
     }
     
     private fun setupViewPager() {
-        viewPager = binding.viewpager2.apply {
+        viewPager = binding!!.viewpager2.apply {
             // do not remove .toInt
             offscreenPageLimit = tabLimit.toInt()
             isUserInputEnabled = false
@@ -157,15 +152,15 @@ class MainActivity : BaseActivity() {
     }
     
     private fun setupDrawer() {
-        val drawerLayout = binding.drawerLayout
+        val drawerLayout = binding!!.drawerLayout
         drawerToggle =
             ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
-        drawerLayout.addDrawerListener(drawerToggle)
-        drawerToggle.syncState()
+        drawerLayout.addDrawerListener(drawerToggle!!)
+        drawerToggle!!.syncState()
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        binding.drawerLayout.setScrimColor(Color.TRANSPARENT)
-        binding.drawerLayout.setDrawerElevation(0f)
-        binding.drawerLayout.addDrawerListener(
+        binding!!.drawerLayout.setScrimColor(Color.TRANSPARENT)
+        binding!!.drawerLayout.setDrawerElevation(0f)
+        binding!!.drawerLayout.addDrawerListener(
             object : DrawerLayout.DrawerListener {
                 var leftDrawerOffset = 0f
                 var rightDrawerOffset = 0f
@@ -173,13 +168,13 @@ class MainActivity : BaseActivity() {
                 override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                     val drawerWidth = drawerView.width
                     leftDrawerOffset = drawerWidth * slideOffset
-                    binding.main.translationX = leftDrawerOffset
+                    binding!!.main.translationX = leftDrawerOffset
                 }
                 
                 override fun onDrawerOpened(drawerView: View) {}
                 
                 override fun onDrawerClosed(drawerView: View) {
-                    binding.main.translationX = 0f
+                    binding!!.main.translationX = 0f
                     leftDrawerOffset = 0f
                     rightDrawerOffset = 0f
                 }
@@ -190,23 +185,32 @@ class MainActivity : BaseActivity() {
     }
     
     private fun setupTabLayout() {
-        binding.tabs.addOnTabSelectedListener(TabSelectedListener(this@MainActivity))
-        tabLayout = binding.tabs
+        binding!!.tabs.addOnTabSelectedListener(TabSelectedListener(this@MainActivity))
+        tabLayout = binding!!.tabs
     }
     
     private fun setupAdapter() {
         adapter = TabAdapter(this)
-        viewPager.adapter = adapter
+        viewPager!!.adapter = adapter
         
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+        TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
             tab.text = tabViewModel.fragmentTitles[position]
         }.attach()
     }
     
-    fun openDrawer(v: View?) { binding.drawerLayout.open() }
+    fun openDrawer(v: View?) {
+        binding!!.drawerLayout.open()
+    }
     
     override fun onDestroy() {
         DefaultScope.cancel()
         super.onDestroy()
+        binding = null
+        adapter = null
+        viewPager = null
+        fileManager = null
+        menu = null
+        activityRef = WeakReference(null)
+        
     }
 }

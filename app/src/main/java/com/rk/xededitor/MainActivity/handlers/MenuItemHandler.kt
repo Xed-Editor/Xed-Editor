@@ -17,7 +17,7 @@ object MenuItemHandler {
         // Launch a coroutine on the default dispatcher
         activity.lifecycleScope.launch(Dispatchers.Default) {
             // Check if the current fragment is an EditorFragment
-            val currentFragment = activity.adapter.getCurrentFragment()?.fragment
+            val currentFragment = activity.adapter!!.getCurrentFragment()?.fragment
             
             // Wait until the menu is initialized
             while (!activity.isMenuInitialized()) {
@@ -35,7 +35,7 @@ object MenuItemHandler {
                     false
                 }
                 // Show or hide editor-related menu items
-                updateEditorMenuVisibility(menu, hasFiles && iseditor)
+                updateEditorMenuVisibility(menu!!, hasFiles && iseditor)
                 
                 // Show the "Run" option if there's a runnable file
                 if (hasFiles && iseditor) {
@@ -56,7 +56,7 @@ object MenuItemHandler {
                 )
                 
                 // Update undo/redo menu items and modified star
-                updateUndoRedoAndModifiedStar(menu, activity.adapter.getCurrentFragment(), activity)
+                updateUndoRedoAndModifiedStar(menu, activity.adapter!!.getCurrentFragment(), activity)
                 
                 // Toggle search-related menu items
                 updateSearchMenu(
@@ -82,14 +82,14 @@ object MenuItemHandler {
             
             // Update the Git menu item visibility on the main dispatcher
             withContext(Dispatchers.Main) {
-                menu.findItem(Id.git).isVisible = gitRoot != null && activity.tabLayout.tabCount > 0
+                menu.findItem(Id.git).isVisible = gitRoot != null && activity.tabLayout!!.tabCount > 0
             }
         }
     }
     
     private fun updateUndoRedoAndModifiedStar(menu: Menu, currentFragment: TabFragment?, activity: MainActivity) {
         // Get the current fragment if it's an EditorFragment
-        val editorFragment = activity.adapter.getCurrentFragment()?.fragment as? EditorFragment
+        val editorFragment = activity.adapter!!.getCurrentFragment()?.fragment as? EditorFragment
         
         // Enable or disable undo/redo menu items based on the editor state
         menu.findItem(Id.redo).isEnabled = editorFragment?.editor?.canRedo() == true

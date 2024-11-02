@@ -8,14 +8,13 @@ import com.rk.libcommons.CustomScope
 import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URLEncoder
 
-class MediaFragment(val context: Context) : CoreFragment {
+class WebFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
     private var file: File? = null
     private val webView:WebView = WebView(context)

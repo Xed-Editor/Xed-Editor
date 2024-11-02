@@ -2,6 +2,7 @@ package com.rk.xededitor.MainActivity.tabs.terminal
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Environment
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -13,7 +14,6 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.rkUtils
 import com.termux.terminal.TerminalEmulator
@@ -25,9 +25,10 @@ import java.io.File
 import java.lang.Exception
 
 class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient, TerminalSessionClient {
-    private val terminal = TerminalView(context,null)
+    private lateinit var terminal:TerminalView
+    
     override fun getView(): View? {
-        return terminal
+        return TerminalView(context,null).also { terminal = it }
     }
     
     override fun onDestroy() {
@@ -52,7 +53,7 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     }
     
     private fun createSession(): TerminalSession {
-        val workingDir = ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
+        val workingDir = Environment.getExternalStorageDirectory().absolutePath
         
         val tmpDir = File(context.getTempDir(), "terminal")
         
@@ -135,7 +136,7 @@ class TerminalFragment(val context: Context) : CoreFragment, TerminalViewClient,
     override fun onKeyDown(keyCode: Int, e: KeyEvent?, session: TerminalSession?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && session?.isRunning != true) {
             MainActivity.activityRef.get()?.let {
-                it.adapter.removeFragment(it.binding.tabs.selectedTabPosition)
+                it.adapter!!.removeFragment(it.binding!!.tabs.selectedTabPosition)
             }
             return true
         }

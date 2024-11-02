@@ -46,12 +46,12 @@ object KeyEventHandler {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_W -> {
                     MainActivity.activityRef.get()?.apply {
-                        adapter.removeFragment(tabLayout.selectedTabPosition)
-                        binding.tabs.invalidate()
-                        binding.tabs.requestLayout()
+                        adapter!!.removeFragment(tabLayout!!.selectedTabPosition)
+                        binding!!.tabs.invalidate()
+                        binding!!.tabs.requestLayout()
                         
                         // Detach and re-attach the TabLayoutMediator
-                        TabLayoutMediator(binding.tabs, viewPager) { tab, position ->
+                        TabLayoutMediator(binding!!.tabs, viewPager!!) { tab, position ->
                             tab.text = tabViewModel.fragmentTitles[position]
                         }.attach()
                         MenuItemHandler.update(this)
@@ -61,13 +61,13 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_K -> {
                     MainActivity.activityRef.get()?.let {
-                        if (it.tabLayout.selectedTabPosition == 0) {
+                        if (it.tabLayout!!.selectedTabPosition == 0) {
                             return
                         }
-                        it.tabLayout.selectTab(
-                            it.tabLayout.getTabAt(it.tabLayout.selectedTabPosition - 1)
+                        it.tabLayout!!.selectTab(
+                            it.tabLayout!!.getTabAt(it.tabLayout!!.selectedTabPosition - 1)
                         )
-                        val fragment = it.adapter.getCurrentFragment()?.fragment
+                        val fragment = it.adapter!!.getCurrentFragment()?.fragment
                         if (fragment is EditorFragment) {
                             fragment.editor?.requestFocus()
                             fragment.editor?.requestFocusFromTouch()
@@ -77,13 +77,13 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_L -> {
                     MainActivity.activityRef.get()?.let {
-                        if (it.tabLayout.selectedTabPosition == it.tabLayout.tabCount - 1) {
+                        if (it.tabLayout!!.selectedTabPosition == it.tabLayout!!.tabCount - 1) {
                             return
                         }
-                        it.tabLayout.selectTab(
-                            it.tabLayout.getTabAt(it.tabLayout.selectedTabPosition + 1)
+                        it.tabLayout!!.selectTab(
+                            it.tabLayout!!.getTabAt(it.tabLayout!!.selectedTabPosition + 1)
                         )
-                        val fragment = it.adapter.getCurrentFragment()?.fragment
+                        val fragment = it.adapter!!.getCurrentFragment()?.fragment
                         if (fragment is EditorFragment) {
                             fragment.editor?.requestFocus()
                             fragment.editor?.requestFocusFromTouch()
@@ -115,7 +115,7 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_F -> {
                     MainActivity.activityRef.get()?.let {
-                        MenuClickHandler.handle(it, it.menu.findItem(R.id.search))
+                        MenuClickHandler.handle(it, it.menu!!.findItem(R.id.search))
                     }
                 }
                 
