@@ -63,8 +63,8 @@
     </style>
     
     <style name="Theme.Karbon.Oled" parent="Theme.Karbon">
-        <item name="android:colorBackground">@color/black</item>
-        <item name="colorSurface">@color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="colorSurface">@android:color/black</item>
     </style>
     
     <style name="Base.Theme.Karbon.Monet" parent="Theme.Material3.DynamicColors.Dark">
@@ -82,7 +82,7 @@
     </style>
     
     <style name="Theme.Karbon.Oled.Monet" parent="Base.Theme.Karbon.Monet">
-        <item name="android:colorBackground">@color/black</item>
-        <item name="colorSurface">@color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="colorSurface">@android:color/black</item>
     </style>
 </resources>
