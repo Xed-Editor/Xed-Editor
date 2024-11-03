@@ -12,17 +12,14 @@ import androidx.activity.OnBackPressedCallback
 import com.blankj.utilcode.util.SizeUtils
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.terminal.MkSession.createSession
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.terminal.virtualkeys.VirtualKeysListener
-import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import java.io.File
@@ -31,13 +28,13 @@ class Terminal : BaseActivity() {
     var terminal: TerminalView? = null
     var binding: ActivityTerminalBinding? = null
     private lateinit var session: TerminalSession
-    private val terminalBackend: TerminalBackEnd = TerminalBackEnd(this)
+    val terminalBackend: TerminalBackEnd = TerminalBackEnd(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTerminalBinding.inflate(layoutInflater)
 
-        SetupBootstrap(this) {
+        SetupAlpine(this) {
                 setupTerminalView()
                 setContentView(binding!!.root)
                 setupVirtualKeys()
@@ -85,7 +82,7 @@ class Terminal : BaseActivity() {
         terminal = TerminalView(this, null)
         terminalBackend.setTerminal(terminal!!)
         terminal!!.setTerminalViewClient(terminalBackend)
-        session = createSession()
+        session = createSession(this)
         terminal!!.attachSession(session)
         terminal!!.setBackgroundColor(Color.BLACK)
         terminal!!.setTextSize(
@@ -141,100 +138,7 @@ class Terminal : BaseActivity() {
         }
     }
 
-    private fun createSession(): TerminalSession {
-        val workingDir =
-            if (intent.hasExtra("cwd")) {
-                intent.getStringExtra("cwd")
-            } else if (
-                MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()
-            ) {
-                ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
-            } else {
-                filesDir.absolutePath
-            }
-
-        val tmpDir = File(getTempDir(), "terminal")
-
-        if (tmpDir.exists()) {
-            tmpDir.deleteRecursively()
-            tmpDir.mkdirs()
-        } else {
-            tmpDir.mkdirs()
-        }
-
-        val env =
-            arrayOf(
-                "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "HOME=" + filesDir.absolutePath,
-                "PUBLIC_HOME=" + getExternalFilesDir(null)?.absolutePath,
-                "COLORTERM=truecolor",
-                "TERM=xterm-256color",
-            )
-
-        if (intent.hasExtra("run_cmd")) {
-            var shell = "/system/bin/sh"
-            val args: Array<String>
-
-            var cwd = intent.getStringExtra("cwd")
-
-            if (cwd!!.isEmpty()) {
-                cwd = workingDir
-            }
-
-            val env1 =
-                if (intent.getBooleanExtra("overrideEnv", false)) {
-                    intent.getStringArrayExtra("env")
-                } else {
-                    with(mutableListOf<String>()) {
-                        addAll(env)
-                        addAll(intent.getStringArrayExtra("env")!!.toList())
-                        toTypedArray()
-                    }
-                }
-
-            val alpine = intent.getBooleanExtra("alpine", true)
-
-            if (alpine) {
-                args =
-                    mutableListOf(
-                            "-c",
-                            File(filesDir.parentFile!!, "proot.sh").absolutePath,
-                            intent.getStringExtra("shell")!!,
-                        )
-                        .also { it.addAll(intent.getStringArrayExtra("args")!!.toList()) }
-                        .toTypedArray()
-            } else {
-                shell = intent.getStringExtra("shell").toString()
-                args = intent.getStringArrayExtra("args")!!
-            }
-
-            return TerminalSession(
-                shell,
-                cwd,
-                args,
-                env1,
-                TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
-                terminalBackend,
-            )
-        }
-
-        val shell = "/system/bin/sh"
-        val args =
-            if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE, false)) {
-                arrayOf("")
-            } else {
-                arrayOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath)
-            }
-
-        return TerminalSession(
-            shell,
-            workingDir,
-            args,
-            env,
-            TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
-            terminalBackend,
-        )
-    }
+    
 }
 
 const val VIRTUAL_KEYS =

@@ -31,8 +31,6 @@ include(":app")
 include(":editor:editor")
 include(":editor:editor-lsp")
 include(":editor:language-textmate")
-
-include(":feature:plugin")
 include(":feature:runner")
 include(":feature:filetree")
 include(":feature:settings")
