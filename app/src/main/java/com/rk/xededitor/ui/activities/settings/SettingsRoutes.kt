@@ -11,7 +11,5 @@ sealed class SettingsRoutes(val route: String) {
 
     data object GitSettings : SettingsRoutes("git_settings")
 
-    data object ManagePlugins : SettingsRoutes("manage_plugins")
-
     data object About : SettingsRoutes("karbon")
 }

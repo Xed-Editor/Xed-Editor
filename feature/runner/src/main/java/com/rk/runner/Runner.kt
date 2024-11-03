@@ -7,7 +7,6 @@ import androidx.annotation.Keep
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.runner.runners.jvm.beanshell.BeanshellRunner
 import com.rk.runner.runners.jvm.jdk.JavaRunner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
@@ -41,7 +40,6 @@ object Runner {
     val registry = HashMap<String, MutableList<RunnerImpl>>()
 
     init {
-        registry["bsh"] = mutableListOf(BeanshellRunner())
         registry["html"] = mutableListOf(HtmlRunner())
         registry["md"] = mutableListOf(MarkDownRunner())
         registry["py"] = mutableListOf(PythonRunner())
