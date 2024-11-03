@@ -20,7 +20,6 @@
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor/language-textmate" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/filetree" />
-            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/plugin" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/runner" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/settings" />
           </set>

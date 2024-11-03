@@ -11,6 +11,7 @@ unset LD_LIBRARY_PATH
 unset PROOT_TMP_DIR
 
 PREFIX_PATH=/data/data/com.rk.xededitor
+
 FILE_PATH="$PREFIX_PATH/shell"
 if [ -s "$FILE_PATH" ]; then
     START_SHELL=$(cat "$FILE_PATH")
