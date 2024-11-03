@@ -11,7 +11,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
-import com.rk.plugin.server.PluginUtils.getPluginRoot
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -54,17 +53,6 @@ object ProjectBar {
 
                         privateFilesId -> {
                             ProjectManager.addProject(this, filesDir.parentFile!!)
-                        }
-
-                        pluginDir -> {
-                            ProjectManager.addProject(
-                                this,
-                                getPluginRoot().also {
-                                    if (it.exists().not()) {
-                                        it.mkdirs()
-                                    }
-                                },
-                            )
                         }
 
                         cloneRepo -> {
@@ -185,25 +173,19 @@ object ProjectBar {
                         openPathId,
                         listener,
                     )
-                    addItem(
-                        getString(R.string.clone_repo),
-                        getString(R.string.clone_repo_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.git),
-                        cloneRepo,
-                        listener,
-                    )
-                    addItem(
-                        getString(R.string.plugin),
-                        getString(R.string.plugin_dir),
-                        ContextCompat.getDrawable(this@with, R.drawable.extension),
-                        pluginDir,
-                        listener,
-                    )
+                    
                     addItem(
                         getString(R.string.private_files),
                         getString(R.string.private_files_desc),
                         ContextCompat.getDrawable(this@with, R.drawable.android),
                         privateFilesId,
+                        listener,
+                    )
+                    addItem(
+                        getString(R.string.clone_repo),
+                        getString(R.string.clone_repo_desc),
+                        ContextCompat.getDrawable(this@with, R.drawable.git),
+                        cloneRepo,
                         listener,
                     )
 
