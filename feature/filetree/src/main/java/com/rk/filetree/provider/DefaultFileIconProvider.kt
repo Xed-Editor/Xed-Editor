@@ -85,7 +85,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                         "txt" -> text
                         "mp3",
                         "wav",
-                        "ogg",
+                        "ogg","m4a",
                         "flac" -> audio
                         "mp4",
                         "mov",
