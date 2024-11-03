@@ -32,14 +32,6 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
 
-    val context = LocalContext.current
-    PreferenceCategory(
-        label = stringResource(id = R.string.plugin),
-        description = stringResource(id = R.string.plugin_desc),
-        iconResource = R.drawable.extension,
-        onNavigate = { navController.navigate(SettingsRoutes.ManagePlugins.route) },
-    )
-
     PreferenceCategory(
         label = stringResource(id = R.string.terminal),
         description = stringResource(id = R.string.terminal_desc),
