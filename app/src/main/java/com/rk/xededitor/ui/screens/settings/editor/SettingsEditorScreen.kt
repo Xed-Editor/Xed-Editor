@@ -71,6 +71,10 @@ fun SettingsEditorScreen() {
         var showSuggestions by remember {
             mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
         }
+        
+        var useSoraSearch by remember {
+            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, false))
+        }
 
         val context = LocalContext.current
 
@@ -280,6 +284,23 @@ fun SettingsEditorScreen() {
                 Switch(
                     modifier = Modifier.padding(12.dp).height(24.dp),
                     checked = autoSave,
+                    onCheckedChange = null,
+                )
+            },
+        )
+        
+        PreferenceCategory(
+            label = "Sora text search",
+            description = "Use Sora text search",
+            iconResource = R.drawable.search,
+            onNavigate = {
+                useSoraSearch = !useSoraSearch
+                PreferencesData.setBoolean(PreferencesKeys.USE_SORA_SEARCH, useSoraSearch)
+            },
+            endWidget = {
+                Switch(
+                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    checked = useSoraSearch,
                     onCheckedChange = null,
                 )
             },

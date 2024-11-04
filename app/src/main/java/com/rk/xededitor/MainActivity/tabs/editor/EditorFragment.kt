@@ -64,8 +64,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             )
         }
         
-        // Define the new LinearLayout
-        searchLayout = SearchPanel(constraintLayout!!).view
+        
         
         editor = KarbonEditor(context).apply {
             id = View.generateViewId()
@@ -75,6 +74,9 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
         setupEditor = SetupEditor(editor!!, context)
         setupEditor?.ensureTextmateTheme(context)
+        
+        // Define the new LinearLayout
+        searchLayout = SearchPanel(constraintLayout!!,editor!!).view
         
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
