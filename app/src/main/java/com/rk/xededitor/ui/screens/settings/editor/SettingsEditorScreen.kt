@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.TabAdapter
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.smoothTabs
@@ -23,6 +24,10 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.components.InputDialog
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -55,7 +60,7 @@ fun SettingsEditorScreen() {
             mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
         }
         var showArrowKeys by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, false))
+            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true))
         }
         var autoSave by remember {
             mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false))
@@ -247,21 +252,10 @@ fun SettingsEditorScreen() {
                         return@let
                     }
                     
-                    
-                    //todo arrow keys
-
-                    val viewpager = activity.binding!!.viewpager2
-                    val layoutParams = viewpager.layoutParams as RelativeLayout.LayoutParams
-                    layoutParams.bottomMargin =
-                        rkUtils.dpToPx(
-                            if (showArrowKeys) {
-                                40f
-                            } else {
-                                0f
-                            },
-                            activity,
-                        )
-                    viewpager.setLayoutParams(layoutParams)
+                    GlobalScope.launch(Dispatchers.Main) {
+                        delay(1000)
+                        MainActivity.activityRef.get()?.recreate()
+                    }
                 }
             },
             endWidget = {

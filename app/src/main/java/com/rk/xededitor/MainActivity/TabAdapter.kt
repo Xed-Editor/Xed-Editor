@@ -164,7 +164,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
         }
         
         with(mainActivity) {
-            if (type != FragmentType.TERMINAL && tabViewModel.fileSet.contains(file.absolutePath)) {
+            if (tabViewModel.fileSet.contains(file.absolutePath)) {
                 rkUtils.toast(getString(R.string.already_opened))
                 return
             }
