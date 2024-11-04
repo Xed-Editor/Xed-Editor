@@ -116,6 +116,11 @@ public class EditorKeyEventHandler {
      * @return <code>true</code> if the event was handled, <code>false</code> otherwise.
      */
     public boolean onKeyDown(int keyCode, @NonNull KeyEvent event) {
+
+        if(editor.interceptor != null && !editor.interceptor.onKeyDown(keyCode,event)){
+            return true;
+        }
+
         keyMetaStates.onKeyDown(event);
         final var editor = this.editor;
         final var eventManager = editor.eventManager;
