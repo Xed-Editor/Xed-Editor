@@ -16,6 +16,7 @@ import com.rk.libcommons.CustomScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
@@ -233,16 +234,16 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
         
         val cmdInterceptor = CodeEditor.KeyInterceptor { keyCode, keyEvent ->
+            //forward key events to the handler to make sure the keybindings work
+            KeyEventHandler.onAppKeyEvent(keyEvent)
             
-            rkUtils.toast("yo")
+            //handle spacial cmd keybinding
             
-            //don't allow editor to get this key
+            //don't allow editor to get this key event
             false
         }
         
         
-        
-        fun Int.dpToPx(): Int = (this * context.resources.displayMetrics.density).toInt()
         return SymbolInputView(context).apply {
             addSymbols(arrayOf("->"), arrayOf("\t"))
             
