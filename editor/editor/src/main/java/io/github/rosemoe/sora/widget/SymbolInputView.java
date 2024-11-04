@@ -40,6 +40,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import com.rk.libcommons.After;
 
@@ -129,8 +130,10 @@ public class SymbolInputView extends LinearLayout {
         for (int i = 0; i < count; i++) {
             var btn = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
             btn.setText(display[i]);
-            btn.setBackground(new ColorDrawable(Color.TRANSPARENT));
+            btn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.extra_keys_btn_background));
             btn.setTextColor(textColor);
+            btn.setTextSize(17);
+
             addView(btn, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
             int finalI = i;
             btn.setOnClickListener((view) -> {
@@ -158,8 +161,10 @@ public class SymbolInputView extends LinearLayout {
         for (Pair<String,View.OnClickListener> key : keys){
             var btn = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
             btn.setText(key.first);
-            btn.setBackground(new ColorDrawable(Color.TRANSPARENT));
+            btn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.extra_keys_btn_background));
             btn.setTextColor(textColor);
+            btn.setTextSize(17);
+
             addView(btn, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
             if (key.second != null){

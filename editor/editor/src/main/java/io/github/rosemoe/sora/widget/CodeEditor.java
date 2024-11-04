@@ -484,16 +484,7 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         return baseOffset;
     }
 
-    public interface KeyInterceptor{
-        public boolean onKeyDown(int keyCode,KeyEvent keyEvent);
-    }
-
-    public KeyInterceptor interceptor;
-
-
-
-
-
+    
     /**
      * Get the rect of left selection handle painted on view
      *
