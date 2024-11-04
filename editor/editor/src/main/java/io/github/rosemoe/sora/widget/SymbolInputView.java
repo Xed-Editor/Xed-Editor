@@ -38,6 +38,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 
 import com.rk.libcommons.After;
@@ -150,6 +151,7 @@ public class SymbolInputView extends LinearLayout {
             });
         }
     }
+
 
 
     public void addSymbols(@NonNull Pair<String,View.OnClickListener>[] keys) {

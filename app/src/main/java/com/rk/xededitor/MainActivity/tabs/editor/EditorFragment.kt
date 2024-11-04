@@ -1,6 +1,8 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View
@@ -9,7 +11,7 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
 import com.rk.libcommons.CustomScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -19,6 +21,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolInputView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,10 +39,10 @@ class EditorFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
     var setupEditor: SetupEditor? = null
     var constraintLayout: ConstraintLayout? = null
-    private var showKeys: Boolean = true
+    var isCmdActive = false
     
-    override fun onCreate(){
-        showKeys = PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)
+    override fun onCreate() {
+        val showKeys = PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)
         
         // Initialize ConstraintLayout as the root view
         constraintLayout = ConstraintLayout(context).apply {
@@ -67,14 +70,14 @@ class EditorFragment(val context: Context) : CoreFragment {
                 )
                 addView(getInputView())
             }
-        }else{
+        } else {
             null
         }
         
         
         // Add views to ConstraintLayout
         constraintLayout!!.addView(editor)
-        if (showKeys){
+        if (showKeys) {
             constraintLayout!!.addView(horizontalScrollView)
         }
         
@@ -83,7 +86,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             
             // Set editor constraints
             connect(editor!!.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-            if (showKeys){
+            if (showKeys) {
                 connect(editor!!.id, ConstraintSet.BOTTOM, horizontalScrollView!!.id, ConstraintSet.TOP)
                 
                 // Set HorizontalScrollView constraints
@@ -229,13 +232,32 @@ class EditorFragment(val context: Context) : CoreFragment {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
         }
         
+        val cmdInterceptor = CodeEditor.KeyInterceptor { keyCode, keyEvent ->
+            
+            rkUtils.toast("yo")
+            
+            //don't allow editor to get this key
+            false
+        }
+        
+        
+        
+        fun Int.dpToPx(): Int = (this * context.resources.displayMetrics.density).toInt()
         return SymbolInputView(context).apply {
             addSymbols(arrayOf("->"), arrayOf("\t"))
             
             val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
+                
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)
-                    rkUtils.toast("Not Implemented")
+                    isCmdActive = !isCmdActive
+                    if (isCmdActive) {
+                        editor?.interceptor = cmdInterceptor
+                        it.background = ContextCompat.getDrawable(context, R.drawable.inset_background)
+                    } else {
+                        editor?.interceptor = null
+                        it.background = ColorDrawable(Color.TRANSPARENT)
+                    }
                 }))
                 
                 add(Pair("←", onClick {

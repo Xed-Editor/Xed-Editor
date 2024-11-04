@@ -480,12 +480,18 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         float screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels - 50;
         float screenDensity = Resources.getSystem().getDisplayMetrics().density;
 
-        if (screenWidth / screenDensity > 600) { // Screen larger than 600dp
-            baseOffset *= 1.2F; // Adjust multiplier as needed
-        }
 
         return baseOffset;
     }
+
+    public interface KeyInterceptor{
+        public boolean onKeyDown(int keyCode,KeyEvent keyEvent);
+    }
+
+    public KeyInterceptor interceptor;
+
+
+
 
 
     /**
