@@ -110,13 +110,19 @@ object MenuClickHandler {
             
             Id.search -> {
                 // Handle search
-                //handleSearch(activity)
                 
-                val fragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
-                
-                if (fragment is EditorFragment){
-                    fragment.showSearch(true)
+                if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH,false)){
+                    val fragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
+                    
+                    if (fragment is EditorFragment){
+                        fragment.showSearch(true)
+                    }
+                }else{
+                    handleSearch(activity)
                 }
+                
+                
+                
                 
                 
                 return true

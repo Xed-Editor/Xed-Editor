@@ -46,11 +46,20 @@
             android:text="@string/replaceall" />
 
         <Button
-            android:id="@+id/search_options"
+            android:id="@+id/close"
             android:layout_weight="0.5"
+            style="?buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/close" />
+
+        <ImageButton
+            android:id="@+id/menu"
+            android:layout_weight="0.5"
+            android:background="?attr/selectableItemBackground"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_menu_moreoverflow_material" />
 
     </LinearLayout>
 

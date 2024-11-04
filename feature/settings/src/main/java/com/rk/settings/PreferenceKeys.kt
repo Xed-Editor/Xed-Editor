@@ -31,6 +31,7 @@ object PreferencesKeys {
     const val SHOW_VIRTUAL_KEYBOARD = "show_virtual_keyboard"
     const val CHECK_UPDATE="check_update"
     const val LAST_UPDATE_CHECK="last_update_check"
+    const val USE_SORA_SEARCH="use_sora_search"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"
