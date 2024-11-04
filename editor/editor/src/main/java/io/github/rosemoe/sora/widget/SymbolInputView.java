@@ -23,14 +23,24 @@
  */
 package io.github.rosemoe.sora.widget;
 
+import static android.os.Looper.getMainLooper;
+
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.Pair;
+import android.util.TypedValue;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+
+import com.rk.libcommons.After;
 
 import io.github.rosemoe.sora.R;
 
@@ -47,6 +57,8 @@ public class SymbolInputView extends LinearLayout {
 
     private int textColor;
     private CodeEditor editor;
+
+
 
     public SymbolInputView(Context context) {
         super(context);
@@ -107,12 +119,12 @@ public class SymbolInputView extends LinearLayout {
 
     /**
      * Add symbols to the view.
-     *
-     * @param display    The texts displayed in button
+     * @param display The texts displayed in button
      * @param insertText The actual text to be inserted to editor when the button is clicked
      */
     public void addSymbols(@NonNull String[] display, @NonNull final String[] insertText) {
         int count = Math.max(display.length, insertText.length);
+
         for (int i = 0; i < count; i++) {
             var btn = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
             btn.setText(display[i]);
@@ -121,10 +133,11 @@ public class SymbolInputView extends LinearLayout {
             addView(btn, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
             int finalI = i;
             btn.setOnClickListener((view) -> {
+                view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+
                 if (editor == null || !editor.isEditable()) {
                     return;
                 }
-
                 if ("\t".equals(insertText[finalI])) {
                     if (editor.getSnippetController().isInSnippet()) {
                         editor.getSnippetController().shiftToNextTabStop();
@@ -137,6 +150,24 @@ public class SymbolInputView extends LinearLayout {
             });
         }
     }
+
+
+    public void addSymbols(@NonNull Pair<String,View.OnClickListener>[] keys) {
+        for (Pair<String,View.OnClickListener> key : keys){
+            var btn = new Button(getContext(), null, android.R.attr.buttonStyleSmall);
+            btn.setText(key.first);
+            btn.setBackground(new ColorDrawable(Color.TRANSPARENT));
+            btn.setTextColor(textColor);
+            addView(btn, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+
+            if (key.second != null){
+                btn.setOnClickListener(key.second);
+            }
+
+
+        }
+    }
+
 
     public void forEachButton(@NonNull ButtonConsumer consumer) {
         for (int i = 0; i < getChildCount(); i++) {
