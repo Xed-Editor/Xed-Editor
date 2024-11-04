@@ -1,6 +1,8 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -31,6 +33,7 @@ import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
+
 
 class MainActivity : BaseActivity() {
     
@@ -79,7 +82,6 @@ class MainActivity : BaseActivity() {
             binding!!.mainView.visibility = View.VISIBLE
             binding!!.openBtn.visibility = View.GONE
         }
-        
         
     }
     
