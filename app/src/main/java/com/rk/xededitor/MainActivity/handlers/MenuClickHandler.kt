@@ -90,8 +90,8 @@ object MenuClickHandler {
             
             Id.terminal -> {
                 // Handle terminal
-                //activity.startActivity(Intent(activity, Terminal::class.java))
-                runCommandTermux(activity,"/data/data/com.termux/files/usr/bin/bash", arrayOf("-i"),false)
+                activity.startActivity(Intent(activity, Terminal::class.java))
+                //runCommandTermux(activity,"/data/data/com.termux/files/usr/bin/bash", arrayOf("-i"),false)
                 return true
             }
             
@@ -110,7 +110,15 @@ object MenuClickHandler {
             
             Id.search -> {
                 // Handle search
-                handleSearch(activity)
+                //handleSearch(activity)
+                
+                val fragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
+                
+                if (fragment is EditorFragment){
+                    fragment.showSearch(true)
+                }
+                
+                
                 return true
             }
             

@@ -1,28 +1,25 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import com.rk.libcommons.CustomScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolInputView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,64 +37,83 @@ class EditorFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
     var setupEditor: SetupEditor? = null
     var constraintLayout: ConstraintLayout? = null
+    private lateinit var horizontalScrollView: HorizontalScrollView
+    private lateinit var searchLayout:LinearLayout
+    
+    
+    fun showArrowKeys(yes: Boolean) {
+        horizontalScrollView.visibility = if (yes) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+    
+    fun showSearch(yes: Boolean){
+        searchLayout.visibility = if (yes) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
     
     override fun onCreate() {
-        val showKeys = PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)
-        
-        // Initialize ConstraintLayout as the root view
         constraintLayout = ConstraintLayout(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
         
-        // Initialize the KarbonEditor
+        // Define the new LinearLayout
+        searchLayout = SearchPanel(constraintLayout!!).view
+        
         editor = KarbonEditor(context).apply {
             id = View.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, 0 // Let it be constrained by the bottom of the screen or HorizontalScrollView
+                ConstraintLayout.LayoutParams.MATCH_PARENT, 0
             )
         }
         setupEditor = SetupEditor(editor!!, context)
         setupEditor?.ensureTextmateTheme(context)
         
-        val horizontalScrollView = if (showKeys) {
-            // Initialize the HorizontalScrollView
-            HorizontalScrollView(context).apply {
-                id = View.generateViewId()
-                layoutParams = ConstraintLayout.LayoutParams(
-                    ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
-                )
-                isHorizontalScrollBarEnabled = false
-                addView(getInputView())
+        horizontalScrollView = HorizontalScrollView(context).apply {
+            id = View.generateViewId()
+            visibility = if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)) {
+                View.VISIBLE
+            } else {
+                View.GONE
             }
-        } else {
-            null
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
+            )
+            isHorizontalScrollBarEnabled = false
+            addView(getInputView())
         }
         
-        
-        // Add views to ConstraintLayout
+        // Add the views to the constraint layout
+        constraintLayout!!.addView(searchLayout)
         constraintLayout!!.addView(editor)
-        if (showKeys) {
-            constraintLayout!!.addView(horizontalScrollView)
-        }
+        constraintLayout!!.addView(horizontalScrollView)
         
+        // Set up constraints for the layout
         ConstraintSet().apply {
             clone(constraintLayout)
             
-            // Set editor constraints
-            connect(editor!!.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-            if (showKeys) {
-                connect(editor!!.id, ConstraintSet.BOTTOM, horizontalScrollView!!.id, ConstraintSet.TOP)
-                
-                // Set HorizontalScrollView constraints
-                connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-                connect(horizontalScrollView.id, ConstraintSet.TOP, editor!!.id, ConstraintSet.BOTTOM)
-            }
+            // Position the LinearLayout at the top of the screen
+            connect(searchLayout.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+            
+            // Position the editor below the LinearLayout
+            connect(editor!!.id, ConstraintSet.TOP, searchLayout.id, ConstraintSet.BOTTOM)
+            connect(editor!!.id, ConstraintSet.BOTTOM, horizontalScrollView!!.id, ConstraintSet.TOP)
+            
+            // Position the HorizontalScrollView at the bottom
+            connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+            connect(horizontalScrollView.id, ConstraintSet.TOP, editor!!.id, ConstraintSet.BOTTOM)
             
             applyTo(constraintLayout)
         }
     }
+    
     
     override fun loadFile(xfile: File) {
         file = xfile
@@ -241,7 +257,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)
-                    
+                    rkUtils.toast("Not Implemented")
                     
                 }))
                 
