@@ -252,9 +252,10 @@ fun SettingsEditorScreen() {
                         return@let
                     }
                     
-                    GlobalScope.launch(Dispatchers.Main) {
-                        delay(1000)
-                        MainActivity.activityRef.get()?.recreate()
+                    MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
+                        if (f.get()?.fragment is EditorFragment){
+                            (f.get()?.fragment as EditorFragment).showArrowKeys(showArrowKeys)
+                        }
                     }
                 }
             },
