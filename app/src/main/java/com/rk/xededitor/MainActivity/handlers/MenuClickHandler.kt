@@ -25,6 +25,7 @@ import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
+import com.rk.xededitor.rkUtils.runCommandTermux
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -89,7 +90,8 @@ object MenuClickHandler {
             
             Id.terminal -> {
                 // Handle terminal
-                activity.startActivity(Intent(activity, Terminal::class.java))
+                //activity.startActivity(Intent(activity, Terminal::class.java))
+                runCommandTermux(activity,"/data/data/com.termux/files/usr/bin/bash", arrayOf("-i"),false)
                 return true
             }
             

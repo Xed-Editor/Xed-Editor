@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.termux.permission.RUN_COMMAND"/>
 
     <application
         android:name=".App"
@@ -24,13 +25,10 @@
         android:theme="@style/Theme.Karbon"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".pluginClient.ManagePlugins"
-            android:exported="true" />
-        <activity
             android:name=".MainActivity.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
-          android:inputType="textFilter"
+            android:inputType="textFilter"
             android:persistableMode="persistAcrossReboots"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -62,8 +60,7 @@
         <activity
             android:name=".SimpleEditor.SimpleEditor"
             android:exported="true"
-android:inputType="textFilter"
->
+            android:inputType="textFilter">
 
             <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
