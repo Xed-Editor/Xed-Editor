@@ -40,7 +40,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
     var setupEditor: SetupEditor? = null
     var constraintLayout: ConstraintLayout? = null
-    var isCmdActive = false
     
     override fun onCreate() {
         val showKeys = PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)
@@ -69,6 +68,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 layoutParams = ConstraintLayout.LayoutParams(
                     ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
                 )
+                isHorizontalScrollBarEnabled = false
                 addView(getInputView())
             }
         } else {
@@ -233,16 +233,6 @@ class EditorFragment(val context: Context) : CoreFragment {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
         }
         
-        val cmdInterceptor = CodeEditor.KeyInterceptor { keyCode, keyEvent ->
-            //forward key events to the handler to make sure the keybindings work
-            KeyEventHandler.onAppKeyEvent(keyEvent)
-            
-            //handle spacial cmd keybinding
-            
-            //don't allow editor to get this key event
-            false
-        }
-        
         
         return SymbolInputView(context).apply {
             addSymbols(arrayOf("->"), arrayOf("\t"))
@@ -251,14 +241,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                 
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)
-                    isCmdActive = !isCmdActive
-                    if (isCmdActive) {
-                        editor?.interceptor = cmdInterceptor
-                        it.background = ContextCompat.getDrawable(context, R.drawable.inset_background)
-                    } else {
-                        editor?.interceptor = null
-                        it.background = ColorDrawable(Color.TRANSPARENT)
-                    }
+                    
+                    
                 }))
                 
                 add(Pair("←", onClick {
@@ -282,6 +266,16 @@ class EditorFragment(val context: Context) : CoreFragment {
                     hapticFeedBack(it)
                     editor?.onKeyDown(KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN))
                     
+                }))
+                
+                add(Pair("⇇", onClick {
+                    hapticFeedBack(it)
+                    editor?.onKeyDown(KeyEvent.KEYCODE_MOVE_HOME, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME))
+                }))
+                
+                add(Pair("⇉", onClick {
+                    hapticFeedBack(it)
+                    editor?.onKeyDown(KeyEvent.KEYCODE_MOVE_END, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END))
                 }))
             }
             
