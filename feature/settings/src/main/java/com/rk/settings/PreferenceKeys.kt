@@ -6,7 +6,6 @@ object PreferencesKeys {
     const val TAB_SIZE = "tabsize"
     const val CURSOR_ANIMATION_ENABLED = "CursorAnimation"
     const val TEXT_SIZE = "textsize"
-    const val USE_SPACE_INTABS = "useSpaces"
     const val SHOW_ARROW_KEYS = "show_arrows"
     const val OLED = "isOled"
     const val MONET = "isMonet"
@@ -32,6 +31,7 @@ object PreferencesKeys {
     const val CHECK_UPDATE="check_update"
     const val LAST_UPDATE_CHECK="last_update_check"
     const val USE_SORA_SEARCH="use_sora_search"
+    const val WORD_WRAP_TXT="text_ww"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"

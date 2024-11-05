@@ -1,6 +1,5 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import android.widget.RelativeLayout
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Switch
@@ -16,18 +15,13 @@ import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.TabAdapter
+import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.components.InputDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -75,9 +69,13 @@ fun SettingsEditorScreen() {
         var useSoraSearch by remember {
             mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, false))
         }
-
+        
+        var txt_ww by remember {
+            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_TXT, false))
+        }
+        
         val context = LocalContext.current
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.smooth_tabs),
             description = stringResource(id = R.string.smooth_tab_desc),
@@ -89,13 +87,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = _smoothTabs,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.ww),
             description = stringResource(id = R.string.ww_desc),
@@ -104,7 +104,7 @@ fun SettingsEditorScreen() {
                 wordwrap = !wordwrap
                 PreferencesData.setBoolean(PreferencesKeys.WORD_WRAP_ENABLED, wordwrap)
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                    if (f.value.get()?.fragment is EditorFragment){
+                    if (f.value.get()?.fragment is EditorFragment) {
                         (f.value.get()?.fragment as EditorFragment).editor?.isWordwrap = wordwrap
                     }
                     
@@ -112,13 +112,44 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = wordwrap,
                     onCheckedChange = null,
                 )
             },
         )
-
+        PreferenceCategory(
+            label = "Wrap txt files",
+            description = "Automatically wrap text files",
+            iconResource = R.drawable.reorder,
+            onNavigate = {
+                txt_ww = !txt_ww
+                PreferencesData.setBoolean(PreferencesKeys.WORD_WRAP_TXT, txt_ww)
+                
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                    if (f.value.get()?.fragment is EditorFragment) {
+                        (f.value.get()?.fragment as EditorFragment).apply {
+                            if (file?.name?.endsWith(".txt") == true) {
+                                editor?.isWordwrap = txt_ww || wordwrap
+                            }
+                        }
+                    }
+                }
+                
+            },
+            endWidget = {
+                Switch(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
+                    checked = txt_ww,
+                    onCheckedChange = null,
+                )
+            },
+        )
+        
         PreferenceCategory(
             label = stringResource(id = R.string.keepdl),
             description = stringResource(id = R.string.drawer_lock_desc),
@@ -129,13 +160,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = drawerLock,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.diagonal_scroll),
             description = stringResource(id = R.string.diagonal_scroll_desc),
@@ -147,13 +180,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = diagonalScroll,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.cursor_anim),
             description = stringResource(id = R.string.cursor_anim_desc),
@@ -165,7 +200,7 @@ fun SettingsEditorScreen() {
                     cursorAnimation,
                 )
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                    if (f.value.get()?.fragment is EditorFragment){
+                    if (f.value.get()?.fragment is EditorFragment) {
                         (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled = cursorAnimation
                     }
                     
@@ -173,13 +208,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = cursorAnimation,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.show_line_number),
             description = stringResource(id = R.string.show_line_number),
@@ -189,7 +226,7 @@ fun SettingsEditorScreen() {
                 PreferencesData.setBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, showLineNumber)
                 
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                    if (f.value.get()?.fragment is EditorFragment){
+                    if (f.value.get()?.fragment is EditorFragment) {
                         (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled = showLineNumber
                     }
                     
@@ -197,13 +234,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = showLineNumber,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.pin_line_number),
             description = stringResource(id = R.string.pin_line_number),
@@ -212,7 +251,7 @@ fun SettingsEditorScreen() {
                 pinLineNumber = !pinLineNumber
                 PreferencesData.setBoolean(PreferencesKeys.PIN_LINE_NUMBER, pinLineNumber)
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                    if (f.value.get()?.fragment is EditorFragment){
+                    if (f.value.get()?.fragment is EditorFragment) {
                         (f.value.get()?.fragment as EditorFragment).editor?.setPinLineNumber(pinLineNumber)
                     }
                     
@@ -220,13 +259,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = pinLineNumber,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.show_suggestions),
             description = stringResource(id = R.string.show_suggestions),
@@ -237,13 +278,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = showSuggestions,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.extra_keys),
             description = stringResource(id = R.string.extra_keys_desc),
@@ -257,7 +300,7 @@ fun SettingsEditorScreen() {
                     }
                     
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
-                        if (f.get()?.fragment is EditorFragment){
+                        if (f.get()?.fragment is EditorFragment) {
                             (f.get()?.fragment as EditorFragment).showArrowKeys(showArrowKeys)
                         }
                     }
@@ -265,13 +308,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = showArrowKeys,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.auto_save),
             description = stringResource(id = R.string.auto_save_desc),
@@ -282,7 +327,9 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = autoSave,
                     onCheckedChange = null,
                 )
@@ -299,13 +346,15 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = useSoraSearch,
                     onCheckedChange = null,
                 )
             },
         )
-
+        
         var showAutoSaveDialog by remember { mutableStateOf(false) }
         var showTextSizeDialog by remember { mutableStateOf(false) }
         var showTabSizeDialog by remember { mutableStateOf(false) }
@@ -318,7 +367,7 @@ fun SettingsEditorScreen() {
         var tabSizeValue by remember {
             mutableStateOf(PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4"))
         }
-
+        
         PreferenceCategory(
             label = stringResource(id = R.string.auto_save_time),
             description = stringResource(id = R.string.auto_save_time_desc),
@@ -337,7 +386,7 @@ fun SettingsEditorScreen() {
             iconResource = R.drawable.double_arrows,
             onNavigate = { showTabSizeDialog = true },
         )
-
+        
         if (showAutoSaveDialog) {
             InputDialog(
                 title = stringResource(id = R.string.auto_save_time),
@@ -361,7 +410,7 @@ fun SettingsEditorScreen() {
                 onDismiss = { showAutoSaveDialog = false },
             )
         }
-
+        
         if (showTextSizeDialog) {
             InputDialog(
                 title = stringResource(id = R.string.text_size),
@@ -378,7 +427,7 @@ fun SettingsEditorScreen() {
                     } else {
                         PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                            if (f.value.get()?.fragment is EditorFragment){
+                            if (f.value.get()?.fragment is EditorFragment) {
                                 (f.value.get()?.fragment as EditorFragment).editor?.setTextSize(textSizeValue.toFloat())
                             }
                             
@@ -404,7 +453,7 @@ fun SettingsEditorScreen() {
                     PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
                     
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment){
+                        if (f.value.get()?.fragment is EditorFragment) {
                             (f.value.get()?.fragment as EditorFragment).editor?.tabWidth = tabSizeValue.toInt()
                         }
                         
@@ -424,7 +473,9 @@ fun SettingsEditorScreen() {
             },
             endWidget = {
                 Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .height(24.dp),
                     checked = editorFont,
                     onCheckedChange = null,
                 )

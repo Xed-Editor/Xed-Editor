@@ -63,10 +63,6 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-        
-        
-        
-        
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
             visibility = if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)) {
@@ -87,6 +83,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ConstraintLayout.LayoutParams.MATCH_PARENT,0
             )
         }
+        
         setupEditor = SetupEditor(editor!!, context)
         scope.launch { setupEditor?.ensureTextmateTheme(context) }
         
@@ -127,6 +124,11 @@ class EditorFragment(val context: Context) : CoreFragment {
             editor!!.loadFile(xfile)
             withContext(Dispatchers.Main) {
                 setChangeListener()
+                file?.let {
+                    if (it.name.endsWith(".txt") && PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_TXT, false)) {
+                        editor?.isWordwrap = true
+                    }
+                }
             }
         }
         
