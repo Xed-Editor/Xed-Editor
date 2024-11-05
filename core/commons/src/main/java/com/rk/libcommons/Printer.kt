@@ -14,6 +14,7 @@ import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
 import android.print.PrintManager
 import android.widget.Toast
+import org.davidmoten.text.utils.WordWrap
 import java.io.FileOutputStream
 
 class Printer(private val context: Context, private val content: String) : PrintDocumentAdapter() {
@@ -66,58 +67,19 @@ class Printer(private val context: Context, private val content: String) : Print
         val paint =
             Paint().apply {
                 typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
-                textSize = 12f
+                textSize = 13f
                 color = Color.BLACK
             }
 
         val maxWidth = pageWidth - 80f // Leave some margin (40f on each side)
-
-        // Function to split a line into multiple lines that fit within the page width without
-        // cutting words
-        fun wrapText(line: String): List<String> {
-            val wrappedLines = mutableListOf<String>()
-            var currentLine = StringBuilder()
-
-            line.split(" ").forEach { word ->
-                if (paint.measureText(word) > maxWidth) {
-                    // If the word itself is too long to fit in a line, split it
-                    var part = ""
-                    for (char in word) {
-                        if (paint.measureText(part + char) < maxWidth) {
-                            part += char
-                        } else {
-                            wrappedLines.add(part + "-") // Add hyphen to indicate the word is split
-                            part = char.toString()
-                        }
-                    }
-                    if (part.isNotEmpty()) {
-                        wrappedLines.add(part)
-                    }
-                } else {
-                    val testLine = if (currentLine.isEmpty()) word else "${currentLine} $word"
-                    if (paint.measureText(testLine) < maxWidth) {
-                        currentLine.append(if (currentLine.isEmpty()) word else " $word")
-                    } else {
-                        wrappedLines.add(currentLine.toString())
-                        currentLine = StringBuilder(word)
-                    }
-                }
-            }
-
-            if (currentLine.isNotEmpty()) {
-                wrappedLines.add(currentLine.toString())
-            }
-
-            return wrappedLines
-        }
-
+        
         content.split("\n").forEach { line ->
-            val wrappedLines = wrapText(line)
+            val wrappedLines = WordWrap.from(line).maxWidth(maxWidth).wrap().split("\n")
             wrappedLines.forEach { wrappedLine ->
                 // Check if the text will go out of the page bounds, create a new page if needed
                 if (yPos + paint.textSize > pageHeight - 40) {
                     pdfDocument.finishPage(page) // Finish the current page
-
+                    
                     // Start a new page and reinitialize the canvas
                     pageNumber++
                     page =
@@ -127,13 +89,13 @@ class Printer(private val context: Context, private val content: String) : Print
                     canvas = page.canvas
                     yPos = 40f // Reset Y position for the new page
                 }
-
+                
                 // Draw the text line on the canvas
                 canvas.drawText(wrappedLine, 40f, yPos, paint)
                 yPos += paint.textSize + 4 // Move to next line with a small gap
             }
         }
-
+        
         // Finish the last page
         pdfDocument.finishPage(page)
 

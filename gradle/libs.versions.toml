@@ -38,6 +38,7 @@ composeBom = "2024.10.01"
 coilCompose = "2.7.0"
 navigationCompose = "2.8.3"
 lifecycleViewmodelAndroid = "2.8.7"
+wordWrap = "0.1.13"
 
 [libraries]
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
@@ -93,6 +94,7 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
 lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" }
+word-wrap = { module = "com.github.davidmoten:word-wrap", version.ref = "wordWrap" }
 [plugins]
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
