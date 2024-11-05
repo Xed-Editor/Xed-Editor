@@ -24,14 +24,17 @@ object MkSession {
                 "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
-            
-            val workingDir = if (intent.hasExtra("cwd")) {
-                intent.getStringExtra("cwd")
-            } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
-                ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath.replace(filesDir.absolutePath,"/karbon")
-            } else {
-                Environment.getExternalStorageDirectory().path
+            fun getPwd():String{
+                return if (intent.hasExtra("cwd")) {
+                    intent.getStringExtra("cwd").toString()
+                } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
+                    ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
+                } else {
+                    "/karbon"
+                }
             }
+            
+            val workingDir = getPwd().replace(filesDir.parentFile.absolutePath,"/karbon")
             
             val tmpDir = File(getTempDir(), "terminal")
             
