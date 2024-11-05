@@ -64,8 +64,12 @@ class SimpleEditor : BaseActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        SetupEditor.init(this@SimpleEditor)
-        SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this)
+        lifecycleScope.launch {
+            SetupEditor.init(this@SimpleEditor)
+            SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this@SimpleEditor)
+        }
+        
+        
 
         File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
             editor!!.typefaceText =
@@ -192,8 +196,9 @@ class SimpleEditor : BaseActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-
-                SetupEditor(editor!!, this@SimpleEditor).setupLanguage(displayName!!)
+                
+                lifecycleScope.launch { SetupEditor(editor!!, this@SimpleEditor).setupLanguage(displayName!!) }
+                
 
                 if (displayName!!.length > 13) {
                     displayName = displayName!!.substring(0, 10) + "..."

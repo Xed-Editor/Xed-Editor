@@ -44,7 +44,7 @@ class CrashActivity : AppCompatActivity() {
             supportActionBar!!.setDisplayShowTitleEnabled(true)
             editor = findViewById(R.id.error_editor)
             editor.setTextSize(11f)
-            SetupEditor(editor, this).ensureTextmateTheme(this)
+            //SetupEditor(editor, this).ensureTextmateTheme(this)
 
             try {
                 val sb = StringBuilder()
