@@ -159,7 +159,8 @@ object MenuClickHandler {
             }
             
             Id.suggestions -> {
-                editorFragment?.editor?.showSuggestions(editorFragment.editor?.isShowSuggestion()?.not() == true)
+                menuItem.isChecked = menuItem.isChecked.not()
+                editorFragment?.editor?.showSuggestions(menuItem.isChecked)
                 return true
             }
             

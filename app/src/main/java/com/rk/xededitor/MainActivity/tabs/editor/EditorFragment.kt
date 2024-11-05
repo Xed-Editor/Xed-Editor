@@ -69,7 +69,7 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor = KarbonEditor(context).apply {
             id = View.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, 0
+                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT
             )
         }
         setupEditor = SetupEditor(editor!!, context)

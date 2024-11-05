@@ -98,20 +98,21 @@
     <item
         android:id="@+id/run"
         android:icon="@drawable/run"
-        android:title="Run"
+        android:title="@string/run"
         android:visible="false"
         app:showAsAction="always" />
     <item
         android:id="@+id/git"
         android:icon="@drawable/git"
-        android:title="Git"
+        android:title="@string/git"
         android:visible="false"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/suggestions"
         android:icon="@drawable/baseline_font_download_24"
-        android:title="Toggle Suggestion"
+        android:title="@string/toggle_suggestion"
         android:visible="false"
+        android:checkable="true"
         app:showAsAction="never" />
 
 
