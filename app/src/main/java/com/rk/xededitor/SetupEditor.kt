@@ -17,11 +17,13 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import com.google.gson.JsonParser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.InputStreamReader
 
 class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
 
-    fun setupLanguage(fileName: String) {
+    suspend fun setupLanguage(fileName: String) {
         when (fileName.substringAfterLast('.', "")) {
             "java",
             "bsh" -> setLanguage("source.java")
@@ -55,21 +57,23 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         private var oledThemeRegistry: ThemeRegistry? = null
         private var lightThemeRegistry: ThemeRegistry? = null
 
-        fun init(context: Context) {
+        suspend fun init(context: Context) {
             if (!isInit) {
-                initGrammarRegistry(context)
-                initTextMateTheme(context)
+                withContext(Dispatchers.IO){
+                    initGrammarRegistry(context)
+                    initTextMateTheme(context)
+                }
                 isInit = true
             }
         }
 
-        private fun initGrammarRegistry(context: Context) {
+        private suspend fun initGrammarRegistry(context: Context) {
             FileProviderRegistry.getInstance()
                 .addFileProvider(AssetsFileResolver(context.applicationContext?.assets))
             GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
         }
 
-        private fun initTextMateTheme(context: Context) {
+        private suspend fun initTextMateTheme(context: Context) {
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
@@ -102,7 +106,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         }
     }
 
-    private fun setLanguage(languageScopeName: String) {
+    private suspend fun setLanguage(languageScopeName: String) {
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
         val kw = ctx.assets.open("textmate/keywords.json")
@@ -117,7 +121,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         editor.setEditorLanguage(language as Language)
     }
 
-    fun ensureTextmateTheme(context: Context) {
+    suspend fun ensureTextmateTheme(context: Context) {
         init(context)
         val themeRegistry =
             when {

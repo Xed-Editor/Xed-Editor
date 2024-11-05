@@ -66,17 +66,6 @@ class EditorFragment(val context: Context) : CoreFragment {
         
         
         
-        editor = KarbonEditor(context).apply {
-            id = View.generateViewId()
-            layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT
-            )
-        }
-        setupEditor = SetupEditor(editor!!, context)
-        setupEditor?.ensureTextmateTheme(context)
-        
-        // Define the new LinearLayout
-        searchLayout = SearchPanel(constraintLayout!!,editor!!).view
         
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
@@ -91,6 +80,20 @@ class EditorFragment(val context: Context) : CoreFragment {
             isHorizontalScrollBarEnabled = false
             addView(getInputView())
         }
+        
+        editor = KarbonEditor(context).apply {
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,0
+            )
+        }
+        setupEditor = SetupEditor(editor!!, context)
+        scope.launch { setupEditor?.ensureTextmateTheme(context) }
+        
+        
+        // Define the new LinearLayout
+        searchLayout = SearchPanel(constraintLayout!!,editor!!).view
+        
         
         // Add the views to the constraint layout
         constraintLayout!!.addView(searchLayout)
