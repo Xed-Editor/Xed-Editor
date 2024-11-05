@@ -275,6 +275,11 @@ fun SettingsEditorScreen() {
             onNavigate = {
                 showSuggestions = !showSuggestions
                 PreferencesData.setBoolean(PreferencesKeys.SHOW_SUGGESTIONS, showSuggestions)
+                MainActivity.activityRef.get()?.adapter!!.tabFragments.values.forEach { f ->
+                    if (f.get()?.fragment is EditorFragment) {
+                        (f.get()?.fragment as EditorFragment).editor?.showSuggestions(showSuggestions)
+                    }
+                }
             },
             endWidget = {
                 Switch(

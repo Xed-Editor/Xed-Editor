@@ -19,6 +19,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -107,6 +109,7 @@ class MainActivity : BaseActivity() {
         }
         
         menu.findItem(R.id.action_add).isVisible = true
+        menu.findItem(R.id.suggestions).apply { isCheckable = true;isChecked = PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false) }
         return true
     }
     

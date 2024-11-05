@@ -46,6 +46,7 @@ class KarbonEditor : CodeEditor {
         getComponent(EditorAutoCompletion::class.java).isEnabled = true
         
         loadTypeFace(context)
+        showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false))
     }
     
     
