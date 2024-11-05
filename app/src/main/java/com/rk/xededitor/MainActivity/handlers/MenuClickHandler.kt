@@ -111,13 +111,13 @@ object MenuClickHandler {
             Id.search -> {
                 // Handle search
                 
-                if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH,false)){
+                if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, false)) {
                     val fragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
                     
-                    if (fragment is EditorFragment){
+                    if (fragment is EditorFragment) {
                         fragment.showSearch(true)
                     }
-                }else{
+                } else {
                     handleSearch(activity)
                 }
                 
@@ -160,7 +160,11 @@ object MenuClickHandler {
             
             Id.suggestions -> {
                 menuItem.isChecked = menuItem.isChecked.not()
-                editorFragment?.editor?.showSuggestions(menuItem.isChecked)
+                activity.adapter!!.tabFragments.values.forEach { f ->
+                    if (f.get()?.fragment is EditorFragment) {
+                        (f.get()?.fragment as EditorFragment).editor?.showSuggestions(menuItem.isChecked)
+                    }
+                }
                 return true
             }
             
