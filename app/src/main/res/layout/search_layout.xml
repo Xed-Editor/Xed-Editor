@@ -1,79 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/search_panel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:visibility="gone">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <HorizontalScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:overScrollMode="always"
+        android:scrollbars="none">
 
-        <Button
-            android:id="@+id/btn_goto_prev"
-            style="?buttonBarButtonStyle"
-            android:layout_weight="1"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/go_prev" />
+            android:layout_gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/btn_goto_next"
-            style="?buttonBarButtonStyle"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/go_next" />
+            <Button
+                android:id="@+id/btn_goto_prev"
+                style="?buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
-        <Button
-            android:id="@+id/btn_replace"
-            style="?buttonBarButtonStyle"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/replace" />
+                android:text="@string/go_prev" />
 
-        <Button
-            android:id="@+id/btn_replace_all"
-            style="?buttonBarButtonStyle"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/replaceall" />
+            <Button
+                android:id="@+id/btn_goto_next"
+                style="?buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
-        <Button
-            android:id="@+id/close"
-            android:layout_weight="0.5"
-            style="?buttonBarButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/close" />
+                android:text="@string/go_next" />
 
-        <ImageButton
-            android:id="@+id/menu"
-            android:layout_weight="0.5"
-            android:background="?attr/selectableItemBackground"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_menu_moreoverflow_material" />
+            <Button
+                android:id="@+id/btn_replace"
+                style="?buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
-    </LinearLayout>
+                android:text="@string/replace" />
 
+            <Button
+                android:id="@+id/btn_replace_all"
+                style="?buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/replaceall" />
+
+            <Button
+                android:id="@+id/close"
+                style="?buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/close" />
+
+            <ImageButton
+                android:id="@+id/menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="10dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:src="@drawable/settings" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
     <EditText
         android:id="@+id/search_editor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/sora_editor_text_to_search" />
+        android:hint="@string/sora_editor_text_to_search"
+        android:singleLine="true" />
 
     <EditText
         android:id="@+id/replace_editor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/replacement" />
+        android:hint="@string/replacement"
+        android:singleLine="true" />
 
 </LinearLayout>

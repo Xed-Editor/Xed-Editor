@@ -18,6 +18,10 @@ import java.util.regex.PatternSyntaxException
 class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
     val view: LinearLayout = LayoutInflater.from(root.context).inflate(R.layout.search_layout, root, false) as LinearLayout
     
+    var ignoreCase = true
+    var searchWholeWord = false
+    var searchRegex = false
+    
     
     init {
         val searcher = editor.searcher
@@ -76,7 +80,7 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
         })
         
         searchEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_NEXT) {
                 tryCommitSearch()
                 true
             } else {
@@ -84,49 +88,63 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
             }
         }
         
-       /* view.findViewById<ImageView>(R.id.menu).setOnClickListener {
-            val popupMenu = PopupMenu(editor.context, it).apply {
-                menu.add(0, 1, 0, "Item 1") // groupId, itemId, order, title
-                menu.add(0, 2, 1, "Item 2")
-                menu.add(0, 3, 2, "Item 3")
-                
-                setOnMenuItemClickListener { menuItem ->
-                    when (menuItem.itemId) {
-                        1 -> {
-                            // Handle Item 1 click
-                            true
-                        }
-                        
-                        2 -> {
-                            // Handle Item 2 click
-                            true
-                        }
-                        
-                        3 -> {
-                            // Handle Item 3 click
-                            true
-                        }
-                        
-                        else -> false
-                    }
-                }
-                
-                show()
-                
+        
+        
+        
+        view.findViewById<ImageView>(R.id.menu).setOnClickListener {
+            
+            val popupMenu = PopupMenu(editor.context, it)
+            popupMenu.menu.add(0, 0, 0, "Ignore Case").apply {
+                isCheckable = true
+                isChecked = ignoreCase
+            }
+            popupMenu.menu.add(0, 1, 1, "Regex").apply {
+                isCheckable = true
+                isChecked = searchRegex
+            }
+            popupMenu.menu.add(0, 2, 2, "Whole word").apply {
+                isCheckable = true
+                isChecked = searchWholeWord
             }
             
-        }*/
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    0 -> {
+                        menuItem.isChecked = menuItem.isChecked.not()
+                        ignoreCase = menuItem.isChecked
+                        true
+                    }
+                    
+                    1 -> {
+                        menuItem.isChecked = menuItem.isChecked.not()
+                        searchRegex = menuItem.isChecked
+                        true
+                    }
+                    
+                    2 -> {
+                        menuItem.isChecked = menuItem.isChecked.not()
+                        searchWholeWord = menuItem.isChecked
+                        true
+                    }
+                    
+                    else -> false
+                }
+            }
+            
+            popupMenu.show()
+            
+        }
     }
     
     
     private fun getSearchOptions(): EditorSearcher.SearchOptions {
-        val caseInsensitive = true
+        val caseInsensitive = ignoreCase
         var type = EditorSearcher.SearchOptions.TYPE_NORMAL
-        val regex = false
+        val regex = searchRegex
         if (regex) {
             type = EditorSearcher.SearchOptions.TYPE_REGULAR_EXPRESSION
         }
-        val wholeWord = false
+        val wholeWord = searchWholeWord
         if (wholeWord) {
             type = EditorSearcher.SearchOptions.TYPE_WHOLE_WORD
         }
