@@ -11,6 +11,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
+import io.github.rosemoe.sora.widget.DirectAccessProps
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -24,12 +24,15 @@ import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.databinding.ActivityTabBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
@@ -81,6 +84,13 @@ class MainActivity : BaseActivity() {
             binding!!.tabs.visibility = View.VISIBLE
             binding!!.mainView.visibility = View.VISIBLE
             binding!!.openBtn.visibility = View.GONE
+        }
+        
+        lifecycleScope.launch(Dispatchers.Default){
+            while (true){
+                delay(2000)
+                MenuItemHandler.update(this@MainActivity)
+            }
         }
         
     }
