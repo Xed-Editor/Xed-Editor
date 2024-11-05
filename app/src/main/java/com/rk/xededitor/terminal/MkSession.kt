@@ -1,5 +1,6 @@
 package com.rk.xededitor.terminal
 
+import android.os.Environment
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
@@ -27,9 +28,9 @@ object MkSession {
             val workingDir = if (intent.hasExtra("cwd")) {
                 intent.getStringExtra("cwd")
             } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
-                ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
+                ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath.replace(filesDir.absolutePath,"/karbon")
             } else {
-                filesDir.absolutePath
+                Environment.getExternalStorageDirectory().path
             }
             
             val tmpDir = File(getTempDir(), "terminal")
