@@ -287,4 +287,10 @@
     <string name="toggle_suggestion">Toggle Suggestion</string>
     <string name="run">Run</string>
 
+    <string name="txt_ww">Wrap txt files</string>
+    <string name="txt_ww_desc">Automatically wrap text files</string>
+
+    <string name="sora_s">Sora text search</string>
+    <string name="sora_s_desc">Use Sora text search</string>
+
 </resources>

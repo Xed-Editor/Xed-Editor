@@ -121,8 +121,8 @@ fun SettingsEditorScreen() {
             },
         )
         PreferenceCategory(
-            label = "Wrap txt files",
-            description = "Automatically wrap text files",
+            label = stringResource(R.string.txt_ww),
+            description = stringResource(R.string.txt_ww_desc),
             iconResource = R.drawable.reorder,
             onNavigate = {
                 txt_ww = !txt_ww
@@ -337,8 +337,8 @@ fun SettingsEditorScreen() {
         )
         
         PreferenceCategory(
-            label = "Sora text search",
-            description = "Use Sora text search",
+            label = stringResource(R.string.sora_s),
+            description = stringResource(R.string.sora_s_desc),
             iconResource = R.drawable.search,
             onNavigate = {
                 useSoraSearch = !useSoraSearch
