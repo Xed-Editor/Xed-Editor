@@ -18,12 +18,16 @@ import org.json.JSONArray
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
+import android.content.Context
+import android.widget.Toast
+import java.io.IOException
+
 object UpdateManager {
     
     @OptIn(DelicateCoroutinesApi::class)
-    fun fetch(branch: String) {
-        try {
-            GlobalScope.launch(Dispatchers.IO) {
+    fun fetch(context: Context, branch: String) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
                 if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false).not()) {
                     return@launch
                 }
@@ -36,7 +40,6 @@ object UpdateManager {
                 }
                 
                 val fifteenHoursInMillis = 15 * 60 * 60 * 1000
-                
                 val has15HoursPassed = timeDifferenceInMillis >= fifteenHoursInMillis
                 
                 if (has15HoursPassed.not()) {
@@ -45,25 +48,35 @@ object UpdateManager {
                 
                 val url = "https://api.github.com/repos/Xed-Editor/Xed-Editor/commits?sha=$branch"
                 val client = OkHttpClient()
-                
                 val request = Request.Builder().url(url).build()
                 
-                client.newCall(request).execute().use { response ->
-                    val jsonResponse = response.body?.string()
-                    if (jsonResponse != null) {
-                        parseJson(jsonResponse)
+                try {
+                    client.newCall(request).execute().use { response ->
+                        if (response.isSuccessful) {
+                            val jsonResponse = response.body?.string()
+                            if (jsonResponse != null) {
+                                parseJson(jsonResponse)
+                            }
+                        } else {
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(context, "Failed to check for updates", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } catch (e: IOException) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
                     }
                 }
-                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK,System.currentTimeMillis().toString())
+                
+                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-        
-        
     }
     
-    private suspend inline fun parseJson(jsonStr: String) {
+    private suspend fun parseJson(jsonStr: String) {
         val updates = mutableListOf<String>()
         
         val jsonArray = JSONArray(jsonStr)
@@ -97,7 +110,7 @@ object UpdateManager {
                         setPositiveButton("Update") { _, _ ->
                             val url = "https://github.com/Xed-Editor/Xed-Editor"
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
-                            context.startActivity(intent)
+                            it.startActivity(intent)
                         }
                         setNegativeButton("Ignore", null)
                         show()
