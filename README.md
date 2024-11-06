@@ -26,7 +26,6 @@
 - [x] **Copy/Paste** files and folders
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
-- [x] Support for **Plugins** ([Learn more about creating plugins](/docs/CREATE_PLUGIN.md))
 - [x] **Keybindings** ([View available keybindings](/KEYBINDS.md))
 
 ## Community
