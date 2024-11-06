@@ -10,6 +10,7 @@
       <module name="Karbon.language-textmate" target="21" />
       <module name="Karbon.libRunner" target="21" />
       <module name="Karbon.PluginLoader" target="21" />
+      <module name="Karbon.wasmEdge" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>
