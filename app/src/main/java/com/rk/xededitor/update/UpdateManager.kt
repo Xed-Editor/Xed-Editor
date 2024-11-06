@@ -24,7 +24,7 @@ object UpdateManager {
     fun fetch(branch: String) {
         try {
             GlobalScope.launch(Dispatchers.IO) {
-                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, true).not()) {
+                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false).not()) {
                     return@launch
                 }
                 
