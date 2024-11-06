@@ -11,7 +11,7 @@ plugins {
 fun getGitCommitHash(): String {
     val stdout = ByteArrayOutputStream()
     exec {
-        commandLine("git", "rev-parse", "--short", "HEAD")
+        commandLine("git", "rev-parse", "--short=8", "HEAD") // Sets a fixed length of 8 characters
         standardOutput = stdout
     }
     return stdout.toString().trim()
