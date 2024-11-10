@@ -48,6 +48,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
             "sh",
             "bash" -> setLanguage("source.shell")
             "rs" -> setLanguage("source.rust")
+            "lua" -> setLanguage("source.lua")
         }
     }
 
