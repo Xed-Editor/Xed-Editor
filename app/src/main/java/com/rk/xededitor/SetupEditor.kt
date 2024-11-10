@@ -114,11 +114,14 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         val reader = InputStreamReader(kw)
         val jsonElement = JsonParser.parseReader(reader)
         val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
-        val keywords = Array(keywordsArray.size()) { "" }
-        for (i in keywords.indices) {
-            keywords[i] = keywordsArray[i].asString
+        if (keywordsArray != null){
+            val keywords = Array(keywordsArray.size()) { "" }
+            for (i in keywords.indices) {
+                keywords[i] = keywordsArray[i].asString
+            }
+            language.setCompleterKeywords(keywords)
         }
-        language.setCompleterKeywords(keywords)
+        
         editor.setEditorLanguage(language as Language)
     }
 
