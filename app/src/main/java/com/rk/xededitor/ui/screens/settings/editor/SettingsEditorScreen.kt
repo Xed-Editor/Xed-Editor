@@ -1,17 +1,12 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -22,283 +17,152 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.components.InputDialog
+import com.rk.xededitor.ui.components.SettingsToggle
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
 @Composable
 fun SettingsEditorScreen() {
     PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
-        var _smoothTabs by remember {
-            mutableStateOf(
-                PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
-            )
-        }
-        var wordwrap by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false))
-        }
-        var drawerLock by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, false))
-        }
-        var diagonalScroll by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.DIAGONAL_SCROLL, true))
-        }
-        var cursorAnimation by remember {
-            mutableStateOf(
-                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
-            )
-        }
-        var showLineNumber by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true))
-        }
-        var pinLineNumber by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
-        }
-        var showArrowKeys by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true))
-        }
-        var autoSave by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false))
-        }
-        var editorFont by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.EDITOR_FONT, false))
-        }
-        var showSuggestions by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
-        }
-        
-        var useSoraSearch by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, false))
-        }
-        
-        var txt_ww by remember {
-            mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_TXT, false))
-        }
-        
         val context = LocalContext.current
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.smooth_tabs),
             description = stringResource(id = R.string.smooth_tab_desc),
-            iconResource = R.drawable.animation,
-            onNavigate = {
-                _smoothTabs = !_smoothTabs
-                PreferencesData.setBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, _smoothTabs)
-                smoothTabs = _smoothTabs
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = _smoothTabs,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.animation,
+            key = PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL,
+            default = false,
+            sideEffect = {
+                smoothTabs = it
+            }
         )
         
-        PreferenceCategory(
+        
+        SettingsToggle(
             label = stringResource(id = R.string.ww),
             description = stringResource(id = R.string.ww_desc),
-            iconResource = R.drawable.reorder,
-            onNavigate = {
-                wordwrap = !wordwrap
-                PreferencesData.setBoolean(PreferencesKeys.WORD_WRAP_ENABLED, wordwrap)
+            iconRes = R.drawable.reorder,
+            key = PreferencesKeys.WORD_WRAP_ENABLED,
+            default = false,
+            sideEffect = {
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                     if (f.value.get()?.fragment is EditorFragment) {
-                        (f.value.get()?.fragment as EditorFragment).editor?.isWordwrap = wordwrap
+                        (f.value.get()?.fragment as EditorFragment).editor?.isWordwrap = it
                     }
-                    
                 }
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = wordwrap,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
-        PreferenceCategory(
+        
+        
+        SettingsToggle(
             label = stringResource(R.string.txt_ww),
             description = stringResource(R.string.txt_ww_desc),
-            iconResource = R.drawable.reorder,
-            onNavigate = {
-                txt_ww = !txt_ww
-                PreferencesData.setBoolean(PreferencesKeys.WORD_WRAP_TXT, txt_ww)
-                
+            iconRes = R.drawable.reorder,
+            key = PreferencesKeys.WORD_WRAP_TXT,
+            default = false,
+            sideEffect = {
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                     if (f.value.get()?.fragment is EditorFragment) {
                         (f.value.get()?.fragment as EditorFragment).apply {
                             if (file?.name?.endsWith(".txt") == true) {
-                                editor?.isWordwrap = txt_ww || wordwrap
+                                if (editor?.isWordwrap!!.not()){
+                                    editor?.isWordwrap = it
+                                }
                             }
                         }
                     }
                 }
-                
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = txt_ww,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.keepdl),
             description = stringResource(id = R.string.drawer_lock_desc),
-            iconResource = R.drawable.lock,
-            onNavigate = {
-                drawerLock = !drawerLock
-                PreferencesData.setBoolean(PreferencesKeys.KEEP_DRAWER_LOCKED, drawerLock)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = drawerLock,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.lock,
+            key = PreferencesKeys.KEEP_DRAWER_LOCKED,
+            default = false,
         )
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.diagonal_scroll),
             description = stringResource(id = R.string.diagonal_scroll_desc),
-            iconResource = R.drawable.diagonal_scroll,
-            onNavigate = {
-                diagonalScroll = !diagonalScroll
-                PreferencesData.setBoolean(PreferencesKeys.DIAGONAL_SCROLL, diagonalScroll)
+            iconRes = R.drawable.diagonal_scroll,
+            key = PreferencesKeys.DIAGONAL_SCROLL,
+            default = true,
+            sideEffect = {
                 rkUtils.toast(getString(R.string.rr))
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = diagonalScroll,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.cursor_anim),
             description = stringResource(id = R.string.cursor_anim_desc),
-            iconResource = R.drawable.animation,
-            onNavigate = {
-                cursorAnimation = !cursorAnimation
-                PreferencesData.setBoolean(
-                    PreferencesKeys.CURSOR_ANIMATION_ENABLED,
-                    cursorAnimation,
-                )
+            iconRes = R.drawable.animation,
+            key = PreferencesKeys.CURSOR_ANIMATION_ENABLED,
+            default = false,
+            sideEffect = {
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                     if (f.value.get()?.fragment is EditorFragment) {
-                        (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled = cursorAnimation
+                        (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled = it
                     }
-                    
                 }
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = cursorAnimation,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        
+        SettingsToggle(
             label = stringResource(id = R.string.show_line_number),
             description = stringResource(id = R.string.show_line_number),
-            iconResource = R.drawable.linenumbers,
-            onNavigate = {
-                showLineNumber = !showLineNumber
-                PreferencesData.setBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, showLineNumber)
-                
+            iconRes = R.drawable.linenumbers,
+            key = PreferencesKeys.SHOW_LINE_NUMBERS,
+            default = true,
+            sideEffect = {
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                     if (f.value.get()?.fragment is EditorFragment) {
-                        (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled = showLineNumber
+                        (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled = it
                     }
-                    
                 }
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = showLineNumber,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        
+        SettingsToggle(
             label = stringResource(id = R.string.pin_line_number),
             description = stringResource(id = R.string.pin_line_number),
-            iconResource = R.drawable.linenumbers,
-            onNavigate = {
-                pinLineNumber = !pinLineNumber
-                PreferencesData.setBoolean(PreferencesKeys.PIN_LINE_NUMBER, pinLineNumber)
+            iconRes = R.drawable.linenumbers,
+            key = PreferencesKeys.PIN_LINE_NUMBER,
+            default = false,
+            sideEffect = {
                 MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                     if (f.value.get()?.fragment is EditorFragment) {
-                        (f.value.get()?.fragment as EditorFragment).editor?.setPinLineNumber(pinLineNumber)
+                        (f.value.get()?.fragment as EditorFragment).editor?.setPinLineNumber(it)
                     }
-                    
                 }
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = pinLineNumber,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.show_suggestions),
             description = stringResource(id = R.string.show_suggestions),
-            iconResource = R.drawable.baseline_font_download_24,
-            onNavigate = {
-                showSuggestions = !showSuggestions
-                PreferencesData.setBoolean(PreferencesKeys.SHOW_SUGGESTIONS, showSuggestions)
+            iconRes = R.drawable.baseline_font_download_24,
+            key = PreferencesKeys.SHOW_SUGGESTIONS,
+            default = false,
+            sideEffect = {
                 MainActivity.activityRef.get()?.adapter!!.tabFragments.values.forEach { f ->
                     if (f.get()?.fragment is EditorFragment) {
-                        (f.get()?.fragment as EditorFragment).editor?.showSuggestions(showSuggestions)
+                        (f.get()?.fragment as EditorFragment).editor?.showSuggestions(it)
                     }
                 }
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = showSuggestions,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.extra_keys),
             description = stringResource(id = R.string.extra_keys_desc),
-            iconResource = R.drawable.double_arrows,
-            onNavigate = {
-                showArrowKeys = !showArrowKeys
-                PreferencesData.setBoolean(PreferencesKeys.SHOW_ARROW_KEYS, showArrowKeys)
+            iconRes = R.drawable.double_arrows,
+            key = PreferencesKeys.SHOW_ARROW_KEYS,
+            default = true,
+            sideEffect = {
                 MainActivity.activityRef.get()?.let { activity ->
                     if (activity.tabViewModel.fragmentFiles.isEmpty()) {
                         return@let
@@ -306,59 +170,35 @@ fun SettingsEditorScreen() {
                     
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
                         if (f.get()?.fragment is EditorFragment) {
-                            (f.get()?.fragment as EditorFragment).showArrowKeys(showArrowKeys)
+                            (f.get()?.fragment as EditorFragment).showArrowKeys(it)
                         }
                     }
                 }
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = showArrowKeys,
-                    onCheckedChange = null,
-                )
-            },
+            }
         )
         
-        PreferenceCategory(
+        
+        
+        
+        
+        SettingsToggle(
             label = stringResource(id = R.string.auto_save),
             description = stringResource(id = R.string.auto_save_desc),
-            iconResource = R.drawable.save,
-            onNavigate = {
-                autoSave = !autoSave
-                PreferencesData.setBoolean(PreferencesKeys.AUTO_SAVE, autoSave)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = autoSave,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.save,
+            key = PreferencesKeys.AUTO_SAVE,
+            default = false,
         )
         
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(R.string.sora_s),
             description = stringResource(R.string.sora_s_desc),
-            iconResource = R.drawable.search,
-            onNavigate = {
-                useSoraSearch = !useSoraSearch
-                PreferencesData.setBoolean(PreferencesKeys.USE_SORA_SEARCH, useSoraSearch)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = useSoraSearch,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.search,
+            key = PreferencesKeys.USE_SORA_SEARCH,
+            default = false,
         )
+        
+        
+        
         
         var showAutoSaveDialog by remember { mutableStateOf(false) }
         var showTextSizeDialog by remember { mutableStateOf(false) }
@@ -468,23 +308,13 @@ fun SettingsEditorScreen() {
                 onDismiss = { showTabSizeDialog = false },
             )
         }
-        PreferenceCategory(
+        
+        SettingsToggle(
             label = stringResource(id = R.string.editor_font),
             description = stringResource(id = R.string.editor_font_desc),
-            iconResource = R.drawable.baseline_font_download_24,
-            onNavigate = {
-                editorFont = !editorFont
-                PreferencesData.setBoolean(PreferencesKeys.EDITOR_FONT, editorFont)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .height(24.dp),
-                    checked = editorFont,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.baseline_font_download_24,
+            key = PreferencesKeys.EDITOR_FONT,
+            default = false,
         )
     }
 }

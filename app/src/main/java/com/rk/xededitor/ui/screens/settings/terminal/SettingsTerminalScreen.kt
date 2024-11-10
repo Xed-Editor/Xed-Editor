@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.trace
 import com.jaredrummler.ktsh.Shell
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
@@ -20,6 +21,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.InputDialog
+import com.rk.xededitor.ui.components.SettingsToggle
 import java.io.File
 import java.nio.file.Files
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -64,65 +66,86 @@ fun SettingsTerminalScreen() {
     PreferenceLayout(label = stringResource(id = R.string.terminal), backArrowVisible = true) {
         val context = LocalContext.current
 
-        var failSafe by remember { mutableStateOf(getBoolean(PreferencesKeys.FAIL_SAFE, false)) }
-
-        var ctrlWorkAround by remember {
-            mutableStateOf(getBoolean(PreferencesKeys.CTRL_WORKAROUND, false))
-        }
-
-        var forceChar by remember { mutableStateOf(getBoolean(PreferencesKeys.FORCE_CHAR, false)) }
-
-        var link2sym by remember { mutableStateOf(getBoolean(PreferencesKeys.LINK2SYMLINK, true)) }
-
-        var ashememFd by remember { mutableStateOf(getBoolean(PreferencesKeys.ASHMEM_MEMFD, true)) }
-
-        var sysvipc by remember { mutableStateOf(getBoolean(PreferencesKeys.SYSVIPC, true)) }
-
-        var killOnExit by remember {
-            mutableStateOf(getBoolean(PreferencesKeys.KILL_ON_EXIT, true))
-        }
-
-        var showVirtualKeyboard by remember {
-            mutableStateOf(getBoolean(PreferencesKeys.SHOW_VIRTUAL_KEYBOARD, true))
-        }
-
-        PreferenceCategory(
+        SettingsToggle(
             label = stringResource(id = R.string.fail_safe),
             description = stringResource(id = R.string.failsafe_desc),
-            iconResource = R.drawable.android,
-            onNavigate = {
-                failSafe = !failSafe
-                PreferencesData.setBoolean(PreferencesKeys.FAIL_SAFE, failSafe)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = failSafe,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.android,
+            key = PreferencesKeys.FAIL_SAFE,
+            default = false
         )
-
-        PreferenceCategory(
+        
+        SettingsToggle(
             label = stringResource(id = R.string.show_virtual_keyboard),
             description = stringResource(id = R.string.show_virtual_keyboard_desc),
-            iconResource = R.drawable.edit,
-            onNavigate = {
-                showVirtualKeyboard = !showVirtualKeyboard
-                PreferencesData.setBoolean(
-                    PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,
-                    showVirtualKeyboard,
-                )
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = showVirtualKeyboard,
-                    onCheckedChange = null,
-                )
-            },
+            iconRes = R.drawable.edit,
+            key = PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,
+            default = true
         )
-
+        
+        SettingsToggle(
+            label = stringResource(id = R.string.useCtrlWorkaround),
+            description = stringResource(id = R.string.useCtrlWorkaround_desc),
+            iconRes = R.drawable.terminal,
+            key = PreferencesKeys.CTRL_WORKAROUND,
+            default = false
+        )
+        
+        SettingsToggle(
+            label = stringResource(id = R.string.force_char),
+            description = stringResource(id = R.string.force_char_desc),
+            iconRes = R.drawable.edit,
+            key = PreferencesKeys.FORCE_CHAR,
+            default = true
+        )
+        
+        SettingsToggle(
+            label = stringResource(id = R.string.sim_hard_links),
+            description = stringResource(id = R.string.sim_hard_links_desc),
+            iconRes = R.drawable.terminal,
+            key = PreferencesKeys.LINK2SYMLINK,
+            default = true,
+            sideEffect = {
+                updateProotArgs(context)
+            }
+        )
+        
+        SettingsToggle(
+            label = stringResource(id = R.string.sim_ashmem),
+            description = stringResource(id = R.string.sim_ashmem),
+            iconRes = R.drawable.terminal,
+            key = PreferencesKeys.ASHMEM_MEMFD,
+            default = true,
+            sideEffect = {
+                updateProotArgs(context)
+            }
+        )
+        
+        
+        SettingsToggle(
+            label = stringResource(id = R.string.sysvipc),
+            description = stringResource(id = R.string.sysvipc),
+            iconRes = R.drawable.terminal,
+            key = PreferencesKeys.SYSVIPC,
+            default = true,
+            sideEffect = {
+                updateProotArgs(context)
+            }
+        )
+        
+        SettingsToggle(
+            label = stringResource(id = R.string.kill_on_exit),
+            description = stringResource(id = R.string.kill_on_exit_desc),
+            iconRes = R.drawable.terminal,
+            key = PreferencesKeys.KILL_ON_EXIT,
+            default = true,
+            sideEffect = {
+                updateProotArgs(context)
+            }
+        )
+        
+        
+        
+        
         var showLShellDialog by remember { mutableStateOf(false) }
         PreferenceCategory(
             label = stringResource(id = R.string.Lshell),
@@ -204,111 +227,5 @@ fun SettingsTerminalScreen() {
                 onDismiss = { showTextSizeDialog = false },
             )
         }
-
-        PreferenceCategory(
-            label = stringResource(id = R.string.useCtrlWorkaround),
-            description = stringResource(id = R.string.useCtrlWorkaround_desc),
-            iconResource = R.drawable.terminal,
-            onNavigate = {
-                ctrlWorkAround = !ctrlWorkAround
-                PreferencesData.setBoolean(PreferencesKeys.CTRL_WORKAROUND, ctrlWorkAround)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = ctrlWorkAround,
-                    onCheckedChange = null,
-                )
-            },
-        )
-
-        PreferenceCategory(
-            label = stringResource(id = R.string.force_char),
-            description = stringResource(id = R.string.force_char_desc),
-            iconResource = R.drawable.edit,
-            onNavigate = {
-                forceChar = !forceChar
-                PreferencesData.setBoolean(PreferencesKeys.FORCE_CHAR, forceChar)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = forceChar,
-                    onCheckedChange = null,
-                )
-            },
-        )
-
-        PreferenceCategory(
-            label = stringResource(id = R.string.sim_hard_links),
-            description = stringResource(id = R.string.sim_hard_links_desc),
-            iconResource = R.drawable.terminal,
-            onNavigate = {
-                link2sym = !link2sym
-                PreferencesData.setBoolean(PreferencesKeys.LINK2SYMLINK, link2sym)
-                updateProotArgs(context)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = link2sym,
-                    onCheckedChange = null,
-                )
-            },
-        )
-
-        PreferenceCategory(
-            label = stringResource(id = R.string.sim_ashmem),
-            description = stringResource(id = R.string.sim_ashmem),
-            iconResource = R.drawable.terminal,
-            onNavigate = {
-                ashememFd = !ashememFd
-                PreferencesData.setBoolean(PreferencesKeys.ASHMEM_MEMFD, ashememFd)
-                updateProotArgs(context)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = ashememFd,
-                    onCheckedChange = null,
-                )
-            },
-        )
-
-        PreferenceCategory(
-            label = stringResource(id = R.string.sysvipc),
-            description = stringResource(id = R.string.sysvipc),
-            iconResource = R.drawable.terminal,
-            onNavigate = {
-                sysvipc = !sysvipc
-                PreferencesData.setBoolean(PreferencesKeys.SYSVIPC, sysvipc)
-                updateProotArgs(context)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = sysvipc,
-                    onCheckedChange = null,
-                )
-            },
-        )
-
-        PreferenceCategory(
-            label = stringResource(id = R.string.kill_on_exit),
-            description = stringResource(id = R.string.kill_on_exit_desc),
-            iconResource = R.drawable.terminal,
-            onNavigate = {
-                killOnExit = !killOnExit
-                PreferencesData.setBoolean(PreferencesKeys.KILL_ON_EXIT, killOnExit)
-                updateProotArgs(context)
-            },
-            endWidget = {
-                Switch(
-                    modifier = Modifier.padding(12.dp).height(24.dp),
-                    checked = killOnExit,
-                    onCheckedChange = null,
-                )
-            },
-        )
     }
 }

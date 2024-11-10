@@ -20,7 +20,6 @@ import org.robok.engine.core.components.compose.preferences.category.PreferenceC
 @Composable
 fun SettingsGitScreen() {
     PreferenceLayout(label = stringResource(id = R.string.git), backArrowVisible = true) {
-        val context = LocalContext.current
         var isDialogVisible by remember { mutableStateOf(false) }
         var dialogType by remember { mutableStateOf<DialogType?>(null) }
         var inputValue by remember { mutableStateOf("") }
