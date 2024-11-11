@@ -20,7 +20,7 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 
 # Removed -flto from link flags and reduced optimization level
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        LINK_FLAGS "-O2")
+        LINK_FLAGS "-O3")
 
 # Link required libraries
 target_link_libraries(${CMAKE_PROJECT_NAME}
