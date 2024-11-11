@@ -43,7 +43,6 @@ android {
     compileSdk = 34
     android.buildFeatures.buildConfig = true
     
-    
     println("Building for commit ${getGitCommitHash()}")
     
     

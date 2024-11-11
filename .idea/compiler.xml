@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="17">
+    <bytecodeTargetLevel target="21">
       <module name="Karbon.commons" target="21" />
       <module name="Karbon.dependencies" target="21" />
       <module name="Karbon.editor-lsp" target="21" />
