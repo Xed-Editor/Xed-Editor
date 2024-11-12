@@ -1,5 +1,5 @@
 //
-//  Wasm3, high performance WebAssembly interpreter
+//  com.rk.wasm3.Wasm3, high performance WebAssembly interpreter
 //
 //  Extensions
 //
@@ -21,7 +21,7 @@ extern "C" {
 //  API extensions
 //-------------------------------------------------------------------------------------------------------------------------------
 /*
-    These extensions allow for unconventional uses of Wasm3 -- mainly dynamic modification of modules to inject new Wasm
+    These extensions allow for unconventional uses of com.rk.wasm3.Wasm3 -- mainly dynamic modification of modules to inject new Wasm
     functions during runtime.
 */
 //-------------------------------------------------------------------------------------------------------------------------------

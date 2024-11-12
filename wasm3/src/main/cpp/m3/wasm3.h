@@ -1,5 +1,5 @@
 //
-//  Wasm3, high performance WebAssembly interpreter
+//  com.rk.wasm3.Wasm3, high performance WebAssembly interpreter
 //
 //  Copyright © 2019 Steven Massey, Volodymyr Shymanskyy.
 //  All rights reserved.

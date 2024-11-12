@@ -1,8 +1,6 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -18,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.libcommons.After
 import com.rk.libcommons.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -38,7 +37,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
-
+import com.rk.wasm3.Wasm3
 
 class MainActivity : BaseActivity() {
     
@@ -93,6 +92,25 @@ class MainActivity : BaseActivity() {
                 delay(2000)
                 MenuItemHandler.update(this@MainActivity)
             }
+        }
+        
+        
+        //testing
+        After(3000){
+            return@After
+            
+            println("beginning")
+            
+            val wasm3 = Wasm3()
+            
+            wasm3.initializeWasmEnvironment("/sdcard/main.wasm")
+            
+            val exitCode = wasm3.callFunctionInWasm("main")
+            
+            println("exit code $exitCode")
+            
+            wasm3.cleanupWasm()
+            
         }
         
     }

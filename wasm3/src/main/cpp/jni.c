@@ -1,10 +1,3 @@
-//
-//  Wasm3 - high performance WebAssembly interpreter written in C.
-//
-//  Copyright © 2019 Steven Massey, Volodymyr Shymanskyy.
-//  All rights reserved.
-//
-
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -12,6 +5,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <jni.h>
+#include <android/log.h>
 
 extern int main();
 
@@ -21,8 +15,6 @@ extern int main();
 
 JavaVM* javaVM;
 JNIEnv* jniEnv;
-jclass  activityClz;
-jobject activityObj;
 
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM* vm, void* reserved)
@@ -43,20 +35,12 @@ static void* runOutputPump(void* ctx)
     int readSize;
     char buff[128];
 
-    JNIEnv* env;
-    (*javaVM)->AttachCurrentThread(javaVM, &env, NULL);
-
-    jmethodID outputTextId = (*env)->GetMethodID(env, activityClz,
-                                                 "outputText",
-                                                 "(Ljava/lang/String;)V");
-
     while ((readSize = read(pfd[0], buff, sizeof(buff) - 1)) > 0)
     {
         buff[readSize] = '\0';
 
-        jstring javaMsg = (*env)->NewStringUTF(env, buff);
-        (*env)->CallVoidMethod(env, activityObj, outputTextId, javaMsg);
-        (*env)->DeleteLocalRef(env, javaMsg);
+        // Log the output to Logcat
+        __android_log_print(ANDROID_LOG_INFO, "com.rk.wasm3.Wasm3", "%s", buff);
     }
 
     return 0;
@@ -70,7 +54,7 @@ static void* runMain(void* ctx)
 }
 
 JNIEXPORT void JNICALL
-Java_com_example_wasm3_MainActivity_runMain(JNIEnv* env, jobject instance)
+Java_com_rk_wasm3_Wasm3_00024Companion_runMain(JNIEnv* env, jobject instance)
 {
     setvbuf(stdout, 0, _IOLBF, 0); // stdout: line-buffered
     setvbuf(stderr, 0, _IONBF, 0); // stderr: unbuffered
@@ -80,17 +64,13 @@ Java_com_example_wasm3_MainActivity_runMain(JNIEnv* env, jobject instance)
     dup2(pfd[1], 1);
     dup2(pfd[1], 2);
 
-    jclass clz = (*env)->GetObjectClass(env, instance);
-    activityClz = (*env)->NewGlobalRef(env, clz);
-    activityObj = (*env)->NewGlobalRef(env, instance);
-
     pthread_attr_t  threadAttr;
     pthread_attr_init(&threadAttr);
     pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
 
-    pthread_create( &pumpThread, &threadAttr, runOutputPump, NULL);
-
-    pthread_create( &mainThread, &threadAttr, runMain, NULL);
+    pthread_create(&pumpThread, &threadAttr, runOutputPump, NULL);
+    pthread_create(&mainThread, &threadAttr, runMain, NULL);
 
     pthread_attr_destroy(&threadAttr);
+    printf("wasm3 loaded");
 }

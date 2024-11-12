@@ -1,5 +1,5 @@
 //
-//  Wasm3 - high performance WebAssembly interpreter written in C.
+//  com.rk.wasm3.Wasm3 - high performance WebAssembly interpreter written in C.
 //
 //  Copyright © 2019 Steven Massey, Volodymyr Shymanskyy.
 //  All rights reserved.
@@ -59,7 +59,7 @@ void run_wasm()
 
 int main()
 {
-    printf("Wasm3 v" M3_VERSION " on Android (" M3_ARCH ")\n");
+    printf("com.rk.wasm3.Wasm3 v" M3_VERSION " on Android (" M3_ARCH ")\n");
     printf("Build " __DATE__ " " __TIME__ "\n");
 
     clock_t start = clock();

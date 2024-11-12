@@ -6,7 +6,7 @@ project("wasm3")
 # Modified optimization flags - removed LTO and adjusted other flags
 add_definitions(-DANDROID
         -Wno-format-security
-       -fomit-frame-pointer
+        -fomit-frame-pointer
         -fno-stack-check
         -fno-stack-protector)
 
