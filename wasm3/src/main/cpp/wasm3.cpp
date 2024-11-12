@@ -108,12 +108,12 @@ Java_com_rk_wasm3_Wasm3_initializeWasmEnvironment(JNIEnv *jenv, jobject obj, jst
         return 1;
     }
 
-    result = m3_LinkWASI(module);
+    /*result = m3_LinkWASI(module);
     if (result) {
         std::cerr << "Failed to link WASI: " << result << "\n";
         cleanupWasmEnvironment(env, runtime, module, nullptr);
         return 1;
-    }
+    }*/
 
     // Retrieve the class reference of the Java object
     jclass clazz = jenv->GetObjectClass(obj);
