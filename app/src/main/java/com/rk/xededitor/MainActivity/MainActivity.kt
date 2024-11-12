@@ -96,21 +96,8 @@ class MainActivity : BaseActivity() {
         
         
         //testing
-        After(3000){
-            return@After
-            
-            println("beginning")
-            
-            val wasm3 = Wasm3()
-            
-            wasm3.initializeWasmEnvironment("/sdcard/main.wasm")
-            
-            val exitCode = wasm3.callFunctionInWasm("main")
-            
-            println("exit code $exitCode")
-            
-            wasm3.cleanupWasm()
-            
+        After(5000){
+            Wasm3().loadWasm("/sdcard/main.wasm", "main")
         }
         
     }

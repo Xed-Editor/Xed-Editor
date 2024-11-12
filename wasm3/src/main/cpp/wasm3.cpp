@@ -6,204 +6,131 @@
 #include <cstdio>
 #include "m3/m3_env.h"
 #include "m3/m3_api_wasi.h"
+#include "m3/m3_api_libc.h"
+#include <android/log.h>
 
-std::string jstring2string(JNIEnv *env, jstring jStr) {
-    if (!jStr)
-        return "";
+#define LOG_TAG "WASM3"
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-    const jclass stringClass = env->GetObjectClass(jStr);
-    const jmethodID getBytes = env->GetMethodID(stringClass, "getBytes", "(Ljava/lang/String;)[B");
-    const auto stringJbytes = (jbyteArray) env->CallObjectMethod(jStr, getBytes, env->NewStringUTF("UTF-8"));
-
-    auto length = (size_t) env->GetArrayLength(stringJbytes);
-    jbyte *pBytes = env->GetByteArrayElements(stringJbytes, NULL);
-
-    std::string ret = std::string((char *) pBytes, length);
-    env->ReleaseByteArrayElements(stringJbytes, pBytes, JNI_ABORT);
-
-    env->DeleteLocalRef(stringJbytes);
-    env->DeleteLocalRef(stringClass);
-    return ret;
+static
+M3Result SuppressLookupFailure(M3Result i_result) {
+    if (i_result == m3Err_functionLookupFailed)
+        return m3Err_none;
+    else
+        return i_result;
 }
 
-uint8_t *loadWasmFile(const char *filename, size_t &wasmSize) {
-    FILE *file = fopen(filename, "rb");
-    if (!file) {
-        std::cerr << "Failed to open WASM file\n";
-        return nullptr;
-    }
-
-    fseek(file, 0, SEEK_END);
-    wasmSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    auto *wasmData = new uint8_t[wasmSize];
-    fread(wasmData, 1, wasmSize, file);
-    fclose(file);
-
-    return wasmData;
+m3ApiRawFunction(toast) {
+    m3ApiGetArg(int32_t, msgPtr);
+    const char *msg = (const char *) m3ApiOffsetToPtr(msgPtr);
+    LOGI("--------------------------------------");
+    LOGI(msg);
+    LOGI("--------------------------------------");
+    m3ApiSuccess();
 }
 
-// Cleanup function to free resources
-void cleanupWasmEnvironment(IM3Environment env, IM3Runtime runtime, IM3Module module, const uint8_t* wasmData) {
-    if (module) {
-        m3_FreeModule(module);
-    }
-    if (runtime) {
-        m3_FreeRuntime(runtime);
-    }
-    if (env) {
-        m3_FreeEnvironment(env);
-    }
-
-        delete[] wasmData;
-
-}
-
-/**
- * Initialize the com.rk.wasm3.Wasm3 environment and runtime, loading the WASM file.
- * This function creates the environment and runtime, parses and loads the WASM module,
- * and prepares it for function calls.
- */
-extern "C" JNIEXPORT int JNICALL
-Java_com_rk_wasm3_Wasm3_initializeWasmEnvironment(JNIEnv *jenv, jobject obj, jstring filePath) {
-
-    std::string wasmFilePath = jstring2string(jenv, filePath);
-    printf("Initializing WASM environment with file %s\n", wasmFilePath.c_str());
-
-    size_t wasmSize;
-    uint8_t *wasmData = loadWasmFile(wasmFilePath.c_str(), wasmSize);
-    if (!wasmData) return 1;
-
-    // Initialize com.rk.wasm3.Wasm3 environment and runtime
+void execWasm(const uint8_t *wasmCode, size_t codeSize, const std::vector<std::string> &functions) {
     IM3Environment env = m3_NewEnvironment();
     if (!env) {
-        std::cerr << "Failed to create com.rk.wasm3.Wasm3 environment\n";
-        delete[] wasmData;
-        return 1;
+        LOGE("Failed to create wasm3 environment");
+        return;
     }
-
-    IM3Runtime runtime = m3_NewRuntime(env, 64 * 1024, nullptr);
+    IM3Runtime runtime = m3_NewRuntime(env, 1024, NULL);
     if (!runtime) {
-        std::cerr << "Failed to create com.rk.wasm3.Wasm3 runtime\n";
+        LOGE("Failed to create wasm3 runtime");
         m3_FreeEnvironment(env);
-        delete[] wasmData;
-        return 1;
+        return;
     }
-
-    // Parse and load the WASM module
     IM3Module module;
-    M3Result result = m3_ParseModule(env, &module, wasmData, wasmSize);
+    M3Result result = m3_ParseModule(env, &module, wasmCode, codeSize);
     if (result) {
-        std::cerr << "Failed to parse module: " << result << "\n";
-        cleanupWasmEnvironment(env, runtime, nullptr, wasmData);
-        return 1;
+        LOGE("Failed to parse wasm module: %s", result);
+        m3_FreeRuntime(runtime);
+        m3_FreeEnvironment(env);
+        return;
     }
-    delete[] wasmData;
-
     result = m3_LoadModule(runtime, module);
     if (result) {
-        std::cerr << "Failed to load module: " << result << "\n";
-        cleanupWasmEnvironment(env, runtime, module, nullptr);
-        return 1;
-    }
-
-    /*result = m3_LinkWASI(module);
-    if (result) {
-        std::cerr << "Failed to link WASI: " << result << "\n";
-        cleanupWasmEnvironment(env, runtime, module, nullptr);
-        return 1;
-    }*/
-
-    // Retrieve the class reference of the Java object
-    jclass clazz = jenv->GetObjectClass(obj);
-
-    // Retrieve the field IDs for the fields that will hold the environment and runtime
-    jfieldID envField = jenv->GetFieldID(clazz, "envField", "J");
-    jfieldID runtimeField = jenv->GetFieldID(clazz, "runtimeField", "J");
-
-    // Store the environment and runtime for later use in other function calls
-    jenv->SetLongField(obj, envField, (jlong) env);
-    jenv->SetLongField(obj, runtimeField, (jlong) runtime);
-
-    return 0;
-}
-
-/**
- * Calls a function in the already-initialized WASM environment and runtime.
- * The function name is passed as a string, and the function must not accept arguments and return an int as an exit code.
- */
-extern "C" JNIEXPORT int JNICALL
-Java_com_rk_wasm3_Wasm3_callFunctionInWasm(JNIEnv *jenv, jobject obj, jstring funcName) {
-
-    std::string functionName = jstring2string(jenv, funcName);
-
-    // Retrieve the class reference of the Java object
-    jclass clazz = jenv->GetObjectClass(obj);
-
-    // Retrieve the field IDs for the fields that hold the environment and runtime
-    jfieldID envField = jenv->GetFieldID(clazz, "envField", "J");
-    jfieldID runtimeField = jenv->GetFieldID(clazz, "runtimeField", "J");
-
-    // Retrieve the long values stored in the Java object
-    auto env = (IM3Environment) jenv->GetLongField(obj, envField);
-    auto runtime = (IM3Runtime) jenv->GetLongField(obj, runtimeField);
-
-    if (!env || !runtime) {
-        std::cerr << "Wasm environment or runtime is not initialized.\n";
-        return 1;
-    }
-
-    printf("Calling function %s\n", functionName.c_str());
-
-    // Dynamically find the function based on the function name passed in
-    IM3Function function;
-    M3Result result = m3_FindFunction(&function, runtime, functionName.c_str());
-    if (result) {
-        std::cerr << "Function " << functionName << " not found: " << result << "\n";
-        return 1;
-    }
-
-    // Call the function (assuming it takes no arguments and returns an int)
-    result = m3_CallV(function);
-    if (result) {
-        std::cerr << "Failed to call " << functionName << ": " << result << "\n";
-        return 1;
-    }
-
-    // Retrieve result (assuming the function returns an integer exit code)
-    int32_t exit_code;
-    result = m3_GetResultsV(function, &exit_code);
-    if (result) {
-        std::cerr << "Failed to retrieve result: " << result << "\n";
-    } else {
-        std::cout << "Exit code: " << exit_code << "\n";
-    }
-
-    return 0;
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_rk_wasm3_Wasm3_cleanupWasm(JNIEnv *jenv, jobject obj) {
-    // Retrieve the class reference of the Java object
-    jclass clazz = jenv->GetObjectClass(obj);
-
-    // Retrieve the field IDs for the fields that hold the environment and runtime
-    jfieldID envField = jenv->GetFieldID(clazz, "envField", "J");
-    jfieldID runtimeField = jenv->GetFieldID(clazz, "runtimeField", "J");
-
-    // Retrieve the long values stored in the Java object
-    auto env = (IM3Environment) jenv->GetLongField(obj, envField);
-    auto runtime = (IM3Runtime) jenv->GetLongField(obj, runtimeField);
-
-    // Cleanup resources if they exist
-    if (env) {
-        m3_FreeEnvironment(env);
-        jenv->SetLongField(obj, envField, (jlong) 0); // Set to 0 to avoid future invalid access
-    }
-    if (runtime) {
+        LOGE("Failed to load wasm module: %s", result);
         m3_FreeRuntime(runtime);
-        jenv->SetLongField(obj, runtimeField, (jlong) 0); // Set to 0 to avoid future invalid access
+        m3_FreeEnvironment(env);
+        return;
+    }
+    result = m3_LinkLibC(module);
+    if (result) {
+        LOGE("Failed to link libc: %s", result);
+        m3_FreeRuntime(runtime);
+        m3_FreeEnvironment(env);
+        return;
     }
 
+    (SuppressLookupFailure(m3_LinkRawFunction(module, "env", "toast", "v(i)", toast)));
+
+    IM3Function f;
+    for (const auto &functionName: functions) {
+        result = m3_FindFunction(&f, runtime, functionName.c_str());
+        if (result) {
+            LOGE("Function '%s' not found: %s", functionName.c_str(), result);
+            LOGE(std::string("Function '" + functionName + "' not found: " + result).c_str());
+            return;
+        } else {
+            result = m3_CallV(f);
+            if (result) {
+                LOGE("Failed to call function '%s': %s", functionName.c_str(), result);
+                LOGE(std::string("Failed to call function '" + functionName + "': " + result).c_str());
+                return;
+            } else {
+                LOGI("Function '%s' called successfully", functionName.c_str());
+            }
+        }
+    }
+    m3_FreeRuntime(runtime);
+    m3_FreeEnvironment(env);
 }
+
+
+std::vector<std::string> objectArrayToVector(JNIEnv *env, jobjectArray jArray) {
+    std::vector<std::string> result;
+
+    jsize arrayLength = env->GetArrayLength(jArray);
+
+    for (jsize i = 0; i < arrayLength; ++i) {
+        auto jStr = (jstring) env->GetObjectArrayElement(jArray, i);
+
+        const char *charStr = env->GetStringUTFChars(jStr, nullptr);
+        result.emplace_back(charStr);
+
+        env->ReleaseStringUTFChars(jStr, charStr);
+    }
+
+    return result;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_rk_wasm3_Wasm3_loadWasm(JNIEnv *env, jobject thiz, jstring path, jobjectArray function_name) {
+    const char *wasmFilePath = env->GetStringUTFChars(path, 0);
+    if (!wasmFilePath) {
+        return;
+    }
+    std::ifstream wasmFile(wasmFilePath, std::ios::binary | std::ios::ate);
+    if (!wasmFile) {
+        LOGE("Failed to open wasm file: %s", wasmFilePath);
+        env->ReleaseStringUTFChars(path, wasmFilePath);
+        return;
+    }
+    std::streamsize wasmSize = wasmFile.tellg();
+    wasmFile.seekg(0, std::ios::beg);
+    std::vector<uint8_t> wasmBytes(wasmSize);
+    if (!wasmFile.read(reinterpret_cast<char *>(wasmBytes.data()), wasmSize)) {
+        LOGE("Failed to read wasm file: %s", wasmFilePath);
+        env->ReleaseStringUTFChars(path, wasmFilePath);
+        return;
+    }
+
+    execWasm(wasmBytes.data(), wasmSize, objectArrayToVector(env, function_name));
+
+    env->ReleaseStringUTFChars(path, wasmFilePath);
+}
+

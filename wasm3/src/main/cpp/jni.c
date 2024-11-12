@@ -6,7 +6,6 @@
 #include <unistd.h>
 #include <jni.h>
 #include <android/log.h>
-
 extern int main();
 
 /*
@@ -74,3 +73,5 @@ Java_com_rk_wasm3_Wasm3_00024Companion_runMain(JNIEnv* env, jobject instance)
     pthread_attr_destroy(&threadAttr);
     printf("wasm3 loaded");
 }
+
+
