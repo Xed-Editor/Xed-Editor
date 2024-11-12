@@ -7,19 +7,15 @@
 #include "m3/m3_env.h"
 #include "m3/m3_api_wasi.h"
 #include "m3/m3_api_libc.h"
+#include "JvmUtils.hpp"
 #include <android/log.h>
+
 
 #define LOG_TAG "WASM3"
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-static
-M3Result SuppressLookupFailure(M3Result i_result) {
-    if (i_result == m3Err_functionLookupFailed)
-        return m3Err_none;
-    else
-        return i_result;
-}
+JNIEnv *jenv;
 
 m3ApiRawFunction(toast) {
     m3ApiGetArg(int32_t, msgPtr);
@@ -27,7 +23,20 @@ m3ApiRawFunction(toast) {
     LOGI("--------------------------------------");
     LOGI(msg);
     LOGI("--------------------------------------");
+
+    jobject args[1];
+    args[0] = toJstring(jenv,msg);
+    callJMethod(jenv,"com/rk/wasm3/Wasm3Api","toast",args,1);
+
     m3ApiSuccess();
+}
+
+static
+M3Result SuppressLookupFailure(M3Result i_result) {
+    if (i_result == m3Err_functionLookupFailed)
+        return m3Err_none;
+    else
+        return i_result;
 }
 
 void execWasm(const uint8_t *wasmCode, size_t codeSize, const std::vector<std::string> &functions) {
@@ -57,6 +66,7 @@ void execWasm(const uint8_t *wasmCode, size_t codeSize, const std::vector<std::s
         m3_FreeEnvironment(env);
         return;
     }
+
     result = m3_LinkLibC(module);
     if (result) {
         LOGE("Failed to link libc: %s", result);
@@ -90,8 +100,12 @@ void execWasm(const uint8_t *wasmCode, size_t codeSize, const std::vector<std::s
 }
 
 
+
+
 std::vector<std::string> objectArrayToVector(JNIEnv *env, jobjectArray jArray) {
     std::vector<std::string> result;
+
+    jenv = env;
 
     jsize arrayLength = env->GetArrayLength(jArray);
 

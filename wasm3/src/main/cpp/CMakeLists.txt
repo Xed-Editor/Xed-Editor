@@ -11,7 +11,7 @@ add_definitions(-DANDROID
         -fno-stack-protector)
 
 # Gather all source files
-file(GLOB M3_SRC FOLLOW_SYMLINKS "m3/*.c" "*.c")
+file(GLOB M3_SRC FOLLOW_SYMLINKS "m3/*.c" "*.c" "*.cpp")
 
 # Create shared library with all source files
 add_library(${CMAKE_PROJECT_NAME} SHARED
