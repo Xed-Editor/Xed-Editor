@@ -11,7 +11,7 @@
   <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI">
 </div>
 
-**Karbon** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization, making it a perfect tool for coding and text management on the go.
+**Karbon** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization, making it a perfect tool for text management on the go.
 
 ## Features
 - [x] **File editing** outside of projects
