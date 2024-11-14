@@ -54,11 +54,14 @@ class ProjectManager {
             }
         }
     }
-
+    
     fun addProject(activity: MainActivity, file: File) {
+        // Safety check for activity reference
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
         }
+        
+        // Early returns for invalid states
         if (projects.size >= 6) {
             return
         }
@@ -67,98 +70,152 @@ class ProjectManager {
             return
         }
         
-        
-        val rail = activity.binding!!.navigationRail
-        for (i in 0 until rail.menu.size()) {
-            val item = rail.menu.getItem(i)
-            val menuItemId = item.itemId
-            if (menuItemId != R.id.add_new && !menuItems.contains(menuItemId)) {
-                item.title = file.name
-                item.isVisible = true
-                item.isChecked = true
-                
-                if (projects.containsKey(file.absolutePath)){
-                    multiView.switchTo(projects[file.absolutePath]!!)
-                    currentProjectId = multiView.getCurrentViewId()
-                    return
-                }
-                FileTree(activity,file.absolutePath,activity.binding!!.maindrawer)
-                println(views.keys)
-                projects[file.absolutePath] = multiView.getCurrentViewId()
-                currentProjectId = multiView.getCurrentViewId()
-                
-                
-                // hide + button if 6 projects are added
-                if (activity.binding!!.navigationRail.menu.getItem(5).isVisible) {
-                    activity.binding!!.navigationRail.menu.getItem(6).isVisible = false
-                }
-                menuItems[menuItemId] = currentProjectId
-                break
+        try {
+            val rail = activity.binding?.navigationRail ?: return
+            
+            // Find available menu item safely
+            val availableMenuItem = (0 until rail.menu.size())
+                .map { rail.menu.getItem(it) }
+                .find { item ->
+                    item.itemId != R.id.add_new && !menuItems.containsKey(item.itemId)
+                } ?: return
+            
+            // Setup menu item
+            val menuItemId = availableMenuItem.itemId
+            availableMenuItem.apply {
+                title = file.name
+                isVisible = true
+                isChecked = true
             }
+            
+            // Create and store project
+            FileTree(activity, file.absolutePath, activity.binding!!.maindrawer)
+            val newViewId = multiView.getCurrentViewId()
+            
+            // Update state maps atomically
+            synchronized(this) {
+                projects[file.absolutePath] = newViewId
+                menuItems[menuItemId] = newViewId
+                currentProjectId = newViewId
+            }
+            
+            // Update UI state
+            if (rail.menu.getItem(5).isVisible) {
+                rail.menu.getItem(6).isVisible = false
+            }
+            
+            // Save state
+            activity.lifecycleScope.launch {
+                saveProjects(activity)
+            }
+            
+        } catch (e: Exception) {
+            // Log error and restore consistent state if needed
+            println("Error adding project: ${e.message}")
+            // Could add error recovery logic here if needed
         }
-        saveProjects(activity)
-        
     }
-
-    fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
-       
-        val filePath = file.absolutePath
-        val rail = activity.binding!!.navigationRail
-        for (i in 0 until rail.menu.size()) {
-            val item = rail.menu.getItem(i)
-            val menuItemId = item.itemId
-            if (projects.containsKey(filePath)) {
-                item.isChecked = false
-                item.isVisible = false
-                
-                for (i in 0 until activity.binding!!.maindrawer.childCount) {
-                    val view = activity.binding!!.maindrawer.getChildAt(i)
-                    if (view.id == currentProjectId) {
-                        activity.binding!!.maindrawer.removeView(view)
+    
+    fun changeProject(menuItemId: Int, activity: MainActivity) {
+        try {
+            // Safety check for valid menu item ID
+            val viewId = menuItems[menuItemId] ?: return
+            
+            // Safety check for valid view
+            if (!views.containsKey(viewId)) {
+                return
+            }
+            
+            // Perform view switch on main thread if needed
+            if (!activity.isFinishing) {
+                activity.runOnUiThread {
+                    try {
+                        multiView.switchTo(viewId)
+                        currentProjectId = multiView.getCurrentViewId()
+                        
+                        // Update menu item states
+                        activity.binding?.navigationRail?.let { rail ->
+                            // Uncheck all menu items
+                            for (i in 0 until rail.menu.size()) {
+                                rail.menu.getItem(i).isChecked = false
+                            }
+                            // Check the selected item
+                            rail.menu.findItem(menuItemId)?.isChecked = true
+                        }
+                    } catch (e: Exception) {
+                        println("Error switching view: ${e.message}")
                     }
                 }
-                
-                if (!rail.menu.getItem(6).isVisible) {
-                    rail.menu.getItem(6).isVisible = true
-                }
-                
-                fun selectItem(itemx: MenuItem) {
-                    changeProject(itemx.itemId,activity)
-                }
-                
-                if (i > 0) {
-                    selectItem(rail.menu.getItem(i - 1).also { it.isChecked = true })
-                } else if (i < rail.menu.size() - 1) {
-                    selectItem(rail.menu.getItem(i + 1).also { it.isChecked = true })
-                }
-                
-                if (saveState) {
-                    saveProjects(activity)
-                }
-          
-                
             }
-            activity.binding!!.maindrawer.removeView(
-                activity.binding!!.maindrawer.findViewById(file.absolutePath.hashCode())
-            )
-            
-            break
+        } catch (e: Exception) {
+            println("Error changing project: ${e.message}")
         }
-        val viewId = projects[file.absolutePath]
-        projects.remove(file.absolutePath)
-        views.remove(viewId)
-        menuItems.remove(viewId)
-        multiView.switchTo(views.keys.first())
-        currentProjectId = multiView.getCurrentViewId()
+    }
+    
+    fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
+        val filePath = file.absolutePath
+        val projectId = projects[filePath] ?: return // Early return if project doesn't exist
+        val rail = activity.binding!!.navigationRail
         
+        // First find and clear the menu item
+        val menuItemEntry = menuItems.entries.find { it.value == projectId }
+        if (menuItemEntry != null) {
+            val menuItemId = menuItemEntry.key
+            val menuItem = rail.menu.findItem(menuItemId)
+            menuItem?.apply {
+                isChecked = false
+                isVisible = false
+            }
+            
+            // Show the add button if it was hidden
+            rail.menu.getItem(6).isVisible = true
+            
+            // Remove the view associated with this project
+            activity.binding!!.maindrawer.findViewById<View>(projectId)?.let { view ->
+                activity.binding!!.maindrawer.removeView(view)
+            }
+            
+            // Select next/previous project if available
+            val menuIndex = (0 until rail.menu.size()).find { rail.menu.getItem(it).itemId == menuItemId }
+            if (menuIndex != null) {
+                when {
+                    menuIndex > 0 -> {
+                        val prevItem = rail.menu.getItem(menuIndex - 1)
+                        if (prevItem.isVisible) {
+                            prevItem.isChecked = true
+                            changeProject(prevItem.itemId, activity)
+                        }
+                    }
+                    menuIndex < rail.menu.size() - 1 -> {
+                        val nextItem = rail.menu.getItem(menuIndex + 1)
+                        if (nextItem.isVisible) {
+                            nextItem.isChecked = true
+                            changeProject(nextItem.itemId, activity)
+                        }
+                    }
+                }
+            }
+            
+            // Clean up data structures
+            projects.remove(filePath)
+            views.remove(projectId)
+            menuItems.remove(menuItemEntry.key)
+            
+            // Switch to first remaining view if available
+            if (views.isNotEmpty()) {
+                multiView.switchTo(views.keys.first())
+                currentProjectId = multiView.getCurrentViewId()
+            } else {
+                currentProjectId = -1
+            }
+            
+            // Save state if requested
+            if (saveState) {
+                saveProjects(activity)
+            }
+        }
     }
-
-
-
-fun changeProject(menuItemId:Int, activity: MainActivity) {
-        multiView.switchTo(menuItems[menuItemId]!!)
-        currentProjectId = multiView.getCurrentViewId()
-    }
+    
     
     
     fun getSelectedProjectRootFile():File?{
