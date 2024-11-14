@@ -59,4 +59,9 @@ class App : Application() {
         }
         
     }
+    
+    override fun onTerminate() {
+        getTempDir().deleteRecursively()
+        super.onTerminate()
+    }
 }

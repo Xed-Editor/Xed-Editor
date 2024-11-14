@@ -1,5 +1,9 @@
 PREFIX_PATH=/data/data/com.rk.xededitor
 
+
+# Override umask
+umask 0022
+
 export LD_LIBRARY_PATH=$PREFIX_PATH/root/lib
 export LANG=C.UTF-8
 
@@ -23,7 +27,6 @@ $PREFIX_PATH/root/bin/proot \
   --bind="/proc/self/fd/1:/dev/stdout" \
   --bind="/proc/self/fd/2:/dev/stderr" \
   --bind=$PREFIX_PATH \
-  --bind="$ROOTFS/proc/.loadavg:/proc/loadavg" \
   --bind="$ROOTFS/proc/.vmstat:/proc/vmstat" \
   --bind="$ROOTFS/proc/.stat:/proc/stat" \
   --bind="$PREFIX_PATH:/karbon" \

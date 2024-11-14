@@ -183,7 +183,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.org.eclipse.jgit)
     implementation(libs.coil.compose)
-    implementation(libs.bsh)
+    //implementation(libs.bsh)
     implementation(libs.material.motion.compose.core)
     implementation(libs.datastore.preferences)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
@@ -198,6 +198,7 @@ dependencies {
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
+    
     
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.dash)
