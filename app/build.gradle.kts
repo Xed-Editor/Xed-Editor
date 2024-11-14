@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinParcelize)
 }
 
 
@@ -188,7 +189,7 @@ dependencies {
     implementation(libs.datastore.preferences)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":feature:runner"))
-    implementation(project(":feature:filetree"))
+    implementation(project(":feature:treeview"))
     implementation(project(":feature:settings"))
     implementation(project(":core:commons"))
     implementation(project(":core:components"))
@@ -198,7 +199,7 @@ dependencies {
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
-    
+    implementation("org.greenrobot:eventbus:3.3.1")
     
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.dash)

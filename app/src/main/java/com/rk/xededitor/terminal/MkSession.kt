@@ -27,8 +27,6 @@ object MkSession {
             fun getPwd():String{
                 return if (intent.hasExtra("cwd")) {
                     intent.getStringExtra("cwd").toString()
-                } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
-                    ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
                 } else {
                     Environment.getExternalStorageDirectory().path
                 }

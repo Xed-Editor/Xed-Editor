@@ -53,6 +53,7 @@ class MainActivity : BaseActivity() {
     var menu: Menu? = null
     var adapter: TabAdapter? = null
     val tabViewModel: TabViewModel by viewModels()
+    val projectManager = ProjectManager()
     
     class TabViewModel : ViewModel() {
         val fragmentFiles = mutableListOf<File>()
@@ -77,8 +78,8 @@ class MainActivity : BaseActivity() {
         setupViewPager()
         setupTabLayout()
         setupAdapter()
-        
-        ProjectManager.restoreProjects(this)
+        projectManager.onCreate(this)
+        projectManager.restoreProjects(this)
         ProjectBar.setupNavigationRail(this)
         
         if (tabViewModel.fragmentFiles.isNotEmpty()) {
@@ -138,7 +139,7 @@ class MainActivity : BaseActivity() {
         super.onResume()
         AutoSaver.start(this)
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
-        ProjectManager.processQueue(this)
+        projectManager.processQueue(this)
     }
     
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -33,28 +33,28 @@ object ProjectBar {
             val privateFilesId = View.generateViewId()
             val cloneRepo = View.generateViewId()
             val pluginDir = View.generateViewId()
-
+            
             var dialog: AlertDialog? = null
-
+            
             val listener =
                 View.OnClickListener { v ->
                     when (v.id) {
                         openFileId -> {
                             fileManager?.requestOpenFile()
                         }
-
+                        
                         openDirId -> {
                             fileManager?.requestOpenDirectory()
                         }
-
+                        
                         openPathId -> {
                             fileManager?.requestOpenFromPath()
                         }
-
+                        
                         privateFilesId -> {
-                            ProjectManager.addProject(this, filesDir.parentFile!!)
+                            activity.projectManager.addProject(this, filesDir.parentFile!!)
                         }
-
+                        
                         cloneRepo -> {
                             val view =
                                 LayoutInflater.from(this@with).inflate(R.layout.popup_new, null)
@@ -103,14 +103,14 @@ object ProjectBar {
                                                     .call()
                                                 withContext(Dispatchers.Main) {
                                                     loadingPopup.hide()
-                                                    ProjectManager.addProject(this@with, repoDir)
+                                                    activity.projectManager.addProject(this@with, repoDir)
                                                 }
                                             } catch (e: Exception) {
                                                 val credentials =
                                                     PreferencesData.getString(
-                                                            PreferencesKeys.GIT_CRED,
-                                                            "",
-                                                        )
+                                                        PreferencesKeys.GIT_CRED,
+                                                        "",
+                                                    )
                                                         .split(":")
                                                 if (credentials.size != 2) {
                                                     withContext(Dispatchers.Main) {
@@ -132,7 +132,7 @@ object ProjectBar {
                                                             .call()
                                                         withContext(Dispatchers.Main) {
                                                             loadingPopup.hide()
-                                                            ProjectManager.addProject(
+                                                            activity.projectManager.addProject(
                                                                 this@with,
                                                                 repoDir,
                                                             )
@@ -156,7 +156,7 @@ object ProjectBar {
                     dialog?.dismiss()
                     dialog = null
                 }
-
+            
             fun handleAddNew() {
                 ActionPopup(this).apply {
                     addItem(
@@ -188,21 +188,19 @@ object ProjectBar {
                         cloneRepo,
                         listener,
                     )
-
+                    
                     setTitle(getString(R.string.add))
                     getDialogBuilder().setNegativeButton(getString(R.string.cancel), null)
                     dialog = show()
                 }
             }
-
+            
             binding!!.navigationRail.setOnItemSelectedListener { item ->
                 if (item.itemId == R.id.add_new) {
                     handleAddNew()
                     false
                 } else {
-                    ProjectManager.projects[item.itemId]?.let {
-                        ProjectManager.changeProject(File(it), this)
-                    }
+                    activity.projectManager.changeProject(item.itemId,activity)
                     true
                 }
             }

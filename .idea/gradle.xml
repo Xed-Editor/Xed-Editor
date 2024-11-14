@@ -19,9 +19,9 @@
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor/editor-lsp" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/editor/language-textmate" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature" />
-            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/filetree" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/runner" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/settings" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/treeview" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/wasm3" />
           </set>
         </option>

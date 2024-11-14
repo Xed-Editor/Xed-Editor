@@ -58,14 +58,14 @@ class FileAction(
                         getString(R.string.reload_file_tree),
                         getDrawable(R.drawable.sync),
                     ) {
-                        ProjectManager.currentProject.refresh(mainActivity)
+                    
                     }
                     addItem(
                         getString(R.string.close),
                         getString(R.string.close_current_project),
                         getDrawable(R.drawable.close),
                     ) {
-                        ProjectManager.removeProject(mainActivity, rootFolder)
+                        MainActivity.activityRef.get()?.projectManager!!.removeProject(mainActivity, rootFolder)
                     }
                 } else {
                     addItem(
@@ -95,7 +95,8 @@ class FileAction(
                                 _: DialogInterface?,
                                 _: Int ->
                                 val loading = LoadingPopup(mainActivity, null).show()
-                                ProjectManager.currentProject.updateFileDeleted(mainActivity, file)
+                                
+                                
                                 mainActivity.lifecycleScope.launch(Dispatchers.IO) {
                                     if (file.isFile) {
                                         file.delete()
@@ -182,10 +183,7 @@ class FileAction(
                                                     // TreeView(context, rootFolder)
                                                     //                                        }
                                                     // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                                    ProjectManager.currentProject.updateFileAdded(
-                                                        mainActivity,
-                                                        targetPath.toFile(),
-                                                    )
+                                                   
                                                 }
 
                                                 // Optionally, clear the clipboard after pasting
@@ -275,7 +273,7 @@ class FileAction(
                     File(file, fileName).mkdir()
                 }
 
-                ProjectManager.currentProject.updateFileAdded(mainActivity, file)
+                
 
                 loading.hide()
             }
@@ -327,11 +325,7 @@ class FileAction(
                             run("mv \"${file.parentFile}/$xf\" \"${file.parentFile}/$to\"")
                             shutdown()
                             withContext(Dispatchers.Main) {
-                                ProjectManager.currentProject.updateFileRenamed(
-                                    mainActivity,
-                                    file,
-                                    File(file.parentFile, to),
-                                )
+                            
                             }
                             // Update file when renaming
                             MainActivity.activityRef

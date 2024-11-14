@@ -30,7 +30,7 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                ProjectManager.addProject(mainActivity, file)
+                MainActivity.activityRef.get()?.projectManager!!.addProject(mainActivity, file)
             }
         }
     
@@ -90,7 +90,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 }
 
                 if (file.isDirectory) {
-                    ProjectManager.addProject(mainActivity, file)
+                    MainActivity.activityRef.get()?.projectManager!!.addProject(mainActivity, file)
                 } else {
                     mainActivity.adapter!!.addFragment(file)
                 }
