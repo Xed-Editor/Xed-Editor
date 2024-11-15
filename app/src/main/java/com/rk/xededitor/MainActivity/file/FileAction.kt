@@ -60,7 +60,7 @@ class FileAction(
                         getString(R.string.reload_file_tree),
                         getDrawable(R.drawable.sync),
                     ) {
-                        EventBus.getDefault().post(FileTreeEvents.OnRefreshFolderEvent(file))
+                        EventBus.getDefault().post(FileTreeEvents.OnRefreshFolderEvent(rootFolder))
                     }
                     addItem(
                         getString(R.string.close),
@@ -108,7 +108,7 @@ class FileAction(
                                     withContext(Dispatchers.Main) { loading.hide() }
                                 }
                                 
-                                EventBus.getDefault().post(FileTreeEvents.OnDeleteFileEvent(file,rootFolder))
+                                EventBus.getDefault().post(FileTreeEvents.OnDeleteFileEvent(file))
                             }
                             .show()
                     }
@@ -274,13 +274,18 @@ class FileAction(
                     }
                 }
 
-                val newFile = if (createFile) {
-                    File(file, fileName).apply {createNewFile()}
+                if (createFile) {
+                    File(file, fileName).apply {createNewFile();
+                        EventBus.getDefault().post(FileTreeEvents.OnCreateFileEvent(this))
+                    }
+                    
                 } else {
-                    File(file, fileName).apply {mkdir()}
+                    File(file, fileName).apply {mkdir();
+                        EventBus.getDefault().post(FileTreeEvents.OnCreateFileEvent(this))
+                    }
                 }
                 
-                EventBus.getDefault().post(FileTreeEvents.OnCreateFileEvent(newFile,rootFolder))
+                
                 
 
                 loading.hide()
@@ -326,7 +331,7 @@ class FileAction(
                 
                 val newFile = File(file.parentFile,newFileName)
                 file.renameTo(newFile)
-                EventBus.getDefault().post(FileTreeEvents.OnRenameFileEvent(file,newFile,rootFolder))
+                EventBus.getDefault().post(FileTreeEvents.OnRefreshFolderEvent(file.parentFile))
                 
                 
                 

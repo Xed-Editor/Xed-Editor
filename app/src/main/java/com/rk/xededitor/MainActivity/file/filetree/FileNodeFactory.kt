@@ -6,9 +6,10 @@ import io.github.dingyi222666.view.treeview.TreeNode
 import io.github.dingyi222666.view.treeview.TreeNodeGenerator
 import java.io.File
 
+@Suppress("OVERRIDE_BY_INLINE")
 class FileNodeFactory(
-    private val rootPath: File,
-    private val fileLoader: FileLoader
+     val rootPath: File,
+     val fileLoader: FileLoader
 ): TreeNodeGenerator<File> {
     
     override suspend fun fetchChildData(targetNode: TreeNode<File>): Set<File> {
@@ -20,7 +21,8 @@ class FileNodeFactory(
         return files.toSet()
     }
     
-    override fun createNode(parentNode: TreeNode<File>, currentData: File, tree: AbstractTree<File>): TreeNode<File> {
+   
+    override inline fun createNode(parentNode: TreeNode<File>, currentData: File, tree: AbstractTree<File>): TreeNode<File> {
         return TreeNode(
             data = currentData,
             depth = parentNode.depth + 1,
@@ -33,7 +35,7 @@ class FileNodeFactory(
         )
     }
     
-    override fun createRootNode(): TreeNode<File> {
+    override inline fun createRootNode(): TreeNode<File> {
         return TreeNode(
             data = rootPath,
             depth = 0,

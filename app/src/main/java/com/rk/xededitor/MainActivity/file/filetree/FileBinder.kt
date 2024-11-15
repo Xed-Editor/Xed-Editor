@@ -130,7 +130,7 @@ class FileBinder(
     @Subscribe(threadMode = ThreadMode.ASYNC)
     fun onDeleteFileEvent(event: FileTreeEvents.OnDeleteFileEvent) {
         CoroutineScope(Dispatchers.Main).launch {
-            fileLoader.removeLoadedFile(event.openedFolder)
+            fileLoader.removeLoadedFile(event.file)
             binding.treeview.refresh()
         }
     }
@@ -138,14 +138,7 @@ class FileBinder(
     @Subscribe(threadMode = ThreadMode.ASYNC)
     fun onCreateFileEvent(event: FileTreeEvents.OnCreateFileEvent) {
         CoroutineScope(Dispatchers.Main).launch {
-            fileLoader.removeLoadedFile(event.openedFolder)
-            binding.treeview.refresh()
-        }
-    }
-    @Subscribe(threadMode = ThreadMode.ASYNC)
-    fun onCreateFolderEvent(event: FileTreeEvents.OnCreateFolderEvent) {
-        CoroutineScope(Dispatchers.Main).launch {
-            fileLoader.removeLoadedFile(event.openedFolder)
+            fileLoader.createLoadedFile(event.file)
             binding.treeview.refresh()
         }
     }
@@ -153,7 +146,7 @@ class FileBinder(
     @Subscribe(threadMode = ThreadMode.ASYNC)
     fun onRenameFileEvent(event: FileTreeEvents.OnRenameFileEvent){
         CoroutineScope(Dispatchers.Main).launch {
-            fileLoader.removeLoadedFile(event.openedFolder)
+            fileLoader.renameLoadedFile(event.oldFile,event.newFile)
             binding.treeview.refresh()
         }
     }

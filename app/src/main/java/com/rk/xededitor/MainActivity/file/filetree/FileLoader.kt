@@ -3,7 +3,6 @@ package com.rk.xededitor.MainActivity.file.filetree
 import android.os.Parcelable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
 import java.io.File
@@ -35,9 +34,19 @@ class FileLoader(private val loadedFiles: MutableMap<String, MutableList<File>> 
         if (currentFile.isDirectory) {
             loadedFiles.remove(currentFile.absolutePath)
         }
-        val parent = currentFile.parentFile
-        val parentPath = parent?.absolutePath
-        val parentFiles = loadedFiles[parentPath]
+        val parentFiles = loadedFiles[currentFile.parentFile?.absolutePath]
         return parentFiles?.remove(currentFile) ?: false
+    }
+    
+    fun createLoadedFile(file: File){
+        if (file.parentFile!!.isDirectory.not()){
+            throw RuntimeException("tried to create a file in a file")
+        }
+        loadedFiles[file.parentFile!!.absolutePath]!!.add(file)
+    }
+    
+    fun renameLoadedFile(oldFile:File,newFile:File){
+        removeLoadedFile(oldFile)
+        createLoadedFile(newFile)
     }
 }
