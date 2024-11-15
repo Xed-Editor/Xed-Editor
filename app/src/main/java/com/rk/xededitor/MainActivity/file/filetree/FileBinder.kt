@@ -69,7 +69,7 @@ class FileBinder(
     private fun applyFile(holder: TreeView.ViewHolder, node: TreeNode<File>) {
         val binding = FiletreeFileBinding.bind(holder.itemView)
         val icon = AppCompatResources.getDrawable(
-            binding.root.context, R.drawable.outline_insert_drive_file_24
+            binding.root.context, getIcon(node.requireData())
         )!!
         icon.setBounds(0, 0, rkUtils.dpToPx(16f, context), rkUtils.dpToPx(16f, context))
         binding.tvName.apply {
