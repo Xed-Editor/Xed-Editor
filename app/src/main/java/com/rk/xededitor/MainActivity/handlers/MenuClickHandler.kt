@@ -262,7 +262,7 @@ object MenuClickHandler {
                                                     userdata[1],
                                                 )
                                                 config.save()
-                                                git.add().addFilepattern(".").call()
+                                                git.add().addFilepattern(".").setUpdate(true).call()
                                                 git.commit().setMessage(commit).call()
                                                 git.push().setCredentialsProvider(
                                                     UsernamePasswordCredentialsProvider(
