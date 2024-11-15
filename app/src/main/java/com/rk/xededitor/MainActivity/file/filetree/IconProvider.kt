@@ -6,10 +6,9 @@ import java.io.File
 private typealias icon = R.drawable
 
 inline fun getIcon(fileForIcon: File): Int {
-    return if (fileForIcon.isFile) {
-        when (fileForIcon.name.substringAfterLast('.', "")
+    return when (fileForIcon.name.substringAfterLast('.', "")
         ) {
-            "java", "bsh" -> icon.ic_language_java
+            "java", "bsh" -> icon.java
             
             "html" -> icon.ic_language_html
             "kt", "kts" -> icon.ic_language_kotlin
@@ -41,10 +40,8 @@ inline fun getIcon(fileForIcon: File): Int {
             
             "rs" -> icon.rust
             "jsx" -> icon.react
+            "lua" -> icon.languagelua
+            
             else -> com.rk.xededitor.R.drawable.outline_insert_drive_file_24
         }
-    } else {
-        com.rk.xededitor.R.drawable.outline_folder_24
-    }
-    
 }

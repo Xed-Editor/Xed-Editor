@@ -84,7 +84,7 @@ class FileBinder(
     private fun applyDir(holder: TreeView.ViewHolder, node: TreeNode<File>) {
         val binding = FiletreeDirBinding.bind(holder.itemView)
         val icon = AppCompatResources.getDrawable(
-            binding.root.context, R.drawable.outline_folder_24
+            binding.root.context, com.rk.libcommons.R.drawable.folder
         )!!
         icon.setBounds(0, 0, rkUtils.dpToPx(16f, context), rkUtils.dpToPx(16f, context))
         binding.tvName.text = node.name.toString()
