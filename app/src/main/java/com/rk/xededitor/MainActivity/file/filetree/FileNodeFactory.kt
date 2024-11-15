@@ -10,6 +10,7 @@ class FileNodeFactory(
     private val rootPath: File,
     private val fileLoader: FileLoader
 ): TreeNodeGenerator<File> {
+    
     override suspend fun fetchChildData(targetNode: TreeNode<File>): Set<File> {
         val path = targetNode.requireData().absolutePath
         var files = fileLoader.getLoadedFiles(path)
