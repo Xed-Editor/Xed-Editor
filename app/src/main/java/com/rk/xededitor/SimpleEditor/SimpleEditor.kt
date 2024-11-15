@@ -230,9 +230,9 @@ class SimpleEditor : BaseActivity() {
                 } else {
                     s = rkUtils.getString(R.string.is_null)
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 e.printStackTrace()
-                s = "${rkUtils.getString(R.string.u_err)} \n$e"
+                s = e.message.toString()
             }
 
             withContext(Dispatchers.Main) { toast(s) }
