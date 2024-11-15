@@ -258,9 +258,13 @@ class EditorFragment(val context: Context) : CoreFragment {
         
         
         return SymbolInputView(context).apply {
-            addSymbols(arrayOf("->"), arrayOf("\t"))
             
             val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
+                
+                add(Pair("->", onClick {
+                    hapticFeedBack(it)
+                    editor?.onKeyDown(KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB))
+                }))
                 
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)
