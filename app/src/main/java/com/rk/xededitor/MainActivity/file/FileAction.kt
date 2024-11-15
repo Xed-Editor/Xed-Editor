@@ -19,6 +19,7 @@ import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.file.filetree.events.FileTreeEvents
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.R
@@ -31,6 +32,7 @@ import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.greenrobot.eventbus.EventBus
 
 const val REQUEST_ADD_FILE = 38758
 const val REQUEST_CODE_OPEN_DIRECTORY = 8359487
@@ -58,7 +60,7 @@ class FileAction(
                         getString(R.string.reload_file_tree),
                         getDrawable(R.drawable.sync),
                     ) {
-                    
+                        EventBus.getDefault().post(FileTreeEvents.OnRefreshFolderEvent(file))
                     }
                     addItem(
                         getString(R.string.close),
@@ -105,6 +107,8 @@ class FileAction(
                                     }
                                     withContext(Dispatchers.Main) { loading.hide() }
                                 }
+                                
+                                EventBus.getDefault().post(FileTreeEvents.OnDeleteFileEvent(file,rootFolder))
                             }
                             .show()
                     }
@@ -145,66 +149,69 @@ class FileAction(
                     ) {
                         new(createFile = false)
                     }
-                    addItem(
-                        getString(R.string.paste),
-                        getString(R.string.paste_desc),
-                        fileDrawable,
-                    ) {
-                        if (FileClipboard.isEmpty()) {
-                            rkUtils.toast(getString(R.string.clipboardempty))
-                        } else {
-                            LoadingPopup(mainActivity, 350)
-                            mainActivity.let {
-                                it.lifecycleScope.launch(Dispatchers.Default) {
-                                    if (!FileClipboard.isEmpty()) {
-                                        val sourceFile = FileClipboard.getFile()
-                                        if (file.isDirectory && sourceFile != null) {
-                                            try {
-                                                val targetPath =
-                                                    file.toPath().resolve(sourceFile.name)
-
-                                                // Move the source file to the target directory
-                                                withContext(Dispatchers.IO) {
-                                                    Shell.SH.apply {
-                                                        run(
-                                                            "cp -r ${sourceFile.absolutePath} $targetPath"
-                                                        )
-                                                        shutdown()
-                                                    }
-                                                }
-
-                                                // Update the TreeView to reflect the changes
-                                                withContext(Dispatchers.Main) {
-                                                    //
-                                                    // adapter?.newFile(file)
-                                                    //                                        if
-                                                    // (file == rootFolder) {
-                                                    //
-                                                    // TreeView(context, rootFolder)
-                                                    //                                        }
-                                                    // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                                   
-                                                }
-
-                                                // Optionally, clear the clipboard after pasting
-                                                FileClipboard.clear()
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(
-                                                            context,
-                                                            "${getString(R.string.failed_move)}: ${e.message}",
-                                                            Toast.LENGTH_SHORT,
-                                                        )
-                                                        .show()
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    
+                    
+                    
+//                    addItem(
+//                        getString(R.string.paste),
+//                        getString(R.string.paste_desc),
+//                        fileDrawable,
+//                    ) {
+//                        if (FileClipboard.isEmpty()) {
+//                            rkUtils.toast(getString(R.string.clipboardempty))
+//                        } else {
+//                            LoadingPopup(mainActivity, 350)
+//                            mainActivity.let {
+//                                it.lifecycleScope.launch(Dispatchers.Default) {
+//                                    if (!FileClipboard.isEmpty()) {
+//                                        val sourceFile = FileClipboard.getFile()
+//                                        if (file.isDirectory && sourceFile != null) {
+//                                            try {
+//                                                val targetPath =
+//                                                    file.toPath().resolve(sourceFile.name)
+//
+//                                                // Move the source file to the target directory
+//                                                withContext(Dispatchers.IO) {
+//                                                    Shell.SH.apply {
+//                                                        run(
+//                                                            "cp -r ${sourceFile.absolutePath} $targetPath"
+//                                                        )
+//                                                        shutdown()
+//                                                    }
+//                                                }
+//
+//                                                // Update the TreeView to reflect the changes
+//                                                withContext(Dispatchers.Main) {
+//                                                    //
+//                                                    // adapter?.newFile(file)
+//                                                    //                                        if
+//                                                    // (file == rootFolder) {
+//                                                    //
+//                                                    // TreeView(context, rootFolder)
+//                                                    //                                        }
+//                                                    // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
+//
+//                                                }
+//
+//                                                // Optionally, clear the clipboard after pasting
+//                                                FileClipboard.clear()
+//                                            } catch (e: Exception) {
+//                                                e.printStackTrace()
+//                                                withContext(Dispatchers.Main) {
+//                                                    Toast.makeText(
+//                                                            context,
+//                                                            "${getString(R.string.failed_move)}: ${e.message}",
+//                                                            Toast.LENGTH_SHORT,
+//                                                        )
+//                                                        .show()
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
                 }
 
                 if (file.isFile) {
@@ -224,9 +231,9 @@ class FileAction(
                     }
                 }
 
-                addItem(getString(R.string.copy), getString(R.string.copy_desc), fileDrawable) {
-                    FileClipboard.setFile(file)
-                }
+//                addItem(getString(R.string.copy), getString(R.string.copy_desc), fileDrawable) {
+//                    FileClipboard.setFile(file)
+//                }
             }
             .show()
     }
@@ -267,12 +274,13 @@ class FileAction(
                     }
                 }
 
-                if (createFile) {
-                    File(file, fileName).createNewFile()
+                val newFile = if (createFile) {
+                    File(file, fileName).apply {createNewFile()}
                 } else {
-                    File(file, fileName).mkdir()
+                    File(file, fileName).apply {mkdir()}
                 }
-
+                
+                EventBus.getDefault().post(FileTreeEvents.OnCreateFileEvent(newFile,rootFolder))
                 
 
                 loading.hide()
@@ -315,41 +323,14 @@ class FileAction(
                     return@setPositiveButton
                 }
                 
-                fun rename(file: File, to: String) {
-                    mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                        val random = Random(28958510971)
-                        val xf = (random.nextInt() + random.nextInt()).toString()
-                        Shell.SH.apply {
-                            // Quote the file paths to handle spaces properly
-                            run("mv \"${file.canonicalPath}\" \"${file.parentFile}/$xf\"")
-                            run("mv \"${file.parentFile}/$xf\" \"${file.parentFile}/$to\"")
-                            shutdown()
-                            withContext(Dispatchers.Main) {
-                            
-                            }
-                            // Update file when renaming
-                            MainActivity.activityRef
-                                .get()
-                                ?.adapter
-                                ?.tabFragments
-                                ?.values
-                                ?.forEach { f ->
-                                    if (f.get()?.type == FragmentType.EDITOR){
-                                        val editorFragment = f.get()!!.fragment as EditorFragment
-                                        if (editorFragment.file?.absolutePath == file.absolutePath) {
-                                            editorFragment.file = File(to)
-                                            // TODO: Update tab text too
-                                        }
-                                    }
-                                    
-                                }
-                        }
-                    }
-                }
+                
+                val newFile = File(file.parentFile,newFileName)
+                file.renameTo(newFile)
+                EventBus.getDefault().post(FileTreeEvents.OnRenameFileEvent(file,newFile,rootFolder))
                 
                 
-                rename(file, newFileName)
-
+                
+                
                 loading.hide()
             }
             .show()

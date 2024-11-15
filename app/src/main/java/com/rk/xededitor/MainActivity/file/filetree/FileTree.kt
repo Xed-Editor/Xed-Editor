@@ -1,13 +1,15 @@
 package com.rk.xededitor.MainActivity.file.filetree
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
@@ -19,81 +21,27 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 
-class FileTree(val context: Context, val path: String, val parent: ViewGroup) {
+class FileTree(val context: MainActivity, val path: String, val parent: ViewGroup) {
     val binding: FiletreeLayoutBinding
-    private val fileListLoader = FileLoader()
-    private var Ftree: Tree<File> = createTree(fileListLoader, path)
     
-    init {
-        // Inflate the layout
-        val inflater = LayoutInflater.from(context)
-        binding = FiletreeLayoutBinding.inflate(inflater, parent, true)
-        
-        // Initialize the file tree and set up TreeView
-        setupTreeView()
+    private val viewModel: FileTreeViewModel by lazy {
+        ViewModelProvider(context)[FileTreeViewModel::class.java]
     }
     
-   
-    
-    private fun setupTreeView() {
-        // Create and initialize the tree
-        // Configure TreeView
-        (binding.treeview as TreeView<File>).apply {
-            binding.treeview.binder = FileBinder(
-                binding = binding, fileLoader = fileListLoader, onFileLongClick = { file ->
-                    
-                    
-                    
-                    activityRef.get()?.apply {
-                        projectManager.getSelectedProjectRootFile()?.let {
-                            FileAction(this, it, file)
-                        }
-                    }
-                
-                
-                }, onFileClick = { file ->
-                    
-                    activityRef.get()?.let {
-                        if (it.isPaused) {
-                            return@let
-                        }
-                        
-                        it.adapter!!.addFragment(file)
-                        if (
-                            !PreferencesData.getBoolean(
-                                PreferencesKeys.KEEP_DRAWER_LOCKED,
-                                false,
-                            )
-                        ) {
-                            it.binding!!.drawerLayout.close()
-                        }
-                        
-                        DefaultScope.launch(Dispatchers.Main) {
-                            delay(2000)
-                            MenuItemHandler.update(it)
-                        }
-                    }
-                
-                    
-                    
-                }, context = context
-            )
-            binding.treeview.tree = Ftree
-            setItemViewCacheSize(100)
-            supportHorizontalScroll = true
-            bindCoroutineScope(findViewTreeLifecycleOwner()?.lifecycleScope ?: return)
-            
-            nodeEventListener = binder as FileBinder
-            selectionMode = TreeView.SelectionMode.MULTIPLE_WITH_CHILDREN
+    class FileTreeViewModel() : ViewModel() {
+        val fileListLoader: FileLoader = FileLoader()
+        private val treeMap = HashMap<String,Tree<File>>()
+        
+        fun getTree(path: String):Tree<File>?{
+            return treeMap[path]
         }
         
-        // Load file list and refresh TreeView
-        DefaultScope.launch {
-            fileListLoader.loadFiles(path)
-            binding.treeview.refresh()
+        fun setTree(path: String,tree:Tree<File>){
+            treeMap[path] = tree
         }
         
     }
+    
     
     private fun createTree(
         fileListLoader: FileLoader, rootPath: String
@@ -107,4 +55,73 @@ class FileTree(val context: Context, val path: String, val parent: ViewGroup) {
         }
         return tree
     }
+    
+    init {
+        // Inflate the layout
+        val inflater = LayoutInflater.from(context)
+        binding = FiletreeLayoutBinding.inflate(inflater, parent, true)
+        
+        if (viewModel.getTree(path) == null) {
+            viewModel.setTree(path,createTree(viewModel.fileListLoader, path))
+        }
+        
+        // Initialize the file tree and set up TreeView
+        setupTreeView()
+        
+        
+    }
+    
+    
+    private fun setupTreeView() {
+        // Create and initialize the tree
+        // Configure TreeView
+        
+        (binding.treeview as TreeView<File>).apply {
+            binding.treeview.binder = FileBinder(binding = binding, fileLoader = viewModel.fileListLoader, onFileLongClick = { file ->
+                activityRef.get()?.apply {
+                    projectManager.getSelectedProjectRootFile()?.let {
+                        FileAction(this, it, file)
+                    }
+                }
+            }, onFileClick = { file ->
+                activityRef.get()?.let {
+                    if (it.isPaused) {
+                        return@let
+                    }
+                    
+                    it.adapter!!.addFragment(file)
+                    if (!PreferencesData.getBoolean(
+                            PreferencesKeys.KEEP_DRAWER_LOCKED,
+                            false,
+                        )
+                    ) {
+                        it.binding!!.drawerLayout.close()
+                    }
+                    
+                    DefaultScope.launch(Dispatchers.Main) {
+                        delay(2000)
+                        MenuItemHandler.update(it)
+                    }
+                }
+            }, context = context
+            )
+            
+            binding.treeview.tree = viewModel.getTree(path)!!
+            setItemViewCacheSize(100)
+            supportHorizontalScroll = true
+            bindCoroutineScope(findViewTreeLifecycleOwner()?.lifecycleScope ?: return)
+            
+            nodeEventListener = binder as FileBinder
+            selectionMode = TreeView.SelectionMode.MULTIPLE_WITH_CHILDREN
+        }
+        
+        // Load file list and refresh TreeView
+        DefaultScope.launch {
+            viewModel.fileListLoader.loadFiles(path)
+            binding.treeview.refresh()
+        }
+        
+    }
+    
+    
 }

@@ -20,6 +20,7 @@ import java.lang.ref.WeakReference
 import java.util.LinkedList
 import java.util.Queue
 import android.view.MenuItem
+import com.rk.xededitor.rkUtils
 
 
 //welcome to hell
@@ -67,6 +68,11 @@ class ProjectManager {
         }
         if (activity.isPaused) {
             queue.add(file)
+            return
+        }
+        
+        if (projects.containsKey(file.absolutePath)){
+            rkUtils.toast("Project already opened")
             return
         }
         
@@ -182,14 +188,12 @@ class ProjectManager {
                     menuIndex > 0 -> {
                         val prevItem = rail.menu.getItem(menuIndex - 1)
                         if (prevItem.isVisible) {
-                            prevItem.isChecked = true
                             changeProject(prevItem.itemId, activity)
                         }
                     }
                     menuIndex < rail.menu.size() - 1 -> {
                         val nextItem = rail.menu.getItem(menuIndex + 1)
                         if (nextItem.isVisible) {
-                            nextItem.isChecked = true
                             changeProject(nextItem.itemId, activity)
                         }
                     }

@@ -150,6 +150,14 @@ class FileBinder(
         }
     }
     
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onRenameFileEvent(event: FileTreeEvents.OnRenameFileEvent){
+        CoroutineScope(Dispatchers.Main).launch {
+            fileLoader.removeLoadedFile(event.openedFolder)
+            binding.treeview.refresh()
+        }
+    }
+    
     
     
 }
