@@ -48,6 +48,10 @@ class TabAdapter(private val mainActivity: MainActivity) :
             return null
         }
 
+        if (currentTab.get()?.position == -1){
+            return null
+        }
+        
         currentTab.get()?.let { tab ->
             tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[tab.position])]?.get()?.let {
                 return it
