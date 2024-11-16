@@ -54,12 +54,6 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
-        android:id="@+id/batchrep"
-        android:icon="@drawable/find_replace"
-        android:title="@string/batch_replacement"
-        android:visible="false"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/search"
         android:icon="@drawable/search"
         android:title="@string/search"
@@ -112,7 +106,6 @@
         android:icon="@drawable/baseline_font_download_24"
         android:title="@string/toggle_suggestion"
         android:visible="false"
-        android:checkable="true"
         app:showAsAction="never" />
 
 

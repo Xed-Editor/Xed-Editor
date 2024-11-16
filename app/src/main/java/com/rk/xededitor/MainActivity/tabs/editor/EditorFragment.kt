@@ -35,7 +35,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     var file: File? = null
     var editor: KarbonEditor? = null
     val scope = CustomScope()
-    var setupEditor: SetupEditor? = null
     var constraintLayout: ConstraintLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout:LinearLayout
@@ -84,8 +83,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             )
         }
         
-        setupEditor = SetupEditor(editor!!, context)
-        scope.launch { setupEditor?.ensureTextmateTheme(context) }
+        
         
         
         // Define the new LinearLayout
@@ -120,8 +118,8 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun loadFile(xfile: File) {
         file = xfile
         scope.launch(Dispatchers.Default) {
-            setupEditor?.setupLanguage(file!!.name)
-            editor!!.loadFile(xfile)
+            launch { editor!!.loadFile(xfile) }
+            launch { editor!!.setupEditor.setupLanguage(file!!.name) }
             withContext(Dispatchers.Main) {
                 setChangeListener()
                 file?.let {
@@ -174,7 +172,9 @@ class EditorFragment(val context: Context) : CoreFragment {
     
     override fun onDestroy() {
         scope.cancel()
+        editor?.scope?.cancel()
         editor?.release()
+        
     }
     
     override fun onClosed() {

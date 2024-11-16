@@ -22,6 +22,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.PathUtils
 import com.rk.xededitor.MainActivity.file.PathUtils.toPath
+import com.rk.xededitor.MainActivity.tabs.editor.KarbonEditor
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
@@ -45,7 +46,7 @@ class SimpleEditor : BaseActivity() {
     private var uri: Uri? = null
     var menu: Menu? = null
     var SearchText = ""
-    var editor: CodeEditor? = null
+    var editor: KarbonEditor? = null
     
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
@@ -63,28 +64,7 @@ class SimpleEditor : BaseActivity() {
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        lifecycleScope.launch {
-            SetupEditor.init(this@SimpleEditor)
-            SetupEditor(editor!!, this@SimpleEditor).ensureTextmateTheme(this@SimpleEditor)
-        }
         
-        
-
-        File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
-            editor!!.typefaceText =
-                if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
-                    Typeface.createFromFile(it)
-                } else {
-                    Typeface.createFromAsset(assets, "JetBrainsMono-Regular.ttf")
-                }
-        }
-
-        editor!!.setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
-        val wordwrap = getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
-        editor!!.isWordwrap = wordwrap
-        editor!!.getComponent(EditorAutoCompletion::class.java).isEnabled = true
-        showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             if (redo != null) {
                 redo!!.setEnabled(editor!!.canRedo())
@@ -96,22 +76,9 @@ class SimpleEditor : BaseActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here
         val id = item.itemId
         HandleMenuItemClick.handle(this, id)
         return super.onOptionsItemSelected(item)
-    }
-
-    fun showSuggestions(yes: Boolean) {
-        if (yes) {
-            editor?.inputType = InputType.TYPE_TEXT_VARIATION_NORMAL
-        } else {
-            editor?.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-        }
-    }
-
-    fun isShowSuggestion(): Boolean {
-        return editor?.inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
 
     @SuppressLint("RestrictedApi")
@@ -142,7 +109,6 @@ class SimpleEditor : BaseActivity() {
                 menu.findItem(R.id.action_save).isVisible = true
                 menu.findItem(R.id.action_print).isVisible = true
                 menu.findItem(R.id.share).isVisible = true
-                menu.findItem(R.id.batchrep).isVisible = true
                 menu.findItem(R.id.search).isVisible = true
                 menu.findItem(R.id.share).isVisible = true
                 menu.findItem(R.id.suggestions).isVisible = true
@@ -197,7 +163,9 @@ class SimpleEditor : BaseActivity() {
                     e.printStackTrace()
                 }
                 
-                lifecycleScope.launch { SetupEditor(editor!!, this@SimpleEditor).setupLanguage(displayName!!) }
+                lifecycleScope.launch { editor?.setupEditor?.setupLanguage(displayName!!)
+                
+                }
                 
 
                 if (displayName!!.length > 13) {
@@ -237,9 +205,5 @@ class SimpleEditor : BaseActivity() {
 
             withContext(Dispatchers.Main) { toast(s) }
         }
-    }
-
-    companion object {
-        var editor: CodeEditor? = null
     }
 }

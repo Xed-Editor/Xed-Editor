@@ -2,8 +2,6 @@ package com.rk.xededitor.SimpleEditor
 
 import android.content.Intent
 import android.view.KeyEvent
-import com.rk.libcommons.Printer
-import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.CodeEditor
 
@@ -35,10 +33,6 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_F -> {
                     HandleMenuItemClick.handle(activity,R.id.search)
-                }
-                
-                KeyEvent.KEYCODE_H -> {
-                    activity.startActivity(Intent(activity, BatchReplacement::class.java))
                 }
                 
                 KeyEvent.KEYCODE_P -> {
