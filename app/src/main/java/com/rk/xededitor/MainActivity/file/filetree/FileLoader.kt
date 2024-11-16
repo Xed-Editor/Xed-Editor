@@ -27,7 +27,7 @@ suspend fun loadFiles(path: String, layer: Int = 0): List<File> = withContext(Di
                 .forEach { directory ->
                     // Launch preloading for the next layer incrementally
                     launch {
-                        loadFilesIncrementally(directory.absolutePath, layer + 1)
+                        loadFiles(directory.absolutePath, layer + 1)
                     }
                 }
         }
