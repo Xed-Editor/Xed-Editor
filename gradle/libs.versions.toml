@@ -42,7 +42,7 @@ lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
 composeBom = "2024.11.00"
 coilCompose = "2.7.0"
-navigationCompose = "2.8.3"
+navigationCompose = "2.8.4"
 lifecycleViewmodelAndroid = "2.8.7"
 wordWrap = "0.1.13"
 
