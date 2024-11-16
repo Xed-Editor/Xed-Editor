@@ -41,10 +41,9 @@ class KarbonEditor : CodeEditor {
         setPinLineNumber(getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
         isLineNumberEnabled = getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
         isCursorAnimationEnabled = getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
-        isWordwrap = getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
         setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
         getComponent(EditorAutoCompletion::class.java).isEnabled = true
-        
+        setWordwrap(getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false),getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true))
         loadTypeFace(context)
         showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false))
     }

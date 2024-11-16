@@ -51,13 +51,13 @@ import io.github.rosemoe.sora.widget.CodeEditor;
  *
  * @author Rose
  */
-public class WordwrapLayout extends AbstractLayout {
+public class SpaceWordWrapLayout extends AbstractLayout {
 
     private final int width;
     private final boolean antiWordBreaking;
     private List<RowRegion> rowTable;
 
-    public WordwrapLayout(CodeEditor editor, Content text, boolean antiWordBreaking, List<RowRegion> extended, boolean clearCache) {
+    public SpaceWordWrapLayout(CodeEditor editor, Content text, boolean antiWordBreaking, List<RowRegion> extended, boolean clearCache) {
         super(editor, text);
         this.antiWordBreaking = antiWordBreaking;
         rowTable = extended != null ? extended : new ArrayList<>();
@@ -84,7 +84,7 @@ public class WordwrapLayout extends AbstractLayout {
                 }
                 Collections.sort(r2);
                 editor.postInLifecycle(() -> {
-                    if (WordwrapLayout.this.editor != editor) {
+                    if (SpaceWordWrapLayout.this.editor != editor) {
                         // This layout could have been abandoned when waiting for Runnable execution
                         // See #307
                         return;
@@ -181,23 +181,25 @@ public class WordwrapLayout extends AbstractLayout {
         var text = sequence.getBackingCharArray();
 
         while (start < len) {
-            var next = CharPosDesc.getTextOffset(editor.getRenderer().findFirstVisibleCharForWordwrap(width, line, start, len, 0, paint == null ? editor.getTextPaint() : paint));
-            // Force to break the text, though no space is available
+            // Find the maximum offset that fits within the specified width
+            int next = CharPosDesc.getTextOffset(editor.getRenderer().findFirstVisibleCharForWordwrap(width, line, start, len, 0, paint == null ? editor.getTextPaint() : paint));
+
+            // Look backward from `next` to find a space, allowing breaks only at spaces
+            while (next > start && text[next - 1] != ' ') {
+                next--;
+            }
+
+            // If no space is found, force a break at the width if anti-word breaking is not enforced
             if (next == start) {
-                next++;
+                next = CharPosDesc.getTextOffset(editor.getRenderer().findFirstVisibleCharForWordwrap(width, line, start, len, 0, paint == null ? editor.getTextPaint() : paint));
             }
-            if (antiWordBreaking && MyCharacter.isAlpha(text[next - 1]) && next < len && (MyCharacter.isAlpha(text[next]) || text[next] == '-')) {
-                int wordStart = next - 1;
-                while (wordStart > start && MyCharacter.isAlpha(text[wordStart - 1])) {
-                    wordStart--;
-                }
-                if (wordStart > start) {
-                    next = wordStart;
-                }
-            }
+
+            // Add break point
             breakpoints.add(next);
             start = next;
         }
+
+        // Remove last break point if it reaches the end of the line
         if (!breakpoints.isEmpty() && breakpoints.get(breakpoints.size() - 1) == sequence.length()) {
             breakpoints.remove(breakpoints.size() - 1);
         }

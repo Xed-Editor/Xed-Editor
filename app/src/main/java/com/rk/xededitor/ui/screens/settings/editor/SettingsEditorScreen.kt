@@ -53,6 +53,20 @@ fun SettingsEditorScreen() {
             }
         )
         
+        SettingsToggle(
+            label = "Anti word breaking",
+            description = "don't break words in word wrap",
+            iconRes = R.drawable.reorder,
+            key = PreferencesKeys.ANTI_WORD_BREAKING,
+            default = true,
+            sideEffect = {
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                    if (f.value.get()?.fragment is EditorFragment) {
+                        (f.value.get()?.fragment as EditorFragment).editor?.setWordwrap(PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_ENABLED,false),it)
+                    }
+                }
+            }
+        )
         
         SettingsToggle(
             label = stringResource(R.string.txt_ww),

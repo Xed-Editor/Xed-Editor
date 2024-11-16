@@ -99,7 +99,6 @@ import io.github.rosemoe.sora.event.SelectionChangeEvent;
 import io.github.rosemoe.sora.event.SubscriptionReceipt;
 import io.github.rosemoe.sora.event.TextSizeChangeEvent;
 import io.github.rosemoe.sora.graphics.Paint;
-import io.github.rosemoe.sora.interfaces.KeyEventHandler;
 import io.github.rosemoe.sora.lang.EmptyLanguage;
 import io.github.rosemoe.sora.lang.Language;
 import io.github.rosemoe.sora.lang.analysis.StyleUpdateRange;
@@ -140,6 +139,7 @@ import io.github.rosemoe.sora.widget.component.EditorTextActionWindow;
 import io.github.rosemoe.sora.widget.component.Magnifier;
 import io.github.rosemoe.sora.widget.layout.Layout;
 import io.github.rosemoe.sora.widget.layout.LineBreakLayout;
+import io.github.rosemoe.sora.widget.layout.SpaceWordWrapLayout;
 import io.github.rosemoe.sora.widget.layout.ViewMeasureHelper;
 import io.github.rosemoe.sora.widget.layout.WordwrapLayout;
 import io.github.rosemoe.sora.widget.rendering.RenderContext;
@@ -449,10 +449,9 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         lastMakeVisible = System.currentTimeMillis();
     }
 
-    public void setKeyEventHandler(io.github.rosemoe.sora.interfaces.KeyEventHandler UserkeyEventHandler){
+    public void setKeyEventHandler(io.github.rosemoe.sora.interfaces.KeyEventHandler UserkeyEventHandler) {
         this.keyEventHandler.setUserKeyEventHandler(UserkeyEventHandler);
     }
-
 
 
     /**
@@ -460,31 +459,14 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
      *
      * @return The width
      */
-    /*public float measureTextRegionOffset() {
+    public float measureTextRegionOffset() {
         return isLineNumberEnabled() ?
                 measureLineNumber() + dividerMarginLeft + dividerMarginRight + dividerWidth +
                         (renderer.hasSideHintIcons() ? getRowHeight() : 0) :
                 dpUnit * 5;
-    }*/
-
-    public float measureTextRegionOffset() {
-        float baseOffset = dpUnit * 5;
-        if (isLineNumberEnabled()) {
-            baseOffset = measureLineNumber() + dividerMarginLeft + dividerMarginRight + dividerWidth;
-            if (renderer.hasSideHintIcons()) {
-                baseOffset += getRowHeight();
-            }
-        }
-
-        // Apply a multiplier for larger screens, e.g., tablets
-        float screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels - 50;
-        float screenDensity = Resources.getSystem().getDisplayMetrics().density;
-
-
-        return baseOffset;
     }
 
-    
+
     /**
      * Get the rect of left selection handle painted on view
      *
@@ -1032,6 +1014,9 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
     public boolean isWordwrap() {
         return wordwrap;
     }
+    public boolean isSpaceWordwrap() {
+        return SpaceWordWrap;
+    }
 
     /**
      * This only makes sense when wordwrap is enabled.
@@ -1063,6 +1048,21 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
     public void setWordwrap(boolean wordwrap, boolean antiWordBreaking) {
         if (this.wordwrap != wordwrap || this.antiWordBreaking != antiWordBreaking) {
             this.wordwrap = wordwrap;
+            this.antiWordBreaking = antiWordBreaking;
+            requestLayoutIfNeeded();
+            createLayout();
+            if (!wordwrap) {
+                renderContext.invalidateRenderNodes();
+            }
+            invalidate();
+        }
+    }
+
+    private boolean SpaceWordWrap = false;
+
+    public void setSpaceWordwrap(boolean wordwrap, boolean antiWordBreaking) {
+        if (this.SpaceWordWrap != wordwrap || this.antiWordBreaking != antiWordBreaking) {
+            this.SpaceWordWrap = wordwrap;
             this.antiWordBreaking = antiWordBreaking;
             requestLayoutIfNeeded();
             createLayout();
@@ -1620,7 +1620,11 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
         }
         if (wordwrap) {
             renderer.setCachedLineNumberWidth((int) measureLineNumber());
-            layout = new WordwrapLayout(this, text, antiWordBreaking, null, false);
+            if (SpaceWordWrap) {
+                layout = new SpaceWordWrapLayout(this, text, antiWordBreaking, null, false);
+            } else {
+                layout = new WordwrapLayout(this, text, antiWordBreaking, null, false);
+            }
         } else {
             layout = new LineBreakLayout(this, text);
         }
@@ -2000,11 +2004,11 @@ public class CodeEditor extends View implements ContentListener, Formatter.Forma
                     int count = spaceCount + (tabCount * tabWidth);
                     try {
                         count += editorLanguage.getIndentAdvance(
-                          new ContentReference(this.text),
-                          cur.getLeftLine(),
-                          cur.getLeftColumn(),
-                          spaceCount,
-                          tabCount
+                                new ContentReference(this.text),
+                                cur.getLeftLine(),
+                                cur.getLeftColumn(),
+                                spaceCount,
+                                tabCount
                         );
                     } catch (Exception e) {
                         Log.w(LOG_TAG, "Language object error", e);
