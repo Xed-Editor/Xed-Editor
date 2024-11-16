@@ -15,21 +15,28 @@ class FileLoader(private val loadedFiles: MutableMap<String, MutableList<File>> 
     
     fun getLoadedFiles(path: String) = loadedFiles[path] ?: emptyList()
     
-    suspend fun loadFiles(path: String,layer:Int = 0):List<File> = withContext(Dispatchers.IO) {
-        return@withContext loadedFiles.getOrPut(path) {
-            val files = getSortedFiles(File(path))
-            val newLayer = layer+1
-            if (newLayer < 3){
-                files.filter { it.isDirectory }
-                    .map { directory ->
-                        async {
-                            loadFiles(directory.absolutePath,newLayer)
-                        } }
-            }
-            return@getOrPut files.toMutableList()
-        }
-    }
     
+
+suspend fun loadFiles(path: String, layer: Int = 0): List<File> = withContext(Dispatchers.IO) {
+    loadedFiles.getOrPut(path) {
+        val files = getSortedFiles(File(path)).toMutableList()
+
+        // If there are deeper layers to load, preload them incrementally
+        if (layer + 1 < 3) {
+            files.filter { it.isDirectory }
+                .forEach { directory ->
+                    // Launch preloading for the next layer incrementally
+                    launch {
+                        loadFilesIncrementally(directory.absolutePath, layer + 1)
+                    }
+                }
+        }
+
+        files
+    }
+}
+
+
     fun removeLoadedFile(currentFile: File): Boolean {
         if (currentFile.isDirectory) {
             loadedFiles.remove(currentFile.absolutePath)
