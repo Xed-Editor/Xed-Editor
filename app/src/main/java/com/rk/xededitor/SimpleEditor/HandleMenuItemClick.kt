@@ -8,11 +8,8 @@ import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.Printer
 import com.rk.runner.Runner
-import com.rk.xededitor.MainActivity.BatchReplacement
-import com.rk.xededitor.MainActivity.file.PathUtils
 import com.rk.xededitor.MainActivity.file.PathUtils.toPath
 import com.rk.xededitor.R
-import com.rk.xededitor.SimpleEditor.SimpleEditor.Companion.editor
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
@@ -106,11 +103,6 @@ object HandleMenuItemClick {
                     undo!!.setEnabled(editor!!.canUndo())
                 }
                 
-                R.id.batchrep -> {
-                    val intent = Intent(this, BatchReplacement::class.java)
-                    intent.putExtra("isExt", true)
-                    startActivity(intent)
-                }
                 
                 R.id.terminal -> {
                     startActivity(Intent(this, Terminal::class.java))
@@ -125,7 +117,7 @@ object HandleMenuItemClick {
                 }
                 
                 R.id.suggestions -> {
-                    editorActivity.showSuggestions(editorActivity.isShowSuggestion().not())
+                    editorActivity.editor?.showSuggestions(editorActivity.editor!!.isShowSuggestion().not())
                 }
                 
                 R.id.run -> {

@@ -115,7 +115,6 @@ class MainActivity : BaseActivity() {
         }
         
         menu.findItem(R.id.action_add).isVisible = true
-        menu.findItem(R.id.suggestions).apply { isCheckable = true;isChecked = PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false) }
         return true
     }
     

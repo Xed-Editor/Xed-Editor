@@ -111,7 +111,6 @@ object MenuItemHandler {
             findItem(Id.action_save).isVisible = show
             findItem(Id.action_all).isVisible = show
             findItem(Id.action_print).isVisible = show
-            findItem(Id.batchrep).isVisible = show
             findItem(Id.search).isVisible = show
             findItem(Id.share).isVisible = show
             findItem(Id.undo).isVisible = show

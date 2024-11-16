@@ -17,7 +17,6 @@ import com.rk.libcommons.Printer
 import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -100,11 +99,6 @@ object MenuClickHandler {
                     activity,
                     editorFragment?.editor?.text.toString(),
                 )
-                return true
-            }
-            
-            Id.batchrep -> {
-                activity.startActivity(Intent(activity, BatchReplacement::class.java))
                 return true
             }
             
