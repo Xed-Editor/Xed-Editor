@@ -13,8 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
-import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -53,6 +53,8 @@ class CrashActivity : AppCompatActivity() {
                     .append("'\nUnix Time : ")
                     .append(System.currentTimeMillis())
                     .append("\n")
+                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH)
+                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE)
                 sb.append("LocalTime : ")
                     .append(
                         SimpleDateFormat.getDateTimeInstance()
@@ -64,7 +66,7 @@ class CrashActivity : AppCompatActivity() {
                 sb.append("Error Cause : ")
                     .append(intent.getStringExtra("error_cause"))
                     .append("\n")
-                sb.append("Error StackTrace : \n\n").append(intent.getStringExtra("stacktrace"))
+                sb.append("Error StackTrace : \n").append(intent.getStringExtra("stacktrace"))
                 editor.setText(sb.toString())
             } catch (e: Exception) {
                 e.printStackTrace()

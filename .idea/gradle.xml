@@ -11,6 +11,7 @@
           <set>
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app/externalEditor" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/core" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/core/commons" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/core/components" />

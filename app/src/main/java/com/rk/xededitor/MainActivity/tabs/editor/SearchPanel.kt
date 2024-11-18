@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import com.rk.libcommons.KarbonEditor
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException

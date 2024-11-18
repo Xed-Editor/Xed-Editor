@@ -4,22 +4,20 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.libcommons"
+    namespace = "com.rk.externaleditor"
     compileSdk = 34
-
+    
     defaultConfig {
-        minSdk = 26
-
+        minSdk = 24
+        
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
-
+    
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -32,12 +30,16 @@ android {
 }
 
 dependencies {
+    
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.word.wrap)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
     implementation(project(":editor:editor"))
     implementation(project(":editor:language-textmate"))
+    implementation(project(":core:commons"))
     implementation(project(":feature:settings"))
-    implementation(libs.gson)
+    implementation(project(":feature:runner"))
 }

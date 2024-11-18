@@ -1,22 +1,12 @@
-package com.rk.xededitor.MainActivity.tabs.editor
+package com.rk.libcommons
 
 import android.content.Context
-import android.graphics.Typeface
-import android.os.Environment
 import android.text.InputType
 import android.util.AttributeSet
-import com.rk.libcommons.CustomScope
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesData.getBoolean
-import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.rkUtils
+import android.widget.Toast
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.DirectAccessProps
-import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -47,7 +37,7 @@ class KarbonEditor : CodeEditor {
                 withContext(Dispatchers.Main) { setText(content) }
             } catch (e: Exception) {
                 e.printStackTrace()
-                rkUtils.toast(e.message)
+                Toast.makeText(context,e.message,Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -75,7 +65,7 @@ class KarbonEditor : CodeEditor {
             }
         }catch (e:Exception){
             withContext(Dispatchers.Main){
-                rkUtils.toast(e.message)
+                Toast.makeText(context,e.message,Toast.LENGTH_LONG).show()
             }
         }
         

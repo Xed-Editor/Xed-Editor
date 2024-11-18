@@ -1,4 +1,4 @@
-package com.rk.xededitor.SimpleEditor
+package com.rk.externaleditor.SimpleEditor
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -6,13 +6,11 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.TextView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.externaleditor.R
+import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.Printer
+import com.rk.libcommons.rkUtils2
 import com.rk.runner.Runner
-import com.rk.xededitor.MainActivity.file.PathUtils.toPath
-import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.terminal.Terminal
-import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.io.File
 
@@ -26,7 +24,7 @@ object HandleMenuItemClick {
                 }
                 
                 R.id.action_settings -> {
-                    startActivity(Intent(this, SettingsActivity::class.java))
+                    startActivity(Intent(this, Class.forName("com.rk.xededitor.ui.activities.settings.SettingsActivity")))
                 }
                 
                 R.id.action_save -> {
@@ -41,8 +39,8 @@ object HandleMenuItemClick {
                         searchBox.text = SearchText
                     }
                     
-                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.search)).setView(popuopView)
-                        .setNegativeButton(rkUtils.getString(R.string.cancel), null).setPositiveButton(rkUtils.getString(R.string.search)) { _, _ ->
+                    MaterialAlertDialogBuilder(this).setTitle("Search").setView(popuopView)
+                        .setNegativeButton("Cancel", null).setPositiveButton("Cancel") { _, _ ->
                             val checkBox = popuopView.findViewById<CheckBox>(R.id.case_senstive)
                             SearchText = searchBox.text.toString()
                             editor!!.searcher.search(
@@ -78,9 +76,9 @@ object HandleMenuItemClick {
                 
                 R.id.replace -> {
                     val popuopView = LayoutInflater.from(this).inflate(R.layout.popup_replace, null)
-                    MaterialAlertDialogBuilder(this).setTitle(rkUtils.getString(R.string.replace)).setView(popuopView)
-                        .setNegativeButton(rkUtils.getString(R.string.cancel), null)
-                        .setPositiveButton(rkUtils.getString(R.string.replaceall)) { _, _ ->
+                    MaterialAlertDialogBuilder(this).setTitle("Replace").setView(popuopView)
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("ReplaceAll") { _, _ ->
                             editor!!.searcher.replaceAll(
                                 (popuopView.findViewById<View>(R.id.replace_replacement) as TextView).text.toString()
                             )
@@ -105,7 +103,7 @@ object HandleMenuItemClick {
                 
                 
                 R.id.terminal -> {
-                    startActivity(Intent(this, Terminal::class.java))
+                    startActivity(Intent(this, Class.forName("com.rk.xededitor.terminal.Terminal")))
                 }
                 
                 R.id.action_print -> {
@@ -113,7 +111,7 @@ object HandleMenuItemClick {
                 }
                 
                 R.id.share -> {
-                    rkUtils.shareText(this, (editor?.text ?: "").toString())
+                    rkUtils2.shareText(this, (editor?.text ?: "").toString())
                 }
                 
                 R.id.suggestions -> {

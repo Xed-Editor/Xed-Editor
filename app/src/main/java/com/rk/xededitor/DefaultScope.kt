@@ -1,4 +1,6 @@
-package com.rk.libcommons
+package com.rk.xededitor
+
+import com.rk.libcommons.CustomScope
 
 //same as MainActivity.lifeCycleScope
 

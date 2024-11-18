@@ -9,11 +9,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
-import com.rk.libcommons.DefaultScope
+import com.rk.xededitor.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import java.io.File

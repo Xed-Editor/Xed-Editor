@@ -1,45 +1,35 @@
-package com.rk.xededitor.SimpleEditor
+package com.rk.externaleditor.SimpleEditor
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.OpenableColumns
-import android.text.InputType
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
+import com.rk.externaleditor.R
 import com.rk.libcommons.After
+import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.PathUtils.toPath
 import com.rk.runner.Runner
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesData.getBoolean
-import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.file.PathUtils
-import com.rk.xededitor.MainActivity.file.PathUtils.toPath
-import com.rk.xededitor.MainActivity.tabs.editor.KarbonEditor
-import com.rk.xededitor.R
-import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
-import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
-import java.io.File
-import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
 
-class SimpleEditor : BaseActivity() {
+
+class SimpleEditor : AppCompatActivity() {
     var undo: MenuItem? = null
     var redo: MenuItem? = null
     private var content: Content? = null
@@ -50,7 +40,7 @@ class SimpleEditor : BaseActivity() {
     
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
-            editor?.let { KeyEventHandler.onKeyEvent(event, it,this) }
+            editor?.let { KeyEventHandler.onKeyEvent(event, it, this) }
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -71,40 +61,40 @@ class SimpleEditor : BaseActivity() {
                 undo!!.setEnabled(editor!!.canUndo())
             }
         }
-
+        
         handleIntent(intent)
     }
-
+    
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         HandleMenuItemClick.handle(this, id)
         return super.onOptionsItemSelected(item)
     }
-
+    
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         this.menu = menu
-
+        
         if (menu is MenuBuilder) {
             menu.setOptionalIconsVisible(true)
         }
-
+        
         undo = menu.findItem(R.id.undo)
         redo = menu.findItem(R.id.redo)
-
+        
         After(200) {
             runOnUiThread {
                 undo?.apply {
                     isVisible = true
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }
-
+                
                 redo?.apply {
                     isVisible = true
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
                 }
-
+                
                 menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
                 menu.findItem(R.id.action_save).isVisible = true
                 menu.findItem(R.id.action_print).isVisible = true
@@ -114,41 +104,41 @@ class SimpleEditor : BaseActivity() {
                 menu.findItem(R.id.suggestions).isVisible = true
             }
         }
-
+        
         return true
     }
-
+    
     private fun handleIntent(intent: Intent?) {
         if (
             intent != null &&
-                (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)
+            (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)
         ) {
             uri = intent.data
             
             val path = uri!!.toPath()
             File(path).let {
-                if (it.exists() and Runner.isRunnable(it)){
-                    lifecycleScope.launch(Dispatchers.Default){
-                        while (menu == null){
+                if (it.exists() and Runner.isRunnable(it)) {
+                    lifecycleScope.launch(Dispatchers.Default) {
+                        while (menu == null) {
                             delay(100)
                         }
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             menu!!.findItem(R.id.run).isVisible = true
                         }
                     }
                     
                 }
             }
-
+            
             if (uri != null) {
                 val mimeType = contentResolver.getType(uri!!)
                 if (mimeType != null) {
                     if (mimeType.isEmpty() || mimeType.contains("directory")) {
-                        toast(resources.getString(R.string.unsupported_contnt))
+                        Toast.makeText(this, "Unsupported Content", Toast.LENGTH_SHORT).show()
                         finish()
                     }
                 }
-
+                
                 var displayName: String? = null
                 try {
                     contentResolver.query(uri!!, null, null, null, null, null).use { cursor ->
@@ -163,16 +153,17 @@ class SimpleEditor : BaseActivity() {
                     e.printStackTrace()
                 }
                 
-                lifecycleScope.launch { editor?.setupEditor?.setupLanguage(displayName!!)
-                
+                lifecycleScope.launch {
+                    editor?.setupEditor?.setupLanguage(displayName!!)
+                    
                 }
                 
-
+                
                 if (displayName!!.length > 13) {
                     displayName = displayName!!.substring(0, 10) + "..."
                 }
                 supportActionBar!!.title = displayName
-
+                
                 try {
                     val inputStream = contentResolver.openInputStream(uri!!)
                     if (inputStream != null) {
@@ -186,24 +177,20 @@ class SimpleEditor : BaseActivity() {
             }
         }
     }
-
+    
     fun save() {
         lifecycleScope.launch(Dispatchers.IO) {
             var s: String
             try {
                 val outputStream = contentResolver.openOutputStream(uri!!, "wt")
-                if (outputStream != null) {
-                    ContentIO.writeTo(editor!!.text, outputStream, true)
-                    s = rkUtils.getString(R.string.saved)
-                } else {
-                    s = rkUtils.getString(R.string.is_null)
-                }
+                ContentIO.writeTo(editor!!.text, outputStream!!, true)
+                s = "saved"
             } catch (e: Exception) {
                 e.printStackTrace()
                 s = e.message.toString()
             }
-
-            withContext(Dispatchers.Main) { toast(s) }
+            
+            withContext(Dispatchers.Main) { Toast.makeText(this@SimpleEditor, s, Toast.LENGTH_SHORT).show() }
         }
     }
 }

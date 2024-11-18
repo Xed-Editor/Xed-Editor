@@ -2,9 +2,11 @@ package com.rk.xededitor
 
 import android.app.Application
 import android.content.Context
+import androidx.annotation.Keep
+import com.rk.libcommons.SetupEditor
 import com.rk.libcommons.application
+import com.rk.settings.PreferencesData
 import com.rk.xededitor.CrashHandler.CrashHandler
-import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
 import com.rk.xededitor.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -17,8 +19,7 @@ import java.io.File
 class App : Application() {
     
     companion object {
-        @Deprecated("use libcommons application instead")
-        lateinit var app: Application
+        var app: Application? = null
         
         inline fun Context.getTempDir(): File {
             val tmp = File(filesDir.parentFile, "tmp")
@@ -34,12 +35,11 @@ class App : Application() {
         app = this
         application = this
         super.onCreate()
+        PreferencesData.initPref(this)
         // create crash handler
         CrashHandler.INSTANCE.init(this)
         
         GlobalScope.launch(Dispatchers.IO) {
-            //wait for version change handler
-            VersionChangeHandler.handle(this@App)
             launch(Dispatchers.IO) {
                 delay(1000)
                 updateProotArgs(this@App)

@@ -2,7 +2,7 @@ package com.rk.xededitor.MainActivity.tabs.editor
 
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
-import com.rk.libcommons.DefaultScope
+import com.rk.xededitor.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -57,5 +57,4 @@ dependencies {
     implementation("androidx.collection:collection:1.4.5")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
     implementation(libs.material)
-    implementation(project(":core:commons"))
 }

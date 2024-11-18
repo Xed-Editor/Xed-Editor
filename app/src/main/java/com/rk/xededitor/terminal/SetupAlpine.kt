@@ -3,7 +3,7 @@ package com.rk.xededitor.terminal
 import android.content.Context
 import android.os.Build
 import com.jaredrummler.ktsh.Shell
-import com.rk.libcommons.DefaultScope
+import com.rk.xededitor.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.runner.commonUtils
 import com.rk.settings.PreferencesData

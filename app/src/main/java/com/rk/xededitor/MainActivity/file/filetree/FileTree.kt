@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.rk.libcommons.DefaultScope
+import com.rk.xededitor.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -117,7 +117,7 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
         
         // Load file list and refresh TreeView
         DefaultScope.launch {
-            viewModel.fileListLoader.getLoadedFiles(path)
+            viewModel.fileListLoader.loadFiles(path)
             binding.treeview.refresh()
         }
         

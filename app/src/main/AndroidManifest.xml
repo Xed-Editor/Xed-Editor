@@ -53,25 +53,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".MainActivity.BatchReplacement"
-            android:exported="false"
-            android:label="@string/title_activity_batch_replacement" />
-
-        <activity
-            android:name=".SimpleEditor.SimpleEditor"
-            android:exported="true"
-            android:inputType="textFilter">
-
-            <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.EDIT" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="*/*" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name=".terminal.Terminal"
             android:exported="true"
             android:label="Terminal"

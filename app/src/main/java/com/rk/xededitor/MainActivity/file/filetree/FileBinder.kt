@@ -10,7 +10,7 @@ import android.widget.Space
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.view.isInvisible
 import androidx.core.view.updateLayoutParams
-import com.rk.libcommons.DefaultScope
+import com.rk.xededitor.DefaultScope
 import com.rk.xededitor.MainActivity.file.filetree.events.FileTreeEvents
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.FiletreeDirBinding
@@ -87,13 +87,10 @@ class FileBinder(
                 icon, null, null, null
             )
         }
-        
-        Log.v(TAG,"appyFile took ${System.currentTimeMillis()-start}ms")
     }
     
     private var folderDrawable:Drawable? = null
     private fun applyDir(holder: TreeView.ViewHolder, node: TreeNode<File>) {
-        val start = System.currentTimeMillis()
         val binding = FiletreeDirBinding.bind(holder.itemView)
         
         val icon = folderDrawable ?: AppCompatResources.getDrawable(
@@ -106,7 +103,6 @@ class FileBinder(
             icon, null, null, null
         )
         binding.ivArrow.animate().rotation(if (node.expand) 90f else 0f).setDuration(200).start()
-        Log.v(TAG,"appyDir took ${System.currentTimeMillis()-start}ms")
         
         val path = node.requireData().absolutePath
         if (fileLoader.getLoadedFiles(path).isEmpty()){

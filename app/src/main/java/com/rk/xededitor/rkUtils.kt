@@ -32,21 +32,6 @@ object rkUtils {
     
     inline fun isMainThread() = Thread.currentThread().name == "main"
     
-    fun shareText(ctx: Context, text: String?) {
-        try {
-            val sendIntent = Intent()
-            sendIntent.setAction(Intent.ACTION_SEND)
-            sendIntent.putExtra(Intent.EXTRA_TEXT, text)
-            sendIntent.setType("text/plain")
-            val shareIntent = Intent.createChooser(sendIntent, null)
-            ctx.startActivity(shareIntent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            toast("error : ${e.printStackTrace()}")
-        }
-    }
-    
-    
     inline fun toast(message: String?) {
         runOnUiThread { Toast.makeText(App.app, message, Toast.LENGTH_SHORT).show() }
     }
@@ -126,7 +111,7 @@ object rkUtils {
     
     
     inline fun getString(stringId: Int): String {
-        return ContextCompat.getString(App.app, stringId)
+        return ContextCompat.getString(application!!, stringId)
     }
     
     inline fun dpToPx(dp: Float, ctx: Context): Int {

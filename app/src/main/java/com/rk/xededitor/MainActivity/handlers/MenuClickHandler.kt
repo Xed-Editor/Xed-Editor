@@ -11,9 +11,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
-import com.rk.libcommons.DefaultScope
+import com.rk.xededitor.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
+import com.rk.libcommons.rkUtils2
 import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -24,18 +25,15 @@ import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.rkUtils.runCommandTermux
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
-import java.io.File
 
 typealias Id = R.id
 
@@ -145,7 +143,7 @@ object MenuClickHandler {
             }
             
             Id.share -> {
-                rkUtils.shareText(
+                rkUtils2.shareText(
                     activity,
                     editorFragment?.editor?.text.toString(),
                 )
