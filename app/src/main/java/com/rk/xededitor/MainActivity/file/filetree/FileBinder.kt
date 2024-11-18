@@ -1,6 +1,8 @@
 package com.rk.xededitor.MainActivity.file.filetree
 
 import android.content.Context
+import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +37,7 @@ class FileBinder(
     private val onFileClick: (File) -> Unit
 ) : TreeViewBinder<File>(), TreeNodeEventListener<File> {
     
+    private val TAG="FIleBinder"
     
     override fun createView(parent: ViewGroup, viewType: Int): View {
         if (!EventBus.getDefault().isRegistered(this)) {
@@ -66,32 +69,51 @@ class FileBinder(
         }
     }
     
+    private val icons = mutableMapOf<String,Drawable>()
     private fun applyFile(holder: TreeView.ViewHolder, node: TreeNode<File>) {
+        val start = System.currentTimeMillis()
         val binding = FiletreeFileBinding.bind(holder.itemView)
-        val icon = AppCompatResources.getDrawable(
+        val ext = node.requireData().name.substringAfterLast('.', "")
+        
+        val icon = icons[ext] ?: AppCompatResources.getDrawable(
             binding.root.context, getIcon(node.requireData())
-        )!!
+        )!!.also { icons[ext] = it }
+        
         icon.setBounds(0, 0, rkUtils.dpToPx(16f, context), rkUtils.dpToPx(16f, context))
+        
         binding.tvName.apply {
             text = node.name.toString()
             setCompoundDrawables(
                 icon, null, null, null
             )
         }
+        
+        Log.v(TAG,"appyFile took ${System.currentTimeMillis()-start}ms")
     }
     
-    
+    private var folderDrawable:Drawable? = null
     private fun applyDir(holder: TreeView.ViewHolder, node: TreeNode<File>) {
+        val start = System.currentTimeMillis()
         val binding = FiletreeDirBinding.bind(holder.itemView)
-        val icon = AppCompatResources.getDrawable(
+        
+        val icon = folderDrawable ?: AppCompatResources.getDrawable(
             binding.root.context, com.rk.libcommons.R.drawable.folder
-        )!!
+        )!!.also { folderDrawable = it }
+        
         icon.setBounds(0, 0, rkUtils.dpToPx(16f, context), rkUtils.dpToPx(16f, context))
         binding.tvName.text = node.name.toString()
         binding.tvName.setCompoundDrawables(
             icon, null, null, null
         )
         binding.ivArrow.animate().rotation(if (node.expand) 90f else 0f).setDuration(200).start()
+        Log.v(TAG,"appyDir took ${System.currentTimeMillis()-start}ms")
+        
+        val path = node.requireData().absolutePath
+        if (fileLoader.getLoadedFiles(path).isEmpty()){
+            DefaultScope.launch(Dispatchers.IO) {
+                fileLoader.loadFiles(path, maxLayers = 1)
+            }
+        }
     }
     
     override fun onClick(node: TreeNode<File>, holder: TreeView.ViewHolder) {

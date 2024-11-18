@@ -30,6 +30,8 @@ object rkUtils {
         mHandler.post(runnable)
     }
     
+    inline fun isMainThread() = Thread.currentThread().name == "main"
+    
     fun shareText(ctx: Context, text: String?) {
         try {
             val sendIntent = Intent()
