@@ -117,7 +117,7 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
         
         // Load file list and refresh TreeView
         DefaultScope.launch {
-            viewModel.fileListLoader.loadFiles(path)
+            viewModel.fileListLoader.getLoadedFiles(path)
             binding.treeview.refresh()
         }
         

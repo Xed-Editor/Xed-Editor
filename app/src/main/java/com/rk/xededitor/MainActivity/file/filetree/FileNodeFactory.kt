@@ -14,10 +14,10 @@ class FileNodeFactory(
     
     override suspend fun fetchChildData(targetNode: TreeNode<File>): Set<File> {
         val path = targetNode.requireData().absolutePath
-        var files = fileLoader.getLoadedFiles(path)
-        if (files.isEmpty()) {
-            files = fileLoader.loadFiles(path)
-        }
+        val files = fileLoader.getLoadedFiles(path)
+//        if (files.isEmpty()) {
+//            files = fileLoader.loadFiles(path)
+//        }
         return files.toSet()
     }
     
