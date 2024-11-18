@@ -37,8 +37,6 @@ class FileBinder(
     private val onFileClick: (File) -> Unit
 ) : TreeViewBinder<File>(), TreeNodeEventListener<File> {
     
-    private val TAG="FIleBinder"
-    
     override fun createView(parent: ViewGroup, viewType: Int): View {
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this)
@@ -71,7 +69,6 @@ class FileBinder(
     
     private val icons = mutableMapOf<String,Drawable>()
     private fun applyFile(holder: TreeView.ViewHolder, node: TreeNode<File>) {
-        val start = System.currentTimeMillis()
         val binding = FiletreeFileBinding.bind(holder.itemView)
         val ext = node.requireData().name.substringAfterLast('.', "")
         

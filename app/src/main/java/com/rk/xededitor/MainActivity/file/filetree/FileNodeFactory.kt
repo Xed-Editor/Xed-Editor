@@ -13,11 +13,10 @@ class FileNodeFactory(
      val fileLoader: FileLoader
 ): TreeNodeGenerator<File> {
     
-    override suspend fun fetchChildData(targetNode: TreeNode<File>): Set<File> {
+    override suspend inline fun fetchChildData(targetNode: TreeNode<File>): Set<File> {
         return fileLoader.getLoadedFiles(targetNode.requireData().absolutePath).toSet()
     }
     
-   
     override inline fun createNode(parentNode: TreeNode<File>, currentData: File, tree: AbstractTree<File>): TreeNode<File> {
         return TreeNode(
             data = currentData,

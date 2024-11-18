@@ -1,7 +1,6 @@
 package com.rk.xededitor.MainActivity.file.filetree
 
 import android.os.Parcelable
-import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

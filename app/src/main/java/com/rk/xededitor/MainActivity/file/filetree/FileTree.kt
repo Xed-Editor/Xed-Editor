@@ -57,7 +57,6 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
     }
     
     init {
-        // Inflate the layout
         val inflater = LayoutInflater.from(context)
         binding = FiletreeLayoutBinding.inflate(inflater, parent, true)
         
@@ -65,17 +64,11 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
             viewModel.setTree(path,createTree(viewModel.fileListLoader, path))
         }
         
-        // Initialize the file tree and set up TreeView
         setupTreeView()
-        
-        
     }
     
     
     private fun setupTreeView() {
-        // Create and initialize the tree
-        // Configure TreeView
-        
         (binding.treeview as TreeView<File>).apply {
             binding.treeview.binder = FileBinder(binding = binding, fileLoader = viewModel.fileListLoader, onFileLongClick = { file ->
                 activityRef.get()?.apply {
@@ -115,7 +108,6 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
             selectionMode = TreeView.SelectionMode.MULTIPLE_WITH_CHILDREN
         }
         
-        // Load file list and refresh TreeView
         DefaultScope.launch {
             viewModel.fileListLoader.loadFiles(path)
             binding.treeview.refresh()

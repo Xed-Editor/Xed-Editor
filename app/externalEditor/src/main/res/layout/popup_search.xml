@@ -36,7 +36,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="22dp"
             android:checked="false"
-            android:text="@string/cs" />
+            android:text="Case Senstive" />
 
     </LinearLayout>
 
