@@ -95,6 +95,7 @@ class MainActivity : BaseActivity() {
         
         //testing
         After(5000){
+            
             //Wasm3().loadWasm("/sdcard/main.wasm", "main")
         }
         
