@@ -47,7 +47,10 @@ class KarbonEditor : CodeEditor {
                 withContext(Dispatchers.Main) { setText(content) }
             } catch (e: Exception) {
                 e.printStackTrace()
-                rkUtils.toast(e.message)
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context,e.message,Toast.LENGTH_LONG).show()
+                }
+               
             }
         }
     }
