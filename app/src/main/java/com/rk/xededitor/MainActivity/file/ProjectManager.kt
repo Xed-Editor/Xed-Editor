@@ -142,6 +142,7 @@ class ProjectManager {
                 rkUtils.toast("Cannot connect. Check your connection string")
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             rkUtils.toast("Connection error: ${e.message}")
         } finally {
             ssh.disconnect() // i remove this later
