@@ -107,7 +107,7 @@ class CrashActivity : AppCompatActivity() {
                     Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse(
-                            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                            "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
                                 URLEncoder.encode(
                                     "``` \n${editor.text}\n ```",
                                     StandardCharsets.UTF_8.toString(),

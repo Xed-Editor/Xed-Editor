@@ -218,7 +218,9 @@ class EditorFragment(val context: Context) : CoreFragment {
                 updateUndoRedo()
                 t++
                 
-                
+                if (t < 2){
+                    return@launch
+                }
                 try {
                     val fileName = file!!.name
                     fun addStar() {
