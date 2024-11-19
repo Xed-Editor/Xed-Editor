@@ -184,6 +184,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.org.eclipse.jgit)
     implementation(libs.coil.compose)
+    implementation(libs.bouncycastle.provider)
     //implementation(libs.bsh)
     implementation(libs.material.motion.compose.core)
     implementation(libs.datastore.preferences)
