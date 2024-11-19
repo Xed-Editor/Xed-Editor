@@ -32,6 +32,7 @@ object ProjectBar {
             val privateFilesId = View.generateViewId()
             val cloneRepo = View.generateViewId()
             val pluginDir = View.generateViewId()
+            val sftp = View.generateViewId()
             
             var dialog: AlertDialog? = null
             
@@ -154,8 +155,8 @@ object ProjectBar {
                         
                         sftp -> {
                             val view = LayoutInflater.from(this@with).inflate(R.layout.popup_new, null)
-                            val editText = popupView.findViewById<View>(R.id.name) as EditText
-                            editText.hint = "user@host:port/path
+                            val editText = view.findViewById<View>(R.id.name) as EditText
+                            editText.hint = "user@host:port/path"
                             MaterialAlertDialogBuilder(this)
                                 .setTitle("Add SFTP folder")
                                 .setView(view)
@@ -202,8 +203,8 @@ object ProjectBar {
                         listener,
                     )
                     addItem(
-                        getString("SFTP"),
-                        getString("Open remote folder via SFTP"),
+                        "SFTP",
+                        "Open remote folder via SFTP",
                         ContextCompat.getDrawable(this@with, R.drawable.dns),
                         sftp,
                         listener,
