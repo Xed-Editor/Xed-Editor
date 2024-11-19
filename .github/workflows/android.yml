@@ -3,6 +3,7 @@ on:
     branches:
       - main
       - dev
+      - sftp
     paths-ignore:
       - '**/*.md'
   workflow_dispatch:
