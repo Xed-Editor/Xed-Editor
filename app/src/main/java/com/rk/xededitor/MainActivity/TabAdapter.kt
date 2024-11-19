@@ -134,36 +134,30 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                     tabViewModel.fragmentTypes.removeAt(position)
                     
                     (viewPager?.adapter as? TabAdapter)?.apply { notifyItemRemovedX(position) }
-                    
+                    if (tabViewModel.fragmentFiles.isEmpty()) {
+                        binding!!.tabs.visibility = View.GONE
+                        binding!!.mainView.visibility = View.GONE
+                        binding!!.openBtn.visibility = View.VISIBLE
+                    }
                 }
                 
                 
-                
                 tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]!!.get()?.fragment?.let {
-                    if (askUser.not()) {
-                        it.onClosed()
-                        close()
-                    } else if (it is EditorFragment && it.isModified()) {
+                    if (askUser && it is EditorFragment && it.isModified()) {
                         askClose(
                             title = "Unsaved File",
                             message = "Are you sure you want to discard this unsaved document?",
                             onCancel = {},
                             onClose = {
-                            it.onClosed()
-                            close()
-                        })
-                    }else{
+                                it.onClosed()
+                                close()
+                            })
+                    } else {
                         it.onClosed()
                         close()
                     }
-                    
                 }
                 
-            }
-            if (tabViewModel.fragmentFiles.isEmpty()) {
-                binding!!.tabs.visibility = View.GONE
-                binding!!.mainView.visibility = View.GONE
-                binding!!.openBtn.visibility = View.VISIBLE
             }
         }
     }
@@ -173,16 +167,18 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             val selectedTabPosition = mainActivity.tabLayout?.selectedTabPosition
             var shouldAsk = false
             
-            tabFragments.values.forEach { p -> p.get()?.fragment?.apply {
-                if (this is EditorFragment){
-                    if (isModified()){
-                        shouldAsk = true
-                        return@forEach
+            tabFragments.values.forEach { p ->
+                p.get()?.fragment?.apply {
+                    if (this is EditorFragment) {
+                        if (isModified()) {
+                            shouldAsk = true
+                            return@forEach
+                        }
                     }
                 }
-            } }
+            }
             
-            fun close(){
+            fun close() {
                 // Iterate backwards to avoid index shifting issues when removing fragments
                 for (i in mainActivity.tabLayout!!.tabCount - 1 downTo 0) {
                     if (i != selectedTabPosition) {
@@ -191,7 +187,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 }
             }
             
-            if (shouldAsk){
+            if (shouldAsk) {
                 askClose(
                     title = "Unsaved Files",
                     message = "Some files are not saved",
@@ -199,7 +195,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                     onClose = {
                         close()
                     })
-            }else{
+            } else {
                 close()
             }
             
@@ -241,7 +237,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     }
     
     
-    private fun askClose(onCancel: () -> Unit, onClose: () -> Unit,title:String,message:String) {
+    private fun askClose(onCancel: () -> Unit, onClose: () -> Unit, title: String, message: String) {
         MaterialAlertDialogBuilder(mainActivity).setTitle(title).setMessage(message)
             .setNegativeButton("Cancel") { _, _ ->
                 onCancel.invoke()
