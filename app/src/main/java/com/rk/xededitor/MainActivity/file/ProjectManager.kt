@@ -126,8 +126,8 @@ class ProjectManager {
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val ssh = SSHClient()
+        ssh.addHostKeyVerifier { _, _, _ -> true }
         try {
-            ssh.loadKnownHosts()
             ssh.connect(parts[2], parts[3].toInt())
             ssh.authPassword(parts[0], parts[4])
             if (ssh.isConnected && ssh.isAuthenticated) {
