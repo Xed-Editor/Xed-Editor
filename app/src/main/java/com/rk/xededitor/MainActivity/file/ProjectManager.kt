@@ -24,6 +24,7 @@ import com.rk.xededitor.rkUtils
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.sftp.SFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
+import com.rk.xededitor.DefaultScope
 
 //welcome to hell
 class ProjectManager {
@@ -129,26 +130,26 @@ class ProjectManager {
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val ssh = SSHClient()
         ssh.addHostKeyVerifier(PromiscuousVerifier())
-        ssh.connect(parts[2], parts[3].toInt())
-        ssh.authPassword(parts[0], parts[1])
-        /*try {
-            rkUtils.toast("toast1")
-            ssh.connect(parts[2], parts[3].toInt())
-            rkUtils.toast("toast2")
-            ssh.authPassword(parts[0], parts[1])
-            rkUtils.toast("toast3")
-            if (ssh.isConnected && ssh.isAuthenticated) {
-                // todo
-                rkUtils.toast("connected")
-            } else {
-                rkUtils.toast("Cannot connect. Check your connection string")
+        DefaultScope.launch(Dispatchers.IO) {
+            try {
+                rkUtils.toast("toast1")
+                ssh.connect(parts[2], parts[3].toInt())
+                rkUtils.toast("toast2")
+                ssh.authPassword(parts[0], parts[1])
+                rkUtils.toast("toast3")
+                if (ssh.isConnected && ssh.isAuthenticated) {
+                    // todo
+                    rkUtils.toast("connected")
+                } else {
+                    rkUtils.toast("Cannot connect. Check your connection string")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                rkUtils.toast("Connection error: ${e.message}")
+            } finally {
+                ssh.disconnect() // i remove this later
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            rkUtils.toast("Connection error: ${e.message}")
-        } finally {
-            ssh.disconnect() // i remove this later
-        }*/
+        }
     }
     
     fun changeProject(menuItemId: Int, activity: MainActivity) {
