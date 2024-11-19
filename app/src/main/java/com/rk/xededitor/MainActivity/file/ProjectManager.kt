@@ -129,7 +129,9 @@ class ProjectManager {
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val ssh = SSHClient()
         ssh.addHostKeyVerifier(PromiscuousVerifier())
-        try {
+        ssh.connect(parts[2], parts[3].toInt())
+        ssh.authPassword(parts[0], parts[1])
+        /*try {
             rkUtils.toast("toast1")
             ssh.connect(parts[2], parts[3].toInt())
             rkUtils.toast("toast2")
@@ -146,7 +148,7 @@ class ProjectManager {
             rkUtils.toast("Connection error: ${e.message}")
         } finally {
             ssh.disconnect() // i remove this later
-        }
+        }*/
     }
     
     fun changeProject(menuItemId: Int, activity: MainActivity) {
