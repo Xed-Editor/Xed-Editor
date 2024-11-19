@@ -174,6 +174,14 @@ class EditorFragment(val context: Context) : CoreFragment {
         scope.cancel()
         editor?.scope?.cancel()
         editor?.release()
+        file?.let {
+            if (set.contains(it.name)){
+                set.remove(it.name)
+            }
+            if (set.contains("${it.name}*")){
+                set.remove("${it.name}*")
+            }
+        }
         
     }
     
@@ -211,16 +219,22 @@ class EditorFragment(val context: Context) : CoreFragment {
         val set = HashSet<String>()
     }
     
+    
+    fun isModified():Boolean{
+        return set.contains(file!!.name) || set.contains("${file!!.name}*")
+    }
+    
     private var t = 0
     private fun setChangeListener() {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             scope.launch {
                 updateUndoRedo()
-                t++
                 
                 if (t < 2){
+                    t++
                     return@launch
                 }
+                
                 try {
                     val fileName = file!!.name
                     fun addStar() {
