@@ -53,8 +53,8 @@ class CrashActivity : AppCompatActivity() {
                     .append("'\nUnix Time : ")
                     .append(System.currentTimeMillis())
                     .append("\n")
-                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH)
-                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE)
+                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
+                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
                 sb.append("LocalTime : ")
                     .append(
                         SimpleDateFormat.getDateTimeInstance()
