@@ -163,7 +163,10 @@ object ProjectBar {
                                 .setNegativeButton(getString(R.string.cancel), null)
                                 .setPositiveButton(getString(R.string.apply)) { _, _ ->
                                     val text = editText.text.toString()
-                                    // todo
+                                    if (text.isEmpty()) {
+                                        return@setPositiveButton
+                                    }
+                                    activity.projectManager.addRemoteFolder(this, text)
                                 }
                                 .show()
                         }

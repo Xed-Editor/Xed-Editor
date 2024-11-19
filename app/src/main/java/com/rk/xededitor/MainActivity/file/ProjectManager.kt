@@ -21,6 +21,7 @@ import java.util.LinkedList
 import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
+import net.schmizz.sshj.SSHClient
 
 
 //welcome to hell
@@ -119,6 +120,25 @@ class ProjectManager {
             // Log error and restore consistent state if needed
             println("Error adding project: ${e.message}")
             // Could add error recovery logic here if needed
+        }
+    }
+
+    fun addRemoteFolder(activity: MainActivty, connectionString: String) {
+        val parts = connectionString.split("@", ":", "/", limit = 5)
+        val ssh = SSHClient()
+        try {
+            ssh.loadKnownHosts()
+            ssh.connect(parts[2], parts[3].toInt())
+            ssh.authPassword(parts[0], parts[4])
+            if (ssh.isConnected && ssh.authenticated) {
+                // todo
+            } else {
+                rkUtils.toast("Cannot connect. Check your connection string")
+            }
+        } catch (e: Exception) {
+            rkUtils.toast("Connection error: ${e.message}")
+        } finally {
+            ssh.disconnect() // i remove this later
         }
     }
     
