@@ -61,7 +61,7 @@ class Terminal : BaseActivity() {
                     }
                 },
             )
-        }
+        }.init()
     }
     
     override fun onDestroy() {
