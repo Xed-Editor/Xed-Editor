@@ -151,6 +151,21 @@ object ProjectBar {
                                 }
                                 .show()
                         }
+                        
+                        sftp -> {
+                            val view = LayoutInflater.from(this@with).inflate(R.layout.popup_new, null)
+                            val editText = popupView.findViewById<View>(R.id.name) as EditText
+                            editText.hint = "user@host:port/path
+                            MaterialAlertDialogBuilder(this)
+                                .setTitle("Add SFTP folder")
+                                .setView(view)
+                                .setNegativeButton(getString(R.string.cancel), null)
+                                .setPositiveButton(getString(R.string.apply)) { _, _ ->
+                                    val text = editText.text.toStting()
+                                    // todo
+                                }
+                                .show()
+                        }
                     }
                     dialog?.dismiss()
                     dialog = null
@@ -172,7 +187,6 @@ object ProjectBar {
                         openPathId,
                         listener,
                     )
-                    
                     addItem(
                         getString(R.string.private_files),
                         getString(R.string.private_files_desc),
@@ -185,6 +199,13 @@ object ProjectBar {
                         getString(R.string.clone_repo_desc),
                         ContextCompat.getDrawable(this@with, R.drawable.git),
                         cloneRepo,
+                        listener,
+                    )
+                    addItem(
+                        getString("SFTP"),
+                        getString("Open remote folder via SFTP"),
+                        ContextCompat.getDrawable(this@with, R.drawable.dns),
+                        sftp,
                         listener,
                     )
                     
