@@ -140,7 +140,6 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 
                 
                 tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]!!.get()?.fragment?.let {
-                    
                     if (askUser.not()) {
                         it.onClosed()
                         close()
@@ -153,6 +152,9 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                             it.onClosed()
                             close()
                         })
+                    }else{
+                        it.onClosed()
+                        close()
                     }
                     
                 }
