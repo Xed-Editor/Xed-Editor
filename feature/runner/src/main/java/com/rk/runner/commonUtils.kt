@@ -2,6 +2,7 @@ package com.rk.runner
 
 import android.content.Context
 import android.content.Intent
+import com.rk.libcommons.rkUtils2
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -92,8 +93,13 @@ object commonUtils {
         }
     }
     fun getAvailablePort(): Int {
-        ServerSocket(0).use { socket ->
-            return socket.localPort
+        try {
+            ServerSocket(0).use { socket ->
+                return socket.localPort
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            return 9999
         }
     }
 }
