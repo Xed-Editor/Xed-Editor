@@ -156,7 +156,7 @@ object ProjectBar {
                         sftp -> {
                             val view = LayoutInflater.from(this@with).inflate(R.layout.popup_new, null)
                             val editText = view.findViewById<View>(R.id.name) as EditText
-                            editText.hint = "user@host:port/path"
+                            editText.hint = "user:password@host:port/path"
                             MaterialAlertDialogBuilder(this)
                                 .setTitle("Add SFTP folder")
                                 .setView(view)

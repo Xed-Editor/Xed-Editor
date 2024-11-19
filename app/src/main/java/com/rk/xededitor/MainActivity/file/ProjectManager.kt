@@ -22,6 +22,7 @@ import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.sftp.SFTPClient
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 
 //welcome to hell
@@ -32,6 +33,7 @@ class ProjectManager {
     
     //file path : view project id
     val projects = HashMap<String,Int>()
+    val sftpClients = HashMap<String,SFTPClient>()
     
     //menu item id : view project id
     val menuItems = HashMap<Int,Int>()
@@ -128,10 +130,14 @@ class ProjectManager {
         val ssh = SSHClient()
         ssh.addHostKeyVerifier(PromiscuousVerifier())
         try {
+            rkUtils.toast("toast1")
             ssh.connect(parts[2], parts[3].toInt())
-            ssh.authPassword(parts[0], parts[4])
+            rkUtils.toast("toast2")
+            ssh.authPassword(parts[0], parts[1])
+            rkUtils.toast("toast3")
             if (ssh.isConnected && ssh.isAuthenticated) {
                 // todo
+                rkUtils.toast("connected")
             } else {
                 rkUtils.toast("Cannot connect. Check your connection string")
             }
