@@ -123,14 +123,14 @@ class ProjectManager {
         }
     }
 
-    fun addRemoteFolder(activity: MainActivty, connectionString: String) {
+    fun addRemoteFolder(activity: MainActivity, connectionString: String) {
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val ssh = SSHClient()
         try {
             ssh.loadKnownHosts()
             ssh.connect(parts[2], parts[3].toInt())
             ssh.authPassword(parts[0], parts[4])
-            if (ssh.isConnected && ssh.authenticated) {
+            if (ssh.isConnected && ssh.isAuthenticated) {
                 // todo
             } else {
                 rkUtils.toast("Cannot connect. Check your connection string")
