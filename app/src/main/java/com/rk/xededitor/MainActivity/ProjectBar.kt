@@ -162,7 +162,7 @@ object ProjectBar {
                                 .setView(view)
                                 .setNegativeButton(getString(R.string.cancel), null)
                                 .setPositiveButton(getString(R.string.apply)) { _, _ ->
-                                    val text = editText.text.toStting()
+                                    val text = editText.text.toString()
                                     // todo
                                 }
                                 .show()
