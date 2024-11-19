@@ -22,7 +22,7 @@ import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
 import net.schmizz.sshj.SSHClient
-
+import com.hierynomus.sshj.common.AcceptAllHostKeyVerifier
 
 //welcome to hell
 class ProjectManager {
@@ -126,7 +126,7 @@ class ProjectManager {
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val ssh = SSHClient()
-        ssh.addHostKeyVerifier { _, _, _ -> true }
+        ssh.addHostKeyVerifier(AcceptAllHostKeyVerifier())
         try {
             ssh.connect(parts[2], parts[3].toInt())
             ssh.authPassword(parts[0], parts[4])
