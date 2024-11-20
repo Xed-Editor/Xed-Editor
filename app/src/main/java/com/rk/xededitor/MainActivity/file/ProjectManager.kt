@@ -135,10 +135,10 @@ class ProjectManager {
             DefaultScope.launch(Dispatchers.Main) {
                 loading.show()
                 withContext(Dispatchers.IO) {
-                    sftpProjects[connectionConfig].openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                    sftpProjects[connectionConfig]!!.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
                 }
                 loading.hide()
-                addProject(activity, sftpProjects[connectionConfig].tempDir!!)
+                addProject(activity, sftpProjects[connectionConfig]!!.tempDir!!)
             }
         } else {
             val sftp = SFTPFilesystem(activity, connectionString)
