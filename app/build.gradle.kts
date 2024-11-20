@@ -172,7 +172,7 @@ dependencies {
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
-    implementation(libs.jsch)
+    implementation("com.github.mwiede:jsch:0.2.21")
     implementation(libs.commons.net)
     implementation(libs.gson)
     implementation(libs.jcodings)
