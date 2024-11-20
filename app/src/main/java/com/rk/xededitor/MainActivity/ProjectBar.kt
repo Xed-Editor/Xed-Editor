@@ -166,7 +166,7 @@ object ProjectBar {
                                     if (text.isEmpty()) {
                                         return@setPositiveButton
                                     }
-                                    activity.projectManager.addRemoteFolder(this, text)
+                                    activity.projectManager.addRemoteProject(this, text)
                                 }
                                 .show()
                         }

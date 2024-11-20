@@ -36,6 +36,9 @@ class ProjectManager {
     
     //menu item id : view project id
     val menuItems = HashMap<Int,Int>()
+
+    //file path : sftp file system
+    val sftpFolders = HashMap<String,SFTPFilesystem>()
     
     private var currentProjectId: Int = -1
     
@@ -124,7 +127,7 @@ class ProjectManager {
         }
     }
 
-    fun addRemoteFolder(activity: MainActivity, connectionString: String) {
+    fun addRemoteProject(activity: MainActivity, connectionString: String) {
         val loading = LoadingPopup(activity, null)
         loading.setMessage(rkUtils.getString(R.string.wait))
         val sftp = SFTPFilesystem(activity, connectionString)
@@ -133,11 +136,15 @@ class ProjectManager {
             withContext(Dispatchers.IO) {
                 sftp.connect()
                 sftp.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
-                sftp.disconnect()
             }
             loading.hide()
             addProject(activity, sftp.tempDir!!)
         }
+        sftpFolders[connectionString] = sftp
+    }
+
+    fun isRemoteProject(key: String): Boolean {
+        return sftpProjects.containsKey(key)
     }
 
     fun changeProject(menuItemId: Int, activity: MainActivity) {
@@ -237,9 +244,14 @@ class ProjectManager {
             }
         }
     }
-    
-    
-    
+
+    fun closeRemoteConnections() {
+        sftpProjects.entries.forEach{ e ->
+            e.value.disconnect()
+            e.value.clearTemp()
+        }
+    }
+
     fun getSelectedProjectRootFile():File?{
         projects.entries.forEach{ e ->
             if (e.value == currentProjectId){
@@ -261,7 +273,11 @@ class ProjectManager {
             projectsList.forEach {
                 val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
-                addProject(activity, file)
+                if (isRemoteProject(file.name)) {
+                    addRemoteProject(activity, file.name)
+                } else {
+                    addProject(activity, file)
+                }
             }
         }
     }

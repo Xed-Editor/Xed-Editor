@@ -222,6 +222,7 @@ class MainActivity : BaseActivity() {
     override fun onDestroy() {
         DefaultScope.cancel()
         super.onDestroy()
+        projectManager.closeRemoteConnections()
         binding = null
         adapter = null
         viewPager = null

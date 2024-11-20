@@ -63,6 +63,11 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         }
     }
 
+    fun clearTemp() {
+        tempDir?.delete()
+        tempDir = null
+    }
+
     fun disconnect() {
         channel?.disconnect()
         session?.disconnect()
