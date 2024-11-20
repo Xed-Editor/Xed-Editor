@@ -21,8 +21,8 @@ import java.util.LinkedList
 import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
-import com.jcraft.jsch.*
 import com.rk.xededitor.DefaultScope
+import com.rk.xededitor.filesystem.SFTPFilesystem
 
 //welcome to hell
 class ProjectManager {
@@ -124,7 +124,6 @@ class ProjectManager {
     }
 
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
-        val done = false
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
         }
@@ -135,26 +134,11 @@ class ProjectManager {
             rkUtils.toast("Project already opened")
             return
         }
-        val parts = connectionString.split("@", ":", "/", limit = 5)
-        val path = "/${parts[4]}"
-        val jsch = JSch()
-        val session = jsch.getSession(parts[0], parts[2], parts[3].toInt())
-        session.setPassword(parts[1])
-        session.setConfig("StrictHostKeyChecking", "no")
+        val sftp = SFTPFilesystem(activity, connectionString)
         DefaultScope.launch(Dispatchers.IO) {
-            try {
-                session.connect(5000)
-                if (session.isConnected) {
-                    val sftpChannel = session.openChannel("sftp") as ChannelSftp
-                    sftpChannel.connect()
-                    // todo
-                } else {
-                    rkUtils.toast("Failed. Check your connection data!")
-                }
-            } catch (e: Exception) {
-                rkUtils.toast("Error: ${e.message}")
-            }
-            session.disconnect()
+            sftp.connect()
+            sftp.open("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+            sftp.disconnect()
         }
         try {
             val rail = activity.binding?.navigationRail ?: return
@@ -175,7 +159,7 @@ class ProjectManager {
             }
             
             // Create and store project
-            //FileTree(activity, file.absolutePath, activity.binding!!.maindrawer)
+            FileTree(activity, sftp.tempDir.absolutePath, activity.binding!!.maindrawer)
             val newViewId = multiView.getCurrentViewId()
             
             // Update state maps atomically
