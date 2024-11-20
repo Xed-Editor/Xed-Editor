@@ -38,7 +38,7 @@ class ProjectManager {
     val menuItems = HashMap<Int,Int>()
 
     //file path : sftp file system
-    val sftpFolders = HashMap<String,SFTPFilesystem>()
+    val sftpProjects = HashMap<String,SFTPFilesystem>()
     
     private var currentProjectId: Int = -1
     
@@ -140,7 +140,7 @@ class ProjectManager {
             loading.hide()
             addProject(activity, sftp.tempDir!!)
         }
-        sftpFolders[connectionString] = sftp
+        sftpProjects[connectionString] = sftp
     }
 
     fun isRemoteProject(key: String): Boolean {
@@ -246,9 +246,9 @@ class ProjectManager {
     }
 
     fun closeRemoteConnections() {
-        sftpProjects.entries.forEach{ e ->
-            e.value.disconnect()
-            e.value.clearTemp()
+        for (sftp in sftpProjects.values) {
+            sftp.disconnect()
+            sftp.clearTemp()
         }
     }
 
