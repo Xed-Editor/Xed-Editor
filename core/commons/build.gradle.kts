@@ -40,4 +40,5 @@ dependencies {
     implementation(project(":editor:language-textmate"))
     implementation(project(":feature:settings"))
     implementation(libs.gson)
+    implementation(project(":Resources"))
 }

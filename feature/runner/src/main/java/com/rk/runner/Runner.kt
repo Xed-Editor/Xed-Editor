@@ -7,6 +7,7 @@ import androidx.annotation.Keep
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.strings
 import com.rk.runner.runners.jvm.jdk.JavaRunner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
@@ -95,9 +96,9 @@ object Runner {
 
         val dialog =
             MaterialAlertDialogBuilder(context)
-                .setTitle(context.getString(R.string.choose_runtime))
+                .setTitle(context.getString(strings.choose_runtime))
                 .setView(dialogView)
-                .setNegativeButton(context.getString(R.string.cancel), null)
+                .setNegativeButton(context.getString(strings.cancel), null)
                 .show()
 
         recyclerView.adapter = RunnerAdapter(runners, dialog, onRunnerSelected)

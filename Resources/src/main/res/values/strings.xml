@@ -292,5 +292,7 @@
 
     <string name="sora_s">Sora text search</string>
     <string name="sora_s_desc">Use Sora text search</string>
+    <string name="choose_runtime">Choose Runtime</string>
+
 
 </resources>
