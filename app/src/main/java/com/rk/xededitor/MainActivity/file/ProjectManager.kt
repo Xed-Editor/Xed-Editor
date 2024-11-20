@@ -37,7 +37,7 @@ class ProjectManager {
     //menu item id : view project id
     val menuItems = HashMap<Int,Int>()
 
-    //file path : sftp file system
+    //connection string : sftp file system
     val sftpProjects = HashMap<String,SFTPFilesystem>()
     
     private var currentProjectId: Int = -1
@@ -129,18 +129,30 @@ class ProjectManager {
 
     fun addRemoteProject(activity: MainActivity, connectionString: String) {
         val loading = LoadingPopup(activity, null)
+        val connectionConfig = connectionString.split("/")[0]
         loading.setMessage(rkUtils.getString(R.string.wait))
-        val sftp = SFTPFilesystem(activity, connectionString)
-        DefaultScope.launch(Dispatchers.Main) {
-            loading.show()
-            withContext(Dispatchers.IO) {
-                sftp.connect()
-                sftp.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+        if (sftpProjects.containsKey(connectionConfig) {
+            DefaultScope.launch(Dispatchers.Main) {
+                loading.show()
+                withContext(Dispatchers.IO) {
+                    sftpProjects[connectionConfig].openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                }
+                loading.hide()
+                addProject(activity, sftp.tempDir!!)
             }
-            loading.hide()
-            addProject(activity, sftp.tempDir!!)
+        } else {
+            val sftp = SFTPFilesystem(activity, connectionString)
+            DefaultScope.launch(Dispatchers.Main) {
+                loading.show()
+                withContext(Dispatchers.IO) {
+                    sftp.connect()
+                    sftp.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                }
+                loading.hide()
+                addProject(activity, sftp.tempDir!!)
+            }
+            sftpProjects[connectionConfig] = sftp
         }
-        sftpProjects[connectionString] = sftp
     }
 
     fun isRemoteProject(value: String): Boolean {
