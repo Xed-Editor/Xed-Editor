@@ -159,7 +159,7 @@ class ProjectManager {
             }
             
             // Create and store project
-            FileTree(activity, sftp.tempDir.absolutePath, activity.binding!!.maindrawer)
+            FileTree(activity, sftp.tempDir!!.absolutePath, activity.binding!!.maindrawer)
             val newViewId = multiView.getCurrentViewId()
             
             // Update state maps atomically
