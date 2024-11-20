@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.rk.resources.strings
+import com.rk.resources.drawable
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
@@ -19,15 +21,15 @@ import org.robok.engine.core.components.compose.preferences.category.PreferenceC
 
 @Composable
 fun SettingsGitScreen() {
-    PreferenceLayout(label = stringResource(id = R.string.git), backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(id = strings.git), backArrowVisible = true) {
         var isDialogVisible by remember { mutableStateOf(false) }
         var dialogType by remember { mutableStateOf<DialogType?>(null) }
         var inputValue by remember { mutableStateOf("") }
 
         PreferenceCategory(
-            label = stringResource(id = R.string.cred),
-            description = stringResource(id = R.string.gitcred),
-            iconResource = R.drawable.key,
+            label = stringResource(id = strings.cred),
+            description = stringResource(id = strings.gitcred),
+            iconResource = drawable.key,
             onNavigate = {
                 inputValue = PreferencesData.getString(PreferencesKeys.GIT_CRED, "")
                 dialogType = DialogType.CREDENTIALS
@@ -36,9 +38,9 @@ fun SettingsGitScreen() {
         )
 
         PreferenceCategory(
-            label = stringResource(id = R.string.userdata),
-            description = stringResource(id = R.string.userdatagit),
-            iconResource = R.drawable.person,
+            label = stringResource(id = strings.userdata),
+            description = stringResource(id = strings.userdatagit),
+            iconResource = drawable.person,
             onNavigate = {
                 inputValue = PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "")
                 dialogType = DialogType.USER_DATA
@@ -47,9 +49,9 @@ fun SettingsGitScreen() {
         )
 
         PreferenceCategory(
-            label = stringResource(id = R.string.repo_dir),
-            description = stringResource(id = R.string.clone_dir),
-            iconResource = R.drawable.outline_folder_24,
+            label = stringResource(id = strings.repo_dir),
+            description = stringResource(id = strings.clone_dir),
+            iconResource = drawable.outline_folder_24,
             onNavigate = {
                 inputValue =
                     PreferencesData.getString(PreferencesKeys.GIT_REPO_DIR, "/storage/emulated/0")
@@ -62,15 +64,15 @@ fun SettingsGitScreen() {
             InputDialog(
                 title =
                     when (dialogType) {
-                        DialogType.CREDENTIALS -> stringResource(id = R.string.cred)
-                        DialogType.USER_DATA -> stringResource(id = R.string.userdata)
-                        DialogType.REPO_DIR -> stringResource(id = R.string.repo_dir)
+                        DialogType.CREDENTIALS -> stringResource(id = strings.cred)
+                        DialogType.USER_DATA -> stringResource(id = strings.userdata)
+                        DialogType.REPO_DIR -> stringResource(id = strings.repo_dir)
                         else -> ""
                     },
                 inputLabel =
                     when (dialogType) {
-                        DialogType.CREDENTIALS -> stringResource(id = R.string.gitKeyExample)
-                        DialogType.USER_DATA -> stringResource(id = R.string.gituserexample)
+                        DialogType.CREDENTIALS -> stringResource(id = strings.gitKeyExample)
+                        DialogType.USER_DATA -> stringResource(id = strings.gituserexample)
                         DialogType.REPO_DIR -> "/storage/emulated/0"
                         else -> ""
                     },
@@ -86,7 +88,7 @@ fun SettingsGitScreen() {
                             if (File(inputValue).exists()) {
                                 PreferencesData.setString(PreferencesKeys.GIT_REPO_DIR, inputValue)
                             } else {
-                                rkUtils.toast(getString(R.string.dir_exist_not))
+                                rkUtils.toast(getString(strings.dir_exist_not))
                             }
                         }
                         else -> {}

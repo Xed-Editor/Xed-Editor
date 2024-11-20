@@ -9,8 +9,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.R
 import com.rk.xededitor.update.UpdateManager
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
@@ -25,10 +25,10 @@ fun AboutScreen() {
     val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
     val context = LocalContext.current
 
-    PreferenceLayout(label = stringResource(id = R.string.about), backArrowVisible = true) {
-        PreferenceGroup(heading = stringResource(R.string.app_name)) {
+    PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
+        PreferenceGroup(heading = stringResource(strings.app_name)) {
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = R.string.version), style = MaterialTheme.typography.titleMedium) },
+                title = { Text(text = stringResource(id = strings.version), style = MaterialTheme.typography.titleMedium) },
                 description = {
                     Text(text = versionName, style = MaterialTheme.typography.titleSmall)
                 },
@@ -36,7 +36,7 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(text = stringResource(id = R.string.version_code), style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(id = strings.version_code), style = MaterialTheme.typography.titleMedium)
                 },
                 description = {
                     Text(text = versionCode.toString(), style = MaterialTheme.typography.titleSmall)
@@ -45,7 +45,7 @@ fun AboutScreen() {
             
             
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = R.string.git_commit), style = MaterialTheme.typography.titleMedium) },
+                title = { Text(text = stringResource(id = strings.git_commit), style = MaterialTheme.typography.titleMedium) },
                 description = {
                     Text(
                         text = BuildConfig.GIT_SHORT_COMMIT_HASH,
@@ -55,10 +55,10 @@ fun AboutScreen() {
             )
 
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = R.string.github), style = MaterialTheme.typography.titleMedium) },
+                title = { Text(text = stringResource(id = strings.github), style = MaterialTheme.typography.titleMedium) },
                 description = {
                     Text(
-                        text = stringResource(id = R.string.github_desc),
+                        text = stringResource(id = strings.github_desc),
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },
@@ -70,7 +70,7 @@ fun AboutScreen() {
                             context.startActivity(intent)
                         }
                     ) {
-                        Text(stringResource(id = R.string.github))
+                        Text(stringResource(id = strings.github))
                     }
                 },
             )
@@ -79,11 +79,11 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(text = stringResource(id = R.string.telegram), style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(id = strings.telegram), style = MaterialTheme.typography.titleMedium)
                 },
                 description = {
                     Text(
-                        text = stringResource(id = R.string.telegram_desc),
+                        text = stringResource(id = strings.telegram_desc),
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },
@@ -95,7 +95,7 @@ fun AboutScreen() {
                             context.startActivity(intent)
                         }
                     ) {
-                        Text(stringResource(id = R.string.join))
+                        Text(stringResource(id = strings.join))
                     }
                 },
             )

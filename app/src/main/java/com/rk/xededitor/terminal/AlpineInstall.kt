@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.lifecycle.lifecycleScope
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.LoadingPopup
+import com.rk.resources.strings
 import com.rk.runner.commonUtils
 import com.rk.runner.commonUtils.exctractAssets
 import com.rk.settings.PreferencesData
@@ -45,7 +46,7 @@ class AlpineInstall(val terminal: Terminal) {
         rootfsDir.mkdirs()
         
         Debug("show popup")
-        val loadingPopup = LoadingPopup(terminal, null).setMessage(rkUtils.getString(R.string.wait_pkg))
+        val loadingPopup = LoadingPopup(terminal, null).setMessage(rkUtils.getString(strings.wait_pkg))
         loadingPopup.show()
         
         terminal.lifecycleScope.launch(Dispatchers.Main) {

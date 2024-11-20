@@ -28,6 +28,7 @@ import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.io.File
+import com.rk.resources.drawable
 
 class FileBinder(
     private val binding: FiletreeLayoutBinding,
@@ -91,7 +92,7 @@ class FileBinder(
         val binding = FiletreeDirBinding.bind(holder.itemView)
         
         val icon = folderDrawable ?: AppCompatResources.getDrawable(
-            binding.root.context, com.rk.libcommons.R.drawable.folder
+            binding.root.context, drawable.folder
         )!!.also { folderDrawable = it }
         
         icon.setBounds(0, 0, rkUtils.dpToPx(16f, context), rkUtils.dpToPx(16f, context))

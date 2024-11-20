@@ -29,6 +29,7 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.R
 import com.rk.libcommons.SetupEditor
+import com.rk.resources.strings
 import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -172,7 +173,7 @@ class MainActivity : BaseActivity() {
     private fun setupDrawer() {
         val drawerLayout = binding!!.drawerLayout
         drawerToggle =
-            ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
+            ActionBarDrawerToggle(this, drawerLayout,strings.open_drawer, strings.close_drawer)
         drawerLayout.addDrawerListener(drawerToggle!!)
         drawerToggle!!.syncState()
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)

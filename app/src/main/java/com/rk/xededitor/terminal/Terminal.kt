@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import com.blankj.utilcode.util.SizeUtils
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
@@ -54,7 +55,7 @@ class Terminal : BaseActivity() {
                             lastBackPressedTime = currentTime
                             Toast.makeText(
                                 this@Terminal,
-                                rkUtils.getString(R.string.press_again_exit),
+                                rkUtils.getString(strings.press_again_exit),
                                 Toast.LENGTH_SHORT,
                             ).show()
                         }

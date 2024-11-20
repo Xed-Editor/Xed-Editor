@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
+import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -144,8 +145,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 
                 tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]!!.get()?.fragment?.let {
                     if (askUser && it is EditorFragment && it.isModified()) {
-                        askClose(
-                            title = "Unsaved File",
+                        askClose(title = "Unsaved File",
                             message = "Are you sure you want to discard this unsaved document?",
                             onCancel = {},
                             onClose = {
@@ -188,13 +188,9 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             }
             
             if (shouldAsk) {
-                askClose(
-                    title = "Unsaved Files",
-                    message = "Some files are not saved",
-                    onCancel = {},
-                    onClose = {
-                        close()
-                    })
+                askClose(title = "Unsaved Files", message = "Some files are not saved", onCancel = {}, onClose = {
+                    close()
+                })
             } else {
                 close()
             }
@@ -206,18 +202,18 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     fun addFragment(file: File, fragmentType: FragmentType? = null) {
         val type = fragmentType ?: file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
-            rkUtils.toast(rkUtils.getString(R.string.file_too_large))
+            rkUtils.toast(rkUtils.getString(strings.file_too_large))
             return
         }
         
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.absolutePath)) {
-                rkUtils.toast(getString(R.string.already_opened))
+                rkUtils.toast(getString(strings.already_opened))
                 return
             }
             if (tabViewModel.fragmentFiles.size >= tabLimit) {
                 rkUtils.toast(
-                    "${getString(R.string.open_cant)} $tabLimit ${getString(R.string.files)}"
+                    "${getString(strings.open_cant)} $tabLimit ${getString(strings.files)}"
                 )
                 return
             }
@@ -238,11 +234,10 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     
     
     private fun askClose(onCancel: () -> Unit, onClose: () -> Unit, title: String, message: String) {
-        MaterialAlertDialogBuilder(mainActivity).setTitle(title).setMessage(message)
-            .setNegativeButton("Cancel") { _, _ ->
-                onCancel.invoke()
-            }.setPositiveButton("Close") { _, _ ->
-                onClose.invoke()
-            }.show()
+        MaterialAlertDialogBuilder(mainActivity).setTitle(title).setMessage(message).setNegativeButton("Cancel") { _, _ ->
+            onCancel.invoke()
+        }.setPositiveButton("Close") { _, _ ->
+            onClose.invoke()
+        }.show()
     }
 }

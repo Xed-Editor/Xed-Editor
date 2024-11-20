@@ -7,13 +7,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.rk.resources.strings
+import com.rk.resources.drawable
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.components.InputDialog
@@ -23,13 +24,13 @@ import org.robok.engine.core.components.compose.preferences.category.PreferenceC
 
 @Composable
 fun SettingsEditorScreen() {
-    PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
         
         SettingsToggle(
-            label = stringResource(id = R.string.smooth_tabs),
-            description = stringResource(id = R.string.smooth_tab_desc),
-            iconRes = R.drawable.animation,
+            label = stringResource(id = strings.smooth_tabs),
+            description = stringResource(id = strings.smooth_tab_desc),
+            iconRes = drawable.animation,
             key = PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL,
             default = false,
             sideEffect = {
@@ -39,9 +40,9 @@ fun SettingsEditorScreen() {
         
         
         SettingsToggle(
-            label = stringResource(id = R.string.ww),
-            description = stringResource(id = R.string.ww_desc),
-            iconRes = R.drawable.reorder,
+            label = stringResource(id = strings.ww),
+            description = stringResource(id = strings.ww_desc),
+            iconRes = drawable.reorder,
             key = PreferencesKeys.WORD_WRAP_ENABLED,
             default = false,
             sideEffect = {
@@ -56,7 +57,7 @@ fun SettingsEditorScreen() {
         SettingsToggle(
             label = "Anti word breaking",
             description = "don't break words in word wrap",
-            iconRes = R.drawable.reorder,
+            iconRes = drawable.reorder,
             key = PreferencesKeys.ANTI_WORD_BREAKING,
             default = true,
             sideEffect = {
@@ -69,9 +70,9 @@ fun SettingsEditorScreen() {
         )
         
         SettingsToggle(
-            label = stringResource(R.string.txt_ww),
-            description = stringResource(R.string.txt_ww_desc),
-            iconRes = R.drawable.reorder,
+            label = stringResource(strings.txt_ww),
+            description = stringResource(strings.txt_ww_desc),
+            iconRes = drawable.reorder,
             key = PreferencesKeys.WORD_WRAP_TXT,
             default = false,
             sideEffect = {
@@ -90,28 +91,28 @@ fun SettingsEditorScreen() {
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.keepdl),
-            description = stringResource(id = R.string.drawer_lock_desc),
-            iconRes = R.drawable.lock,
+            label = stringResource(id = strings.keepdl),
+            description = stringResource(id = strings.drawer_lock_desc),
+            iconRes = drawable.lock,
             key = PreferencesKeys.KEEP_DRAWER_LOCKED,
             default = false,
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.diagonal_scroll),
-            description = stringResource(id = R.string.diagonal_scroll_desc),
-            iconRes = R.drawable.diagonal_scroll,
+            label = stringResource(id = strings.diagonal_scroll),
+            description = stringResource(id = strings.diagonal_scroll_desc),
+            iconRes = drawable.diagonal_scroll,
             key = PreferencesKeys.DIAGONAL_SCROLL,
             default = true,
             sideEffect = {
-                rkUtils.toast(getString(R.string.rr))
+                rkUtils.toast(getString(strings.rr))
             }
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.cursor_anim),
-            description = stringResource(id = R.string.cursor_anim_desc),
-            iconRes = R.drawable.animation,
+            label = stringResource(id = strings.cursor_anim),
+            description = stringResource(id = strings.cursor_anim_desc),
+            iconRes = drawable.animation,
             key = PreferencesKeys.CURSOR_ANIMATION_ENABLED,
             default = false,
             sideEffect = {
@@ -125,9 +126,9 @@ fun SettingsEditorScreen() {
         
         
         SettingsToggle(
-            label = stringResource(id = R.string.show_line_number),
-            description = stringResource(id = R.string.show_line_number),
-            iconRes = R.drawable.linenumbers,
+            label = stringResource(id = strings.show_line_number),
+            description = stringResource(id = strings.show_line_number),
+            iconRes = drawable.linenumbers,
             key = PreferencesKeys.SHOW_LINE_NUMBERS,
             default = true,
             sideEffect = {
@@ -141,9 +142,9 @@ fun SettingsEditorScreen() {
         
         
         SettingsToggle(
-            label = stringResource(id = R.string.pin_line_number),
-            description = stringResource(id = R.string.pin_line_number),
-            iconRes = R.drawable.linenumbers,
+            label = stringResource(id = strings.pin_line_number),
+            description = stringResource(id = strings.pin_line_number),
+            iconRes = drawable.linenumbers,
             key = PreferencesKeys.PIN_LINE_NUMBER,
             default = false,
             sideEffect = {
@@ -156,9 +157,9 @@ fun SettingsEditorScreen() {
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.show_suggestions),
-            description = stringResource(id = R.string.show_suggestions),
-            iconRes = R.drawable.baseline_font_download_24,
+            label = stringResource(id = strings.show_suggestions),
+            description = stringResource(id = strings.show_suggestions),
+            iconRes = drawable.baseline_font_download_24,
             key = PreferencesKeys.SHOW_SUGGESTIONS,
             default = false,
             sideEffect = {
@@ -171,9 +172,9 @@ fun SettingsEditorScreen() {
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.extra_keys),
-            description = stringResource(id = R.string.extra_keys_desc),
-            iconRes = R.drawable.double_arrows,
+            label = stringResource(id = strings.extra_keys),
+            description = stringResource(id = strings.extra_keys_desc),
+            iconRes = drawable.double_arrows,
             key = PreferencesKeys.SHOW_ARROW_KEYS,
             default = true,
             sideEffect = {
@@ -196,17 +197,17 @@ fun SettingsEditorScreen() {
         
         
         SettingsToggle(
-            label = stringResource(id = R.string.auto_save),
-            description = stringResource(id = R.string.auto_save_desc),
-            iconRes = R.drawable.save,
+            label = stringResource(id = strings.auto_save),
+            description = stringResource(id = strings.auto_save_desc),
+            iconRes = drawable.save,
             key = PreferencesKeys.AUTO_SAVE,
             default = false,
         )
         
         SettingsToggle(
-            label = stringResource(R.string.sora_s),
-            description = stringResource(R.string.sora_s_desc),
-            iconRes = R.drawable.search,
+            label = stringResource(strings.sora_s),
+            description = stringResource(strings.sora_s_desc),
+            iconRes = drawable.search,
             key = PreferencesKeys.USE_SORA_SEARCH,
             default = false,
         )
@@ -228,35 +229,35 @@ fun SettingsEditorScreen() {
         }
         
         PreferenceCategory(
-            label = stringResource(id = R.string.auto_save_time),
-            description = stringResource(id = R.string.auto_save_time_desc),
-            iconResource = R.drawable.save,
+            label = stringResource(id = strings.auto_save_time),
+            description = stringResource(id = strings.auto_save_time_desc),
+            iconResource = drawable.save,
             onNavigate = { showAutoSaveDialog = true },
         )
         PreferenceCategory(
-            label = stringResource(id = R.string.text_size),
-            description = stringResource(id = R.string.text_size_desc),
-            iconResource = R.drawable.reorder,
+            label = stringResource(id = strings.text_size),
+            description = stringResource(id = strings.text_size_desc),
+            iconResource = drawable.reorder,
             onNavigate = { showTextSizeDialog = true },
         )
         PreferenceCategory(
-            label = stringResource(id = R.string.tab_size),
-            description = stringResource(id = R.string.tab_size_desc),
-            iconResource = R.drawable.double_arrows,
+            label = stringResource(id = strings.tab_size),
+            description = stringResource(id = strings.tab_size_desc),
+            iconResource = drawable.double_arrows,
             onNavigate = { showTabSizeDialog = true },
         )
         
         if (showAutoSaveDialog) {
             InputDialog(
-                title = stringResource(id = R.string.auto_save_time),
-                inputLabel = stringResource(id = R.string.intervalinMs),
+                title = stringResource(id = strings.auto_save_time),
+                inputLabel = stringResource(id = strings.intervalinMs),
                 inputValue = autoSaveTimeValue,
                 onInputValueChange = { autoSaveTimeValue = it },
                 onConfirm = {
                     if (autoSaveTimeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(R.string.inavalid_v))
+                        rkUtils.toast(context.getString(strings.inavalid_v))
                     } else if (autoSaveTimeValue.toInt() < 1000) {
-                        rkUtils.toast(context.getString(R.string.v_small))
+                        rkUtils.toast(context.getString(strings.v_small))
                     } else {
                         PreferencesData.setString(
                             PreferencesKeys.AUTO_SAVE_TIME_VALUE,
@@ -272,17 +273,17 @@ fun SettingsEditorScreen() {
         
         if (showTextSizeDialog) {
             InputDialog(
-                title = stringResource(id = R.string.text_size),
-                inputLabel = stringResource(id = R.string.text_size),
+                title = stringResource(id = strings.text_size),
+                inputLabel = stringResource(id = strings.text_size),
                 inputValue = textSizeValue,
                 onInputValueChange = { textSizeValue = it },
                 onConfirm = {
                     if (textSizeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(R.string.inavalid_v))
+                        rkUtils.toast(context.getString(strings.inavalid_v))
                     } else if (textSizeValue.toInt() > 32) {
-                        rkUtils.toast(context.getString(R.string.v_large))
+                        rkUtils.toast(context.getString(strings.v_large))
                     } else if (textSizeValue.toInt() < 8) {
-                        rkUtils.toast(context.getString(R.string.v_small))
+                        rkUtils.toast(context.getString(strings.v_small))
                     } else {
                         PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
@@ -299,15 +300,15 @@ fun SettingsEditorScreen() {
         }
         if (showTabSizeDialog) {
             InputDialog(
-                title = stringResource(id = R.string.tab_size),
-                inputLabel = stringResource(id = R.string.tab_size),
+                title = stringResource(id = strings.tab_size),
+                inputLabel = stringResource(id = strings.tab_size),
                 inputValue = tabSizeValue,
                 onInputValueChange = { tabSizeValue = it },
                 onConfirm = {
                     if (tabSizeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(R.string.inavalid_v))
+                        rkUtils.toast(context.getString(strings.inavalid_v))
                     } else if (tabSizeValue.toInt() > 16) {
-                        rkUtils.toast(context.getString(R.string.v_large))
+                        rkUtils.toast(context.getString(strings.v_large))
                     }
                     PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
                     
@@ -324,9 +325,9 @@ fun SettingsEditorScreen() {
         }
         
         SettingsToggle(
-            label = stringResource(id = R.string.editor_font),
-            description = stringResource(id = R.string.editor_font_desc),
-            iconRes = R.drawable.baseline_font_download_24,
+            label = stringResource(id = strings.editor_font),
+            description = stringResource(id = strings.editor_font_desc),
+            iconRes = drawable.baseline_font_download_24,
             key = PreferencesKeys.EDITOR_FONT,
             default = false,
         )

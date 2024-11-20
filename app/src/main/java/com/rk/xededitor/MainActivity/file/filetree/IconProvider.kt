@@ -1,9 +1,10 @@
 package com.rk.xededitor.MainActivity.file.filetree
 
 import com.rk.libcommons.R
+import com.rk.resources.drawable
 import java.io.File
 
-private typealias icon = R.drawable
+private typealias icon = drawable
 
 inline fun getIcon(fileForIcon: File): Int {
     return when (fileForIcon.name.substringAfterLast('.', "")
@@ -42,6 +43,6 @@ inline fun getIcon(fileForIcon: File): Int {
             "jsx" -> icon.react
             "lua" -> icon.languagelua
             
-            else -> com.rk.xededitor.R.drawable.outline_insert_drive_file_24
+            else -> drawable.outline_insert_drive_file_24
         }
 }

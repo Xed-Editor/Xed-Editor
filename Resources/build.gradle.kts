@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.externaleditor"
+    namespace = "com.rk.resources"
     compileSdk = 34
     
     defaultConfig {
@@ -21,11 +21,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "1.8"
     }
 }
 
@@ -37,10 +37,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation(project(":editor:editor"))
-    implementation(project(":editor:language-textmate"))
-    implementation(project(":core:commons"))
-    implementation(project(":feature:settings"))
-    implementation(project(":feature:runner"))
-    implementation(project(":Resources"))
 }

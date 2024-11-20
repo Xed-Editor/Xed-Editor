@@ -7,6 +7,7 @@ import com.rk.runner.RunnerImpl
 import com.rk.runner.commonUtils.exctractAssets
 import com.rk.runner.commonUtils.runCommand
 import java.io.File
+import com.rk.resources.drawable
 
 class NodeRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
@@ -30,7 +31,7 @@ class NodeRunner : RunnerImpl {
     }
 
     override fun getIcon(context: Context): Drawable? {
-        return ContextCompat.getDrawable(context, com.rk.libcommons.R.drawable.ic_language_js)
+        return ContextCompat.getDrawable(context, drawable.ic_language_js)
     }
     override fun isRunning(): Boolean {
         return false

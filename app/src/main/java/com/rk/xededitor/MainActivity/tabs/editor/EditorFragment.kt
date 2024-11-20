@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.KarbonEditor
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -160,7 +161,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
             }
             if (showToast) {
-                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(R.string.saved)) }
+                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(strings.saved)) }
             }
         }
     }

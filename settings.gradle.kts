@@ -42,3 +42,4 @@ include(":core:commons")
 include(":wasm3")
 include(":app:externalEditor")
 
+include(":Resources")

@@ -1,35 +1,30 @@
 package com.rk.xededitor.ui.screens.settings.terminal
 
 import android.content.Context
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.trace
 import com.jaredrummler.ktsh.Shell
+import com.rk.resources.drawable
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
-import java.io.File
-import java.nio.file.Files
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
+import java.io.File
+import java.nio.file.Files
 
 @OptIn(DelicateCoroutinesApi::class)
 fun updateProotArgs(context: Context): Boolean {
@@ -63,45 +58,45 @@ fun updateProotArgs(context: Context): Boolean {
 
 @Composable
 fun SettingsTerminalScreen() {
-    PreferenceLayout(label = stringResource(id = R.string.terminal), backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
 
         SettingsToggle(
-            label = stringResource(id = R.string.fail_safe),
-            description = stringResource(id = R.string.failsafe_desc),
-            iconRes = R.drawable.android,
+            label = stringResource(id = strings.fail_safe),
+            description = stringResource(id = strings.failsafe_desc),
+            iconRes = drawable.android,
             key = PreferencesKeys.FAIL_SAFE,
             default = false
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.show_virtual_keyboard),
-            description = stringResource(id = R.string.show_virtual_keyboard_desc),
-            iconRes = R.drawable.edit,
+            label = stringResource(id = strings.show_virtual_keyboard),
+            description = stringResource(id = strings.show_virtual_keyboard_desc),
+            iconRes = drawable.edit,
             key = PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,
             default = true
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.useCtrlWorkaround),
-            description = stringResource(id = R.string.useCtrlWorkaround_desc),
-            iconRes = R.drawable.terminal,
+            label = stringResource(id = strings.useCtrlWorkaround),
+            description = stringResource(id = strings.useCtrlWorkaround_desc),
+            iconRes = drawable.terminal,
             key = PreferencesKeys.CTRL_WORKAROUND,
             default = false
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.force_char),
-            description = stringResource(id = R.string.force_char_desc),
-            iconRes = R.drawable.edit,
+            label = stringResource(id = strings.force_char),
+            description = stringResource(id = strings.force_char_desc),
+            iconRes = drawable.edit,
             key = PreferencesKeys.FORCE_CHAR,
             default = true
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.sim_hard_links),
-            description = stringResource(id = R.string.sim_hard_links_desc),
-            iconRes = R.drawable.terminal,
+            label = stringResource(id = strings.sim_hard_links),
+            description = stringResource(id = strings.sim_hard_links_desc),
+            iconRes = drawable.terminal,
             key = PreferencesKeys.LINK2SYMLINK,
             default = true,
             sideEffect = {
@@ -110,9 +105,9 @@ fun SettingsTerminalScreen() {
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.sim_ashmem),
-            description = stringResource(id = R.string.sim_ashmem),
-            iconRes = R.drawable.terminal,
+            label = stringResource(id = strings.sim_ashmem),
+            description = stringResource(id = strings.sim_ashmem),
+            iconRes = drawable.terminal,
             key = PreferencesKeys.ASHMEM_MEMFD,
             default = true,
             sideEffect = {
@@ -122,9 +117,9 @@ fun SettingsTerminalScreen() {
         
         
         SettingsToggle(
-            label = stringResource(id = R.string.sysvipc),
-            description = stringResource(id = R.string.sysvipc),
-            iconRes = R.drawable.terminal,
+            label = stringResource(id = strings.sysvipc),
+            description = stringResource(id = strings.sysvipc),
+            iconRes = drawable.terminal,
             key = PreferencesKeys.SYSVIPC,
             default = true,
             sideEffect = {
@@ -133,9 +128,9 @@ fun SettingsTerminalScreen() {
         )
         
         SettingsToggle(
-            label = stringResource(id = R.string.kill_on_exit),
-            description = stringResource(id = R.string.kill_on_exit_desc),
-            iconRes = R.drawable.terminal,
+            label = stringResource(id = strings.kill_on_exit),
+            description = stringResource(id = strings.kill_on_exit_desc),
+            iconRes = drawable.terminal,
             key = PreferencesKeys.KILL_ON_EXIT,
             default = true,
             sideEffect = {
@@ -148,9 +143,9 @@ fun SettingsTerminalScreen() {
         
         var showLShellDialog by remember { mutableStateOf(false) }
         PreferenceCategory(
-            label = stringResource(id = R.string.Lshell),
-            description = stringResource(id = R.string.Lshell_desc),
-            iconResource = R.drawable.terminal,
+            label = stringResource(id = strings.Lshell),
+            description = stringResource(id = strings.Lshell_desc),
+            iconResource = drawable.terminal,
             onNavigate = { showLShellDialog = true },
         )
 
@@ -162,7 +157,7 @@ fun SettingsTerminalScreen() {
                 )
             }
             InputDialog(
-                title = stringResource(id = R.string.Lshell),
+                title = stringResource(id = strings.Lshell),
                 inputLabel = "eg. /bin/sh",
                 inputValue = inputValue,
                 onInputValueChange = { inputValue = it },
@@ -181,10 +176,10 @@ fun SettingsTerminalScreen() {
                                 "echo \"$shell\" > ${context.filesDir!!.parentFile!!.absolutePath}/shell"
                             )
                         } else {
-                            rkUtils.toast(rkUtils.getString(R.string.file_exist_not))
+                            rkUtils.toast(rkUtils.getString(strings.file_exist_not))
                         }
                     } else {
-                        rkUtils.toast(rkUtils.getString(R.string.cannot_be_empty))
+                        rkUtils.toast(rkUtils.getString(strings.cannot_be_empty))
                     }
                 },
                 onDismiss = { showLShellDialog = false },
@@ -193,9 +188,9 @@ fun SettingsTerminalScreen() {
 
         var showTextSizeDialog by remember { mutableStateOf(false) }
         PreferenceCategory(
-            label = stringResource(id = R.string.terminal_text_size),
-            description = stringResource(id = R.string.terminal_text_size_desc),
-            iconResource = R.drawable.terminal,
+            label = stringResource(id = strings.terminal_text_size),
+            description = stringResource(id = strings.terminal_text_size_desc),
+            iconResource = drawable.terminal,
             onNavigate = { showTextSizeDialog = true },
         )
 
@@ -204,8 +199,8 @@ fun SettingsTerminalScreen() {
                 mutableStateOf(PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14"))
             }
             InputDialog(
-                title = stringResource(id = R.string.text_size),
-                inputLabel = stringResource(R.string.terminal_text_size),
+                title = stringResource(id = strings.text_size),
+                inputLabel = stringResource(strings.terminal_text_size),
                 inputValue = inputValue,
                 onInputValueChange = { inputValue = it },
                 onConfirm = {
@@ -216,12 +211,12 @@ fun SettingsTerminalScreen() {
                             PreferencesData.setString(PreferencesKeys.TERMINAL_TEXT_SIZE, text)
                         } else {
                             rkUtils.toast(
-                                if (size != null && size > 32) rkUtils.getString(R.string.v_large)
-                                else rkUtils.getString(R.string.v_small)
+                                if (size != null && size > 32) rkUtils.getString(strings.v_large)
+                                else rkUtils.getString(strings.v_small)
                             )
                         }
                     } else {
-                        rkUtils.toast(rkUtils.getString(R.string.inavalid_v))
+                        rkUtils.toast(rkUtils.getString(strings.inavalid_v))
                     }
                 },
                 onDismiss = { showTextSizeDialog = false },
