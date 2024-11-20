@@ -111,10 +111,6 @@ class FileBinder(
     
     override fun onClick(node: TreeNode<File>, holder: TreeView.ViewHolder) {
         if (node.isChild) {
-                val config = SFTPFilesystem.getConfig(node.requireData())
-                if (config != "") {
-                    context.projectManager.sftpProjects[config]!!.openFolder(node.requireData().absolutePath)
-                }
             applyDir(holder, node)
         } else {
             onFileClick(node.requireData())

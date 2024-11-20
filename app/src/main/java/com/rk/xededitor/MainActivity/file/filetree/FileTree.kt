@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
 
 class FileTree(val context: MainActivity, val path: String, val parent: ViewGroup) {
     val binding: FiletreeLayoutBinding
@@ -81,7 +82,12 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
                     if (it.isPaused) {
                         return@let
                     }
-                    
+                    val config = SFTPFilesystem.getConfig(file)
+                    if (config != "") {
+                        if (file.isDirectory) {
+                            context.projectManager.sftpProjects[config]!!.openFolder(file.absolutePath)
+                        }
+                    }
                     it.adapter!!.addFragment(file)
                     if (!PreferencesData.getBoolean(
                             PreferencesKeys.KEEP_DRAWER_LOCKED,
