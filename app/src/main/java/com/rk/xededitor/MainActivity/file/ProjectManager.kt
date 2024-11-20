@@ -23,6 +23,7 @@ import android.view.MenuItem
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.DefaultScope
 import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
+import com.rk.libcommons.LoadingPopup
 
 //welcome to hell
 class ProjectManager {
@@ -124,101 +125,18 @@ class ProjectManager {
     }
 
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
-        if (activityRef.get() == null) {
-            activityRef = WeakReference(activity)
-        }
-        if (projects.size >= 6) {
-            return
-        }
-        if (projects.containsKey(connectionString)){
-            rkUtils.toast("Project already opened")
-            return
-        }
+        val loading = LoadingPopup(activity, null)
+        loading.setMessage(rkUtils.getString(R.string.wait))
         val sftp = SFTPFilesystem(activity, connectionString)
-        DefaultScope.launch(Dispatchers.IO) {
-            sftp.connect()
-            sftp.open("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
-            sftp.disconnect()
-        }
-        try {
-            val rail = activity.binding?.navigationRail ?: return
-            
-            // Find available menu item safely
-            val availableMenuItem = (0 until rail.menu.size())
-                .map { rail.menu.getItem(it) }
-                .find { item ->
-                    item.itemId != R.id.add_new && !menuItems.containsKey(item.itemId)
-                } ?: return
-            
-            // Setup menu item
-            val menuItemId = availableMenuItem.itemId
-            availableMenuItem.apply {
-                title = "sftp"
-                isVisible = true
-                isChecked = true
+        DefaultScope.launch(Dispatchers.Main) {
+            loading.show()
+            withContext(Dispatchers.IO) {
+                sftp.connect()
+                sftp.open("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                sftp.disconnect()
             }
-            
-            // Create and store project
-            FileTree(activity, sftp.tempDir!!.absolutePath, activity.binding!!.maindrawer)
-            val newViewId = multiView.getCurrentViewId()
-            
-            // Update state maps atomically
-            synchronized(this) {
-                projects[connectionString] = newViewId
-                menuItems[menuItemId] = newViewId
-                currentProjectId = newViewId
-            }
-            
-            // Update UI state
-            if (rail.menu.getItem(5).isVisible) {
-                rail.menu.getItem(6).isVisible = false
-            }
-            
-            // Save state
-            activity.lifecycleScope.launch {
-                saveProjects(activity)
-            }
-            
-        } catch (e: Exception) {
-            // Log error and restore consistent state if needed
-            println("Error adding project: ${e.message}")
-            // Could add error recovery logic here if needed
-        }
-    }
-    
-    fun changeProject(menuItemId: Int, activity: MainActivity) {
-        try {
-            // Safety check for valid menu item ID
-            val viewId = menuItems[menuItemId] ?: return
-            
-            // Safety check for valid view
-            if (!views.containsKey(viewId)) {
-                return
-            }
-            
-            // Perform view switch on main thread if needed
-            if (!activity.isFinishing) {
-                activity.runOnUiThread {
-                    try {
-                        multiView.switchTo(viewId)
-                        currentProjectId = multiView.getCurrentViewId()
-                        
-                        // Update menu item states
-                        activity.binding?.navigationRail?.let { rail ->
-                            // Uncheck all menu items
-                            for (i in 0 until rail.menu.size()) {
-                                rail.menu.getItem(i).isChecked = false
-                            }
-                            // Check the selected item
-                            rail.menu.findItem(menuItemId)?.isChecked = true
-                        }
-                    } catch (e: Exception) {
-                        println("Error switching view: ${e.message}")
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            println("Error changing project: ${e.message}")
+            loading.hide()
+            addProject(activity, sftp.tempDir!!)
         }
     }
     
