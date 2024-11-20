@@ -23,6 +23,7 @@ import android.view.MenuItem
 import com.rk.xededitor.rkUtils
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.Session
+import com.rk.xededitor.DefaultScope
 
 //welcome to hell
 class ProjectManager {
@@ -129,13 +130,15 @@ class ProjectManager {
         val session = jsch.getSession(parts[0], parts[2], parts[3].toInt())
         session.setPassword(parts[1])
         session.setConfig("StrictHostKeyChecking", "no")
-        session.connect(5000)
-        if (session.isConnected) {
-            rkUtils.toast("Successfully")
-        } else {
-            rkUtils.toast("failed")
+        DefaultScope.launch(Dispatchers.IO) {
+            session.connect(5000)
+            if (session.isConnected) {
+                rkUtils.toast("Successfully")
+            } else {
+                rkUtils.toast("failed")
+            }
+            session.disconnect()
         }
-        session.disconnect()
     }
     
     fun changeProject(menuItemId: Int, activity: MainActivity) {
