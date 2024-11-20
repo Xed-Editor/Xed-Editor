@@ -10,7 +10,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     private val jsch = JSch()
     private var session: Session? = null
     private var channel: ChannelSftp? = null
-    private var tempDir: File? = null
+    var tempDir: File? = null
 
     init {
         val parts = connectionString.split("@", ":", "/", limit = 5)
@@ -46,7 +46,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             }
         }
         try {
-            val files = channel?.ls(remotePath) as? Vector<ChannelSftp.LsEntry>
+            val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
             files?.forEach { entry ->
                 val remoteFilePath = "$remotePath/${entry.filename}"
                 val localFile = File(tempDir, entry.filename)
