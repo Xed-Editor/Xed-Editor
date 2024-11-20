@@ -124,6 +124,7 @@ class ProjectManager {
     }
 
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
+        val done = false
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
         }
@@ -146,30 +147,7 @@ class ProjectManager {
                 if (session.isConnected) {
                     val sftpChannel = session.openChannel("sftp") as ChannelSftp
                     sftpChannel.connect()
-                    val rail = activity.binding?.navigationRail ?: return
-                    val availableMenuItem = (0 until rail.menu.size())
-                        .map { rail.menu.getItem(it) }
-                        .find { item ->
-                            item.itemId != R.id.add_new && !menuItems.containsKey(item.itemId)
-                        } ?: return
-                    val menuItemId = availableMenuItem.itemId
-                    availableMenuItem.apply {
-                        title = path
-                        isVisible = true
-                        isChecked = true
-                    }
-                    val newViewId = multiView.getCurrentViewId()
-                    synchronized(this) {
-                        projects[connectionString] = newViewId
-                        menuItems[menuItemId] = newViewId
-                        currentProjectId = newViewId
-                    }
-                    if (rail.menu.getItem(5).isVisible) {
-                        rail.menu.getItem(6).isVisible = false
-                    }
-                    activity.lifecycleScope.launch {
-                        saveProjects(activity)
-                    }
+                    // todo
                 } else {
                     rkUtils.toast("Failed. Check your connection data!")
                 }
@@ -177,6 +155,50 @@ class ProjectManager {
                 rkUtils.toast("Error: ${e.message}")
             }
             session.disconnect()
+        }
+        try {
+            val rail = activity.binding?.navigationRail ?: return
+            
+            // Find available menu item safely
+            val availableMenuItem = (0 until rail.menu.size())
+                .map { rail.menu.getItem(it) }
+                .find { item ->
+                    item.itemId != R.id.add_new && !menuItems.containsKey(item.itemId)
+                } ?: return
+            
+            // Setup menu item
+            val menuItemId = availableMenuItem.itemId
+            availableMenuItem.apply {
+                title = path
+                isVisible = true
+                isChecked = true
+            }
+            
+            // Create and store project
+            //FileTree(activity, file.absolutePath, activity.binding!!.maindrawer)
+            val newViewId = multiView.getCurrentViewId()
+            
+            // Update state maps atomically
+            synchronized(this) {
+                projects[connectionString] = newViewId
+                menuItems[menuItemId] = newViewId
+                currentProjectId = newViewId
+            }
+            
+            // Update UI state
+            if (rail.menu.getItem(5).isVisible) {
+                rail.menu.getItem(6).isVisible = false
+            }
+            
+            // Save state
+            activity.lifecycleScope.launch {
+                saveProjects(activity)
+            }
+            
+        } catch (e: Exception) {
+            // Log error and restore consistent state if needed
+            println("Error adding project: ${e.message}")
+            // Could add error recovery logic here if needed
         }
     }
     
