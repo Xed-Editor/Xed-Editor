@@ -143,8 +143,8 @@ class ProjectManager {
         sftpProjects[connectionString] = sftp
     }
 
-    fun isRemoteProject(key: String): Boolean {
-        return sftpProjects.containsKey(key)
+    fun isRemoteProject(value: String): Boolean {
+        return SFTPFilesystem.configFormat.matches(value)
     }
 
     fun changeProject(menuItemId: Int, activity: MainActivity) {
@@ -265,16 +265,16 @@ class ProjectManager {
         views.clear()
         projects.clear()
         multiView.clearView()
+        val sftpFormat = Regex("""/([^/]+:[^/]+@[^/]+:\d+)/""")
         val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
         if (jsonString.isNotEmpty()) {
             val gson = Gson()
             val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
-
             projectsList.forEach {
                 val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
-                if (isRemoteProject(file.name)) {
-                    addRemoteProject(activity, file.name)
+                if (isRemoteProject(sftpFormat.find(file.absolutePath)?.groupValues?.get(1) ?: "")) {
+                    addRemoteProject(activity, sftpFormat.find(file.absolutePath)?.groupValues?.get(1) ?: "")
                 } else {
                     addProject(activity, file)
                 }

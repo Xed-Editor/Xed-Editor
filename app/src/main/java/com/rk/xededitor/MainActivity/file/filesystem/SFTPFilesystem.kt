@@ -74,4 +74,8 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         channel = null
         session = null
     }
+
+    companion object {
+        val configFormat = Regex("""^[^:@]+:[^:@]+@[^:@]+:\d+$""")
+    }
 }
