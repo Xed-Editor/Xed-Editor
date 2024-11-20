@@ -21,8 +21,7 @@ import java.util.LinkedList
 import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
-import com.jcraft.jsch.JSch
-import com.jcraft.jsch.Session
+import com.jcraft.jsch.*
 import com.rk.xededitor.DefaultScope
 
 //welcome to hell
@@ -125,17 +124,57 @@ class ProjectManager {
     }
 
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
+        if (activityRef.get() == null) {
+            activityRef = WeakReference(activity)
+        }
+        if (projects.size >= 6) {
+            return
+        }
+        if (projects.containsKey(connectionString)){
+            rkUtils.toast("Project already opened")
+            return
+        }
         val parts = connectionString.split("@", ":", "/", limit = 5)
+        val path = "/${parts[4]}"
         val jsch = JSch()
         val session = jsch.getSession(parts[0], parts[2], parts[3].toInt())
         session.setPassword(parts[1])
         session.setConfig("StrictHostKeyChecking", "no")
         DefaultScope.launch(Dispatchers.IO) {
-            session.connect(5000)
-            if (session.isConnected) {
-                rkUtils.toast("Successfully")
-            } else {
-                rkUtils.toast("failed")
+            try {
+                session.connect(5000)
+                if (session.isConnected) {
+                    val sftpChannel = session.openChannel("sftp") as ChannelSftp
+                    sftpChannel.connect()
+                    val rail = activity.binding?.navigationRail ?: return
+                    val availableMenuItem = (0 until rail.menu.size())
+                        .map { rail.menu.getItem(it) }
+                        .find { item ->
+                            item.itemId != R.id.add_new && !menuItems.containsKey(item.itemId)
+                        } ?: return
+                    val menuItemId = availableMenuItem.itemId
+                    availableMenuItem.apply {
+                        title = path
+                        isVisible = true
+                        isChecked = true
+                    }
+                    val newViewId = multiView.getCurrentViewId()
+                    synchronized(this) {
+                        projects[connectionString] = newViewId
+                        menuItems[menuItemId] = newViewId
+                        currentProjectId = newViewId
+                    }
+                    if (rail.menu.getItem(5).isVisible) {
+                        rail.menu.getItem(6).isVisible = false
+                    }
+                    activity.lifecycleScope.launch {
+                        saveProjects(activity)
+                    }
+                } else {
+                    rkUtils.toast("Failed. Check your connection data!")
+                }
+            } catch (e: Exception) {
+                rkUtils.toast("Error: ${e.message}")
             }
             session.disconnect()
         }
