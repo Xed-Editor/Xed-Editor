@@ -3,7 +3,7 @@ package com.rk.xededitor.MainActivity.file.filesystem
 import com.jcraft.jsch.*
 import com.rk.xededitor.rkUtils
 import java.io.File
-import android.context.Context
+import android.content.Context
 
 class SFTPFilesystem(private val context: Context, private val connectionString: String) {
 

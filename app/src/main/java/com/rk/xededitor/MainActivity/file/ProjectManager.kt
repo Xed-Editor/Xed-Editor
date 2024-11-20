@@ -22,7 +22,7 @@ import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.DefaultScope
-import com.rk.xededitor.filesystem.SFTPFilesystem
+import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
 
 //welcome to hell
 class ProjectManager {
@@ -153,7 +153,7 @@ class ProjectManager {
             // Setup menu item
             val menuItemId = availableMenuItem.itemId
             availableMenuItem.apply {
-                title = path
+                title = "sftp"
                 isVisible = true
                 isChecked = true
             }
