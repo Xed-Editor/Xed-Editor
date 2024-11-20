@@ -139,6 +139,42 @@ class ProjectManager {
             addProject(activity, sftp.tempDir!!)
         }
     }
+
+    fun changeProject(menuItemId: Int, activity: MainActivity) {
+        try {
+            // Safety check for valid menu item ID
+            val viewId = menuItems[menuItemId] ?: return
+            
+            // Safety check for valid view
+            if (!views.containsKey(viewId)) {
+                return
+            }
+            
+            // Perform view switch on main thread if needed
+            if (!activity.isFinishing) {
+                activity.runOnUiThread {
+                    try {
+                        multiView.switchTo(viewId)
+                        currentProjectId = multiView.getCurrentViewId()
+                        
+                        // Update menu item states
+                        activity.binding?.navigationRail?.let { rail ->
+                            // Uncheck all menu items
+                            for (i in 0 until rail.menu.size()) {
+                                rail.menu.getItem(i).isChecked = false
+                            }
+                            // Check the selected item
+                            rail.menu.findItem(menuItemId)?.isChecked = true
+                        }
+                    } catch (e: Exception) {
+                        println("Error switching view: ${e.message}")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            println("Error changing project: ${e.message}")
+        }
+    }
     
     fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
         val filePath = file.absolutePath
