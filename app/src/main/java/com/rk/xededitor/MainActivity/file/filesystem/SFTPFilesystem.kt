@@ -35,9 +35,9 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         }
     }
 
-    fun open(remotePath: String) {
+    fun openFolder(remotePath: String) {
         if (channel == null || !channel!!.isConnected) {
-            rkUtils.toast("Error")
+            rkUtils.toast("Error. Not connected!")
             return
         }
         tempDir = File(context.filesDir, connectionString).apply {
@@ -50,16 +50,16 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             files?.forEach { entry ->
                 val remoteFilePath = "$remotePath/${entry.filename}"
                 val localFile = File(tempDir, entry.filename)
-                if (entry.attrs.isDir) {
-                    if (!localFile.exists()) {
+                if (!localFile.exists()) {
+                    if (entry.attrs.isDir) {
                         localFile.mkdirs()
+                    } else {
+                        localFile.createNewFile()
                     }
-                } else {
-                    channel?.get(remoteFilePath, localFile.absolutePath)
                 }
             }
         } catch (e: Exception) {
-            rkUtils.toast("Error while opening ${remotePath}")
+            rkUtils.toast("${remotePath} not found")
         }
     }
 

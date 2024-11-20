@@ -132,7 +132,7 @@ class ProjectManager {
             loading.show()
             withContext(Dispatchers.IO) {
                 sftp.connect()
-                sftp.open("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                sftp.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
                 sftp.disconnect()
             }
             loading.hide()
