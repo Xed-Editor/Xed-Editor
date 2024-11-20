@@ -126,7 +126,7 @@ class ProjectManager {
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val jsch = JSch()
-        val session = jsch.getSession(parts[0], parts[2], parts[3])
+        val session = jsch.getSession(parts[0], parts[2], parts[3].toInt())
         session.setPassword(parts[1])
         session.setConfig("StrictHostKeyChecking", "no")
         session.connect(5000)
