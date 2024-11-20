@@ -172,7 +172,7 @@ dependencies {
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
-    implementation(libs.sshj)
+    implementation(libs.jsch)
     implementation(libs.commons.net)
     implementation(libs.gson)
     implementation(libs.jcodings)

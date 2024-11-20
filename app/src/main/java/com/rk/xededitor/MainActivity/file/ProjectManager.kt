@@ -21,10 +21,8 @@ import java.util.LinkedList
 import java.util.Queue
 import android.view.MenuItem
 import com.rk.xededitor.rkUtils
-import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.sftp.SFTPClient
-import net.schmizz.sshj.transport.verification.PromiscuousVerifier
-import com.rk.xededitor.DefaultScope
+import com.jcraft.jsch.JSch
+import com.jcraft.jsch.Session
 
 //welcome to hell
 class ProjectManager {
@@ -34,7 +32,6 @@ class ProjectManager {
     
     //file path : view project id
     val projects = HashMap<String,Int>()
-    val sftpClients = HashMap<String,SFTPClient>()
     
     //menu item id : view project id
     val menuItems = HashMap<Int,Int>()
@@ -128,28 +125,17 @@ class ProjectManager {
 
     fun addRemoteFolder(activity: MainActivity, connectionString: String) {
         val parts = connectionString.split("@", ":", "/", limit = 5)
-        val ssh = SSHClient()
-        ssh.addHostKeyVerifier(PromiscuousVerifier())
-        DefaultScope.launch(Dispatchers.IO) {
-            try {
-                rkUtils.toast("toast1")
-                ssh.connect(parts[2], parts[3].toInt())
-                rkUtils.toast("toast2")
-                ssh.authPassword(parts[0], parts[1])
-                rkUtils.toast("toast3")
-                if (ssh.isConnected && ssh.isAuthenticated) {
-                    // todo
-                    rkUtils.toast("connected")
-                } else {
-                    rkUtils.toast("Cannot connect. Check your connection string")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                rkUtils.toast("Connection error: ${e.message}")
-            } finally {
-                ssh.disconnect() // i remove this later
-            }
+        val jsch = JSch()
+        val session = jsch.getSession(parts[0], parts[2], parts[3])
+        session.setPassword(parts[1])
+        session.setConfig("StrictHostKeyChecking", "no")
+        session.connect(5000)
+        if (session.isConnected) {
+            rkUtils.toast("Successfully")
+        } else {
+            rkUtils.toast("failed")
         }
+        session.disconnect()
     }
     
     fun changeProject(menuItemId: Int, activity: MainActivity) {
