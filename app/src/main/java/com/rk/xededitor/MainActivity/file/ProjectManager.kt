@@ -131,7 +131,7 @@ class ProjectManager {
         val loading = LoadingPopup(activity, null)
         val parts = connectionString.split("@", ":", "/", limit = 5)
         val connectionConfig = connectionString.split("/")[0]
-        loading.setMessage(rkUtils.getString(R.string.wait))
+        loading.setMessage(rkUtils.getString(strings.wait))
         if (sftpProjects.containsKey(connectionConfig)) {
             DefaultScope.launch(Dispatchers.Main) {
                 loading.show()
