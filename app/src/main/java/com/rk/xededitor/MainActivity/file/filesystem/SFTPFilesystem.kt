@@ -63,8 +63,8 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     }
     
     companion object {
-        val configFormat = Regex("""^[^:@]+:[^:@]+@[^:@]+:\d+$""")
-        val sftpFormat = Regex("""/([^/]+:[^/]+@[^/]+:\d+)(/.*)?""")
+        val configFormat = Regex("""^[^_]+_[^_]+_[^_]+_\d+$""")
+        val sftpFormat = Regex("""/([^_]+_[^_]+_[^_]+_\d+)(/.*)?""")
 
         fun getConfig(file: File, value: Int): String {
             return sftpFormat.find(file.absolutePath)?.groupValues?.get(value) ?: ""
@@ -82,7 +82,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                     if (!localFile.exists()) {
                         localFile.mkdirs()
                     }
-                    createFS("$remotePath/${entry.filename}", localFile)
+                    //createFS("$remotePath/${entry.filename}", localFile)
                 } else {
                     if (!localFile.exists()) {
                         localFile.createNewFile()
