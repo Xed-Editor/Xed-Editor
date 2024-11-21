@@ -47,11 +47,6 @@ android {
     println("Building for commit ${getGitCommitHash()}")
     
     
-    //todo remove this before release
-    lintOptions {
-        disable("MissingTranslation")
-    }
-    
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -195,6 +190,7 @@ dependencies {
     implementation(project(":core:components"))
     implementation(project(":editor:editor"))
     implementation(project(":app:externalEditor"))
+    implementation(project(":Resources"))
     //implementation(project(":wasm3"))
     implementation(project(":editor:language-textmate"))
     implementation(libs.nanohttpd)

@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.KarbonEditor
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -160,7 +161,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
             }
             if (showToast) {
-                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(R.string.saved)) }
+                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(strings.saved)) }
             }
         }
     }
@@ -173,6 +174,14 @@ class EditorFragment(val context: Context) : CoreFragment {
         scope.cancel()
         editor?.scope?.cancel()
         editor?.release()
+        file?.let {
+            if (set.contains(it.name)){
+                set.remove(it.name)
+            }
+            if (set.contains("${it.name}*")){
+                set.remove("${it.name}*")
+            }
+        }
         
     }
     
@@ -210,13 +219,21 @@ class EditorFragment(val context: Context) : CoreFragment {
         val set = HashSet<String>()
     }
     
+    
+    fun isModified():Boolean{
+        return set.contains(file!!.name) || set.contains("${file!!.name}*")
+    }
+    
     private var t = 0
     private fun setChangeListener() {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             scope.launch {
                 updateUndoRedo()
-                t++
                 
+                if (t < 2){
+                    t++
+                    return@launch
+                }
                 
                 try {
                     val fileName = file!!.name

@@ -12,7 +12,7 @@ class TermuxSetupActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KarbonTheme {
-            
+                
             }
         }
     }

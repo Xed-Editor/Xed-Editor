@@ -7,6 +7,7 @@ import com.rk.libcommons.R
 import com.rk.runner.RunnerImpl
 import com.rk.runner.commonUtils.runCommand
 import java.io.File
+import com.rk.resources.drawable
 
 class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
     override fun run(file: File, context: Context) {
@@ -51,7 +52,7 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
             if (failsafe) {
                 com.rk.runner.R.drawable.android
             } else {
-                R.drawable.bash
+                drawable.bash
             },
         )
     }

@@ -42,4 +42,5 @@ dependencies {
     implementation(project(":core:commons"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:runner"))
+    implementation(project(":Resources"))
 }

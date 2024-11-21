@@ -53,8 +53,8 @@ class CrashActivity : AppCompatActivity() {
                     .append("'\nUnix Time : ")
                     .append(System.currentTimeMillis())
                     .append("\n")
-                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH)
-                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE)
+                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
+                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
                 sb.append("LocalTime : ")
                     .append(
                         SimpleDateFormat.getDateTimeInstance()
@@ -107,7 +107,7 @@ class CrashActivity : AppCompatActivity() {
                     Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse(
-                            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                            "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
                                 URLEncoder.encode(
                                     "``` \n${editor.text}\n ```",
                                     StandardCharsets.UTF_8.toString(),

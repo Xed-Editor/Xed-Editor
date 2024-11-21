@@ -10,6 +10,7 @@
         <option name="modules">
           <set>
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/Resources" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/app/externalEditor" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/core" />
@@ -29,5 +30,6 @@
         <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
+    <option name="offlineMode" value="true" />
   </component>
 </project>

@@ -11,6 +11,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
 import com.rk.xededitor.DefaultScope
 import com.rk.libcommons.LoadingPopup
+import com.rk.resources.strings
+import com.rk.resources.drawable
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
@@ -66,14 +68,14 @@ object ProjectBar {
                                 }
                             val branchEdit =
                                 view.findViewById<EditText>(R.id.mime).apply {
-                                    hint = getString(R.string.git_branch)
+                                    hint = getString(strings.git_branch)
                                     setText("main")
                                 }
                             MaterialAlertDialogBuilder(this)
-                                .setTitle(getString(R.string.clone_repo))
+                                .setTitle(getString(strings.clone_repo))
                                 .setView(view)
-                                .setNegativeButton(getString(R.string.cancel), null)
-                                .setPositiveButton(getString(R.string.apply)) { _, _ ->
+                                .setNegativeButton(getString(strings.cancel), null)
+                                .setPositiveButton(getString(strings.apply)) { _, _ ->
                                     val repoLink = repoLinkEdit.text.toString()
                                     val branch = branchEdit.text.toString()
                                     val repoName =
@@ -86,13 +88,13 @@ object ProjectBar {
                                             ) + "/" + repoName
                                         )
                                     if (repoLink.isEmpty() || branch.isEmpty()) {
-                                        rkUtils.toast(getString(R.string.fill_both))
+                                        rkUtils.toast(getString(strings.fill_both))
                                     } else if (repoDir.exists()) {
-                                        rkUtils.toast("$repoDir ${getString(R.string.exists)}")
+                                        rkUtils.toast("$repoDir ${getString(strings.exists)}")
                                     } else {
                                         val loadingPopup =
                                             LoadingPopup(this, null)
-                                                .setMessage(getString(R.string.cloning))
+                                                .setMessage(getString(strings.cloning))
                                         loadingPopup.show()
                                         DefaultScope.launch(Dispatchers.IO) {
                                             try {
@@ -115,7 +117,7 @@ object ProjectBar {
                                                 if (credentials.size != 2) {
                                                     withContext(Dispatchers.Main) {
                                                         loadingPopup.hide()
-                                                        rkUtils.toast(getString(R.string.clone_err))
+                                                        rkUtils.toast(getString(strings.clone_err))
                                                     }
                                                 } else {
                                                     try {
@@ -141,7 +143,7 @@ object ProjectBar {
                                                         withContext(Dispatchers.Main) {
                                                             loadingPopup.hide()
                                                             rkUtils.toast(
-                                                                "${getString(R.string.err)}: ${e.message}"
+                                                                "${getString(strings.err)}: ${e.message}"
                                                             )
                                                         }
                                                     }
@@ -178,30 +180,30 @@ object ProjectBar {
             fun handleAddNew() {
                 ActionPopup(this).apply {
                     addItem(
-                        getString(R.string.open_directory),
-                        getString(R.string.open_dir_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.outline_folder_24),
+                        getString(strings.open_directory),
+                        getString(strings.open_dir_desc),
+                        ContextCompat.getDrawable(this@with, drawable.outline_folder_24),
                         openDirId,
                         listener,
                     )
                     addItem(
-                        getString(R.string.open_path),
-                        getString(R.string.open_path_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.android),
+                        getString(strings.open_path),
+                        getString(strings.open_path_desc),
+                        ContextCompat.getDrawable(this@with, drawable.android),
                         openPathId,
                         listener,
                     )
                     addItem(
-                        getString(R.string.private_files),
-                        getString(R.string.private_files_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.android),
+                        getString(strings.private_files),
+                        getString(strings.private_files_desc),
+                        ContextCompat.getDrawable(this@with, drawable.android),
                         privateFilesId,
                         listener,
                     )
                     addItem(
-                        getString(R.string.clone_repo),
-                        getString(R.string.clone_repo_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.git),
+                        getString(strings.clone_repo),
+                        getString(strings.clone_repo_desc),
+                        ContextCompat.getDrawable(this@with, drawable.git),
                         cloneRepo,
                         listener,
                     )
@@ -213,8 +215,8 @@ object ProjectBar {
                         listener,
                     )
                     
-                    setTitle(getString(R.string.add))
-                    getDialogBuilder().setNegativeButton(getString(R.string.cancel), null)
+                    setTitle(getString(strings.add))
+                    getDialogBuilder().setNegativeButton(getString(strings.cancel), null)
                     dialog = show()
                 }
             }
