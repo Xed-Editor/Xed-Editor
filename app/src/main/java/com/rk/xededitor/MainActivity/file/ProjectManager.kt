@@ -285,7 +285,7 @@ class ProjectManager {
             projectsList.forEach {
                 val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
-                if (isRemoteProject(SFTPFilesystem.getConfig(file, 1)) {
+                if (isRemoteProject(SFTPFilesystem.getConfig(file, 1))) {
                     addRemoteProject(activity, SFTPFilesystem.getConfig(file, 1) + SFTPFilesystem.getConfig(file, 2))
                 } else {
                     addProject(activity, file)
