@@ -66,7 +66,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         val configFormat = Regex("""^[^:@]+:[^:@]+@[^:@]+:\d+$""")
         val sftpFormat = Regex("""/([^/]+:[^/]+@[^/]+:\d+)(/.*)?""")
 
-        fun getConfig(file: File, value: Integer): String {
+        fun getConfig(file: File, value: Int): String {
             return sftpFormat.find(file.absolutePath)?.groupValues?.get(value) ?: ""
         }
     }
