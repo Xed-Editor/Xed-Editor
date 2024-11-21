@@ -12,7 +12,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     private var channel: ChannelSftp? = null
 
     init {
-        val parts = connectionString.split("@", ":", "/", limit = 5)
+        val parts = connectionString.split("@", ":", limit = 4)
         session = jsch.getSession(parts[0], parts[2], parts[3].toInt()).apply {
             setPassword(parts[1])
             setConfig("StrictHostKeyChecking", "no")
@@ -35,11 +35,12 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     }
 
     fun openFolder(remotePath: String) {
+        rkUtils.toast(remotePath)
         if (channel == null || !channel!!.isConnected) {
             rkUtils.toast("Error. Not connected!")
             return
         }
-        val tempDir = File(context.filesDir, connectionString + "/${remotePath}").apply {
+        val tempDir = File(context.filesDir, connectionString + remotePath).apply {
             if (!exists()) {
                 mkdirs()
             }
@@ -47,7 +48,6 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         try {
             val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
             files?.forEach { entry ->
-                val remoteFilePath = "$remotePath/${entry.filename}"
                 val localFile = File(tempDir, entry.filename)
                 if (!localFile.exists()) {
                     if (entry.attrs.isDir) {
