@@ -11,6 +11,7 @@ import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.MainActivity.MultiView
 import com.rk.xededitor.MainActivity.file.filetree.FileTree
 import com.rk.xededitor.R
+import com.rk.resources.strings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
