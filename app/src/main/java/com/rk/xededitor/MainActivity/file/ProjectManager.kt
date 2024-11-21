@@ -261,7 +261,6 @@ class ProjectManager {
     fun closeRemoteConnections() {
         for (sftp in sftpProjects.values) {
             sftp.disconnect()
-            sftp.clearTemp()
         }
     }
 
