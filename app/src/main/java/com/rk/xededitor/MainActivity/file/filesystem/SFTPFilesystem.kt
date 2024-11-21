@@ -10,7 +10,6 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     private val jsch = JSch()
     private var session: Session? = null
     private var channel: ChannelSftp? = null
-    var tempDir: File? = null
 
     init {
         val parts = connectionString.split("@", ":", "/", limit = 5)
@@ -40,7 +39,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             rkUtils.toast("Error. Not connected!")
             return
         }
-        tempDir = File(context.filesDir, connectionString).apply {
+        val tempDir = File(context.filesDir, connectionString).apply {
             if (!exists()) {
                 mkdirs()
             }
@@ -61,11 +60,6 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         } catch (e: Exception) {
             rkUtils.toast("${remotePath} not found")
         }
-    }
-
-    fun clearTemp() {
-        tempDir?.delete()
-        tempDir = null
     }
 
     fun disconnect() {

@@ -129,16 +129,17 @@ class ProjectManager {
 
     fun addRemoteProject(activity: MainActivity, connectionString: String) {
         val loading = LoadingPopup(activity, null)
+        val path = "/${connectionString.split("@", ":", "/", limit = 5)[4]}"
         val connectionConfig = connectionString.split("/")[0]
         loading.setMessage(rkUtils.getString(R.string.wait))
         if (sftpProjects.containsKey(connectionConfig)) {
             DefaultScope.launch(Dispatchers.Main) {
                 loading.show()
                 withContext(Dispatchers.IO) {
-                    sftpProjects[connectionConfig]!!.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                    sftpProjects[connectionConfig]!!.openFolder(path)
                 }
                 loading.hide()
-                addProject(activity, sftpProjects[connectionConfig]!!.tempDir!!)
+                addProject(activity, activity.filesDir + path)
             }
         } else {
             val sftp = SFTPFilesystem(activity, connectionString)
@@ -146,10 +147,10 @@ class ProjectManager {
                 loading.show()
                 withContext(Dispatchers.IO) {
                     sftp.connect()
-                    sftp.openFolder("/${connectionString.split("@", ":", "/", limit = 5)[4]}")
+                    sftp.openFolder(path)
                 }
                 loading.hide()
-                addProject(activity, sftp.tempDir!!)
+                addProject(activity, activity.filesDir + path)
             }
             sftpProjects[connectionConfig] = sftp
         }
