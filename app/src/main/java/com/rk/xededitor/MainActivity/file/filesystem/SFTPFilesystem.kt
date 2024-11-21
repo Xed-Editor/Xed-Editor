@@ -39,12 +39,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             rkUtils.toast("Error. Not connected!")
             return
         }
-        val tempDir = File(context.filesDir, connectionString).apply {
-            if (!exists()) {
-                mkdirs()
-            }
-        }
-        val localFolder = File(tempDir, remotePath.trimStart('/')).apply {
+        val tempDir = File(context.filesDir, connectionString + "/${remotePath}").apply {
             if (!exists()) {
                 mkdirs()
             }
@@ -53,7 +48,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
             files?.forEach { entry ->
                 val remoteFilePath = "$remotePath/${entry.filename}"
-                val localFile = File(localFolder, entry.filename)
+                val localFile = File(tempDir, entry.filename)
                 if (!localFile.exists()) {
                     if (entry.attrs.isDir) {
                         localFile.mkdirs()
