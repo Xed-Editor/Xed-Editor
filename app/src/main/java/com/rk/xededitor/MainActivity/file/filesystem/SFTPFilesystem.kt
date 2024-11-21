@@ -44,11 +44,16 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                 mkdirs()
             }
         }
+        val localFolder = File(tempDir, remotePath.trimStart('/')).apply {
+            if (!exists()) {
+                mkdirs()
+            }
+        }
         try {
             val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
             files?.forEach { entry ->
                 val remoteFilePath = "$remotePath/${entry.filename}"
-                val localFile = File(tempDir, entry.filename)
+                val localFile = File(localFolder, entry.filename)
                 if (!localFile.exists()) {
                     if (entry.attrs.isDir) {
                         localFile.mkdirs()
