@@ -139,7 +139,7 @@ class ProjectManager {
                     sftpProjects[connectionConfig]!!.openFolder(path)
                 }
                 loading.hide()
-                addProject(activity, activity.filesDir + path)
+                addProject(activity, File(activity.filesDir.absolutePath + path))
             }
         } else {
             val sftp = SFTPFilesystem(activity, connectionString)
@@ -150,7 +150,7 @@ class ProjectManager {
                     sftp.openFolder(path)
                 }
                 loading.hide()
-                addProject(activity, activity.filesDir + path)
+                addProject(activity, File(activity.filesDir.absolutePath + path))
             }
             sftpProjects[connectionConfig] = sftp
         }
