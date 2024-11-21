@@ -52,4 +52,12 @@ class FileLoader(private val loadedFiles: MutableMap<String, MutableList<File>> 
         removeLoadedFile(oldFile)
         createLoadedFile(newFile)
     }
+    
+    fun update(file:File){
+        if (file.isDirectory){
+            loadedFiles[file.absolutePath] = file.listFiles()?.toMutableList() ?: emptyList<File>().toMutableList()
+        }else{
+            throw RuntimeException("only directories can be updated")
+        }
+    }
 }
