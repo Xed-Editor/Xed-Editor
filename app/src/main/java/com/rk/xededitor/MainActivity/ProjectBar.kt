@@ -162,8 +162,8 @@ object ProjectBar {
                             MaterialAlertDialogBuilder(this)
                                 .setTitle("Add SFTP folder")
                                 .setView(view)
-                                .setNegativeButton(getString(R.string.cancel), null)
-                                .setPositiveButton(getString(R.string.apply)) { _, _ ->
+                                .setNegativeButton(getString(strings.cancel), null)
+                                .setPositiveButton(getString(strings.apply)) { _, _ ->
                                     val text = editText.text.toString()
                                     if (text.isEmpty()) {
                                         return@setPositiveButton
