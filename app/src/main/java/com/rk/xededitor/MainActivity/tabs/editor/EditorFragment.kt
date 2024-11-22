@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
+import com.rk.xededitor.DefaultScope
 
 private typealias onClick = OnClickListener
 

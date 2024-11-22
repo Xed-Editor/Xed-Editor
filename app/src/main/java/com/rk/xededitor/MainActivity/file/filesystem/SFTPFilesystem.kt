@@ -105,29 +105,3 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         }
     }
 }
-
-fun save(file: File) {
-    if (channel == null || !channel!!.isConnected) {
-        rkUtils.toast("Error. Not connected!")
-        return
-    }
-
-    try {
-        if (file.isDirectory) {
-            // Создаем директорию на сервере
-            val remoteDirPath = file.absolutePath.replace(context.filesDir.absolutePath, "").replace(File.separator, "/")
-            kotlin.runCatching { channel!!.mkdir(remoteDirPath) }
-
-            // Рекурсивно загружаем файлы внутри директории
-            file.listFiles()?.forEach { childFile ->
-                save(childFile)
-            }
-        } else {
-            // Загружаем файл на сервер
-            val remoteFilePath = file.absolutePath.replace(context.filesDir.absolutePath, "").replace(File.separator, "/")
-            channel!!.put(file.absolutePath, remoteFilePath)
-        }
-    } catch (e: Exception) {
-        rkUtils.toast("Error saving ${file.absolutePath}: ${e.message}")
-    }
-}
