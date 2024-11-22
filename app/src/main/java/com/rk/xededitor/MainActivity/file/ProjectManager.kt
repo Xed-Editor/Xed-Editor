@@ -286,8 +286,7 @@ class ProjectManager {
                 val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
                 if (isRemoteProject(SFTPFilesystem.getConfig(file.absolutePath, 1))) {
-                    rkUtils.toast(SFTPFilesystem.getConfig(file.absolutePath, 1) + SFTPFilesystem.getConfig(file.absolutePath, 2))
-                    addRemoteProject(activity, SFTPFilesystem.getConfig(file.absolutePath, 1).replaceFirst("_", ":").replaceFirst("_", "@").replaceFirst("_", ":") + SFTPFilesystem.getConfig(file.absolutePath, 2))
+                    addRemoteProject(activity, SFTPFilesystem.getConfig(file.absolutePath, 1).substringAfterLast("/").replaceFirst("_", ":").replaceFirst("_", "@").replaceFirst("_", ":") + SFTPFilesystem.getConfig(file.absolutePath, 2))
                 } else {
                     addProject(activity, file)
                 }
