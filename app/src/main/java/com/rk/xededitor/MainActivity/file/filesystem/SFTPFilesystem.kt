@@ -53,7 +53,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                     kotlin.runCatching {
                         // Skip . and .. directories
                         if (entry.filename == "." || entry.filename == "..") return@forEach
-                        val localFile = File(parent, entry.filename)
+                        val localFile = File(tempDir, entry.filename)
                         if (entry.attrs.isDir) {
                             if (!localFile.exists()) {
                                 localFile.mkdirs()
@@ -68,7 +68,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             } else {
                 channel?.get(remotePath, File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath))
             }
-        } catch {
+        } catch (e: Exception) {
             rkUtils.toast("Error: ${e.message}")
         }
     }
@@ -84,8 +84,8 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         val configFormat = Regex("""^[^_]+_[^_]+_[^_]+_\d+$""")
         val sftpFormat = Regex("""/([^_]+_[^_]+_[^_]+_\d+)(/.*)?""")
 
-        fun getConfig(file: File, value: Int): String {
-            return sftpFormat.find(file.absolutePath)?.groupValues?.get(value) ?: ""
+        fun getConfig(path: String, value: Int): String {
+            return sftpFormat.find(path)?.groupValues?.get(value) ?: ""
         }
     }
 }
