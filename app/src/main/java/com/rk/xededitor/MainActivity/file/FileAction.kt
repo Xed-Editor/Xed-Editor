@@ -103,18 +103,26 @@ class FileAction(
                                 
                                 
                                 mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                                    if (file.isFile) {
-                                        file.delete()
-                                    } else {
-                                        file.deleteRecursively()
-                                    }
-                                    withContext(Dispatchers.Main) { loading.hide() }
                                     val config = SFTPFilesystem.getConfig(file.absolutePath, 1).substringAfterLast("/")
                                     if (config != "") {
-                                        DefaultScope.launch(Dispatchers.IO) {
-                                            mainActivity.projectManager.sftpProjects[config]!!.delete(file)
+                                        DefaultScope.launch(Dispatchers.Main) {
+                                            withContext(Dispatchers.IO) {
+                                                mainActivity.projectManager.sftpProjects[config]!!.delete(file)
+                                            }
+                                            if (file.isFile) {
+                                                file.delete()
+                                            } else {
+                                                file.deleteRecursively()
+                                            }
+                                        }
+                                    } else {
+                                        if (file.isFile) {
+                                            file.delete()
+                                        } else {
+                                            file.deleteRecursively()
                                         }
                                     }
+                                    withContext(Dispatchers.Main) { loading.hide() }
                                 }
                                 
                                 EventBus.getDefault().post(FileTreeEvents.OnDeleteFileEvent(file))
