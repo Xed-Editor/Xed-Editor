@@ -39,12 +39,12 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             }
         } catch (e: Exception) {
             disconnect()
-            rkUtils.toast("Error: ${e.message}")
+            rkUtils.toast("Error while connecting: ${e.message}")
         }
     }
 
     fun load(remotePath: String) {
-        if (channel == null || !channel!!.isConnected) {
+        if (channel == null || !channel!!.isConnected || session == null || !session!!.isConnected) {
             rkUtils.toast("Error. Not connected! Reconnecting...")
             connect()
         }
@@ -76,12 +76,12 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                 channel?.get(remotePath, File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath).absolutePath)
             }
         } catch (e: Exception) {
-            rkUtils.toast("Error: ${e.message}")
+            rkUtils.toast("Error while loading: ${e.message}")
         }
     }
 
     fun save(file: File) {
-        if (channel == null || !channel!!.isConnected) {
+        if (channel == null || !channel!!.isConnected || session == null || !session!!.isConnected) {
             rkUtils.toast("Error. Not connected! Reconnecting...")
             connect()
         }
@@ -92,15 +92,23 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                 channel?.put(file.absolutePath, getConfig(file.absolutePath, 2))
             }
         } catch (e: Exception) {
-            rkUtils.toast("Error: ${e.message}")
+            rkUtils.toast("Error while saving: ${e.message}")
         }
     }
-    
+
     fun disconnect() {
         channel?.disconnect()
         session?.disconnect()
         channel = null
         session = null
+    }
+
+    fun clearTempFiles() {
+        File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_")).apply {
+            if (exists()) {
+                deleteRecursively()
+            }
+        }
     }
     
     companion object {
