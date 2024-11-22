@@ -86,7 +86,7 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
                     if (it.isPaused) {
                         return@let
                     }
-                    val config = SFTPFilesystem.getConfig(file.absoulutePath, 1)
+                    val config = SFTPFilesystem.getConfig(file.absolutePath, 1)
                     rkUtils.toast(config)
                     if (config != "") {
                         val loading = LoadingPopup(it, null)
