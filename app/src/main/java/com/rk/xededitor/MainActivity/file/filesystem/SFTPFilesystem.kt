@@ -22,6 +22,13 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     }
     
     fun connect() {
+        if (session == null) {
+            val parts = connectionString.split("@", ":", limit = 4)
+            session = jsch.getSession(parts[0], parts[2], parts[3].toInt()).apply {
+                setPassword(parts[1])
+                setConfig("StrictHostKeyChecking", "no")
+            }
+        }
         try {
             session?.connect(5000)
             if (session?.isConnected == true) {
