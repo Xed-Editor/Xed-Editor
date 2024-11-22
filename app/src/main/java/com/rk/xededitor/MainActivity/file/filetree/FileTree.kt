@@ -24,8 +24,6 @@ import java.io.File
 import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
 import com.rk.libcommons.LoadingPopup
 
-import com.rk.xededitor.rkUtils
-
 class FileTree(val context: MainActivity, val path: String, val parent: ViewGroup) {
     val binding: FiletreeLayoutBinding
     

@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
 
 private typealias onClick = OnClickListener
 
@@ -153,6 +154,12 @@ class EditorFragment(val context: Context) : CoreFragment {
                             withContext(Dispatchers.Main) {
                                 activity.tabLayout!!.getTabAt(index)?.text = file!!.name
                             }
+                        }
+                    }
+                    val config = SFTPFilesystem.getConfig(file!!.absolutePath, 1).substringAfterLast("/")
+                    if (config != "") {
+                        DefaultScope.launch(Dispatchers.IO) {
+                            activity.projectManager.sftpProjects[config]!!.save(file!!)
                         }
                     }
                 }
