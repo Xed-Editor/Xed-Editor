@@ -86,7 +86,7 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
                     }
                     val config = SFTPFilesystem.getConfig(file.absolutePath, 1)
                     if (config != "") {
-                        val loading = LoadingPopup(activity, null)
+                        val loading = LoadingPopup(it, null)
                         DefaultScope.launch(Dispatchers.Main) {
                             loading.show()
                             withContext(Dispatchers.IO) {
