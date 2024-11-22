@@ -131,27 +131,27 @@ class ProjectManager {
     fun addRemoteProject(activity: MainActivity, connectionString: String) {
         val loading = LoadingPopup(activity, null)
         val parts = connectionString.split("@", ":", "/", limit = 5)
-        val connectionConfig = connectionString.split("/")[0]
+        val connectionConfig = connectionString.split("/")[0].replace(":", "_").replace("@", "_")
         loading.setMessage(rkUtils.getString(strings.wait))
         if (sftpProjects.containsKey(connectionConfig)) {
             DefaultScope.launch(Dispatchers.Main) {
                 loading.show()
                 withContext(Dispatchers.IO) {
-                    sftpProjects[connectionConfig]!!.openFolder("/${parts[4]}")
+                    sftpProjects[connectionConfig]!!.load("/${parts[4]}")
                 }
                 loading.hide()
-                addProject(activity, File(activity.filesDir.absolutePath + "/sftp/${connectionConfig.replace(":", "_").replace("@", "_")}" + "/${parts[4]}"))
+                addProject(activity, File(activity.filesDir.absolutePath + "/sftp/${connectionConfig}" + "/${parts[4]}"))
             }
         } else {
-            val sftp = SFTPFilesystem(activity, connectionConfig)
+            val sftp = SFTPFilesystem(activity, connectionString.split("/")[0])
             DefaultScope.launch(Dispatchers.Main) {
                 loading.show()
                 withContext(Dispatchers.IO) {
                     sftp.connect()
-                    sftp.openFolder("/${parts[4]}")
+                    sftp.load("/${parts[4]}")
                 }
                 loading.hide()
-                addProject(activity, File(activity.filesDir.absolutePath + "/sftp/${connectionConfig.replace(":", "_").replace("@", "_")}" + "/${parts[4]}"))
+                addProject(activity, File(activity.filesDir.absolutePath + "/sftp/${connectionConfig}" + "/${parts[4]}"))
             }
             sftpProjects[connectionConfig] = sftp
         }
@@ -285,8 +285,8 @@ class ProjectManager {
             projectsList.forEach {
                 val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
-                if (isRemoteProject(SFTPFilesystem.getConfig(file, 1))) {
-                    addRemoteProject(activity, SFTPFilesystem.getConfig(file, 1) + SFTPFilesystem.getConfig(file, 2))
+                if (isRemoteProject(SFTPFilesystem.getConfig(file.absolutePath, 1))) {
+                    addRemoteProject(activity, SFTPFilesystem.getConfig(file.absolutePath, 1) + SFTPFilesystem.getConfig(file.absolutePath, 2))
                 } else {
                     addProject(activity, file)
                 }

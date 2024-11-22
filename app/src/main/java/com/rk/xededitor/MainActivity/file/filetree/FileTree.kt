@@ -82,11 +82,9 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
                     if (it.isPaused) {
                         return@let
                     }
-                    val config = SFTPFilesystem.getConfig(file, 1)
+                    val config = SFTPFilesystem.getConfig(file.absoulutePath, 1)
                     if (config != "") {
-                        if (file.isDirectory) {
-                            it.projectManager.sftpProjects[config]!!.openFolder(file.absolutePath)
-                        }
+                        it.projectManager.sftpProjects[config]!!.load(file)
                     }
                     it.adapter!!.addFragment(file)
                     if (!PreferencesData.getBoolean(

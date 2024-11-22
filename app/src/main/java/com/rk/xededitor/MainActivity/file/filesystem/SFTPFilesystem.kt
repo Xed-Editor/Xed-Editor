@@ -35,23 +35,41 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
             rkUtils.toast("Error: ${e.message}")
         }
     }
-    
-    fun openFolder(remotePath: String) {
+
+    fun load(remotePath: String) {
         if (channel == null || !channel!!.isConnected) {
             rkUtils.toast("Error. Not connected!")
             return
         }
-        
-        val tempDir = File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath).apply {
-            if (!exists()) {
-                mkdirs()
-            }
-        }
-        
         try {
-            createFS(remotePath, tempDir)
-        } catch (e: Exception) {
-            rkUtils.toast("Error cloning filesystem: ${e.message}")
+            if (channel!!.stat(remotePath).isDir) {
+                val tempDir = File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath).apply {
+                    if (!exists()) {
+                        mkdirs()
+                    }
+                }
+                val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
+                files?.forEach { entry ->
+                    kotlin.runCatching {
+                        // Skip . and .. directories
+                        if (entry.filename == "." || entry.filename == "..") return@forEach
+                        val localFile = File(parent, entry.filename)
+                        if (entry.attrs.isDir) {
+                            if (!localFile.exists()) {
+                                localFile.mkdirs()
+                            }
+                        } else {
+                            if (!localFile.exists()) {
+                                localFile.createNewFile()
+                            }
+                        }
+                    }
+                }
+            } else {
+                channel?.get(remotePath, File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath))
+            }
+        } catch {
+            rkUtils.toast("Error: ${e.message}")
         }
     }
     
@@ -64,31 +82,10 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
     
     companion object {
         val configFormat = Regex("""^[^_]+_[^_]+_[^_]+_\d+$""")
-        val sftpFormat = Regex("""/([^/]+:[^/]+@[^/]+:\d+)(/.*)?""")
+        val sftpFormat = Regex("""/([^_]+_[^_]+_[^_]+_\d+)(/.*)?""")
 
         fun getConfig(file: File, value: Int): String {
             return sftpFormat.find(file.absolutePath)?.groupValues?.get(value) ?: ""
-        }
-    }
-    
-    private fun createFS(remotePath: String, parent: File) {
-        val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
-        files?.forEach { entry ->
-            kotlin.runCatching {
-                // Skip . and .. directories
-                if (entry.filename == "." || entry.filename == "..") return@forEach
-                val localFile = File(parent, entry.filename)
-                if (entry.attrs.isDir) {
-                    if (!localFile.exists()) {
-                        localFile.mkdirs()
-                    }
-                    //createFS("$remotePath/${entry.filename}", localFile)
-                } else {
-                    if (!localFile.exists()) {
-                        localFile.createNewFile()
-                    }
-                }
-            }
         }
     }
 }
