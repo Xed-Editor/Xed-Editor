@@ -19,8 +19,10 @@ import io.github.dingyi222666.view.treeview.TreeView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
+import com.rk.libcommons.LoadingPopup
 
 class FileTree(val context: MainActivity, val path: String, val parent: ViewGroup) {
     val binding: FiletreeLayoutBinding
@@ -84,20 +86,40 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
                     }
                     val config = SFTPFilesystem.getConfig(file.absolutePath, 1)
                     if (config != "") {
-                        it.projectManager.sftpProjects[config]!!.load(SFTPFilesystem.getConfig(file.absolutePath, 2))
-                    }
-                    it.adapter!!.addFragment(file)
-                    if (!PreferencesData.getBoolean(
-                            PreferencesKeys.KEEP_DRAWER_LOCKED,
-                            false,
-                        )
-                    ) {
-                        it.binding!!.drawerLayout.close()
-                    }
+                        val loading = LoadingPopup(activity, null)
+                        DefaultScope.launch(Dispatchers.Main) {
+                            loading.show()
+                            withContext(Dispatchers.IO) {
+                                it.projectManager.sftpProjects[config]!!.load(SFTPFilesystem.getConfig(file.absolutePath, 2))
+                            }
+                            loading.hide()
+                            it.adapter!!.addFragment(file)
+                            if (!PreferencesData.getBoolean(
+                                    PreferencesKeys.KEEP_DRAWER_LOCKED,
+                                    false,
+                                )
+                            ) {
+                                it.binding!!.drawerLayout.close()
+                            }
+                            DefaultScope.launch(Dispatchers.Main) {
+                                delay(2000)
+                                MenuItemHandler.update(it)
+                            }
+                        }
+                    } else {
+                        it.adapter!!.addFragment(file)
+                        if (!PreferencesData.getBoolean(
+                                PreferencesKeys.KEEP_DRAWER_LOCKED,
+                                false,
+                            )
+                        ) {
+                            it.binding!!.drawerLayout.close()
+                        }
                     
-                    DefaultScope.launch(Dispatchers.Main) {
-                        delay(2000)
-                        MenuItemHandler.update(it)
+                        DefaultScope.launch(Dispatchers.Main) {
+                            delay(2000)
+                            MenuItemHandler.update(it)
+                        }
                     }
                 }
             }, context = context
