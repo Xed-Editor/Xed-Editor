@@ -24,6 +24,8 @@ import java.io.File
 import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
 import com.rk.libcommons.LoadingPopup
 
+import com.rk.xededitor.rkUtils
+
 class FileTree(val context: MainActivity, val path: String, val parent: ViewGroup) {
     val binding: FiletreeLayoutBinding
     
@@ -85,6 +87,7 @@ class FileTree(val context: MainActivity, val path: String, val parent: ViewGrou
                         return@let
                     }
                     val config = SFTPFilesystem.getConfig(file.absolutePath, 1)
+                    rkUtils.toast(config)
                     if (config != "") {
                         val loading = LoadingPopup(it, null)
                         DefaultScope.launch(Dispatchers.Main) {
