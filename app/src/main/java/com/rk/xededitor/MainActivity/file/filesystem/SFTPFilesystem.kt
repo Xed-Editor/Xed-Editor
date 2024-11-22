@@ -96,6 +96,31 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         }
     }
 
+    fun delete(file: File) {
+        if (channel == null || !channel!!.isConnected || session == null || !session!!.isConnected) {
+            rkUtils.toast("Error. Not connected! Reconnecting...")
+            connect()
+        }
+        try {
+            val remotePath = getConfig(file.absolutePath, 2)
+            if (file.isDirectory) {
+                val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
+                files?.forEach { entry ->
+                    kotlin.runCatching {
+                        // Skip . and .. directories
+                        if (entry.filename == "." || entry.filename == "..") return@forEach
+                        delete(File(file, entry.filename))
+                    }
+                }
+                channel?.rmdir(remotePath)
+            } else {
+                channel?.rm(remotePath)
+            }
+        } catch (e: Exception) {
+            rkUtils.toast("Error while deleting: ${e.message}")
+        }
+    }
+
     fun disconnect() {
         channel?.disconnect()
         session?.disconnect()

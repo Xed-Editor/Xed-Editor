@@ -109,6 +109,12 @@ class FileAction(
                                         file.deleteRecursively()
                                     }
                                     withContext(Dispatchers.Main) { loading.hide() }
+                                    val config = SFTPFilesystem.getConfig(file.absolutePath, 1).substringAfterLast("/")
+                                    if (config != "") {
+                                        DefaultScope.launch(Dispatchers.IO) {
+                                            mainActivity.projectManager.sftpProjects[config]!!.delete(file)
+                                        }
+                                    }
                                 }
                                 
                                 EventBus.getDefault().post(FileTreeEvents.OnDeleteFileEvent(file))
