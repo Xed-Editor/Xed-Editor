@@ -109,11 +109,9 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                     kotlin.runCatching {
                         // Skip . and .. directories
                         if (entry.filename == "." || entry.filename == "..") return@forEach
+                        rkUtils.toast(File(file, entry.filename).absolutePath)
                         delete(File(file, entry.filename))
-                    }.onFailure { e ->
-                    println("Error deleting ${entry.filename}: ${e.message}")
-                    rkUtils.toast("Error deleting ${entry.filename}: ${e.message}")
-                }
+                    }
                 }
                 channel?.rmdir(remotePath)
             } else {
