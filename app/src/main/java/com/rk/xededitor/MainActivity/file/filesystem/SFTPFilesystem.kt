@@ -103,13 +103,14 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         }
         try {
             val remotePath = getConfig(file.absolutePath, 2)
+            rkUtils.toast(remotePath)
             if (file.isDirectory) {
                 val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
                 files?.forEach { entry ->
+                    rkUtils.toast(File(file, entry.filename))
                     kotlin.runCatching {
                         // Skip . and .. directories
                         if (entry.filename == "." || entry.filename == "..") return@forEach
-                        rkUtils.toast(File(file, entry.filename).absolutePath)
                         delete(File(file, entry.filename))
                     }
                 }
