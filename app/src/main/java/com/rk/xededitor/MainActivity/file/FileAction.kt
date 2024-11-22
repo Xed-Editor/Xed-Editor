@@ -34,6 +34,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
+import com.rk.xededitor.DefaultScope
+import com.rk.xededitor.MainActivity.file.filesystem.SFTPFilesystem
 
 const val REQUEST_ADD_FILE = 38758
 const val REQUEST_CODE_OPEN_DIRECTORY = 8359487
@@ -285,10 +287,13 @@ class FileAction(
                         EventBus.getDefault().post(FileTreeEvents.OnCreateFileEvent(this))
                     }
                 }
-                
-                
-                
-
+                val file = File(file, fileName)
+                val config = SFTPFilesystem.getConfig(file.absolutePath, 1).substringAfterLast("/")
+                if (config != "") {
+                    DefaultScope.launch(Dispatchers.IO) {
+                        mainActivity.projectManager.sftpProjects[config]!!.save(file)
+                    }
+                }
                 loading.hide()
             }
             .show()

@@ -40,7 +40,6 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         if (channel == null || !channel!!.isConnected) {
             rkUtils.toast("Error. Not connected! Reconnecting...")
             connect()
-            return
         }
         try {
             if (channel!!.stat(remotePath).isDir) {
@@ -78,7 +77,6 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         if (channel == null || !channel!!.isConnected) {
             rkUtils.toast("Error. Not connected! Reconnecting...")
             connect()
-            return
         }
         try {
             if (file.isDirectory) {
