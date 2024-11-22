@@ -110,7 +110,10 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                         // Skip . and .. directories
                         if (entry.filename == "." || entry.filename == "..") return@forEach
                         delete(File(file, entry.filename))
-                    }
+                    }.onFailure { e ->
+                    println("Error deleting ${entry.filename}: ${e.message}")
+                    rkUtils.toast("Error deleting ${entry.filename}: ${e.message}")
+                }
                 }
                 channel?.rmdir(remotePath)
             } else {
@@ -143,5 +146,39 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
         fun getConfig(path: String, value: Int): String {
             return sftpFormat.find(path)?.groupValues?.get(value) ?: ""
         }
+    }
+}
+
+fun delete(file: File) {
+    if (channel == null || !channel!!.isConnected || session == null || !session!!.isConnected) {
+        rkUtils.toast("Error. Not connected! Reconnecting...")
+        connect()
+    }
+    try {
+        val remotePath = getConfig(file.absolutePath, 2)
+        if (file.isDirectory) {
+            val files = channel?.ls(remotePath) as? List<ChannelSftp.LsEntry>
+            files?.forEach { entry ->
+                kotlin.runCatching {
+                    // Пропуск . и .. директорий
+                    if (entry.filename == "." || entry.filename == "..") return@forEach
+                    val childRemotePath = "$remotePath/${entry.filename}"
+                    delete(File(file, entry.filename)) // Рекурсивное удаление
+                }.onFailure { e ->
+                    // Печать сообщения об ошибке
+                    println("Error deleting ${entry.filename}: ${e.message}")
+                    rkUtils.toast("Error deleting ${entry.filename}: ${e.message}")
+                }
+            }
+            // Удаление самой папки
+            channel?.rmdir(remotePath)
+        } else {
+            // Удаление файла
+            channel?.rm(remotePath)
+        }
+    } catch (e: Exception) {
+        // Печать общей ошибки
+        println("Error while deleting: ${e.message}")
+        rkUtils.toast("Error while deleting: ${e.message}")
     }
 }
