@@ -66,7 +66,7 @@ class SFTPFilesystem(private val context: Context, private val connectionString:
                     }
                 }
             } else {
-                channel?.get(remotePath, File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath))
+                channel?.get(remotePath, File(File(context.filesDir,"sftp"), connectionString.replace(":", "_").replace("@", "_") + remotePath).absolutePath)
             }
         } catch (e: Exception) {
             rkUtils.toast("Error: ${e.message}")
