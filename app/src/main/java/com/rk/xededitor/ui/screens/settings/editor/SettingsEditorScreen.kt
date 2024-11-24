@@ -148,11 +148,15 @@ fun SettingsEditorScreen() {
                 key = PreferencesKeys.EDITOR_FONT,
                 default = false,
             )
-            PreferenceCategory(
+            
+            
+            SettingsToggle(
                 label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
-                iconResource = drawable.reorder,
-                onNavigate = { showTextSizeDialog = true },
+                showSwitch = false,
+                sideEffect = {
+                    showTextSizeDialog = true
+                }
             )
         }
         
@@ -207,18 +211,23 @@ fun SettingsEditorScreen() {
                 key = PreferencesKeys.USE_SORA_SEARCH,
                 default = false,
             )
-            PreferenceCategory(
+            
+            SettingsToggle(
                 label = stringResource(id = strings.auto_save_time),
                 description = stringResource(id = strings.auto_save_time_desc),
-                iconResource = drawable.save,
-                onNavigate = { showAutoSaveDialog = true },
+                sideEffect = {
+                    showAutoSaveDialog = true
+                },
+                showSwitch = false,
             )
             
-            PreferenceCategory(
+            SettingsToggle(
                 label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
-                iconResource = drawable.double_arrows,
-                onNavigate = { showTabSizeDialog = true },
+                showSwitch = false,
+                sideEffect = {
+                    showTabSizeDialog = true
+                }
             )
         }
         
