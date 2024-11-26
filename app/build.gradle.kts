@@ -171,9 +171,13 @@ dependencies {
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
-    implementation(libs.sshj)
-    implementation(libs.commons.net)
+    implementation(libs.coil.compose)
+    implementation(libs.org.eclipse.jgit)
     implementation(libs.gson)
+    
+    //implementation(libs.sshj)
+    implementation(libs.commons.net)
+    
     implementation(libs.jcodings)
     implementation(libs.joni)
     implementation(libs.snakeyaml.engine)
@@ -181,11 +185,11 @@ dependencies {
     implementation(libs.ktsh)
     implementation(libs.swiperefreshlayout)
     implementation(libs.okhttp)
-    implementation(libs.org.eclipse.jgit)
-    implementation(libs.coil.compose)
+    
+    
     //implementation(libs.bsh)
     implementation(libs.material.motion.compose.core)
-    implementation(libs.datastore.preferences)
+    //implementation(libs.datastore.preferences)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":feature:runner"))
     implementation(project(":feature:filetree"))
@@ -198,7 +202,6 @@ dependencies {
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
-    
     
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.dash)
