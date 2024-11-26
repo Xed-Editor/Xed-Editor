@@ -193,7 +193,7 @@ dependencies {
     implementation(project(":core:commons"))
     implementation(project(":core:components"))
     implementation(project(":editor:editor"))
-    implementation(project(":wasm3"))
+    //implementation(project(":wasm3"))
     implementation(project(":editor:language-textmate"))
     implementation(libs.nanohttpd)
     implementation(libs.photoview)

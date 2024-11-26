@@ -5,6 +5,7 @@ import android.graphics.Typeface
 import android.os.Environment
 import android.text.InputType
 import android.util.AttributeSet
+import android.widget.Toast
 import com.rk.libcommons.CustomScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean

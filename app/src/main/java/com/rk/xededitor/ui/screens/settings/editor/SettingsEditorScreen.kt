@@ -21,6 +21,9 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
+typealias strings = R.string
+typealias drawable = R.drawable
+
 @Composable
 fun SettingsEditorScreen() {
     PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
