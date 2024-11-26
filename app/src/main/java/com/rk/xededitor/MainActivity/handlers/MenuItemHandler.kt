@@ -15,7 +15,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 
-
 object MenuItemHandler {
     
     private val mutex = Mutex()
@@ -24,7 +23,9 @@ object MenuItemHandler {
     
     fun update(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.Default) {
-            
+            if (mutex.isLocked) {
+                return@launch
+            }
             //prevent lag
             mutex.withLock {
                 if (isUpdating || System.currentTimeMillis() - lastUpdate < 1500) {
@@ -35,25 +36,38 @@ object MenuItemHandler {
             }
             
             //wait for menu
-            while (!activity.isMenuInitialized()) {delay(100)}
+            while (!activity.isMenuInitialized()) {
+                delay(100)
+            }
             
             updateInternal(activity)
             
-            mutex.withLock {isUpdating = false}
+            mutex.withLock { isUpdating = false }
             
         }
         
         
     }
     
-    private suspend fun updateInternal(activity: MainActivity){
+    private suspend fun updateInternal(activity: MainActivity) {
         withContext(Dispatchers.Main) {
             val currentFragment = activity.adapter!!.getCurrentFragment()?.fragment
-            val menu = activity.menu
+            val menu = activity.menu!!
             val hasFiles = activity.tabViewModel.fragmentFiles.isNotEmpty()
             val isEditor = currentFragment is EditorFragment
             
-            updateEditorMenuVisibility(menu!!, hasFiles && isEditor)
+            val editorFragment = if (isEditor) {
+                currentFragment as EditorFragment
+            } else {
+                null
+            }
+            
+            if (updateSearchMenu(menu, editorFragment)) {
+                //searching, no need to update other values
+                return@withContext
+            }
+            
+            updateEditorMenuVisibility(menu, hasFiles && isEditor)
             
             if (hasFiles && isEditor) {
                 (currentFragment as EditorFragment).file?.let { file ->
@@ -71,17 +85,11 @@ object MenuItemHandler {
                 }, activity
             )
             
-            if (isEditor){
+            if (isEditor) {
                 activity.adapter!!.getCurrentFragment()?.let { updateUndoRedoAndModifiedStar(menu, it, activity) }
             }
             
-            updateSearchMenu(
-                menu, if (isEditor) {
-                    currentFragment as EditorFragment
-                } else {
-                    null
-                }
-            )
+            
         }
     }
     
@@ -119,7 +127,7 @@ object MenuItemHandler {
         }
     }
     
-    private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?) {
+    private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?): Boolean {
         val isSearching = editorFragment != null && (editorFragment.editor?.isSearching() == true)
         menu.apply {
             findItem(Id.search_next).isVisible = isSearching
@@ -127,18 +135,10 @@ object MenuItemHandler {
             findItem(Id.search_close).isVisible = isSearching
             findItem(Id.replace).isVisible = isSearching
             
-            if (findItem(Id.run).isVisible) {
-                findItem(Id.run).isVisible = !isSearching
-            }
-            if (findItem(Id.undo).isVisible) {
-                findItem(Id.undo).isVisible = !isSearching
-            }
-            if (findItem(Id.redo).isVisible) {
-                findItem(Id.redo).isVisible = !isSearching
-            }
-            if (findItem(Id.action_save).isVisible) {
-                findItem(Id.action_save).isVisible = !isSearching
-            }
+            
+            //disable editor menu
+            updateEditorMenuVisibility(menu,isSearching.not())
         }
+        return isSearching
     }
 }
