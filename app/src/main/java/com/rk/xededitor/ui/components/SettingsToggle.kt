@@ -42,7 +42,11 @@ fun SettingsToggle(
     var state by remember { mutableStateOf(getBoolean(key, default)) }
 
     if (showSwitch){
-        PreferenceSwitch(checked = state, onCheckedChange = {}, label = label, modifier = modifier, description = description, onClick = {
+        PreferenceSwitch(checked = state, onCheckedChange = {
+            state = !state
+            PreferencesData.setBoolean(key, state)
+            sideEffect?.invoke(state)
+        }, label = label, modifier = modifier, description = description, onClick = {
             state = !state
             PreferencesData.setBoolean(key, state)
             sideEffect?.invoke(state)
