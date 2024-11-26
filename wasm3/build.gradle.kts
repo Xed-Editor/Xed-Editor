@@ -46,8 +46,5 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(project(":core:commons"))
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
     
 }

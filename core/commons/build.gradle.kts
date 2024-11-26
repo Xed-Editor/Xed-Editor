@@ -36,5 +36,4 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.word.wrap)
-    implementation("org.tukaani:xz:1.10")
 }

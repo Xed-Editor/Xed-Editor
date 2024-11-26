@@ -68,9 +68,6 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.jcodings)
     implementation(libs.joni)
-
     implementation(libs.snakeyaml.engine)
     implementation(libs.jdt.annotation)
-
-    testImplementation(libs.junit)
 }

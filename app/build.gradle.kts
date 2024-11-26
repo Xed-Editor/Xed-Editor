@@ -149,6 +149,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -186,11 +187,8 @@ dependencies {
     implementation(libs.swiperefreshlayout)
     implementation(libs.okhttp)
     
-    
-    //implementation(libs.bsh)
     implementation(libs.material.motion.compose.core)
-    //implementation(libs.datastore.preferences)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    
     implementation(project(":feature:runner"))
     implementation(project(":feature:filetree"))
     implementation(project(":feature:settings"))
@@ -199,6 +197,7 @@ dependencies {
     implementation(project(":editor:editor"))
     //implementation(project(":wasm3"))
     implementation(project(":editor:language-textmate"))
+    
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
