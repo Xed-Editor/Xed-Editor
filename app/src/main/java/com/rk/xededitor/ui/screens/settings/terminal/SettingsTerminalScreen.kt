@@ -28,6 +28,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -65,94 +66,122 @@ fun updateProotArgs(context: Context): Boolean {
 fun SettingsTerminalScreen() {
     PreferenceLayout(label = stringResource(id = R.string.terminal), backArrowVisible = true) {
         val context = LocalContext.current
-
-        SettingsToggle(
-            label = stringResource(id = R.string.fail_safe),
-            description = stringResource(id = R.string.failsafe_desc),
-            iconRes = R.drawable.android,
-            key = PreferencesKeys.FAIL_SAFE,
-            default = false
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.show_virtual_keyboard),
-            description = stringResource(id = R.string.show_virtual_keyboard_desc),
-            iconRes = R.drawable.edit,
-            key = PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,
-            default = true
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.useCtrlWorkaround),
-            description = stringResource(id = R.string.useCtrlWorkaround_desc),
-            iconRes = R.drawable.terminal,
-            key = PreferencesKeys.CTRL_WORKAROUND,
-            default = false
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.force_char),
-            description = stringResource(id = R.string.force_char_desc),
-            iconRes = R.drawable.edit,
-            key = PreferencesKeys.FORCE_CHAR,
-            default = true
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.sim_hard_links),
-            description = stringResource(id = R.string.sim_hard_links_desc),
-            iconRes = R.drawable.terminal,
-            key = PreferencesKeys.LINK2SYMLINK,
-            default = true,
-            sideEffect = {
-                updateProotArgs(context)
-            }
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.sim_ashmem),
-            description = stringResource(id = R.string.sim_ashmem),
-            iconRes = R.drawable.terminal,
-            key = PreferencesKeys.ASHMEM_MEMFD,
-            default = true,
-            sideEffect = {
-                updateProotArgs(context)
-            }
-        )
-        
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.sysvipc),
-            description = stringResource(id = R.string.sysvipc),
-            iconRes = R.drawable.terminal,
-            key = PreferencesKeys.SYSVIPC,
-            default = true,
-            sideEffect = {
-                updateProotArgs(context)
-            }
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = R.string.kill_on_exit),
-            description = stringResource(id = R.string.kill_on_exit_desc),
-            iconRes = R.drawable.terminal,
-            key = PreferencesKeys.KILL_ON_EXIT,
-            default = true,
-            sideEffect = {
-                updateProotArgs(context)
-            }
-        )
-        
-        
-        
-        
         var showLShellDialog by remember { mutableStateOf(false) }
-        PreferenceCategory(
-            label = stringResource(id = R.string.Lshell),
-            description = stringResource(id = R.string.Lshell_desc),
-            iconResource = R.drawable.terminal,
-            onNavigate = { showLShellDialog = true },
-        )
+        var showTextSizeDialog by remember { mutableStateOf(false) }
+        
+        PreferenceGroup(heading = "Debug") {
+            SettingsToggle(
+                label = stringResource(id = R.string.fail_safe),
+                description = stringResource(id = R.string.failsafe_desc),
+                iconRes = R.drawable.android,
+                key = PreferencesKeys.FAIL_SAFE,
+                default = false
+            )
+            SettingsToggle(
+                label = stringResource(id = R.string.Lshell),
+                description = stringResource(id = R.string.Lshell_desc),
+                showSwitch = false,
+                sideEffect = {
+                    showLShellDialog = true
+                }
+            )
+        }
+        
+        
+        PreferenceGroup(heading = "Ui") {
+            SettingsToggle(
+                label = stringResource(id = R.string.show_virtual_keyboard),
+                description = stringResource(id = R.string.show_virtual_keyboard_desc),
+                iconRes = R.drawable.edit,
+                key = PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,
+                default = true
+            )
+            
+            SettingsToggle(
+                label = stringResource(id = R.string.useCtrlWorkaround),
+                description = stringResource(id = R.string.useCtrlWorkaround_desc),
+                iconRes = R.drawable.terminal,
+                key = PreferencesKeys.CTRL_WORKAROUND,
+                default = false
+            )
+            SettingsToggle(
+                label = stringResource(id = R.string.force_char),
+                description = stringResource(id = R.string.force_char_desc),
+                iconRes = R.drawable.edit,
+                key = PreferencesKeys.FORCE_CHAR,
+                default = true
+            )
+            SettingsToggle(
+                label = stringResource(id = R.string.terminal_text_size),
+                description = stringResource(id = R.string.terminal_text_size_desc),
+                showSwitch = false,
+                sideEffect = {
+                    showTextSizeDialog = true
+                }
+            )
+        }
+        
+        PreferenceGroup(heading = "Proot") {
+            SettingsToggle(
+                label = stringResource(id = R.string.sim_hard_links),
+                description = stringResource(id = R.string.sim_hard_links_desc),
+                iconRes = R.drawable.terminal,
+                key = PreferencesKeys.LINK2SYMLINK,
+                default = true,
+                sideEffect = {
+                    updateProotArgs(context)
+                }
+            )
+            SettingsToggle(
+                label = stringResource(id = R.string.sim_ashmem),
+                description = stringResource(id = R.string.sim_ashmem),
+                iconRes = R.drawable.terminal,
+                key = PreferencesKeys.ASHMEM_MEMFD,
+                default = true,
+                sideEffect = {
+                    updateProotArgs(context)
+                }
+            )
+            SettingsToggle(
+                label = stringResource(id = R.string.sysvipc),
+                description = stringResource(id = R.string.sysvipc),
+                iconRes = R.drawable.terminal,
+                key = PreferencesKeys.SYSVIPC,
+                default = true,
+                sideEffect = {
+                    updateProotArgs(context)
+                }
+            )
+            SettingsToggle(
+                label = stringResource(id = R.string.kill_on_exit),
+                description = stringResource(id = R.string.kill_on_exit_desc),
+                iconRes = R.drawable.terminal,
+                key = PreferencesKeys.KILL_ON_EXIT,
+                default = true,
+                sideEffect = {
+                    updateProotArgs(context)
+                }
+            )
+        }
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 
         if (showLShellDialog) {
             var inputValue by remember {
@@ -191,13 +220,7 @@ fun SettingsTerminalScreen() {
             )
         }
 
-        var showTextSizeDialog by remember { mutableStateOf(false) }
-        PreferenceCategory(
-            label = stringResource(id = R.string.terminal_text_size),
-            description = stringResource(id = R.string.terminal_text_size_desc),
-            iconResource = R.drawable.terminal,
-            onNavigate = { showTextSizeDialog = true },
-        )
+       
 
         if (showTextSizeDialog) {
             var inputValue by remember {

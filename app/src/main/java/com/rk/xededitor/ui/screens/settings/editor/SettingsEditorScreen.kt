@@ -44,7 +44,7 @@ fun SettingsEditorScreen() {
         
 
         
-        PreferenceGroup(heading = "content") {
+        PreferenceGroup(heading = "Content") {
             SettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
                 iconRes = drawable.reorder,
@@ -75,27 +75,11 @@ fun SettingsEditorScreen() {
                         }
                     }
                 })
-            SettingsToggle(label = "Anti word breaking",
-                description = "don't break words in word wrap",
-                iconRes = drawable.reorder,
-                key = PreferencesKeys.ANTI_WORD_BREAKING,
-                default = true,
-                sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.setWordwrap(
-                                PreferencesData.getBoolean(
-                                    PreferencesKeys.WORD_WRAP_ENABLED, false
-                                ), it
-                            )
-                        }
-                    }
-                })
         }
         
         
         
-        PreferenceGroup(heading = "editor") {
+        PreferenceGroup(heading = stringResource(id = R.string.editor)) {
             SettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
                 iconRes = drawable.animation,
@@ -165,7 +149,7 @@ fun SettingsEditorScreen() {
         
         
         
-        PreferenceGroup(heading = "misc.") {
+        PreferenceGroup(heading = "Other") {
             SettingsToggle(label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 iconRes = drawable.double_arrows,
