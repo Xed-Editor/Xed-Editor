@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.rk.git-release-32:/drawable-ldpi-v4/ic_call_answer_low.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-ldpi-v4/ic_call_answer_low.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-ldpi-v4/ic_call_decline_low.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-ldpi-v4/ic_call_decline_low.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-ldpi-v4/ic_call_answer.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-ldpi-v4/ic_call_answer.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-ldpi-v4/ic_call_answer_video.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-ldpi-v4/ic_call_answer_video.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-ldpi-v4/ic_call_decline.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-ldpi-v4/ic_call_decline.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-ldpi-v4/ic_call_answer_video_low.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-ldpi-v4/ic_call_answer_video_low.png"
+    }
+]

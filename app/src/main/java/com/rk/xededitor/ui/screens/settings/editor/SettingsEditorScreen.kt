@@ -22,7 +22,6 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceLayou
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
 typealias strings = R.string
-typealias drawable = R.drawable
 
 @Composable
 fun SettingsEditorScreen() {
@@ -47,7 +46,6 @@ fun SettingsEditorScreen() {
         PreferenceGroup(heading = "Content") {
             SettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
-                iconRes = drawable.reorder,
                 key = PreferencesKeys.WORD_WRAP_ENABLED,
                 default = false,
                 sideEffect = {
@@ -59,7 +57,6 @@ fun SettingsEditorScreen() {
                 })
             SettingsToggle(label = stringResource(strings.txt_ww),
                 description = stringResource(strings.txt_ww_desc),
-                iconRes = drawable.reorder,
                 key = PreferencesKeys.WORD_WRAP_TXT,
                 default = false,
                 sideEffect = {
@@ -82,7 +79,6 @@ fun SettingsEditorScreen() {
         PreferenceGroup(heading = stringResource(id = R.string.editor)) {
             SettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
-                iconRes = drawable.animation,
                 key = PreferencesKeys.CURSOR_ANIMATION_ENABLED,
                 default = false,
                 sideEffect = {
@@ -94,7 +90,6 @@ fun SettingsEditorScreen() {
                 })
             SettingsToggle(label = stringResource(id = strings.show_line_number),
                 description = stringResource(id = strings.show_line_number),
-                iconRes = drawable.linenumbers,
                 key = PreferencesKeys.SHOW_LINE_NUMBERS,
                 default = true,
                 sideEffect = {
@@ -106,7 +101,6 @@ fun SettingsEditorScreen() {
                 })
             SettingsToggle(label = stringResource(id = strings.show_suggestions),
                 description = stringResource(id = strings.show_suggestions),
-                iconRes = drawable.baseline_font_download_24,
                 key = PreferencesKeys.SHOW_SUGGESTIONS,
                 default = false,
                 sideEffect = {
@@ -118,7 +112,6 @@ fun SettingsEditorScreen() {
                 })
             SettingsToggle(label = stringResource(id = strings.pin_line_number),
                 description = stringResource(id = strings.pin_line_number),
-                iconRes = drawable.linenumbers,
                 key = PreferencesKeys.PIN_LINE_NUMBER,
                 default = false,
                 sideEffect = {
@@ -131,7 +124,6 @@ fun SettingsEditorScreen() {
             SettingsToggle(
                 label = stringResource(id = strings.editor_font),
                 description = stringResource(id = strings.editor_font_desc),
-                iconRes = drawable.baseline_font_download_24,
                 key = PreferencesKeys.EDITOR_FONT,
                 default = false,
             )
@@ -152,7 +144,6 @@ fun SettingsEditorScreen() {
         PreferenceGroup(heading = "Other") {
             SettingsToggle(label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
-                iconRes = drawable.double_arrows,
                 key = PreferencesKeys.SHOW_ARROW_KEYS,
                 default = true,
                 sideEffect = {
@@ -170,7 +161,6 @@ fun SettingsEditorScreen() {
                 })
             SettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
-                iconRes = drawable.animation,
                 key = PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL,
                 default = false,
                 sideEffect = {
@@ -179,14 +169,12 @@ fun SettingsEditorScreen() {
             SettingsToggle(
                 label = stringResource(id = strings.keepdl),
                 description = stringResource(id = strings.drawer_lock_desc),
-                iconRes = drawable.lock,
                 key = PreferencesKeys.KEEP_DRAWER_LOCKED,
                 default = false,
             )
             SettingsToggle(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
-                iconRes = drawable.save,
                 key = PreferencesKeys.AUTO_SAVE,
                 default = false,
             )
@@ -194,7 +182,6 @@ fun SettingsEditorScreen() {
             SettingsToggle(
                 label = stringResource(strings.sora_s),
                 description = stringResource(strings.sora_s_desc),
-                iconRes = drawable.search,
                 key = PreferencesKeys.USE_SORA_SEARCH,
                 default = false,
             )

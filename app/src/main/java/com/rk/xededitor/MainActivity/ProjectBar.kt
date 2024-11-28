@@ -11,6 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.drawables
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -162,14 +163,14 @@ object ProjectBar {
                     addItem(
                         getString(R.string.open_directory),
                         getString(R.string.open_dir_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.outline_folder_24),
+                        ContextCompat.getDrawable(this@with, drawables.outline_folder_24),
                         openDirId,
                         listener,
                     )
                     addItem(
                         getString(R.string.open_path),
                         getString(R.string.open_path_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.android),
+                        ContextCompat.getDrawable(this@with, drawables.android),
                         openPathId,
                         listener,
                     )
@@ -177,14 +178,14 @@ object ProjectBar {
                     addItem(
                         getString(R.string.private_files),
                         getString(R.string.private_files_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.android),
+                        ContextCompat.getDrawable(this@with, drawables.android),
                         privateFilesId,
                         listener,
                     )
                     addItem(
                         getString(R.string.clone_repo),
                         getString(R.string.clone_repo_desc),
-                        ContextCompat.getDrawable(this@with, R.drawable.git),
+                        ContextCompat.getDrawable(this@with, drawables.git),
                         cloneRepo,
                         listener,
                     )

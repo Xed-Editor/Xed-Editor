@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.rk.libcommons.drawables
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
@@ -21,34 +22,34 @@ private fun Categories(navController: NavController) {
     PreferenceCategory(
         label = stringResource(id = R.string.app),
         description = stringResource(id = R.string.app_desc),
-        iconResource = R.drawable.android,
+        iconResource = drawables.android,
         onNavigate = { navController.navigate(SettingsRoutes.AppSettings.route) },
     )
 
     PreferenceCategory(
         label = stringResource(id = R.string.editor),
         description = stringResource(id = R.string.editor_desc),
-        iconResource = R.drawable.edit,
+        iconResource = drawables.edit,
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
 
     PreferenceCategory(
         label = stringResource(id = R.string.terminal),
         description = stringResource(id = R.string.terminal_desc),
-        iconResource = R.drawable.terminal,
+        iconResource = drawables.terminal,
         onNavigate = { navController.navigate(SettingsRoutes.TerminalSettings.route) },
     )
 
     PreferenceCategory(
         label = stringResource(id = R.string.git),
         description = stringResource(id = R.string.git_desc),
-        iconResource = R.drawable.git,
+        iconResource = drawables.git,
         onNavigate = { navController.navigate(SettingsRoutes.GitSettings.route) },
     )
     PreferenceCategory(
         label = stringResource(id = R.string.about),
         description = stringResource(id = R.string.about_desc),
-        iconResource = R.drawable.android,
+        iconResource = drawables.android,
         onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )
 }

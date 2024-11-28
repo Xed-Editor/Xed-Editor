@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.rk.libcommons.drawables
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
@@ -27,7 +28,7 @@ fun SettingsGitScreen() {
         PreferenceCategory(
             label = stringResource(id = R.string.cred),
             description = stringResource(id = R.string.gitcred),
-            iconResource = R.drawable.key,
+            iconResource = drawables.key,
             onNavigate = {
                 inputValue = PreferencesData.getString(PreferencesKeys.GIT_CRED, "")
                 dialogType = DialogType.CREDENTIALS
@@ -38,7 +39,7 @@ fun SettingsGitScreen() {
         PreferenceCategory(
             label = stringResource(id = R.string.userdata),
             description = stringResource(id = R.string.userdatagit),
-            iconResource = R.drawable.person,
+            iconResource = drawables.person,
             onNavigate = {
                 inputValue = PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "")
                 dialogType = DialogType.USER_DATA
@@ -49,7 +50,7 @@ fun SettingsGitScreen() {
         PreferenceCategory(
             label = stringResource(id = R.string.repo_dir),
             description = stringResource(id = R.string.clone_dir),
-            iconResource = R.drawable.outline_folder_24,
+            iconResource = drawables.outline_folder_24,
             onNavigate = {
                 inputValue =
                     PreferencesData.getString(PreferencesKeys.GIT_REPO_DIR, "/storage/emulated/0")

@@ -1,0 +1,178 @@
+[
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_focused_holo.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_focused_holo.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_text_select_handle_right_mtrl.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_text_select_handle_right_mtrl.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_textfield_default_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_textfield_default_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_scrubber_primary_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_textfield_search_default_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_textfield_search_activated_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_spinner_mtrl_am_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_spinner_mtrl_am_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_cab_background_top_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_cab_background_top_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_tab_indicator_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/ic_call_answer_video_low.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/ic_call_answer_video_low.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/notification_bg_low_normal.9.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/notification_bg_low_normal.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_015.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_015.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/notification_bg_normal_pressed.9.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/notification_bg_normal_pressed.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_selector_disabled_holo_light.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_selector_disabled_holo_light.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_switch_track_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_switch_track_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_textfield_activated_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_textfield_activated_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_longpressed_holo.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_longpressed_holo.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_text_select_handle_left_mtrl.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_text_select_handle_left_mtrl.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_scrubber_track_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_scrubber_track_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_text_select_handle_middle_mtrl.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_text_select_handle_middle_mtrl.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/notification_bg_low_pressed.9.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/notification_bg_low_pressed.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/ic_call_answer_low.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/ic_call_answer_low.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_divider_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_divider_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_000.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_btn_radio_to_on_mtrl_000.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_ab_share_pack_mtrl_alpha.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/notification_bg_normal.9.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/notification_bg_normal.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_scrubber_control_to_pressed_mtrl_000.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/ic_call_decline_low.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/ic_call_decline_low.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_popup_background_mtrl_mult.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_popup_background_mtrl_mult.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_selector_disabled_holo_dark.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_selector_disabled_holo_dark.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_menu_hardkey_panel_mtrl_mult.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_pressed_holo_light.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_pressed_holo_light.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_list_pressed_holo_dark.9.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_list_pressed_holo_dark.9.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_scrubber_control_to_pressed_mtrl_005.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_scrubber_control_off_mtrl_alpha.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_scrubber_control_off_mtrl_alpha.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_ic_commit_search_api_mtrl_alpha.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/ic_call_answer_video.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/ic_call_answer_video.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/ic_call_answer.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/ic_call_answer.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_015.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_015.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/ic_call_decline.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/ic_call_decline.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_000.png",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-xhdpi-v4/abc_btn_check_to_on_mtrl_000.png"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-xhdpi-v4/notify_panel_notification_icon_bg.png",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-xhdpi-v4/notify_panel_notification_icon_bg.png"
+    }
+]

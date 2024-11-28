@@ -38,7 +38,8 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val react by lazy { ContextCompat.getDrawable(context, R.drawable.react) }
     private val rust by lazy { ContextCompat.getDrawable(context, R.drawable.rust) }
     private val markdown by lazy { ContextCompat.getDrawable(context, R.drawable.markdown) }
-
+    private val php by lazy { ContextCompat.getDrawable(context, R.drawable.php) }
+    
     override fun getIcon(node: Node<FileObject>): Drawable? {
         return if (node.value.isFile()) {
             when (node.value.getName()) {
@@ -98,6 +99,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                         "bmp" -> image
                         "rs" -> rust
                         "jsx" -> react
+                        "php" -> php
                         else -> file
                     }
             }

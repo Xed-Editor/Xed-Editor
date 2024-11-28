@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "com.rk.git-release-32:/color-night-v8/material_timepicker_button_stroke.xml",
+        "source": "com.rk.git-material-1.12.0-26:/color-night-v8/material_timepicker_button_stroke.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/color-night-v8/material_timepicker_modebutton_tint.xml",
+        "source": "com.rk.git-material-1.12.0-26:/color-night-v8/material_timepicker_modebutton_tint.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/color-night-v8/material_timepicker_clockface.xml",
+        "source": "com.rk.git-material-1.12.0-26:/color-night-v8/material_timepicker_clockface.xml"
+    }
+]

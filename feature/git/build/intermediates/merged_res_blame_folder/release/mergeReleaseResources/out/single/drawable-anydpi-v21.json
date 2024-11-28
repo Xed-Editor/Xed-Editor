@@ -1,0 +1,26 @@
+[
+    {
+        "merged": "com.rk.git-release-32:/drawable-anydpi-v21/ic_call_answer.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-anydpi-v21/ic_call_answer.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-anydpi-v21/ic_call_answer_video_low.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-anydpi-v21/ic_call_answer_video_low.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-anydpi-v21/ic_call_answer_low.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-anydpi-v21/ic_call_answer_low.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-anydpi-v21/ic_call_decline_low.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-anydpi-v21/ic_call_decline_low.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-anydpi-v21/ic_call_answer_video.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-anydpi-v21/ic_call_answer_video.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-anydpi-v21/ic_call_decline.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-anydpi-v21/ic_call_decline.xml"
+    }
+]

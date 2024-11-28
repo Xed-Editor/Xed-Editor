@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/mtrl_navigation_bar_item_background.xml",
+        "source": "com.rk.git-material-1.12.0-26:/drawable-v21/mtrl_navigation_bar_item_background.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/abc_list_divider_material.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-v21/abc_list_divider_material.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/material_cursor_drawable.xml",
+        "source": "com.rk.git-material-1.12.0-26:/drawable-v21/material_cursor_drawable.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/abc_edit_text_material.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-v21/abc_edit_text_material.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/abc_dialog_material_background.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-v21/abc_dialog_material_background.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/abc_action_bar_item_background_material.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-v21/abc_action_bar_item_background_material.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/notification_action_background.xml",
+        "source": "com.rk.git-core-1.13.1-3:/drawable-v21/notification_action_background.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/drawable-v21/abc_btn_colored_material.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/drawable-v21/abc_btn_colored_material.xml"
+    }
+]

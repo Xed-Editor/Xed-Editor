@@ -14,6 +14,7 @@ import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
+import com.rk.libcommons.drawables
 import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -285,14 +286,14 @@ object MenuClickHandler {
                     addItem(
                         getString(R.string.pull),
                         getString(R.string.pull_desc),
-                        ContextCompat.getDrawable(activity, R.drawable.sync),
+                        ContextCompat.getDrawable(activity, drawables.sync),
                         pull,
                         listener,
                     )
                     addItem(
                         getString(R.string.commit_push),
                         getString(R.string.push_desc),
-                        ContextCompat.getDrawable(activity, R.drawable.upload),
+                        ContextCompat.getDrawable(activity, drawables.upload),
                         push,
                         listener,
                     )
@@ -313,7 +314,7 @@ object MenuClickHandler {
 //                    addItem(
 //                        title = getString(R.string.terminal),
 //                        description = "Open terminal in tabs",
-//                        icon = ContextCompat.getDrawable(activity, R.drawable.terminal),
+//                        icon = ContextCompat.getDrawable(activity, drawables.terminal),
 //                        listener = {
 //                            activity.adapter!!.addFragment(File("terminal"), FragmentType.TERMINAL)
 //                        }
@@ -321,7 +322,7 @@ object MenuClickHandler {
 //                    addItem(
 //                        title = getString(R.string.new_file),
 //                        description = "Create new file",
-//                        icon = ContextCompat.getDrawable(activity, R.drawable.outline_insert_drive_file_24),
+//                        icon = ContextCompat.getDrawable(activity, drawables.outline_insert_drive_file_24),
 //                        listener = {
 //                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
 //                            intent.addCategory(Intent.CATEGORY_OPENABLE)

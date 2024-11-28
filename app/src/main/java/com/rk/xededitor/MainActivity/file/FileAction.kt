@@ -18,6 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.drawables
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
@@ -56,14 +57,14 @@ class FileAction(
                     addItem(
                         getString(R.string.refresh),
                         getString(R.string.reload_file_tree),
-                        getDrawable(R.drawable.sync),
+                        getDrawable(drawables.sync),
                     ) {
                         ProjectManager.currentProject.refresh(mainActivity)
                     }
                     addItem(
                         getString(R.string.close),
                         getString(R.string.close_current_project),
-                        getDrawable(R.drawable.close),
+                        getDrawable(drawables.close),
                     ) {
                         ProjectManager.removeProject(mainActivity, rootFolder)
                     }
@@ -71,21 +72,21 @@ class FileAction(
                     addItem(
                         getString(R.string.rename),
                         getString(R.string.rename_descript),
-                        getDrawable(R.drawable.edit),
+                        getDrawable(drawables.edit),
                     ) {
                         rename()
                     }
                     addItem(
                         getString(R.string.open_with),
                         getString(R.string.open_with_other),
-                        getDrawable(R.drawable.android),
+                        getDrawable(drawables.android),
                     ) {
                         openWith(mainActivity, file)
                     }
                     addItem(
                         getString(R.string.delete),
                         getString(R.string.delete_descript),
-                        getDrawable(R.drawable.delete),
+                        getDrawable(drawables.delete),
                     ) {
                         MaterialAlertDialogBuilder(context)
                             .setTitle(context.getString(R.string.delete))
@@ -109,12 +110,12 @@ class FileAction(
                     }
                 }
 
-                val fileDrawable = getDrawable(R.drawable.outline_insert_drive_file_24)
+                val fileDrawable = getDrawable(drawables.outline_insert_drive_file_24)
                 if (file.isDirectory) {
                     addItem(
                         getString(R.string.open_in_terminal),
                         getString(R.string.open_dir_in_terminal),
-                        getDrawable(R.drawable.terminal),
+                        getDrawable(drawables.terminal),
                     ) {
                         val intent = Intent(context, Terminal::class.java)
                         intent.putExtra("cwd", file.absolutePath)
@@ -140,7 +141,7 @@ class FileAction(
                     addItem(
                         getString(R.string.new_folder),
                         getString(R.string.create_new_file_desc),
-                        getDrawable(R.drawable.outline_folder_24),
+                        getDrawable(drawables.outline_folder_24),
                     ) {
                         new(createFile = false)
                     }
@@ -213,7 +214,7 @@ class FileAction(
                     addItem(
                         getString(R.string.save_as),
                         getString(R.string.save_desc),
-                        getDrawable(R.drawable.save),
+                        getDrawable(drawables.save),
                     ) {
                         to_save_file = file
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)

@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.trace
 import com.jaredrummler.ktsh.Shell
+import com.rk.libcommons.drawables
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
@@ -73,7 +74,7 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.fail_safe),
                 description = stringResource(id = R.string.failsafe_desc),
-                iconRes = R.drawable.android,
+                iconRes = drawables.android,
                 key = PreferencesKeys.FAIL_SAFE,
                 default = false
             )
@@ -92,7 +93,7 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.show_virtual_keyboard),
                 description = stringResource(id = R.string.show_virtual_keyboard_desc),
-                iconRes = R.drawable.edit,
+                iconRes = drawables.edit,
                 key = PreferencesKeys.SHOW_VIRTUAL_KEYBOARD,
                 default = true
             )
@@ -100,14 +101,14 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.useCtrlWorkaround),
                 description = stringResource(id = R.string.useCtrlWorkaround_desc),
-                iconRes = R.drawable.terminal,
+                iconRes = drawables.terminal,
                 key = PreferencesKeys.CTRL_WORKAROUND,
                 default = false
             )
             SettingsToggle(
                 label = stringResource(id = R.string.force_char),
                 description = stringResource(id = R.string.force_char_desc),
-                iconRes = R.drawable.edit,
+                iconRes = drawables.edit,
                 key = PreferencesKeys.FORCE_CHAR,
                 default = true
             )
@@ -125,7 +126,7 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.sim_hard_links),
                 description = stringResource(id = R.string.sim_hard_links_desc),
-                iconRes = R.drawable.terminal,
+                iconRes = drawables.terminal,
                 key = PreferencesKeys.LINK2SYMLINK,
                 default = true,
                 sideEffect = {
@@ -135,7 +136,7 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.sim_ashmem),
                 description = stringResource(id = R.string.sim_ashmem),
-                iconRes = R.drawable.terminal,
+                iconRes = drawables.terminal,
                 key = PreferencesKeys.ASHMEM_MEMFD,
                 default = true,
                 sideEffect = {
@@ -145,7 +146,7 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.sysvipc),
                 description = stringResource(id = R.string.sysvipc),
-                iconRes = R.drawable.terminal,
+                iconRes = drawables.terminal,
                 key = PreferencesKeys.SYSVIPC,
                 default = true,
                 sideEffect = {
@@ -155,7 +156,7 @@ fun SettingsTerminalScreen() {
             SettingsToggle(
                 label = stringResource(id = R.string.kill_on_exit),
                 description = stringResource(id = R.string.kill_on_exit_desc),
-                iconRes = R.drawable.terminal,
+                iconRes = drawables.terminal,
                 key = PreferencesKeys.KILL_ON_EXIT,
                 default = true,
                 sideEffect = {

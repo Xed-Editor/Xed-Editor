@@ -84,6 +84,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context,scope:Corou
             "bash" -> setLanguage("source.shell")
             "rs" -> setLanguage("source.rust")
             "lua" -> setLanguage("source.lua")
+            "php" -> setLanguage("source.php")
         }
     }
 

@@ -1,0 +1,134 @@
+[
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_checkbox_to_checked_icon_null_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_checkbox_to_checked_icon_null_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_radio_to_on_mtrl_dot_group_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_radio_to_on_mtrl_dot_group_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_fade_in.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_fade_in.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/design_snackbar_out.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/design_snackbar_out.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_grow_fade_in_from_bottom.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_grow_fade_in_from_bottom.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_slide_out_bottom.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_slide_out_bottom.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_tooltip_enter.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_tooltip_enter.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_radio_to_off_mtrl_dot_group_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_radio_to_off_mtrl_dot_group_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_slide_out_top.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_slide_out_top.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_tooltip_exit.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_tooltip_exit.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/linear_indeterminate_line1_tail_interpolator.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/linear_indeterminate_line1_tail_interpolator.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_popup_exit.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_popup_exit.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/linear_indeterminate_line1_head_interpolator.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/linear_indeterminate_line1_head_interpolator.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/linear_indeterminate_line2_head_interpolator.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/linear_indeterminate_line2_head_interpolator.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/m3_motion_fade_exit.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/m3_motion_fade_exit.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_popup_enter.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_popup_enter.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_slide_in_bottom.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_slide_in_bottom.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/m3_motion_fade_enter.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/m3_motion_fade_enter.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/design_snackbar_in.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/design_snackbar_in.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_slide_in_top.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_slide_in_top.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/linear_indeterminate_line2_tail_interpolator.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/linear_indeterminate_line2_tail_interpolator.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_fade_out.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_fade_out.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_checkbox_to_unchecked_icon_null_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_checkbox_to_unchecked_icon_null_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/mtrl_card_lowers_interpolator.xml",
+        "source": "com.rk.git-material-1.12.0-26:/anim/mtrl_card_lowers_interpolator.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/btn_radio_to_on_mtrl_ring_outer_path_animation.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/btn_radio_to_on_mtrl_ring_outer_path_animation.xml"
+    },
+    {
+        "merged": "com.rk.git-release-32:/anim/abc_shrink_fade_out_from_bottom.xml",
+        "source": "com.rk.git-appcompat-1.7.0-21:/anim/abc_shrink_fade_out_from_bottom.xml"
+    }
+]

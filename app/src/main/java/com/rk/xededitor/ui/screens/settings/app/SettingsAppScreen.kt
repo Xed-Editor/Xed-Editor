@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rk.libcommons.drawables
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
@@ -60,7 +61,7 @@ fun ThemeModePreference(showBottomSheet: MutableState<Boolean>) {
     PreferenceCategory(
         label = stringResource(id = R.string.theme_mode),
         description = stringResource(id = R.string.theme_mode_desc),
-        iconResource = R.drawable.theme_mode,
+        iconResource = drawables.theme_mode,
         onNavigate = { showBottomSheet.value = true }
     )
 }
@@ -70,7 +71,7 @@ fun OledPreference(isOled: Boolean, onToggle: (Boolean) -> Unit) {
     PreferenceCategory(
         label = stringResource(id = R.string.oled),
         description = stringResource(id = R.string.oled_desc),
-        iconResource = R.drawable.dark_mode,
+        iconResource = drawables.dark_mode,
         onNavigate = { onToggle(!isOled) },
         endWidget = {
             Switch(
@@ -87,7 +88,7 @@ fun CheckForUpdatesPreference(checkForUpdates: Boolean, onToggle: (Boolean) -> U
     PreferenceCategory(
         label = stringResource(R.string.check_for_updates),
         description = stringResource(R.string.check_for_updates_desc),
-        iconResource = R.drawable.android,
+        iconResource = drawables.android,
         onNavigate = { onToggle(!checkForUpdates) },
         endWidget = {
             Switch(
@@ -105,7 +106,7 @@ fun MonetPreference(isMonet: Boolean, onToggle: (Boolean) -> Unit) {
     PreferenceCategory(
         label = stringResource(id = R.string.monet),
         description = stringResource(id = R.string.monet_desc),
-        iconResource = R.drawable.palette,
+        iconResource = drawables.palette,
         enabled = isEnabled,
         onNavigate = { if (isEnabled) onToggle(!isMonet) },
         endWidget = {
