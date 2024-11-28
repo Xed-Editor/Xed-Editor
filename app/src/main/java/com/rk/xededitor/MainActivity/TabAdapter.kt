@@ -117,7 +117,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
     }
     
-    fun removeFragment(position: Int, askUser: Boolean = true) {
+    fun removeFragment(position: Int, askUser: Boolean) {
         with(mainActivity) {
             if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
                 
@@ -125,8 +125,8 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                     tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
                     tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
                     
-                    synchronized(EditorFragment.set) {
-                        EditorFragment.set.remove(tabViewModel.fragmentFiles[position].name)
+                    synchronized(EditorFragment.fileset) {
+                        EditorFragment.fileset.remove(tabViewModel.fragmentFiles[position].name)
                     }
                     
                     tabViewModel.fragmentFiles.removeAt(position)

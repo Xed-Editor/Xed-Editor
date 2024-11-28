@@ -45,7 +45,7 @@ object KeyEventHandler {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_W -> {
                     MainActivity.activityRef.get()?.apply {
-                        adapter!!.removeFragment(tabLayout!!.selectedTabPosition)
+                        adapter!!.removeFragment(tabLayout!!.selectedTabPosition,true)
                         binding!!.tabs.invalidate()
                         binding!!.tabs.requestLayout()
                         

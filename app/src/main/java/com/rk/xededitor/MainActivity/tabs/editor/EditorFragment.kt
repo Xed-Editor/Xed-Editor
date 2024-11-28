@@ -156,6 +156,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                         }
                     }
                 }
+                fileset.remove(file!!.name)
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
@@ -175,11 +176,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor?.scope?.cancel()
         editor?.release()
         file?.let {
-            if (set.contains(it.name)){
-                set.remove(it.name)
-            }
-            if (set.contains("${it.name}*")){
-                set.remove("${it.name}*")
+            if (fileset.contains(it.name)){
+                fileset.remove(it.name)
             }
         }
         
@@ -216,12 +214,12 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
     
     companion object {
-        val set = HashSet<String>()
+        val fileset = HashSet<String>()
     }
     
     
     fun isModified():Boolean{
-        return set.contains(file!!.name) || set.contains("${file!!.name}*")
+        return fileset.contains(file!!.name)
     }
     
     private var t = 0
@@ -251,10 +249,10 @@ class EditorFragment(val context: Context) : CoreFragment {
                         }
                     }
                     
-                    if (set.contains(fileName)) {
+                    if (fileset.contains(fileName)) {
                         addStar()
                     } else {
-                        set.add(fileName)
+                        fileset.add(fileName)
                         addStar()
                     }
                 } catch (e: Exception) {

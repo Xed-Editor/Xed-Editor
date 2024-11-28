@@ -29,7 +29,7 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
             val id = item.itemId
             when (id) {
                 R.id.close_this -> {
-                    activity.adapter!!.removeFragment(tab.position)
+                    activity.adapter!!.removeFragment(tab.position,true)
                 }
                 
                 R.id.close_others -> {
