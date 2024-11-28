@@ -17,3 +17,5 @@
 local.properties
 Todo.md
 */build
+**/build
+.vscode
