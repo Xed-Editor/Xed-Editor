@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
 import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -53,6 +54,8 @@ class CrashActivity : AppCompatActivity() {
                     .append("'\nUnix Time : ")
                     .append(System.currentTimeMillis())
                     .append("\n")
+                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
+                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
                 sb.append("LocalTime : ")
                     .append(
                         SimpleDateFormat.getDateTimeInstance()
@@ -105,7 +108,7 @@ class CrashActivity : AppCompatActivity() {
                     Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse(
-                            "https://github.com/RohitKushvaha01/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                            "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
                                 URLEncoder.encode(
                                     "``` \n${editor.text}\n ```",
                                     StandardCharsets.UTF_8.toString(),

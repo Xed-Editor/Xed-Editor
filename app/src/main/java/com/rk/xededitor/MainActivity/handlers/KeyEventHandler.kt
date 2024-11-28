@@ -5,7 +5,6 @@ import android.view.KeyEvent
 import androidx.core.app.ActivityCompat.startActivityForResult
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.Printer
-import com.rk.xededitor.MainActivity.BatchReplacement
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -116,12 +115,6 @@ object KeyEventHandler {
                 KeyEvent.KEYCODE_F -> {
                     MainActivity.activityRef.get()?.let {
                         MenuClickHandler.handle(it, it.menu!!.findItem(R.id.search))
-                    }
-                }
-                
-                KeyEvent.KEYCODE_H -> {
-                    MainActivity.activityRef.get()?.let {
-                        it.startActivity(Intent(it, BatchReplacement::class.java))
                     }
                 }
                 

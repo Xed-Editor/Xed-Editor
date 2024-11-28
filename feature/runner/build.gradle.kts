@@ -49,5 +49,5 @@ dependencies {
     implementation(libs.bsh)
     implementation(libs.browser)
     implementation(project(":core:commons"))
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
+    implementation(libs.nanohttpd)
 }

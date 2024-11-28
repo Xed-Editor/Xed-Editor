@@ -11,7 +11,7 @@ plugins {
 fun getGitCommitHash(): String {
     val stdout = ByteArrayOutputStream()
     exec {
-        commandLine("git", "rev-parse", "--short", "HEAD")
+        commandLine("git", "rev-parse", "--short=8", "HEAD")
         standardOutput = stdout
     }
     return stdout.toString().trim()
@@ -42,7 +42,6 @@ android {
     namespace = "com.rk.xededitor"
     compileSdk = 34
     android.buildFeatures.buildConfig = true
-    
     
     println("Building for commit ${getGitCommitHash()}")
     
@@ -150,6 +149,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -172,9 +172,13 @@ dependencies {
     implementation(libs.terminal.view)
     implementation(libs.terminal.emulator)
     implementation(libs.utilcode)
-    implementation(libs.sshj)
-    implementation(libs.commons.net)
+    implementation(libs.coil.compose)
+    implementation(libs.org.eclipse.jgit)
     implementation(libs.gson)
+    
+    //implementation(libs.sshj)
+    implementation(libs.commons.net)
+    
     implementation(libs.jcodings)
     implementation(libs.joni)
     implementation(libs.snakeyaml.engine)
@@ -182,24 +186,23 @@ dependencies {
     implementation(libs.ktsh)
     implementation(libs.swiperefreshlayout)
     implementation(libs.okhttp)
-    implementation(libs.org.eclipse.jgit)
-    implementation(libs.coil.compose)
-    implementation(libs.bsh)
+    
     implementation(libs.material.motion.compose.core)
-    implementation(libs.datastore.preferences)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    
     implementation(project(":feature:runner"))
     implementation(project(":feature:filetree"))
     implementation(project(":feature:settings"))
     implementation(project(":core:commons"))
     implementation(project(":core:components"))
     implementation(project(":editor:editor"))
+    //implementation(project(":wasm3"))
     implementation(project(":editor:language-textmate"))
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
-    implementation("com.github.chrisbanes:PhotoView:2.3.0")
-    implementation("com.github.bumptech.glide:glide:4.15.1")
     
-    implementation("androidx.media3:media3-exoplayer:1.4.1")
-    implementation("androidx.media3:media3-exoplayer-dash:1.4.1")
-    implementation("androidx.media3:media3-ui:1.4.1")
+    implementation(libs.nanohttpd)
+    implementation(libs.photoview)
+    implementation(libs.glide)
+    
+    implementation(libs.media3.exoplayer)
+    implementation(libs.media3.exoplayer.dash)
+    implementation(libs.media3.ui)
 }

@@ -38,3 +38,4 @@ include(":feature:settings")
 include(":core:components")
 include(":core:commons")
 
+include(":wasm3")

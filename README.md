@@ -11,7 +11,7 @@
   <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI">
 </div>
 
-**Karbon** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization, making it a perfect tool for coding and text management on the go.
+**Karbon** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization, making it a perfect tool for text management on the go.
 
 ## Features
 - [x] **File editing** outside of projects
@@ -26,7 +26,6 @@
 - [x] **Copy/Paste** files and folders
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
-- [x] Support for **Plugins** ([Learn more about creating plugins](/docs/CREATE_PLUGIN.md))
 - [x] **Keybindings** ([View available keybindings](/KEYBINDS.md))
 
 ## Community
@@ -60,19 +59,19 @@ Join the Karbon community to stay updated and engage with other users:
 ## Screenshots
 
 <div>
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.png" width="32%" />
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.png" width="32%" />
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.png" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/01.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/02.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/03.jpg" width="32%" />
 </div>
 <div>
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/04.png" width="32%" />
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.png" width="32%" />
-  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.png" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/04.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.jpg" width="32%" />
+  <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.jpg" width="32%" />
 </div>
 
 ## Contributing
 
-We welcome contributions! Please read the [CONTRIBUTING.md](/CONTRIBUTING.md) file to learn how you can get involved. 
+We welcome contributions! Please read the [CONTRIBUTING.md](/CONTRIBUTING.md) file to learn how you can get involved.
 
 
 ## License

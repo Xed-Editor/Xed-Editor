@@ -2,6 +2,8 @@ package com.rk.xededitor
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Environment
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.isDarkMode
 import com.rk.xededitor.rkUtils.runOnUiThread
@@ -17,11 +19,44 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import com.google.gson.JsonParser
+import com.rk.settings.PreferencesData.getBoolean
+import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.MainActivity.tabs.editor.KarbonEditor
+import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.InputStreamReader
 
-class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
+class SetupEditor(val editor: KarbonEditor, private val ctx: Context,scope:CoroutineScope) {
+    
+    init {
+        scope.launch { ensureTextmateTheme(ctx) }
+        with(editor) {
+            val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
+            props.deleteMultiSpaces = tabSize
+            tabWidth = tabSize
+            props.deleteEmptyLineFast = false
+            props.useICULibToSelectWords = true
+            setPinLineNumber(getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
+            isLineNumberEnabled = getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
+            isCursorAnimationEnabled = getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
+            setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
+            getComponent(EditorAutoCompletion::class.java).isEnabled = true
+            setWordwrap(getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false), getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true))
+            showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
+        }
+        File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
+            editor.typefaceText =
+                if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
+                    Typeface.createFromFile(it)
+                } else {
+                    Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+                }
+        }
+    }
 
     suspend fun setupLanguage(fileName: String) {
         when (fileName.substringAfterLast('.', "")) {
@@ -48,6 +83,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
             "sh",
             "bash" -> setLanguage("source.shell")
             "rs" -> setLanguage("source.rust")
+            "lua" -> setLanguage("source.lua")
         }
     }
 
@@ -113,13 +149,17 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context) {
         val reader = InputStreamReader(kw)
         val jsonElement = JsonParser.parseReader(reader)
         val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
-        val keywords = Array(keywordsArray.size()) { "" }
-        for (i in keywords.indices) {
-            keywords[i] = keywordsArray[i].asString
+        if (keywordsArray != null){
+            val keywords = Array(keywordsArray.size()) { "" }
+            for (i in keywords.indices) {
+                keywords[i] = keywordsArray[i].asString
+            }
+            language.setCompleterKeywords(keywords)
         }
-        language.setCompleterKeywords(keywords)
+        
         editor.setEditorLanguage(language as Language)
     }
+    
 
     suspend fun ensureTextmateTheme(context: Context) {
         init(context)

@@ -1,0 +1,31 @@
+v2.8.0 (35)
+
+- Added Syntax highlighting for rust
+- Added Syntax highlighting for shellscript
+- Fixed Lots of crashes
+- Added support for disabling char based input in terminal
+- Added ctrl workaround for some devices in terminal
+- Fixed Memory leaks
+- Improved KeyPanel (BottomBar)
+- Added skipping over quotation marks
+- Added Keybindings
+- Improved File opening delay
+- Added Toggle for text suggestions
+- Fixed File modified asterisk
+- Fixed File renaming with whitespaces
+- Added custom font support for terminal
+- Added update checking
+- Added Java Runner
+- Added quick file creation
+- UI Improvements
+- Added sliding drawer
+- Fixed Menu not getting updated
+- Improved startup time
+- Added media playback support
+- Fixed Strange html preview
+- Fixed out of screen word wrap
+- Removed Plugin System
+- Improved linux compatibility in terminal
+- Added sora search toggle
+- Improved printer word wrap
+- Fixed Proot warning

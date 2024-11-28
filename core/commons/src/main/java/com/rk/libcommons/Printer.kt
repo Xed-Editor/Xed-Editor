@@ -74,10 +74,10 @@ class Printer(private val context: Context, private val content: String) : Print
         val maxWidth = pageWidth - 80f // Leave some margin (40f on each side)
         
         content.split("\n").forEach { line ->
-            val wrappedLines = WordWrap.from(line).maxWidth(maxWidth).wrap().split("\n")
+            val wrappedLines = WordWrap.from(line).maxWidth(maxWidth/6).wrap().split("\n")
             wrappedLines.forEach { wrappedLine ->
                 // Check if the text will go out of the page bounds, create a new page if needed
-                if (yPos + paint.textSize > pageHeight - 40) {
+                if (yPos + paint.textSize > pageHeight) {
                     pdfDocument.finishPage(page) // Finish the current page
                     
                     // Start a new page and reinitialize the canvas

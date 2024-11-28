@@ -7,6 +7,7 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -22,9 +23,9 @@ object UpdateManager {
     
     @OptIn(DelicateCoroutinesApi::class)
     fun fetch(branch: String) {
-        try {
-            GlobalScope.launch(Dispatchers.IO) {
-                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, true).not()) {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false).not()) {
                     return@launch
                 }
                 
@@ -54,13 +55,12 @@ object UpdateManager {
                         parseJson(jsonResponse)
                     }
                 }
-                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK,System.currentTimeMillis().toString())
+                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
+            } catch (e: Exception) {
+                e.printStackTrace()
+                rkUtils.toast(e.message)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-        
-        
     }
     
     private suspend inline fun parseJson(jsonStr: String) {

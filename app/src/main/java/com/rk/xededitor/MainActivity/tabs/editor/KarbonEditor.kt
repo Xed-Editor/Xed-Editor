@@ -5,15 +5,19 @@ import android.graphics.Typeface
 import android.os.Environment
 import android.text.InputType
 import android.util.AttributeSet
+import android.widget.Toast
+import com.rk.libcommons.CustomScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.DirectAccessProps
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -32,23 +36,8 @@ class KarbonEditor : CodeEditor {
         defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
     
-    init {
-        val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
-        props.deleteMultiSpaces = tabSize
-        tabWidth = tabSize
-        props.deleteEmptyLineFast = false
-        props.useICULibToSelectWords = true
-        setPinLineNumber(getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
-        isLineNumberEnabled = getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
-        isCursorAnimationEnabled = getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
-        isWordwrap = getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
-        setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
-        getComponent(EditorAutoCompletion::class.java).isEnabled = true
-        
-        loadTypeFace(context)
-        showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS,false))
-    }
-    
+    val scope = CustomScope()
+    val setupEditor = SetupEditor(this, context,scope)
     
     suspend fun loadFile(file:File){
         withContext(Dispatchers.IO) {
@@ -59,24 +48,15 @@ class KarbonEditor : CodeEditor {
                 withContext(Dispatchers.Main) { setText(content) }
             } catch (e: Exception) {
                 e.printStackTrace()
-                rkUtils.toast(e.message)
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context,e.message,Toast.LENGTH_LONG).show()
+                }
+               
             }
         }
     }
     
-    private inline fun loadTypeFace(context: Context){
-        File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
-            typefaceText =
-                if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
-                    Typeface.createFromFile(it)
-                } else {
-                    Typeface.createFromAsset(
-                        context.assets,
-                        "JetBrainsMono-Regular.ttf",
-                    )
-                }
-        }
-    }
+    
     
     fun showSuggestions(yes: Boolean) {
         inputType = if (yes) {

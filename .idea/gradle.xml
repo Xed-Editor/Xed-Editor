@@ -22,6 +22,7 @@
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/filetree" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/runner" />
             <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/feature/settings" />
+            <option value="$USER_HOME$/Android/AndroidStudioProjects/Xed-Editor/wasm3" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

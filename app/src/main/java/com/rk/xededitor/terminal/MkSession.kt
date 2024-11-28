@@ -30,11 +30,11 @@ object MkSession {
                 } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
                     ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
                 } else {
-                    "/karbon"
+                    Environment.getExternalStorageDirectory().path
                 }
             }
             
-            val workingDir = getPwd().replace(filesDir.parentFile.absolutePath,"/karbon")
+            val workingDir = getPwd().replace(filesDir.parentFile!!.absolutePath,Environment. getExternalStorageDirectory().path)
             
             val tmpDir = File(getTempDir(), "terminal")
             

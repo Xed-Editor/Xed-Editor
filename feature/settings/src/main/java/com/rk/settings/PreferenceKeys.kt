@@ -32,6 +32,7 @@ object PreferencesKeys {
     const val LAST_UPDATE_CHECK="last_update_check"
     const val USE_SORA_SEARCH="use_sora_search"
     const val WORD_WRAP_TXT="text_ww"
+    const val ANTI_WORD_BREAKING="anti_word_breaking"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"

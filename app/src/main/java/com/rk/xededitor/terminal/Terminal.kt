@@ -29,55 +29,53 @@ class Terminal : BaseActivity() {
     var binding: ActivityTerminalBinding? = null
     private lateinit var session: TerminalSession
     val terminalBackend: TerminalBackEnd = TerminalBackEnd(this)
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTerminalBinding.inflate(layoutInflater)
-
-        SetupAlpine(this) {
-                setupTerminalView()
-                setContentView(binding!!.root)
-                setupVirtualKeys()
-
-                var lastBackPressedTime: Long = 0
-                val doubleBackPressTimeInterval: Long = 2000
-                onBackPressedDispatcher.addCallback(
-                    this,
-                    object : OnBackPressedCallback(true) {
-                        override fun handleOnBackPressed() {
-                            val currentTime = System.currentTimeMillis()
-
-                            if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
-                                terminal?.mTermSession?.finishIfRunning()
-                                finish()
-                            } else {
-                                lastBackPressedTime = currentTime
-                                Toast.makeText(
-                                        this@Terminal,
-                                        rkUtils.getString(R.string.press_again_exit),
-                                        Toast.LENGTH_SHORT,
-                                    )
-                                    .show()
-                            }
+        
+        SetupAlpine(this){
+            setupTerminalView()
+            setContentView(binding!!.root)
+            setupVirtualKeys()
+            
+            var lastBackPressedTime: Long = 0
+            val doubleBackPressTimeInterval: Long = 2000
+            onBackPressedDispatcher.addCallback(
+                this,
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        val currentTime = System.currentTimeMillis()
+                        
+                        if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
+                            terminal?.mTermSession?.finishIfRunning()
+                            finish()
+                        } else {
+                            lastBackPressedTime = currentTime
+                            Toast.makeText(
+                                this@Terminal,
+                                rkUtils.getString(R.string.press_again_exit),
+                                Toast.LENGTH_SHORT,
+                            ).show()
                         }
-                    },
-                )
-            }
-            .init()
+                    }
+                },
+            )
+        }.init()
     }
-
+    
     override fun onDestroy() {
         terminal?.mTermSession?.finishIfRunning()
         super.onDestroy()
     }
-
+    
     private fun setupVirtualKeys() {
         binding!!.extraKeys.virtualKeysViewClient = terminal?.mTermSession?.let { VirtualKeysListener(it) }
         binding!!.extraKeys.reload(
             VirtualKeysInfo(VIRTUAL_KEYS, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES)
         )
     }
-
+    
     private fun setupTerminalView() {
         terminal = TerminalView(this, null)
         terminalBackend.setTerminal(terminal!!)
@@ -99,12 +97,12 @@ class Terminal : BaseActivity() {
         terminal!!.setFocusableInTouchMode(true)
         
         
-        val customFont = File(Environment.getExternalStorageDirectory(),"karbon/terminal_font.ttf")
-        if (customFont.exists() and customFont.isFile){
+        val customFont = File(Environment.getExternalStorageDirectory(), "karbon/terminal_font.ttf")
+        if (customFont.exists() and customFont.isFile) {
             terminal!!.setTypeface(Typeface.createFromFile(customFont))
         }
     }
-
+    
     companion object {
         @JvmStatic
         @JvmOverloads
@@ -124,47 +122,20 @@ class Terminal : BaseActivity() {
             // context to launch terminal activity
             context: Context,
         ) {
-            context.startActivity(
-                Intent(context, Terminal::class.java).also {
-                    it.putExtra("run_cmd", true)
-                    it.putExtra("shell", shell)
-                    it.putExtra("args", args)
-                    it.putExtra("cwd", workingDir)
-                    it.putExtra("env", environmentVars)
-                    it.putExtra("overrideEnv", overrideEnv)
-                    it.putExtra("alpine", alpine)
-                }
-            )
+            context.startActivity(Intent(context, Terminal::class.java).also {
+                it.putExtra("run_cmd", true)
+                it.putExtra("shell", shell)
+                it.putExtra("args", args)
+                it.putExtra("cwd", workingDir)
+                it.putExtra("env", environmentVars)
+                it.putExtra("overrideEnv", overrideEnv)
+                it.putExtra("alpine", alpine)
+            })
         }
     }
-
+    
     
 }
 
 const val VIRTUAL_KEYS =
-    ("[" +
-        "\n  [" +
-        "\n    \"ESC\"," +
-        "\n    {" +
-        "\n      \"key\": \"/\"," +
-        "\n      \"popup\": \"\\\\\"" +
-        "\n    }," +
-        "\n    {" +
-        "\n      \"key\": \"-\"," +
-        "\n      \"popup\": \"|\"" +
-        "\n    }," +
-        "\n    \"HOME\"," +
-        "\n    \"UP\"," +
-        "\n    \"END\"," +
-        "\n    \"PGUP\"" +
-        "\n  ]," +
-        "\n  [" +
-        "\n    \"TAB\"," +
-        "\n    \"CTRL\"," +
-        "\n    \"ALT\"," +
-        "\n    \"LEFT\"," +
-        "\n    \"DOWN\"," +
-        "\n    \"RIGHT\"," +
-        "\n    \"PGDN\"" +
-        "\n  ]" +
-        "\n]")
+    ("[" + "\n  [" + "\n    \"ESC\"," + "\n    {" + "\n      \"key\": \"/\"," + "\n      \"popup\": \"\\\\\"" + "\n    }," + "\n    {" + "\n      \"key\": \"-\"," + "\n      \"popup\": \"|\"" + "\n    }," + "\n    \"HOME\"," + "\n    \"UP\"," + "\n    \"END\"," + "\n    \"PGUP\"" + "\n  ]," + "\n  [" + "\n    \"TAB\"," + "\n    \"CTRL\"," + "\n    \"ALT\"," + "\n    \"LEFT\"," + "\n    \"DOWN\"," + "\n    \"RIGHT\"," + "\n    \"PGDN\"" + "\n  ]" + "\n]")

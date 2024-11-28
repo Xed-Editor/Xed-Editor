@@ -35,7 +35,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     var file: File? = null
     var editor: KarbonEditor? = null
     val scope = CustomScope()
-    var setupEditor: SetupEditor? = null
     var constraintLayout: ConstraintLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout:LinearLayout
@@ -84,8 +83,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             )
         }
         
-        setupEditor = SetupEditor(editor!!, context)
-        scope.launch { setupEditor?.ensureTextmateTheme(context) }
+        
         
         
         // Define the new LinearLayout
@@ -120,8 +118,8 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun loadFile(xfile: File) {
         file = xfile
         scope.launch(Dispatchers.Default) {
-            setupEditor?.setupLanguage(file!!.name)
-            editor!!.loadFile(xfile)
+            launch { editor!!.loadFile(xfile) }
+            launch { editor!!.setupEditor.setupLanguage(file!!.name) }
             withContext(Dispatchers.Main) {
                 setChangeListener()
                 file?.let {
@@ -174,7 +172,17 @@ class EditorFragment(val context: Context) : CoreFragment {
     
     override fun onDestroy() {
         scope.cancel()
+        editor?.scope?.cancel()
         editor?.release()
+        file?.let {
+            if (set.contains(it.name)){
+                set.remove(it.name)
+            }
+            if (set.contains("${it.name}*")){
+                set.remove("${it.name}*")
+            }
+        }
+        
     }
     
     override fun onClosed() {
@@ -211,13 +219,21 @@ class EditorFragment(val context: Context) : CoreFragment {
         val set = HashSet<String>()
     }
     
+    
+    fun isModified():Boolean{
+        return set.contains(file!!.name) || set.contains("${file!!.name}*")
+    }
+    
     private var t = 0
     private fun setChangeListener() {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             scope.launch {
                 updateUndoRedo()
-                t++
                 
+                if (t < 2){
+                    t++
+                    return@launch
+                }
                 
                 try {
                     val fileName = file!!.name
@@ -258,9 +274,13 @@ class EditorFragment(val context: Context) : CoreFragment {
         
         
         return SymbolInputView(context).apply {
-            addSymbols(arrayOf("->"), arrayOf("\t"))
             
             val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
+                
+                add(Pair("->", onClick {
+                    hapticFeedBack(it)
+                    editor?.onKeyDown(KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB))
+                }))
                 
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)

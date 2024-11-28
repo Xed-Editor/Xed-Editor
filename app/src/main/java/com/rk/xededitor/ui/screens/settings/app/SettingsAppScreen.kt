@@ -29,7 +29,7 @@ fun SettingsAppScreen() {
     val context = LocalContext.current
     var isOled by remember { mutableStateOf(PreferencesData.isOled()) }
     var isMonet by remember { mutableStateOf(PreferencesData.isMonet()) }
-    var checkForUpdates by remember { mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, true)) }
+    var checkForUpdates by remember { mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false)) }
     val showDayNightBottomSheet = remember { mutableStateOf(false) }
     
     PreferenceLayout(label = stringResource(id = R.string.app), backArrowVisible = true) {

@@ -15,7 +15,7 @@
             android:layout_height="?attr/actionBarSize"/>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <io.github.rosemoe.sora.widget.CodeEditor
+    <com.rk.xededitor.MainActivity.tabs.editor.KarbonEditor
         android:id="@+id/editor"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
