@@ -40,6 +40,12 @@
       }
     },
     {
+      "grammar": "textmate/php/syntaxes/html.tmLanguage.json",
+      "name": "PHP",
+      "scopeName": "text.html.php",
+      "languageConfiguration": "textmate/php/language-configuration.json"
+    },
+    {
       "grammar": "textmate/php/syntaxes/php.tmLanguage.json",
       "name": "php",
       "scopeName": "source.php",
