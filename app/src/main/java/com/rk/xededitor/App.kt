@@ -7,6 +7,9 @@ import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
 import com.rk.xededitor.update.UpdateManager
+import com.rk.libcommons.SetupEditor
+import com.rk.resources.Res
+import com.rk.settings.PreferencesData
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -33,10 +36,12 @@ class App : Application() {
     override fun onCreate() {
         app = this
         application = this
+        Res.context = this
+        
         super.onCreate()
         // create crash handler
         CrashHandler.INSTANCE.init(this)
-        
+        PreferencesData.initPref(this)
         GlobalScope.launch(Dispatchers.IO) {
             //wait for version change handler
             VersionChangeHandler.handle(this@App)

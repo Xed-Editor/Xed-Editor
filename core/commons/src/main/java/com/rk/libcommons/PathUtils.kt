@@ -1,16 +1,16 @@
-package com.rk.xededitor.MainActivity.file
+package com.rk.libcommons
 
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
 import android.provider.DocumentsContract
-import com.rk.xededitor.App
+
 
 object PathUtils {
     
     
     fun Uri.toPath():String{
-        val path = internalConvertUriToPath(App.app, this)
+        val path = internalConvertUriToPath(application!!, this)
         return path.replace("/document", "/storage").replace(":", "/")
     }
     

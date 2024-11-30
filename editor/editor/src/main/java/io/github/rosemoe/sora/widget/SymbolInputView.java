@@ -42,8 +42,6 @@ import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
-import com.rk.libcommons.After;
-
 import io.github.rosemoe.sora.R;
 
 /**

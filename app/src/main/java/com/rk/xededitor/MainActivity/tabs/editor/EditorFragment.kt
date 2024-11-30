@@ -8,7 +8,6 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.rk.libcommons.CustomScope
@@ -17,9 +16,11 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
-import com.rk.xededitor.SetupEditor
+import com.rk.libcommons.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import com.rk.libcommons.KarbonEditor
+import com.rk.resources.strings
 import io.github.rosemoe.sora.widget.SymbolInputView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +39,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     var constraintLayout: ConstraintLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout:LinearLayout
+    private lateinit var setupEditor: SetupEditor
     
     
     fun showArrowKeys(yes: Boolean) {
@@ -81,6 +83,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             layoutParams = ConstraintLayout.LayoutParams(
                 ConstraintLayout.LayoutParams.MATCH_PARENT,0
             )
+            setupEditor = SetupEditor(this, context,scope)
         }
         
         
@@ -119,7 +122,7 @@ class EditorFragment(val context: Context) : CoreFragment {
         file = xfile
         scope.launch(Dispatchers.Default) {
             launch { editor!!.loadFile(xfile) }
-            launch { editor!!.setupEditor.setupLanguage(file!!.name) }
+            launch { setupEditor.setupLanguage(file!!.name) }
             withContext(Dispatchers.Main) {
                 setChangeListener()
                 file?.let {
@@ -162,7 +165,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
             }
             if (showToast) {
-                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(R.string.saved)) }
+                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(strings.saved)) }
             }
         }
     }

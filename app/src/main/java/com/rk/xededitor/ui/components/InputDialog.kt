@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rk.resources.strings
 import com.rk.xededitor.R
 
 @Composable
@@ -39,11 +40,11 @@ fun InputDialog(
                     onDismiss()
                 }
             ) {
-                Text(stringResource(id = R.string.apply))
+                Text(stringResource(id = strings.apply))
             }
         },
         dismissButton = {
-            OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = R.string.cancel)) }
+            OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = strings.cancel)) }
         },
     )
 }

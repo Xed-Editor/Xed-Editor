@@ -16,10 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.libcommons.After
 import com.rk.libcommons.DefaultScope
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -30,7 +27,8 @@ import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.R
-import com.rk.xededitor.SetupEditor
+import com.rk.libcommons.SetupEditor
+import com.rk.resources.strings
 import com.rk.xededitor.databinding.ActivityTabBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -167,7 +165,7 @@ class MainActivity : BaseActivity() {
     private fun setupDrawer() {
         val drawerLayout = binding!!.drawerLayout
         drawerToggle =
-            ActionBarDrawerToggle(this, drawerLayout, R.string.open_drawer, R.string.close_drawer)
+            ActionBarDrawerToggle(this, drawerLayout, strings.open_drawer, strings.close_drawer)
         drawerLayout.addDrawerListener(drawerToggle!!)
         drawerToggle!!.syncState()
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)

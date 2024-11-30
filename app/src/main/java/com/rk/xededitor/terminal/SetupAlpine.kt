@@ -5,6 +5,7 @@ import android.os.Build
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
+import com.rk.resources.strings
 import com.rk.runner.commonUtils
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -28,7 +29,7 @@ class SetupAlpine(val terminal: Terminal, val runnable: Runnable) {
             return
         }
         
-        loadingPopup = LoadingPopup(terminal, null).setMessage(rkUtils.getString(R.string.wait_pkg))
+        loadingPopup = LoadingPopup(terminal, null).setMessage(rkUtils.getString(strings.wait_pkg))
         
         if (File(terminal.filesDir, "bootstrap.tar").exists().not()) {
             loadingPopup.show()
@@ -60,7 +61,7 @@ class SetupAlpine(val terminal: Terminal, val runnable: Runnable) {
             
             AARCH.NONE -> {
                 
-                throw RuntimeException(rkUtils.getString(R.string.unsupported_aarch))
+                throw RuntimeException(rkUtils.getString(strings.unsupported_aarch))
             }
         }
     }
@@ -351,7 +352,7 @@ nr_unstable 0""".trimIndent()
             
             val failure = Runnable {
                 DefaultScope.launch(Dispatchers.Main) {
-                    rkUtils.toast(rkUtils.getString(R.string.pkg_download_failed))
+                    rkUtils.toast(rkUtils.getString(strings.pkg_download_failed))
                     loadingPopup.hide()
                     terminal.finish()
                 }
@@ -430,7 +431,7 @@ nr_unstable 0""".trimIndent()
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            println("${rkUtils.getString(R.string.copy_failed)}: ${e.message}")
+            println("${rkUtils.getString(strings.copy_failed)}: ${e.message}")
         }
     }
 }

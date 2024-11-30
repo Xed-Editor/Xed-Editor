@@ -2,15 +2,14 @@ package com.rk.xededitor.MainActivity.file
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.PathUtils.convertUriToPath
-import com.rk.xededitor.MainActivity.file.PathUtils.toPath
+import com.rk.libcommons.PathUtils.toPath
+import com.rk.resources.strings
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -64,28 +63,28 @@ class FileManager(private val mainActivity: MainActivity) {
         val editText = popupView.findViewById<View>(R.id.name) as EditText
 
         editText.setText("/sdcard")
-        editText.hint = getString(R.string.ff_path)
+        editText.hint = getString(strings.ff_path)
 
         MaterialAlertDialogBuilder(mainActivity)
             .setView(popupView)
-            .setTitle(getString(R.string.path))
-            .setNegativeButton(mainActivity.getString(R.string.cancel), null)
-            .setPositiveButton(getString(R.string.open)) { _, _ ->
+            .setTitle(getString(strings.path))
+            .setNegativeButton(mainActivity.getString(strings.cancel), null)
+            .setPositiveButton(getString(strings.open)) { _, _ ->
                 val path = editText.text.toString()
                 val file = File(path)
 
                 if (path.isEmpty()) {
-                    rkUtils.toast(getString(R.string.enter_path))
+                    rkUtils.toast(getString(strings.enter_path))
                     return@setPositiveButton
                 }
 
                 if (!file.exists()) {
-                    rkUtils.toast(getString(R.string.invalid_path))
+                    rkUtils.toast(getString(strings.invalid_path))
                     return@setPositiveButton
                 }
 
                 if (!file.canRead() || !file.canWrite()) {
-                    rkUtils.toast(getString(R.string.permission_denied))
+                    rkUtils.toast(getString(strings.permission_denied))
                     return@setPositiveButton
                 }
 

@@ -36,4 +36,8 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.word.wrap)
+    implementation(project(":editor:language-textmate"))
+    implementation(project(":editor:editor"))
+    implementation(libs.gson)
+    implementation(project(":feature:settings"))
 }

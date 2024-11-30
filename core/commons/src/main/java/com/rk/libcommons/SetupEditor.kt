@@ -1,4 +1,4 @@
-package com.rk.xededitor
+package com.rk.libcommons
 
 import android.content.Context
 import android.graphics.Color
@@ -6,7 +6,6 @@ import android.graphics.Typeface
 import android.os.Environment
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.isDarkMode
-import com.rk.xededitor.rkUtils.runOnUiThread
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -15,13 +14,11 @@ import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
-import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import com.google.gson.JsonParser
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.MainActivity.tabs.editor.KarbonEditor
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +27,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStreamReader
 
-class SetupEditor(val editor: KarbonEditor, private val ctx: Context,scope:CoroutineScope) {
+class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:CoroutineScope) {
     
     init {
         scope.launch { ensureTextmateTheme(ctx) }
@@ -176,7 +173,10 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context,scope:Corou
             if (isDarkMode(ctx) && PreferencesData.isOled()) {
                 editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
-            runOnUiThread { editor.colorScheme = editorColorScheme }
+            withContext(Dispatchers.Main){
+                editor.colorScheme = editorColorScheme
+            }
+            
         }
     }
 }

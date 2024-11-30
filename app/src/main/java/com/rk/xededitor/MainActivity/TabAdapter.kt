@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
+import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -206,18 +207,18 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     fun addFragment(file: File, fragmentType: FragmentType? = null) {
         val type = fragmentType ?: file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
-            rkUtils.toast(rkUtils.getString(R.string.file_too_large))
+            rkUtils.toast(rkUtils.getString(strings.file_too_large))
             return
         }
         
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.absolutePath)) {
-                rkUtils.toast(getString(R.string.already_opened))
+                rkUtils.toast(getString(strings.already_opened))
                 return
             }
             if (tabViewModel.fragmentFiles.size >= tabLimit) {
                 rkUtils.toast(
-                    "${getString(R.string.open_cant)} $tabLimit ${getString(R.string.files)}"
+                    "${getString(strings.open_cant)} $tabLimit ${getString(strings.files)}"
                 )
                 return
             }

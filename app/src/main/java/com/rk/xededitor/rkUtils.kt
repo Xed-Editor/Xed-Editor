@@ -72,43 +72,6 @@ object rkUtils {
         return isLargeScreen(context) and isLandscape(context)
     }
     
-    
-    suspend inline fun Any.debug(string: String, tag: String? = null) {
-        Log.d(tag ?: this.javaClass.simpleName, string)
-        withContext(Dispatchers.IO) { File(application?.filesDir, "log.txt")
-            .appendText("DEBUG: $string \n") }
-    }
-    
-    suspend inline fun Any.error(string: String, tag: String? = null) {
-        Log.e(tag ?: this.javaClass.simpleName, string)
-        withContext(Dispatchers.IO) { File(application?.filesDir, "log.txt")
-            .appendText("ERROR:  $string \n") }
-    }
-    
-    suspend inline fun Any.warn(string: String, tag: String? = null) {
-        Log.w(tag ?: this.javaClass.simpleName, string)
-        withContext(Dispatchers.IO) { File(application?.filesDir, "log.txt")
-            .appendText("WARN:  $string \n") }
-    }
-    
-    inline fun Any.Debug(string: String, tag: String? = null) {
-        Log.d(tag ?: this.javaClass.simpleName, string)
-        GlobalScope.launch(Dispatchers.IO) { File(application?.filesDir, "log.txt")
-            .appendText("DEBUG: $string \n") }
-    }
-    
-    inline fun Any.Error(string: String, tag: String? = null) {
-        Log.e(tag ?: this.javaClass.simpleName, string)
-        GlobalScope.launch(Dispatchers.IO) { File(application?.filesDir, "log.txt")
-            .appendText("ERROR:  $string \n") }
-    }
-    
-    inline fun Any.Warn(string: String, tag: String? = null) {
-        Log.w(tag ?: this.javaClass.simpleName, string)
-        GlobalScope.launch(Dispatchers.IO) { File(application?.filesDir, "log.txt")
-            .appendText("WARN:  $string \n") }
-    }
-    
     fun isPhysicalKeyboardConnected(context: Context): Boolean {
         val inputManager = context.getSystemService(Context.INPUT_SERVICE) as InputManager
         

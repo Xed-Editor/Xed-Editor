@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -21,11 +22,9 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
-typealias strings = R.string
-
 @Composable
 fun SettingsEditorScreen() {
-    PreferenceLayout(label = stringResource(id = R.string.editor), backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
         
         var showAutoSaveDialog by remember { mutableStateOf(false) }
@@ -76,7 +75,7 @@ fun SettingsEditorScreen() {
         
         
         
-        PreferenceGroup(heading = stringResource(id = R.string.editor)) {
+        PreferenceGroup(heading = stringResource(id = strings.editor)) {
             SettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
                 key = PreferencesKeys.CURSOR_ANIMATION_ENABLED,
@@ -207,15 +206,15 @@ fun SettingsEditorScreen() {
         
         if (showAutoSaveDialog) {
             InputDialog(
-                title = stringResource(id = R.string.auto_save_time),
-                inputLabel = stringResource(id = R.string.intervalinMs),
+                title = stringResource(id = strings.auto_save_time),
+                inputLabel = stringResource(id = strings.intervalinMs),
                 inputValue = autoSaveTimeValue,
                 onInputValueChange = { autoSaveTimeValue = it },
                 onConfirm = {
                     if (autoSaveTimeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(R.string.inavalid_v))
+                        rkUtils.toast(context.getString(strings.inavalid_v))
                     } else if (autoSaveTimeValue.toInt() < 1000) {
-                        rkUtils.toast(context.getString(R.string.v_small))
+                        rkUtils.toast(context.getString(strings.v_small))
                     } else {
                         PreferencesData.setString(
                             PreferencesKeys.AUTO_SAVE_TIME_VALUE,
@@ -231,17 +230,17 @@ fun SettingsEditorScreen() {
         
         if (showTextSizeDialog) {
             InputDialog(
-                title = stringResource(id = R.string.text_size),
-                inputLabel = stringResource(id = R.string.text_size),
+                title = stringResource(id = strings.text_size),
+                inputLabel = stringResource(id = strings.text_size),
                 inputValue = textSizeValue,
                 onInputValueChange = { textSizeValue = it },
                 onConfirm = {
                     if (textSizeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(R.string.inavalid_v))
+                        rkUtils.toast(context.getString(strings.inavalid_v))
                     } else if (textSizeValue.toInt() > 32) {
-                        rkUtils.toast(context.getString(R.string.v_large))
+                        rkUtils.toast(context.getString(strings.v_large))
                     } else if (textSizeValue.toInt() < 8) {
-                        rkUtils.toast(context.getString(R.string.v_small))
+                        rkUtils.toast(context.getString(strings.v_small))
                     } else {
                         PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
@@ -258,15 +257,15 @@ fun SettingsEditorScreen() {
         }
         if (showTabSizeDialog) {
             InputDialog(
-                title = stringResource(id = R.string.tab_size),
-                inputLabel = stringResource(id = R.string.tab_size),
+                title = stringResource(id = strings.tab_size),
+                inputLabel = stringResource(id = strings.tab_size),
                 inputValue = tabSizeValue,
                 onInputValueChange = { tabSizeValue = it },
                 onConfirm = {
                     if (tabSizeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(R.string.inavalid_v))
+                        rkUtils.toast(context.getString(strings.inavalid_v))
                     } else if (tabSizeValue.toInt() > 16) {
-                        rkUtils.toast(context.getString(R.string.v_large))
+                        rkUtils.toast(context.getString(strings.v_large))
                     }
                     PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
                     

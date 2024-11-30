@@ -1,45 +1,34 @@
-package com.rk.xededitor.SimpleEditor
+package com.rk.externaleditor
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.OpenableColumns
-import android.text.InputType
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.After
+import com.rk.libcommons.PathUtils.toPath
 import com.rk.runner.Runner
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesData.getBoolean
-import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.MainActivity.file.PathUtils
-import com.rk.xededitor.MainActivity.file.PathUtils.toPath
-import com.rk.xededitor.MainActivity.tabs.editor.KarbonEditor
-import com.rk.xededitor.R
-import com.rk.xededitor.SetupEditor
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.toast
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
-import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.SetupEditor
 
-class SimpleEditor : BaseActivity() {
+class SimpleEditor : AppCompatActivity() {
     var undo: MenuItem? = null
     var redo: MenuItem? = null
     private var content: Content? = null
@@ -47,10 +36,11 @@ class SimpleEditor : BaseActivity() {
     var menu: Menu? = null
     var SearchText = ""
     var editor: KarbonEditor? = null
+    lateinit var setupEditor: SetupEditor
     
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
-            editor?.let { KeyEventHandler.onKeyEvent(event, it,this) }
+            editor?.let { KeyEventHandler.onKeyEvent(event, it, this) }
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -71,6 +61,7 @@ class SimpleEditor : BaseActivity() {
                 undo!!.setEnabled(editor!!.canUndo())
             }
         }
+        setupEditor = SetupEditor(editor!!,this,lifecycleScope)
 
         handleIntent(intent)
     }
@@ -144,7 +135,7 @@ class SimpleEditor : BaseActivity() {
                 val mimeType = contentResolver.getType(uri!!)
                 if (mimeType != null) {
                     if (mimeType.isEmpty() || mimeType.contains("directory")) {
-                        toast(resources.getString(R.string.unsupported_contnt))
+                        Toast.makeText(this,"R.string.unsupported_contnt",Toast.LENGTH_SHORT).show()
                         finish()
                     }
                 }
@@ -163,7 +154,7 @@ class SimpleEditor : BaseActivity() {
                     e.printStackTrace()
                 }
                 
-                lifecycleScope.launch { editor?.setupEditor?.setupLanguage(displayName!!)
+                lifecycleScope.launch { setupEditor?.setupLanguage(displayName!!)
                 
                 }
                 
@@ -192,18 +183,14 @@ class SimpleEditor : BaseActivity() {
             var s: String
             try {
                 val outputStream = contentResolver.openOutputStream(uri!!, "wt")
-                if (outputStream != null) {
-                    ContentIO.writeTo(editor!!.text, outputStream, true)
-                    s = rkUtils.getString(R.string.saved)
-                } else {
-                    s = rkUtils.getString(R.string.is_null)
-                }
+                ContentIO.writeTo(editor!!.text, outputStream!!, true)
+                s = "Saved"
             } catch (e: Exception) {
                 e.printStackTrace()
                 s = e.message.toString()
             }
 
-            withContext(Dispatchers.Main) { toast(s) }
+            withContext(Dispatchers.Main) { Toast.makeText(this@SimpleEditor,s,Toast.LENGTH_SHORT).show() }
         }
     }
 }

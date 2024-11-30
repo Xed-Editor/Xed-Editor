@@ -1,17 +1,15 @@
-package com.rk.xededitor.SimpleEditor
+package com.rk.externaleditor
 
-import android.content.Intent
 import android.view.KeyEvent
-import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.CodeEditor
 
 object KeyEventHandler {
     
-    fun onKeyEvent(keyEvent: KeyEvent,editor: CodeEditor,activity:SimpleEditor) {
+    fun onKeyEvent(keyEvent: KeyEvent,editor: CodeEditor,activity: SimpleEditor) {
         if (keyEvent.isCtrlPressed) {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_S -> {
-                    HandleMenuItemClick.handle(activity,R.id.action_save)
+                    HandleMenuItemClick.handle(activity, R.id.action_save)
                 }
                 
                 KeyEvent.KEYCODE_PLUS,
@@ -32,11 +30,11 @@ object KeyEventHandler {
                 }
                 
                 KeyEvent.KEYCODE_F -> {
-                    HandleMenuItemClick.handle(activity,R.id.search)
+                    HandleMenuItemClick.handle(activity, R.id.search)
                 }
                 
                 KeyEvent.KEYCODE_P -> {
-                    HandleMenuItemClick.handle(activity,R.id.action_print)
+                    HandleMenuItemClick.handle(activity, R.id.action_print)
                 }
                 
                 KeyEvent.KEYCODE_G -> {

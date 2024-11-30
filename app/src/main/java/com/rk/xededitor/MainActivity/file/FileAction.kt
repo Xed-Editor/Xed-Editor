@@ -18,7 +18,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
-import com.rk.libcommons.drawables
+import com.rk.resources.drawables
+import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
@@ -55,44 +56,44 @@ class FileAction(
             .apply {
                 if (file == rootFolder) {
                     addItem(
-                        getString(R.string.refresh),
-                        getString(R.string.reload_file_tree),
+                        getString(strings.refresh),
+                        getString(strings.reload_file_tree),
                         getDrawable(drawables.sync),
                     ) {
                         ProjectManager.currentProject.refresh(mainActivity)
                     }
                     addItem(
-                        getString(R.string.close),
-                        getString(R.string.close_current_project),
+                        getString(strings.close),
+                        getString(strings.close_current_project),
                         getDrawable(drawables.close),
                     ) {
                         ProjectManager.removeProject(mainActivity, rootFolder)
                     }
                 } else {
                     addItem(
-                        getString(R.string.rename),
-                        getString(R.string.rename_descript),
+                        getString(strings.rename),
+                        getString(strings.rename_descript),
                         getDrawable(drawables.edit),
                     ) {
                         rename()
                     }
                     addItem(
-                        getString(R.string.open_with),
-                        getString(R.string.open_with_other),
+                        getString(strings.open_with),
+                        getString(strings.open_with_other),
                         getDrawable(drawables.android),
                     ) {
                         openWith(mainActivity, file)
                     }
                     addItem(
-                        getString(R.string.delete),
-                        getString(R.string.delete_descript),
+                        getString(strings.delete),
+                        getString(strings.delete_descript),
                         getDrawable(drawables.delete),
                     ) {
                         MaterialAlertDialogBuilder(context)
-                            .setTitle(context.getString(R.string.delete))
-                            .setMessage(context.getString(R.string.ask_del) + " ${file.name} ")
-                            .setNegativeButton(context.getString(R.string.cancel), null)
-                            .setPositiveButton(context.getString(R.string.delete)) {
+                            .setTitle(context.getString(strings.delete))
+                            .setMessage(context.getString(strings.ask_del) + " ${file.name} ")
+                            .setNegativeButton(context.getString(strings.cancel), null)
+                            .setPositiveButton(context.getString(strings.delete)) {
                                 _: DialogInterface?,
                                 _: Int ->
                                 val loading = LoadingPopup(mainActivity, null).show()
@@ -113,8 +114,8 @@ class FileAction(
                 val fileDrawable = getDrawable(drawables.outline_insert_drive_file_24)
                 if (file.isDirectory) {
                     addItem(
-                        getString(R.string.open_in_terminal),
-                        getString(R.string.open_dir_in_terminal),
+                        getString(strings.open_in_terminal),
+                        getString(strings.open_dir_in_terminal),
                         getDrawable(drawables.terminal),
                     ) {
                         val intent = Intent(context, Terminal::class.java)
@@ -122,8 +123,8 @@ class FileAction(
                         context.startActivity(intent)
                     }
                     addItem(
-                        getString(R.string.add_file),
-                        getString(R.string.add_file_desc),
+                        getString(strings.add_file),
+                        getString(strings.add_file_desc),
                         fileDrawable,
                     ) {
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
@@ -132,26 +133,26 @@ class FileAction(
                         mainActivity.startActivityForResult(intent, REQUEST_ADD_FILE)
                     }
                     addItem(
-                        getString(R.string.new_file),
-                        getString(R.string.create_new_file_desc),
+                        getString(strings.new_file),
+                        getString(strings.create_new_file_desc),
                         fileDrawable,
                     ) {
                         new(createFile = true)
                     }
                     addItem(
-                        getString(R.string.new_folder),
-                        getString(R.string.create_new_file_desc),
+                        getString(strings.new_folder),
+                        getString(strings.create_new_file_desc),
                         getDrawable(drawables.outline_folder_24),
                     ) {
                         new(createFile = false)
                     }
                     addItem(
-                        getString(R.string.paste),
-                        getString(R.string.paste_desc),
+                        getString(strings.paste),
+                        getString(strings.paste_desc),
                         fileDrawable,
                     ) {
                         if (FileClipboard.isEmpty()) {
-                            rkUtils.toast(getString(R.string.clipboardempty))
+                            rkUtils.toast(getString(strings.clipboardempty))
                         } else {
                             LoadingPopup(mainActivity, 350)
                             mainActivity.let {
@@ -196,7 +197,7 @@ class FileAction(
                                                 withContext(Dispatchers.Main) {
                                                     Toast.makeText(
                                                             context,
-                                                            "${getString(R.string.failed_move)}: ${e.message}",
+                                                            "${getString(strings.failed_move)}: ${e.message}",
                                                             Toast.LENGTH_SHORT,
                                                         )
                                                         .show()
@@ -212,8 +213,8 @@ class FileAction(
 
                 if (file.isFile) {
                     addItem(
-                        getString(R.string.save_as),
-                        getString(R.string.save_desc),
+                        getString(strings.save_as),
+                        getString(strings.save_desc),
                         getDrawable(drawables.save),
                     ) {
                         to_save_file = file
@@ -227,7 +228,7 @@ class FileAction(
                     }
                 }
 
-                addItem(getString(R.string.copy), getString(R.string.copy_desc), fileDrawable) {
+                addItem(getString(strings.copy), getString(strings.copy_desc), fileDrawable) {
                     FileClipboard.setFile(file)
                 }
             }
@@ -238,23 +239,23 @@ class FileAction(
         val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
         val editText = popupView.findViewById<EditText>(R.id.name)
 
-        var title = mainActivity.getString(R.string.new_folder)
+        var title = mainActivity.getString(strings.new_folder)
         if (createFile) {
-            editText.hint = mainActivity.getString(R.string.newFile_hint)
-            title = mainActivity.getString(R.string.new_file)
+            editText.hint = mainActivity.getString(strings.newFile_hint)
+            title = mainActivity.getString(strings.new_file)
         } else {
-            editText.hint = mainActivity.getString(R.string.dir_example)
+            editText.hint = mainActivity.getString(strings.dir_example)
         }
 
         MaterialAlertDialogBuilder(mainActivity)
             .setTitle(title)
             .setView(popupView)
-            .setNegativeButton(mainActivity.getString(R.string.cancel), null)
-            .setPositiveButton(mainActivity.getString(R.string.create)) {
+            .setNegativeButton(mainActivity.getString(strings.cancel), null)
+            .setPositiveButton(mainActivity.getString(strings.create)) {
                 _: DialogInterface?,
                 _: Int ->
                 if (editText.getText().toString().isEmpty()) {
-                    rkUtils.toast(mainActivity.getString(R.string.ask_enter_name))
+                    rkUtils.toast(mainActivity.getString(strings.ask_enter_name))
                     return@setPositiveButton
                 }
 
@@ -264,7 +265,7 @@ class FileAction(
                 val fileName = editText.getText().toString()
                 for (xfile in file.listFiles()!!) {
                     if (xfile.name == fileName) {
-                        rkUtils.toast(mainActivity.getString(R.string.already_exists))
+                        rkUtils.toast(mainActivity.getString(strings.already_exists))
                         loading.hide()
                         return@setPositiveButton
                     }
@@ -288,19 +289,19 @@ class FileAction(
         val editText = popupView.findViewById<EditText>(R.id.name)
 
         editText.setText(file.name)
-        editText.hint = getString(R.string.file_name)
+        editText.hint = getString(strings.file_name)
 
         MaterialAlertDialogBuilder(mainActivity)
-            .setTitle(mainActivity.getString(R.string.rename))
+            .setTitle(mainActivity.getString(strings.rename))
             .setView(popupView)
-            .setNegativeButton(mainActivity.getString(R.string.cancel), null)
-            .setPositiveButton(mainActivity.getString(R.string.rename)) {
+            .setNegativeButton(mainActivity.getString(strings.cancel), null)
+            .setPositiveButton(mainActivity.getString(strings.rename)) {
                 _: DialogInterface?,
                 _: Int ->
                 val newFileName = editText.text.toString()
 
                 if (newFileName.isEmpty()) {
-                    rkUtils.toast(mainActivity.getString(R.string.ask_enter_name))
+                    rkUtils.toast(mainActivity.getString(strings.ask_enter_name))
                     return@setPositiveButton
                 }
 
@@ -313,7 +314,7 @@ class FileAction(
                     parentDir?.list()?.any { it.equals(newFileName, ignoreCase = false) } == true
 
                 if (fileExists) {
-                    rkUtils.toast(mainActivity.getString(R.string.already_exists))
+                    rkUtils.toast(mainActivity.getString(strings.already_exists))
                     loading.hide()
                     return@setPositiveButton
                 }
@@ -395,12 +396,12 @@ class FileAction(
             if (intent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(intent)
             } else {
-                Toast.makeText(context, context.getString(R.string.canthandle), Toast.LENGTH_SHORT)
+                Toast.makeText(context, context.getString(strings.canthandle), Toast.LENGTH_SHORT)
                     .show()
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            rkUtils.toast(getString(R.string.file_open_denied))
+            rkUtils.toast(getString(strings.file_open_denied))
         }
     }
 }

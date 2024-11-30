@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.rk.libcommons.drawables
+import com.rk.resources.drawables
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
@@ -33,12 +34,12 @@ fun SettingsAppScreen() {
     var checkForUpdates by remember { mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false)) }
     val showDayNightBottomSheet = remember { mutableStateOf(false) }
     
-    PreferenceLayout(label = stringResource(id = R.string.app), backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
         ThemeModePreference(showDayNightBottomSheet)
         OledPreference(isOled) { isEnabled ->
             isOled = isEnabled
             PreferencesData.setBoolean(PreferencesKeys.OLED, isOled)
-            rkUtils.toast(rkUtils.getString(R.string.restart_required))
+            rkUtils.toast(rkUtils.getString(strings.restart_required))
         }
         CheckForUpdatesPreference(checkForUpdates) { isEnabled ->
             checkForUpdates = isEnabled
@@ -59,8 +60,8 @@ fun SettingsAppScreen() {
 @Composable
 fun ThemeModePreference(showBottomSheet: MutableState<Boolean>) {
     PreferenceCategory(
-        label = stringResource(id = R.string.theme_mode),
-        description = stringResource(id = R.string.theme_mode_desc),
+        label = stringResource(id = strings.theme_mode),
+        description = stringResource(id = strings.theme_mode_desc),
         iconResource = drawables.theme_mode,
         onNavigate = { showBottomSheet.value = true }
     )
@@ -69,8 +70,8 @@ fun ThemeModePreference(showBottomSheet: MutableState<Boolean>) {
 @Composable
 fun OledPreference(isOled: Boolean, onToggle: (Boolean) -> Unit) {
     PreferenceCategory(
-        label = stringResource(id = R.string.oled),
-        description = stringResource(id = R.string.oled_desc),
+        label = stringResource(id = strings.oled),
+        description = stringResource(id = strings.oled_desc),
         iconResource = drawables.dark_mode,
         onNavigate = { onToggle(!isOled) },
         endWidget = {
@@ -86,8 +87,8 @@ fun OledPreference(isOled: Boolean, onToggle: (Boolean) -> Unit) {
 @Composable
 fun CheckForUpdatesPreference(checkForUpdates: Boolean, onToggle: (Boolean) -> Unit) {
     PreferenceCategory(
-        label = stringResource(R.string.check_for_updates),
-        description = stringResource(R.string.check_for_updates_desc),
+        label = stringResource(strings.check_for_updates),
+        description = stringResource(strings.check_for_updates_desc),
         iconResource = drawables.android,
         onNavigate = { onToggle(!checkForUpdates) },
         endWidget = {
@@ -104,8 +105,8 @@ fun CheckForUpdatesPreference(checkForUpdates: Boolean, onToggle: (Boolean) -> U
 fun MonetPreference(isMonet: Boolean, onToggle: (Boolean) -> Unit) {
     val isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     PreferenceCategory(
-        label = stringResource(id = R.string.monet),
-        description = stringResource(id = R.string.monet_desc),
+        label = stringResource(id = strings.monet),
+        description = stringResource(id = strings.monet_desc),
         iconResource = drawables.palette,
         enabled = isEnabled,
         onNavigate = { if (isEnabled) onToggle(!isMonet) },
@@ -132,15 +133,15 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
     }
     
     val modes = listOf(AppCompatDelegate.MODE_NIGHT_NO, AppCompatDelegate.MODE_NIGHT_YES, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-    val modeLabels = listOf(context.getString(R.string.light_mode), context.getString(R.string.dark_mode), context.getString(R.string.auto_mode))
+    val modeLabels = listOf(context.getString(strings.light_mode), context.getString(strings.dark_mode), context.getString(strings.auto_mode))
     
     if (showBottomSheet.value) {
         ModalBottomSheet(onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState) {
             BottomSheetContent(
-                title = { Text(text = stringResource(id = R.string.select_theme_mode)) },
+                title = { Text(text = stringResource(id = strings.select_theme_mode)) },
                 buttons = {
                     OutlinedButton(onClick = { coroutineScope.launch { bottomSheetState.hide(); showBottomSheet.value = false } }) {
-                        Text(text = stringResource(id = R.string.cancel))
+                        Text(text = stringResource(id = strings.cancel))
                     }
                 }
             ) {

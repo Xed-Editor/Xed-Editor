@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.libcommons.R
+import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.runner.commonUtils.runCommand
 import java.io.File
@@ -49,9 +50,9 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
         return ContextCompat.getDrawable(
             context,
             if (failsafe) {
-                com.rk.runner.R.drawable.android
+                drawables.android
             } else {
-                R.drawable.bash
+                drawables.bash
             },
         )
     }

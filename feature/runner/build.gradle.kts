@@ -50,4 +50,5 @@ dependencies {
     implementation(libs.browser)
     implementation(project(":core:commons"))
     implementation(libs.nanohttpd)
+    implementation(project(":core:resources"))
 }

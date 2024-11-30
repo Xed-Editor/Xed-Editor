@@ -14,7 +14,8 @@ import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
-import com.rk.libcommons.drawables
+import com.rk.resources.drawables
+import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -170,18 +171,18 @@ object MenuClickHandler {
                 var dialog: AlertDialog? = null
                 val credentials = PreferencesData.getString(PreferencesKeys.GIT_CRED, "").split(":")
                 if (credentials.size != 2) {
-                    rkUtils.toast(getString(R.string.inavalid_git_cred))
+                    rkUtils.toast(getString(strings.inavalid_git_cred))
                     return true
                 }
                 val userdata = PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "").split(":")
                 if (userdata.size != 2) {
-                    rkUtils.toast(getString(R.string.inavalid_userdata))
+                    rkUtils.toast(getString(strings.inavalid_userdata))
                     return true
                 }
                 val listener = View.OnClickListener { v ->
                     when (v.id) {
                         pull -> {
-                            val loadingPopup = LoadingPopup(activity, null).setMessage(getString(R.string.wait_download))
+                            val loadingPopup = LoadingPopup(activity, null).setMessage(getString(strings.wait_download))
                             loadingPopup.show()
                             
                             DefaultScope.launch(Dispatchers.IO) {
@@ -202,7 +203,7 @@ object MenuClickHandler {
                                     rkUtils.toast(e.message)
                                 }
                                 withContext(Dispatchers.Main) {
-                                    rkUtils.toast(getString(R.string.done))
+                                    rkUtils.toast(getString(strings.done))
                                     loadingPopup.hide()
                                 }
                             }
@@ -217,22 +218,22 @@ object MenuClickHandler {
                                 val view = LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
                                 view.findViewById<LinearLayout>(Id.mimeTypeEditor).visibility = View.VISIBLE
                                 val branchedit = view.findViewById<EditText>(Id.name).apply {
-                                    hint = getString(R.string.git_branch)
+                                    hint = getString(strings.git_branch)
                                     setText(git.repository.branch)
                                 }
                                 val commitedit = view.findViewById<EditText>(Id.mime).apply {
-                                    hint = getString(R.string.git_commit_msg)
+                                    hint = getString(strings.git_commit_msg)
                                     setText("")
                                 }
-                                MaterialAlertDialogBuilder(activity).setTitle(getString(R.string.push)).setView(view)
-                                    .setNegativeButton(getString(R.string.cancel), null).setPositiveButton(getString(R.string.apply)) { _, _ ->
+                                MaterialAlertDialogBuilder(activity).setTitle(getString(strings.push)).setView(view)
+                                    .setNegativeButton(getString(strings.cancel), null).setPositiveButton(getString(strings.apply)) { _, _ ->
                                         val branch = branchedit.text.toString()
                                         val commit = commitedit.text.toString()
                                         if (branch.isEmpty() || commit.isEmpty()) {
-                                            rkUtils.toast(getString(R.string.fill_both))
+                                            rkUtils.toast(getString(strings.fill_both))
                                             return@setPositiveButton
                                         }
-                                        val loadingPopup = LoadingPopup(activity, null).setMessage(getString(R.string.pushing))
+                                        val loadingPopup = LoadingPopup(activity, null).setMessage(getString(strings.pushing))
                                         loadingPopup.show()
                                         DefaultScope.launch(Dispatchers.IO) {
                                             try {
@@ -269,13 +270,13 @@ object MenuClickHandler {
                                                 rkUtils.toast(e.message)
                                             }
                                             withContext(Dispatchers.Main) {
-                                                rkUtils.toast(getString(R.string.done))
+                                                rkUtils.toast(getString(strings.done))
                                                 loadingPopup.hide()
                                             }
                                         }
                                     }.show()
                             } else {
-                                rkUtils.toast(getString(R.string.nogit))
+                                rkUtils.toast(getString(strings.nogit))
                             }
                         }
                     }
@@ -284,21 +285,21 @@ object MenuClickHandler {
                 }
                 ActionPopup(activity).apply {
                     addItem(
-                        getString(R.string.pull),
-                        getString(R.string.pull_desc),
+                        getString(strings.pull),
+                        getString(strings.pull_desc),
                         ContextCompat.getDrawable(activity, drawables.sync),
                         pull,
                         listener,
                     )
                     addItem(
-                        getString(R.string.commit_push),
-                        getString(R.string.push_desc),
+                        getString(strings.commit_push),
+                        getString(strings.push_desc),
                         ContextCompat.getDrawable(activity, drawables.upload),
                         push,
                         listener,
                     )
-                    setTitle(getString(R.string.git))
-                    getDialogBuilder().setNegativeButton(getString(R.string.cancel), null)
+                    setTitle(getString(strings.git))
+                    getDialogBuilder().setNegativeButton(getString(strings.cancel), null)
                     dialog = show()
                 }
                 return true
@@ -312,7 +313,7 @@ object MenuClickHandler {
                 activity.fileManager!!.createFileLauncher.launch(intent)
 //                ActionPopup(activity,true).apply {
 //                    addItem(
-//                        title = getString(R.string.terminal),
+//                        title = getString(strings.terminal),
 //                        description = "Open terminal in tabs",
 //                        icon = ContextCompat.getDrawable(activity, drawables.terminal),
 //                        listener = {
@@ -320,7 +321,7 @@ object MenuClickHandler {
 //                        }
 //                    )
 //                    addItem(
-//                        title = getString(R.string.new_file),
+//                        title = getString(strings.new_file),
 //                        description = "Create new file",
 //                        icon = ContextCompat.getDrawable(activity, drawables.outline_insert_drive_file_24),
 //                        listener = {
@@ -341,9 +342,9 @@ object MenuClickHandler {
     }
     
     private fun handleReplace(activity: MainActivity): Boolean {
-        val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
-        MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.replace)).setView(popupView)
-            .setNegativeButton(activity.getString(R.string.cancel), null).setPositiveButton(getString(R.string.replaceall)) { _, _ ->
+        val popupView = LayoutInflater.from(activity).inflate(com.rk.libcommons.R.layout.popup_replace, null)
+        MaterialAlertDialogBuilder(activity).setTitle(activity.getString(strings.replace)).setView(popupView)
+            .setNegativeButton(activity.getString(strings.cancel), null).setPositiveButton(getString(strings.replaceall)) { _, _ ->
                 replaceAll(popupView, activity)
             }.show()
         return true
@@ -378,15 +379,15 @@ object MenuClickHandler {
     }
     
     private fun handleSearch(activity: MainActivity): Boolean {
-        val popupView = LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
-        val searchBox = popupView.findViewById<EditText>(Id.searchbox)
+        val popupView = LayoutInflater.from(activity).inflate(com.rk.libcommons.R.layout.popup_search, null)
+        val searchBox = popupView.findViewById<EditText>(com.rk.libcommons.R.id.searchbox)
         
         if (!searchText.isNullOrEmpty()) {
             searchBox.setText(searchText)
         }
         
-        MaterialAlertDialogBuilder(activity).setTitle(activity.getString(R.string.search)).setView(popupView)
-            .setNegativeButton(activity.getString(R.string.cancel), null).setPositiveButton(activity.getString(R.string.search)) { _, _ ->
+        MaterialAlertDialogBuilder(activity).setTitle(activity.getString(strings.search)).setView(popupView)
+            .setNegativeButton(activity.getString(strings.cancel), null).setPositiveButton(activity.getString(strings.search)) { _, _ ->
                 // search
                 MenuItemHandler.update(activity)
                 initiateSearch(activity, searchBox, popupView)
@@ -407,7 +408,7 @@ object MenuClickHandler {
             null
         }
         // search
-        val checkBox = popupView.findViewById<CheckBox>(Id.case_senstive)
+        val checkBox = popupView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive)
         editorFragment?.let {
             it.editor?.searcher?.search(
                 searchText!!,

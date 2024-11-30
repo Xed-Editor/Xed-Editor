@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.EditorSearcher
+import com.rk.libcommons.KarbonEditor
 import java.util.regex.PatternSyntaxException
 
 class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {

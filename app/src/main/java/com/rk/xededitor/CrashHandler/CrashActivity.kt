@@ -15,7 +15,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
-import com.rk.xededitor.SetupEditor
 import io.github.rosemoe.sora.widget.CodeEditor
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

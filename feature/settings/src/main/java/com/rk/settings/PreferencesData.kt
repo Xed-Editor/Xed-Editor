@@ -5,14 +5,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import com.rk.libcommons.application
 
 
 @SuppressLint("ApplySharedPref")
 object PreferencesData {
-    init {
-        PreferencesData.initPref(application!!)
-    }
     private const val PREFNAME = "Settings"
 
     fun isDarkMode(ctx: Context): Boolean {

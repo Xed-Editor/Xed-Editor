@@ -53,9 +53,9 @@ android {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.9.1")
-    implementation("androidx.collection:collection:1.4.5")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
+    api(libs.annotation)
+    implementation(libs.collection)
+    implementation(libs.org.jetbrains.kotlin.kotlin.stdlib)
     implementation(libs.material)
-    implementation(project(":core:commons"))
+    implementation(libs.gson)
 }
