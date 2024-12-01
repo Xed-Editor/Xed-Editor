@@ -20,106 +20,65 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent
+import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
+import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
 @Composable
 fun SettingsAppScreen() {
-    // State variables
-    val context = LocalContext.current
-    var isOled by remember { mutableStateOf(PreferencesData.isOled()) }
-    var isMonet by remember { mutableStateOf(PreferencesData.isMonet()) }
-    var checkForUpdates by remember { mutableStateOf(PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false)) }
+    
     val showDayNightBottomSheet = remember { mutableStateOf(false) }
     
-    PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
-        ThemeModePreference(showDayNightBottomSheet)
-        OledPreference(isOled) { isEnabled ->
-            isOled = isEnabled
-            PreferencesData.setBoolean(PreferencesKeys.OLED, isOled)
-            rkUtils.toast(rkUtils.getString(strings.restart_required))
-        }
-        CheckForUpdatesPreference(checkForUpdates) { isEnabled ->
-            checkForUpdates = isEnabled
-            PreferencesData.setBoolean(PreferencesKeys.CHECK_UPDATE, checkForUpdates)
-        }
-        MonetPreference(isMonet) { isEnabled ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                isMonet = isEnabled
-                PreferencesData.setBoolean(PreferencesKeys.MONET, isMonet)
+    PreferenceGroup(heading = stringResource(strings.app)) {
+        SettingsToggle(
+            label = stringResource(id = strings.theme_mode),
+            description = stringResource(id = strings.theme_mode_desc),
+            showSwitch = false,
+            sideEffect = {
+                showDayNightBottomSheet.value = true
             }
-        }
-        if (showDayNightBottomSheet.value) {
-            DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = context)
-        }
+        )
+        
+        
+        SettingsToggle(
+            label = stringResource(id = strings.oled),
+            description = stringResource(id = strings.oled_desc),
+            key = PreferencesKeys.OLED,
+            default = false,
+            sideEffect = {
+                rkUtils.toast(rkUtils.getString(strings.restart_required))
+            }
+        )
+        
+        
+        SettingsToggle(
+            label = stringResource(strings.check_for_updates),
+            description = stringResource(strings.check_for_updates_desc),
+            key = PreferencesKeys.CHECK_UPDATE,
+            default = false,
+        )
+        
+        SettingsToggle(
+            label = stringResource(id = strings.monet),
+            description = stringResource(id = strings.monet_desc),
+            key = PreferencesKeys.MONET,
+            default = false,
+            isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        )
     }
+    
+    if (showDayNightBottomSheet.value) {
+        DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current)
+    }
+    
+    
 }
 
-@Composable
-fun ThemeModePreference(showBottomSheet: MutableState<Boolean>) {
-    PreferenceCategory(
-        label = stringResource(id = strings.theme_mode),
-        description = stringResource(id = strings.theme_mode_desc),
-        iconResource = drawables.theme_mode,
-        onNavigate = { showBottomSheet.value = true }
-    )
-}
 
-@Composable
-fun OledPreference(isOled: Boolean, onToggle: (Boolean) -> Unit) {
-    PreferenceCategory(
-        label = stringResource(id = strings.oled),
-        description = stringResource(id = strings.oled_desc),
-        iconResource = drawables.dark_mode,
-        onNavigate = { onToggle(!isOled) },
-        endWidget = {
-            Switch(
-                modifier = Modifier.padding(12.dp).height(24.dp),
-                checked = isOled,
-                onCheckedChange = { onToggle(!isOled) }
-            )
-        }
-    )
-}
 
-@Composable
-fun CheckForUpdatesPreference(checkForUpdates: Boolean, onToggle: (Boolean) -> Unit) {
-    PreferenceCategory(
-        label = stringResource(strings.check_for_updates),
-        description = stringResource(strings.check_for_updates_desc),
-        iconResource = drawables.android,
-        onNavigate = { onToggle(!checkForUpdates) },
-        endWidget = {
-            Switch(
-                modifier = Modifier.padding(12.dp).height(24.dp),
-                checked = checkForUpdates,
-                onCheckedChange = { onToggle(!checkForUpdates) }
-            )
-        }
-    )
-}
-
-@Composable
-fun MonetPreference(isMonet: Boolean, onToggle: (Boolean) -> Unit) {
-    val isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    PreferenceCategory(
-        label = stringResource(id = strings.monet),
-        description = stringResource(id = strings.monet_desc),
-        iconResource = drawables.palette,
-        enabled = isEnabled,
-        onNavigate = { if (isEnabled) onToggle(!isMonet) },
-        endWidget = {
-            Switch(
-                modifier = Modifier.padding(12.dp).height(24.dp),
-                checked = isMonet,
-                enabled = isEnabled,
-                onCheckedChange = { if (isEnabled) onToggle(!isMonet) }
-            )
-        }
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

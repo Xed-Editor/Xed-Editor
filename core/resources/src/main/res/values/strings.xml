@@ -11,7 +11,6 @@
     <string name="saveAll">saved all files</string>
     <string name="save_label">Save</string>
     <string name="ww_wait">Please wait for word wrap to complete</string>
-    <string name="theme_not_found_err">theme file not found please reinstall the Xed Editor or clear app data</string>
     <string name="open_file_or_folder">Open File or Folder</string>
     <string name="open_file">Open a File</string>
     <string name="open_directory">Open a Directory</string>
@@ -29,7 +28,6 @@
     <string name="undo">Undo</string>
     <string name="settings">Settings</string>
     <string name="print">Print</string>
-    <string name="batch_replacement">Batch Replacement</string>
     <string name="search">Search</string>
     <string name="go_next">Go Next</string>
     <string name="go_prev">Go Prev.</string>
@@ -141,7 +139,7 @@
     <string name="pushing">Pushing to remote repository…</string>
     <string name="nogit">Error: .git folder not found</string>
     <string name="manage_storage">Manage Storage</string>
-    <string name="manage_storage_reason">App needs access to edit files in your storage. Please allow the access in the upcoming system setting.</string>
+    <string name="manage_storage_reason">Karbon needs access to edit files in your storage. Please allow the access in the upcoming system setting.</string>
     <string name="ok">OK</string>
     <string name="data_clear">App data is cleared</string>
     <string name="action_done">Action Completed</string>
@@ -192,7 +190,7 @@
     <string name="auto_save">Auto Save</string>
     <string name="auto_save_desc">automatically save file</string>
     <string name="auto_save_time">Auto Save Time</string>
-    <string name="auto_save_time_desc">automatically save file after specified time</string>
+    <string name="auto_save_time_desc">Automatically save file after specified time</string>
     <string name="intervalinMs">Interval in milliseconds</string>
     <string name="inavalid_v">Invalid value</string>
     <string name="v_small">Value too small</string>

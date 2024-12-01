@@ -46,10 +46,7 @@ android {
     println("Building for commit ${getGitCommitHash()}")
     
     
-    //todo remove this before release
-    lintOptions {
-        disable("MissingTranslation")
-    }
+   
     
     dependenciesInfo {
         includeInApk = false

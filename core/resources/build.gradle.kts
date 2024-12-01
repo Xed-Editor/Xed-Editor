@@ -7,6 +7,11 @@ android {
     namespace = "com.rk.resources"
     compileSdk = 34
     
+    //todo remove this before release
+    lintOptions {
+        disable("MissingTranslation")
+    }
+    
     defaultConfig {
         minSdk = 26
         
