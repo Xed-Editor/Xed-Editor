@@ -1,4 +1,4 @@
-After installing termux you must allow **Karbon** permission to run commands in termux environment
+After installing termux you must allow **Karbon**, permission to run commands in termux environment
 This permission can be enabled by following these steps:
 
 <img src="screenshots/execPerm.png" />
