@@ -27,7 +27,7 @@ fun AboutScreen() {
     val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
-        PreferenceGroup(heading = stringResource(strings.app_name)) {
+        PreferenceGroup {
             PreferenceTemplate(
                 title = { Text(text = stringResource(id = strings.version), style = MaterialTheme.typography.titleMedium) },
                 description = {

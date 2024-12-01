@@ -40,7 +40,7 @@ fun SettingsAppScreen() {
         
         val showDayNightBottomSheet = remember { mutableStateOf(false) }
         
-        PreferenceGroup(heading = stringResource(strings.app)) {
+        PreferenceGroup {
             SettingsToggle(
                 label = stringResource(id = strings.theme_mode),
                 description = stringResource(id = strings.theme_mode_desc),
