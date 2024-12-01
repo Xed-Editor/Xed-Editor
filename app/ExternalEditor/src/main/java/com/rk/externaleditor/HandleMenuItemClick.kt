@@ -42,7 +42,7 @@ object HandleMenuItemClick {
                     
                     MaterialAlertDialogBuilder(this).setTitle(strings.search.getString()).setView(popuopView)
                         .setNegativeButton(strings.cancel.getString(), null).setPositiveButton(strings.search.getString()) { _, _ ->
-                            val checkBox = popuopView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive)
+                            val checkBox = popuopView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive).also { it.text = strings.cs.getString() }
                             SearchText = searchBox.text.toString()
                             editor!!.searcher.search(
                                 SearchText,

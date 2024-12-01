@@ -40,4 +40,5 @@ dependencies {
     implementation(project(":editor:editor"))
     implementation(libs.gson)
     implementation(project(":feature:settings"))
+    implementation(project(":core:resources"))
 }

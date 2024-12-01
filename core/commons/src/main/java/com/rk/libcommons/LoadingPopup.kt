@@ -6,6 +6,9 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.getString
+import com.rk.resources.strings
+
 
 class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
     private var dialog: AlertDialog? = null
@@ -16,6 +19,7 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
         ctx.runOnUiThread {
             val inflater1: LayoutInflater = ctx.layoutInflater
             dialogView = inflater1.inflate(R.layout.progress_dialog, null)
+            dialogView.findViewById<TextView>(R.id.progress_message).text = strings.wait.getString()
             dialog =
                 MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
 

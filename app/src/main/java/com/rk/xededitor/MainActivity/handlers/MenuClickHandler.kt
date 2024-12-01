@@ -15,6 +15,7 @@ import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
@@ -408,7 +409,7 @@ object MenuClickHandler {
             null
         }
         // search
-        val checkBox = popupView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive)
+        val checkBox = popupView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive).also { it.text = strings.cs.getString() }
         editorFragment?.let {
             it.editor?.searcher?.search(
                 searchText!!,
