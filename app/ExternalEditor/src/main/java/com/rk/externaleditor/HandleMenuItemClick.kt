@@ -7,11 +7,15 @@ import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.karbon_exec.TERMUX_PREFIX
+import com.rk.karbon_exec.runCommandTermux
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.Printer
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
 import java.io.File
 
@@ -104,7 +108,11 @@ object HandleMenuItemClick {
                 
                 
                 R.id.terminal -> {
-                    startActivity(Intent(this, Class.forName("com.rk.xededitor.terminal.Terminal")))
+                    if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE,true)){
+                        startActivity(Intent(this, Class.forName("com.rk.xededitor.terminal.Terminal")))
+                    }else{
+                        runCommandTermux(editorActivity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                    }
                 }
                 
                 R.id.action_print -> {

@@ -45,12 +45,15 @@ fun testExecPermission():Pair<Boolean,Exception?>{
 }
 
 
-fun runCommandTermux(context: Context, exe: String, args: Array<String>, background: Boolean = true) {
+fun runCommandTermux(context: Context, exe: String, args: Array<String>, background: Boolean = true,cwd:String? = null) {
     val intent = Intent("com.termux.RUN_COMMAND").apply {
         setClassName(TERMUX_PKG, "com.termux.app.RunCommandService")
         putExtra("com.termux.RUN_COMMAND_PATH", exe)
         putExtra("com.termux.RUN_COMMAND_ARGUMENTS", args)
         putExtra("com.termux.RUN_COMMAND_BACKGROUND", background)
+        cwd?.let { cwd ->
+            putExtra("$TERMUX_PKG.RUN_COMMAND_SERVICE.EXTRA_WORKDIR",cwd)
+        }
     }
     context.startForegroundService(intent)
 }

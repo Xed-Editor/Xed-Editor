@@ -14,7 +14,6 @@ import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BaseActivity
-import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTerminalBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.terminal.MkSession.createSession
@@ -35,34 +34,34 @@ class Terminal : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTerminalBinding.inflate(layoutInflater)
         
-        SetupAlpine(this){
-            setupTerminalView()
-            setContentView(binding!!.root)
-            setupVirtualKeys()
-            
-            var lastBackPressedTime: Long = 0
-            val doubleBackPressTimeInterval: Long = 2000
-            onBackPressedDispatcher.addCallback(
-                this,
-                object : OnBackPressedCallback(true) {
-                    override fun handleOnBackPressed() {
-                        val currentTime = System.currentTimeMillis()
-                        
-                        if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
-                            terminal?.mTermSession?.finishIfRunning()
-                            finish()
-                        } else {
-                            lastBackPressedTime = currentTime
-                            Toast.makeText(
-                                this@Terminal,
-                                rkUtils.getString(strings.press_again_exit),
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        }
+        
+        setupTerminalView()
+        setContentView(binding!!.root)
+        setupVirtualKeys()
+        
+        var lastBackPressedTime: Long = 0
+        val doubleBackPressTimeInterval: Long = 2000
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    val currentTime = System.currentTimeMillis()
+                    
+                    if (currentTime - lastBackPressedTime < doubleBackPressTimeInterval) {
+                        terminal?.mTermSession?.finishIfRunning()
+                        finish()
+                    } else {
+                        lastBackPressedTime = currentTime
+                        Toast.makeText(
+                            this@Terminal,
+                            rkUtils.getString(strings.press_again_exit),
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     }
-                },
-            )
-        }.init()
+                }
+            },
+        )
+        
     }
     
     override fun onDestroy() {
@@ -84,12 +83,7 @@ class Terminal : BaseActivity() {
         session = createSession(this)
         terminal!!.attachSession(session)
         terminal!!.setBackgroundColor(Color.BLACK)
-        terminal!!.setTextSize(
-            SizeUtils.dp2px(
-                PreferencesData.getString(PreferencesKeys.TERMINAL_TEXT_SIZE, "14").toFloat()
-            )
-        )
-        
+        terminal!!.setTextSize(14)
         terminal!!.keepScreenOn = true
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f
@@ -108,8 +102,6 @@ class Terminal : BaseActivity() {
         @JvmStatic
         @JvmOverloads
         fun runCommand(
-            // run in alpine or not
-            alpine: Boolean,
             // shell or binary to run
             shell: String,
             // arguments passed to shell or binary
@@ -130,7 +122,6 @@ class Terminal : BaseActivity() {
                 it.putExtra("cwd", workingDir)
                 it.putExtra("env", environmentVars)
                 it.putExtra("overrideEnv", overrideEnv)
-                it.putExtra("alpine", alpine)
             })
         }
     }

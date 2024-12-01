@@ -1,16 +1,15 @@
 package com.rk.runner
 
 import android.content.Context
-import android.content.Intent
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.ServerSocket
 
 object commonUtils {
-    fun exctractAssets(context: Context, onComplete: () -> Unit) {
+    fun extractAssets(context: Context, onComplete: () -> Unit) {
         if (File("${context.filesDir.parentFile!!.absolutePath}/rootfs/python.sh").exists().not()) {
-            exctractAssets(
+            extractAssets(
                 context,
                 "python.sh",
                 "${context.filesDir.parentFile!!.absolutePath}/rootfs/python.sh",
@@ -18,7 +17,7 @@ object commonUtils {
         }
 
         if (File("${context.filesDir.parentFile!!.absolutePath}/rootfs/nodejs.sh").exists().not()) {
-            exctractAssets(
+            extractAssets(
                 context,
                 "nodejs.sh",
                 "${context.filesDir.parentFile!!.absolutePath}/rootfs/nodejs.sh",
@@ -26,7 +25,7 @@ object commonUtils {
         }
 
         if (File("${context.filesDir.parentFile!!.absolutePath}/rootfs/java.sh").exists().not()) {
-            exctractAssets(
+            extractAssets(
                 context,
                 "java.sh",
                 "${context.filesDir.parentFile!!.absolutePath}/rootfs/java.sh",
@@ -36,38 +35,7 @@ object commonUtils {
         onComplete()
     }
 
-    @JvmOverloads
-    @JvmStatic
-    fun runCommand(
-        // run in alpine or not
-        alpine: Boolean,
-        // shell or binary to run
-        shell: String,
-        // arguments passed to shell or binary
-        args: Array<String> = arrayOf(),
-        // working directory
-        workingDir: String,
-        // array of environment variables with key value pair eg. HOME=/sdcard,TMP=/tmp
-        environmentVars: Array<String>? = arrayOf(),
-        // should override default environment variables or not
-        overrideEnv: Boolean = false,
-        // context to launch terminal activity
-        context: Context,
-    ) {
-        context.startActivity(
-            Intent(context, Class.forName("com.rk.xededitor.terminal.Terminal")).also {
-                it.putExtra("run_cmd", true)
-                it.putExtra("shell", shell)
-                it.putExtra("args", args)
-                it.putExtra("cwd", workingDir)
-                it.putExtra("env", environmentVars)
-                it.putExtra("overrideEnv", overrideEnv)
-                it.putExtra("alpine", alpine)
-            }
-        )
-    }
-
-    fun exctractAssets(context: Context, assetFileName: String, outputFilePath: String) {
+    fun extractAssets(context: Context, assetFileName: String, outputFilePath: String) {
         val assetManager = context.assets
         val outputFile = File(outputFilePath)
 

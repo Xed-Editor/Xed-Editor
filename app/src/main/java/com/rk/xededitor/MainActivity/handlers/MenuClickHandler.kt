@@ -10,6 +10,8 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.karbon_exec.TERMUX_PREFIX
+import com.rk.karbon_exec.runCommandTermux
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
@@ -90,9 +92,14 @@ object MenuClickHandler {
             }
             
             Id.terminal -> {
+                if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE,true)){
+                    activity.startActivity(Intent(activity, Terminal::class.java))
+                }else{
+                    //todo set pwd
+                    runCommandTermux(activity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                }
                 // Handle terminal
-                activity.startActivity(Intent(activity, Terminal::class.java))
-                //runCommandTermux(activity,"/data/data/com.termux/files/usr/bin/bash", arrayOf("-i"),false)
+                 //runCommandTermux(activity,"/data/data/com.termux/files/usr/bin/bash", arrayOf("-i"),false)
                 return true
             }
             

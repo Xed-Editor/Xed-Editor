@@ -57,8 +57,6 @@ object MkSession {
             
             
             if (intent.hasExtra("run_cmd")) {
-                var shell = "/system/bin/sh"
-                val args: Array<String>
                 
                 var cwd = intent.getStringExtra("cwd")
                 
@@ -76,18 +74,9 @@ object MkSession {
                     }
                 }
                 
-                val alpine = intent.getBooleanExtra("alpine", true)
                 
-                if (alpine) {
-                    args = mutableListOf(
-                        "-c",
-                        File(filesDir.parentFile!!, "proot.sh").absolutePath,
-                        intent.getStringExtra("shell")!!,
-                    ).also { it.addAll(intent.getStringArrayExtra("args")!!.toList()) }.toTypedArray()
-                } else {
-                    shell = intent.getStringExtra("shell").toString()
-                    args = intent.getStringArrayExtra("args")!!
-                }
+                var shell: String = intent.getStringExtra("shell").toString()
+                val args: Array<String> = intent.getStringArrayExtra("args")!!
                 
                 return TerminalSession(
                     shell,
@@ -100,11 +89,7 @@ object MkSession {
             }
             
             val shell = "/system/bin/sh"
-            val args = if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE, false)) {
-                arrayOf("")
-            } else {
-                arrayOf("-c", File(filesDir.parentFile!!, "proot.sh").absolutePath)
-            }
+            val args = arrayOf<String>()
             
             return TerminalSession(
                 shell,

@@ -1,0 +1,2 @@
+Install official termux from [F-droid](https://f-droid.org/en/packages/com.termux/) or from [Termux-Github-Releases](https://github.com/termux/termux-app/releases)
+both sources are official and recommended by termux team

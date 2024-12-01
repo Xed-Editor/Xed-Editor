@@ -40,19 +40,19 @@ object Runner {
     val registry = HashMap<String, MutableList<RunnerImpl>>()
 
     init {
-        registry["html"] = mutableListOf(HtmlRunner())
-        registry["md"] = mutableListOf(MarkDownRunner())
-        registry["py"] = mutableListOf(PythonRunner())
-        registry["java"] = mutableListOf<RunnerImpl>(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
-
-        mutableListOf<RunnerImpl>(NodeRunner()).let {
-            registry["mjs"] = it
-            registry["js"] = it
-        }
-        mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
-            registry["sh"] = it
-            registry["bash"] = it
-        }
+//        registry["html"] = mutableListOf(HtmlRunner())
+//        registry["md"] = mutableListOf(MarkDownRunner())
+//        registry["py"] = mutableListOf(PythonRunner())
+//        registry["java"] = mutableListOf<RunnerImpl>(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
+//
+//        mutableListOf<RunnerImpl>(NodeRunner()).let {
+//            registry["mjs"] = it
+//            registry["js"] = it
+//        }
+//        mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
+//            registry["sh"] = it
+//            registry["bash"] = it
+//        }
     }
 
     fun isRunnable(file: File): Boolean {

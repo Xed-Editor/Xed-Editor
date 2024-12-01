@@ -4,15 +4,14 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.resources.drawables
-import com.rk.runner.R
 import com.rk.runner.RunnerImpl
-import com.rk.runner.commonUtils.exctractAssets
+import com.rk.runner.commonUtils.extractAssets
 import com.rk.runner.commonUtils.runCommand
 import java.io.File
 
 class JavacRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
-        exctractAssets(context) {
+        extractAssets(context) {
             runCommand(
                 alpine = true,
                 shell = "/karbon/rootfs/java.sh",

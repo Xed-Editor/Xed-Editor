@@ -41,4 +41,6 @@ dependencies {
     implementation(project(":core:commons"))
     implementation(project(":feature:runner"))
     implementation(project(":core:resources"))
+    implementation(project(":feature:settings"))
+    implementation(project(":core:karbon-exec"))
 }

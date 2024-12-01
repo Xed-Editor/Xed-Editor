@@ -5,7 +5,6 @@ import android.content.Context
 import com.rk.libcommons.application
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
-import com.rk.xededitor.ui.screens.settings.terminal.updateProotArgs
 import com.rk.xededitor.update.UpdateManager
 import com.rk.libcommons.SetupEditor
 import com.rk.resources.Res
@@ -43,17 +42,10 @@ class App : Application() {
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
         GlobalScope.launch(Dispatchers.IO) {
-            //wait for version change handler
-            VersionChangeHandler.handle(this@App)
-            launch(Dispatchers.IO) {
-                delay(1000)
-                updateProotArgs(this@App)
-            }
             launch(Dispatchers.IO) {
                 SetupEditor.init(this@App)
             }
             delay(6000)
-            //check for updates
             
             try {
                 UpdateManager.fetch("dev")
