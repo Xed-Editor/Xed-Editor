@@ -155,7 +155,9 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:Coro
             language.setCompleterKeywords(keywords)
         }
         
-        editor.setEditorLanguage(language as Language)
+        withContext(Dispatchers.Main){
+            editor.setEditorLanguage(language as Language)
+        }
     }
     
 
