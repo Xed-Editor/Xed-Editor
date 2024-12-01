@@ -3,7 +3,7 @@ package com.rk.runner.runners.python
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
-import com.rk.runner.R
+import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.runner.commonUtils.exctractAssets
 import com.rk.runner.commonUtils.runCommand
@@ -31,7 +31,7 @@ class PythonRunner : RunnerImpl {
     }
 
     override fun getIcon(context: Context): Drawable? {
-        return ContextCompat.getDrawable(context, com.rk.libcommons.R.drawable.ic_language_python)
+        return ContextCompat.getDrawable(context, drawables.ic_language_python)
     }
     override fun isRunning(): Boolean {
         return false
