@@ -6,19 +6,12 @@ import androidx.core.content.ContextCompat
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.runner.commonUtils.extractAssets
-import com.rk.runner.commonUtils.runCommand
 import java.io.File
 
 class JavaRunner(private val type: String) : RunnerImpl {
     override fun run(file: File, context: Context) {
         extractAssets(context) {
-            runCommand(
-                alpine = true,
-                shell = "/karbon/rootfs/java.sh",
-                args = arrayOf(type, file.absolutePath),
-                workingDir = file.parentFile!!.absolutePath,
-                context = context,
-            )
+        
         }
     }
 
