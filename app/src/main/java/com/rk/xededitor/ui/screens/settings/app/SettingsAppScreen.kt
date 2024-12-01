@@ -31,53 +31,56 @@ import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
+import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 
 @Composable
 fun SettingsAppScreen() {
-    
-    val showDayNightBottomSheet = remember { mutableStateOf(false) }
-    
-    PreferenceGroup(heading = stringResource(strings.app)) {
-        SettingsToggle(
-            label = stringResource(id = strings.theme_mode),
-            description = stringResource(id = strings.theme_mode_desc),
-            showSwitch = false,
-            sideEffect = {
-                showDayNightBottomSheet.value = true
-            }
-        )
+    PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
         
+        val showDayNightBottomSheet = remember { mutableStateOf(false) }
         
-        SettingsToggle(
-            label = stringResource(id = strings.oled),
-            description = stringResource(id = strings.oled_desc),
-            key = PreferencesKeys.OLED,
-            default = false,
-            sideEffect = {
-                rkUtils.toast(rkUtils.getString(strings.restart_required))
-            }
-        )
+        PreferenceGroup(heading = stringResource(strings.app)) {
+            SettingsToggle(
+                label = stringResource(id = strings.theme_mode),
+                description = stringResource(id = strings.theme_mode_desc),
+                showSwitch = false,
+                sideEffect = {
+                    showDayNightBottomSheet.value = true
+                }
+            )
+            
+            
+            SettingsToggle(
+                label = stringResource(id = strings.oled),
+                description = stringResource(id = strings.oled_desc),
+                key = PreferencesKeys.OLED,
+                default = false,
+                sideEffect = {
+                    rkUtils.toast(rkUtils.getString(strings.restart_required))
+                }
+            )
+            
+            
+            SettingsToggle(
+                label = stringResource(strings.check_for_updates),
+                description = stringResource(strings.check_for_updates_desc),
+                key = PreferencesKeys.CHECK_UPDATE,
+                default = false,
+            )
+            
+            SettingsToggle(
+                label = stringResource(id = strings.monet),
+                description = stringResource(id = strings.monet_desc),
+                key = PreferencesKeys.MONET,
+                default = false,
+                isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            )
+        }
         
-        
-        SettingsToggle(
-            label = stringResource(strings.check_for_updates),
-            description = stringResource(strings.check_for_updates_desc),
-            key = PreferencesKeys.CHECK_UPDATE,
-            default = false,
-        )
-        
-        SettingsToggle(
-            label = stringResource(id = strings.monet),
-            description = stringResource(id = strings.monet_desc),
-            key = PreferencesKeys.MONET,
-            default = false,
-            isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-        )
-    }
-    
-    if (showDayNightBottomSheet.value) {
-        DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current)
+        if (showDayNightBottomSheet.value) {
+            DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current)
+        }
     }
     
     
