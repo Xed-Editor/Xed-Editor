@@ -9,7 +9,14 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
+
+    <queries>
+        <package android:name="com.github.android" />
+        <intent>
+            <action android:name="android.support.customtabs.action.CustomTabsService" />
+        </intent>
+    </queries>
+
 
     <application
         android:name=".App"
@@ -68,9 +75,6 @@
         <activity
             android:name=".ui.activities.settings.SettingsActivity"
             android:exported="false" />
-        <activity
-            android:name=".ui.activities.settings.TermuxSetupActivity"
-            android:exported="true" />
     </application>
 
 </manifest>

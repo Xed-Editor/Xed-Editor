@@ -196,6 +196,7 @@ dependencies {
     //implementation(project(":wasm3"))
     implementation(project(":editor:language-textmate"))
     implementation(project(":core:resources"))
+    implementation(project(":core:karbon-exec"))
     
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
@@ -204,4 +205,6 @@ dependencies {
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.exoplayer.dash)
     implementation(libs.media3.ui)
+    
+    implementation(libs.browser)
 }

@@ -29,7 +29,7 @@ fun SettingsNavHost(navController: NavHostController, activity: Activity) {
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen() }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen() }
-        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
+        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
         composable(SettingsRoutes.GitSettings.route) { SettingsGitScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
     }

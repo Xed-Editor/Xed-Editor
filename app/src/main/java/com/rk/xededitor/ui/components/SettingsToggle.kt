@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,26 +29,49 @@ fun SettingsToggle(
     @DrawableRes iconRes: Int? = null,
     key: String? = null,
     default: Boolean = false,
-    sideEffect: ((state: Boolean) -> Unit)? = null,
+    ReactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
+    sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
-    isEnabled: Boolean = true
+    isEnabled: Boolean = true,
+    isSwitchLocked: Boolean = false
 ) {
-    var state by remember { mutableStateOf(getBoolean(key, default)) }
+    var state by remember {
+        mutableStateOf(
+            if (key == null) {
+                default
+            } else {
+                getBoolean(key, default)
+            }
+        )
+    }
     
     if (showSwitch) {
         PreferenceSwitch(checked = state, onCheckedChange = {
-            state = !state
-            PreferencesData.setBoolean(key, state)
-            sideEffect?.invoke(state)
-        },
-            label = label,
-            modifier = modifier,
-            description = description,
-            enabled = isEnabled,
-            onClick = {
-            state = !state
-            PreferencesData.setBoolean(key, state)
-            sideEffect?.invoke(state)
+            if (isSwitchLocked.not()) {
+                state = !state
+                if (key != null) {
+                    PreferencesData.setBoolean(key, state)
+                }
+                
+            }
+            if (ReactiveSideEffect != null){
+                state = ReactiveSideEffect.invoke(state) == true
+            }else{
+                sideEffect?.invoke(state)
+            }
+            
+        }, label = label, modifier = modifier, description = description, enabled = isEnabled, onClick = {
+            if (isSwitchLocked.not()) {
+                state = !state
+                if (key != null) {
+                    PreferencesData.setBoolean(key, state)
+                }
+            }
+            if (ReactiveSideEffect != null){
+                state = ReactiveSideEffect.invoke(state) == true
+            }else{
+                sideEffect?.invoke(state)
+            }
         })
     } else {
         val interactionSource = remember { MutableInteractionSource() }

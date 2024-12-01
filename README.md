@@ -26,7 +26,7 @@
 - [x] **Copy/Paste** files and folders
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
-- [x] **Keybindings** ([View available keybindings](/KEYBINDS.md))
+- [x] **Keybindings** ([View available keybindings](/docs/KEYBINDS.md))
 
 ## Community
 
@@ -71,7 +71,7 @@ Join the Karbon community to stay updated and engage with other users:
 
 ## Contributing
 
-We welcome contributions! Please read the [CONTRIBUTING.md](/CONTRIBUTING.md) file to learn how you can get involved.
+We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.md) file to learn how you can get involved.
 
 
 ## License
