@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -39,6 +40,13 @@ object HandleMenuItemClick {
                 }
                 
                 R.id.search -> {
+                    
+                    if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH,false)){
+                        soraSearch.visibility = View.VISIBLE
+                        soraSearch.findViewById<EditText>(com.rk.libcommons.R.id.search_editor).requestFocus()
+                        return true
+                    }
+                    
                     val popuopView = LayoutInflater.from(this).inflate(com.rk.libcommons.R.layout.popup_search, null)
                     val searchBox = popuopView.findViewById<TextView>(com.rk.libcommons.R.id.searchbox)
                     if (searchText.isNotEmpty()) {

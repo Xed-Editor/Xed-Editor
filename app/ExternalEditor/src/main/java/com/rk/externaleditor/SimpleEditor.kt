@@ -11,6 +11,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
@@ -32,6 +33,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.SearchPanel
 import com.rk.libcommons.SetupEditor
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -46,6 +48,8 @@ class SimpleEditor : AppCompatActivity() {
     var editor: KarbonEditor? = null
     private lateinit var setupEditor: SetupEditor
     private lateinit var binding:ActivitySimpleEditorBinding
+    lateinit var soraSearch:LinearLayout
+    lateinit var scrollView:HorizontalScrollView
     
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
@@ -72,11 +76,32 @@ class SimpleEditor : AppCompatActivity() {
         }
         setupEditor = SetupEditor(editor!!,this,lifecycleScope)
         setupInputView()
+        
+        soraSearch = SearchPanel(binding.root, editor!!).view
+        binding.root.addView(soraSearch)
+        
+        ConstraintSet().apply {
+            clone(binding.root)
+            
+            // Position the LinearLayout beolow the toolbar
+            connect(soraSearch.id, ConstraintSet.TOP, binding.appbar.id, ConstraintSet.BOTTOM)
+            
+            // Position the editor below the LinearLayout
+            connect(editor!!.id, ConstraintSet.TOP, soraSearch.id, ConstraintSet.BOTTOM)
+            connect(editor!!.id, ConstraintSet.BOTTOM, scrollView.id, ConstraintSet.TOP)
+            
+            // Position the HorizontalScrollView at the bottom
+            connect(scrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+            connect(scrollView.id, ConstraintSet.TOP, editor!!.id, ConstraintSet.BOTTOM)
+            
+            applyTo(binding.root)
+        }
+
         handleIntent(intent)
     }
     
     private fun setupInputView() {
-        val scrollView = HorizontalScrollView(this).apply {
+        scrollView = HorizontalScrollView(this).apply {
             id = View.generateViewId()
             visibility = if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)) {
                 View.VISIBLE
@@ -89,29 +114,6 @@ class SimpleEditor : AppCompatActivity() {
         
         val constraintLayout = binding.root
         constraintLayout.addView(scrollView)
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(constraintLayout)
-        constraintSet.connect(
-            scrollView.id,
-            ConstraintSet.TOP,
-            binding.editor.id,
-            ConstraintSet.BOTTOM
-        )
-        constraintSet.connect(
-            scrollView.id,
-            ConstraintSet.START,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.START
-        )
-        constraintSet.connect(
-            scrollView.id,
-            ConstraintSet.END,
-            ConstraintSet.PARENT_ID,
-            ConstraintSet.END
-        )
-        constraintSet.constrainWidth(scrollView.id, ConstraintSet.MATCH_CONSTRAINT)
-        constraintSet.constrainHeight(scrollView.id, ConstraintSet.WRAP_CONTENT)
-        constraintSet.applyTo(constraintLayout)
     }
     
     

@@ -1,11 +1,9 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
-import android.util.Pair
-import android.view.KeyEvent
 import android.view.View
-import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -20,8 +18,8 @@ import com.rk.libcommons.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.SearchPanel
 import com.rk.resources.strings
-import io.github.rosemoe.sora.widget.SymbolInputView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,6 +53,10 @@ class EditorFragment(val context: Context) : CoreFragment {
             View.VISIBLE
         } else {
             View.GONE
+        }
+        
+        if (yes){
+            searchLayout.findViewById<EditText>(com.rk.libcommons.R.id.search_editor).requestFocus()
         }
     }
     

@@ -1,5 +1,7 @@
-package com.rk.xededitor.MainActivity.tabs.editor
+package com.rk.libcommons
 
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -11,9 +13,8 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import com.rk.xededitor.R
+import android.widget.Toast
 import io.github.rosemoe.sora.widget.EditorSearcher
-import com.rk.libcommons.KarbonEditor
 import java.util.regex.PatternSyntaxException
 
 class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
@@ -65,7 +66,9 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
                     )
                     isSearching = true
                 } catch (e: PatternSyntaxException) {
-                    // Regex error
+                    Handler(Looper.getMainLooper()).post {
+                        Toast.makeText(root.context,e.message,Toast.LENGTH_LONG).show()
+                    }
                 }
             } else {
                 searcher.stopSearch()
