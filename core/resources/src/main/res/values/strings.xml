@@ -211,7 +211,7 @@
     <string name="git_desc">General settings for git</string>
     <string name="enable_plugins">Enable Plugins</string>
     <string name="fail_safe">Fail Safe</string>
-    <string name="failsafe_desc">Use android shell instead of alpine</string>
+    <string name="failsafe_desc">Use android shell instead of termux</string>
     <string name="Lshell">Launch Shell</string>
     <string name="Lshell_desc">Executed when the terminal is launched.</string>
     <string name="terminal_text_size">Terminal text size</string>
@@ -242,7 +242,7 @@
     <string name="useCtrlWorkaround">Use Ctrl Workaround</string>
     <string name="useCtrlWorkaround_desc">Use Ctrl Space Workaround</string>
     <string name="editor_font">Editor Font</string>
-    <string name="editor_font_desc">When enabled font from /sdcard/karbon/font.ttf will be used</string>
+    <string name="editor_font_desc">Select editor font</string>
     <string name="force_desktop">Force Desktop Mode</string>
     <string name="force_desktop_desc">Force Desktop layout on smaller screen devices</string>
     <string name="force_normal">Force Normal Mode</string>
