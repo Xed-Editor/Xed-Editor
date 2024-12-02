@@ -7,15 +7,18 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.karbon_exec.TERMUX_PREFIX
+import com.rk.karbon_exec.launchTermux
 import com.rk.karbon_exec.runCommandTermux
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
+import com.rk.libcommons.application
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -95,11 +98,12 @@ object MenuClickHandler {
                 if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE,true)){
                     activity.startActivity(Intent(activity, Terminal::class.java))
                 }else{
-                    //todo set pwd
-                    runCommandTermux(activity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                    kotlin.runCatching {
+                        runCommandTermux(activity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                    }.onFailure {
+                        kotlin.runCatching { launchTermux() }.onFailure { t -> activity.runOnUiThread { Toast.makeText(application!!,t.message,Toast.LENGTH_LONG).show() } }
+                    }
                 }
-                // Handle terminal
-                 //runCommandTermux(activity,"/data/data/com.termux/files/usr/bin/bash", arrayOf("-i"),false)
                 return true
             }
             

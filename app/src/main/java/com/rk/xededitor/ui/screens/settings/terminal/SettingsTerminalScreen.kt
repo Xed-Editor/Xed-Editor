@@ -28,22 +28,19 @@ private var lastClick = 0L
 fun SettingsTerminalScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
-        val isInstalledNot = isTermuxInstalled().not() || isTermuxCompatible().not()
+        val isInstalled = isTermuxInstalled() && isTermuxCompatible()
         
-        if (isInstalledNot) {
+        if (isInstalled.not()) {
             rkUtils.toast("Install Termux from F-Droid")
         }
         
         PreferenceGroup {
-            
             val result = testExecPermission()
-            SettingsToggle(label = "Termux Exec permission", description = "Permission >> Additional Permission >> Termux Exec ${
-                if (result.first.not()) {
-                    "\n${result.second?.message}"
-                } else {
-                    ""
-                }
-            }", default = result.first, isSwitchLocked = true, isEnabled = isInstalledNot.not(), sideEffect = {
+            SettingsToggle(label = "Termux Exec", description = if (result.first.not()) {
+                result.second?.message.toString()
+            } else {
+                "Termux Exec"
+            }, default = result.first, isSwitchLocked = true, isEnabled = isInstalled, sideEffect = {
                 if (result.first.not()) {
                     val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = Uri.fromParts("package", context.packageName, null)
@@ -53,7 +50,7 @@ fun SettingsTerminalScreen(navController: NavController) {
             })
             
             
-            SettingsToggle(label = "Termux Exec", description = "Documentation for Enabling Termux Exec", showSwitch = false, sideEffect = {
+            SettingsToggle(label = "Termux Exec Docs", description = "Documentation for Enabling Termux Exec", showSwitch = false, sideEffect = {
                 
                 val url = if (isTermuxInstalled()) {
                     if (isTermuxCompatible()) {

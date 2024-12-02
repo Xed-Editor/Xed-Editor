@@ -8,6 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.karbon_exec.TERMUX_PREFIX
+import com.rk.karbon_exec.launchTermux
 import com.rk.karbon_exec.runCommandTermux
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.Printer
@@ -46,7 +47,8 @@ object HandleMenuItemClick {
                     
                     MaterialAlertDialogBuilder(this).setTitle(strings.search.getString()).setView(popuopView)
                         .setNegativeButton(strings.cancel.getString(), null).setPositiveButton(strings.search.getString()) { _, _ ->
-                            val checkBox = popuopView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive).also { it.text = strings.cs.getString() }
+                            val checkBox =
+                                popuopView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive).also { it.text = strings.cs.getString() }
                             SearchText = searchBox.text.toString()
                             editor!!.searcher.search(
                                 SearchText,
@@ -82,8 +84,7 @@ object HandleMenuItemClick {
                 R.id.replace -> {
                     val popuopView = LayoutInflater.from(this).inflate(com.rk.libcommons.R.layout.popup_replace, null)
                     MaterialAlertDialogBuilder(this).setTitle(strings.replace.getString()).setView(popuopView)
-                        .setNegativeButton(strings.cancel.getString(), null)
-                        .setPositiveButton(strings.replaceall.getString()) { _, _ ->
+                        .setNegativeButton(strings.cancel.getString(), null).setPositiveButton(strings.replaceall.getString()) { _, _ ->
                             editor!!.searcher.replaceAll(
                                 (popuopView.findViewById<View>(com.rk.libcommons.R.id.replace_replacement) as TextView).text.toString()
                             )
@@ -108,10 +109,14 @@ object HandleMenuItemClick {
                 
                 
                 R.id.terminal -> {
-                    if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE,true)){
+                    if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE, true)) {
                         startActivity(Intent(this, Class.forName("com.rk.xededitor.terminal.Terminal")))
-                    }else{
-                        runCommandTermux(editorActivity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                    } else {
+                        kotlin.runCatching {
+                            runCommandTermux(editorActivity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                        }.onFailure {
+                            kotlin.runCatching { launchTermux() }.onFailure { t -> runOnUiThread { Toast.makeText(application!!,t.message,Toast.LENGTH_LONG).show() } }
+                        }
                     }
                 }
                 
@@ -129,7 +134,7 @@ object HandleMenuItemClick {
                         editorActivity.startActivity(shareIntent)
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Toast.makeText(editorActivity,e.message,Toast.LENGTH_SHORT).show()
+                        Toast.makeText(editorActivity, e.message, Toast.LENGTH_SHORT).show()
                     }
                 }
                 
