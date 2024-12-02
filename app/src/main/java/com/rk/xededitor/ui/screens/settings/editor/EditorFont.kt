@@ -60,7 +60,7 @@ fun EditorFontSheet(modifier: Modifier = Modifier, filePickerLauncher: ManagedAc
     val fonts = listOf(EDITOR_FONT.DEFAULT, EDITOR_FONT.CUSTOM)
     
     ModalBottomSheet(onDismissRequest = { onReaction(false) }, sheetState = bottomSheetState) {
-        BottomSheetContent(title = { Text(text = stringResource(id = strings.select_theme_mode)) }, buttons = {
+        BottomSheetContent(title = { Text(text = "Select Font") }, buttons = {
             OutlinedButton(onClick = { coroutineScope.launch { bottomSheetState.hide(); onReaction(false) } }) {
                 Text(text = stringResource(id = strings.cancel))
             }
