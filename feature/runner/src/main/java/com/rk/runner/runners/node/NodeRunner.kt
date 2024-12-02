@@ -18,17 +18,18 @@ import java.io.File
 
 class NodeRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
+        
         if (!(isTermuxInstalled() && isExecPermissionGranted() && isTermuxCompatible() && testExecPermission().first)) {
             Handler(Looper.getMainLooper()).post { Toast.makeText(context, "Termux-Exec is not enabled", Toast.LENGTH_SHORT).show() }
+            return
         }
         
-        extractAssets(context) {
-            runBashScript(
-                context, script = """
+        runBashScript(
+            context, script = """
                 cd ${file.parentFile.absolutePath}
                 
                 if command -v node >/dev/null 2>&1; then
-                    echo "Node.js is installed, version: ${'$'}(node -v)"
+                    echo "Node.js version: ${'$'}(node -v)"
                     node ${file.absolutePath}
                 else
                     echo "Node.js is not installed, Installing..."
@@ -41,8 +42,7 @@ class NodeRunner : RunnerImpl {
                 read -r
                 
                 """, background = false
-            )
-        }
+        )
     }
     
     override fun getName(): String {
