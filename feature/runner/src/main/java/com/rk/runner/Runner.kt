@@ -7,6 +7,10 @@ import androidx.annotation.Keep
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.karbon_exec.isExecPermissionGranted
+import com.rk.karbon_exec.isTermuxCompatible
+import com.rk.karbon_exec.isTermuxInstalled
+import com.rk.karbon_exec.testExecPermission
 import com.rk.runner.runners.jvm.jdk.JavaRunner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
@@ -42,17 +46,17 @@ object Runner {
     init {
         registry["html"] = mutableListOf(HtmlRunner())
         registry["md"] = mutableListOf(MarkDownRunner())
-//        registry["py"] = mutableListOf(PythonRunner())
-//        registry["java"] = mutableListOf<RunnerImpl>(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
-//
-//        mutableListOf<RunnerImpl>(NodeRunner()).let {
-//            registry["mjs"] = it
-//            registry["js"] = it
-//        }
-//        mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
-//            registry["sh"] = it
-//            registry["bash"] = it
-//        }
+        registry["py"] = mutableListOf(PythonRunner())
+        registry["java"] = mutableListOf(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
+
+        mutableListOf<RunnerImpl>(NodeRunner()).let {
+            registry["mjs"] = it
+            registry["js"] = it
+        }
+        mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
+            registry["sh"] = it
+            registry["bash"] = it
+        }
     }
 
     fun isRunnable(file: File): Boolean {

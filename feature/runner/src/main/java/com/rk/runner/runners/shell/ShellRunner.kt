@@ -2,15 +2,25 @@ package com.rk.runner.runners.shell
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.rk.karbon_exec.isExecPermissionGranted
+import com.rk.karbon_exec.isTermuxCompatible
+import com.rk.karbon_exec.isTermuxInstalled
+import com.rk.karbon_exec.testExecPermission
 import com.rk.libcommons.R
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import java.io.File
 
 class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
-    override fun run(file: File, context: Context) {
     
+    override fun run(file: File, context: Context) {
+        if (!(isTermuxInstalled() && isExecPermissionGranted() && isTermuxCompatible() && testExecPermission().first)){
+            Handler(Looper.getMainLooper()).post { Toast.makeText(context,"Termux-Exec is not enabled", Toast.LENGTH_SHORT).show() }
+        }
     }
 
     override fun getName(): String {

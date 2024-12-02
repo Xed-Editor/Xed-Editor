@@ -51,4 +51,5 @@ dependencies {
     implementation(project(":core:commons"))
     implementation(libs.nanohttpd)
     implementation(project(":core:resources"))
+    implementation(project(":core:karbon-exec"))
 }
