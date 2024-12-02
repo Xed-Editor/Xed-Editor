@@ -40,8 +40,8 @@ object Runner {
     val registry = HashMap<String, MutableList<RunnerImpl>>()
 
     init {
-//        registry["html"] = mutableListOf(HtmlRunner())
-//        registry["md"] = mutableListOf(MarkDownRunner())
+        registry["html"] = mutableListOf(HtmlRunner())
+        registry["md"] = mutableListOf(MarkDownRunner())
 //        registry["py"] = mutableListOf(PythonRunner())
 //        registry["java"] = mutableListOf<RunnerImpl>(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
 //
