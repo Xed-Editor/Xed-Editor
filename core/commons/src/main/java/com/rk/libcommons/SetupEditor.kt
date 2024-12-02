@@ -22,6 +22,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import org.eclipse.tm4e.core.registry.IThemeSource
 import com.google.gson.JsonParser
 import com.rk.settings.PreferencesData.getBoolean
+import com.rk.settings.PreferencesData.getString
 import com.rk.settings.PreferencesKeys
 import io.github.rosemoe.sora.widget.SymbolInputView
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
@@ -52,9 +53,12 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:Coro
             setWordwrap(getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false), getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true))
             showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
         }
+        
         File(Environment.getExternalStorageDirectory(), "karbon/font.ttf").let {
+            //0 -> EDITOR_FONT.DEFAULT
+            //-1 -> EDITOR_FONT.CUSTOM
             editor.typefaceText =
-                if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
+                if ((getString(PreferencesKeys.NEW_EDITOR_FONT, "0").toInt() == -1) and it.exists()) {
                     Typeface.createFromFile(it)
                 } else {
                     Typeface.createFromAsset(ctx.assets, "font.ttf")

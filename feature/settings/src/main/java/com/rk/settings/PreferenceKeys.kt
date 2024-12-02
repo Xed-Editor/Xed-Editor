@@ -15,10 +15,8 @@ object PreferencesKeys {
     const val SHOW_LINE_NUMBERS = "showlinenumbers"
     const val AUTO_SAVE = "auto_save"
     const val AUTO_SAVE_TIME_VALUE = "auto_save_time_value"
-    const val VERSION_CODE = "version_code"
     const val PROJECTS = "opened_projects"
     const val FAIL_SAFE = "failsafe"
-    const val EDITOR_FONT = "editor_font"
     const val SHOW_SUGGESTIONS = "show_suggestions"
     const val CHECK_UPDATE="check_update"
     const val LAST_UPDATE_CHECK="last_update_check"
@@ -26,6 +24,7 @@ object PreferencesKeys {
     const val WORD_WRAP_TXT="text_ww"
     const val ANTI_WORD_BREAKING="anti_word_breaking"
     const val TERMUX_EXEC="termux_exec"
+    const val NEW_EDITOR_FONT="new_editor_font"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"

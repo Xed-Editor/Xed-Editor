@@ -1,10 +1,25 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.rk.resources.strings
@@ -14,14 +29,19 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
+import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
+import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import java.io.File
+import java.io.FileOutputStream
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsEditorScreen() {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
@@ -40,7 +60,10 @@ fun SettingsEditorScreen() {
             mutableStateOf(PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4"))
         }
         
-
+        var showFontPopup by remember { mutableStateOf(false) }
+        
+        
+        
         
         PreferenceGroup(heading = "Content") {
             SettingsToggle(label = stringResource(id = strings.ww),
@@ -121,16 +144,14 @@ fun SettingsEditorScreen() {
                     }
                 })
             
-            SettingsToggle(
-                label = stringResource(id = strings.editor_font),
+            SettingsToggle(label = stringResource(id = strings.editor_font),
                 description = stringResource(id = strings.editor_font_desc),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                
-                }
-            )
-            
+                    showFontPopup = true
+                })
+
 //            SettingsToggle(
 //                label = stringResource(id = strings.editor_font),
 //                description = stringResource(id = strings.editor_font_desc),
@@ -139,14 +160,12 @@ fun SettingsEditorScreen() {
 //            )
             
             
-            SettingsToggle(
-                label = stringResource(id = strings.text_size),
+            SettingsToggle(label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
                 showSwitch = false,
                 sideEffect = {
                     showTextSizeDialog = true
-                }
-            )
+                })
         }
         
         
@@ -205,14 +224,34 @@ fun SettingsEditorScreen() {
                 showSwitch = false,
             )
             
-            SettingsToggle(
-                label = stringResource(id = strings.tab_size),
+            SettingsToggle(label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,
                 sideEffect = {
                     showTabSizeDialog = true
-                }
-            )
+                })
+        }
+        
+        
+        val filePickerLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+            onResult = { uri: Uri? ->
+                runCatching {
+                    val destinationFile = File("/sdcard/karbon/font.ttf")
+                    destinationFile.parentFile?.mkdirs()
+                    if (destinationFile.exists().not()){destinationFile.createNewFile()}
+                    context.contentResolver.openInputStream(uri!!).use { inputStream ->
+                        FileOutputStream(destinationFile).use { outputStream ->
+                            inputStream?.copyTo(outputStream)
+                        }
+                    }
+                }.onFailure { rkUtils.toast(it.message) }.onSuccess { setFont(EDITOR_FONT.CUSTOM) }
+            }
+        )
+        if (showFontPopup) {
+            EditorFontSheet(filePickerLauncher = filePickerLauncher){
+                showFontPopup = it
+            }
         }
         
         if (showAutoSaveDialog) {
