@@ -41,17 +41,17 @@ object HandleMenuItemClick {
                 R.id.search -> {
                     val popuopView = LayoutInflater.from(this).inflate(com.rk.libcommons.R.layout.popup_search, null)
                     val searchBox = popuopView.findViewById<TextView>(com.rk.libcommons.R.id.searchbox)
-                    if (SearchText.isNotEmpty()) {
-                        searchBox.text = SearchText
+                    if (searchText.isNotEmpty()) {
+                        searchBox.text = searchText
                     }
                     
                     MaterialAlertDialogBuilder(this).setTitle(strings.search.getString()).setView(popuopView)
                         .setNegativeButton(strings.cancel.getString(), null).setPositiveButton(strings.search.getString()) { _, _ ->
                             val checkBox =
                                 popuopView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive).also { it.text = strings.cs.getString() }
-                            SearchText = searchBox.text.toString()
+                            searchText = searchBox.text.toString()
                             editor!!.searcher.search(
-                                SearchText,
+                                searchText,
                                 SearchOptions(SearchOptions.TYPE_NORMAL, !checkBox.isChecked),
                             )
                             menu!!.findItem(R.id.search_next).setVisible(true)
@@ -77,7 +77,7 @@ object HandleMenuItemClick {
                     menu!!.findItem(R.id.search_previous).setVisible(false)
                     menu!!.findItem(R.id.search_close).setVisible(false)
                     menu!!.findItem(R.id.replace).setVisible(false)
-                    SearchText = ""
+                    searchText = ""
                     return true
                 }
                 

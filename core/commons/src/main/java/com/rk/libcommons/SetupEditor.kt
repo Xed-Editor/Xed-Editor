@@ -4,6 +4,10 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Environment
+import android.util.Pair
+import android.view.KeyEvent
+import android.view.View
+import android.view.View.OnClickListener
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.isDarkMode
 import io.github.rosemoe.sora.lang.Language
@@ -19,6 +23,7 @@ import org.eclipse.tm4e.core.registry.IThemeSource
 import com.google.gson.JsonParser
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesKeys
+import io.github.rosemoe.sora.widget.SymbolInputView
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +31,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStreamReader
+
+private typealias onClick = OnClickListener
 
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:CoroutineScope) {
     
@@ -91,30 +98,30 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:Coro
         private var oledThemeRegistry: ThemeRegistry? = null
         private var lightThemeRegistry: ThemeRegistry? = null
 
-        suspend fun init(context: Context) {
+        suspend fun init(ctx: Context) {
             if (!isInit) {
                 withContext(Dispatchers.IO){
-                    initGrammarRegistry(context)
-                    initTextMateTheme(context)
+                    initGrammarRegistry(ctx)
+                    initTextMateTheme(ctx)
                 }
                 isInit = true
             }
         }
 
-        private suspend fun initGrammarRegistry(context: Context) {
+        private suspend fun initGrammarRegistry(ctx: Context) {
             FileProviderRegistry.getInstance()
-                .addFileProvider(AssetsFileResolver(context.applicationContext?.assets))
+                .addFileProvider(AssetsFileResolver(ctx.applicationContext?.assets))
             GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
         }
 
-        private suspend fun initTextMateTheme(context: Context) {
+        private suspend fun initTextMateTheme(ctx: Context) {
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
 
-            val darcula = context.assets.open("textmate/darcula.json")
-            val darcula_oled = context.assets.open("textmate/black/darcula.json")
-            val quietlight = context.assets.open("textmate/quietlight.json")
+            val darcula = ctx.assets.open("textmate/darcula.json")
+            val darcula_oled = ctx.assets.open("textmate/black/darcula.json")
+            val quietlight = ctx.assets.open("textmate/quietlight.json")
 
             try {
                 darkThemeRegistry?.loadTheme(
@@ -161,8 +168,8 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:Coro
     }
     
 
-    suspend fun ensureTextmateTheme(context: Context) {
-        init(context)
+    suspend fun ensureTextmateTheme(ctx: Context) {
+        init(ctx)
         val themeRegistry =
             when {
                 isDarkMode(ctx) && PreferencesData.isOled() -> oledThemeRegistry
@@ -181,4 +188,65 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:Coro
             
         }
     }
+    
+    fun getInputView(): SymbolInputView {
+        fun hapticFeedBack(view: View) {
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+        }
+        return SymbolInputView(ctx).apply {
+            val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
+                add(Pair("->", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB))
+                }))
+                
+                add(Pair("⌘", onClick {
+                    hapticFeedBack(it)
+                   // rkUtils.toast("Not Implemented")
+                    
+                }))
+                
+                add(Pair("←", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT))
+                }))
+                
+                add(Pair("↑", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_UP, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP))
+                    
+                }))
+                
+                add(Pair("→", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT))
+                    
+                }))
+                
+                add(Pair("↓", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN))
+                    
+                }))
+                
+                add(Pair("⇇", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_MOVE_HOME, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME))
+                }))
+                
+                add(Pair("⇉", onClick {
+                    hapticFeedBack(it)
+                    editor.onKeyDown(KeyEvent.KEYCODE_MOVE_END, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END))
+                }))
+            }
+            
+            addSymbols(keys.toTypedArray())
+            
+            addSymbols(arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"), arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"))
+            
+            bindEditor(editor)
+        }
+    }
 }
+
+

@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
-private typealias onClick = OnClickListener
+
 
 @Suppress("NOTHING_TO_INLINE")
 class EditorFragment(val context: Context) : CoreFragment {
@@ -64,6 +64,16 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
+        
+        
+        editor = KarbonEditor(context).apply {
+            id = View.generateViewId()
+            layoutParams = ConstraintLayout.LayoutParams(
+                ConstraintLayout.LayoutParams.MATCH_PARENT,0
+            )
+            setupEditor = SetupEditor(this, context,scope)
+        }
+        
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
             visibility = if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)) {
@@ -75,17 +85,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.WRAP_CONTENT
             )
             isHorizontalScrollBarEnabled = false
-            addView(getInputView())
+            addView(setupEditor.getInputView())
         }
-        
-        editor = KarbonEditor(context).apply {
-            id = View.generateViewId()
-            layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,0
-            )
-            setupEditor = SetupEditor(this, context,scope)
-        }
-        
         
         
         
@@ -267,70 +268,5 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
     
     
-    private fun getInputView(): SymbolInputView {
-        
-        fun hapticFeedBack(view: View) {
-            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
-        }
-        
-        
-        return SymbolInputView(context).apply {
-            
-            val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
-                
-                add(Pair("->", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB))
-                }))
-                
-                add(Pair("⌘", onClick {
-                    hapticFeedBack(it)
-                    rkUtils.toast("Not Implemented")
-                    
-                }))
-                
-                add(Pair("←", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT))
-                }))
-                
-                add(Pair("↑", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_DPAD_UP, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP))
-                    
-                }))
-                
-                add(Pair("→", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT))
-                    
-                }))
-                
-                add(Pair("↓", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN))
-                    
-                }))
-                
-                add(Pair("⇇", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_MOVE_HOME, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME))
-                }))
-                
-                add(Pair("⇉", onClick {
-                    hapticFeedBack(it)
-                    editor?.onKeyDown(KeyEvent.KEYCODE_MOVE_END, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END))
-                }))
-            }
-            
-            
-            
-            
-            addSymbols(keys.toTypedArray())
-            
-            addSymbols(arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"), arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"))
-            
-            bindEditor(editor)
-        }
-    }
+   
 }

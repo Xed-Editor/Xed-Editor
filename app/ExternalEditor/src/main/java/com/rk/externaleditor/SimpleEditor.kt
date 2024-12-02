@@ -5,14 +5,20 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.widget.Toolbar
+import androidx.constraintlayout.widget.*
 import androidx.lifecycle.lifecycleScope
+import com.rk.externaleditor.databinding.ActivitySimpleEditorBinding
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import com.rk.libcommons.After
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.runner.Runner
@@ -27,6 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.rk.libcommons.KarbonEditor
 import com.rk.libcommons.SetupEditor
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 
 class SimpleEditor : AppCompatActivity() {
     var undo: MenuItem? = null
@@ -34,9 +42,10 @@ class SimpleEditor : AppCompatActivity() {
     private var content: Content? = null
     private var uri: Uri? = null
     var menu: Menu? = null
-    var SearchText = ""
+    var searchText = ""
     var editor: KarbonEditor? = null
-    lateinit var setupEditor: SetupEditor
+    private lateinit var setupEditor: SetupEditor
+    private lateinit var binding:ActivitySimpleEditorBinding
     
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
@@ -47,9 +56,9 @@ class SimpleEditor : AppCompatActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_simple_editor)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        binding = ActivitySimpleEditorBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         editor = findViewById(R.id.editor)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -62,10 +71,50 @@ class SimpleEditor : AppCompatActivity() {
             }
         }
         setupEditor = SetupEditor(editor!!,this,lifecycleScope)
-
+        setupInputView()
         handleIntent(intent)
     }
-
+    
+    private fun setupInputView() {
+        val scrollView = HorizontalScrollView(this).apply {
+            id = View.generateViewId()
+            visibility = if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+            isHorizontalScrollBarEnabled = false
+            addView(setupEditor.getInputView())
+        }
+        
+        val constraintLayout = binding.root
+        constraintLayout.addView(scrollView)
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(constraintLayout)
+        constraintSet.connect(
+            scrollView.id,
+            ConstraintSet.TOP,
+            binding.editor.id,
+            ConstraintSet.BOTTOM
+        )
+        constraintSet.connect(
+            scrollView.id,
+            ConstraintSet.START,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.START
+        )
+        constraintSet.connect(
+            scrollView.id,
+            ConstraintSet.END,
+            ConstraintSet.PARENT_ID,
+            ConstraintSet.END
+        )
+        constraintSet.constrainWidth(scrollView.id, ConstraintSet.MATCH_CONSTRAINT)
+        constraintSet.constrainHeight(scrollView.id, ConstraintSet.WRAP_CONTENT)
+        constraintSet.applyTo(constraintLayout)
+    }
+    
+    
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         HandleMenuItemClick.handle(this, id)
