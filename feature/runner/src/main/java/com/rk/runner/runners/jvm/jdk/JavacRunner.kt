@@ -22,6 +22,7 @@ class JavacRunner : RunnerImpl {
         }
         
         extractAssets(context) {
+        
         }
     }
 

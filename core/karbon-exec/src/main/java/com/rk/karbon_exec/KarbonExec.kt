@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 
 const val TERMUX_PKG="com.termux"
@@ -84,6 +85,17 @@ fun runCommandTermux(context: Context, exe: String, args: Array<String>, backgro
     context.startForegroundService(intent)
     return isTermuxRunning()
 }
+
+
+fun runBashScript(context: Context,script:String,background: Boolean = true){
+    runCommandTermux(
+        context = context,
+        exe = "$TERMUX_PREFIX/bin/bash",
+        arrayOf("-c", script),
+        background = background
+    )
+}
+
 
 fun launchTermux():Boolean{
     if (isTermuxInstalled().not()){
