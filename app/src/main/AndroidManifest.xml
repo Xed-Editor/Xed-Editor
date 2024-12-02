@@ -36,6 +36,7 @@
             android:name=".MainActivity.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
+            android:launchMode="singleTask"
             android:inputType="textFilter"
             android:persistableMode="persistAcrossReboots"
             android:windowSoftInputMode="adjustResize">

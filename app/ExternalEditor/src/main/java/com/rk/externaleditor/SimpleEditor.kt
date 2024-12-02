@@ -205,9 +205,11 @@ class SimpleEditor : AppCompatActivity() {
                     e.printStackTrace()
                 }
                 
-                lifecycleScope.launch { setupEditor?.setupLanguage(displayName!!)
-                
+                if (displayName!!.endsWith(".txt") && PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_TXT, true)) {
+                    editor?.isWordwrap = true
                 }
+                
+                lifecycleScope.launch { setupEditor?.setupLanguage(displayName!!) }
                 
 
                 if (displayName!!.length > 13) {

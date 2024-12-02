@@ -34,11 +34,10 @@ include(":editor:language-textmate")
 include(":feature:runner")
 include(":feature:filetree")
 include(":feature:settings")
-
 include(":core:components")
 include(":core:commons")
-
-include(":wasm3")
+include(":core:wasm3")
 include(":app:ExternalEditor")
 include(":core:resources")
 include(":core:karbon-exec")
+include(":feature:git")

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import com.rk.libcommons.application
 import com.rk.xededitor.CrashHandler.CrashHandler
-import com.rk.xededitor.MainActivity.handlers.VersionChangeHandler
 import com.rk.xededitor.update.UpdateManager
 import com.rk.libcommons.SetupEditor
 import com.rk.resources.Res
@@ -38,7 +37,6 @@ class App : Application() {
         Res.context = this
         
         super.onCreate()
-        // create crash handler
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
         GlobalScope.launch(Dispatchers.IO) {

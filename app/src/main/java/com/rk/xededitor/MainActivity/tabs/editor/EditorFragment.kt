@@ -129,7 +129,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             withContext(Dispatchers.Main) {
                 setChangeListener()
                 file?.let {
-                    if (it.name.endsWith(".txt") && PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_TXT, false)) {
+                    if (it.name.endsWith(".txt") && PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_TXT, true)) {
                         editor?.isWordwrap = true
                     }
                 }

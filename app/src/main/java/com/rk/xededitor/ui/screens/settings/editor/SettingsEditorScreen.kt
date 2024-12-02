@@ -57,7 +57,7 @@ fun SettingsEditorScreen() {
             SettingsToggle(label = stringResource(strings.txt_ww),
                 description = stringResource(strings.txt_ww_desc),
                 key = PreferencesKeys.WORD_WRAP_TXT,
-                default = false,
+                default = true,
                 sideEffect = {
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                         if (f.value.get()?.fragment is EditorFragment) {
@@ -120,12 +120,23 @@ fun SettingsEditorScreen() {
                         }
                     }
                 })
+            
             SettingsToggle(
                 label = stringResource(id = strings.editor_font),
                 description = stringResource(id = strings.editor_font_desc),
-                key = PreferencesKeys.EDITOR_FONT,
+                showSwitch = false,
                 default = false,
+                sideEffect = {
+                
+                }
             )
+            
+//            SettingsToggle(
+//                label = stringResource(id = strings.editor_font),
+//                description = stringResource(id = strings.editor_font_desc),
+//                key = PreferencesKeys.EDITOR_FONT,
+//                default = false,
+//            )
             
             
             SettingsToggle(

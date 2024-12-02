@@ -57,7 +57,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope:Coro
                 if (getBoolean(PreferencesKeys.EDITOR_FONT, false) and it.exists()) {
                     Typeface.createFromFile(it)
                 } else {
-                    Typeface.createFromAsset(ctx.assets, "JetBrainsMono-Regular.ttf")
+                    Typeface.createFromAsset(ctx.assets, "font.ttf")
                 }
         }
     }
