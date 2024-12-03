@@ -7,6 +7,7 @@ import android.util.Pair
 import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnClickListener
+import android.widget.Toast
 import com.google.gson.JsonParser
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
@@ -27,6 +28,7 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
@@ -52,7 +54,9 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
             setWordwrap(getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false), getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true))
             showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
-            applyFont(this)
+            kotlin.runCatching { applyFont(this) }.onFailure { scope.launch(Dispatchers.Main) {
+                Toast.makeText(ctx,"Unknown Error ${it.message} \n fallback to the default font",Toast.LENGTH_LONG).show()
+            } }
         }
         
         
@@ -116,6 +120,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 println("fallback: font Path is empty")
                 editor.typefaceText = Typeface.createFromAsset(editor.context.assets, "font.ttf")
             }
+            editor.invalidate()
         }
         
         private suspend fun initGrammarRegistry(ctx: Context) {

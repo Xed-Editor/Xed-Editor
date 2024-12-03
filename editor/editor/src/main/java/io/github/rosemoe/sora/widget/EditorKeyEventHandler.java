@@ -160,7 +160,7 @@ public class EditorKeyEventHandler {
         return editorKeyEvent.result(editor.onSuperKeyDown(keyCode, event));
     }
 
-    private KeyEventHandler userKeyEventHandler = null;
+    public static KeyEventHandler userKeyEventHandler = null;
     public void setUserKeyEventHandler(KeyEventHandler keyEventHandler) {
         userKeyEventHandler = keyEventHandler;
     }
@@ -175,7 +175,7 @@ public class EditorKeyEventHandler {
     ) {
 
         if (userKeyEventHandler != null){
-            if(userKeyEventHandler.onKeyEvent(editor,event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed)){
+            if(userKeyEventHandler.onKeyEvent(false,editor,event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed)){
                 return true;
             }
         }
@@ -382,6 +382,12 @@ public class EditorKeyEventHandler {
                 if (!event.isCtrlPressed() && !event.isAltPressed()) {
                     return handlePrintingKey(event, editorKeyEvent, keyCode);
                 }
+        }
+
+        if (userKeyEventHandler != null){
+            if(userKeyEventHandler.onKeyEvent(true,editor,event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed)){
+                return true;
+            }
         }
         return null;
     }

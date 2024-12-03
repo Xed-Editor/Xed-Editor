@@ -11,9 +11,33 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.MainActivity.file.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.R
-
+import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.event.KeyBindingEvent
+import io.github.rosemoe.sora.interfaces.KeyEventHandler
+import io.github.rosemoe.sora.widget.CodeEditor
+import io.github.rosemoe.sora.widget.EditorKeyEventHandler
 object KeyEventHandler {
-    
+    init {
+        EditorKeyEventHandler.userKeyEventHandler = object : KeyEventHandler{
+            override fun onKeyEvent(
+                isProcessedByEditor: Boolean,
+                editor: CodeEditor?,
+                event: KeyEvent?,
+                editorKeyEvent: EditorKeyEvent?,
+                keybindingEvent: KeyBindingEvent?,
+                keyCode: Int,
+                isShiftPressed: Boolean,
+                isAltPressed: Boolean,
+                isCtrlPressed: Boolean
+            ): Boolean {
+                if (isProcessedByEditor && event != null){
+                    onAppKeyEvent(event)
+                }
+                return true
+            }
+            
+        }
+    }
     fun onAppKeyEvent(keyEvent: KeyEvent) {
         val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
         val editor = if (currentFragment?.type == FragmentType.EDITOR) {

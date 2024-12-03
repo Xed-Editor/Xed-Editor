@@ -7,5 +7,5 @@ import io.github.rosemoe.sora.event.KeyBindingEvent;
 import io.github.rosemoe.sora.widget.CodeEditor;
 
 public interface KeyEventHandler {
-    boolean onKeyEvent(CodeEditor editor,KeyEvent event, EditorKeyEvent editorKeyEvent, KeyBindingEvent keybindingEvent, int keyCode, boolean isShiftPressed, boolean isAltPressed, boolean isCtrlPressed);
+    boolean onKeyEvent(boolean isProcessedByEditor,CodeEditor editor,KeyEvent event, EditorKeyEvent editorKeyEvent, KeyBindingEvent keybindingEvent, int keyCode, boolean isShiftPressed, boolean isAltPressed, boolean isCtrlPressed);
 }
