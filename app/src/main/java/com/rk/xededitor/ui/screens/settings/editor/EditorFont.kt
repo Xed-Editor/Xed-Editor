@@ -23,9 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
+import com.rk.libcommons.application
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
@@ -33,26 +35,35 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceTempl
 
 
 object EditorFont {
-    private val defaultFont = Font(name = "Default", isAsset = true, pathOrAsset = "font.ttf")
-    val fonts = mutableStateListOf(defaultFont)
+    val fonts = mutableStateListOf<Font>()
     
     data class Font(val name: String, val isAsset: Boolean, val pathOrAsset: String)
+    
     init {
+        application!!.assets.list("fonts")?.forEach { asset ->
+            if (asset.endsWith(".ttf")){
+                fonts.add(Font(name = asset.removeSuffix(".ttf"), isAsset = true, pathOrAsset = "fonts/$asset"))
+            }
+        }
         restoreFonts()
     }
+    
     fun restoreFonts() {
         val f = PreferencesData.getString(PreferencesKeys.FONT_GSON, "")
         val gson = GsonBuilder().create()
         
         try {
             val restoredFonts: List<Font>? = gson.fromJson(f, Array<Font>::class.java)?.toList()
-            if (!restoredFonts.isNullOrEmpty()) {
-                fonts.clear()
-                fonts.addAll(restoredFonts)
+            
+            restoredFonts?.forEach { font ->
+                if (fonts.map { it.name }.contains(font.name).not()){
+                    fonts.add(font)
+                }
             }
+            
         } catch (e: Exception) {
-            fonts.clear()
-            fonts.add(defaultFont)
+            rkUtils.toast(e.message)
+            saveFonts()
         }
     }
     
