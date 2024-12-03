@@ -1,41 +1,14 @@
 package com.rk.xededitor.ui.animations
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import soup.compose.material.motion.animation.materialSharedAxisXIn
-import soup.compose.material.motion.animation.materialSharedAxisXOut
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 
 object NavigationAnimationTransitions {
-    
-    val enterTransition: (slideDistance: Int) -> EnterTransition = { slideDistance ->
-        materialSharedAxisXIn(
-            forward = true,
-            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
-            durationMillis = NavigationAnimationValues.SlideDuration,
-        )
-    }
-
-    val exitTransition: (slideDistance: Int) -> ExitTransition = { slideDistance ->
-        materialSharedAxisXOut(
-            forward = true,
-            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
-            durationMillis = NavigationAnimationValues.SlideDuration,
-        )
-    }
-
-    val popEnterTransition: (slideDistance: Int) -> EnterTransition = { slideDistance ->
-        materialSharedAxisXIn(
-            forward = false,
-            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
-            durationMillis = NavigationAnimationValues.SlideDuration,
-        )
-    }
-
-    val popExitTransition: (slideDistance: Int) -> ExitTransition = { slideDistance ->
-        materialSharedAxisXOut(
-            forward = false,
-            slideDistance = slideDistance.takeIf { it > 0 } ?: NavigationAnimationValues.SlideDistance,
-            durationMillis = NavigationAnimationValues.SlideDuration,
-        )
-    }
+    val popEnterTransition = fadeIn(tween(250)) + slideInHorizontally { -it / 2 }
+    val popExitTransition = fadeOut(tween(200)) + slideOutHorizontally { it / 2 }
+    val enterTransition = fadeIn(tween(250)) + slideInHorizontally { it / 2 }
+    val exitTransition = fadeOut(tween(200)) + slideOutHorizontally { -it / 2 }
 }
