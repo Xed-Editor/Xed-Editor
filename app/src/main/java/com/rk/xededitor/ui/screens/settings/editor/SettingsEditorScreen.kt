@@ -1,27 +1,19 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
 import android.net.Uri
+import android.os.Environment
+import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.rk.libcommons.SetupEditor
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -30,13 +22,10 @@ import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
-import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 import java.io.File
 import java.io.FileOutputStream
 
@@ -233,25 +222,65 @@ fun SettingsEditorScreen() {
         }
         
         
-        val filePickerLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.GetContent(),
-            onResult = { uri: Uri? ->
-                runCatching {
-                    val destinationFile = File("/sdcard/karbon/font.ttf")
-                    destinationFile.parentFile?.mkdirs()
-                    if (destinationFile.exists().not()){destinationFile.createNewFile()}
-                    context.contentResolver.openInputStream(uri!!).use { inputStream ->
-                        FileOutputStream(destinationFile).use { outputStream ->
-                            inputStream?.copyTo(outputStream)
+        val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(), onResult = { uri: Uri? ->
+            runCatching {
+                var fileName = "font.ttf"
+                
+                context.contentResolver.query(uri!!, null, null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (nameIndex != -1) {
+                            fileName = cursor.getString(nameIndex)
                         }
                     }
-                }.onFailure { rkUtils.toast(it.message) }.onSuccess { setFont(EDITOR_FONT.CUSTOM) }
-            }
-        )
+                }
+                
+                val destinationFile = File(Environment.getExternalStorageDirectory(), "karbon/fonts/$fileName")
+                destinationFile.parentFile?.mkdirs()
+                if (destinationFile.exists().not()) {
+                    destinationFile.createNewFile()
+                }
+                context.contentResolver.openInputStream(uri!!).use { inputStream ->
+                    FileOutputStream(destinationFile).use { outputStream ->
+                        inputStream?.copyTo(outputStream)
+                    }
+                }
+                EditorFont.fonts.add(
+                    EditorFont.Font(
+                        name = fileName.removeSuffix(".ttf"), isAsset = false, pathOrAsset = destinationFile.absolutePath
+                    )
+                )
+                EditorFont.saveFonts()
+            }.onFailure { rkUtils.toast(it.message) }
+        })
+        
+        val selectedFontCompose = remember {
+            mutableStateOf(EditorFont.fonts.first())
+        }
+        val selectedFontPath = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
+        if (selectedFontPath.isNotEmpty()) {
+            selectedFontCompose.value = (EditorFont.fonts.find { it.pathOrAsset == selectedFontPath } ?: EditorFont.fonts.first())
+        }
+        
         if (showFontPopup) {
-            EditorFontSheet(filePickerLauncher = filePickerLauncher){
+            EditorFontSheet(filePickerLauncher = filePickerLauncher, setCurrentFont = {
+                selectedFontCompose.value = it
+                PreferencesData.setString(PreferencesKeys.SELECTED_FONT_PATH, it.pathOrAsset)
+                PreferencesData.setBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, it.isAsset)
+                MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
+                    f.get()?.let { ff ->
+                        if (ff.fragment is EditorFragment) {
+                            (ff.fragment as EditorFragment).editor?.let { editor ->
+                                SetupEditor.applyFont(editor)
+                            }
+                        }
+                    }
+                }
+            }, getCurrentFont = {
+                selectedFontCompose.value
+            }, onReaction = {
                 showFontPopup = it
-            }
+            })
         }
         
         if (showAutoSaveDialog) {

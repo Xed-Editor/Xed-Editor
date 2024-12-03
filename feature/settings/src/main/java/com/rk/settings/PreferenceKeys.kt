@@ -24,7 +24,9 @@ object PreferencesKeys {
     const val WORD_WRAP_TXT="text_ww"
     const val ANTI_WORD_BREAKING="anti_word_breaking"
     const val TERMUX_EXEC="termux_exec"
-    const val NEW_EDITOR_FONT="new_editor_font"
+    const val FONT_GSON="selected_font"
+    const val SELECTED_FONT_PATH="selected_font_path"
+    const val IS_SELECTED_FONT_ASSEST="is_font_asset"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"
