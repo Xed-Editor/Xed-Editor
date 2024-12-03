@@ -30,10 +30,10 @@ object KeyEventHandler {
                 isAltPressed: Boolean,
                 isCtrlPressed: Boolean
             ): Boolean {
-                if (isProcessedByEditor && event != null){
+                if (event != null) {
                     onAppKeyEvent(event)
                 }
-                return true
+                return isProcessedByEditor
             }
             
         }
