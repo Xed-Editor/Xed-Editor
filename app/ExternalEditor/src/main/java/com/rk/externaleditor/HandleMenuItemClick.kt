@@ -121,9 +121,11 @@ object HandleMenuItemClick {
                         startActivity(Intent(this, Class.forName("com.rk.xededitor.terminal.Terminal")))
                     } else {
                         kotlin.runCatching {
-                            runCommandTermux(editorActivity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                            launchTermux()
                         }.onFailure {
-                            kotlin.runCatching { launchTermux() }.onFailure { t -> runOnUiThread { Toast.makeText(application!!,t.message,Toast.LENGTH_LONG).show() } }
+                            runOnUiThread {
+                                Toast.makeText(this,it.message,Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }

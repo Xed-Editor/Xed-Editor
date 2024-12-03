@@ -32,6 +32,7 @@ import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
+import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -99,9 +100,11 @@ object MenuClickHandler {
                     activity.startActivity(Intent(activity, Terminal::class.java))
                 }else{
                     kotlin.runCatching {
-                        runCommandTermux(activity, "$TERMUX_PREFIX/bin/login", arrayOf(), background = false)
+                        launchTermux()
                     }.onFailure {
-                        kotlin.runCatching { launchTermux() }.onFailure { t -> activity.runOnUiThread { Toast.makeText(application!!,t.message,Toast.LENGTH_LONG).show() } }
+                        runOnUiThread {
+                            Toast.makeText(activity,it.message,Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
                 return true
