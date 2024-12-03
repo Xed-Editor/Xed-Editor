@@ -29,11 +29,11 @@ class PythonRunner : RunnerImpl {
                 
                 if command -v python >/dev/null 2>&1; then
                     echo "python version: ${'$'}(python --version)"
-                    node ${file.absolutePath}
+                    python ${file.absolutePath}
                 else
                     echo "Python is not installed, Installing..."
                     pkg i python -y
-                    node ${file.absolutePath}
+                    python ${file.absolutePath}
                 fi
                 
                 
