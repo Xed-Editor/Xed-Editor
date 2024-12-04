@@ -64,7 +64,7 @@ fun SettingsEditorScreen() {
                     }
                 }
 
-                val destinationFile = File(Environment.getExternalStorageDirectory(), "karbon/fonts/$fileName")
+                val destinationFile = File(context.filesDir, "fonts/$fileName")
                 destinationFile.parentFile?.mkdirs()
                 if (destinationFile.exists().not()) {
                     destinationFile.createNewFile()
