@@ -31,9 +31,11 @@ import com.rk.xededitor.R
 import com.rk.libcommons.SetupEditor
 import com.rk.resources.strings
 import com.rk.xededitor.databinding.ActivityTabBinding
+import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -52,6 +54,7 @@ class MainActivity : BaseActivity() {
     var menu: Menu? = null
     var adapter: TabAdapter? = null
     val tabViewModel: TabViewModel by viewModels()
+    
     
     class TabViewModel : ViewModel() {
         val fragmentFiles = mutableListOf<File>()
@@ -209,6 +212,8 @@ class MainActivity : BaseActivity() {
         TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
             tab.text = tabViewModel.fragmentTitles[position]
         }.attach()
+        
+        
     }
     
     fun openDrawer(v: View?) {

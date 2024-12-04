@@ -9,22 +9,25 @@ import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.rk.libcommons.CustomScope
+import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.SearchPanel
+import com.rk.libcommons.SetupEditor
+import com.rk.libcommons.application
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
-import com.rk.libcommons.SetupEditor
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
-import com.rk.libcommons.KarbonEditor
-import com.rk.libcommons.SearchPanel
-import com.rk.resources.strings
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
-
 
 
 @Suppress("NOTHING_TO_INLINE")
@@ -36,7 +39,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
     var constraintLayout: ConstraintLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
-    private lateinit var searchLayout:LinearLayout
+    private lateinit var searchLayout: LinearLayout
     private lateinit var setupEditor: SetupEditor
     
     
@@ -48,14 +51,14 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
     }
     
-    fun showSearch(yes: Boolean){
+    fun showSearch(yes: Boolean) {
         searchLayout.visibility = if (yes) {
             View.VISIBLE
         } else {
             View.GONE
         }
         
-        if (yes){
+        if (yes) {
             searchLayout.findViewById<EditText>(com.rk.libcommons.R.id.search_editor).requestFocus()
         }
     }
@@ -71,9 +74,9 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor = KarbonEditor(context).apply {
             id = View.generateViewId()
             layoutParams = ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT,0
+                ConstraintLayout.LayoutParams.MATCH_PARENT, 0
             )
-            setupEditor = SetupEditor(this, context,scope)
+            setupEditor = SetupEditor(this, context, scope)
         }
         
         horizontalScrollView = HorizontalScrollView(context).apply {
@@ -91,9 +94,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
         
         
-        
         // Define the new LinearLayout
-        searchLayout = SearchPanel(constraintLayout!!,editor!!).view
+        searchLayout = SearchPanel(constraintLayout!!, editor!!).view
         
         
         // Add the views to the constraint layout
@@ -121,10 +123,46 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
     
     
+    object FilesContent {
+        private val sharedPreferences = application!!.getSharedPreferences("files", Context.MODE_PRIVATE)
+        private val mutex = Mutex()
+        suspend fun containsKey(key: String): Boolean {
+            mutex.withLock {
+                return sharedPreferences.contains(key)
+            }
+        }
+        
+        suspend fun getContent(key: String): String {
+            mutex.withLock {
+                return sharedPreferences.getString(key, "").toString()
+            }
+        }
+        
+        suspend fun setContent(key: String, content: String) {
+            mutex.withLock {
+                sharedPreferences.edit().putString(key, content).commit()
+            }
+        }
+        
+        suspend fun remove(key: String) {
+            mutex.withLock {
+                sharedPreferences.edit().remove(key).commit()
+            }
+        }
+        
+    }
+    
     override fun loadFile(xfile: File) {
         file = xfile
         scope.launch(Dispatchers.Default) {
-            launch { editor!!.loadFile(xfile) }
+            
+            if (FilesContent.containsKey(file!!.absolutePath)) {
+                withContext(Dispatchers.Main) {
+                    editor!!.setText(FilesContent.getContent(file!!.absolutePath))
+                }
+            } else {
+                launch { editor!!.loadFile(xfile);FilesContent.setContent(file!!.absolutePath, editor!!.text.toString()) }
+            }
             launch { setupEditor.setupLanguage(file!!.name) }
             withContext(Dispatchers.Main) {
                 setChangeListener()
@@ -182,7 +220,7 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor?.scope?.cancel()
         editor?.release()
         file?.let {
-            if (fileset.contains(it.name)){
+            if (fileset.contains(it.name)) {
                 fileset.remove(it.name)
             }
         }
@@ -190,7 +228,11 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
     
     override fun onClosed() {
+        GlobalScope.launch(Dispatchers.IO) {
+            FilesContent.remove(file!!.absolutePath)
+        }
         onDestroy()
+        
     }
     
     
@@ -224,7 +266,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
     
     
-    fun isModified():Boolean{
+    fun isModified(): Boolean {
         return fileset.contains(file!!.name)
     }
     
@@ -232,9 +274,12 @@ class EditorFragment(val context: Context) : CoreFragment {
     private fun setChangeListener() {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             scope.launch {
+                launch(Dispatchers.IO) {
+                    FilesContent.setContent(file!!.absolutePath, editor!!.text.toString())
+                }
                 updateUndoRedo()
                 
-                if (t < 2){
+                if (t < 2) {
                     t++
                     return@launch
                 }
@@ -266,9 +311,10 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }
                 
             }
+            
+            
         }
     }
     
     
-   
 }
