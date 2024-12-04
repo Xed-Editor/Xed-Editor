@@ -299,7 +299,6 @@ fun SettingsEditorScreen() {
                             PreferencesKeys.AUTO_SAVE_TIME_VALUE,
                             autoSaveTimeValue,
                         )
-                        AutoSaver.delayTime = autoSaveTimeValue.toLong()
                     }
                     showAutoSaveDialog = false
                 },

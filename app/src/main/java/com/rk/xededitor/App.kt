@@ -8,6 +8,7 @@ import com.rk.xededitor.update.UpdateManager
 import com.rk.libcommons.SetupEditor
 import com.rk.resources.Res
 import com.rk.settings.PreferencesData
+import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -39,10 +40,14 @@ class App : Application() {
         super.onCreate()
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
+
         GlobalScope.launch(Dispatchers.IO) {
             launch(Dispatchers.IO) {
                 SetupEditor.init(this@App)
             }
+
+            AutoSaver.start()
+
             delay(6000)
             
             try {
@@ -52,6 +57,8 @@ class App : Application() {
             }
             
         }
+
+
         
     }
     

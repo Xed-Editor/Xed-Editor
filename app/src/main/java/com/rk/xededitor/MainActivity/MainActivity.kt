@@ -30,12 +30,15 @@ import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.R
 import com.rk.libcommons.SetupEditor
 import com.rk.resources.strings
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.databinding.ActivityTabBinding
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -126,13 +129,26 @@ class MainActivity : BaseActivity() {
     var isPaused = true
     override fun onPause() {
         isPaused = true
+        kotlin.runCatching { saveAllFiles() }
         super.onPause()
+    }
+
+    private fun saveAllFiles(){
+        if (tabViewModel.fragmentFiles.isNotEmpty()) {
+
+                adapter?.tabFragments?.values?.forEach { weakRef ->
+                    weakRef.get()?.fragment?.let { fragment ->
+                        if (fragment is EditorFragment) {
+                            fragment.save(showToast = false, isAutoSaver = true)
+                        }
+                    }
+                }
+        }
     }
     
     override fun onResume() {
         isPaused = false
         super.onResume()
-        AutoSaver.start(this)
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
     }
@@ -221,6 +237,7 @@ class MainActivity : BaseActivity() {
     }
     
     override fun onDestroy() {
+        kotlin.runCatching { saveAllFiles() }
         DefaultScope.cancel()
         super.onDestroy()
         binding = null
@@ -229,6 +246,5 @@ class MainActivity : BaseActivity() {
         fileManager = null
         menu = null
         activityRef = WeakReference(null)
-        
     }
 }
