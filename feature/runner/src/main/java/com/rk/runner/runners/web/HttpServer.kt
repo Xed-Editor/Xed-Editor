@@ -7,7 +7,7 @@ import java.io.FileInputStream
 import java.net.URLConnection
 import java.util.Date
 
-class HttpServer(port: Int, val rootDir: File) : NanoHTTPD(port) {
+class HttpServer(port: Int, val rootDir: File,val serveHook:((File,IHTTPSession)->NanoHTTPD.Response?)? = null) : NanoHTTPD(port) {
     init {
         if (rootDir.isDirectory.not()) {
             throw RuntimeException("Expected a directory but got file")
@@ -21,6 +21,14 @@ class HttpServer(port: Int, val rootDir: File) : NanoHTTPD(port) {
         if (file.isDirectory) {
             file = File(file, "index.html")
         }
+        
+        if (serveHook != null){
+            val response = serveHook.invoke(file,session)
+            if (response != null){
+                return response
+            }
+        }
+        
         if (file.exists().not()) {
             return newFixedLengthResponse(
                 Status.NOT_FOUND,
@@ -28,7 +36,7 @@ class HttpServer(port: Int, val rootDir: File) : NanoHTTPD(port) {
                 "404 not found " + Date().toString(),
             )
         }
-
+        
         try {
             return newFixedLengthResponse(
                 Status.OK,

@@ -12,7 +12,7 @@ import com.rk.runner.databinding.ActivityMarkdownBinding
 import java.net.ServerSocket
 
 abstract class WebActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMarkdownBinding
+    var binding: ActivityMarkdownBinding? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     fun setupWebView(webView: WebView) {
@@ -21,8 +21,10 @@ abstract class WebActivity : AppCompatActivity() {
         webSettings.databaseEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.javaScriptCanOpenWindowsAutomatically = true
-        webSettings.allowContentAccess = true
-        webSettings.allowFileAccess = true
+        //webSettings.allowContentAccess = true
+       //webSettings.allowFileAccess = true
+        webSettings.loadWithOverviewMode = true
+        webSettings.useWideViewPort = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.setWebChromeClient(WebChromeClient())
@@ -34,13 +36,13 @@ abstract class WebActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMarkdownBinding.inflate(layoutInflater)
 
-        setContentView(binding.root)
+        setContentView(binding!!.root)
 
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(true)
 
-        setupWebView(binding.webview)
+        setupWebView(binding!!.webview)
     }
 
     override fun onLowMemory() {
@@ -51,6 +53,7 @@ abstract class WebActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        binding = null
         System.gc()
     }
 
@@ -66,8 +69,8 @@ abstract class WebActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (binding.webview.canGoBack()) {
-            binding.webview.goBack()
+        if (binding!!.webview.canGoBack()) {
+            binding!!.webview.goBack()
         } else {
             super.onBackPressed()
         }
