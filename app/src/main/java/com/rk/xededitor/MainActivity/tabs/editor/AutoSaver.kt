@@ -1,10 +1,15 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
-import com.rk.libcommons.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 object AutoSaver {
     private const val DEFAULT_DELAY_MS = 10000L
@@ -12,6 +17,7 @@ object AutoSaver {
     /**
      * Starts the auto-save process. Runs in a background coroutine, periodically checking
      * if auto-save is enabled and saving the open editor fragments.
+     * Auto-Saver survives activity lifecycles so not put context here
      */
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
@@ -41,8 +47,7 @@ object AutoSaver {
      */
     private suspend fun saveAllEditorFragments() {
         MainActivity.activityRef.get()?.let { activity ->
-            if (activity.isFinishing || activity.isDestroyed) {
-                println("Activity destroyed, unable to save files.")
+            if (activity.isDestroyed) {
                 return
             }
 
@@ -56,10 +61,7 @@ object AutoSaver {
                         }
                     }
                 }
-                println("Auto-save completed.")
-            } else {
-                println("No open fragments to save.")
             }
-        } ?: println("MainActivity reference is null.")
+        }
     }
 }

@@ -46,6 +46,13 @@ class App : Application() {
                 SetupEditor.init(this@App)
             }
 
+            //delete useless file cache
+            File(filesDir.parentFile,"shared_prefs/files.xml").apply {
+                if (exists()){
+                    delete()
+                }
+            }
+
             AutoSaver.start()
 
             delay(6000)
