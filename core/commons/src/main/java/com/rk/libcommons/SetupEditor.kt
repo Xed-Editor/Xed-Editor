@@ -28,8 +28,9 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
@@ -38,7 +39,7 @@ import java.io.InputStreamReader
 private typealias onClick = OnClickListener
 
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: CoroutineScope) {
-    
+
     init {
         scope.launch { ensureTextmateTheme(ctx) }
         with(editor) {
@@ -52,62 +53,74 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             isCursorAnimationEnabled = getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
             setTextSize(getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
-            setWordwrap(getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false), getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true))
+            setWordwrap(
+                getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false),
+                getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true)
+            )
             showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
-            kotlin.runCatching { applyFont(this) }.onFailure { scope.launch(Dispatchers.Main) {
-                Toast.makeText(ctx,"Unknown Error ${it.message} \n fallback to the default font",Toast.LENGTH_LONG).show()
-            } }
+            kotlin.runCatching { applyFont(this) }.onFailure {
+                scope.launch(Dispatchers.Main) {
+                    Toast.makeText(
+                        ctx, "${it.message} \n falling back to the default font", Toast.LENGTH_LONG
+                    ).show()
+                    kotlin.runCatching {
+                        editor.typefaceText =
+                            Typeface.createFromAsset(editor.context.assets, "font.ttf")
+                    }
+                }
+            }
         }
-        
-        
+
+
     }
-    
-    
-    
+
+
     suspend fun setupLanguage(fileName: String) {
         when (fileName.substringAfterLast('.', "")) {
             "java", "bsh" -> setLanguage("source.java")
-            
+
             "html" -> setLanguage("text.html.basic")
             "kt", "kts" -> setLanguage("source.kotlin")
-            
+
             "py" -> setLanguage("source.python")
             "xml" -> setLanguage("text.xml")
             "js" -> setLanguage("source.js")
             "md" -> setLanguage("text.html.markdown")
             "c" -> setLanguage("source.c")
             "cpp", "h" -> setLanguage("source.cpp")
-            
+
             "json" -> setLanguage("source.json")
             "css" -> setLanguage("source.css")
             "cs" -> setLanguage("source.cs")
             "yml", "eyaml", "eyml", "yaml", "cff" -> setLanguage("source.yaml")
-            
+
             "sh", "bash" -> setLanguage("source.shell")
-            
+
             "rs" -> setLanguage("source.rust")
             "lua" -> setLanguage("source.lua")
             "php" -> setLanguage("source.php")
         }
     }
-    
+
     companion object {
         private var isInit = false
         private var darkThemeRegistry: ThemeRegistry? = null
         private var oledThemeRegistry: ThemeRegistry? = null
         private var lightThemeRegistry: ThemeRegistry? = null
-        
+        private val mutex = Mutex()
         suspend fun init(ctx: Context) {
-            if (!isInit) {
-                withContext(Dispatchers.IO) {
-                    initGrammarRegistry(ctx)
-                    initTextMateTheme(ctx)
+            mutex.withLock {
+                if (!isInit) {
+                    withContext(Dispatchers.IO) {
+                        initGrammarRegistry(ctx)
+                        initTextMateTheme(ctx)
+                    }
+                    isInit = true
                 }
-                isInit = true
             }
         }
-        
-        fun applyFont(editor: CodeEditor){
+
+        fun applyFont(editor: CodeEditor) {
             val fontPath = getString(PreferencesKeys.SELECTED_FONT_PATH, "")
             if (fontPath.isNotEmpty()) {
                 val isAsset = getBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, false)
@@ -122,21 +135,22 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             }
             editor.invalidate()
         }
-        
+
         private suspend fun initGrammarRegistry(ctx: Context) {
-            FileProviderRegistry.getInstance().addFileProvider(AssetsFileResolver(ctx.applicationContext?.assets))
+            FileProviderRegistry.getInstance()
+                .addFileProvider(AssetsFileResolver(ctx.applicationContext?.assets))
             GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
         }
-        
+
         private suspend fun initTextMateTheme(ctx: Context) {
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
-            
+
             val darcula = ctx.assets.open("textmate/darcula.json")
             val darcula_oled = ctx.assets.open("textmate/black/darcula.json")
             val quietlight = ctx.assets.open("textmate/quietlight.json")
-            
+
             try {
                 darkThemeRegistry?.loadTheme(
                     ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
@@ -160,9 +174,10 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             }
         }
     }
-    
+
     private suspend fun setLanguage(languageScopeName: String) {
-        val language = TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
+        val language =
+            TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
         val kw = ctx.assets.open("textmate/keywords.json")
         val reader = InputStreamReader(kw)
         val jsonElement = JsonParser.parseReader(reader)
@@ -174,13 +189,13 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             }
             language.setCompleterKeywords(keywords)
         }
-        
+
         withContext(Dispatchers.Main) {
             editor.setEditorLanguage(language as Language)
         }
     }
-    
-    
+
+
     suspend fun ensureTextmateTheme(ctx: Context) {
         init(ctx)
         val themeRegistry = when {
@@ -188,7 +203,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             isDarkMode(ctx) -> darkThemeRegistry
             else -> lightThemeRegistry
         }
-        
+
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
             if (isDarkMode(ctx) && PreferencesData.isOled()) {
@@ -197,10 +212,10 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             withContext(Dispatchers.Main) {
                 editor.colorScheme = editorColorScheme
             }
-            
+
         }
     }
-    
+
     fun getInputView(): SymbolInputView {
         fun hapticFeedBack(view: View) {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
@@ -209,53 +224,76 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
                 add(Pair("->", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB))
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
+                    )
                 }))
-                
+
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)
                     // rkUtils.toast("Not Implemented")
-                    
+
                 }))
-                
+
                 add(Pair("←", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_LEFT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT))
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_DPAD_LEFT,
+                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT)
+                    )
                 }))
-                
+
                 add(Pair("↑", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_UP, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP))
-                    
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_DPAD_UP,
+                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP)
+                    )
+
                 }))
-                
+
                 add(Pair("→", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_RIGHT, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT))
-                    
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_DPAD_RIGHT,
+                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT)
+                    )
+
                 }))
-                
+
                 add(Pair("↓", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN))
-                    
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_DPAD_DOWN,
+                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN)
+                    )
+
                 }))
-                
+
                 add(Pair("⇇", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_MOVE_HOME, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME))
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_MOVE_HOME,
+                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME)
+                    )
                 }))
-                
+
                 add(Pair("⇉", onClick {
                     hapticFeedBack(it)
-                    editor.onKeyDown(KeyEvent.KEYCODE_MOVE_END, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END))
+                    editor.onKeyDown(
+                        KeyEvent.KEYCODE_MOVE_END,
+                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END)
+                    )
                 }))
             }
-            
+
             addSymbols(keys.toTypedArray())
-            
-            addSymbols(arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"), arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"))
-            
+
+            addSymbols(
+                arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"),
+                arrayOf("(", ")", "\"", "{", "}", "[", "]", ";")
+            )
+
             bindEditor(editor)
         }
     }

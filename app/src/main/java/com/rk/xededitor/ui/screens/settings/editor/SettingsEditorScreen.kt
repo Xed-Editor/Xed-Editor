@@ -50,10 +50,42 @@ fun SettingsEditorScreen() {
         }
         
         var showFontPopup by remember { mutableStateOf(false) }
-        
-        
-        
-        
+
+        val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(), onResult = { uri: Uri? ->
+            runCatching {
+                var fileName = "unknown-font-error.ttf"
+
+                context.contentResolver.query(uri!!, null, null, null, null)?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                        if (nameIndex != -1) {
+                            fileName = cursor.getString(nameIndex)
+                        }
+                    }
+                }
+
+                val destinationFile = File(Environment.getExternalStorageDirectory(), "karbon/fonts/$fileName")
+                destinationFile.parentFile?.mkdirs()
+                if (destinationFile.exists().not()) {
+                    destinationFile.createNewFile()
+                }
+                context.contentResolver.openInputStream(uri!!).use { inputStream ->
+                    FileOutputStream(destinationFile).use { outputStream ->
+                        inputStream?.copyTo(outputStream)
+                    }
+                }
+                EditorFont.fonts.add(
+                    EditorFont.Font(
+                        name = fileName.removeSuffix(".ttf"), isAsset = false, pathOrAsset = destinationFile.absolutePath
+                    )
+                )
+                EditorFont.saveFonts()
+                rkUtils.toast("Font Successfully added")
+            }.onFailure { if (it.message?.isNotBlank() == true){rkUtils.toast(it.message)} }
+        })
+
+
+
         PreferenceGroup(heading = "Content") {
             SettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
@@ -141,12 +173,14 @@ fun SettingsEditorScreen() {
                     showFontPopup = true
                 })
 
-//            SettingsToggle(
-//                label = stringResource(id = strings.editor_font),
-//                description = stringResource(id = strings.editor_font_desc),
-//                key = PreferencesKeys.EDITOR_FONT,
-//                default = false,
-//            )
+            SettingsToggle(label = "Add New Font",
+                description = "Add new font",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    filePickerLauncher.launch("font/ttf");
+                })
+
             
             
             SettingsToggle(label = stringResource(id = strings.text_size),
@@ -222,38 +256,7 @@ fun SettingsEditorScreen() {
         }
         
         
-        val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(), onResult = { uri: Uri? ->
-            runCatching {
-                var fileName = "font.ttf"
-                
-                context.contentResolver.query(uri!!, null, null, null, null)?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                        if (nameIndex != -1) {
-                            fileName = cursor.getString(nameIndex)
-                        }
-                    }
-                }
-                
-                val destinationFile = File(Environment.getExternalStorageDirectory(), "karbon/fonts/$fileName")
-                destinationFile.parentFile?.mkdirs()
-                if (destinationFile.exists().not()) {
-                    destinationFile.createNewFile()
-                }
-                context.contentResolver.openInputStream(uri!!).use { inputStream ->
-                    FileOutputStream(destinationFile).use { outputStream ->
-                        inputStream?.copyTo(outputStream)
-                    }
-                }
-                EditorFont.fonts.add(
-                    EditorFont.Font(
-                        name = fileName.removeSuffix(".ttf"), isAsset = false, pathOrAsset = destinationFile.absolutePath
-                    )
-                )
-                EditorFont.saveFonts()
-            }.onFailure { rkUtils.toast(it.message) }
-        })
-        
+
         val selectedFontCompose = remember {
             mutableStateOf(EditorFont.fonts.first())
         }

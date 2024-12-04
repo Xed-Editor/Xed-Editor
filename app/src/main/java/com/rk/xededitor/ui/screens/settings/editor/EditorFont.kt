@@ -3,6 +3,7 @@ package com.rk.xededitor.ui.screens.settings.editor
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -80,31 +81,23 @@ object EditorFont {
 fun EditorFontSheet(modifier: Modifier = Modifier, filePickerLauncher: ManagedActivityResultLauncher<String, Uri?>, onReaction: (Boolean) -> Unit,getCurrentFont:()->EditorFont.Font,setCurrentFont:(EditorFont.Font)->Unit) {
     val bottomSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
-    
-    
-    
+
     ModalBottomSheet(onDismissRequest = { onReaction(false) }, sheetState = bottomSheetState) {
         BottomSheetContent(title = { Text(text = "Select Font") }, buttons = {
-            OutlinedButton(onClick = { coroutineScope.launch { bottomSheetState.hide(); onReaction(false) } }) {
-                Text(text = stringResource(id = strings.cancel))
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = { filePickerLauncher.launch("font/ttf");coroutineScope.launch { bottomSheetState.hide(); onReaction(false) } }) {
-                Text(text = "Add Font")
-            }
+
         }) {
-            LazyColumn {
-                itemsIndexed(EditorFont.fonts) { index, font ->
-                    PreferenceTemplate(title = { Text(text = font.name) }, modifier = Modifier.clickable {
-                        coroutineScope.launch {
-                            setCurrentFont(font)
-                            bottomSheetState.hide(); onReaction(false)
-                        }
-                    }, startWidget = { RadioButton(selected = getCurrentFont().pathOrAsset == font.pathOrAsset, onClick = null) })
+                LazyColumn {
+                    itemsIndexed(EditorFont.fonts) { index, font ->
+                        PreferenceTemplate(title = { Text(text = font.name) }, modifier = Modifier.clickable {
+                            coroutineScope.launch {
+                                setCurrentFont(font)
+                                bottomSheetState.hide(); onReaction(false)
+                            }
+                        }, startWidget = { RadioButton(selected = getCurrentFont().pathOrAsset == font.pathOrAsset, onClick = null) })
+                    }
                 }
-            }
         }
     }
-    
-    
+
+
 }
