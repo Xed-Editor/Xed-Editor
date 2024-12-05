@@ -1,2 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="close_drawer">mdel</string>
+    <string name="save_1">Sekles</string>
+    <string name="err">Tuccḍa</string>
+    <string name="yes">Ih</string>
+    <string name="print">Siggez</string>
+    <string name="add">Rnu</string>
+    <string name="saved">Yettwasekles</string>
+    <string name="copy">Nɣel</string>
+    <string name="close">Mdel</string>
+    <string name="path">Abrid</string>
+    <string name="app">Asnas</string>
+    <string name="download">Sider</string>
+    <string name="cancel">Sefsex</string>
+    <string name="restart">Ales asenker</string>
+    <string name="plugin">Iseɣzaf</string>
+    <string name="settings">Iɣewwaṛen</string>
+    <string name="search">Nadi</string>
+    <string name="share">Bḍu</string>
+    <string name="rename">Snifel isem</string>
+    <string name="paste">Senṭeḍ</string>
+    <string name="delete">Kkes</string>
+    <string name="exit">Ffeɣ</string>
+    <string name="title">Azwel</string>
+    <string name="open">Ldi</string>
+    <string name="editor">Amaẓrag</string>
+    <string name="open_drawer">ldi</string>
+    <string name="create">Snulfu-d</string>
+    <string name="description">Aglam</string>
+    <string name="git">Git</string>
+    <string name="themes">Isental</string>
+    <string name="ok">Ih</string>
+    <string name="files">Ifuyla</string>
+    <string name="available">Yella</string>
+</resources>
