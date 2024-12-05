@@ -70,6 +70,7 @@ Join the Karbon community to stay updated and engage with other users:
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.jpg" width="32%" />
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.jpg" width="32%" />
 </div>
+
 ---
 ## Contributing
 
