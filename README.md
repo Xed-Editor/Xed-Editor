@@ -73,6 +73,17 @@ Join the Karbon community to stay updated and engage with other users:
 
 We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.md) file to learn how you can get involved.
 
+---
+
+## Get Involved
+
+Translate Karbon! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get involved:
+
+<a href="https://hosted.weblate.org/engage/robok-engine/">
+    <img src="https://hosted.weblate.org/widgets/xed-editor/-/multi-auto.svg" alt="Translation Status">
+</a>
+
+---
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor?ref=badge_large)
