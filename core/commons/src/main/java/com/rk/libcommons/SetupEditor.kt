@@ -28,7 +28,10 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -41,6 +44,13 @@ private typealias onClick = OnClickListener
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: CoroutineScope) {
 
     init {
+
+        job?.let {
+            if (it.isCompleted.not()) {
+                runBlocking { job?.join() }
+            }
+        }
+
         scope.launch { ensureTextmateTheme(ctx) }
         with(editor) {
             val tabSize = getString(PreferencesKeys.TAB_SIZE, "4").toInt()
@@ -108,14 +118,17 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         private var oledThemeRegistry: ThemeRegistry? = null
         private var lightThemeRegistry: ThemeRegistry? = null
         private val mutex = Mutex()
-        suspend fun init(ctx: Context) {
-            mutex.withLock {
-                if (!isInit) {
-                    withContext(Dispatchers.IO) {
-                        initGrammarRegistry(ctx)
-                        initTextMateTheme(ctx)
+        private var job: Job? = null
+        suspend fun init() {
+            job = GlobalScope.launch {
+                mutex.withLock {
+                    if (!isInit) {
+                        withContext(Dispatchers.IO) {
+                            initGrammarRegistry(application!!)
+                            initTextMateTheme(application!!)
+                        }
+                        isInit = true
                     }
-                    isInit = true
                 }
             }
         }
@@ -176,6 +189,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
     }
 
     private suspend fun setLanguage(languageScopeName: String) {
+        //init(ctx)
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
         val kw = ctx.assets.open("textmate/keywords.json")
@@ -197,7 +211,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
 
     suspend fun ensureTextmateTheme(ctx: Context) {
-        init(ctx)
+        //init(ctx)
         val themeRegistry = when {
             isDarkMode(ctx) && PreferencesData.isOled() -> oledThemeRegistry
             isDarkMode(ctx) -> darkThemeRegistry
