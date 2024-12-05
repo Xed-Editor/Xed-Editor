@@ -81,7 +81,7 @@ We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.m
 
 Translate Karbon! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get involved:
 
-<a href="https://hosted.weblate.org/engage/robok-engine/">
+<a href="https://hosted.weblate.org/engage/xed-editor/">
     <img src="https://hosted.weblate.org/widgets/xed-editor/-/multi-auto.svg" alt="Translation Status">
 </a>
 
