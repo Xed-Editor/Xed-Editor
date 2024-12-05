@@ -97,7 +97,12 @@ class SimpleEditor : AppCompatActivity() {
             applyTo(binding.root)
         }
 
-        handleIntent(intent)
+        kotlin.runCatching {
+            handleIntent(intent)
+        }.onFailure {
+            Toast.makeText(application!!,it.message,Toast.LENGTH_LONG).show()
+        }
+
     }
     
     private fun setupInputView() {
