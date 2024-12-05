@@ -298,8 +298,10 @@ fun SettingsEditorScreen() {
                 onConfirm = {
                     if (autoSaveTimeValue.any { !it.isDigit() }) {
                         rkUtils.toast(context.getString(strings.inavalid_v))
+                        autoSaveTimeValue = PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
                     } else if (autoSaveTimeValue.toInt() < 1000) {
                         rkUtils.toast(context.getString(strings.v_small))
+                        autoSaveTimeValue = PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
                     } else {
                         PreferencesData.setString(
                             PreferencesKeys.AUTO_SAVE_TIME_VALUE,
@@ -321,10 +323,13 @@ fun SettingsEditorScreen() {
                 onConfirm = {
                     if (textSizeValue.any { !it.isDigit() }) {
                         rkUtils.toast(context.getString(strings.inavalid_v))
+                        textSizeValue = PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14")
                     } else if (textSizeValue.toInt() > 32) {
                         rkUtils.toast(context.getString(strings.v_large))
+                        textSizeValue = PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14")
                     } else if (textSizeValue.toInt() < 8) {
                         rkUtils.toast(context.getString(strings.v_small))
+                        textSizeValue = PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14")
                     } else {
                         PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
