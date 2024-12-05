@@ -76,7 +76,7 @@ class MainActivity : BaseActivity() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         
-        lifecycleScope.launch { SetupEditor.init(this@MainActivity) }
+        //lifecycleScope.launch { SetupEditor.init(this@MainActivity) }
         setupDrawer()
         
         setupViewPager()
