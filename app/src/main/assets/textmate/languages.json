@@ -19,6 +19,12 @@
       "languageConfiguration": "textmate/lua/language-configuration.json"
     },
     {
+      "grammar": "textmate/smali/syntaxes/smali.tmLanguage.json",
+      "name": "Smali",
+      "scopeName": "source.smali",
+      "languageConfiguration": "textmate/smali/language-configuration.json"
+    },
+    {
       "grammar": "textmate/python/syntaxes/python.tmLanguage.json",
       "name": "python",
       "scopeName": "source.python",
