@@ -103,6 +103,8 @@ class SimpleEditor : AppCompatActivity() {
             Toast.makeText(application!!,it.message,Toast.LENGTH_LONG).show()
         }
 
+        AutoSaver(this)
+
     }
     
     private fun setupInputView() {
@@ -236,7 +238,7 @@ class SimpleEditor : AppCompatActivity() {
         }
     }
 
-    fun save() {
+    fun save(isAutoSaver:Boolean = false) {
         lifecycleScope.launch(Dispatchers.IO) {
             var s: String
             try {
@@ -247,7 +249,9 @@ class SimpleEditor : AppCompatActivity() {
                 e.printStackTrace()
                 s = e.message.toString()
             }
-
+            if (isAutoSaver){
+                return@launch
+            }
             withContext(Dispatchers.Main) { Toast.makeText(this@SimpleEditor,s,Toast.LENGTH_SHORT).show() }
         }
     }
