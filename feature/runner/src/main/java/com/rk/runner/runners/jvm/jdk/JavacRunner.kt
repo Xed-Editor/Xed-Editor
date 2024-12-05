@@ -21,9 +21,7 @@ class JavacRunner : RunnerImpl {
             Handler(Looper.getMainLooper()).post { Toast.makeText(context,"Termux-Exec is not enabled",Toast.LENGTH_SHORT).show() }
         }
         
-        extractAssets(context) {
-        
-        }
+
     }
 
     override fun getName(): String {

@@ -7,20 +7,25 @@ import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.karbon_exec.isExecPermissionGranted
 import com.rk.karbon_exec.isTermuxCompatible
 import com.rk.karbon_exec.isTermuxInstalled
+import com.rk.karbon_exec.isTermuxRunning
+import com.rk.karbon_exec.launchTermux
 import com.rk.karbon_exec.runBashScript
 import com.rk.karbon_exec.testExecPermission
-import com.rk.libcommons.R
+import com.rk.libcommons.application
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.File
 
 class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
-    
+
+    @OptIn(DelicateCoroutinesApi::class)
     override fun run(file: File, context: Context) {
-        if (failsafe){
+        if (failsafe) {
             fun runCommand(
                 // shell or binary to run
                 shell: String,
@@ -35,25 +40,41 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
                 // context to launch terminal activity
                 context: Context,
             ) {
-                context.startActivity(Intent(context, Class.forName("com.rk.xededitor.terminal.Terminal")).also {
-                    it.putExtra("run_cmd", true)
-                    it.putExtra("shell", shell)
-                    it.putExtra("args", args)
-                    it.putExtra("cwd", workingDir)
-                    it.putExtra("env", environmentVars)
-                    it.putExtra("overrideEnv", overrideEnv)
-                })
+                context.startActivity(
+                    Intent(
+                        context,
+                        Class.forName("com.rk.xededitor.terminal.Terminal")
+                    ).also {
+                        it.putExtra("run_cmd", true)
+                        it.putExtra("shell", shell)
+                        it.putExtra("args", args)
+                        it.putExtra("cwd", workingDir)
+                        it.putExtra("env", environmentVars)
+                        it.putExtra("overrideEnv", overrideEnv)
+                    })
             }
-            
-            
-            
-            runCommand(shell = "/system/bin/sh", args = arrayOf("-c",file.absolutePath), context = context)
+
+
+
+            runCommand(
+                shell = "/system/bin/sh",
+                args = arrayOf("-c", file.absolutePath),
+                context = context
+            )
             return
         }
-        if (!(isTermuxInstalled() && isExecPermissionGranted() && isTermuxCompatible() && testExecPermission().first)){
-            Handler(Looper.getMainLooper()).post { Toast.makeText(context,"Termux-Exec is not enabled", Toast.LENGTH_SHORT).show() }
+
+        if (!(isTermuxInstalled() && isExecPermissionGranted() && isTermuxCompatible() && testExecPermission().first)) {
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(
+                    context,
+                    "Termux-Exec is not enabled",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             return
         }
+
         runBashScript(
             context, script = """
                 cd ${file.parentFile.absolutePath}
@@ -65,6 +86,23 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
                 
                 """, background = false
         )
+
+        if (isTermuxRunning().not()) {
+            Handler(Looper.getMainLooper()).post {
+                MaterialAlertDialogBuilder(context).apply {
+                    setTitle("Launch Termux?")
+                    setMessage("Termux is stopped so karbon is unable to run command in it. do you like to start it?")
+                    setPositiveButton("Launch", { dialog, which ->
+                        launchTermux()
+                        application!!.startActivity(Intent(application!!, context::class.java))
+                    })
+                    setNegativeButton("Cancel", { dialog, which -> })
+                    show()
+                }
+            }
+        }
+
+
     }
 
     override fun getName(): String {
@@ -93,9 +131,11 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
             },
         )
     }
+
     override fun isRunning(): Boolean {
         return false
     }
+
     override fun stop() {
         TODO("Not yet implemented")
     }

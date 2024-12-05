@@ -19,6 +19,8 @@ import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import io.github.rosemoe.sora.widget.EditorSearcher.SearchOptions
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.File
 
 object HandleMenuItemClick {
@@ -154,7 +156,7 @@ object HandleMenuItemClick {
                 
                 R.id.run -> {
                     val path = intent.data!!.toPath()
-                    Runner.run(File(path), editorActivity)
+                    GlobalScope.launch { Runner.run(File(path), editorActivity) }
                 }
                 
                 else -> return false

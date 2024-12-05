@@ -20,10 +20,7 @@ class JavaRunner(private val type: String) : RunnerImpl {
         if (!(isTermuxInstalled() && isExecPermissionGranted() && isTermuxCompatible() && testExecPermission().first)){
             Handler(Looper.getMainLooper()).post { Toast.makeText(context,"Termux-Exec is not enabled", Toast.LENGTH_SHORT).show() }
         }
-        
-        extractAssets(context) {
-        
-        }
+
     }
 
     override fun getName(): String {
