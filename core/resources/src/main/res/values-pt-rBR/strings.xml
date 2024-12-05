@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="open_drawer">Abrir</string>
     <string name="close_drawer">Fechar</string>
@@ -87,7 +88,6 @@
     <string name="description">Descrição</string>
     <string name="plugin_icon">Ícone do plugin</string>
     <string name="download">Download</string>
-    
     <string name="git">Git</string>
     <string name="cred">Credenciais</string>
     <string name="inavalid_git_cred">Credenciais inválidas. Altere-as nas configurações</string>
@@ -201,7 +201,6 @@
     <string name="monet">Cores Dinâmicas</string>
     <string name="monet_desc">Usar tema do dispositivo no app.</string>
     <string name="restart_app">Por favor, reinicie o aplicativo.</string>
-    
     <string name="old_android">Versão do Android não suportada</string>
     <string name="app_desc">Configurações gerais do aplicativo</string>
     <string name="editor_desc">Configurações gerais do editor</string>
@@ -229,13 +228,11 @@
     <string name="unsupported_aarch">Plataforma não suportada, use Modo de Segurança</string>
     <string name="pkg_download_failed">Falha no download do pacote</string>
     <string name="copy_failed">Falha ao copiar o arquivo</string>
-    
     <string name="install_done">Instalado com Sucesso</string>
     <string name="invalid_file_type">Tipo de arquivo inválido, Arquivo Zip Esperado</string>
     <string name="install_failed">Falha ao instalar</string>
     <string name="choose_zip">Selecione o arquivo zip do plugin no armazenamento para instalá-lo.</string>
     <string name="choose_file">Escolha o arquivo</string>
-
     <string name="force_char">Força Char</string>
     <string name="force_char_desc">Forçar entrada baseada em Char no Terminal</string>
     <string name="useCtrlWorkaround">Use Ctrl Solução alternativa</string>
@@ -246,20 +243,15 @@
     <string name="force_desktop_desc">Forçar layout da área de trabalho em dispositivos com tela menor</string>
     <string name="force_normal">Forçar modo normal</string>
     <string name="force_normal_desc">Forçar layout normal em dispositivos de tela grande</string>
-    
     <string name="light_mode">Claro</string>
     <string name="dark_mode">Escuro</string>
     <string name="auto_mode">Automático</string>
-    <string name="select_theme_mode" >Selecione o modo de tema</string>
-    
+    <string name="select_theme_mode">Selecione o modo de tema</string>
     <string name="cannot_be_empty">Não pode ser vazio.</string>
-    
     <string name="theme_mode">Modo do Tema</string>
     <string name="theme_mode_desc">Altere o modo do tema para automático, claro ou escuro.</string>
-    
     <string name="no_plugins_available">Nenhum Plugin Disponível</string>
     <string name="show_suggestions">Mostrar Sugestões</string>
-    
     <string name="about">Sobre</string>
     <string name="about_desc">Sobre o Karbon</string>
     <string name="version">Versão</string>
@@ -269,13 +261,19 @@
     <string name="telegram">Grupo do Telegram</string>
     <string name="telegram_desc">Junte-se à comunidade do Telegram</string>
     <string name="join">Entrar</string>
-    
     <string name="show_virtual_keyboard">Mostrar Teclado Virtual</string>
     <string name="show_virtual_keyboard_desc">Mostrar teclado virtual quando o teclado físico estiver conectado</string>
-    
     <string name="git_commit">Hash do Commit Git</string>
-    
     <string name="check_for_updates">Checar por Atualizações</string>
     <string name="check_for_updates_desc">Verifique periodicamente se há atualizações</string>
-    
+    <string name="sora_s_desc">Use a pesquisa de texto Sora</string>
+    <string name="txt_ww">Envolver arquivos txt</string>
+    <string name="no">Não</string>
+    <string name="save_label">Salvar</string>
+    <string name="click_open">Clique aqui para abrir o arquivo</string>
+    <string name="file_too_large">Arquivo é muito grande para abrir</string>
+    <string name="toggle_suggestion">Alternar sugestão</string>
+    <string name="run">Executar</string>
+    <string name="txt_ww_desc">Elvolver arquivos de texto automaticamente</string>
+    <string name="sora_s">Pesquisa de texto Sora</string>
 </resources>
