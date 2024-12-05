@@ -13,6 +13,7 @@
 
 **Karbon** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization, making it a perfect tool for text management on the go.
 
+---
 ## Features
 - [x] **File editing** outside of projects
 - [x] Comprehensive **settings** options
@@ -27,12 +28,12 @@
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
 - [x] **Keybindings** ([View available keybindings](/docs/KEYBINDS.md))
-
+---
 ## Community
 
 Join the Karbon community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
-
+---
 ## Installation
 
 <div>
@@ -55,7 +56,7 @@ Join the Karbon community to stay updated and engage with other users:
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.rk.xededitor)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Xed-Editor/Xed-Editor/releases/latest)
-
+---
 ## Screenshots
 
 <div>
@@ -68,7 +69,7 @@ Join the Karbon community to stay updated and engage with other users:
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/05.jpg" width="32%" />
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.jpg" width="32%" />
 </div>
-
+---
 ## Contributing
 
 We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.md) file to learn how you can get involved.
