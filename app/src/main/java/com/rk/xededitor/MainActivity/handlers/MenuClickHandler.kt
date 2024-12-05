@@ -38,6 +38,7 @@ import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -61,7 +62,7 @@ object MenuClickHandler {
         
         when (id) {
             Id.run -> {
-                editorFragment?.file?.let { it1 -> Runner.run(it1, activity) }
+                GlobalScope.launch { editorFragment?.file?.let { it1 -> Runner.run(it1, activity) } }
                 return true
             }
             
