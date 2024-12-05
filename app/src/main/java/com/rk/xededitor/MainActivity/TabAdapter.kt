@@ -213,7 +213,25 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.absolutePath)) {
-                rkUtils.toast(getString(strings.already_opened))
+                kotlin.runCatching {
+                    MainActivity.activityRef.get()?.let {
+                        if (it.tabLayout!!.selectedTabPosition == 0) {
+                            return
+                        }
+                        it.tabLayout!!.selectTab(
+                            it.tabLayout!!.getTabAt(mainActivity.tabViewModel.fragmentFiles.indexOf(file))
+                        )
+
+                        val fragment = it.adapter!!.getCurrentFragment()?.fragment
+                        if (fragment is EditorFragment) {
+                            fragment.editor?.requestFocus()
+                            fragment.editor?.requestFocusFromTouch()
+                        }
+                    }
+                }.onFailure {
+                    rkUtils.toast(getString(strings.already_opened))
+                }
+
                 return
             }
             if (tabViewModel.fragmentFiles.size >= tabLimit) {
@@ -240,9 +258,9 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     
     private fun askClose(onCancel: () -> Unit, onClose: () -> Unit, title: String, message: String) {
         MaterialAlertDialogBuilder(mainActivity).setTitle(title).setMessage(message)
-            .setNegativeButton("Cancel") { _, _ ->
+            .setNegativeButton("Keep Editing") { _, _ ->
                 onCancel.invoke()
-            }.setPositiveButton("Close") { _, _ ->
+            }.setPositiveButton("Discard") { _, _ ->
                 onClose.invoke()
             }.show()
     }
