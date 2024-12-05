@@ -24,6 +24,7 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
+import io.github.rosemoe.sora.widget.CodeEditor
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import java.io.File
@@ -275,6 +276,8 @@ fun SettingsEditorScreen() {
                         if (ff.fragment is EditorFragment) {
                             (ff.fragment as EditorFragment).editor?.let { editor ->
                                 kotlin.runCatching { SetupEditor.applyFont(editor) }.onFailure { rkUtils.toast(it.message) }
+                                (editor as CodeEditor).invalidate()
+                                (editor as CodeEditor).requestLayout()
                             }
                         }
                     }
