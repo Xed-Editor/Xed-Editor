@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavController
 import com.rk.libcommons.SetupEditor
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
@@ -22,6 +23,7 @@ import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -33,7 +35,7 @@ import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsEditorScreen() {
+fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
         
@@ -49,42 +51,6 @@ fun SettingsEditorScreen() {
         var tabSizeValue by remember {
             mutableStateOf(PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4"))
         }
-        
-        var showFontPopup by remember { mutableStateOf(false) }
-
-        val filePickerLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent(), onResult = { uri: Uri? ->
-            runCatching {
-                var fileName = "unknown-font-error.ttf"
-
-                context.contentResolver.query(uri!!, null, null, null, null)?.use { cursor ->
-                    if (cursor.moveToFirst()) {
-                        val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                        if (nameIndex != -1) {
-                            fileName = cursor.getString(nameIndex)
-                        }
-                    }
-                }
-
-                val destinationFile = File(context.filesDir, "fonts/$fileName")
-                destinationFile.parentFile?.mkdirs()
-                if (destinationFile.exists().not()) {
-                    destinationFile.createNewFile()
-                }
-                context.contentResolver.openInputStream(uri!!).use { inputStream ->
-                    FileOutputStream(destinationFile).use { outputStream ->
-                        inputStream?.copyTo(outputStream)
-                    }
-                }
-                EditorFont.fonts.add(
-                    EditorFont.Font(
-                        name = fileName.removeSuffix(".ttf"), isAsset = false, pathOrAsset = destinationFile.absolutePath
-                    )
-                )
-                EditorFont.saveFonts()
-                rkUtils.toast("Font Successfully added")
-            }.onFailure { if (it.message?.isNotBlank() == true){rkUtils.toast(it.message)} }
-        })
-
 
 
         PreferenceGroup(heading = "Content") {
@@ -166,24 +132,14 @@ fun SettingsEditorScreen() {
                     }
                 })
             
-            SettingsToggle(label = stringResource(id = strings.editor_font),
-                description = stringResource(id = strings.editor_font_desc),
+            SettingsToggle(label = "Manage Editor Fonts",
+                description = "Change Editor Fonts",
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    showFontPopup = true
+                    navController.navigate(SettingsRoutes.EditorFontScreen.route)
                 })
 
-            SettingsToggle(label = "Add New Font",
-                description = "Add new font",
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    filePickerLauncher.launch("font/ttf");
-                })
-
-            
-            
             SettingsToggle(label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
                 showSwitch = false,
@@ -254,37 +210,6 @@ fun SettingsEditorScreen() {
                 sideEffect = {
                     showTabSizeDialog = true
                 })
-        }
-        
-        
-
-        val selectedFontCompose = remember {
-            mutableStateOf(EditorFont.fonts.first())
-        }
-        val selectedFontPath = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
-        if (selectedFontPath.isNotEmpty()) {
-            selectedFontCompose.value = (EditorFont.fonts.find { it.pathOrAsset == selectedFontPath } ?: EditorFont.fonts.first())
-        }
-        
-        if (showFontPopup) {
-            EditorFontSheet(filePickerLauncher = filePickerLauncher, setCurrentFont = {
-                selectedFontCompose.value = it
-                PreferencesData.setString(PreferencesKeys.SELECTED_FONT_PATH, it.pathOrAsset)
-                PreferencesData.setBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, it.isAsset)
-                MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
-                    f.get()?.let { ff ->
-                        if (ff.fragment is EditorFragment) {
-                            (ff.fragment as EditorFragment).editor?.let { editor ->
-                                kotlin.runCatching { SetupEditor.applyFont(editor) }.onFailure { rkUtils.toast(it.message) }
-                            }
-                        }
-                    }
-                }
-            }, getCurrentFont = {
-                selectedFontCompose.value
-            }, onReaction = {
-                showFontPopup = it
-            })
         }
         
         if (showAutoSaveDialog) {

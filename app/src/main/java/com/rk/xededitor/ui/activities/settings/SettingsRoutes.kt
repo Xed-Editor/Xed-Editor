@@ -7,4 +7,5 @@ sealed class SettingsRoutes(val route: String) {
     data object TerminalSettings : SettingsRoutes("terminal_settings")
     data object GitSettings : SettingsRoutes("git_settings")
     data object About : SettingsRoutes("karbon")
+    data object EditorFontScreen : SettingsRoutes("editorFontScreen")
 }
