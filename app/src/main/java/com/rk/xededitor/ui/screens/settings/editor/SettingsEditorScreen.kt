@@ -276,8 +276,6 @@ fun SettingsEditorScreen() {
                         if (ff.fragment is EditorFragment) {
                             (ff.fragment as EditorFragment).editor?.let { editor ->
                                 kotlin.runCatching { SetupEditor.applyFont(editor) }.onFailure { rkUtils.toast(it.message) }
-                                (editor as CodeEditor).invalidate()
-                                (editor as CodeEditor).requestLayout()
                             }
                         }
                     }
