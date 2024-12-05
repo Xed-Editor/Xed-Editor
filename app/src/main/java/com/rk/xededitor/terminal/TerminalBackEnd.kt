@@ -82,7 +82,7 @@ class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSess
     }
     
     override fun onScale(scale: Float): Float {
-        return 14f
+        return rkUtils.dpToPx(14f,activity).toFloat()
     }
     
     override fun onSingleTapUp(e: MotionEvent) {
