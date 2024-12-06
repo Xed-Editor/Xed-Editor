@@ -8,12 +8,16 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesData.getString
 import com.rk.settings.PreferencesData.isDarkMode
 import com.rk.settings.PreferencesKeys
+import io.github.rosemoe.sora.R
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -27,6 +31,7 @@ import io.github.rosemoe.sora.widget.SymbolInputView
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -120,6 +125,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         private var lightThemeRegistry: ThemeRegistry? = null
         private val mutex = Mutex()
         private var job: Job? = null
+        @OptIn(DelicateCoroutinesApi::class)
         suspend fun init() {
             job = GlobalScope.launch {
                 mutex.withLock {
@@ -179,9 +185,11 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 throw RuntimeException(e)
             } finally {
                 try {
-                    darcula.close()
-                    darcula_oled.close()
-                    quietlight.close()
+                    withContext(Dispatchers.IO) {
+                        darcula.close()
+                        darcula_oled.close()
+                        quietlight.close()
+                    }
                 } catch (e: Exception) {
                     throw RuntimeException(e)
                 }
@@ -213,9 +221,15 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
     suspend fun ensureTextmateTheme(ctx: Context) {
         //init(ctx)
+        val darkTheme: Boolean = when (getString(PreferencesKeys.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            else -> isDarkMode(ctx)
+        }
+
         val themeRegistry = when {
-            isDarkMode(ctx) && PreferencesData.isOled() -> oledThemeRegistry
-            isDarkMode(ctx) -> darkThemeRegistry
+            darkTheme && PreferencesData.isOled() -> oledThemeRegistry
+            darkTheme -> darkThemeRegistry
             else -> lightThemeRegistry
         }
 
@@ -235,13 +249,28 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         fun hapticFeedBack(view: View) {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
         }
+        val darkTheme: Boolean = when (getString(PreferencesKeys.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            else -> isDarkMode(ctx)
+        }
+
         return SymbolInputView(ctx).apply {
+            textColor = if (darkTheme) {
+                Color.WHITE
+            } else {
+                Color.BLACK
+            }
+
             val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
                 add(Pair("->", onClick {
                     hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
                     )
+
+
+
                 }))
 
                 add(Pair("⌘", onClick {

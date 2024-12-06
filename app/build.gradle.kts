@@ -112,10 +112,9 @@ android {
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk = 28
-        versionCode = 35
-        versionName = "2.8.0"
+        targetSdk = 34
+        versionCode = 36
+        versionName = "2.9.0"
         vectorDrawables {
             useSupportLibrary = true
         }

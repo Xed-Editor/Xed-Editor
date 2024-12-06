@@ -290,4 +290,22 @@
 
     <string name="sora_s">Sora text search</string>
     <string name="sora_s_desc">Use Sora text search</string>
+
+    <string name="manage_editor_font">Manage Editor Fonts</string>
+    <string name="default_encoding">Default Encoding</string>
+    <string name="default_encoding_desc">Default Encoding when opening and creating files</string>
+    <string name="other">Other</string>
+    <string name="content">Content</string>
+    <string name="fonts">Fonts</string>
+    <string name="font_added">Font Successfully added</string>
+    <string name="delete_font">Delete Font</string>
+    <string name="add_font">Add new Font</string>
+    <string name="add_font_desc">Choose a ttf font from storage</string>
+    <string name="install_termux">Install Termux from F-Droid</string>
+    <string name="termux_exec">Termux Exec</string>
+    <string name="termux_exec_guide">Termux Exec Docs</string>
+    <string name="termux_exec_guide_desc">Documentation for Enabling Termux Exec</string>
+    <string name="gestures">Gestures</string>
+    <string name="config_gestures">Configure Gestures</string>
+    <string name="Save_as">Save As</string>
 </resources>

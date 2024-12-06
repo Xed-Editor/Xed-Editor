@@ -1,15 +1,11 @@
 package com.rk.xededitor.ui.screens.settings
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
@@ -58,8 +54,8 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )
     PreferenceCategory(
-        label = "Gestures",
-        description = "Configure Gestures",
+        label = stringResource(strings.gestures),
+        description = stringResource(strings.config_gestures),
         onNavigate = { rkUtils.toast(strings.ni.getString()) },
         iconResource = drawables.baseline_gesture_24,
     )

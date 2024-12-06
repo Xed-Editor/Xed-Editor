@@ -11,6 +11,7 @@ import com.rk.karbon_exec.isTermuxCompatible
 import com.rk.karbon_exec.isTermuxInstalled
 import com.rk.karbon_exec.testExecPermission
 import com.rk.libcommons.DefaultScope
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
@@ -22,7 +23,6 @@ import kotlinx.coroutines.withContext
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 
-private var lastClick = 0L
 
 @Composable
 fun SettingsTerminalScreen(navController: NavController) {
@@ -31,12 +31,12 @@ fun SettingsTerminalScreen(navController: NavController) {
         val isInstalled = isTermuxInstalled() && isTermuxCompatible()
         
         if (isInstalled.not()) {
-            rkUtils.toast("Install Termux from F-Droid")
+            rkUtils.toast(strings.install_termux.getString())
         }
         
         PreferenceGroup {
             val result = testExecPermission()
-            SettingsToggle(label = "Termux Exec", description = if (result.first.not()) {
+            SettingsToggle(label = stringResource(strings.termux_exec), description = if (result.first.not()) {
                 result.second?.message.toString()
             } else {
                 "Termux Exec"
@@ -50,7 +50,7 @@ fun SettingsTerminalScreen(navController: NavController) {
             })
             
             
-            SettingsToggle(label = "Termux Exec Docs", description = "Documentation for Enabling Termux Exec", showSwitch = false, sideEffect = {
+            SettingsToggle(label = stringResource(strings.termux_exec_guide), description = stringResource(strings.termux_exec_guide_desc), showSwitch = false, sideEffect = {
                 
                 val url = if (isTermuxInstalled()) {
                     if (isTermuxCompatible()) {
