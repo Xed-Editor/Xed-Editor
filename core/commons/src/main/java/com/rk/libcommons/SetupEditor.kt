@@ -9,12 +9,15 @@ import android.view.View
 import android.view.View.OnClickListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
 import com.rk.settings.PreferencesData.getString
 import com.rk.settings.PreferencesData.isDarkMode
 import com.rk.settings.PreferencesKeys
+import io.github.rosemoe.sora.R
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -246,13 +249,28 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         fun hapticFeedBack(view: View) {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
         }
+        val darkTheme: Boolean = when (getString(PreferencesKeys.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            else -> isDarkMode(ctx)
+        }
+
         return SymbolInputView(ctx).apply {
+            textColor = if (darkTheme) {
+                Color.WHITE
+            } else {
+                Color.BLACK
+            }
+
             val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
                 add(Pair("->", onClick {
                     hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
                     )
+
+
+
                 }))
 
                 add(Pair("⌘", onClick {
