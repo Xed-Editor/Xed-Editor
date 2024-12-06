@@ -25,6 +25,8 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.InputDialog
+import com.rk.xededitor.ui.components.RadioBottomSheet
+import com.rk.xededitor.ui.components.RadioOption
 import com.rk.xededitor.ui.components.SettingsToggle
 import io.github.rosemoe.sora.widget.CodeEditor
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
@@ -38,7 +40,7 @@ import java.io.FileOutputStream
 fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
-        
+
         var showAutoSaveDialog by remember { mutableStateOf(false) }
         var showTextSizeDialog by remember { mutableStateOf(false) }
         var showTabSizeDialog by remember { mutableStateOf(false) }
@@ -83,9 +85,9 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 })
         }
-        
-        
-        
+
+
+
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
             SettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
@@ -94,7 +96,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                         if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled = it
+                            (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled =
+                                it
                         }
                     }
                 })
@@ -105,7 +108,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                         if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled = it
+                            (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled =
+                                it
                         }
                     }
                 })
@@ -131,7 +135,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         }
                     }
                 })
-            
+
             SettingsToggle(label = "Manage Editor Fonts",
                 description = "Change Editor Fonts",
                 showSwitch = false,
@@ -146,10 +150,21 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     showTextSizeDialog = true
                 })
+
+//            SettingsToggle(
+//                label = "Default Encoding",
+//                description = "Default Encoding when opening and creating files",
+//                showSwitch = false,
+//                sideEffect = {
+//
+//                }
+//            )
+
+
         }
-        
-        
-        
+
+
+
         PreferenceGroup(heading = "Other") {
             SettingsToggle(label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
@@ -160,7 +175,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         if (activity.tabViewModel.fragmentFiles.isEmpty()) {
                             return@let
                         }
-                        
+
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
                             if (f.get()?.fragment is EditorFragment) {
                                 (f.get()?.fragment as EditorFragment).showArrowKeys(it)
@@ -187,14 +202,14 @@ fun SettingsEditorScreen(navController: NavController) {
                 key = PreferencesKeys.AUTO_SAVE,
                 default = false,
             )
-            
+
             SettingsToggle(
                 label = stringResource(strings.sora_s),
                 description = stringResource(strings.sora_s_desc),
                 key = PreferencesKeys.USE_SORA_SEARCH,
                 default = false,
             )
-            
+
             SettingsToggle(
                 label = stringResource(id = strings.auto_save_time),
                 description = stringResource(id = strings.auto_save_time_desc),
@@ -203,7 +218,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 showSwitch = false,
             )
-            
+
             SettingsToggle(label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,
@@ -211,7 +226,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     showTabSizeDialog = true
                 })
         }
-        
+
         if (showAutoSaveDialog) {
             InputDialog(
                 title = stringResource(id = strings.auto_save_time),
@@ -221,10 +236,12 @@ fun SettingsEditorScreen(navController: NavController) {
                 onConfirm = {
                     if (autoSaveTimeValue.any { !it.isDigit() }) {
                         rkUtils.toast(context.getString(strings.inavalid_v))
-                        autoSaveTimeValue = PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
+                        autoSaveTimeValue =
+                            PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
                     } else if (autoSaveTimeValue.toInt() < 1000) {
                         rkUtils.toast(context.getString(strings.v_small))
-                        autoSaveTimeValue = PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
+                        autoSaveTimeValue =
+                            PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
                     } else {
                         PreferencesData.setString(
                             PreferencesKeys.AUTO_SAVE_TIME_VALUE,
@@ -236,7 +253,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 onDismiss = { showAutoSaveDialog = false },
             )
         }
-        
+
         if (showTextSizeDialog) {
             InputDialog(
                 title = stringResource(id = strings.text_size),
@@ -257,9 +274,11 @@ fun SettingsEditorScreen(navController: NavController) {
                         PreferencesData.setString(PreferencesKeys.TEXT_SIZE, textSizeValue)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                             if (f.value.get()?.fragment is EditorFragment) {
-                                (f.value.get()?.fragment as EditorFragment).editor?.setTextSize(textSizeValue.toFloat())
+                                (f.value.get()?.fragment as EditorFragment).editor?.setTextSize(
+                                    textSizeValue.toFloat()
+                                )
                             }
-                            
+
                         }
                     }
                     showTextSizeDialog = false
@@ -280,18 +299,19 @@ fun SettingsEditorScreen(navController: NavController) {
                         rkUtils.toast(context.getString(strings.v_large))
                     }
                     PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
-                    
+
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                         if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.tabWidth = tabSizeValue.toInt()
+                            (f.value.get()?.fragment as EditorFragment).editor?.tabWidth =
+                                tabSizeValue.toInt()
                         }
-                        
+
                     }
                     showTabSizeDialog = false
                 },
                 onDismiss = { showTabSizeDialog = false },
             )
         }
-        
+
     }
 }

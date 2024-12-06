@@ -21,6 +21,7 @@ import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -227,6 +228,7 @@ class EditorFragment(val context: Context) : CoreFragment {
         
     }
     
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
             FilesContent.remove(file!!.absolutePath)
