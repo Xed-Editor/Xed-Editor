@@ -3,6 +3,7 @@ package com.rk.xededitor.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -15,6 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.rkUtils
 
 /*
  * More Themes
@@ -97,7 +100,11 @@ private val DarkColorScheme =
  */
 @Composable
 fun KarbonTheme(
-    darkTheme: Boolean = PreferencesData.isDarkMode(LocalContext.current),
+    darkTheme: Boolean = when (PreferencesData.getString(PreferencesKeys.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+        AppCompatDelegate.MODE_NIGHT_YES -> true
+        AppCompatDelegate.MODE_NIGHT_NO -> false
+        else -> PreferencesData.isDarkMode(LocalContext.current)
+    },
     highContrastDarkTheme: Boolean = PreferencesData.isOled(),
     dynamicColor: Boolean = PreferencesData.isMonet(),
     content: @Composable () -> Unit,

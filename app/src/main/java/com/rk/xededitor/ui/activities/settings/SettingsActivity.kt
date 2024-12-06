@@ -13,6 +13,7 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        window.setBackgroundDrawableResource(android.R.color.transparent)
         setContent {
             KarbonTheme {
                 val navController = rememberNavController()

@@ -27,15 +27,18 @@ import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.time.delay
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import java.time.Duration
 
 @Composable
-fun SettingsAppScreen() {
+fun SettingsAppScreen(activity: SettingsActivity) {
     PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
         
         val showDayNightBottomSheet = remember { mutableStateOf(false) }
@@ -79,7 +82,7 @@ fun SettingsAppScreen() {
         }
         
         if (showDayNightBottomSheet.value) {
-            DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current)
+            DayNightDialog(showBottomSheet = showDayNightBottomSheet, context = LocalContext.current,activity = activity)
         }
     }
     
@@ -91,7 +94,7 @@ fun SettingsAppScreen() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
+fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context,activity: SettingsActivity) {
     val bottomSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
     var selectedMode by remember {
@@ -121,7 +124,7 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context) {
                                 selectedMode = mode
                                 PreferencesData.setString(PreferencesKeys.DEFAULT_NIGHT_MODE, selectedMode.toString())
                                 AppCompatDelegate.setDefaultNightMode(selectedMode)
-                                coroutineScope.launch { bottomSheetState.hide(); showBottomSheet.value = false }
+                                coroutineScope.launch { bottomSheetState.hide(); showBottomSheet.value = false;activity.recreate() }
                             },
                             startWidget = { RadioButton(selected = selectedMode == mode, onClick = null) }
                         )

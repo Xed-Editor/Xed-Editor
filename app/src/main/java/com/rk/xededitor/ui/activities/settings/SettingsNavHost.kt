@@ -16,7 +16,7 @@ import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 
 @Composable
-fun SettingsNavHost(navController: NavHostController, activity: Activity) {
+fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {
     NavHost(
         navController = navController,
         startDestination = SettingsRoutes.Settings.route,
@@ -26,7 +26,7 @@ fun SettingsNavHost(navController: NavHostController, activity: Activity) {
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
-        composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen() }
+        composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
         composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
         composable(SettingsRoutes.GitSettings.route) { SettingsGitScreen() }
