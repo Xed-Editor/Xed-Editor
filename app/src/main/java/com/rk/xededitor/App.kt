@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.SetupEditor
 import com.rk.libcommons.application
 import com.rk.libcommons.isAppInBackground
@@ -11,6 +12,8 @@ import com.rk.resources.Res
 import com.rk.settings.PreferencesData
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
+import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
 import com.rk.xededitor.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers

@@ -10,6 +10,7 @@ import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.about.AboutScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
+import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
 import com.rk.xededitor.ui.screens.settings.editor.EditorFontScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
@@ -32,5 +33,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.GitSettings.route) { SettingsGitScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
+        composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
     }
 }

@@ -1,10 +1,5 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import android.net.Uri
-import android.os.Environment
-import android.provider.OpenableColumns
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,28 +9,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import com.rk.libcommons.SetupEditor
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.smoothTabs
-import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.InputDialog
-import com.rk.xededitor.ui.components.RadioBottomSheet
-import com.rk.xededitor.ui.components.RadioOption
 import com.rk.xededitor.ui.components.SettingsToggle
-import io.github.rosemoe.sora.widget.CodeEditor
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import java.io.File
-import java.io.FileOutputStream
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
@@ -151,16 +139,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     showTextSizeDialog = true
                 })
 
-//            SettingsToggle(
-//                label = "Default Encoding",
-//                description = "Default Encoding when opening and creating files",
-//                showSwitch = false,
-//                sideEffect = {
-//
-//                }
-//            )
-
-
         }
 
 
@@ -183,6 +161,16 @@ fun SettingsEditorScreen(navController: NavController) {
                         }
                     }
                 })
+
+//            SettingsToggle(
+//                label = stringResource(strings.default_encoding),
+//                description = stringResource(strings.default_encoding_desc),
+//                showSwitch = false,
+//                sideEffect = {
+//                    navController.navigate(SettingsRoutes.DefaultEncoding.route)
+//                }
+//            )
+
             SettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
                 key = PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL,
