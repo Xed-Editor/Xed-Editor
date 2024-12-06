@@ -75,18 +75,20 @@
     <string name="clipboardempty">剪切板是空白的哟</string>
     <string name="terminal">终端</string>
     <string name="add_file">添加文件</string>
-    <string name="keyword_regex">关键词 (Regex)</string>
+    <string name="keyword_regex">关键词 (Regex 方式)</string>
     <string name="replaceall">替换所有</string>
     <string name="add_new_replacement_batch">添加新的批量替换任务</string>
     <string name="remove_a_search_batch">删除批量搜索任务</string>
     <string name="replacement">替换</string>
     <string name="title_activity_main">主活动</string>
-    <string name="tab_text_1">选项卡 1</string>
-    <string name="tab_text_2">选项卡 2</string>
+    <string name="tab_text_1">文件标签卡 1</string>
+    <string name="tab_text_2">文件标签卡 2</string>
     <string name="title">标题</string>
     <string name="description">描述</string>
     <string name="plugin_icon">插件图标</string>
     <string name="download">下载</string>
+
+
     <string name="git">Git</string>
     <string name="cred">凭据</string>
     <string name="inavalid_git_cred">凭据无效，请在设置里重新注入</string>
@@ -145,7 +147,7 @@
     <string name="exists">已存在!</string>
     <string name="plugin_dir">插件文件夹</string>
     <string name="private_files">私密文件</string>
-    <string name="private_files_desc">也就是Karbon 私密文件</string>
+    <string name="private_files_desc">也就是 Karbon 私密文件</string>
     <string name="cloning">努力克隆仓库中…</string>
     <string name="clone_err">说什么仓库是私密的，辛苦主人再检查一下凭据吧</string>
     <string name="err">出错了</string>
@@ -169,49 +171,50 @@
     <string name="plugin_download_failed">我无法下载该插件</string>
     <string name="fetch_failed">fetch 命令获得的回执是空白(null)</string>
     <string name="app">应用程序</string>
-    <string name="oled_desc">我的意思是AMOLED 设备可以尝尝这个纯黑主题</string>
+    <string name="oled_desc">OLED 设备可以选用纯黑主题来省电</string>
     <string name="themes">主题</string>
     <string name="change_theme">更改主题</string>
     <string name="editor">编辑器</string>
     <string name="smooth_tabs">顺滑切换</string>
-    <string name="smooth_tab_desc">跟你解释一下，就是在切换选项卡的时候启用不卡眼的动画</string>
+    <string name="smooth_tab_desc">在切换文件标签卡的时候采用不卡眼的动画</string>
     <string name="ww_desc">就是在所有编辑器里启用自动换行</string>
     <string name="drawer_lock_desc">这样打开文件后就不会收起侧栏了哟</string>
     <string name="diagonal_scroll">双向滑动</string>
     <string name="diagonal_scroll_desc">就是在文件树状结构图中启用垂直水平的双向滚动</string>
     <string name="cursor_anim">光标动画</string>
-    <string name="cursor_anim_desc">说的是我会启用不卡眼的光标动画</string>
+    <string name="cursor_anim_desc">说的是采用不卡眼的光标动画</string>
     <string name="show_line_number">显示列序号</string>
     <string name="pin_line_number">标记列序号</string>
     <string name="extra_keys">小按键</string>
     <string name="extra_keys_desc">就是那个在编辑器里显示屏幕底侧的小按键</string>
     <string name="auto_save">自动保存</string>
-    <string name="auto_save_desc">自动保存文件</string>
+    <string name="auto_save_desc">我会替您按规定时间保存文件</string>
     <string name="auto_save_time">自动保存时间间隔</string>
     <string name="auto_save_time_desc">我会在规定的时间后自动保存文档</string>
     <string name="intervalinMs">以毫秒为单位的间隔</string>
     <string name="inavalid_v">数值不合法</string>
     <string name="v_small">设定数值过小</string>
     <string name="v_large">设定数值过大</string>
-    <string name="text_size">文本尺寸</string>
-    <string name="text_size_desc">我是说设置文本尺寸</string>
-    <string name="tab_size">标签卡尺寸</string>
-    <string name="tab_size_desc">说的是设置标签卡尺寸</string>
-    <string name="monet">动态颜色</string>
-    <string name="monet_desc">意思是在程序中使用本机主题</string>
+    <string name="text_size">字体大小</string>
+    <string name="text_size_desc">就是编辑器里面的文本字体大小</string>
+    <string name="tab_size">文件标签卡尺寸</string>
+    <string name="tab_size_desc">说的是设置文件标签卡尺寸</string>
+    <string name="monet">随系统变换颜色</string>
+    <string name="monet_desc">意思是在程序中使用本机主题色调</string>
     <string name="restart_app">辛苦大人重启一下应用</string>
+
     <string name="old_android">不支持该版本的安卓</string>
-    <string name="app_desc">就是说本程序的通用设置</string>
-    <string name="editor_desc">就是说编辑器的通用设置</string>
-    <string name="plugin_desc">就是说插件的通用设置</string>
-    <string name="terminal_desc">就是说终端的通用设置</string>
-    <string name="git_desc">说的是Git 通用设置</string>
+    <string name="app_desc">本程序的全部可修改的设置</string>
+    <string name="editor_desc">编辑器的全部可修改的设置</string>
+    <string name="plugin_desc">插件的全部可修改的设置</string>
+    <string name="terminal_desc">终端的全部可修改的设置</string>
+    <string name="git_desc">Git 全部可修改的设置</string>
     <string name="enable_plugins">启用插件</string>
     <string name="fail_safe">安全失效(Fail Safe)</string>
-    <string name="failsafe_desc">我会采用安卓终端，抛弃Termux</string>
+    <string name="failsafe_desc">我会采用安卓系统自带的终端，抛弃Termux</string>
     <string name="Lshell">启动命令行</string>
     <string name="Lshell_desc">在终端启动后再执行</string>
-    <string name="terminal_text_size">终端字体尺寸</string>
+    <string name="terminal_text_size">终端的字体尺寸</string>
     <string name="terminal_text_size_desc">这是在说设置终端文字的大小 </string>
     <string name="sim_hard_links">模拟硬链接</string>
     <string name="sim_hard_links_desc">这是在说在应该创建硬链接的地方创建符号链接</string>
@@ -227,11 +230,13 @@
     <string name="unsupported_aarch">不支持该平台, 即将使用 安全失效(Fail Safe)</string>
     <string name="pkg_download_failed">文件包下载失败了</string>
     <string name="copy_failed">无法复制文件</string>
+
     <string name="install_done">安装好啦</string>
     <string name="invalid_file_type">未知文件类型，我想要的是 zip 压缩包</string>
     <string name="install_failed">安装失败了</string>
     <string name="choose_zip">在本机储存空间里选择zip压缩包来进行插件的安装</string>
     <string name="choose_file">选择文件</string>
+
     <string name="force_char">强制字符</string>
     <string name="force_char_desc">意思是在终端中采用以强制字符为基础的的输入</string>
     <string name="useCtrlWorkaround">使用 Ctrl 解决方式</string>
@@ -242,15 +247,20 @@
     <string name="force_desktop_desc">我会在小屏设备上强制使用桌面版模式</string>
     <string name="force_normal">强制使用普通模式</string>
     <string name="force_normal_desc">我会在大屏设备上强制使用普通模式</string>
+
     <string name="light_mode">纯白主题</string>
     <string name="dark_mode">暗黑主题</string>
     <string name="auto_mode">日夜自动切换</string>
-    <string name="select_theme_mode">选择主题模式</string>
+    <string name="select_theme_mode"">设置主题模式</string>
+
     <string name="cannot_be_empty">此处不可以留空哦</string>
+
     <string name="theme_mode">主题模式</string>
     <string name="theme_mode_desc">我可以把主题模式更改为纯白主题、暗黑主题还有日夜自动切换模式</string>
+
     <string name="no_plugins_available">没有可用插件</string>
     <string name="show_suggestions">显示输入法提示词</string>
+
     <string name="about">软件介绍(About)</string>
     <string name="about_desc">我来介绍一下 Karbon 吧(About Karbon)</string>
     <string name="version">版本(Version)</string>
@@ -260,18 +270,25 @@
     <string name="telegram">电报(Telegram) 群组</string>
     <string name="telegram_desc">愣着干啥，还不赶紧加入 Telegram 社区群组</string>
     <string name="join">点击加入</string>
+
     <string name="show_virtual_keyboard">显示虚拟键盘</string>
     <string name="show_virtual_keyboard_desc">我是说就算有外部物理键盘连上了，依然还要显示虚拟键盘</string>
+
     <string name="git_commit">Git 提交 Hash 值</string>
+
     <string name="check_for_updates">检查更新</string>
     <string name="check_for_updates_desc">定期自动检查更新</string>
+
     <string name="click_open">请主人点击这里打开文件哟</string>
     <string name="no">不是</string>
     <string name="file_too_large">文件过大，我无法打开</string>
     <string name="toggle_suggestion">输入法显示提示词</string>
     <string name="run">运行</string>
+
     <string name="txt_ww">文本文件换行</string>
     <string name="txt_ww_desc">我会将文本文件自动换行</string>
+
     <string name="sora_s">Sora 文本搜索</string>
     <string name="sora_s_desc">使用 Sora 文本搜索</string>
+
 </resources>
