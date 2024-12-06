@@ -52,6 +52,7 @@ object MenuClickHandler {
     
     private var searchText: String? = ""
     
+    @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
         val editorFragment = if (activity.adapter!!.getCurrentFragment()?.fragment is EditorFragment) {
@@ -61,6 +62,12 @@ object MenuClickHandler {
         }
         
         when (id) {
+            Id.saveAs -> {
+                editorFragment?.file?.let {
+                    activity.fileManager?.saveAsFile(it)
+                }
+                return true
+            }
             Id.run -> {
                 GlobalScope.launch { editorFragment?.file?.let { it1 -> Runner.run(it1, activity) } }
                 return true

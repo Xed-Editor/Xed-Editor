@@ -48,6 +48,8 @@ object MenuItemHandler {
         
         
     }
+
+    //warning: do not go below this 💀💀💀💀
     
     private suspend fun updateInternal(activity: MainActivity) {
         withContext(Dispatchers.Main) {
@@ -124,6 +126,7 @@ object MenuItemHandler {
             findItem(Id.undo).isVisible = show
             findItem(Id.redo).isVisible = show
             findItem(Id.suggestions).isVisible = show
+            findItem(Id.saveAs).isVisible = show
         }
     }
     

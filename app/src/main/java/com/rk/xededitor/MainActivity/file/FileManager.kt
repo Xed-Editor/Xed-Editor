@@ -2,6 +2,8 @@ package com.rk.xededitor.MainActivity.file
 
 import android.app.Activity
 import android.content.Intent
+import android.os.storage.StorageVolume
+import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -9,11 +11,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.libcommons.PathUtils.toPath
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import java.io.File
+import java.net.URLConnection
 
 class FileManager(private val mainActivity: MainActivity) {
 
@@ -45,6 +49,39 @@ class FileManager(private val mainActivity: MainActivity) {
             }
         }
     }
+
+
+    private var toSaveAsFile: File? = null
+
+    private val directoryPickerLauncher = mainActivity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        uri?.let { uri ->
+            toSaveAsFile?.let { file ->
+                val resolver = mainActivity.contentResolver
+                val mimeType = URLConnection.guessContentTypeFromName(file.name)
+                val documentUri = DocumentsContract.createDocument(
+                    resolver,
+                    uri,
+                    mimeType ?: "application/octet-stream",
+                    file.name
+                )
+
+                documentUri?.let { docUri ->
+                    resolver.openOutputStream(docUri)?.use { outputStream ->
+                        outputStream.write(file.readBytes())
+                    }
+                }
+            }
+        }
+    }
+
+    fun saveAsFile(file: File) {
+        rkUtils.toast(strings.ni.getString())
+        return
+        toSaveAsFile = file
+        directoryPickerLauncher.launch(null)
+    }
+
+
 
     fun requestOpenFile() {
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {

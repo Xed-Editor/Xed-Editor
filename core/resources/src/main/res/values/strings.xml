@@ -307,4 +307,5 @@
     <string name="termux_exec_guide_desc">Documentation for Enabling Termux Exec</string>
     <string name="gestures">Gestures</string>
     <string name="config_gestures">Configure Gestures</string>
+    <string name="Save_as">Save As</string>
 </resources>
