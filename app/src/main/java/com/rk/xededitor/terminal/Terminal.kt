@@ -83,7 +83,7 @@ class Terminal : BaseActivity() {
         session = createSession(this)
         terminal!!.attachSession(session)
         terminal!!.setBackgroundColor(Color.BLACK)
-        terminal!!.setTextSize(14)
+        terminal!!.setTextSize(rkUtils.dpToPx(14f,this))
         terminal!!.keepScreenOn = true
         val params = LinearLayout.LayoutParams(-1, 0)
         params.weight = 1f

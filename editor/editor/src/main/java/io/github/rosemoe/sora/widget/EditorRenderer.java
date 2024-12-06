@@ -2676,7 +2676,9 @@ public class EditorRenderer {
                 gtr.set(text, startLine, 0, line.length(), spans, paintGeneral, context);
                 var softBreaks = (editor.layout instanceof WordwrapLayout) ? ((WordwrapLayout) editor.layout).getSoftBreaksForLine(startLine) : null;
                 gtr.setSoftBreaks(softBreaks);
-                var hash = Objects.hash(spans, line.length(), editor.getTabWidth(), basicDisplayMode, softBreaks, paintGeneral.getFlags(), paintGeneral.getTextSize(), paintGeneral.getTextScaleX(), paintGeneral.getLetterSpacing(), paintGeneral.getFontFeatureSettings());
+                var hash = Objects.hash(spans, line.length(), editor.getTabWidth(), basicDisplayMode,
+                        softBreaks, paintGeneral.getFlags(), paintGeneral.getTextSize(), paintGeneral.getTextScaleX(),
+                        paintGeneral.getLetterSpacing(), paintGeneral.getFontFeatureSettings(), paintGeneral.getTypeface().hashCode());
                 if (context.getCache().getStyleHash(startLine) != hash || forced) {
                     gtr.buildMeasureCache();
                     context.getCache().setStyleHash(startLine, hash);

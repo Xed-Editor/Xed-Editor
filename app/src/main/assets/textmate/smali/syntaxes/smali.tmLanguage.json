@@ -1,0 +1,46 @@
+{
+  "fileTypes": ["smali"],
+  "foldingStartMarker": "\\.method",
+  "foldingStopMarker": "\\.end method",
+  "name": "Smali",
+  "patterns": [
+    {
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.comment.smali"
+        }
+      },
+      "match": "(#).*$\\n?",
+      "name": "comment.line.number-sign.smali"
+    },
+    {
+      "match": "(v\\d|p\\d)",
+      "name": "variable.smali"
+    },
+    {
+      "match": "^(\\s+)*[A-Za-z0-9\\-_\\/]+",
+      "name": "keyword.control.smali"
+    },
+    {
+      "match": "\\s+[A-Za-z0-9\\-/&gt;&lt;]+(?=\\()",
+      "name": "entity.smali"
+    },
+    {
+      "match": "\\.end method|^(\\s+)*\\.[A-Za-z0-9\\-/]+",
+      "name": "support.smali"
+    },
+    {
+      "begin": "\"",
+      "end": "\"",
+      "name": "string.quoted.double.smali",
+      "patterns": [
+        {
+          "match": "\\\\.",
+          "name": "constant.character.escape.smali"
+        }
+      ]
+    }
+  ],
+  "scopeName": "source.smali",
+  "uuid": "2AAE65F0-7968-4596-AF09-0218DDBCBD81"
+}

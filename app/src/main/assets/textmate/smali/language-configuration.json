@@ -1,0 +1,86 @@
+{
+  "comments": {
+    "lineComment": "#"
+  },
+  "brackets": [
+    [
+      "(",
+      ")"
+    ],
+    [
+      "[",
+      "]"
+    ],
+    [
+      "{",
+      "}"
+    ]
+  ],
+  "autoClosingPairs": [
+    {
+      "open": "\"",
+      "close": "\"",
+      "notIn": [
+        "string.quoted.double.smali"
+      ]
+    },
+    {
+      "open": "(",
+      "close": ")",
+      "notIn": [
+        "comment.line.number-sign.smali",
+        "string.quoted.double.smali"
+      ]
+    }
+  ],
+  "surroundingPairs": [
+    {
+      "open": "\"",
+      "close": "\""
+    },
+    {
+      "open": "(",
+      "close": ")"
+    },
+    {
+      "open": "{",
+      "close": "}"
+    },
+    {
+      "open": "[",
+      "close": "]"
+    }
+  ],
+  "colorizedBracketPairs": [],
+  "folding": {
+    "markers": {
+      "start": "^\\s*\\.method",
+      "end": "^\\s*\\.end method"
+    }
+  },
+  "wordPattern": "(-?\\d*\\.\\d\\w*)|([^\\`\\~\\!\\@\\$\\^\\&\\*\\(\\)\\=\\+\\[\\{\\]\\}\\\\\\|\\;\\:\\'\\\"\\,\\.\\<\\>\\/\\s]+)",
+  "onEnterRules": [
+    {
+      "beforeText": {
+        "pattern": "^\\s*\\.method.*$",
+        "flags": "i"
+      },
+      "action": {
+        "indent": "indent"
+      }
+    },
+    {
+      "beforeText": {
+        "pattern": "^\\s*\\.end method.*$",
+        "flags": "i"
+      },
+      "action": {
+        "indent": "outdent"
+      }
+    }
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*\\.method",
+    "decreaseIndentPattern": "^\\s*\\.end method"
+  }
+}

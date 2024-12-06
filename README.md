@@ -13,6 +13,7 @@
 
 **Karbon** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization, making it a perfect tool for text management on the go.
 
+---
 ## Features
 - [x] **File editing** outside of projects
 - [x] Comprehensive **settings** options
@@ -27,12 +28,12 @@
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
 - [x] **Keybindings** ([View available keybindings](/docs/KEYBINDS.md))
-
+---
 ## Community
 
 Join the Karbon community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
-
+---
 ## Installation
 
 <div>
@@ -56,6 +57,7 @@ Join the Karbon community to stay updated and engage with other users:
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Xed-Editor/Xed-Editor/releases/latest)
 
+---
 ## Screenshots
 
 <div>
@@ -69,10 +71,22 @@ Join the Karbon community to stay updated and engage with other users:
   <img src="/fastlane/metadata/android/en-US/images/phoneScreenshots/06.jpg" width="32%" />
 </div>
 
+---
 ## Contributing
 
 We welcome contributions! Please read the [CONTRIBUTING.md](/docs/CONTRIBUTING.md) file to learn how you can get involved.
 
+---
+
+## Get Involved
+
+Translate Karbon! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/) to get involved:
+
+<a href="https://hosted.weblate.org/engage/xed-editor/">
+    <img src="https://hosted.weblate.org/widgets/xed-editor/-/multi-auto.svg" alt="Translation Status">
+</a>
+
+---
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor?ref=badge_large)
