@@ -10,7 +10,7 @@
     <string name="save">文件已保存</string>
     <string name="saveAll">保存所有文件</string>
     <string name="save_label">保存</string>
-    <string name="ww_wait">主人别慌，系统正在处理自动换行中...</string>
+    <string name="ww_wait">主人别慌，系统正在处理自动换行中…</string>
     <string name="open_file_or_folder">请打开文件或文件夹</string>
     <string name="open_file">打开文件</string>
     <string name="open_directory">打开文件夹</string>
@@ -32,16 +32,16 @@
     <string name="go_next">下一个</string>
     <string name="go_prev">上一个</string>
     <string name="close_search">关闭搜索</string>
-    <string name="replace">代替</string>
-    <string name="share">部分</string>
+    <string name="replace">替换</string>
+    <string name="share">分享</string>
     <string name="reselect">重新选择</string>
     <string name="openfile">打开文件</string>
     <string name="new_folder">新建文件夹</string>
     <string name="new_file_1">新建文件</string>
     <string name="rename">重命名</string>
-    <string name="open_with">打开用...</string>
+    <string name="open_with">打开方式…</string>
     <string name="save_as">另存为</string>
-    <string name="paste">牌匾</string>
+    <string name="paste">粘贴</string>
     <string name="delete">删除</string>
     <string name="close_this">关闭文件</string>
     <string name="close_others">关闭其他文件</string>
@@ -87,8 +87,6 @@
     <string name="description">描述</string>
     <string name="plugin_icon">插件图标</string>
     <string name="download">下载</string>
-    
-
     <string name="git">Git</string>
     <string name="cred">凭据</string>
     <string name="inavalid_git_cred">凭据无效，请在设置里重新注入</string>
@@ -166,7 +164,7 @@
     <string name="already_installed">早就安装好了哦</string>
     <string name="download_sure">主人您确实要下载吗</string>
     <string name="yes">是的</string>
-    <string name="downloading_plugin">努力下载插件中...</string>
+    <string name="downloading_plugin">努力下载插件中…</string>
     <string name="download_done">主人，下载好啦！</string>
     <string name="plugin_download_failed">我无法下载该插件</string>
     <string name="fetch_failed">fetch 命令获得的回执是空白(null)</string>
@@ -202,7 +200,6 @@
     <string name="monet">动态颜色</string>
     <string name="monet_desc">意思是在程序中使用本机主题</string>
     <string name="restart_app">辛苦大人重启一下应用</string>
-
     <string name="old_android">不支持该版本的安卓</string>
     <string name="app_desc">就是说本程序的通用设置</string>
     <string name="editor_desc">就是说编辑器的通用设置</string>
@@ -215,7 +212,7 @@
     <string name="Lshell">启动命令行</string>
     <string name="Lshell_desc">在终端启动后再执行</string>
     <string name="terminal_text_size">终端字体尺寸</string>
-    <string name="terminal_text_size_desc">这是在说设置终端文字的大小    </string>
+    <string name="terminal_text_size_desc">这是在说设置终端文字的大小 </string>
     <string name="sim_hard_links">模拟硬链接</string>
     <string name="sim_hard_links_desc">这是在说在应该创建硬链接的地方创建符号链接</string>
     <string name="sim_ashmem">在 Android 上模拟 Ashmemfd</string>
@@ -230,13 +227,11 @@
     <string name="unsupported_aarch">不支持该平台, 即将使用 安全失效(Fail Safe)</string>
     <string name="pkg_download_failed">文件包下载失败了</string>
     <string name="copy_failed">无法复制文件</string>
-
     <string name="install_done">安装好啦</string>
     <string name="invalid_file_type">未知文件类型，我想要的是 zip 压缩包</string>
     <string name="install_failed">安装失败了</string>
     <string name="choose_zip">在本机储存空间里选择zip压缩包来进行插件的安装</string>
     <string name="choose_file">选择文件</string>
-
     <string name="force_char">强制字符</string>
     <string name="force_char_desc">意思是在终端中采用以强制字符为基础的的输入</string>
     <string name="useCtrlWorkaround">使用 Ctrl 解决方式</string>
@@ -247,20 +242,15 @@
     <string name="force_desktop_desc">我会在小屏设备上强制使用桌面版模式</string>
     <string name="force_normal">强制使用普通模式</string>
     <string name="force_normal_desc">我会在大屏设备上强制使用普通模式</string>
-    
     <string name="light_mode">纯白主题</string>
     <string name="dark_mode">暗黑主题</string>
     <string name="auto_mode">日夜自动切换</string>
-    <string name="select_theme_mode" >选择主题模式</string>
-    
+    <string name="select_theme_mode">选择主题模式</string>
     <string name="cannot_be_empty">此处不可以留空哦</string>
-    
     <string name="theme_mode">主题模式</string>
     <string name="theme_mode_desc">我可以把主题模式更改为纯白主题、暗黑主题还有日夜自动切换模式</string>
-    
     <string name="no_plugins_available">没有可用插件</string>
     <string name="show_suggestions">显示输入法提示词</string>
-    
     <string name="about">软件介绍(About)</string>
     <string name="about_desc">我来介绍一下 Karbon 吧(About Karbon)</string>
     <string name="version">版本(Version)</string>
@@ -270,26 +260,18 @@
     <string name="telegram">电报(Telegram) 群组</string>
     <string name="telegram_desc">愣着干啥，还不赶紧加入 Telegram 社区群组</string>
     <string name="join">点击加入</string>
-    
     <string name="show_virtual_keyboard">显示虚拟键盘</string>
     <string name="show_virtual_keyboard_desc">我是说就算有外部物理键盘连上了，依然还要显示虚拟键盘</string>
-
     <string name="git_commit">Git 提交 Hash 值</string>
-    
     <string name="check_for_updates">检查更新</string>
     <string name="check_for_updates_desc">定期自动检查更新</string>
-
     <string name="click_open">请主人点击这里打开文件哟</string>
     <string name="no">不是</string>
     <string name="file_too_large">文件过大，我无法打开</string>
     <string name="toggle_suggestion">输入法显示提示词</string>
     <string name="run">运行</string>
-
     <string name="txt_ww">文本文件换行</string>
     <string name="txt_ww_desc">我会将文本文件自动换行</string>
-
     <string name="sora_s">Sora 文本搜索</string>
     <string name="sora_s_desc">使用 Sora 文本搜索</string>
 </resources>
-
-
