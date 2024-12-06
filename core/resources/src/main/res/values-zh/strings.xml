@@ -251,7 +251,7 @@
     <string name="light_mode">纯白主题</string>
     <string name="dark_mode">暗黑主题</string>
     <string name="auto_mode">日夜自动切换</string>
-    <string name="select_theme_mode"">设置主题模式</string>
+    <string name="select_theme_mode">设置主题模式</string>
 
     <string name="cannot_be_empty">此处不可以留空哦</string>
 
