@@ -308,4 +308,10 @@
     <string name="gestures">Gestures</string>
     <string name="config_gestures">Configure Gestures</string>
     <string name="Save_as">Save As</string>
+
+    <string name="file_not_saved">Some files are not saved</string>
+    <string name="file_unsaved">File Unsaved</string>
+    <string name="ask_unsaved">Are you sure you want to discard this unsaved document?</string>
+    <string name="keep_editing">Keep Editing</string>
+    <string name="discard">Discard</string>
 </resources>

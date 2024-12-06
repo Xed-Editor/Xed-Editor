@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
@@ -146,8 +147,8 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]!!.get()?.fragment?.let {
                     if (askUser && it is EditorFragment && it.isModified()) {
                         askClose(
-                            title = "Unsaved File",
-                            message = "Are you sure you want to discard this unsaved document?",
+                            title = strings.unsaved.getString(),
+                            message = strings.ask_unsaved.getString(),
                             onCancel = {},
                             onClose = {
                                 it.onClosed()
@@ -190,8 +191,8 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             
             if (shouldAsk) {
                 askClose(
-                    title = "Unsaved Files",
-                    message = "Some files are not saved",
+                    title = strings.unsavedfiles.getString(),
+                    message = strings.file_not_saved.getString(),
                     onCancel = {},
                     onClose = {
                         close()
@@ -258,9 +259,9 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     
     private fun askClose(onCancel: () -> Unit, onClose: () -> Unit, title: String, message: String) {
         MaterialAlertDialogBuilder(mainActivity).setTitle(title).setMessage(message)
-            .setNegativeButton("Keep Editing") { _, _ ->
+            .setNegativeButton(strings.keep_editing.getString()) { _, _ ->
                 onCancel.invoke()
-            }.setPositiveButton("Discard") { _, _ ->
+            }.setPositiveButton(strings.discard.getString()) { _, _ ->
                 onClose.invoke()
             }.show()
     }

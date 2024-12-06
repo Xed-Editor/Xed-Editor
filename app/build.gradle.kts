@@ -145,6 +145,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.swiperefreshlayout)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(libs.appcompat)
     implementation(libs.material)
