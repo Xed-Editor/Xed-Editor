@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.Surface
 import androidx.navigation.compose.rememberNavController
-import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.ui.theme.KarbonTheme
 
 class SettingsActivity : ComponentActivity() {
@@ -13,11 +13,13 @@ class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        window.setBackgroundDrawableResource(android.R.color.transparent)
         setContent {
             KarbonTheme {
-                val navController = rememberNavController()
-                SettingsNavHost(activity = this@SettingsActivity, navController = navController)
+                Surface {
+                    val navController = rememberNavController()
+                    SettingsNavHost(activity = this@SettingsActivity, navController = navController)
+
+                }
             }
         }
     }

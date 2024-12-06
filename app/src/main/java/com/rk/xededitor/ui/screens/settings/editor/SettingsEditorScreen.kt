@@ -55,7 +55,7 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
 
-        PreferenceGroup(heading = "Content") {
+        PreferenceGroup(heading = stringResource(strings.content)) {
             SettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
                 key = PreferencesKeys.WORD_WRAP_ENABLED,
@@ -136,8 +136,8 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 })
 
-            SettingsToggle(label = "Manage Editor Fonts",
-                description = "Change Editor Fonts",
+            SettingsToggle(label = stringResource(strings.manage_editor_font),
+                description = stringResource(strings.manage_editor_font),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -165,7 +165,7 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
 
-        PreferenceGroup(heading = "Other") {
+        PreferenceGroup(heading = stringResource(strings.other)) {
             SettingsToggle(label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 key = PreferencesKeys.SHOW_ARROW_KEYS,

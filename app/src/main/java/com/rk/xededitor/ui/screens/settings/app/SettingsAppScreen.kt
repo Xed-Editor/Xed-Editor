@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -123,8 +124,9 @@ fun DayNightDialog(showBottomSheet: MutableState<Boolean>, context: Context,acti
                             modifier = Modifier.clickable {
                                 selectedMode = mode
                                 PreferencesData.setString(PreferencesKeys.DEFAULT_NIGHT_MODE, selectedMode.toString())
-                                AppCompatDelegate.setDefaultNightMode(selectedMode)
-                                coroutineScope.launch { bottomSheetState.hide(); showBottomSheet.value = false;activity.recreate() }
+                                //AppCompatDelegate.setDefaultNightMode(selectedMode)
+                                coroutineScope.launch { bottomSheetState.hide(); showBottomSheet.value = false; }
+                                rkUtils.toast(strings.restart_required.getString())
                             },
                             startWidget = { RadioButton(selected = selectedMode == mode, onClick = null) }
                         )
