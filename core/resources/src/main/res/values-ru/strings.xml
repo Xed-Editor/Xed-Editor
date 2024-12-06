@@ -274,4 +274,20 @@
     <string name="txt_ww_desc">Автоматически переносить txt файлы</string>
     <string name="sora_s">Поиск текста с Sora</string>
     <string name="sora_s_desc">Использовать поиск текста с Sora</string>
+    <string name="content">Контент</string>
+    <string name="default_encoding_desc">При открытии и создании файлов использовать кодировку по умолчанию</string>
+    <string name="other">Другое</string>
+    <string name="fonts">Шрифты</string>
+    <string name="font_added">Шрифт успешно добавлен</string>
+    <string name="add_font">Добавить новый шрифт</string>
+    <string name="add_font_desc">Выбрать ttf шрифт из хранилища</string>
+    <string name="install_termux">Установите Termux из F-Droid</string>
+    <string name="termux_exec">Выполнять через Termux</string>
+    <string name="termux_exec_guide_desc">Документация для включения выполнения через Termux</string>
+    <string name="config_gestures">Конфигурация жестов</string>
+    <string name="delete_font">Удалить шрифт</string>
+    <string name="manage_editor_font">Управление шрифтами редактора</string>
+    <string name="default_encoding">Кодировка по умолчанию</string>
+    <string name="termux_exec_guide">Документация к выполнению через Termux</string>
+    <string name="gestures">Жесты</string>
 </resources>
