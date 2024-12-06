@@ -274,4 +274,26 @@
     <string name="txt_ww_desc">التفاف الملفات النصية تلقائيا</string>
     <string name="sora_s">البحث عن النص بواسطة سورا</string>
     <string name="sora_s_desc">استخدم البحث عن النص بواسطة سورا</string>
+    <string name="manage_editor_font">تعديل خطوط المحرر</string>
+    <string name="default_encoding">الترميز المفترض</string>
+    <string name="default_encoding_desc">الترميز المفترض عند فتح و انشاء ملفات</string>
+    <string name="other">أشياء أخرى</string>
+    <string name="add_font_desc">اختيار ملف ttf من وحدة التخزين</string>
+    <string name="install_termux">حمل تيرمكس من اف-درويد</string>
+    <string name="termux_exec">مشغل تيرمكس</string>
+    <string name="termux_exec_guide">توثيق حول مشغل تيرمكس</string>
+    <string name="termux_exec_guide_desc">الخطوات المتبعة لتشغيل ترمكس</string>
+    <string name="config_gestures">اعدادت الإيماءات</string>
+    <string name="Save_as">حفظ ك</string>
+    <string name="file_not_saved">هناك ملفات لم يتم حفظها</string>
+    <string name="file_unsaved">ملف غير محفوظ</string>
+    <string name="ask_unsaved">هل انت متأكد من انك تريد عدم حفظ المستند؟</string>
+    <string name="keep_editing">ابقاء التعديل</string>
+    <string name="discard">الغاء التعديل</string>
+    <string name="delete_font">حذف الخط</string>
+    <string name="gestures">الإيماءات</string>
+    <string name="add_font">اضافة خط جديد</string>
+    <string name="content">المحتوى</string>
+    <string name="fonts">الخطوط</string>
+    <string name="font_added">لقد تمت اضافة الخط بنجاح</string>
 </resources>
