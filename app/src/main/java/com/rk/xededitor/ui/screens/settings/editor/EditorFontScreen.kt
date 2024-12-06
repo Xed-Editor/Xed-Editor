@@ -25,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.libcommons.SetupEditor
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -39,7 +41,7 @@ import java.io.FileOutputStream
 
 @Composable
 fun EditorFontScreen(modifier: Modifier = Modifier) {
-    PreferenceLayout(label = "Fonts", backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(strings.fonts), backArrowVisible = true) {
         PreferenceGroup {
             val selectedFontP = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
             val selectedFontCompose = remember {
@@ -83,7 +85,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                         )
                     )
                     EditorFont.saveFonts()
-                    rkUtils.toast("Font Successfully added")
+                    rkUtils.toast(strings.font_added.getString())
                 }.onFailure { if (it.message?.isNotBlank() == true){rkUtils.toast(it.message)} }
             })
 
@@ -129,7 +131,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                             }) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "Delete Font",
+                                    contentDescription = stringResource(strings.delete_font),
                                 )
                             }
                         }
@@ -148,14 +150,14 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                 },
                 contentModifier = Modifier
                     .fillMaxHeight(),
-                title = { Text(fontWeight = FontWeight.Bold, text = "Add new Font") },
-                description = { Text(text = "Choose a ttf font from storage")},
+                title = { Text(fontWeight = FontWeight.Bold, text = stringResource(strings.add_font)) },
+                description = { Text(text = stringResource(strings.add_font_desc))},
                 enabled = true,
                 applyPaddings = true,
                 startWidget = {
                     Icon(
                         imageVector = Icons.Filled.Add,
-                        contentDescription = "Add Font",
+                        contentDescription = null,
                     )
                 }
             )
