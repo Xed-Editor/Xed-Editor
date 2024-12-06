@@ -27,6 +27,8 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -42,7 +44,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     var editor: KarbonEditor? = null
     val scope = CustomScope()
     private var constraintLayout: ConstraintLayout? = null
-    private var swipeRefreshLayout: SwipeRefreshLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout: LinearLayout
     private lateinit var setupEditor: SetupEditor
@@ -70,23 +71,11 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     override fun onCreate() {
 
-        swipeRefreshLayout = SwipeRefreshLayout(context).apply {
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-            )
-
-            setOnRefreshListener {
-                refreshEditorContent()
-            }
-        }
-
         constraintLayout = ConstraintLayout(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
             )
         }
-
-        swipeRefreshLayout!!.addView(constraintLayout)
 
 
 
@@ -147,16 +136,13 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
     }
 
-    private fun refreshEditorContent() {
+   fun refreshEditorContent() {
         fun refresh(){
             scope.launch(Dispatchers.IO) {
                 kotlin.runCatching {
 
                     file?.let {
                         editor?.loadFile(it)
-                    }
-                    withContext(Dispatchers.Main) {
-                        swipeRefreshLayout?.isRefreshing = false
                     }
                     MainActivity.activityRef.get()?.let { activity ->
                         val index = activity.tabViewModel.fragmentFiles.indexOf(file)
@@ -190,7 +176,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             MaterialAlertDialogBuilder(context).setTitle(strings.unsaved.getString())
                 .setMessage(strings.ask_unsaved.getString())
                 .setNegativeButton(strings.keep_editing.getString()) { _, _ ->
-                    swipeRefreshLayout?.isRefreshing = false
+
                 }
                 .setPositiveButton(strings.refresh.getString()) { _, _ ->
                     refresh()
@@ -233,24 +219,24 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
-    override fun loadFile(xfile: File) {
-        file = xfile
+    override fun loadFile(file: File) {
+        this.file = file
         scope.launch(Dispatchers.Default) {
-            if (FilesContent.containsKey(file!!.absolutePath)) {
+            if (FilesContent.containsKey(this@EditorFragment.file!!.absolutePath)) {
                 withContext(Dispatchers.Main) {
-                    editor!!.setText(FilesContent.getContent(file!!.absolutePath))
+                    editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.absolutePath))
                 }
             } else {
                 launch {
-                    editor!!.loadFile(xfile);FilesContent.setContent(
-                    file!!.absolutePath, editor!!.text.toString()
+                    editor!!.loadFile(file);FilesContent.setContent(
+                    this@EditorFragment.file!!.absolutePath, editor!!.text.toString()
                 )
                 }
             }
-            launch { setupEditor.setupLanguage(file!!.name) }
+            launch { setupEditor.setupLanguage(this@EditorFragment.file!!.name) }
             withContext(Dispatchers.Main) {
                 setChangeListener()
-                file?.let {
+                this@EditorFragment.file?.let {
                     if (it.name.endsWith(".txt") && PreferencesData.getBoolean(
                             PreferencesKeys.WORD_WRAP_TXT, true
                         )
@@ -299,7 +285,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     override fun getView(): View? {
-        return swipeRefreshLayout
+        return constraintLayout
     }
 
     override fun onDestroy() {

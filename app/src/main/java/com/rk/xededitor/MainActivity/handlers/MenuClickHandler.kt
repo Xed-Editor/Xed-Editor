@@ -174,6 +174,11 @@ object MenuClickHandler {
                 return true
             }
 
+            Id.refreshEditor -> {
+                editorFragment?.refreshEditorContent()
+                return true
+            }
+
             Id.share -> {
                 runCatching {
                     if (editorFragment!!.file!!.absolutePath.contains(activity.filesDir!!.parentFile!!.absolutePath)) {

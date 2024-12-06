@@ -113,7 +113,11 @@
         android:title="@string/save_as"
         android:visible="false"
         app:showAsAction="never" />
-
-
+    <item
+        android:id="@+id/refreshEditor"
+        android:icon="@drawable/refresh"
+        android:title="@string/refresh"
+        android:visible="false"
+        app:showAsAction="never" />
 
 </menu>
