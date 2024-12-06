@@ -229,6 +229,9 @@ object ProjectManager {
             val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
 
             projectsList.forEach {
+                if (projects.values.contains(it)){
+                    return
+                }
                 val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
                 addProject(activity, file)
