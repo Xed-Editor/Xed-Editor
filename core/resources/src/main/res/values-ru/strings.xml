@@ -290,4 +290,10 @@
     <string name="default_encoding">Кодировка по умолчанию</string>
     <string name="termux_exec_guide">Документация к выполнению через Termux</string>
     <string name="gestures">Жесты</string>
+    <string name="Save_as">Сохранить как</string>
+    <string name="ask_unsaved">Вы уверены, что хотите отменить изменения для не сохраненного документа?</string>
+    <string name="file_unsaved">Файл не сохранён</string>
+    <string name="keep_editing">Продолжить редактирование</string>
+    <string name="discard">Отказаться</string>
+    <string name="file_not_saved">Некоторые файлы не сохранены</string>
 </resources>
