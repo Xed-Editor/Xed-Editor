@@ -73,6 +73,8 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true)
             )
             showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
+            lineSpacingExtra = getString(PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()).toFloat()
+            lineSpacingMultiplier = getString(PreferencesKeys.LINE_SPACING_MULTIPLAYER,lineSpacingMultiplier.toString()).toFloat()
             kotlin.runCatching { applyFont(this) }.onFailure {
                 scope.launch(Dispatchers.Main) {
                     Toast.makeText(
