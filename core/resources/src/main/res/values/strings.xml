@@ -319,4 +319,7 @@
     <string name="warning">Warning</string>
     <string name="encoding_warning">Changing the default encoding is highly discouraged, as it can lead to file corruption. It is strongly recommended to use UTF-8 unless you fully understand the implications and have created proper backups.</string>
 
+    <string name="line_spacing">Line Spacing</string>
+    <string name="line_spacing_multiplier">Line Spacing Multiplier</string>
+
 </resources>

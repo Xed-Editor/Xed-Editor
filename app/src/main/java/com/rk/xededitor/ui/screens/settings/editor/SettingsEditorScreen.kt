@@ -1,6 +1,5 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -40,6 +38,17 @@ fun SettingsEditorScreen(navController: NavController) {
         }
         var tabSizeValue by remember {
             mutableStateOf(PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4"))
+        }
+
+        var showLineSpacingDialog by remember { mutableStateOf(false) }
+        var showLineSpacingMultiplierDialog by remember { mutableStateOf(false) }
+
+        var lineSpacingValue by remember {
+            mutableStateOf(PreferencesData.getString(PreferencesKeys.LINE_SPACING, "0"))
+        }
+
+        var lineSpacingMultiplierValue by remember {
+            mutableStateOf(PreferencesData.getString(PreferencesKeys.LINE_SPACING_MULTIPLAYER, "1"))
         }
 
 
@@ -76,7 +85,26 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
 
+
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
+
+
+            SettingsToggle(label = stringResource(id = strings.line_spacing),
+                description = stringResource(id = strings.line_spacing),
+                showSwitch = false,
+                sideEffect = {
+                    showLineSpacingDialog = true
+                })
+
+
+            SettingsToggle(label = stringResource(id = strings.line_spacing_multiplier),
+                description = stringResource(id = strings.line_spacing_multiplier),
+                showSwitch = false,
+                sideEffect = {
+                    showLineSpacingMultiplierDialog = true
+                })
+
+
             SettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
                 key = PreferencesKeys.CURSOR_ANIMATION_ENABLED,
@@ -162,14 +190,12 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 })
 
-            SettingsToggle(
-                label = stringResource(strings.default_encoding),
+            SettingsToggle(label = stringResource(strings.default_encoding),
                 description = stringResource(strings.default_encoding_desc),
                 showSwitch = false,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.DefaultEncoding.route)
-                }
-            )
+                })
 
             SettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
@@ -213,6 +239,75 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     showTabSizeDialog = true
                 })
+        }
+
+        if (showLineSpacingDialog) {
+            InputDialog(
+                title = stringResource(id = strings.line_spacing),
+                inputLabel = stringResource(id = strings.line_spacing),
+                inputValue = lineSpacingValue,
+                onInputValueChange = {
+                    lineSpacingValue = it
+                },
+                onConfirm = {
+                    if (lineSpacingValue.any { !it.isDigit() }) {
+                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        lineSpacingValue =
+                            PreferencesData.getString(PreferencesKeys.LINE_SPACING, "0")
+                    } else if (lineSpacingValue.toInt() < 0) {
+                        rkUtils.toast(context.getString(strings.v_small))
+                        lineSpacingValue =
+                            PreferencesData.getString(PreferencesKeys.LINE_SPACING, "0")
+                    } else {
+                        PreferencesData.setString(
+                            PreferencesKeys.LINE_SPACING,
+                            lineSpacingValue,
+                        )
+                        MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
+                            if (it.get()?.fragment is EditorFragment){
+                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingExtra = lineSpacingValue.toFloat()
+                            }
+                        }
+
+                    }
+                    showLineSpacingDialog = false
+                },
+                onDismiss = { showLineSpacingDialog = false },
+            )
+        }
+
+        if (showLineSpacingMultiplierDialog) {
+            InputDialog(
+                title = stringResource(id = strings.line_spacing_multiplier),
+                inputLabel = stringResource(id = strings.line_spacing_multiplier),
+                inputValue = lineSpacingMultiplierValue,
+                onInputValueChange = {
+                    lineSpacingMultiplierValue = it
+                },
+                onConfirm = {
+                    if (lineSpacingMultiplierValue.any { !it.isDigit() }) {
+                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        lineSpacingMultiplierValue =
+                            PreferencesData.getString(PreferencesKeys.LINE_SPACING_MULTIPLAYER, "1")
+                    } else if (lineSpacingValue.toInt() < 0) {
+                        rkUtils.toast(context.getString(strings.v_small))
+                        lineSpacingMultiplierValue =
+                            PreferencesData.getString(PreferencesKeys.LINE_SPACING_MULTIPLAYER, "1")
+                    } else {
+                        PreferencesData.setString(
+                            PreferencesKeys.LINE_SPACING_MULTIPLAYER,
+                            lineSpacingMultiplierValue,
+                        )
+                        MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
+                            if (it.get()?.fragment is EditorFragment){
+                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingMultiplier = lineSpacingMultiplierValue.toFloat()
+                            }
+                        }
+                    }
+                    showLineSpacingMultiplierDialog = false
+                },
+                onDismiss = { showLineSpacingMultiplierDialog = false },
+            )
         }
 
         if (showAutoSaveDialog) {
