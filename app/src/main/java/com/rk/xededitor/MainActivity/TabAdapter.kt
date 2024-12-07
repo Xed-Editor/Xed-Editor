@@ -243,7 +243,13 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             }
             tabViewModel.fileSet.add(file.absolutePath)
             tabViewModel.fragmentFiles.add(file)
-            tabViewModel.fragmentTitles.add(file.name)
+
+            if(tabViewModel.fragmentTitles.contains(file.name)){
+                tabViewModel.fragmentTitles.add(file.parentFile!!.name+"/"+file.name)
+            }else{
+                tabViewModel.fragmentTitles.add(file.name)
+            }
+
             tabViewModel.fragmentTypes.add(type)
             
             (viewPager?.adapter as? TabAdapter)?.notifyItemInsertedX(
