@@ -12,6 +12,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.nio.charset.Charset
 
 @Suppress("NOTHING_TO_INLINE")
 class KarbonEditor : CodeEditor {
@@ -28,11 +29,11 @@ class KarbonEditor : CodeEditor {
     val scope = CustomScope()
     
     
-    suspend fun loadFile(file:File){
+    suspend fun loadFile(file:File,encoding:Charset){
         withContext(Dispatchers.IO) {
             try {
                 val inputStream: InputStream = FileInputStream(file)
-                val content = ContentIO.createFrom(inputStream)
+                val content = ContentIO.createFrom(inputStream,encoding)
                 inputStream.close()
                 withContext(Dispatchers.Main) { setText(content) }
             } catch (e: Exception) {
@@ -59,12 +60,12 @@ class KarbonEditor : CodeEditor {
         return inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
     
-    suspend fun saveToFile(file:File){
+    suspend fun saveToFile(file:File,encoding:Charset){
         try {
             withContext(Dispatchers.IO){
                 val content = withContext(Dispatchers.Main) { text }
                 val outputStream = FileOutputStream(file, false)
-                ContentIO.writeTo(content, outputStream, true)
+                ContentIO.writeTo(content, outputStream,encoding, true)
             }
         }catch (e:Exception){
             withContext(Dispatchers.Main){

@@ -162,14 +162,14 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 })
 
-//            SettingsToggle(
-//                label = stringResource(strings.default_encoding),
-//                description = stringResource(strings.default_encoding_desc),
-//                showSwitch = false,
-//                sideEffect = {
-//                    navController.navigate(SettingsRoutes.DefaultEncoding.route)
-//                }
-//            )
+            SettingsToggle(
+                label = stringResource(strings.default_encoding),
+                description = stringResource(strings.default_encoding_desc),
+                showSwitch = false,
+                sideEffect = {
+                    navController.navigate(SettingsRoutes.DefaultEncoding.route)
+                }
+            )
 
             SettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),

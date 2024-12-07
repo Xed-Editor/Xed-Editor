@@ -47,12 +47,7 @@
         android:icon="@drawable/terminal"
         android:title="@string/terminal"
         app:showAsAction="ifRoom" />
-    <item
-        android:id="@+id/action_print"
-        android:icon="@drawable/print"
-        android:title="@string/print"
-        android:visible="false"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/search"
         android:icon="@drawable/search"
@@ -96,12 +91,6 @@
         android:visible="false"
         app:showAsAction="always" />
     <item
-        android:id="@+id/git"
-        android:icon="@drawable/git"
-        android:title="@string/git"
-        android:visible="false"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/suggestions"
         android:icon="@drawable/baseline_font_download_24"
         android:title="@string/toggle_suggestion"
@@ -119,5 +108,29 @@
         android:title="@string/refresh"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/tools"
+        android:icon="@drawable/extension"
+        android:title="@string/tools"
+        android:visible="false"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/git"
+                android:icon="@drawable/git"
+                android:title="@string/git"
+                android:visible="false"
+                app:showAsAction="ifRoom" />
+            <item
+                android:id="@+id/action_print"
+                android:icon="@drawable/print"
+                android:title="@string/print"
+                android:visible="false"
+                app:showAsAction="never" />
+        </menu>
+
+    </item>
+
 
 </menu>

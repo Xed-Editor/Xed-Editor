@@ -128,6 +128,7 @@ object MenuItemHandler {
             findItem(Id.suggestions).isVisible = show
             findItem(Id.saveAs).isVisible = show
             findItem(Id.refreshEditor).isVisible = show
+            findItem(Id.tools).isVisible = show
         }
     }
     
