@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="open_drawer">खुला</string>
     <string name="close_drawer">पास में</string>
@@ -86,8 +87,6 @@
     <string name="description">विवरण</string>
     <string name="plugin_icon">प्लग-इन आइकन</string>
     <string name="download">डाउनलोड करना</string>
-
-
     <string name="git">गिट</string>
     <string name="cred">साख</string>
     <string name="inavalid_git_cred">क्रेडेंशियल मान्य नहीं हैं. उन्हें सेटिंग्स में बदलें</string>
@@ -201,7 +200,6 @@
     <string name="monet">गतिशील रंग</string>
     <string name="monet_desc">ऐप में डिवाइस थीम का उपयोग करें।</string>
     <string name="restart_app">कृपया एप्लिकेशन पुनः प्रारंभ करें.</string>
-
     <string name="old_android">असमर्थित Android संस्करण</string>
     <string name="app_desc">एप्लिकेशन के लिए सामान्य सेटिंग्स</string>
     <string name="editor_desc">संपादक के लिए सामान्य सेटिंग्स</string>
@@ -229,13 +227,11 @@
     <string name="unsupported_aarch">असमर्थित प्लेटफ़ॉर्म, फ़ेल सेफ़ का उपयोग करें</string>
     <string name="pkg_download_failed">पैकेज डाउनलोड विफल रहा</string>
     <string name="copy_failed">फ़ाइल कॉपी करने में विफल</string>
-
     <string name="install_done">सफलतापूर्वक स्थापित किया गया</string>
     <string name="invalid_file_type">अमान्य फ़ाइल प्रकार, ज़िप फ़ाइल अपेक्षित</string>
     <string name="install_failed">स्थापित करने में विफल</string>
     <string name="choose_zip">इसे स्थापित करने के लिए स्टोरेज से प्लगइन ज़िप फ़ाइल का चयन करें।</string>
     <string name="choose_file">फ़ाइल का चयन करें</string>
-
     <string name="force_char">ड्विंग चार</string>
     <string name="force_char_desc">टर्मिनल में फोर्स चार-आधारित इनपुट</string>
     <string name="useCtrlWorkaround">Ctrl वर्कअराउंड का उपयोग करें</string>
@@ -246,20 +242,15 @@
     <string name="force_desktop_desc">छोटी स्क्रीन वाले उपकरणों पर डेस्कटॉप लेआउट लागू करें</string>
     <string name="force_normal">सामान्य मोड लागू करें</string>
     <string name="force_normal_desc">बड़ी स्क्रीन वाले उपकरणों पर सामान्य लेआउट लागू करें</string>
-
     <string name="light_mode">निम्न आय वर्ग</string>
     <string name="dark_mode">अँधेरा</string>
     <string name="auto_mode">अजीब</string>
-    <string name="select_theme_mode" >थीम मोड चुनें</string>
-
+    <string name="select_theme_mode">थीम मोड चुनें</string>
     <string name="cannot_be_empty">यह खाली नहीं हो सकता.</string>
-
     <string name="theme_mode">थीम-मोड</string>
     <string name="theme_mode_desc">थीम मोड को ऑटो, लाइट या डार्क में बदलें।</string>
-
     <string name="no_plugins_available">कोई प्लगइन्स उपलब्ध नहीं है</string>
     <string name="show_suggestions">सुझावों को दिखाओ</string>
-
     <string name="about">ऊपर</string>
     <string name="about_desc">कार्बन के बारे में</string>
     <string name="version">संस्करण</string>
@@ -269,24 +260,42 @@
     <string name="telegram">टेलीग्राम समूह</string>
     <string name="telegram_desc">टेलीग्राम समुदाय से जुड़ें</string>
     <string name="join">जोड़ना</string>
-
     <string name="show_virtual_keyboard">वर्चुअल कीबोर्ड दिखाएँ</string>
     <string name="show_virtual_keyboard_desc">भौतिक कीबोर्ड कनेक्ट होने पर वर्चुअल कीबोर्ड दिखाएं</string>
-
     <string name="git_commit">गिट कमिट हैश</string>
-
     <string name="check_for_updates">अद्यतन के लिए जाँच</string>
     <string name="check_for_updates_desc">अपडेट के लिए अक्सर जाँच करें</string>
-
     <string name="click_open">फ़ाइल खोलने के लिए यहां क्लिक करें</string>
     <string name="no">नी</string>
     <string name="file_too_large">फ़ाइल खोलने के लिए बहुत बड़ी है</string>
     <string name="toggle_suggestion">परिवर्तन का प्रस्ताव</string>
     <string name="run">दौड़ना</string>
-
     <string name="txt_ww">txt फ़ाइलें लपेटें</string>
     <string name="txt_ww_desc">टेक्स्ट फ़ाइलों को स्वचालित रूप से लपेटें</string>
-
     <string name="sora_s">सोरा पाठ खोज</string>
     <string name="sora_s_desc">सोरा पाठ खोज का प्रयोग करें</string>
+    <string name="manage_editor_font">एडिटर के फोंट मैनेज करें</string>
+    <string name="default_encoding">डिफॉल्ट इनकोडिंग</string>
+    <string name="other">अन्य</string>
+    <string name="content">कंटेंट</string>
+    <string name="fonts">फोंट</string>
+    <string name="font_added">फॉन्ट जुड़ गया</string>
+    <string name="delete_font">फॉन्ट हटाएं</string>
+    <string name="add_font">नया फॉन्ट जोड़े</string>
+    <string name="add_font_desc">स्टोरेज में से ttf फोंट जोड़े</string>
+    <string name="install_termux">F-Droid से Termux इंस्टॉल करें</string>
+    <string name="termux_exec">Termux Exec</string>
+    <string name="Save_as">अलग जगह सेव करें</string>
+    <string name="file_not_saved">कुछ फाइलें सेव नहीं हैं</string>
+    <string name="file_unsaved">फाइल सेव नहीं है</string>
+    <string name="ask_unsaved">सेव न की गई फाइल को हटाएं?</string>
+    <string name="keep_editing">एडिट करते रहें</string>
+    <string name="discard">छोड़ें</string>
+    <string name="tools">टूल्स</string>
+    <string name="line_spacing">लाईन की दूरी</string>
+    <string name="gestures">जेस्टर</string>
+    <string name="warning">चेतावनी</string>
+    <string name="default_encoding_desc">फाइलों की इनकोडिंग</string>
+    <string name="termux_exec_guide_desc">Termux Exec को चालू करने के लिए गाइड</string>
+    <string name="encoding_warning">डिफ़ॉल्ट एनकोडिंग को बदलना हतोत्साहित किया जाता है, क्योंकि इससे फाइलें खराब हो सकती हैं। यह दृढ़ता से अनुशंसा की जाती है कि जब तक आप इसके प्रभावों को पूरी तरह नहीं समझते और उपयुक्त बैकअप तैयार नहीं करते, तब तक UTF-8 का उपयोग करें।</string>
 </resources>
