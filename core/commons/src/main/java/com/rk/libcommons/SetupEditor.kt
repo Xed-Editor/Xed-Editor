@@ -80,7 +80,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                     ).show()
                     kotlin.runCatching {
                         editor.typefaceText =
-                            Typeface.createFromAsset(editor.context.assets, "font.ttf")
+                            Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
                     }
                 }
             }
@@ -93,24 +93,19 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
     suspend fun setupLanguage(fileName: String) {
         when (fileName.substringAfterLast('.', "")) {
             "java", "bsh" -> setLanguage("source.java")
-
             "html" -> setLanguage("text.html.basic")
             "kt", "kts" -> setLanguage("source.kotlin")
-
             "py" -> setLanguage("source.python")
             "xml" -> setLanguage("text.xml")
             "js" -> setLanguage("source.js")
             "md" -> setLanguage("text.html.markdown")
             "c" -> setLanguage("source.c")
             "cpp", "h" -> setLanguage("source.cpp")
-
             "json" -> setLanguage("source.json")
             "css" -> setLanguage("source.css")
             "cs" -> setLanguage("source.cs")
             "yml", "eyaml", "eyml", "yaml", "cff" -> setLanguage("source.yaml")
-
             "sh", "bash" -> setLanguage("source.shell")
-
             "rs" -> setLanguage("source.rust")
             "lua" -> setLanguage("source.lua")
             "php" -> setLanguage("source.php")
