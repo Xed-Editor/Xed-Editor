@@ -1,2 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="open_drawer">buka</string>
+    <string name="close_drawer">Tutup</string>
+    <string name="title_activity_batch_replacement">ganti semua</string>
+    <string name="ni">Fitur ini tidak diterapkan</string>
+    <string name="unsupported_contnt">konten tidak support</string>
+    <string name="null_contnt">terjadi kesalahan: isinya adalah null</string>
+    <string name="restart_required">Muat ulang tersedia</string>
+    <string name="save">file di simpan</string>
+    <string name="saveAll">simpan semua file</string>
+    <string name="save_label">simpan</string>
+    <string name="ww_wait">Harap tunggu sampai pembungkusan kata selesai</string>
+    <string name="open_file_or_folder">Buka di file apa di folder</string>
+    <string name="open_file">buka di file</string>
+    <string name="open_directory">buka di direktori</string>
+    <string name="new_file">File baru</string>
+    <string name="newFile_hint">Nama eg. test.txt</string>
+    <string name="mime">TipeMine eg. text/plain</string>
+    <string name="rep">Penggantian</string>
+    <string name="searck_keyword">cari kata kunci</string>
+    <string name="cs">Kasus Sensitif</string>
+    <string name="report_issue">Laporkan masalah</string>
+    <string name="save_all">simpan semua</string>
+    <string name="save_1">simpan</string>
+    <string name="wait">mohon Tunggu…</string>
+    <string name="copy">salin</string>
+</resources>
