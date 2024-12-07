@@ -34,6 +34,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.nio.charset.Charset
 
 
 @Suppress("NOTHING_TO_INLINE")
@@ -142,7 +143,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 kotlin.runCatching {
 
                     file?.let {
-                        editor?.loadFile(it)
+                        editor?.loadFile(it,Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())))
                     }
                     MainActivity.activityRef.get()?.let { activity ->
                         val index = activity.tabViewModel.fragmentFiles.indexOf(file)
@@ -228,7 +229,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }
             } else {
                 launch {
-                    editor!!.loadFile(file);FilesContent.setContent(
+                    editor!!.loadFile(file,Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())));FilesContent.setContent(
                     this@EditorFragment.file!!.absolutePath, editor!!.text.toString()
                 )
                 }
@@ -260,7 +261,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             return
         }
         scope.launch(Dispatchers.IO) {
-            editor?.saveToFile(file!!)
+            editor?.saveToFile(file!!,Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())))
             try {
                 MainActivity.activityRef.get()?.let { activity ->
                     val index = activity.tabViewModel.fragmentFiles.indexOf(file)
