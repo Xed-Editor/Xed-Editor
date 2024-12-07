@@ -54,7 +54,7 @@
     <string name="saveexit">Сохранить и выйти</string>
     <string name="exit">Выйти</string>
     <string name="rr">Требуется перезапуск</string>
-    <string name="rapply">Перезапустите, чтобы применить настройки.</string>
+    <string name="rapply">Перезапустите, чтобы применить настройки</string>
     <string name="oled">Тема: \"Черная ночь\"</string>
     <string name="ww">Перенос слов</string>
     <string name="keepdl">Оставить панель закрытой</string>
@@ -69,7 +69,7 @@
     <string name="ask_enter_name">Пожалуйста, введите имя</string>
     <string name="already_exists">Файл/папка с таким именем уже существует</string>
     <string name="attention">Внимание</string>
-    <string name="ask_del">Вы уверены, что хотите удалить?</string>
+    <string name="ask_del">Вы уверены, что хотите удалить</string>
     <string name="redir">Пожалуйста, выберите каталог еще раз</string>
     <string name="canthandle">Не найдено приложение для обработки файла</string>
     <string name="clipboardempty">Буфер обмена пуст</string>
@@ -241,7 +241,7 @@
     <string name="force_desktop">Принудительный режим рабочего стола</string>
     <string name="force_desktop_desc">Принудительно использовать макет рабочего стола на устройствах с меньшим экраном</string>
     <string name="force_normal">Принудительный нормальный режим</string>
-    <string name="force_normal_desc">Принудительно использовать обычный макет на устройствах с большим экраном.</string>
+    <string name="force_normal_desc">Принудительно использовать обычный макет на устройствах с большим экраном</string>
     <string name="light_mode">Светлая</string>
     <string name="dark_mode">Темная</string>
     <string name="auto_mode">Автоматическая</string>
@@ -296,4 +296,7 @@
     <string name="keep_editing">Продолжить редактирование</string>
     <string name="discard">Отказаться</string>
     <string name="file_not_saved">Некоторые файлы не сохранены</string>
+    <string name="tools">Инструменты</string>
+    <string name="warning">Предупреждение</string>
+    <string name="encoding_warning">Изменение кодировки по умолчанию крайне не рекомендуется, так как это может привести к повреждению файла. Настоятельно рекомендуется использовать UTF-8, если вы не полностью понимаете последствия и не создали надлежащие резервные копии.</string>
 </resources>
