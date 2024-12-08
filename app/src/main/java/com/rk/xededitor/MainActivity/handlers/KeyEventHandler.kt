@@ -17,28 +17,27 @@ import io.github.rosemoe.sora.interfaces.KeyEventHandler
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.EditorKeyEventHandler
 object KeyEventHandler {
+
     init {
-        EditorKeyEventHandler.userKeyEventHandler = object : KeyEventHandler{
-            override fun onKeyEvent(
-                isProcessedByEditor: Boolean,
-                editor: CodeEditor?,
-                event: KeyEvent?,
-                editorKeyEvent: EditorKeyEvent?,
-                keybindingEvent: KeyBindingEvent?,
-                keyCode: Int,
-                isShiftPressed: Boolean,
-                isAltPressed: Boolean,
-                isCtrlPressed: Boolean
-            ): Boolean {
+        EditorKeyEventHandler.userKeyEventHandler =
+            KeyEventHandler { isProcessedByEditor, editor, event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
                 if (event != null) {
                     onAppKeyEvent(event)
                 }
-                return isProcessedByEditor
+                isProcessedByEditor
             }
-            
-        }
     }
+
+    private var lastCallTime = 0L
     fun onAppKeyEvent(keyEvent: KeyEvent) {
+
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastCallTime >= 100) {
+            lastCallTime = currentTime
+        }else{
+            return
+        }
+
         val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
         val editor = if (currentFragment?.type == FragmentType.EDITOR) {
             (currentFragment.fragment as EditorFragment).editor
