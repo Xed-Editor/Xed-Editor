@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">Karbon 编辑器</string>
     <string name="open_drawer">打开侧栏</string>
@@ -87,8 +88,6 @@
     <string name="description">描述</string>
     <string name="plugin_icon">插件图标</string>
     <string name="download">下载</string>
-
-
     <string name="git">Git</string>
     <string name="cred">凭据</string>
     <string name="inavalid_git_cred">凭据无效，请在设置里重新注入</string>
@@ -202,7 +201,6 @@
     <string name="monet">随系统变换颜色</string>
     <string name="monet_desc">意思是在程序中使用本机主题色调</string>
     <string name="restart_app">辛苦大人重启一下应用</string>
-
     <string name="old_android">不支持该版本的安卓</string>
     <string name="app_desc">本程序的全部可修改的设置</string>
     <string name="editor_desc">编辑器的全部可修改的设置</string>
@@ -230,13 +228,11 @@
     <string name="unsupported_aarch">不支持该平台, 即将使用 安全失效(Fail Safe)</string>
     <string name="pkg_download_failed">文件包下载失败了</string>
     <string name="copy_failed">无法复制文件</string>
-
     <string name="install_done">安装好啦</string>
     <string name="invalid_file_type">未知文件类型，我想要的是 zip 压缩包</string>
     <string name="install_failed">安装失败了</string>
     <string name="choose_zip">在本机储存空间里选择zip压缩包来进行插件的安装</string>
     <string name="choose_file">选择文件</string>
-
     <string name="force_char">强制字符</string>
     <string name="force_char_desc">意思是在终端中采用以强制字符为基础的的输入</string>
     <string name="useCtrlWorkaround">使用 Ctrl 解决方式</string>
@@ -247,20 +243,15 @@
     <string name="force_desktop_desc">我会在小屏设备上强制使用桌面版模式</string>
     <string name="force_normal">强制使用普通模式</string>
     <string name="force_normal_desc">我会在大屏设备上强制使用普通模式</string>
-
     <string name="light_mode">纯白主题</string>
     <string name="dark_mode">暗黑主题</string>
     <string name="auto_mode">日夜自动切换</string>
     <string name="select_theme_mode">设置主题模式</string>
-
     <string name="cannot_be_empty">此处不可以留空哦</string>
-
     <string name="theme_mode">主题模式</string>
     <string name="theme_mode_desc">我可以把主题模式更改为纯白主题、暗黑主题还有日夜自动切换模式</string>
-
     <string name="no_plugins_available">没有可用插件</string>
     <string name="show_suggestions">显示输入法提示词</string>
-
     <string name="about">软件介绍(About)</string>
     <string name="about_desc">我来介绍一下 Karbon 吧(About Karbon)</string>
     <string name="version">版本(Version)</string>
@@ -270,25 +261,45 @@
     <string name="telegram">电报(Telegram) 群组</string>
     <string name="telegram_desc">愣着干啥，还不赶紧加入 Telegram 社区群组</string>
     <string name="join">点击加入</string>
-
     <string name="show_virtual_keyboard">显示虚拟键盘</string>
     <string name="show_virtual_keyboard_desc">我是说就算有外部物理键盘连上了，依然还要显示虚拟键盘</string>
-
     <string name="git_commit">Git 提交 Hash 值</string>
-
     <string name="check_for_updates">检查更新</string>
     <string name="check_for_updates_desc">定期自动检查更新</string>
-
     <string name="click_open">请主人点击这里打开文件哟</string>
     <string name="no">不是</string>
     <string name="file_too_large">文件过大，我无法打开</string>
     <string name="toggle_suggestion">输入法显示提示词</string>
     <string name="run">运行</string>
-
     <string name="txt_ww">文本文件换行</string>
     <string name="txt_ww_desc">我会将文本文件自动换行</string>
-
     <string name="sora_s">Sora 文本搜索</string>
     <string name="sora_s_desc">使用 Sora 文本搜索</string>
-
+    <string name="default_encoding">默认编码</string>
+    <string name="default_encoding_desc">打开或创建文件时采用默认编码</string>
+    <string name="other">其他</string>
+    <string name="content">文本内容</string>
+    <string name="fonts">字体</string>
+    <string name="font_added">已成功添加字体</string>
+    <string name="delete_font">删除字体</string>
+    <string name="add_font_desc">从手机内部储存中选择 ttf 字体文件</string>
+    <string name="install_termux">从 F-Droid 开源软件市场安装 Termux 终端</string>
+    <string name="termux_exec_guide">Termux 终端执行 exec 这项操作的说明书</string>
+    <string name="termux_exec_guide_desc">启用 Termux 终端执行 exec 操作的说明书</string>
+    <string name="gestures">手势习惯</string>
+    <string name="config_gestures">配置手势习惯</string>
+    <string name="Save_as">另存为</string>
+    <string name="file_not_saved">还有文件没有保存呢，哥哥</string>
+    <string name="file_unsaved">文件未保存</string>
+    <string name="ask_unsaved">哥哥，您不想要了吗？</string>
+    <string name="keep_editing">继续编辑</string>
+    <string name="discard">不要了</string>
+    <string name="warning">⚠警告</string>
+    <string name="line_spacing">行距</string>
+    <string name="line_spacing_multiplier">行间距倍数</string>
+    <string name="tools">工具</string>
+    <string name="manage_editor_font">字体管理</string>
+    <string name="add_font">添加新字体</string>
+    <string name="termux_exec">Termux 终端执行 exec 替换进程并运行新命令</string>
+    <string name="encoding_warning">求哥哥不要改变当前文档的默认编码，可能会导致文件坏掉的。强烈建议哥哥采用 UTF-8 万国文字码。除非哥哥您完全掌握相应的知识，做好了备份。</string>
 </resources>
