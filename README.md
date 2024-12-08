@@ -30,7 +30,7 @@
 - [x] **Keybindings** ([View available keybindings](/docs/KEYBINDS.md))
 ---
 ## Community
-
+> [!TIP]
 Join the Karbon community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
 ---
@@ -49,6 +49,8 @@ Join the Karbon community to stay updated and engage with other users:
 </div>
 
 ### Recommended Installation
+> [!IMPORTANT]
+Release builds on F-Droid Izzy and GitHub releases can become outdated quickly. Please use the action builds if the release is older than a few weeks.
 
 - **Latest Alpha Build**: Download from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
 - **Latest Stable Build**: Download from [Releases](https://github.com/Xed-Editor/Xed-Editor/releases)
