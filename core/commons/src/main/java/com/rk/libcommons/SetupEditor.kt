@@ -75,6 +75,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
             lineSpacingExtra = getString(PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()).toFloat()
             lineSpacingMultiplier = getString(PreferencesKeys.LINE_SPACING_MULTIPLAYER,lineSpacingMultiplier.toString()).toFloat()
+
             kotlin.runCatching { applyFont(this) }.onFailure {
                 scope.launch(Dispatchers.Main) {
                     Toast.makeText(
@@ -148,7 +149,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }
             } else {
                 println("fallback: font Path is empty")
-                editor.typefaceText = Typeface.createFromAsset(editor.context.assets, "font.ttf")
+                editor.typefaceText = Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
             }
             editor.invalidate()
         }
