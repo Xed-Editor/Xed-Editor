@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="open_drawer">açık</string>
-    <string name="close_drawer">yakın</string>
-    <string name="title_activity_batch_replacement">Toplu Vervanging</string>
+    <string name="close_drawer">Kapat</string>
+    <string name="title_activity_batch_replacement">Toplu Değiştirme</string>
     <string name="ni">Bu özellik uygulanmadı</string>
     <string name="unsupported_contnt">Desteklenmeyen içerik</string>
     <string name="null_contnt">Hata: İçerik sıfır</string>
@@ -15,27 +16,27 @@
     <string name="open_directory">Bir dizin aç</string>
     <string name="new_file">Yeni dosya</string>
     <string name="newFile_hint">Ad ör. Test.txt</string>
-    <string name="mime">MimeType bv. teks/plain</string>
+    <string name="mime">MimeType bv. metin/plain</string>
     <string name="rep">Yenisiyle değiştirme</string>
     <string name="searck_keyword">Anahtar kelimeyi ara</string>
     <string name="cs">Harfe duyarlı</string>
-    <string name="wait">Lütfen bekleyin...</string>
+    <string name="wait">Lütfen bekleyin…</string>
     <string name="report_issue">Sorunu bildir</string>
     <string name="copy">Kopyala</string>
     <string name="save_all">Her şeyi kaydet</string>
     <string name="save_1">Kaydetmek</string>
-    <string name="undo">Kurtul</string>
-    <string name="settings">Kurumlar</string>
-    <string name="print">Meşgul</string>
-    <string name="search">Aramak</string>
+    <string name="undo">Geri al</string>
+    <string name="settings">Ayarlar</string>
+    <string name="print">Yazdır</string>
+    <string name="search">Arama</string>
     <string name="go_next">Sonrakine Git</string>
     <string name="go_prev">Öncekine Git.</string>
     <string name="close_search">Aramayı Kapat</string>
     <string name="replace">Yer değiştirmek</string>
-    <string name="share">Parça</string>
+    <string name="share">Paylaş</string>
     <string name="reselect">Yeniden seç</string>
     <string name="openfile">Dosyayı aç</string>
-    <string name="new_folder">Yeni rehber</string>
+    <string name="new_folder">Yeni Dosya</string>
     <string name="new_file_1">Yeni dosya</string>
     <string name="rename">Yeniden isimlendirmek</string>
     <string name="open_with">Şununla aç:</string>
@@ -86,8 +87,6 @@
     <string name="description">Tanım</string>
     <string name="plugin_icon">Eklenti simgesi</string>
     <string name="download">indirmek</string>
-
-
     <string name="git">Git</string>
     <string name="cred">Kimlik bilgileri</string>
     <string name="inavalid_git_cred">Kimlik bilgileri geçerli değil. Bunları ayarlarda değiştirin</string>
@@ -201,7 +200,6 @@
     <string name="monet">Dinamik renkler</string>
     <string name="monet_desc">Uygulamada cihaz temasını kullanın.</string>
     <string name="restart_app">Lütfen uygulamayı yeniden başlatın.</string>
-
     <string name="old_android">Desteklenmeyen Android sürümü</string>
     <string name="app_desc">Uygulamaya ilişkin genel ayarlar</string>
     <string name="editor_desc">Editör için genel ayarlar</string>
@@ -229,13 +227,11 @@
     <string name="unsupported_aarch">Desteklenmeyen platform, Fail Safe"i kullanın</string>
     <string name="pkg_download_failed">Paket indirme işlemi başarısız oldu</string>
     <string name="copy_failed">Dosya kopyalanamadı</string>
-
     <string name="install_done">Başarıyla kuruldu</string>
     <string name="invalid_file_type">Geçersiz dosya türü, zip dosyası bekleniyor</string>
     <string name="install_failed">Yükleme başarısız oldu</string>
     <string name="choose_zip">Yüklemek için depolama alanından eklenti zip dosyasını seçin.</string>
     <string name="choose_file">Dosya seç</string>
-
     <string name="force_char">Kanatlı Char</string>
     <string name="force_char_desc">Terminalde Char tabanlı girişi zorla</string>
     <string name="useCtrlWorkaround">Ctrl Geçici Çözümünü Kullan</string>
@@ -246,20 +242,15 @@
     <string name="force_desktop_desc">Daha küçük ekranlı cihazlarda masaüstü düzenini zorunlu kılın</string>
     <string name="force_normal">Normal modu zorunlu kıl</string>
     <string name="force_normal_desc">Büyük ekranlı cihazlarda normal düzeni zorla</string>
-
     <string name="light_mode">Lig</string>
     <string name="dark_mode">Karanlık</string>
     <string name="auto_mode">Garip</string>
-    <string name="select_theme_mode" >Tema Modunu Seçin</string>
-
+    <string name="select_theme_mode">Tema Modunu Seçin</string>
     <string name="cannot_be_empty">Boş olamaz.</string>
-
     <string name="theme_mode">Tema modu</string>
     <string name="theme_mode_desc">Tema modunu otomatik, açık veya koyu olarak değiştirin.</string>
-
     <string name="no_plugins_available">Kullanılabilir eklenti yok</string>
     <string name="show_suggestions">Önerileri göster</string>
-
     <string name="about">Üzerinde</string>
     <string name="about_desc">Karbon Hakkında</string>
     <string name="version">Sürüm</string>
@@ -269,24 +260,45 @@
     <string name="telegram">Telgraf Grubu</string>
     <string name="telegram_desc">Telegram Topluluğuna Katılın</string>
     <string name="join">Bağlamak</string>
-
     <string name="show_virtual_keyboard">Sanal klavyeyi göster</string>
     <string name="show_virtual_keyboard_desc">Fiziksel klavye bağlandığında sanal klavyeyi göster</string>
-
     <string name="git_commit">Git Commit Hash</string>
-
     <string name="check_for_updates">Güncellemeleri kontrol edin</string>
     <string name="check_for_updates_desc">Güncellemeleri sık sık kontrol edin</string>
-
     <string name="click_open">Dosyayı açmak için burayı tıklayın</string>
     <string name="no">Hayır</string>
     <string name="file_too_large">Dosya açılamayacak kadar büyük</string>
     <string name="toggle_suggestion">Teklifi değiştir</string>
     <string name="run">Koşmak</string>
-
     <string name="txt_ww">Txt dosyalarını sarma</string>
     <string name="txt_ww_desc">Metin dosyalarını otomatik olarak kaydır</string>
-
     <string name="sora_s">Sora metin araması</string>
     <string name="sora_s_desc">Sora metin aramasını kullanma</string>
+    <string name="manage_editor_font">Editörün Yazı Tiplerini Yönet</string>
+    <string name="default_encoding">Varsayılan Kodlama</string>
+    <string name="default_encoding_desc">Dosya açarken ve oluştururken Varsayılan Kodlama</string>
+    <string name="other">Diğer</string>
+    <string name="content">İçerik</string>
+    <string name="fonts">Yazı Tipleri</string>
+    <string name="font_added">Yazı Tipi Başarıyla eklendi</string>
+    <string name="delete_font">Yazı Tipini Sil</string>
+    <string name="add_font">Yeni Yazı Tipi Ekle</string>
+    <string name="add_font_desc">Depodan bir ttf yazı tipi seçin</string>
+    <string name="install_termux">Termux\'u F-Droid\'den yükleyin</string>
+    <string name="termux_exec">Termux Yöneticisi</string>
+    <string name="termux_exec_guide">Termux Yönetici Dokümanları</string>
+    <string name="termux_exec_guide_desc">Termux Yöneticisinu Etkinleştirmek için Belgeler</string>
+    <string name="gestures">Hareketler</string>
+    <string name="config_gestures">Hareketleri Yapılandırma</string>
+    <string name="Save_as">Farklı Kaydet</string>
+    <string name="file_not_saved">Bazı dosyalar kaydedilemiyor</string>
+    <string name="file_unsaved">Dosya Kaydedilmemiş</string>
+    <string name="ask_unsaved">Bu kaydedilmemiş belgeyi atmak istediğinizden emin misiniz?</string>
+    <string name="keep_editing">Düzenlemeye Devam Et</string>
+    <string name="discard">Atma</string>
+    <string name="tools">Araçlar</string>
+    <string name="warning">Uyarı</string>
+    <string name="encoding_warning">Dosya bozulmasına yol açabileceğinden, varsayılan kodlamanın değiştirilmesi kesinlikle önerilmez. Etkilerini tam olarak anlamadığınız ve uygun yedeklemeler oluşturmadığınız sürece UTF-8 kullanmanız şiddetle tavsiye edilir.</string>
+    <string name="line_spacing">Satır Aralığı</string>
+    <string name="line_spacing_multiplier">Satır Aralığı Çarpanı</string>
 </resources>
