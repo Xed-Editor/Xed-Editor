@@ -16,7 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.karbon_exec.runBashScript
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
@@ -26,19 +25,13 @@ import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
-import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.R
-import com.rk.libcommons.SetupEditor
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.databinding.ActivityTabBinding
-import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.ref.WeakReference
 

@@ -8,12 +8,11 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.KarbonEditor
-import com.rk.libcommons.SearchPanel
-import com.rk.libcommons.SetupEditor
+import com.rk.libcommons.editor.SearchPanel
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -27,8 +26,6 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

@@ -1,23 +1,25 @@
-package com.rk.libcommons
+package com.rk.libcommons.editor
 
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.util.Pair
+import android.util.TypedValue
 import android.view.KeyEvent
+import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
+import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
-import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
+import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.R
+import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesData.getBoolean
-import com.rk.settings.PreferencesData.getString
-import com.rk.settings.PreferencesData.isDarkMode
 import com.rk.settings.PreferencesKeys
-import io.github.rosemoe.sora.R
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -28,6 +30,8 @@ import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolInputView
+import io.github.rosemoe.sora.widget.component.DefaultCompletionItemAdapter
+import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
@@ -58,23 +62,31 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
         scope.launch { ensureTextmateTheme(ctx) }
         with(editor) {
-            val tabSize = getString(PreferencesKeys.TAB_SIZE, "4").toInt()
+            val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
             props.deleteMultiSpaces = tabSize
             tabWidth = tabSize
             props.deleteEmptyLineFast = false
             props.useICULibToSelectWords = true
-            setPinLineNumber(getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
-            isLineNumberEnabled = getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
-            isCursorAnimationEnabled = getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
-            setTextSize(getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
+            setPinLineNumber(PreferencesData.getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
+            isLineNumberEnabled =
+                PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
+            isCursorAnimationEnabled =
+                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
+            setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
             setWordwrap(
-                getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false),
-                getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true)
+                PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false),
+                PreferencesData.getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true)
             )
-            showSuggestions(getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
-            lineSpacingExtra = getString(PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()).toFloat()
-            lineSpacingMultiplier = getString(PreferencesKeys.LINE_SPACING_MULTIPLAYER,lineSpacingMultiplier.toString()).toFloat()
+            showSuggestions(PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
+            lineSpacingExtra = PreferencesData.getString(
+                PreferencesKeys.LINE_SPACING,
+                lineSpacingExtra.toString()
+            ).toFloat()
+            lineSpacingMultiplier = PreferencesData.getString(
+                PreferencesKeys.LINE_SPACING_MULTIPLAYER,
+                lineSpacingMultiplier.toString()
+            ).toFloat()
             kotlin.runCatching { applyFont(this) }.onFailure {
                 scope.launch(Dispatchers.Main) {
                     Toast.makeText(
@@ -86,6 +98,16 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                     }
                 }
             }
+
+            getComponent(EditorAutoCompletion::class.java).setLayout(object : DefaultCompletionLayout() {
+                override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
+                    val typedValue = TypedValue()
+                    ctx.theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
+                    val colorSurface = typedValue.data
+                    (completionList.parent as? ViewGroup)?.background = ColorDrawable(colorSurface)
+                }
+            })
+
         }
 
 
@@ -122,6 +144,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         private var lightThemeRegistry: ThemeRegistry? = null
         private val mutex = Mutex()
         private var job: Job? = null
+
         @OptIn(DelicateCoroutinesApi::class)
         suspend fun init() {
             job = GlobalScope.launch {
@@ -138,9 +161,10 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         }
 
         fun applyFont(editor: CodeEditor) {
-            val fontPath = getString(PreferencesKeys.SELECTED_FONT_PATH, "")
+            val fontPath = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
             if (fontPath.isNotEmpty()) {
-                val isAsset = getBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, false)
+                val isAsset =
+                    PreferencesData.getBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, false)
                 if (isAsset) {
                     editor.typefaceText = Typeface.createFromAsset(editor.context.assets, fontPath)
                 } else {
@@ -148,7 +172,8 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }
             } else {
                 println("fallback: font Path is empty")
-                editor.typefaceText = Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
+                editor.typefaceText =
+                    Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
             }
             editor.invalidate()
         }
@@ -218,10 +243,13 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
     suspend fun ensureTextmateTheme(ctx: Context) {
         //init(ctx)
-        val darkTheme: Boolean = when (getString(PreferencesKeys.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+        val darkTheme: Boolean = when (PreferencesData.getString(
+            PreferencesKeys.DEFAULT_NIGHT_MODE,
+            "-1"
+        ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(ctx)
+            else -> PreferencesData.isDarkMode(ctx)
         }
 
         val themeRegistry = when {
@@ -232,7 +260,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
-            if (isDarkMode(ctx) && PreferencesData.isOled()) {
+            if (PreferencesData.isDarkMode(ctx) && PreferencesData.isOled()) {
                 editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
             withContext(Dispatchers.Main) {
@@ -246,10 +274,14 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         fun hapticFeedBack(view: View) {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
         }
-        val darkTheme: Boolean = when (getString(PreferencesKeys.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+
+        val darkTheme: Boolean = when (PreferencesData.getString(
+            PreferencesKeys.DEFAULT_NIGHT_MODE,
+            "-1"
+        ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(ctx)
+            else -> PreferencesData.isDarkMode(ctx)
         }
 
         return SymbolInputView(ctx).apply {
@@ -259,13 +291,12 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 Color.BLACK
             }
 
-            val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
+            val keys = mutableListOf<Pair<String, View.OnClickListener>>().apply {
                 add(Pair("->", onClick {
                     hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
                     )
-
 
 
                 }))
@@ -339,5 +370,3 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         }
     }
 }
-
-
