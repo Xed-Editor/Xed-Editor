@@ -8,6 +8,8 @@ import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
 import com.rk.libcommons.isAppInBackground
 import com.rk.resources.Res
+import com.rk.scriptingengine.JavaScript
+import com.rk.scriptingengine.JavaScriptAPI
 import com.rk.settings.PreferencesData
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
@@ -43,8 +45,6 @@ class App : Application() {
         super.onCreate()
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
-        val appLifecycleTracker = AppLifecycleTracker()
-        registerActivityLifecycleCallbacks(appLifecycleTracker)
 
         GlobalScope.launch(Dispatchers.IO) {
             launch(Dispatchers.IO) {
@@ -68,40 +68,15 @@ class App : Application() {
                 e.printStackTrace()
             }
 
-        }
 
+
+        }
 
     }
 
     override fun onTerminate() {
         getTempDir().deleteRecursively()
         super.onTerminate()
-    }
-
-    class AppLifecycleTracker : Application.ActivityLifecycleCallbacks {
-
-        private var activityCount = 0
-
-        fun isAppInForeground(): Boolean {
-            return activityCount > 0
-        }
-
-        override fun onActivityResumed(activity: Activity) {
-            activityCount++
-            isAppInBackground = isAppInForeground()
-        }
-
-        override fun onActivityPaused(activity: Activity) {
-            activityCount--
-            isAppInBackground = isAppInForeground()
-        }
-
-        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        }
-        override fun onActivityStarted(activity: Activity) {}
-        override fun onActivityStopped(activity: Activity) {}
-        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {}
-        override fun onActivityDestroyed(activity: Activity) {}
     }
 
 }

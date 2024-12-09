@@ -197,7 +197,8 @@ dependencies {
     implementation(project(":editor:language-textmate"))
     implementation(project(":core:resources"))
     implementation(project(":core:karbon-exec"))
-    
+    implementation(project(":core:ScriptingEngine"))
+
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
