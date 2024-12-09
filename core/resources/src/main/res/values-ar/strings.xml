@@ -296,4 +296,9 @@
     <string name="content">المحتوى</string>
     <string name="fonts">الخطوط</string>
     <string name="font_added">لقد تمت اضافة الخط بنجاح</string>
+    <string name="tools">الأدوات</string>
+    <string name="line_spacing">بعد الخطوط</string>
+    <string name="line_spacing_multiplier">مضعف بعد الخطوط</string>
+    <string name="warning">تحذير</string>
+    <string name="encoding_warning">لا ينصح بشدة بتغيير الترميز الافتراضي، حيث قد يؤدي ذلك إلى تلف الملف. يوصى بشدة باستخدام UTF-8 ما لم تكن تفهم تمامًا العواقب المترتبة على ذلك وقمت بإنشاء نسخ احتياطية مناسبة.</string>
 </resources>
