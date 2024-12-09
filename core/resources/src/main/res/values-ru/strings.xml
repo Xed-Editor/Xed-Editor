@@ -36,12 +36,12 @@
     <string name="share">Поделиться</string>
     <string name="reselect">Выбрать повторно</string>
     <string name="openfile">Открыть файл</string>
-    <string name="new_folder">Новое руководство</string>
+    <string name="new_folder">Новая папка</string>
     <string name="new_file_1">Новый файл</string>
     <string name="rename">Переименовать</string>
     <string name="open_with">Открыть с помощью…</string>
     <string name="save_as">Сохранить как</string>
-    <string name="paste">Налет</string>
+    <string name="paste">Вставить</string>
     <string name="delete">Удалить</string>
     <string name="close_this">Закрыть это</string>
     <string name="close_others">Закрыть другие</string>
@@ -181,10 +181,10 @@
     <string name="diagonal_scroll_desc">Включить диагональную прокрутку в дереве файлов</string>
     <string name="cursor_anim">Анимация курсора</string>
     <string name="cursor_anim_desc">Включить плавную анимацию курсора</string>
-    <string name="show_line_number">Показать номера строк</string>
+    <string name="show_line_number">Показывать номера строк</string>
     <string name="pin_line_number">Закрепить номера линий</string>
     <string name="extra_keys">Дополнительные клавиши</string>
-    <string name="extra_keys_desc">Показать дополнительные клавиши в редакторе</string>
+    <string name="extra_keys_desc">Показывать дополнительные клавиши в редакторе</string>
     <string name="auto_save">Автоматическое сохранение</string>
     <string name="auto_save_desc">Сохранять файл автоматически</string>
     <string name="auto_save_time">Интервал автоматического сохранения</string>
@@ -250,7 +250,7 @@
     <string name="theme_mode">Режим темы</string>
     <string name="theme_mode_desc">Автоматически менять тему: светлая или темная.</string>
     <string name="no_plugins_available">Нет доступных плагинов</string>
-    <string name="show_suggestions">Показать предложения</string>
+    <string name="show_suggestions">Показывать предложения</string>
     <string name="about">О приложении</string>
     <string name="about_desc">О Karbon</string>
     <string name="version">Версия</string>
@@ -260,7 +260,7 @@
     <string name="telegram">Telegram группа</string>
     <string name="telegram_desc">Присоединяйтесь к сообществу в Telegram</string>
     <string name="join">Присоединиться</string>
-    <string name="show_virtual_keyboard">Показать виртуальную клавиатуру</string>
+    <string name="show_virtual_keyboard">Показывать виртуальную клавиатуру</string>
     <string name="show_virtual_keyboard_desc">Показывать виртуальную клавиатуру при подключении физической клавиатуры</string>
     <string name="git_commit">Git commit hash</string>
     <string name="check_for_updates">Проверять наличие обновлений</string>
@@ -275,7 +275,7 @@
     <string name="sora_s">Поиск текста с Sora</string>
     <string name="sora_s_desc">Использовать поиск текста с Sora</string>
     <string name="content">Контент</string>
-    <string name="default_encoding_desc">При открытии и создании файлов использовать кодировку по умолчанию</string>
+    <string name="default_encoding_desc">При открытии и создании файлов использовать выбранную кодировку по умолчанию</string>
     <string name="other">Другое</string>
     <string name="fonts">Шрифты</string>
     <string name="font_added">Шрифт успешно добавлен</string>
