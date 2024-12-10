@@ -10,10 +10,10 @@
     <string name="close_others">关闭其他页</string>
     <string name="gitcred">Git 凭证</string>
     <string name="auto_save">自动保存</string>
-    <string name="save_as">保存为</string>
+    <string name="save_as">另存为</string>
     <string name="ni">未实现本功能</string>
     <string name="save">文件已保存</string>
-    <string name="open_file">打开一个文件</string>
+    <string name="open_file">打开文件</string>
     <string name="cs">区分大小写</string>
     <string name="copy">复制</string>
     <string name="search">搜索</string>
@@ -91,11 +91,11 @@
     <string name="save_label">保存</string>
     <string name="ww_wait">请等待换行完成</string>
     <string name="open_file_or_folder">打开文件或文件夹</string>
-    <string name="open_directory">打开一个目录</string>
+    <string name="open_directory">打开目录</string>
     <string name="new_file">新建文件</string>
     <string name="newFile_hint">名称，例如：测试.txt</string>
     <string name="searck_keyword">搜索关键字</string>
-    <string name="wait">请等待…</string>
+    <string name="wait">请稍等…</string>
     <string name="report_issue">报告问题</string>
     <string name="save_all">保存所有</string>
     <string name="undo">撤销</string>
