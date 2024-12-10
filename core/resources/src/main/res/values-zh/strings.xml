@@ -81,7 +81,7 @@
     <string name="app">应用程序</string>
     <string name="oled_desc">AMOLED 纯黑主题</string>
     <string name="downloading_plugin">下载插件中</string>
-    <string name="text_size_desc">配置文字大小</string>
+    <string name="text_size_desc">配置字体大小</string>
     <string name="tab_size">标签页大小</string>
     <string name="tab_size_desc">设置标签大小</string>
     <string name="git_desc">Git 通用设置</string>
@@ -149,7 +149,7 @@
     <string name="data_clear">应用数据已清除</string>
     <string name="action_done">操作已完成</string>
     <string name="clone_repo">克隆存储库</string>
-    <string name="open_dir_desc">选择一个文件夹作为一个计划</string>
+    <string name="open_dir_desc">选择项目目录</string>
     <string name="open_file_desc">选择一个文件以直接编辑它</string>
     <string name="open_path">内部储存</string>
     <string name="open_path_desc">打开内部储存</string>
@@ -203,7 +203,7 @@
     <string name="manage_storage_reason">Karbon 需要访问存储以编辑文件。请稍后在系统设置中允许访问。</string>
     <string name="private_files">私密文件</string>
     <string name="clone_err">存储库为私有存储库。或者请检查您的凭据</string>
-    <string name="text_size">文字大小</string>
+    <string name="text_size">字体大小</string>
     <string name="monet_desc">在应用中使用设备主题。</string>
     <string name="add_new_replacement_batch">添加新的批量替换</string>
     <string name="enable_plugins">启用插件</string>
@@ -214,7 +214,7 @@
     <string name="fail_safe">故障保险</string>
     <string name="Lshell">启动 Shell</string>
     <string name="Lshell_desc">执行当终点站被启动的时候。</string>
-    <string name="terminal_text_size_desc">设置终端文字大小</string>
+    <string name="terminal_text_size_desc">设置终端字体大小</string>
     <string name="sim_hard_links_desc">在应该创建硬链接的地方创建符号链接</string>
     <string name="sim_ashmem">在 Android 上模拟 Ashmemfd</string>
     <string name="kill_on_exit">退出时杀掉所有进程</string>
@@ -226,7 +226,7 @@
     <string name="unsupported_aarch">不支持的平台，使用故障保护</string>
     <string name="pkg_download_failed">文件包下载失败</string>
     <string name="failsafe_desc">使用 Android Shell 代替 Termux</string>
-    <string name="terminal_text_size">终端文字大小</string>
+    <string name="terminal_text_size">终端字体大小</string>
     <string name="copy_failed">复制文件失败</string>
     <string name="install_done">安装完已经成功</string>
     <string name="invalid_file_type">不合规文件类型 zip文件被期待</string>
@@ -271,7 +271,7 @@
     <string name="termux_exec">Termux Exec</string>
     <string name="encoding_warning">强烈不鼓励改变默认编码，因为这可能导致文件损坏。除非你完全理解这么做的影响并进行了合理备份，否则强烈建议使用 UTF-8 编码。</string>
     <string name="default_encoding_desc">打开和创建文件时的默认编码</string>
-    <string name="other">其他人</string>
+    <string name="other">其他</string>
     <string name="content">内容</string>
     <string name="fonts">字体</string>
     <string name="font_added">成功添加字体</string>
