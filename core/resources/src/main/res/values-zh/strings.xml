@@ -12,7 +12,7 @@
     <string name="auto_save">自动保存</string>
     <string name="save_as">保存为</string>
     <string name="ni">未实现本功能</string>
-    <string name="save">文件已存储</string>
+    <string name="save">文件已保存</string>
     <string name="open_file">打开一个文件</string>
     <string name="cs">区分大小写</string>
     <string name="copy">复制</string>
@@ -87,7 +87,7 @@
     <string name="git_desc">Git 通用设置</string>
     <string name="unsupported_contnt">不支持内容</string>
     <string name="null_contnt">错误：内容为空</string>
-    <string name="restart_required">重启需要</string>
+    <string name="restart_required">需要重启</string>
     <string name="save_label">保存</string>
     <string name="ww_wait">请等待换行完成</string>
     <string name="open_file_or_folder">打开文件或文件夹</string>
