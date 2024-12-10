@@ -5,7 +5,7 @@
     <string name="add">添加</string>
     <string name="cancel">取消</string>
     <string name="share">分享</string>
-    <string name="keepdl">保持抽屉锁</string>
+    <string name="keepdl">保持抽屉锁锁定</string>
     <string name="plugin_icon">插件图标</string>
     <string name="close_others">关闭其他页</string>
     <string name="gitcred">Git 凭证</string>
@@ -85,7 +85,7 @@
     <string name="tab_size">标签页大小</string>
     <string name="tab_size_desc">设置标签大小</string>
     <string name="git_desc">Git 通用设置</string>
-    <string name="unsupported_contnt">不支持内容</string>
+    <string name="unsupported_contnt">不支持的内容</string>
     <string name="null_contnt">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
     <string name="save_label">保存</string>
@@ -102,7 +102,7 @@
     <string name="settings">设置</string>
     <string name="new_folder">新建文件夹</string>
     <string name="new_file_1">新建文件</string>
-    <string name="open_with">打开为…</string>
+    <string name="open_with">打开方式…</string>
     <string name="paste">粘贴</string>
     <string name="close_this">关闭本页</string>
     <string name="close_all">全部关闭</string>
@@ -119,7 +119,7 @@
     <string name="clone_dir">保存克隆存储库的文件夹</string>
     <string name="file_exist_not">文件已不存在</string>
     <string name="gitKeyExample">例如：SuperKek:ghp_…</string>
-    <string name="gituserexample">eg. UserDev:example@email.com</string>
+    <string name="gituserexample">例如：UserDev:example@email.com</string>
     <string name="apply">应用</string>
     <string name="inavalid_userdata">无效用户数据。请在设置中更改</string>
     <string name="userdatagit">Git 用户数据</string>
@@ -264,7 +264,7 @@
     <string name="keep_editing">保持编辑</string>
     <string name="warning">警告</string>
     <string name="line_spacing">行间距</string>
-    <string name="line_spacing_multiplier">行空白多发器</string>
+    <string name="line_spacing_multiplier">行间距倍率</string>
     <string name="tools">工具</string>
     <string name="manage_editor_font">管理编辑器字体</string>
     <string name="add_font">添加新字体</string>
@@ -279,7 +279,7 @@
     <string name="add_font_desc">从存储中选择 ttf 字体</string>
     <string name="install_termux">从 F-Droid 安装 Termux</string>
     <string name="termux_exec_guide">Termux Exec 文档</string>
-    <string name="termux_exec_guide_desc">文档为了起因Termux Exec</string>
+    <string name="termux_exec_guide_desc">查看文档了解如何启用 Termux Exec</string>
     <string name="gestures">手势</string>
     <string name="config_gestures">配置手势</string>
     <string name="discard">丢弃</string>
