@@ -303,4 +303,5 @@
     <string name="encoding_warning">Alterar a codificação padrão é altamente desencorajado, pois pode levar à corrupção do arquivo. É altamente recomendável usar UTF-8, a menos que você entenda completamente as implicações e tenha criado um backup adequado.</string>
     <string name="line_spacing">Espaçamento entre linhas</string>
     <string name="line_spacing_multiplier">Multiplicador de espaçamento de linha</string>
+    <string name="mutators">Mutadores</string>
 </resources>
