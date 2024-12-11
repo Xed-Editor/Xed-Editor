@@ -8,27 +8,26 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.KarbonEditor
-import com.rk.libcommons.SearchPanel
-import com.rk.libcommons.SetupEditor
+import com.rk.libcommons.editor.SearchPanel
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -282,7 +281,22 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (showToast) {
                 withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(strings.saved)) }
             }
+
+
+            if (file!!.parentFile!!.absolutePath == context.getTempDir().absolutePath && file!!.name.endsWith("&mut.js")){
+                withContext(Dispatchers.IO){
+                    Mutators.getMutators().forEach { mut ->
+                        if (mut.name+"&mut.js" == file!!.name){
+                            mut.script = editor?.text.toString()
+                            Mutators.saveMutators()
+                        }
+                    }
+                }
+            }
         }
+
+
+
     }
 
     override fun getView(): View? {
@@ -305,6 +319,9 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
             FilesContent.remove(file!!.absolutePath)
+            if (file!!.parentFile!!.absolutePath == context.getTempDir().absolutePath && file!!.name.endsWith("&mut.js")){
+                file!!.delete()
+            }
         }
         onDestroy()
 

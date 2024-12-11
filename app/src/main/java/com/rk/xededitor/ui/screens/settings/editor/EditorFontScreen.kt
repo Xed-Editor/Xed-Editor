@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
@@ -23,8 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import com.rk.libcommons.SetupEditor
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
@@ -32,7 +30,6 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.ui.components.SettingsToggle
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate

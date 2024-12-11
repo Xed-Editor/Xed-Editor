@@ -33,6 +33,7 @@ import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.terminal.Terminal
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
+import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -372,33 +373,15 @@ object MenuClickHandler {
                 intent.setType("application/octet-stream")
                 intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
                 activity.fileManager!!.createFileLauncher.launch(intent)
-//                ActionPopup(activity,true).apply {
-//                    addItem(
-//                        title = getString(strings.terminal),
-//                        description = "Open terminal in tabs",
-//                        icon = ContextCompat.getDrawable(activity, drawables.terminal),
-//                        listener = {
-//                            activity.adapter!!.addFragment(File("terminal"), FragmentType.TERMINAL)
-//                        }
-//                    )
-//                    addItem(
-//                        title = getString(strings.new_file),
-//                        description = "Create new file",
-//                        icon = ContextCompat.getDrawable(activity, drawables.outline_insert_drive_file_24),
-//                        listener = {
-//                            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-//                            intent.addCategory(Intent.CATEGORY_OPENABLE)
-//                            intent.setType("application/octet-stream")
-//                            intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
-//                            activity.fileManager!!.createFileLauncher.launch(intent)
-//                        }
-//                    )
-//                    show()
-//                }
-                return true
+              return true
             }
 
-            else -> return false
+            else -> return if (activity.toolItems.contains(menuItem.itemId)){
+                Mutators.run(menuItem.itemId)
+                true
+            }else{
+                false
+            }
         }
     }
 

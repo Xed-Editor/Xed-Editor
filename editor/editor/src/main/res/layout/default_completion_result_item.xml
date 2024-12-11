@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Medium Text"
-            android:textColor="#FF000000"
+            android:textColor="@color/defaultSymbolInputTextColor"
             android:textSize="15sp" />
 
         <TextView
@@ -60,6 +60,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:text="Small Text"
+            android:textColor="@color/defaultSymbolInputTextColor"
             android:textSize="11sp" />
 
     </LinearLayout>

@@ -4,26 +4,19 @@ plugins {
 }
 
 android {
-    namespace = "com.rk.runner"
+    namespace = "com.rk.scriptingengine"
     compileSdk = 34
-
-    //todo remove this before release
-    lintOptions {
-        disable("MissingTranslation")
-    }
-
 
     defaultConfig {
         minSdk = 26
 
-       
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
-
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,18 +30,14 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    buildFeatures {
-        viewBinding = true
-    }
 }
 
 dependencies {
+
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.browser)
+    implementation("app.cash.quickjs:quickjs-android:0.9.2")
     implementation(project(":core:commons"))
-    implementation(libs.nanohttpd)
-    implementation(project(":core:resources"))
-    implementation(project(":core:karbon-exec"))
+
 }

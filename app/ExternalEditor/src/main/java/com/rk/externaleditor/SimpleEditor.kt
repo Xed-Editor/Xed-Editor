@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
@@ -18,8 +17,6 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.constraintlayout.widget.*
 import androidx.lifecycle.lifecycleScope
 import com.rk.externaleditor.databinding.ActivitySimpleEditorBinding
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.content.ContextCompat
 import com.rk.libcommons.After
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.runner.Runner
@@ -33,8 +30,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.rk.libcommons.KarbonEditor
-import com.rk.libcommons.SearchPanel
-import com.rk.libcommons.SetupEditor
+import com.rk.libcommons.editor.SearchPanel
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 

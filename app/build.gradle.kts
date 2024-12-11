@@ -197,7 +197,8 @@ dependencies {
     implementation(project(":editor:language-textmate"))
     implementation(project(":core:resources"))
     implementation(project(":core:karbon-exec"))
-    
+    implementation(project(":core:Engine"))
+
     implementation(libs.nanohttpd)
     implementation(libs.photoview)
     implementation(libs.glide)
@@ -208,4 +209,5 @@ dependencies {
     
     implementation(libs.browser)
     //implementation(libs.eventbus)
+    implementation("app.cash.quickjs:quickjs-android:0.9.2")
 }

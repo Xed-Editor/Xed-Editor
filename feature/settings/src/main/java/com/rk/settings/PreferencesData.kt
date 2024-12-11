@@ -54,4 +54,10 @@ object PreferencesData {
         editor.putString(key, value)
         editor.commit()
     }
+
+    fun setStringAsync(key: String?, value: String?) {
+        val editor = sharedPreferences!!.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
 }

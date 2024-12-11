@@ -25,7 +25,7 @@ import org.robok.engine.core.components.compose.preferences.switch.PreferenceSwi
 fun SettingsToggle(
     modifier: Modifier = Modifier,
     label: String,
-    description: String,
+    description: String? = null,
     @DrawableRes iconRes: Int? = null,
     key: String? = null,
     default: Boolean = false,

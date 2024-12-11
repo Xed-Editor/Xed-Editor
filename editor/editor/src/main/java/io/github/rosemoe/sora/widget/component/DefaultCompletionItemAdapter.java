@@ -23,6 +23,13 @@
  */
 package io.github.rosemoe.sora.widget.component;
 
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,23 +60,60 @@ public final class DefaultCompletionItemAdapter extends EditorCompletionAdapter 
         }
         var item = getItem(pos);
 
+        boolean isDrakMode = isDarkMode(view.getContext());
+
         TextView tv = view.findViewById(R.id.result_item_label);
         tv.setText(item.label);
-        tv.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY));
+
+        if (!isDrakMode) {
+            tv.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY));
+        }
 
         tv = view.findViewById(R.id.result_item_desc);
         tv.setText(item.desc);
-        tv.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY));
+
+        if (!isDrakMode) {
+            tv.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY));
+        }
+
 
         view.setTag(pos);
+        Drawable rippleDrawable;
+
         if (isCurrentCursorPosition) {
-            view.setBackgroundColor(getThemeColor(EditorColorScheme.COMPLETION_WND_ITEM_CURRENT));
+            int backgroundColor = isDrakMode
+                    ? Color.argb(100, 255, 255, 255)
+                    : Color.argb(100, 0, 0, 0);
+            ColorDrawable background = new ColorDrawable(backgroundColor);
+
+            rippleDrawable = new RippleDrawable(
+                    ColorStateList.valueOf(Color.GRAY),
+                    background,
+                    null
+            );
         } else {
-            view.setBackgroundColor(0);
+            int backgroundColor = isDrakMode
+                    ? Color.parseColor("#1C1B20")
+                    : Color.WHITE;
+            ColorDrawable background = new ColorDrawable(backgroundColor);
+
+            rippleDrawable = new RippleDrawable(
+                    ColorStateList.valueOf(Color.GRAY), // Ripple color
+                    background, // Background color
+                    null // No mask
+            );
         }
+
+        view.setBackground(rippleDrawable);
+
         ImageView iv = view.findViewById(R.id.result_item_image);
         iv.setImageDrawable(item.icon);
         return view;
+    }
+
+    public boolean isDarkMode(Context context) {
+        int nightModeFlags = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES;
     }
 
 }
