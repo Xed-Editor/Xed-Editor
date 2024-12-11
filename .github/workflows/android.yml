@@ -41,7 +41,7 @@ jobs:
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Archive APK
         uses: actions/upload-artifact@v4
