@@ -9,4 +9,5 @@ sealed class SettingsRoutes(val route: String) {
     data object About : SettingsRoutes("karbon")
     data object EditorFontScreen : SettingsRoutes("editorFontScreen")
     data object DefaultEncoding : SettingsRoutes("defaultEncoding")
+    data object ManageMutators : SettingsRoutes("manageMutators")
 }

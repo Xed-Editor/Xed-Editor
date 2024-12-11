@@ -33,6 +33,7 @@ class TabFragment : Fragment() {
                         fragment = editorFragment
                         editorFragment.loadFile(file)
                     }
+
                 }
             }
             
@@ -92,14 +93,14 @@ class TabFragment : Fragment() {
     
     companion object {
         private const val ARG_FILE_PATH = "file_path"
+        private const val ARG_ON_SAVE_HOOK = "on_save_hook"
         
         fun newInstance(file: File, type: FragmentType): TabFragment {
             val fragment = TabFragment()
             val args = Bundle()
             args.putSerializable("type", type)
             
-            
-            
+
             when (type) {
                 FragmentType.EDITOR -> {
                     args.putString(ARG_FILE_PATH, file.absolutePath)

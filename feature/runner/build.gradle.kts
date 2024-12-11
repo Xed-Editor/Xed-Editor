@@ -46,7 +46,6 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.bsh)
     implementation(libs.browser)
     implementation(project(":core:commons"))
     implementation(libs.nanohttpd)

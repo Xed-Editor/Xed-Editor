@@ -53,6 +53,15 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
         PreferenceGroup(heading = stringResource(strings.content)) {
+
+            SettingsToggle(label = "Mutators",
+                description = "Create micro tools",
+                showSwitch = false,
+                sideEffect = {
+                    navController.navigate(SettingsRoutes.ManageMutators.route)
+                })
+
+
             SettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
                 key = PreferencesKeys.WORD_WRAP_ENABLED,

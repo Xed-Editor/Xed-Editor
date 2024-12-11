@@ -1,18 +1,14 @@
 package com.rk.xededitor
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.os.Bundle
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
-import com.rk.libcommons.isAppInBackground
 import com.rk.resources.Res
-import com.rk.scriptingengine.JavaScript
-import com.rk.scriptingengine.JavaScriptAPI
 import com.rk.settings.PreferencesData
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
+import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +46,8 @@ class App : Application() {
             launch(Dispatchers.IO) {
                 SetupEditor.init()
             }
+
+            Mutators.loadMutators()
 
             //delete useless file cache
             File(filesDir.parentFile, "shared_prefs/files.xml").apply {

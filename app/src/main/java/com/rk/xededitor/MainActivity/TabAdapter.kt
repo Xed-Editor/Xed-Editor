@@ -17,6 +17,7 @@ import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.Serializable
 import java.lang.ref.WeakReference
 
 class Kee(val file: File) {

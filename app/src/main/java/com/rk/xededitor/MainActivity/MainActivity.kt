@@ -9,6 +9,7 @@ import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
@@ -17,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
+import com.rk.resources.drawables
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -29,6 +31,7 @@ import com.rk.xededitor.R
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -40,6 +43,9 @@ class MainActivity : BaseActivity() {
     
     companion object {
         var activityRef = WeakReference<MainActivity?>(null)
+        fun withContext(invoke:MainActivity.()->Unit){
+            activityRef.get()?.let { invoke(it) }
+        }
     }
     
     var binding: ActivityTabBinding? = null
@@ -96,7 +102,9 @@ class MainActivity : BaseActivity() {
     }
     
     inline fun isMenuInitialized(): Boolean = menu != null
-    
+
+
+    val toolItems = hashSetOf<Int>()
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -107,6 +115,12 @@ class MainActivity : BaseActivity() {
         }
         
         menu.findItem(R.id.action_add).isVisible = true
+
+
+        val tool = ContextCompat.getDrawable(this,drawables.build_24px)
+        var order = 0
+        Mutators.getMutators().forEach { menu.findItem(R.id.tools).subMenu?.add(1,it.hashCode(),order,it.name)?.icon = tool;order++;toolItems.add(it.hashCode()) }
+
         return true
     }
     

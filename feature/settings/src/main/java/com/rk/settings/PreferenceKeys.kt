@@ -30,6 +30,7 @@ object PreferencesKeys {
     const val SELECTED_ENCODING="encoding"
     const val LINE_SPACING="line_spacing"
     const val LINE_SPACING_MULTIPLAYER="line_spacing_multiplayer"
+    const val MUTATORS="mutators"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"
