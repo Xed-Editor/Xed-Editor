@@ -190,12 +190,24 @@ private fun onDone(name:String):Boolean{
             return false
         }
         Mutators.createMutator(Mutators.Mutator(name = name, script = """
-            let text = api.getEditorText()
+
+            //get text
+            //let text = getEditorText()
             
-            //do cool stuff here
-            api.showToast(text)
+            //show toast
+            //showToast(text)
+
+
+            //network
+            //let response = http(url, options)
+            //dialog
+            //showDialog(title,msg)
+
+            //set text
+            //setEditorText("this text will be written in the editor")
             
-            api.setEditorText("this text will be written in the editor")
+            
+
         """.trimIndent()))
         return true
     }
