@@ -6,6 +6,7 @@ import app.cash.quickjs.QuickJs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import com.rk.libcommons.LoadingPopup
 import com.rk.scriptingengine.Engine
 import com.rk.scriptingengine.EngineAPI
 import com.rk.xededitor.MainActivity.Kee
@@ -97,6 +98,28 @@ class ImplAPI(val engine: Engine) : EngineAPI {
     }
 
     override fun http(url: String?, options: String?): String? {
+        var loadingPopup:LoadingPopup? = null
+        runBlocking {
+            withContext(Dispatchers.Main){
+                MainActivity.withContext {
+                    loadingPopup = LoadingPopup(this,null).show()
+                }
+            }
+        }
+
+        val result = xhttp(url, options)
+
+
+        runBlocking {
+            withContext(Dispatchers.Main){
+                loadingPopup?.hide()
+            }
+        }
+
+        return result
+    }
+
+    private fun xhttp(url: String?, options: String?): String? {
         if (url == null) {
             return """{"ok": false, "status": 0, "statusText": "URL is null", "body": null}"""
         }
@@ -163,6 +186,10 @@ class ImplAPI(val engine: Engine) : EngineAPI {
 
     override fun exit() {
         engine.quickJS.close()
+    }
+
+    override fun sleep(millis: Double) {
+        Thread.sleep(millis.toLong())
     }
 
 

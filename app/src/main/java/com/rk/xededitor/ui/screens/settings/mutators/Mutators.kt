@@ -1,20 +1,19 @@
 package com.rk.xededitor.ui.screens.settings.mutators
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.content.ContextCompat
-import app.cash.quickjs.QuickJs
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.application
 import com.rk.resources.drawables
 import com.rk.scriptingengine.Engine
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.launch
+import java.io.File
 
 object Mutators {
     data class Mutator(val name: String, var script: String) {
@@ -28,53 +27,77 @@ object Mutators {
         }
     }
 
+    private const val DIRECTORY_NAME = "mutators"
     private val gson = Gson()
-
     private val mutators = mutableStateListOf<Mutator>()
 
+    private fun getMutatorDirectory(): File {
+        val dir = File(application!!.filesDir, DIRECTORY_NAME)
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        return dir
+    }
+
+    private fun getMutatorFile( mutator: Mutator): File {
+        val dir = getMutatorDirectory()
+        return File(dir, "${mutator.name}.json")
+    }
 
     fun loadMutators() {
-        val json = PreferencesData.getString(PreferencesKeys.MUTATORS, "")
-        if (json.isNotEmpty()) {
-            val type = object : TypeToken<List<Mutator>>() {}.type
-            val savedMutators: List<Mutator> = gson.fromJson(json, type)
-            mutators.addAll(savedMutators)
+        val dir = getMutatorDirectory()
+        mutators.clear()
+
+        dir.listFiles()?.forEach { file ->
+            if (file.extension == "json") {
+                val json = file.readText()
+                val mutator = gson.fromJson(json, Mutator::class.java)
+                mutators.add(mutator)
+            }
         }
     }
 
-    fun saveMutators() {
-        val json = gson.toJson(mutators)
-        PreferencesData.setStringAsync(PreferencesKeys.MUTATORS,json)
+    fun saveMutator(mutator: Mutator) {
+        val file = getMutatorFile(mutator)
+        val json = gson.toJson(mutator)
+        file.writeText(json)
+    }
+
+    fun deleteMutatorFile( mutator: Mutator) {
+        val file = getMutatorFile(mutator)
+        if (file.exists()) {
+            file.delete()
+        }
     }
 
     fun getMutators(): SnapshotStateList<Mutator> = mutators
 
     fun createMutator(mutator: Mutator) {
         mutators.add(mutator)
-        saveMutators()
+        saveMutator(mutator)
 
         MainActivity.activityRef.get()?.apply {
-            val tool = ContextCompat.getDrawable(this,drawables.build_24px)
-            menu?.findItem(R.id.tools)?.subMenu?.add(0,mutator.hashCode(),toolItems.size,mutator.name)?.icon = tool
+            val tool = ContextCompat.getDrawable(this, drawables.build_24px)
+            menu?.findItem(R.id.tools)?.subMenu?.add(0, mutator.hashCode(), toolItems.size, mutator.name)?.icon = tool
         }
-
     }
 
     fun deleteMutator(mutator: Mutator) {
         mutators.remove(mutator)
-        saveMutators()
+        deleteMutatorFile(mutator)
+
         MainActivity.activityRef.get()?.apply {
             menu?.findItem(R.id.tools)?.subMenu?.removeItem(mutator.hashCode())
         }
     }
 
-    fun run(id:Int){
+    fun run(id: Int) {
         DefaultScope.launch {
             mutators.forEach { mut ->
-                if (mut.hashCode() == id){
+                if (mut.hashCode() == id) {
                     Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
                         println(result)
-                    }, onError = {t ->
+                    }, onError = { t ->
                         t.printStackTrace()
                         rkUtils.toast(t.message)
                     }, api = ImplAPI::class.java)

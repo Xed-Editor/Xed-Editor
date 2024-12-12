@@ -288,7 +288,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                     Mutators.getMutators().forEach { mut ->
                         if (mut.name+"&mut.js" == file!!.name){
                             mut.script = editor?.text.toString()
-                            Mutators.saveMutators()
+                            Mutators.saveMutator(mut)
                         }
                     }
                 }
