@@ -249,7 +249,7 @@
     <string name="cannot_be_empty">不可为空。</string>
     <string name="theme_mode_desc">将主题模式改为自动、亮色或暗色</string>
     <string name="no_plugins_available">没有插件可用</string>
-    <string name="show_suggestions">显示建议</string>
+    <string name="show_suggestions">键盘选词建议</string>
     <string name="about">关于</string>
     <string name="about_desc">关于 Karbon</string>
     <string name="version">版本</string>
@@ -261,7 +261,7 @@
     <string name="file_not_saved">部分文件尚未保存</string>
     <string name="file_unsaved">文件尚未保存</string>
     <string name="ask_unsaved">确定要丢弃这份未保存的文档吗？</string>
-    <string name="keep_editing">保持编辑</string>
+    <string name="keep_editing">继续编辑</string>
     <string name="warning">警告</string>
     <string name="line_spacing">行间距</string>
     <string name="line_spacing_multiplier">行间距倍率</string>
@@ -292,10 +292,10 @@
     <string name="show_virtual_keyboard_desc">连接物理键盘时显示虚拟键盘</string>
     <string name="git_commit">Git 提交哈希</string>
     <string name="check_for_updates_desc">定期检查更新</string>
-    <string name="click_open">点击这里以打开文件</string>
+    <string name="click_open">点击这里打开文件</string>
     <string name="no">不要</string>
     <string name="file_too_large">打开的文件过大</string>
-    <string name="toggle_suggestion">提示词</string>
+    <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
     <string name="txt_ww">txt 文件换行</string>
     <string name="txt_ww_desc">文本文件自动换行</string>
