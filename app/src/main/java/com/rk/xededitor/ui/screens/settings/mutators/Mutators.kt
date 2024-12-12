@@ -55,6 +55,21 @@ object Mutators {
                 mutators.add(mutator)
             }
         }
+
+        val assetManager = application!!.assets
+        try {
+            val assetFiles = assetManager.list("mutators") ?: emptyArray()
+            assetFiles.forEach { assetFile ->
+                if (assetFile.endsWith(".json")) {
+                    val json = assetManager.open("mutators/$assetFile").bufferedReader().use { it.readText() }
+                    val mutator = gson.fromJson(json, Mutator::class.java)
+                    mutators.add(mutator)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
     }
 
     fun saveMutator(mutator: Mutator) {
