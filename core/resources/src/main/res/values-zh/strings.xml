@@ -213,7 +213,7 @@
     <string name="choose_file">选择文件</string>
     <string name="fail_safe">故障保险</string>
     <string name="Lshell">启动 Shell</string>
-    <string name="Lshell_desc">执行当终点站被启动的时候。</string>
+    <string name="Lshell_desc">在启动终端时执行。</string>
     <string name="terminal_text_size_desc">设置终端字体大小</string>
     <string name="sim_hard_links_desc">在应该创建硬链接的地方创建符号链接</string>
     <string name="sim_ashmem">在 Android 上模拟 Ashmemfd</string>
@@ -228,8 +228,8 @@
     <string name="failsafe_desc">使用 Android Shell 代替 Termux</string>
     <string name="terminal_text_size">终端字体大小</string>
     <string name="copy_failed">复制文件失败</string>
-    <string name="install_done">安装完已经成功</string>
-    <string name="invalid_file_type">不合规文件类型 zip文件被期待</string>
+    <string name="install_done">安装成功</string>
+    <string name="invalid_file_type">无效的文件类型，请使用zip文件</string>
     <string name="install_failed">安装失败</string>
     <string name="choose_zip">从存储中选择 zip 插件文件安装。</string>
     <string name="join">加入</string>
@@ -283,8 +283,8 @@
     <string name="gestures">手势</string>
     <string name="config_gestures">配置手势</string>
     <string name="discard">丢弃</string>
-    <string name="force_char">军队Char</string>
-    <string name="force_char_desc">武力Char基础输入在终点站</string>
+    <string name="force_char">强制Char</string>
+    <string name="force_char_desc">在终端中强制使用字符输入</string>
     <string name="useCtrlWorkaround">使用Ctrl工作周围</string>
     <string name="force_normal_desc">强制在大屏幕设备上使用正常布局</string>
     <string name="light_mode">亮色</string>
