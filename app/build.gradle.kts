@@ -208,6 +208,6 @@ dependencies {
     implementation(libs.media3.ui)
     
     implementation(libs.browser)
-    //implementation(libs.eventbus)
-    implementation("app.cash.quickjs:quickjs-android:0.9.2")
+    implementation(libs.eventbus)
+    implementation(libs.quickjs.android)
 }

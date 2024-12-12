@@ -7,16 +7,13 @@ import android.graphics.drawable.ColorDrawable
 import android.util.Pair
 import android.util.TypedValue
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.JsonParser
 import com.rk.libcommons.KarbonEditor
-import com.rk.libcommons.R
 import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -30,7 +27,6 @@ import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolInputView
-import io.github.rosemoe.sora.widget.component.DefaultCompletionItemAdapter
 import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
@@ -45,6 +41,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
+import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.InputStreamReader
 
@@ -220,7 +217,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
     }
 
     private suspend fun setLanguage(languageScopeName: String) {
-        //init(ctx)
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
         val kw = ctx.assets.open("textmate/keywords.json")
@@ -241,8 +237,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
     }
 
 
-    suspend fun ensureTextmateTheme(ctx: Context) {
-        //init(ctx)
+    private suspend fun ensureTextmateTheme(ctx: Context) {
         val darkTheme: Boolean = when (PreferencesData.getString(
             PreferencesKeys.DEFAULT_NIGHT_MODE,
             "-1"
@@ -303,7 +298,8 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
                 add(Pair("⌘", onClick {
                     hapticFeedBack(it)
-                    // rkUtils.toast("Not Implemented")
+
+                    EventBus.getDefault().post(ControlPanel())
 
                 }))
 

@@ -41,5 +41,6 @@ dependencies {
     implementation(libs.gson)
     implementation(project(":feature:settings"))
     implementation(project(":core:resources"))
+    implementation(libs.eventbus)
     //implementation(libs.eventbus)
 }

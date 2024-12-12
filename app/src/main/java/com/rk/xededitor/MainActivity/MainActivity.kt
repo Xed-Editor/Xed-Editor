@@ -18,6 +18,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.editor.ControlPanel
 import com.rk.resources.drawables
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
@@ -31,10 +32,14 @@ import com.rk.xededitor.R
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.lang.ref.WeakReference
 
@@ -64,18 +69,32 @@ class MainActivity : BaseActivity() {
         val fragmentTitles = mutableListOf<String>()
         val fileSet = HashSet<String>()
     }
+
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this);
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun showControlPanel(c: ControlPanel){ showControlPanel(this) }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         binding = ActivityTabBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
-        
+
+
         setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
-        
-        //lifecycleScope.launch { SetupEditor.init(this@MainActivity) }
+
         setupDrawer()
         
         setupViewPager()
