@@ -1,72 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">ВІДЧИНЕНО</string>
-    <string name="close_drawer">поблизу</string>
-    <string name="title_activity_batch_replacement">Пакетне верванджування</string>
+    <string name="open_drawer">Відкрити</string>
+    <string name="close_drawer">Закрити</string>
+    <string name="title_activity_batch_replacement">Пакетна заміна</string>
     <string name="ni">Ця функція не реалізована</string>
     <string name="unsupported_contnt">Непідтримуваний вміст</string>
-    <string name="null_contnt">Помилка: вміст нульовий</string>
+    <string name="null_contnt">Помилка: вмісту немає</string>
     <string name="restart_required">Потрібен перезапуск</string>
     <string name="save">Файл збережено</string>
     <string name="saveAll">зберіг усі файли</string>
-    <string name="save_label">зберегти</string>
+    <string name="save_label">Зберегти</string>
     <string name="ww_wait">Зачекайте, доки завершиться перенесення слів</string>
-    <string name="open_file_or_folder">Відкрити файл або папку</string>
-    <string name="open_file">Відкрийте файл</string>
-    <string name="open_directory">Відкрийте каталог</string>
+    <string name="open_file_or_folder">Відкрити файл або теку</string>
+    <string name="open_file">Відкрити файл</string>
+    <string name="open_directory">Відкрити каталог</string>
     <string name="new_file">Новий файл</string>
-    <string name="newFile_hint">Назва напр. Test.txt</string>
+    <string name="newFile_hint">Назва, напр. «Test.txt»</string>
     <string name="mime">MimeType bv. текс/прост</string>
     <string name="rep">Заміна</string>
     <string name="searck_keyword">Ключове слово для пошуку</string>
-    <string name="cs">Чутливий до регістру</string>
+    <string name="cs">Враховувати регістр</string>
     <string name="wait">Будь ласка, зачекайте...</string>
     <string name="report_issue">Повідомити про проблему</string>
     <string name="copy">Копія</string>
     <string name="save_all">Зберегти все</string>
-    <string name="save_1">зберегти</string>
-    <string name="undo">Позбутися</string>
-    <string name="settings">заклади</string>
-    <string name="print">зайнятий</string>
+    <string name="save_1">Зберегти</string>
+    <string name="undo">Скасувати дію</string>
+    <string name="settings">Налаштування</string>
+    <string name="print">Друкувати</string>
     <string name="search">Пошук</string>
     <string name="go_next">Перейти далі</string>
-    <string name="go_prev">Перейти до попереднього.</string>
+    <string name="go_prev">Перейти до попереднього</string>
     <string name="close_search">Закрити пошук</string>
     <string name="replace">Замінити</string>
-    <string name="share">частина</string>
-    <string name="reselect">Виберіть повторно</string>
+    <string name="share">Поділитися</string>
+    <string name="reselect">Повторно вибрати</string>
     <string name="openfile">Відкрити файл</string>
-    <string name="new_folder">Новий посібник</string>
+    <string name="new_folder">Нова тека</string>
     <string name="new_file_1">Новий файл</string>
     <string name="rename">Перейменувати</string>
     <string name="open_with">Відкрити за допомогою...</string>
     <string name="save_as">Зберегти як</string>
-    <string name="paste">табличка</string>
+    <string name="paste">Вставити</string>
     <string name="delete">Видалити</string>
     <string name="close_this">Дозвольте це</string>
-    <string name="close_others">Дозвольте іншим</string>
-    <string name="close_all">Надолужити все</string>
-    <string name="insertdate">Вставте дату</string>
-    <string name="close">давай</string>
+    <string name="close_others">Закрити інше</string>
+    <string name="close_all">Закрити все</string>
+    <string name="insertdate">Вставити дату</string>
+    <string name="close">Закрити</string>
     <string name="unsaved">Незбережені файли</string>
     <string name="unsavedfiles">У вас є незбережені файли!</string>
     <string name="cancel">Скасувати</string>
     <string name="saveexit">Зберегти та вийти</string>
-    <string name="exit">Залиште</string>
+    <string name="exit">Вийти</string>
     <string name="rr">Потрібен перезапуск</string>
     <string name="rapply">Перезапустіть, щоб застосувати налаштування</string>
-    <string name="oled">Тема чорної ночі</string>
-    <string name="ww">Обгортка слова</string>
-    <string name="keepdl">Тримайте ящик закритим</string>
-    <string name="restart">Перезапустіть</string>
+    <string name="oled">Тема «Чорна ніч»</string>
+    <string name="ww">Перенесення слова</string>
+    <string name="keepdl">Тримати вкладку заблокованою</string>
+    <string name="restart">Перезапустити</string>
     <string name="plugin">Плагіни</string>
     <string name="mp">Керувати плагінами</string>
     <string name="ap">Доступні плагіни</string>
     <string name="nip">Немає встановлених плагінів</string>
     <string name="refresh">Оновити</string>
-    <string name="dir_example">Наприклад, назва: Тест</string>
+    <string name="dir_example">Назва, наприклад: «Тест»</string>
     <string name="create">Створити</string>
-    <string name="ask_enter_name">Будь ласка, введіть ім"я</string>
-    <string name="already_exists">«Файл/папка з такою назвою вже існує</string>
+    <string name="ask_enter_name">Введіть назву</string>
+    <string name="already_exists">Файл / тека з такою назвою вже існує</string>
     <string name="attention">Увага</string>
     <string name="ask_del">Ви впевнені, що хочете видалити?</string>
     <string name="redir">Будь ласка, повторно виберіть каталог</string>
@@ -77,17 +78,15 @@
     <string name="keyword_regex">ключове слово (регулярний вираз)</string>
     <string name="replaceall">Замінити все</string>
     <string name="add_new_replacement_batch">Додайте нову партію заміни</string>
-    <string name="remove_a_search_batch">видалити пошук</string>
-    <string name="replacement">заміна</string>
+    <string name="remove_a_search_batch">Видалити пошук</string>
+    <string name="replacement">Заміна</string>
     <string name="title_activity_main">Основна діяльність</string>
     <string name="tab_text_1">Вкладка 1</string>
     <string name="tab_text_2">Вкладка 2</string>
-    <string name="title">назва</string>
-    <string name="description">опис</string>
+    <string name="title">Назва</string>
+    <string name="description">Опис</string>
     <string name="plugin_icon">Піктограма плагіна</string>
     <string name="download">завантажити</string>
-
-
     <string name="git">Git</string>
     <string name="cred">Облікові дані</string>
     <string name="inavalid_git_cred">Облікові дані недійсні. Змініть їх у налаштуваннях</string>
@@ -201,7 +200,6 @@
     <string name="monet">Динамічні кольори</string>
     <string name="monet_desc">Використовуйте тему пристрою в додатку.</string>
     <string name="restart_app">Перезапустіть програму.</string>
-
     <string name="old_android">Непідтримувана версія Android</string>
     <string name="app_desc">Загальні налаштування програми</string>
     <string name="editor_desc">Загальні налаштування редактора</string>
@@ -229,13 +227,11 @@
     <string name="unsupported_aarch">Непідтримувана платформа, використовуйте Fail Safe</string>
     <string name="pkg_download_failed">Не вдалося завантажити пакет</string>
     <string name="copy_failed">Не вдалося скопіювати файл</string>
-
     <string name="install_done">Успішно встановлено</string>
     <string name="invalid_file_type">Недійсний тип файлу, очікується zip-файл</string>
     <string name="install_failed">Не вдалося встановити</string>
     <string name="choose_zip">Виберіть файл zip плагіна зі сховища, щоб установити його.</string>
     <string name="choose_file">Виберіть файл</string>
-
     <string name="force_char">Двінг Чар</string>
     <string name="force_char_desc">Примусове введення на основі символів у терміналі</string>
     <string name="useCtrlWorkaround">Використовуйте Ctrl обхідний шлях</string>
@@ -246,20 +242,15 @@
     <string name="force_desktop_desc">Примусово використовувати макет робочого столу на пристроях із меншим екраном</string>
     <string name="force_normal">Примусовий звичайний режим</string>
     <string name="force_normal_desc">Примусово використовувати звичайний макет на пристроях з великим екраном</string>
-
     <string name="light_mode">Lig</string>
     <string name="dark_mode">Темний</string>
     <string name="auto_mode">Дивно</string>
-    <string name="select_theme_mode" >Виберіть режим теми</string>
-
+    <string name="select_theme_mode">Виберіть режим теми</string>
     <string name="cannot_be_empty">Він не може бути порожнім.</string>
-
     <string name="theme_mode">Тематичний режим</string>
     <string name="theme_mode_desc">Змініть режим теми на автоматичний, світлий або темний.</string>
-
     <string name="no_plugins_available">Немає доступних плагінів</string>
     <string name="show_suggestions">Показати пропозиції</string>
-
     <string name="about">закінчено</string>
     <string name="about_desc">Про Карбон</string>
     <string name="version">Версія</string>
@@ -269,24 +260,46 @@
     <string name="telegram">Група Telegram</string>
     <string name="telegram_desc">Приєднуйтеся до спільноти Telegram</string>
     <string name="join">Підключитися</string>
-
     <string name="show_virtual_keyboard">Показати віртуальну клавіатуру</string>
     <string name="show_virtual_keyboard_desc">Показувати віртуальну клавіатуру, коли підключено фізичну клавіатуру</string>
-
     <string name="git_commit">Хеш Git Commit</string>
-
     <string name="check_for_updates">Перевірте наявність оновлень</string>
     <string name="check_for_updates_desc">Часто перевіряйте наявність оновлень</string>
-
     <string name="click_open">Натисніть тут, щоб відкрити файл</string>
     <string name="no">Ні</string>
     <string name="file_too_large">Файл завеликий для відкриття</string>
     <string name="toggle_suggestion">Змінити пропозицію</string>
     <string name="run">бігти</string>
-
     <string name="txt_ww">Обгортання файлів txt</string>
     <string name="txt_ww_desc">Автоматичне обтікання текстових файлів</string>
-
     <string name="sora_s">Текстовий пошук Sora</string>
     <string name="sora_s_desc">Використовуйте текстовий пошук Sora</string>
+    <string name="mutators">Мутатори</string>
+    <string name="manage_editor_font">Керування шрифтами редактора</string>
+    <string name="default_encoding">Типове кодування</string>
+    <string name="default_encoding_desc">Типове кодування при відкритті та створенні файлів</string>
+    <string name="other">Інше</string>
+    <string name="content">Вміст</string>
+    <string name="fonts">Шрифти</string>
+    <string name="font_added">Шрифт успішно додано</string>
+    <string name="delete_font">Видалити шрифт</string>
+    <string name="add_font">Додати новий шрифт</string>
+    <string name="add_font_desc">Оберіть .ttf шрифт зі сховища</string>
+    <string name="install_termux">Встановіть Termux з F-Droid</string>
+    <string name="termux_exec">Виконувати через Termux</string>
+    <string name="termux_exec_guide">Документація про виконання через Termux</string>
+    <string name="termux_exec_guide_desc">Документація з ввімкнення виконання через Termux</string>
+    <string name="gestures">Жести</string>
+    <string name="config_gestures">Налаштування жестів</string>
+    <string name="Save_as">Зберегти як</string>
+    <string name="file_not_saved">Деякі файли не збережено</string>
+    <string name="file_unsaved">Файл не збережено</string>
+    <string name="ask_unsaved">Ви впевнені, що хочете відхилити зміни цього не збереженого документа?</string>
+    <string name="keep_editing">Продовжити редагування</string>
+    <string name="discard">Відхилити</string>
+    <string name="tools">Інструменти</string>
+    <string name="warning">Попередження</string>
+    <string name="encoding_warning">Не рекомендується змінювати типове кодування, оскільки це може призвести до пошкодження файлів. Ми наполегливо рекомендуємо використовувати UTF-8, якщо ви не розумієте всіх наслідків і не створили належних резервних копій.</string>
+    <string name="line_spacing">Міжрядковий інтервал</string>
+    <string name="line_spacing_multiplier">Множник міжрядкового інтервалу</string>
 </resources>
