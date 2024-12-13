@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.screens.settings.terminal
 
+import androidx.compose.material3.Text
 import android.app.Activity
 import android.util.TypedValue
 import android.view.View
