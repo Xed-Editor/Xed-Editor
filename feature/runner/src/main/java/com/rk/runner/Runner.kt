@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.application
-import com.rk.runner.runners.jvm.jdk.JavaRunner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
@@ -48,8 +47,8 @@ object Runner {
         registry["html"] = mutableListOf(HtmlRunner())
         registry["md"] = mutableListOf(MarkDownRunner())
         registry["py"] = mutableListOf(PythonRunner())
-        registry["java"] =
-            mutableListOf(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
+//        registry["java"] =
+//            mutableListOf(JavaRunner("Java"), JavaRunner("Javac"), JavaRunner("Maven"))
 
         mutableListOf<RunnerImpl>(NodeRunner()).let {
             registry["mjs"] = it

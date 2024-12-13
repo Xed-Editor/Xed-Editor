@@ -1,4 +1,4 @@
-package com.rk.xededitor.terminal.virtualkeys;
+package com.rk.xededitor.ui.screens.settings.terminal.virtualkeys;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

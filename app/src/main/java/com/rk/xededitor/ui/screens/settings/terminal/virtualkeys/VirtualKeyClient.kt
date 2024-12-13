@@ -1,8 +1,8 @@
-package com.rk.xededitor.terminal.virtualkeys
+package com.rk.xededitor.ui.screens.settings.terminal.virtualkeys
 
 import android.view.View
 import android.widget.Button
-import com.rk.xededitor.terminal.virtualkeys.VirtualKeysView.IVirtualKeysView
+import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView.IVirtualKeysView
 import com.termux.terminal.TerminalSession
 
 class VirtualKeyClient(val session: TerminalSession) : IVirtualKeysView {

@@ -19,12 +19,12 @@ media3ExoplayerDash = "1.4.1"
 media3Ui = "1.4.1"
 modernandroidpreferences = "2.4.0-beta1"
 nanohttpd = "2.3.1"
-navigationFragment = "2.8.3"
-navigationUi = "2.8.3"
-kotlin = "2.0.21"
+navigationFragment = "2.8.5"
+navigationUi = "2.8.5"
+kotlin = "2.1.0"
 asynclayoutinflater = "1.0.0"
-navigationFragmentKtx = "2.8.3"
-navigationUiKtx = "2.8.3"
+navigationFragmentKtx = "2.8.5"
+navigationUiKtx = "2.8.5"
 coreKtx = "1.13.1"
 activity = "1.9.3"
 nbJavacAndroid = "17.0.0.3"
@@ -35,7 +35,7 @@ quickjsAndroid = "0.9.2"
 sshj = "0.39.0"
 swiperefreshlayout = "1.1.0"
 terminalView = "0.118.1"
-kotlinPlugin = "2.0.21"
+kotlinPlugin = "2.1.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -44,9 +44,9 @@ lifecycleLivedataKtx = "2.8.7"
 lifecycleViewmodelKtx = "2.8.7"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.9.3"
-composeBom = "2024.10.01"
+composeBom = "2024.12.01"
 coilCompose = "2.7.0"
-navigationCompose = "2.8.3"
+navigationCompose = "2.8.5"
 lifecycleViewmodelAndroid = "2.8.7"
 wordWrap = "0.1.13"
 
@@ -94,7 +94,7 @@ gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
 jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.58" }
 joni = { module = "org.jruby.joni:joni", version = "2.2.1" }
 snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.8" }
-jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.0" }
+jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.100" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -110,7 +110,7 @@ ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-material-compose = { group = "androidx.compose.material", name = "material", version = "1.7.5" }
+material-compose = { group = "androidx.compose.material", name = "material", version = "1.7.6" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }

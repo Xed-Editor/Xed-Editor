@@ -1,0 +1,45 @@
+v2.9.0 (36)
+
+- Added refresh button in menu
+- Added custom line spacing
+- Added dark theme for auto complete window
+- Added Mutators (user scripts)
+- Added Funding.yml
+- Added custom encoding support
+- Added Termux-Exec
+- Added Sora Search for advanced searching (regex,whole word search)
+- Added option to disable/enable keyboard suggestions
+- Lua Syntax highlighting
+- Smali Syntax highlighting
+- Php syntax highlighting
+- Updated default font
+- Added selectable fonts
+- Add support for custom fonts
+- Updated to latest targetSdk (35)
+- Improved key panel
+- Improved Keybindings
+- Improved media viewer
+- Improved ui colors
+- Improved Printer
+- Improved markdown renderer
+- Categorized editor settings
+- Retain editor text on config change (eg. rotate/theme change)
+- Fixed Run button issues
+- Fixed menu update issues
+- Fixed Tab Key
+- Fixed external editor crashes
+- Fixed file modified star issue
+- Fixed Auto Save
+- Fixed white flicker in settings
+- Ask Before closing modified tab
+- Removed Alpine Linux
+
+- Updated Translations (some translations are machine generated contact developer or update them using weblate)
+
+
+
+
+
+
+
+

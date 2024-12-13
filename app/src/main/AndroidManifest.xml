@@ -76,6 +76,10 @@
         <activity
             android:name=".ui.activities.settings.SettingsActivity"
             android:exported="false" />
+
+        <activity android:name=".ui.activities.settings.Terminal"
+            android:exported="true"
+            />
     </application>
 
 </manifest>
