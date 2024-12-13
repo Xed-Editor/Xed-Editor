@@ -93,8 +93,3 @@ Translate Karbon! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/)
 ## Find this app useful? :heart:
 Support it by giving a star :star: <br>
 Also, **__[follow](https://github.com/Rohit-Kushvaha)__** me for my next creations! 🤩
-
----
-
-## License
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor?ref=badge_large)
