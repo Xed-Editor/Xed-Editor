@@ -1,0 +1,76 @@
+{
+  "name": "Coq",
+  "scopeName": "source.coq",
+  "fileTypes": ["v", "coq"],
+  "patterns": [
+    {
+      "name": "comment.line.double-dash.coq",
+      "match": "\\(\\*.*?\\*\\)",
+      "comment": "Coq comments"
+    },
+    {
+      "name": "keyword.control.coq",
+      "match": "\\b(Theorem|Lemma|Proof|Qed|Definition|Fixpoint|CoFixpoint|Axiom|Inductive|CoInductive|Record|Structure|Module|End|Section|Import|Require|Export|Print|Eval|Check|Goal|Existing|Universe|Type|Set|Prop)\\b",
+      "comment": "Coq keywords"
+    },
+    {
+      "name": "keyword.operator.coq",
+      "match": "\\b(forall|exists|match|with|end|if|then|else|let|in|fun|fix|cofix|return|:=|=>|->|\\.|:|,|;|@|\\||\\+|-|\\*|/|=|<>|<|<=|>|>=|\\{|\\}|\\(|\\)|\\[|\\])\\b",
+      "comment": "Coq operators and punctuation"
+    },
+    {
+      "name": "keyword.other.coq",
+      "match": "\\b(as|at|by|coercion|else|end|exists|exists2|fix|for|forall|fun|if|IF|in|let|match|measure|module|Parameter|pattern|return|struct|then|using|where|with|beta|delta|iota|zeta)\\b",
+      "comment": "Additional Coq keywords"
+    },
+    {
+      "name": "constant.language.coq",
+      "match": "\\b(True|False|nil|cons|O|S)\\b",
+      "comment": "Coq built-in constants"
+    },
+    {
+      "name": "variable.other.coq",
+      "match": "\\b[a-z][a-zA-Z0-9_']*\\b",
+      "comment": "Coq variables"
+    },
+    {
+      "name": "entity.name.type.coq",
+      "match": "\\b[A-Z][a-zA-Z0-9_']*\\b",
+      "comment": "Coq type names"
+    },
+    {
+      "name": "string.quoted.double.coq",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.coq",
+          "match": "\\\\."
+        }
+      ],
+      "comment": "Coq strings"
+    },
+    {
+      "name": "constant.numeric.coq",
+      "match": "\\b[0-9]+\\b",
+      "comment": "Coq numbers"
+    },
+    {
+      "name": "keyword.control.tactics.coq",
+      "match": "\\b(apply|assumption|auto|case|clear|clearbody|cofix|compute|constructor|cut|destruct|discriminate|double|elim|exact|exists|field|firstorder|fold|generalize|hnf|idtac|induction|injection|intros|inversion|left|move|omega|red|refine|reflexivity|rewrite|right|ring|simpl|split|subst|symmetry|transitivity|trivial|unfold)\\b",
+      "comment": "Coq tactics"
+    }
+  ],
+  "repository": {
+    "block_comment": {
+      "name": "comment.block.coq",
+      "begin": "\\(\\*",
+      "end": "\\*\\)",
+      "patterns": [
+        {
+          "include": "#block_comment"
+        }
+      ]
+    }
+  }
+}
