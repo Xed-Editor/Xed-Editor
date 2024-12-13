@@ -28,6 +28,8 @@
 - [x] **Rename** and **Delete** files and folders
 - [x] **Print** text
 - [x] **Keybindings** ([View available keybindings](/docs/KEYBINDS.md))
+- [x] Termux Interoperability
+- [x] Running python,node
 ---
 ## Community
 > [!TIP]
