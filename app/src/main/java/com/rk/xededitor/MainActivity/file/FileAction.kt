@@ -26,7 +26,7 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.terminal.Terminal
+import com.rk.xededitor.ui.activities.settings.Terminal
 import java.io.File
 import java.util.Locale
 import kotlin.random.Random

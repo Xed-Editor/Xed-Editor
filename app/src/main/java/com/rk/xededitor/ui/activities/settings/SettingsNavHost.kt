@@ -16,6 +16,7 @@ import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
+import com.rk.xededitor.ui.screens.settings.terminal.Terminal
 
 @Composable
 fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {
@@ -36,6 +37,5 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
-
     }
 }

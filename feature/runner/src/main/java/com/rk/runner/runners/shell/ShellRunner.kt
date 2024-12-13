@@ -43,7 +43,7 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
                 context.startActivity(
                     Intent(
                         context,
-                        Class.forName("com.rk.xededitor.terminal.Terminal")
+                        Class.forName("com.rk.xededitor.ui.activities.settings")
                     ).also {
                         it.putExtra("run_cmd", true)
                         it.putExtra("shell", shell)

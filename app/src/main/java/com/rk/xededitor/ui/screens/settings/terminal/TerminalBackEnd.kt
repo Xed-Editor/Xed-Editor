@@ -1,28 +1,21 @@
-package com.rk.xededitor.terminal
+package com.rk.xededitor.ui.screens.settings.terminal
 
+import android.app.Activity
 import android.util.Log
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
-import com.blankj.utilcode.util.SizeUtils
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.terminal.virtualkeys.SpecialButton
+import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.SpecialButton
+import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSessionClient {
-    private lateinit var terminal: TerminalView
-    
-    fun setTerminal(terminalView: TerminalView) {
-        terminal = terminalView
-    }
-    
+class TerminalBackEnd(val terminal: TerminalView,val activity:Activity) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
         terminal.onScreenUpdated()
     }
@@ -42,7 +35,9 @@ class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSess
         }
     }
     
-    override fun onBell(session: TerminalSession) {}
+    override fun onBell(session: TerminalSession) {
+
+    }
     
     override fun onColorsChanged(session: TerminalSession) {}
     
@@ -82,7 +77,7 @@ class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSess
     }
     
     override fun onScale(scale: Float): Float {
-        return rkUtils.dpToPx(14f,activity).toFloat()
+        return rkUtils.dpToPx(14f,terminal.context).toFloat()
     }
     
     override fun onSingleTapUp(e: MotionEvent) {
@@ -125,22 +120,22 @@ class TerminalBackEnd(val activity: Terminal) : TerminalViewClient, TerminalSess
     
     // keys
     override fun readControlKey(): Boolean {
-        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.CTRL, true)
+        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.CTRL, true)
         return state != null && state
     }
     
     override fun readAltKey(): Boolean {
-        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.ALT, true)
+       val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.ALT, true)
         return state != null && state
     }
     
     override fun readShiftKey(): Boolean {
-        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.SHIFT, true)
+        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.SHIFT, true)
         return state != null && state
     }
     
     override fun readFnKey(): Boolean {
-        val state = activity.binding?.extraKeys?.readSpecialButton(SpecialButton.FN, true)
+        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.FN, true)
         return state != null && state
     }
     

@@ -1,17 +1,17 @@
-package com.rk.xededitor.terminal
+package com.rk.xededitor.ui.screens.settings.terminal
 
+import android.app.Activity
 import android.os.Environment
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
+import com.termux.terminal.TerminalSessionClient
 import java.io.File
 
 object MkSession {
-    fun createSession(activity: Terminal): TerminalSession {
+    fun createSession(activity: Activity,sessionClient: TerminalSessionClient): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
@@ -34,7 +34,7 @@ object MkSession {
                 }
             }
             
-            val workingDir = getPwd().replace(filesDir.parentFile!!.absolutePath,Environment. getExternalStorageDirectory().path)
+            val workingDir = getPwd() //.replace(filesDir.parentFile!!.absolutePath,Environment. getExternalStorageDirectory().path)
             
             val tmpDir = File(getTempDir(), "terminal")
             
@@ -75,7 +75,7 @@ object MkSession {
                 }
                 
                 
-                var shell: String = intent.getStringExtra("shell").toString()
+                val shell: String = intent.getStringExtra("shell").toString()
                 val args: Array<String> = intent.getStringArrayExtra("args")!!
                 
                 return TerminalSession(
@@ -84,7 +84,7 @@ object MkSession {
                     args,
                     env1,
                     TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
-                    terminalBackend,
+                    sessionClient,
                 )
             }
             
@@ -97,7 +97,7 @@ object MkSession {
                 args,
                 env.toTypedArray(),
                 TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
-                terminalBackend,
+                sessionClient,
             )
         }
         
