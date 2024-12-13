@@ -15,24 +15,19 @@
 
 ---
 ## Features
-- **Text Editing **
   - [x] File editing outside projects
   - [x] Word Wrap
   - [x] Undo-Redo functionality
   - [x] Syntax Highlighting
-- **Search and Replace**
   - [x] Search and Batch Replacement
-- **File Management**
   - [x] Integrated File Browser
   - [x] Create, Rename, Copy, and Delete Files/Folders
-  - Print text
-- **Customization**
-  - AMOLED Theme
-  - Keybindings
-- **Advanced Tools**
-  - Built-in Terminal
-  - Termux Interoperability
-  - Run Python, Node.js, etc.
+  - [x] Print text
+  - [x] AMOLED Theme
+  - [x] Keybindings
+  - [x] Built-in Terminal
+  - [x] Termux Interoperability
+  - [x] Run Python, Node.js, etc.
 ---
 ## Community
 > [!TIP]
