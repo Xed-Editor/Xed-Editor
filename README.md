@@ -15,7 +15,9 @@
 
 ---
 ## Features
-  - [x] File editing outside projects
+  - [x] File editing
+  - [x] Open Multiple Projects
+  - [x] Edit Multiple files
   - [x] Word Wrap
   - [x] Undo-Redo functionality
   - [x] Syntax Highlighting
