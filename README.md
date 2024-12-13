@@ -2,7 +2,7 @@
   <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Karbon Editor" width="90" height="90"/>
 </p>
 
-<h2 align="center"><b>Karbon</b></h2>
+<h2 align="center"><b>Karbon (Xed-Editor)</b></h2>
 
 <div align="center">
 <a href="https://app.fossa.com/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FXed-Editor%2FXed-Editor.svg?type=shield"/></a>
