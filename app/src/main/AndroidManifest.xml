@@ -60,24 +60,13 @@
             android:name=".CrashHandler.CrashActivity"
             android:exported="false" />
 
-
-
-
-        <activity
-            android:name=".terminal.Terminal"
-            android:exported="true"
-            android:label="Terminal"
-            android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
         <activity
             android:name=".ui.activities.settings.SettingsActivity"
             android:exported="false" />
 
         <activity android:name=".ui.activities.settings.Terminal"
+android:label="Terminal"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true"
             />
     </application>
