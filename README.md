@@ -15,21 +15,24 @@
 
 ---
 ## Features
-- [x] **File editing** outside of projects
-- [x] Comprehensive **settings** options
-- [x] **AMOLED Theme** (pure black)
-- [x] **Undo-Redo** functionality
-- [x] **Search** and **Batch Replacement**
-- [x] **Word Wrap**
-- [x] Integrated **File Browser**
-- [x] Built-in **Terminal**
-- [x] Create and manage **files and folders**
-- [x] **Copy/Paste** files and folders
-- [x] **Rename** and **Delete** files and folders
-- [x] **Print** text
-- [x] **Keybindings** ([View available keybindings](/docs/KEYBINDS.md))
-- [x] Termux Interoperability
-- [x] Running python,node
+- **Text Editing**:
+  - File editing outside projects
+  - Word Wrap
+  - Undo-Redo functionality
+  - Syntax Highlighting
+- **Search and Replace**:
+  - Search and Batch Replacement
+- **File Management**:
+  - Integrated File Browser
+  - Create, Rename, Copy, and Delete Files/Folders
+  - Print text
+- **Customization**:
+  - AMOLED Theme
+  - Keybindings
+- **Advanced Tools**:
+  - Built-in Terminal
+  - Termux Interoperability
+  - Run Python, Node.js, etc.
 ---
 ## Community
 > [!TIP]
