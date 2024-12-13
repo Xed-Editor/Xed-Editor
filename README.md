@@ -22,7 +22,7 @@
   - [x] Search and Batch Replacement
   - [x] Integrated File Browser
   - [x] Create, Rename, Copy, and Delete Files/Folders
-  - [x] Print text
+  - [x] Print text documents
   - [x] AMOLED Theme
   - [x] Keybindings
   - [x] Built-in Terminal
