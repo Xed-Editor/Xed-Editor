@@ -50,7 +50,7 @@ fun Terminal(modifier: Modifier = Modifier) {
         }
     }, content = {
         Scaffold(topBar = {
-            TopAppBar(title = { }, navigationIcon = {
+            TopAppBar(title = { Text(text = "Terminal")}, navigationIcon = {
                 IconButton(onClick = {
                     scope.launch {
                         drawerState.open()
