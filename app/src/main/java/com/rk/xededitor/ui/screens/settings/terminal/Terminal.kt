@@ -25,8 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.rk.resources.strings
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysInfo
@@ -52,15 +54,14 @@ fun Terminal(modifier: Modifier = Modifier) {
         }
     }, content = {
         Scaffold(topBar = {
-            TopAppBar(title = { Text(text = "Terminal")}, navigationIcon = {
+            TopAppBar(title = { Text(text = stringResource(strings.terminal))}, navigationIcon = {
                 IconButton(onClick = {
                     scope.launch { drawerState.open() }
                     }) {
-                        Icon(Icons.Default.Menu, "Menu")
+                        Icon(Icons.Default.Menu, null)
                     }
                 })
             }) { paddingValues ->
-
                 Column(modifier = Modifier.padding(paddingValues)) {
                     // TerminalView takes available space
                     val activity = LocalContext.current as? Activity
@@ -145,7 +146,6 @@ fun Terminal(modifier: Modifier = Modifier) {
                             .height(75.dp)
                     )
                 }
-
             }
         })
     }

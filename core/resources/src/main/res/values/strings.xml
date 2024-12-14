@@ -323,4 +323,9 @@
     <string name="line_spacing_multiplier">Line Spacing Multiplier</string>
 
     <string name="mutators">Mutators</string>
+
+    <string name="update_av">New Updates Available</string>
+    <string name="update">Update</string>
+    <string name="ignore">Ignore</string>
+    <string name="update_disable">Update check disabled</string>
 </resources>
