@@ -120,7 +120,7 @@ object HandleMenuItemClick {
                 
                 R.id.terminal -> {
                     if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE, true)) {
-                        startActivity(Intent(this, Class.forName("com.rk.xededitor.ui.activities.settings")))
+                        startActivity(Intent(this, Class.forName("com.rk.xededitor.ui.activities.settings.Terminal")))
                     } else {
                         kotlin.runCatching {
                             launchTermux()

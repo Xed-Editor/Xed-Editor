@@ -3,6 +3,8 @@ package com.rk.xededitor.update
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.BuildConfig
@@ -92,14 +94,18 @@ object UpdateManager {
             if (updates.isNotEmpty()) {
                 MainActivity.activityRef.get()?.let {
                     MaterialAlertDialogBuilder(it).apply {
-                        setTitle("New Updates Available")
+                        setTitle(strings.update_av.getString())
                         setMessage(updates.joinToString("\n"))
-                        setPositiveButton("Update") { _, _ ->
+                        setPositiveButton(strings.update.getString()) { _, _ ->
                             val url = "https://github.com/Xed-Editor/Xed-Editor"
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
                         }
-                        setNegativeButton("Ignore", null)
+                        setNegativeButton(strings.ignore.getString()){ _,_ ->
+                            PreferencesData.setBoolean(PreferencesKeys.CHECK_UPDATE, false)
+                            rkUtils.toast(strings.update_disable.getString())
+                        }
+                        setCancelable(false)
                         show()
                     }
                 }
