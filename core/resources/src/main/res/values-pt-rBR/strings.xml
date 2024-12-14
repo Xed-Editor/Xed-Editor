@@ -304,4 +304,8 @@
     <string name="line_spacing">Espaçamento entre linhas</string>
     <string name="line_spacing_multiplier">Multiplicador de espaçamento de linha</string>
     <string name="mutators">Mutadores</string>
+    <string name="update">Atualizar</string>
+    <string name="ignore">Ignorar</string>
+    <string name="update_av">Novas atualizações disponíveis</string>
+    <string name="update_disable">Verificação de atualização desabilitada</string>
 </resources>
