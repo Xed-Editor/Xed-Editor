@@ -44,10 +44,9 @@ var virtualKeysId = View.generateViewId()
 fun Terminal(modifier: Modifier = Modifier) {
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
         val scope = rememberCoroutineScope()
 
-    ModalNavigationDrawer(drawerState = drawerState, drawerContent = {
+    ModalNavigationDrawer(drawerState = drawerState,gesturesEnabled = drawerState.isOpen ,drawerContent = {
         ModalDrawerSheet {
             //drawer content
         }
@@ -55,10 +54,7 @@ fun Terminal(modifier: Modifier = Modifier) {
         Scaffold(topBar = {
             TopAppBar(title = { Text(text = "Terminal")}, navigationIcon = {
                 IconButton(onClick = {
-                    scope.launch {
-                        drawerState.open()
-
-                        }
+                    scope.launch { drawerState.open() }
                     }) {
                         Icon(Icons.Default.Menu, "Menu")
                     }
