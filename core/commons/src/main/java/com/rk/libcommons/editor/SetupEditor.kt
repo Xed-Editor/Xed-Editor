@@ -13,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.JsonParser
-import com.rk.libcommons.KarbonEditor
 import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys

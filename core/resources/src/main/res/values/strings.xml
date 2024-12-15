@@ -330,4 +330,8 @@
     <string name="ignore">Ignore</string>
     <string name="update_disable">Update check disabled</string>
 
+    <string name="launch_termux">Launch Termux?</string>
+    <string name="launch_termux_explanation">Termux is stopped so karbon is unable to run command in it. do you like to start it?</string>
+    <string name="launch">Launch</string>
+
 </resources>

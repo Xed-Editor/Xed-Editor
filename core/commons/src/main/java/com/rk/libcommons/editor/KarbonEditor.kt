@@ -1,9 +1,11 @@
-package com.rk.libcommons
+package com.rk.libcommons.editor
 
 import android.content.Context
 import android.text.InputType
 import android.util.AttributeSet
 import android.widget.Toast
+import com.rk.libcommons.CustomScope
+import com.rk.libcommons.application
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers

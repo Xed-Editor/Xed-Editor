@@ -10,11 +10,11 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.Toast
-import com.rk.libcommons.KarbonEditor
 import com.rk.libcommons.R
 import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException
@@ -31,7 +31,7 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
         val searcher = editor.searcher
         var isSearching = false
         
-        view.findViewById<Button>(R.id.close).setOnClickListener { isSearching = false;searcher.stopSearch();view.visibility = View.GONE }
+        view.findViewById<ImageButton>(R.id.close).setOnClickListener { isSearching = false;searcher.stopSearch();view.visibility = View.GONE }
         
         val searchEditText = view.findViewById<EditText>(R.id.search_editor)
         val replaceEditText = view.findViewById<EditText>(R.id.replace_editor)

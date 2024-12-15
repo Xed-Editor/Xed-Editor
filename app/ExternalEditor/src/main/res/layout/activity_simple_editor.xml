@@ -22,7 +22,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- KarbonEditor -->
-    <com.rk.libcommons.KarbonEditor
+    <com.rk.libcommons.editor.KarbonEditor
         android:id="@+id/editor"
         android:layout_width="0dp"
         android:layout_height="0dp"
