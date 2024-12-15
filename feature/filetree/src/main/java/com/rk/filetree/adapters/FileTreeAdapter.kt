@@ -87,7 +87,9 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
     fun newFile(file: FileObject) {
+
         val tempData = currentList.toMutableList()
+
         var xnode: Node<FileObject>? = null
         for (node in tempData) {
             if (node.value.getAbsolutePath() == file.getAbsolutePath()) {
@@ -99,6 +101,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         val cache = Sorter.sort(file)
 
         val children1 = TreeViewModel.getChildren(xnode!!)
+
         tempData.removeAll(children1.toSet())
         TreeViewModel.remove(xnode, xnode.child)
         xnode.isExpand = false
