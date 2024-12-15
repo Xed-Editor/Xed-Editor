@@ -56,7 +56,7 @@ class PythonRunner : RunnerImpl {
                     setPositiveButton("Launch", { dialog, which ->
                         launchTermux()
                         Handler(Looper.getMainLooper()).postDelayed({
-                            val returnIntent = Intent(context, context::class.java).apply {
+                            val returnIntent = Intent(context, Class.forName("com.rk.xededitor.MainActivity.MainActivity")).apply {
                                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                             }
                             context.startActivity(returnIntent)
