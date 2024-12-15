@@ -19,3 +19,4 @@ Todo.md
 */build
 **/build
 .vscode
+core/wasm3
