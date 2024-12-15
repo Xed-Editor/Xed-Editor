@@ -2,12 +2,14 @@ package com.rk.xededitor.ui.screens.settings.about
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
@@ -19,7 +21,6 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceTempl
 
 @Composable
 fun AboutScreen() {
-
     val packageInfo =
         LocalContext.current.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
     val versionName = packageInfo.versionName
@@ -69,14 +70,13 @@ fun AboutScreen() {
                             val url = "https://github.com/Xed-Editor/Xed-Editor"
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
-                        }
+                        },
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Text(stringResource(id = strings.github))
                     }
                 },
             )
-            
-            
 
             PreferenceTemplate(
                 title = {
@@ -94,7 +94,8 @@ fun AboutScreen() {
                             val url = "https://t.me/Xed_Editor"
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
-                        }
+                        },
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Text(stringResource(id = strings.join))
                     }
