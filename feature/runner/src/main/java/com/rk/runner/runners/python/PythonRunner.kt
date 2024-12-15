@@ -55,7 +55,12 @@ class PythonRunner : RunnerImpl {
                     setMessage("Termux is stopped so karbon is unable to run command in it. do you like to start it?")
                     setPositiveButton("Launch", { dialog, which ->
                         launchTermux()
-                        application!!.startActivity(Intent(application!!, context::class.java))
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            val returnIntent = Intent(context, context::class.java).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            }
+                            context.startActivity(returnIntent)
+                        }, 500)
                     })
                     setNegativeButton("Cancel", { dialog, which -> })
                     show()
