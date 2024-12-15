@@ -8,6 +8,7 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.karbon_exec.askLaunchTermux
 import com.rk.karbon_exec.isExecPermissionGranted
 import com.rk.karbon_exec.isTermuxCompatible
 import com.rk.karbon_exec.isTermuxInstalled
@@ -50,18 +51,7 @@ class NodeRunner : RunnerImpl {
         )
 
         if (isTermuxRunning().not()) {
-            Handler(Looper.getMainLooper()).post {
-                MaterialAlertDialogBuilder(context).apply {
-                    setTitle("Launch Termux?")
-                    setMessage("Termux is stopped so karbon is unable to run command in it. do you like to start it?")
-                    setPositiveButton("Launch", { dialog, which ->
-                        launchTermux()
-                        application!!.startActivity(Intent(application!!, context::class.java))
-                    })
-                    setNegativeButton("Cancel", { dialog, which -> })
-                    show()
-                }
-            }
+            askLaunchTermux(context)
         }
     }
     

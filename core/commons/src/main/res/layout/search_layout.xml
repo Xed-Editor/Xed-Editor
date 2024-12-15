@@ -21,9 +21,10 @@
             <Button
                 android:id="@+id/btn_goto_prev"
                 style="?buttonBarButtonStyle"
+                android:src="@drawable/arrow_upward"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:textStyle="bold"
                 android:text="@string/go_prev" />
 
             <Button
@@ -31,15 +32,15 @@
                 style="?buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:textStyle="bold"
                 android:text="@string/go_next" />
 
             <Button
                 android:id="@+id/btn_replace"
                 style="?buttonBarButtonStyle"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
                 android:text="@string/replace" />
 
             <Button
@@ -47,13 +48,14 @@
                 style="?buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
+                android:textStyle="bold"
                 android:text="@string/replaceall" />
 
-            <Button
+            <ImageButton
                 android:id="@+id/close"
                 style="?buttonBarButtonStyle"
                 android:layout_width="wrap_content"
+                android:src="@drawable/close"
                 android:layout_height="wrap_content"
                 android:text="@string/close" />
 

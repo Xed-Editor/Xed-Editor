@@ -6,11 +6,15 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.application
 import com.rk.libcommons.isAppInBackground
+import com.rk.resources.getString
+import com.rk.resources.strings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +42,26 @@ private fun checkTermuxInstall() {
     }
     if (isExecPermissionGranted().not()) {
         throw RuntimeException("Termux-Exec Permission Denied")
+    }
+}
+
+fun askLaunchTermux(context: Context){
+    Handler(Looper.getMainLooper()).post {
+        MaterialAlertDialogBuilder(context).apply {
+            setTitle(strings.launch_termux.getString())
+            setMessage(strings.launch_termux_explanation.getString())
+            setPositiveButton(strings.launch.getString(), { dialog, which ->
+                launchTermux()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val returnIntent = Intent(context, Class.forName("com.rk.xededitor.MainActivity.MainActivity")).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    }
+                    context.startActivity(returnIntent)
+                }, 300)
+            })
+            setNegativeButton(strings.cancel.getString(), { dialog, which -> })
+            show()
+        }
     }
 }
 

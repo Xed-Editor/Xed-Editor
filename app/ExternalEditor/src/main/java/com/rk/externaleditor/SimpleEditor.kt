@@ -29,7 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.settings.PreferencesData

@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.CustomScope
-import com.rk.libcommons.KarbonEditor
+import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
