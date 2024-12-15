@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.jaredrummler.ktsh.Shell
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.resources.drawables
@@ -28,9 +27,12 @@ import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.ui.activities.settings.Terminal
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 import java.util.Locale
-import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -90,21 +92,28 @@ class FileAction(
                         getDrawable(drawables.delete),
                     ) {
                         MaterialAlertDialogBuilder(context)
-                            .setTitle(context.getString(strings.delete))
-                            .setMessage(context.getString(strings.ask_del) + " ${file.name} ")
-                            .setNegativeButton(context.getString(strings.cancel), null)
-                            .setPositiveButton(context.getString(strings.delete)) {
-                                _: DialogInterface?,
-                                _: Int ->
+                            .setTitle(getString(strings.delete))
+                            .setMessage(getString(strings.ask_del) + " ${file.name} ")
+                            .setNegativeButton(getString(strings.cancel), null)
+                            .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
                                 val loading = LoadingPopup(mainActivity, null).show()
                                 ProjectManager.currentProject.updateFileDeleted(mainActivity, file)
                                 mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                                    if (file.isFile) {
-                                        file.delete()
-                                    } else {
-                                        file.deleteRecursively()
+                                    try {
+                                        if (file.isFile) {
+                                            Files.delete(file.toPath())
+                                        } else {
+                                            Files.walk(file.toPath())
+                                                .sorted(Comparator.reverseOrder())
+                                                .forEach { Files.delete(it) }
+                                        }
+                                        withContext(Dispatchers.Main) { loading.hide() }
+                                    } catch (e: Exception) {
+                                        withContext(Dispatchers.Main) {
+                                            loading.hide()
+                                            rkUtils.toast("${getString(strings.failed_move)}: ${e.message}")
+                                        }
                                     }
-                                    withContext(Dispatchers.Main) { loading.hide() }
                                 }
                             }
                             .show()
@@ -129,7 +138,7 @@ class FileAction(
                     ) {
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                         intent.addCategory(Intent.CATEGORY_OPENABLE)
-                        intent.setType("*/*")
+                        intent.type = "*/*"
                         mainActivity.startActivityForResult(intent, REQUEST_ADD_FILE)
                     }
                     addItem(
@@ -155,53 +164,50 @@ class FileAction(
                             rkUtils.toast(getString(strings.clipboardempty))
                         } else {
                             LoadingPopup(mainActivity, 350)
-                            mainActivity.let {
-                                it.lifecycleScope.launch(Dispatchers.Default) {
-                                    if (!FileClipboard.isEmpty()) {
-                                        val sourceFile = FileClipboard.getFile()
-                                        if (file.isDirectory && sourceFile != null) {
-                                            try {
-                                                val targetPath =
-                                                    file.toPath().resolve(sourceFile.name)
+                            mainActivity.lifecycleScope.launch(Dispatchers.Default) {
+                                if (!FileClipboard.isEmpty()) {
+                                    val sourceFile = FileClipboard.getFile()
+                                    if (file.isDirectory && sourceFile != null) {
+                                        try {
+                                            val targetPath = file.toPath().resolve(sourceFile.name)
 
-                                                // Move the source file to the target directory
-                                                withContext(Dispatchers.IO) {
-                                                    Shell.SH.apply {
-                                                        run(
-                                                            "cp -r ${sourceFile.absolutePath} $targetPath"
+                                            withContext(Dispatchers.IO) {
+                                                if (sourceFile.isDirectory) {
+                                                    Files.walk(sourceFile.toPath()).forEach { source ->
+                                                        val dest = targetPath.resolve(
+                                                            sourceFile.toPath().relativize(source)
                                                         )
-                                                        shutdown()
+                                                        Files.copy(
+                                                            source,
+                                                            dest,
+                                                            StandardCopyOption.REPLACE_EXISTING
+                                                        )
                                                     }
-                                                }
-
-                                                // Update the TreeView to reflect the changes
-                                                withContext(Dispatchers.Main) {
-                                                    //
-                                                    // adapter?.newFile(file)
-                                                    //                                        if
-                                                    // (file == rootFolder) {
-                                                    //
-                                                    // TreeView(context, rootFolder)
-                                                    //                                        }
-                                                    // BaseActivity.getActivity(MainActivity::class.java)?.fileTree?.loadFiles(file(rootFolder))
-                                                    ProjectManager.currentProject.updateFileAdded(
-                                                        mainActivity,
-                                                        targetPath.toFile(),
+                                                } else {
+                                                    Files.copy(
+                                                        sourceFile.toPath(),
+                                                        targetPath,
+                                                        StandardCopyOption.REPLACE_EXISTING
                                                     )
                                                 }
+                                            }
 
-                                                // Optionally, clear the clipboard after pasting
-                                                FileClipboard.clear()
-                                            } catch (e: Exception) {
-                                                e.printStackTrace()
-                                                withContext(Dispatchers.Main) {
-                                                    Toast.makeText(
-                                                            context,
-                                                            "${getString(strings.failed_move)}: ${e.message}",
-                                                            Toast.LENGTH_SHORT,
-                                                        )
-                                                        .show()
-                                                }
+                                            withContext(Dispatchers.Main) {
+                                                ProjectManager.currentProject.updateFileAdded(
+                                                    mainActivity,
+                                                    targetPath.parent.toFile()
+                                                )
+                                            }
+
+                                            FileClipboard.clear()
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(
+                                                    context,
+                                                    "${getString(strings.failed_move)}: ${e.message}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
                                             }
                                         }
                                     }
@@ -251,35 +257,35 @@ class FileAction(
             .setTitle(title)
             .setView(popupView)
             .setNegativeButton(mainActivity.getString(strings.cancel), null)
-            .setPositiveButton(mainActivity.getString(strings.create)) {
-                _: DialogInterface?,
-                _: Int ->
-                if (editText.getText().toString().isEmpty()) {
+            .setPositiveButton(mainActivity.getString(strings.create)) { _: DialogInterface?, _: Int ->
+                if (editText.text.toString().isEmpty()) {
                     rkUtils.toast(mainActivity.getString(strings.ask_enter_name))
                     return@setPositiveButton
                 }
 
                 val loading = LoadingPopup(mainActivity, null)
-
                 loading.show()
-                val fileName = editText.getText().toString()
-                for (xfile in file.listFiles()!!) {
-                    if (xfile.name == fileName) {
-                        rkUtils.toast(mainActivity.getString(strings.already_exists))
+
+                val fileName = editText.text.toString()
+                val newFilePath = file.toPath().resolve(fileName)
+
+                if (Files.exists(newFilePath)) {
+                    rkUtils.toast(mainActivity.getString(strings.already_exists))
+                    loading.hide()
+                    return@setPositiveButton
+                }
+
+                mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                    if (createFile) {
+                        Files.createFile(newFilePath)
+                    } else {
+                        Files.createDirectory(newFilePath)
+                    }
+                    withContext(Dispatchers.Main) {
+                        ProjectManager.currentProject.updateFileAdded(mainActivity, newFilePath.parent.toFile())
                         loading.hide()
-                        return@setPositiveButton
                     }
                 }
-
-                if (createFile) {
-                    File(file, fileName).createNewFile()
-                } else {
-                    File(file, fileName).mkdir()
-                }
-
-                ProjectManager.currentProject.updateFileAdded(mainActivity, file)
-
-                loading.hide()
             }
             .show()
     }
@@ -295,9 +301,7 @@ class FileAction(
             .setTitle(mainActivity.getString(strings.rename))
             .setView(popupView)
             .setNegativeButton(mainActivity.getString(strings.cancel), null)
-            .setPositiveButton(mainActivity.getString(strings.rename)) {
-                _: DialogInterface?,
-                _: Int ->
+            .setPositiveButton(mainActivity.getString(strings.rename)) { _: DialogInterface?, _: Int ->
                 val newFileName = editText.text.toString()
 
                 if (newFileName.isEmpty()) {
@@ -308,57 +312,47 @@ class FileAction(
                 val loading = LoadingPopup(mainActivity, null)
                 loading.show()
 
-                // Check if the new file name already exists
-                val parentDir = file.parentFile
-                val fileExists =
-                    parentDir?.list()?.any { it.equals(newFileName, ignoreCase = false) } == true
-
-                if (fileExists) {
+                val targetPath = file.parentFile.toPath().resolve(newFileName)
+                if (Files.exists(targetPath)) {
                     rkUtils.toast(mainActivity.getString(strings.already_exists))
                     loading.hide()
                     return@setPositiveButton
                 }
-                
-                fun rename(file: File, to: String) {
-                    mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                        val random = Random(28958510971)
-                        val xf = (random.nextInt() + random.nextInt()).toString()
-                        Shell.SH.apply {
-                            // Quote the file paths to handle spaces properly
-                            run("mv \"${file.canonicalPath}\" \"${file.parentFile}/$xf\"")
-                            run("mv \"${file.parentFile}/$xf\" \"${file.parentFile}/$to\"")
-                            shutdown()
-                            withContext(Dispatchers.Main) {
-                                ProjectManager.currentProject.updateFileRenamed(
-                                    mainActivity,
-                                    file,
-                                    File(file.parentFile, to),
-                                )
-                            }
-                            // Update file when renaming
-                            MainActivity.activityRef
-                                .get()
-                                ?.adapter
-                                ?.tabFragments
-                                ?.values
-                                ?.forEach { f ->
-                                    if (f.get()?.type == FragmentType.EDITOR){
-                                        val editorFragment = f.get()!!.fragment as EditorFragment
-                                        if (editorFragment.file?.absolutePath == file.absolutePath) {
-                                            editorFragment.file = File(to)
-                                            // TODO: Update tab text too
-                                        }
+
+                mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        Files.move(
+                            file.toPath(),
+                            targetPath,
+                            StandardCopyOption.ATOMIC_MOVE
+                        )
+
+                        withContext(Dispatchers.Main) {
+                            ProjectManager.currentProject.updateFileRenamed(
+                                mainActivity,
+                                file,
+                                targetPath.toFile()
+                            )
+
+                            // Update file references in editor
+                            MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
+                                if (f.get()?.type == FragmentType.EDITOR) {
+                                    val editorFragment = f.get()!!.fragment as EditorFragment
+                                    if (editorFragment.file?.absolutePath == file.absolutePath) {
+                                        editorFragment.file = targetPath.toFile()
                                     }
-                                    
                                 }
+                            }
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            rkUtils.toast("${getString(strings.failed_move)}: ${e.message}")
                         }
                     }
+                    withContext(Dispatchers.Main) {
+                        loading.hide()
+                    }
                 }
-                
-                
-                rename(file, newFileName)
-
-                loading.hide()
             }
             .show()
     }
@@ -374,29 +368,27 @@ class FileAction(
                 context.contentResolver.getType(uri)
             }
         }
+
         try {
-            val uri: Uri =
-                FileProvider.getUriForFile(
-                    context,
-                    context.applicationContext.packageName + ".fileprovider",
-                    file,
-                )
+            val uri: Uri = FileProvider.getUriForFile(
+                context,
+                context.applicationContext.packageName + ".fileprovider",
+                file,
+            )
             val mimeType = getMimeType(context, file)
 
-            val intent =
-                Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, mimeType)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                    addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                    addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-                }
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, mimeType)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+            }
 
-            // Check if there's an app to handle this intent
             if (intent.resolveActivity(context.packageManager) != null) {
                 context.startActivity(intent)
             } else {
-                Toast.makeText(context, context.getString(strings.canthandle), Toast.LENGTH_SHORT)
+                Toast.makeText(context, getString(strings.canthandle), Toast.LENGTH_SHORT)
                     .show()
             }
         } catch (e: Exception) {
