@@ -253,6 +253,10 @@ class EditorFragment(val context: Context) : CoreFragment {
 
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
+        if(file!!.exists().not()){
+            rkUtils.toast("File No longer exists")
+            return
+        }
         if (editor == null) {
             throw RuntimeException("editor is null")
         }
