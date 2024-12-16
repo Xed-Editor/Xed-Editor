@@ -1,2 +1,0 @@
-/usr/bin/ar qc libm3.a CMakeFiles/m3.dir/m3_api_libc.c.o CMakeFiles/m3.dir/m3_api_wasi.c.o CMakeFiles/m3.dir/m3_api_uvwasi.c.o CMakeFiles/m3.dir/m3_api_meta_wasi.c.o CMakeFiles/m3.dir/m3_api_tracer.c.o CMakeFiles/m3.dir/m3_bind.c.o CMakeFiles/m3.dir/m3_code.c.o CMakeFiles/m3.dir/m3_compile.c.o CMakeFiles/m3.dir/m3_core.c.o CMakeFiles/m3.dir/m3_env.c.o CMakeFiles/m3.dir/m3_exec.c.o CMakeFiles/m3.dir/m3_function.c.o CMakeFiles/m3.dir/m3_info.c.o CMakeFiles/m3.dir/m3_module.c.o CMakeFiles/m3.dir/m3_parse.c.o
-/usr/bin/ranlib libm3.a
