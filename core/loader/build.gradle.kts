@@ -11,6 +11,10 @@ android {
     defaultConfig {
         minSdk = 24
 
+        ndk {
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a","x86_64")
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
         externalNativeBuild {

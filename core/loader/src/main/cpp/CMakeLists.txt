@@ -5,10 +5,6 @@ project("loader")
 add_library(${CMAKE_PROJECT_NAME} SHARED
         script.h
         assembly.S
-        assembly-arm.h
-        assembly-arm64.h
-        assembly-x86.h
-        assembly-x86_64.h
         arch.h
         attribute.h
         compat.h

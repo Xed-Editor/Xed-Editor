@@ -140,6 +140,7 @@ android {
     packaging {
         resources {
             exclude("META-INF/**")
+            exclude("lib/x86/**")
         }
         jniLibs {
             useLegacyPackaging = true
