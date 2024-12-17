@@ -51,6 +51,7 @@ object MkSession {
                 "PUBLIC_HOME=" + getExternalFilesDir(null)?.absolutePath,
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
+                "LIB_PATH=${applicationContext.applicationInfo.nativeLibraryDir}"
             )
             
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
