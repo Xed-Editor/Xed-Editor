@@ -257,7 +257,7 @@
     <string name="version">Versão</string>
     <string name="version_code">Código da Versão</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Karbon é de Código Aberto!</string>
+    <string name="github_desc">Marque uma estrela no Github 🤩</string>
     <string name="telegram">Grupo do Telegram</string>
     <string name="telegram_desc">Junte-se à comunidade do Telegram</string>
     <string name="join">Entrar</string>
@@ -308,4 +308,7 @@
     <string name="ignore">Ignorar</string>
     <string name="update_av">Novas atualizações disponíveis</string>
     <string name="update_disable">Verificação de atualização desabilitada</string>
+    <string name="launch">Lançar</string>
+    <string name="launch_termux">Iniciar o Termux?</string>
+    <string name="launch_termux_explanation">O Termux está parado, então o Karbon não consegue executar comandos nele. Você quer iniciá-lo?</string>
 </resources>
