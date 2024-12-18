@@ -16,6 +16,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.Paths
 
 class App : Application() {
 
@@ -37,8 +40,10 @@ class App : Application() {
         app = this
         application = this
         Res.context = this
-
         super.onCreate()
+
+
+
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
 

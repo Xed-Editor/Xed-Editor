@@ -11,6 +11,8 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
         loader.c)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
-        # List libraries link to the target library
-        android
-        log)
+        android)
+
+add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_STRIP} --strip-unneeded $<TARGET_FILE:${CMAKE_PROJECT_NAME}>
+        COMMENT "Stripping binary to reduce size")
