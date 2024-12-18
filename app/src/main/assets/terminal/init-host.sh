@@ -1,0 +1,21 @@
+$LINKER $LOCAL_BIN/karbon-proot \
+    --link2symlink \
+    --sysvipc \
+    --ashmem-memfd \
+    --bind=/apex \
+    --bind=/system \
+    --bind=/vendor \
+    --bind=/sdcard \
+    --bind=/storage \
+    --bind=/dev \
+    --bind=/proc \
+    --bind=/sys \
+    --bind="/dev/urandom:/dev/random" \
+    --bind="/proc/self/fd:/dev/fd" \
+    --bind="/proc/self/fd/0:/dev/stdin" \
+    --bind="/proc/self/fd/1:/dev/stdout" \
+    --bind="/proc/self/fd/2:/dev/stderr" \
+    --bind=$PREFIX_PATH \
+    --bind="$PREFIX_PATH:/karbon" \
+    --root-id \
+    --rootfs=$LOCAL_DIR/alpine

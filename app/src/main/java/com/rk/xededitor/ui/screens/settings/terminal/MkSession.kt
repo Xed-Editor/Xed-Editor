@@ -8,6 +8,7 @@ import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.settings.localBinDir
+import com.rk.xededitor.ui.activities.settings.localDir
 import com.rk.xededitor.ui.activities.settings.localLibDir
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -59,6 +60,11 @@ object MkSession {
                 "COLORTERM=truecolor",
                 "PROOT_NO_SECCOMP=1",
                 "TERM=xterm-256color",
+                "LANG=C.UTF-8",
+                "PREFIX=${filesDir.parentFile.path}",
+                "LOCAL_DIR=${localDir()}",
+                "LOCAL_BIN=${localBinDir()}",
+                "LOCAL_LIB=${localLibDir()}",
                 "LIB_PATH=${applicationContext.applicationInfo.nativeLibraryDir}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "LINKER=${
@@ -115,7 +121,7 @@ object MkSession {
                 val initHost = localBinDir().child("init-host")
                 if (initHost.exists().not()) {
                     initHost.createFileIfNot()
-                    initHost.writeText(init_host)
+                    initHost.writeText(assets.open("terminal/init-host.sh").bufferedReader().use { it.readText() })
                 }
                 arrayOf("-c", initHost.absolutePath)
             }

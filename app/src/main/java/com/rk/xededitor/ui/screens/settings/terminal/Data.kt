@@ -18,10 +18,6 @@ nameserver 8.8.4.4
 """
 
 
-const val init_host = """
-    echo hi
-"""
-
 const val stat ="""
 cpu  1957 0 2877 93280 262 342 254 87 0 0
 cpu0 31 0 226 12027 82 10 4 9 0 0
