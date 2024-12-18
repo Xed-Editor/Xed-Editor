@@ -110,9 +110,9 @@ object MenuClickHandler {
             }
 
             Id.terminal -> {
-                if (PreferencesData.getBoolean(PreferencesKeys.FAIL_SAFE, true)) {
-                    activity.startActivity(Intent(activity, Terminal::class.java))
-                } else {
+                val runtime =
+                    PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, "Alpine")
+                if (runtime == "Termux") {
                     kotlin.runCatching {
                         launchTermux()
                     }.onFailure {
@@ -120,6 +120,14 @@ object MenuClickHandler {
                             Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
                         }
                     }
+                } else {
+                    activity.startActivity(
+                        Intent(
+                            activity,
+                            Terminal::class.java
+                        )
+                    )
+
                 }
                 return true
             }

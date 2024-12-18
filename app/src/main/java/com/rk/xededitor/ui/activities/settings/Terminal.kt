@@ -1,6 +1,7 @@
 package com.rk.xededitor.ui.activities.settings
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.system.Os
 import androidx.activity.ComponentActivity
@@ -22,15 +23,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.screens.settings.terminal.MkRootfs
+import com.rk.xededitor.ui.screens.settings.terminal.Terminal
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -47,93 +48,184 @@ class Terminal : ComponentActivity() {
         setContent {
             KarbonTheme {
                 Surface {
-                    //Terminal()
                     TerminalScreen(this)
                 }
             }
         }
     }
 
-
     @Composable
     fun TerminalScreen(context: Context) {
-        var isDownloading by remember { mutableStateOf(true) }
         var progress by remember { mutableFloatStateOf(0f) }
-        val coroutineScope = rememberCoroutineScope()
+        var progressText by remember { mutableStateOf("Initializing...") }
+        var isSetupComplete by remember { mutableStateOf(false) }
+        var needsDownload by remember { mutableStateOf(false) }
+
+        LaunchedEffect(Unit) {
+            try {
+                val abi = Build.SUPPORTED_ABIS
+
+
+                val filesToDownload = listOf(
+                    DownloadFile(
+                        url = if (abi.contains("x86_64")) {
+                            talloc_x86_64
+                        } else if (abi.contains("arm64-v8a")) {
+                            talloc_aarch64
+                        } else if (abi.contains("armeabi-v7a")) {
+                            talloc_arm
+                        } else {
+                            throw RuntimeException("Unsupported CPU")
+                        }, outputPath = "local/lib/libtalloc.so.2"
+                    ),
+
+                    DownloadFile(
+                        url = if (abi.contains("x86_64")) {
+                            proot_x86_64
+                        } else if (abi.contains("arm64-v8a")) {
+                            proot_aarch64
+                        } else if (abi.contains("armeabi-v7a")) {
+                            proot_arm
+                        } else {
+                            throw RuntimeException("Unsupported CPU")
+                        }, outputPath = "local/bin/karbon-proot"
+                    ),
+                ).toMutableList()
+
+                if (alpineDir().listFiles().isNullOrEmpty()){
+                    filesToDownload.add(
+                        DownloadFile(
+                            url = if (abi.contains("x86_64")) {
+                                alpine_x86_64
+                            } else if (abi.contains("arm64-v8a")) {
+                                alpine_aarch64
+                            } else if (abi.contains("armeabi-v7a")) {
+                                alpine_arm
+                            } else {
+                                throw RuntimeException("Unsupported CPU")
+                            }, outputPath = "tmp/alpine.tar.gz"
+                        )
+                    )
+
+                }
+
+                needsDownload = filesToDownload.any { file ->
+                    !File(context.filesDir.parentFile, file.outputPath).exists()
+                }
+
+                setupEnvironment(context = context,
+                    filesToDownload = filesToDownload,
+                    onProgress = { completedFiles, totalFiles, currentProgress ->
+                        if (needsDownload) {
+                            val fileProgress = completedFiles.toFloat() / totalFiles.toFloat()
+                            val combinedProgress = (fileProgress + currentProgress) / totalFiles
+                            progress = combinedProgress.coerceIn(
+                                0f, 1f
+                            )
+                            progressText = "Downloading... ${(progress * 100).toInt()}%"
+                        }
+                    },
+                    onComplete = {
+                        isSetupComplete = true
+                    },
+                    onError = { error ->
+                        rkUtils.toast("Setup Failed: ${error.message}")
+                        finish()
+                    })
+            } catch (e: Exception) {
+                rkUtils.toast("Setup Failed: ${e.message}")
+                finish()
+            }
+        }
 
         Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
-            if (isDownloading) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Running Setup please wait...",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier.fillMaxWidth(0.8f),
-                    )
+            if (!isSetupComplete) {
+                if (needsDownload) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = progressText, style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth(0.8f),
+                        )
+                    }
                 }
             } else {
-                LaunchedEffect(Unit) {
-                    setupEnvironment(
-                        context = context,
-                        onProgress = { downloadedBytes, totalBytes ->
-                            progress = downloadedBytes.toFloat() / totalBytes.toFloat()
-                        },
-                        onComplete = {
-                            isDownloading = false
-                        },
-                        onError = { error ->
-                            rkUtils.toast("Setup Failed: ${error.message}")
-                            finish()
-                        }
-                    )
-                }
+                Terminal()
             }
         }
     }
 
+
+    data class DownloadFile(
+        val url: String, val outputPath: String
+    )
+
     private suspend fun setupEnvironment(
         context: Context,
-        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit,
+        filesToDownload: List<DownloadFile>,
+        onProgress: (completedFiles: Int, totalFiles: Int, currentProgress: Float) -> Unit,
         onComplete: () -> Unit,
         onError: (Exception) -> Unit
     ) {
         withContext(Dispatchers.IO) {
             try {
-                // Create symlink if it doesn't exist
                 if (!Files.exists(
                         Paths.get(context.localBinDir().absolutePath, "loader"),
                         LinkOption.NOFOLLOW_LINKS
-                    )) {
+                    )
+                ) {
                     Os.symlink(
                         context.applicationInfo.nativeLibraryDir + "/libloader.so",
                         Paths.get(context.localBinDir().absolutePath, "loader").toString()
                     )
                 }
 
-                // Download the file
-                val outputFile = File(context.localLibDir(), "libtalloc.so.2").also {
-                    it.createNewFile()
+                var completedFiles = 0
+                val totalFiles = filesToDownload.size
+                var totalProgress = 0f
+
+                filesToDownload.forEach { file ->
+                    val outputFile = File(context.filesDir.parentFile, file.outputPath)
+
+                    outputFile.parentFile?.mkdirs()
+
+                    if (!outputFile.exists()) {
+                        outputFile.createNewFile()
+
+                        downloadFile(url = file.url,
+                            outputFile = outputFile,
+                            onProgress = { downloadedBytes, totalBytes ->
+                                val currentFileProgress =
+                                    downloadedBytes.toFloat() / totalBytes.toFloat()
+                                totalProgress = (completedFiles + currentFileProgress) / totalFiles
+
+                                runOnUiThread {
+                                    onProgress(completedFiles, totalFiles, totalProgress)
+                                }
+
+                            })
+                    }
+                    completedFiles++
+                    withContext(Dispatchers.Main) {
+                        onProgress(completedFiles, totalFiles, totalProgress)
+                    }
                 }
 
-                downloadFile(
-                    context = context,
-                    url = "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2",
-                    outputFile = outputFile,
-                    onProgress = onProgress
-                )
-
-                withContext(Dispatchers.Main) {
-                    onComplete()
+                MkRootfs(this@Terminal){
+                    runOnUiThread {
+                        onComplete()
+                    }
                 }
+
             } catch (e: Exception) {
+                e.printStackTrace()
                 withContext(Dispatchers.Main) {
                     onError(e)
                 }
@@ -142,32 +234,34 @@ class Terminal : ComponentActivity() {
     }
 
     private suspend fun downloadFile(
-        context: Context,
-        url: String,
-        outputFile: File,
-        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit
+        url: String, outputFile: File, onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit
     ) {
         withContext(Dispatchers.IO) {
-            val client = OkHttpClient()
+            val client = OkHttpClient.Builder().build()
             val request = Request.Builder().url(url).build()
 
-            val response = client.newCall(request).execute()
-            if (!response.isSuccessful) throw Exception("Failed to download file: ${response.code}")
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw Exception("Failed to download file: ${response.code}")
+                }
 
-            val body = response.body ?: throw Exception("Empty response body")
-            val totalBytes = body.contentLength()
-            var downloadedBytes = 0L
+                val body = response.body ?: throw Exception("Empty response body")
+                val totalBytes = body.contentLength()
 
-            outputFile.outputStream().use { output ->
-                body.byteStream().use { input ->
-                    val buffer = ByteArray(8 * 1024)
-                    var bytesRead: Int
 
-                    while (input.read(buffer).also { bytesRead = it } != -1) {
-                        output.write(buffer, 0, bytesRead)
-                        downloadedBytes += bytesRead
-                        withContext(Dispatchers.Main) {
-                            onProgress(downloadedBytes, totalBytes)
+                var downloadedBytes = 0L
+
+                outputFile.outputStream().use { output ->
+                    body.byteStream().use { input ->
+                        val buffer = ByteArray(8 * 1024)
+                        var bytesRead: Int
+
+                        while (input.read(buffer).also { bytesRead = it } != -1) {
+                            output.write(buffer, 0, bytesRead)
+                            downloadedBytes += bytesRead
+                            withContext(Dispatchers.Main) {
+                                onProgress(downloadedBytes, totalBytes)
+                            }
                         }
                     }
                 }
@@ -178,7 +272,7 @@ class Terminal : ComponentActivity() {
 
 fun Context.localDir(): File {
     return File(filesDir.parentFile, "local").also {
-        if (it.exists().not()) {
+        if (!it.exists()) {
             it.mkdirs()
         }
     }
@@ -186,7 +280,7 @@ fun Context.localDir(): File {
 
 fun Context.localBinDir(): File {
     return File(filesDir.parentFile, "local/bin").also {
-        if (it.exists().not()) {
+        if (!it.exists()) {
             it.mkdirs()
         }
     }
@@ -194,10 +288,35 @@ fun Context.localBinDir(): File {
 
 fun Context.localLibDir(): File {
     return File(filesDir.parentFile, "local/lib").also {
-        if (it.exists().not()) {
+        if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
+
+fun Context.alpineDir():File{
+    return File(localDir(),"alpine").also {
+        if (!it.exists()) {
+            it.mkdirs()
+        }
+    }
+}
+
+
+private const val talloc_arm =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
+private const val talloc_aarch64 =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/libtalloc.so.2"
+private const val talloc_x86_64 =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2"
+private const val proot_arm =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/karbon-proot"
+private const val proot_aarch64 =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/karbon-proot"
+private const val proot_x86_64 =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/karbon-proot"
+private const val alpine_arm = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz"
+private const val alpine_aarch64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz"
+private const val alpine_x86_64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"
 
 

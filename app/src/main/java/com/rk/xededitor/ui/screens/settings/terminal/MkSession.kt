@@ -2,16 +2,20 @@ package com.rk.xededitor.ui.screens.settings.terminal
 
 import android.app.Activity
 import android.os.Environment
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.ui.activities.settings.localBinDir
+import com.rk.xededitor.ui.activities.settings.localLibDir
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
 
 object MkSession {
-    fun createSession(activity: Activity,sessionClient: TerminalSessionClient): TerminalSession {
+    fun createSession(activity: Activity, sessionClient: TerminalSessionClient): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
@@ -24,7 +28,8 @@ object MkSession {
                 "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
-            fun getPwd():String{
+
+            fun getPwd(): String {
                 return if (intent.hasExtra("cwd")) {
                     intent.getStringExtra("cwd").toString()
                 } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
@@ -33,43 +38,51 @@ object MkSession {
                     Environment.getExternalStorageDirectory().path
                 }
             }
-            
-            val workingDir = getPwd() //.replace(filesDir.parentFile!!.absolutePath,Environment. getExternalStorageDirectory().path)
-            
+
+            val workingDir = getPwd().replace(
+                filesDir.parentFile!!.absolutePath, Environment.getExternalStorageDirectory().path
+            )
+
             val tmpDir = File(getTempDir(), "terminal")
-            
+
             if (tmpDir.exists()) {
                 tmpDir.deleteRecursively()
                 tmpDir.mkdirs()
             } else {
                 tmpDir.mkdirs()
             }
-            
+
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
                 "HOME=" + filesDir.absolutePath,
                 "PUBLIC_HOME=" + getExternalFilesDir(null)?.absolutePath,
                 "COLORTERM=truecolor",
+                "PROOT_NO_SECCOMP=1",
                 "TERM=xterm-256color",
                 "LIB_PATH=${applicationContext.applicationInfo.nativeLibraryDir}",
-                "LD_LIBRARY_PATH=${File(filesDir.parentFile,"dynamic_libs")}",
-                "LINKER=${if (File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
-
+                "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
+                "LINKER=${
+                    if (File("/system/bin/linker64").exists()) {
+                        "/system/bin/linker64"
+                    } else {
+                        "/system/bin/linker"
+                    }
+                }"
             )
 
 
-            
+
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
-            
-            
+
+
             if (intent.hasExtra("run_cmd")) {
-                
+
                 var cwd = intent.getStringExtra("cwd")
-                
+
                 if (cwd!!.isEmpty()) {
                     cwd = workingDir
                 }
-                
+
                 val env1 = if (intent.getBooleanExtra("overrideEnv", false)) {
                     intent.getStringArrayExtra("env")
                 } else {
@@ -79,11 +92,11 @@ object MkSession {
                         toTypedArray()
                     }
                 }
-                
-                
+
+
                 val shell: String = intent.getStringExtra("shell").toString()
                 val args: Array<String> = intent.getStringArrayExtra("args")!!
-                
+
                 return TerminalSession(
                     shell,
                     cwd,
@@ -93,10 +106,20 @@ object MkSession {
                     sessionClient,
                 )
             }
-            
+
+
             val shell = "/system/bin/sh"
-            val args = arrayOf<String>()
-            
+            val args = if (PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, "Alpine") == "Android") {
+                arrayOf()
+            } else {
+                val initHost = localBinDir().child("init-host")
+                if (initHost.exists().not()) {
+                    initHost.createFileIfNot()
+                    initHost.writeText(init_host)
+                }
+                arrayOf("-c", initHost.absolutePath)
+            }
+
             return TerminalSession(
                 shell,
                 workingDir,
@@ -106,6 +129,6 @@ object MkSession {
                 sessionClient,
             )
         }
-        
+
     }
 }

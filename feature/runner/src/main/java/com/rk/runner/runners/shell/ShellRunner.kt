@@ -27,41 +27,6 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
     @OptIn(DelicateCoroutinesApi::class)
     override fun run(file: File, context: Context) {
         if (failsafe) {
-            fun runCommand(
-                // shell or binary to run
-                shell: String,
-                // arguments passed to shell or binary
-                args: Array<String> = arrayOf(),
-                // working directory leave empty for default
-                workingDir: String = "",
-                // environment variables with key value pair eg HOME=/sdcard,TMP=/tmp
-                environmentVars: Array<String>? = arrayOf(),
-                // should override default environment variables or not
-                overrideEnv: Boolean = false,
-                // context to launch terminal activity
-                context: Context,
-            ) {
-                context.startActivity(
-                    Intent(
-                        context,
-                        Class.forName("com.rk.xededitor.ui.activities.settings")
-                    ).also {
-                        it.putExtra("run_cmd", true)
-                        it.putExtra("shell", shell)
-                        it.putExtra("args", args)
-                        it.putExtra("cwd", workingDir)
-                        it.putExtra("env", environmentVars)
-                        it.putExtra("overrideEnv", overrideEnv)
-                    })
-            }
-
-
-
-            runCommand(
-                shell = "/system/bin/sh",
-                args = arrayOf("-c", file.absolutePath),
-                context = context
-            )
             return
         }
 

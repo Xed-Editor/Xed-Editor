@@ -16,7 +16,6 @@ object PreferencesKeys {
     const val AUTO_SAVE = "auto_save"
     const val AUTO_SAVE_TIME_VALUE = "auto_save_time_value"
     const val PROJECTS = "opened_projects"
-    const val FAIL_SAFE = "failsafe"
     const val SHOW_SUGGESTIONS = "show_suggestions"
     const val CHECK_UPDATE="check_update"
     const val LAST_UPDATE_CHECK="last_update_check"
@@ -31,6 +30,7 @@ object PreferencesKeys {
     const val LINE_SPACING="line_spacing"
     const val LINE_SPACING_MULTIPLAYER="line_spacing_multiplayer"
     const val MUTATORS="mutators"
+    const val TERMINAL_RUNTIME="terminal_runtime"
     // todo encrypt git keys
     const val GIT_CRED = "git_cred"
     const val GIT_USER_DATA = "git_user_data"

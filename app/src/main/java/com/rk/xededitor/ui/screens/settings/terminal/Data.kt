@@ -17,32 +17,10 @@ nameserver 8.8.8.8
 nameserver 8.8.4.4
 """
 
-fun getAlpineEnviroment():String{
-    val sb = StringBuilder()
-    
-    val envVariables = mapOf(
-        "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
-        "ANDROID_DATA" to System.getenv("ANDROID_DATA"),
-        "ANDROID_I18N_ROOT" to System.getenv("ANDROID_I18N_ROOT"),
-        "ANDROID_ROOT" to System.getenv("ANDROID_ROOT"),
-        "ANDROID_RUNTIME_ROOT" to System.getenv("ANDROID_RUNTIME_ROOT"),
-        "ANDROID_TZDATA_ROOT" to System.getenv("ANDROID_TZDATA_ROOT"),
-        "BOOTCLASSPATH" to System.getenv("BOOTCLASSPATH"),
-        "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
-        "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
-    )
-    
-    envVariables.forEach{ v ->
-        sb.append("${v.key}=${v.value}")
-    }
-    
-    sb.append("LANG=en_US.UTF-8")
-    sb.append("MOZ_FAKE_NO_SANDBOX=1")
-    sb.append("TMPDIR=/tmp")
-    sb.append("TERM=xterm-256color")
-    
-    return sb.toString()
-}
+
+const val init_host = """
+    echo hi
+"""
 
 const val stat ="""
 cpu  1957 0 2877 93280 262 342 254 87 0 0
