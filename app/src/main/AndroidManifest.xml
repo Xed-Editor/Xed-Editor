@@ -9,7 +9,7 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <queries>
         <package android:name="com.github.android" />
         <intent>
@@ -45,6 +45,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".service.SessionService" />
+
 
         <provider
             android:name="androidx.core.content.FileProvider"

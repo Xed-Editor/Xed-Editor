@@ -1,8 +1,12 @@
 package com.rk.xededitor.ui.activities.settings
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.service.SessionService
 import com.rk.xededitor.ui.screens.settings.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.settings.terminal.Terminal
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -37,6 +42,38 @@ import okhttp3.Request
 import java.io.File
 
 class Terminal : ComponentActivity() {
+    var sessionBinder:SessionService.SessionBinder? = null
+    var isBound = false
+
+
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as SessionService.SessionBinder
+            sessionBinder = binder
+            isBound = true
+
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            isBound = false
+            sessionBinder = null
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Intent(this, SessionService::class.java).also { intent ->
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isBound) {
+            unbindService(serviceConnection)
+            isBound = false
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,7 +189,7 @@ class Terminal : ComponentActivity() {
                     }
                 }
             } else {
-                Terminal()
+                Terminal(terminalActivity = this@Terminal)
             }
         }
     }

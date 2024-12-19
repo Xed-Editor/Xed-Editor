@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.activities.settings.Terminal
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.SpecialButton
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
 import com.termux.terminal.TerminalEmulator
@@ -15,14 +16,16 @@ import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val terminal: TerminalView,val activity:Activity) : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
         terminal.onScreenUpdated()
     }
     
     override fun onTitleChanged(changedSession: TerminalSession) {}
     
-    override fun onSessionFinished(finishedSession: TerminalSession) {}
+    override fun onSessionFinished(finishedSession: TerminalSession) {
+
+    }
     
     override fun onCopyTextToClipboard(session: TerminalSession, text: String) {
         ClipboardUtils.copyText("Terminal", text)
@@ -104,6 +107,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Activity) : Termin
     
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
+            activity.sessionBinder?.terminateSession("main")
             activity.finish()
             return true
         }

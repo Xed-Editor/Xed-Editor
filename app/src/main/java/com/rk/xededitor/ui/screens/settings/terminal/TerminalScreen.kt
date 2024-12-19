@@ -2,6 +2,8 @@ package com.rk.xededitor.ui.screens.settings.terminal
 
 import androidx.compose.material3.Text
 import android.app.Activity
+import android.content.Intent
+import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.View
 import androidx.compose.foundation.layout.Box
@@ -22,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,10 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.resources.strings
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.service.SessionService
+import com.rk.xededitor.ui.activities.settings.Terminal
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
+import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -41,9 +47,14 @@ import java.lang.ref.WeakReference
 private var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysId = View.generateViewId()
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Terminal(modifier: Modifier = Modifier) {
+fun Terminal(modifier: Modifier = Modifier,terminalActivity:Terminal) {
+    val context = LocalContext.current
+    LaunchedEffect("terminal") {
+        context.startService(Intent(context, SessionService::class.java))
+    }
     Box(modifier = Modifier.imePadding()) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
@@ -63,16 +74,18 @@ fun Terminal(modifier: Modifier = Modifier) {
                 })
             }) { paddingValues ->
                 Column(modifier = Modifier.padding(paddingValues)) {
-                    val activity = LocalContext.current as? Activity
                     AndroidView(
                         factory = { context ->
                             TerminalView(context, null).apply {
                                 terminalView = WeakReference(this)
                                 setTextSize(rkUtils.dpToPx(14f, context))
-                                val client = TerminalBackEnd(this, activity!!)
-                                setTerminalViewClient(client)
-                                val session = MkSession.createSession(activity, client)
+                                val client = TerminalBackEnd(this, terminalActivity)
+
+                                val session = terminalActivity.sessionBinder!!.getSession("main") ?: terminalActivity.sessionBinder!!.createSession("main",client,terminalActivity)
+                                session.updateTerminalSessionClient(client)
                                 attachSession(session)
+                                setTerminalViewClient(client)
+                                setTypeface(Typeface.createFromAsset(context.assets,"fonts/Default.ttf"))
 
                                 post {
                                     val typedValue = TypedValue()
