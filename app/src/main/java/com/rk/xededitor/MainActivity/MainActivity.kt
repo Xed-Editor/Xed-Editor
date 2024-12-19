@@ -155,7 +155,10 @@ class MainActivity : BaseActivity() {
     var isPaused = true
     override fun onPause() {
         isPaused = true
-        kotlin.runCatching { saveAllFiles() }
+                    if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
+kotlin.runCatching { saveAllFiles() }
+}
+        
         super.onPause()
     }
 
@@ -263,7 +266,10 @@ class MainActivity : BaseActivity() {
     }
     
     override fun onDestroy() {
-        kotlin.runCatching { saveAllFiles() }
+        if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
+kotlin.runCatching { saveAllFiles() }
+}
+        
         DefaultScope.cancel()
         super.onDestroy()
         binding = null
