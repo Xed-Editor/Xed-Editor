@@ -53,18 +53,42 @@ class SessionService : Service() {
         startForeground(1, notification)
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            "ACTION_EXIT" -> {
+                sessions.forEach{ s -> s.value.finishIfRunning()}
+                stopSelf()
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+
 
     private fun createNotification(): Notification {
         val intent = Intent(this, Terminal::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+        val exitIntent = Intent(this, SessionService::class.java).apply {
+            action = "ACTION_EXIT"
+        }
+        val exitPendingIntent = PendingIntent.getService(
+            this, 1, exitIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Session Service")
-            .setContentText("The service is running in the background")
+            .setContentTitle("Terminal Service")
+            .setContentText("The terminal is running in the background")
             .setSmallIcon(drawables.terminal)
             .setContentIntent(pendingIntent)
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    null,
+                    "EXIT",
+                    exitPendingIntent
+                ).build()
+            )
             .setOngoing(true)
             .build()
     }
@@ -77,7 +101,7 @@ class SessionService : Service() {
             "Session Service",
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Notification for Session Service"
+            description = "Notification for Terminal Service"
         }
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
