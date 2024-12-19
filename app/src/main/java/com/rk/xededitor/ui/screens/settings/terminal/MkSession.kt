@@ -58,22 +58,10 @@ object MkSession {
                 "HOME=" + filesDir.absolutePath,
                 "PUBLIC_HOME=" + getExternalFilesDir(null)?.absolutePath,
                 "COLORTERM=truecolor",
-                "PROOT_NO_SECCOMP=1",
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
                 "PREFIX=${filesDir.parentFile.path}",
-                "LOCAL_DIR=${localDir()}",
-                "LOCAL_BIN=${localBinDir()}",
-                "LOCAL_LIB=${localLibDir()}",
-                "LIB_PATH=${applicationContext.applicationInfo.nativeLibraryDir}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
-                "LINKER=${
-                    if (File("/system/bin/linker64").exists()) {
-                        "/system/bin/linker64"
-                    } else {
-                        "/system/bin/linker"
-                    }
-                }"
             )
 
 
@@ -123,6 +111,13 @@ object MkSession {
                     initHost.createFileIfNot()
                     initHost.writeText(assets.open("terminal/init-host.sh").bufferedReader().use { it.readText() })
                 }
+
+                val init = localBinDir().child("init")
+                if (init.exists().not()) {
+                    init.createFileIfNot()
+                    init.writeText(assets.open("terminal/init.sh").bufferedReader().use { it.readText() })
+                }
+
                 arrayOf("-c", initHost.absolutePath)
             }
 

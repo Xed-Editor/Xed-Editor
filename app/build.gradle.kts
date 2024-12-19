@@ -112,7 +112,8 @@ android {
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
-        targetSdk = 35
+        //noinspection ExpiredTargetSdkVersion
+        targetSdk = 28
         versionCode = 36
         versionName = "2.9.0"
         vectorDrawables {
@@ -202,7 +203,6 @@ dependencies {
     implementation(project(":core:resources"))
     implementation(project(":core:karbon-exec"))
     implementation(project(":core:Engine"))
-    implementation(project(":core:loader"))
 
     implementation(libs.nanohttpd)
     implementation(libs.photoview)

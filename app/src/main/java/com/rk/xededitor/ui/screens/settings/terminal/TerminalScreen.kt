@@ -63,7 +63,6 @@ fun Terminal(modifier: Modifier = Modifier) {
                 })
             }) { paddingValues ->
                 Column(modifier = Modifier.padding(paddingValues)) {
-                    // TerminalView takes available space
                     val activity = LocalContext.current as? Activity
                     AndroidView(
                         factory = { context ->
@@ -77,20 +76,12 @@ fun Terminal(modifier: Modifier = Modifier) {
 
                                 post {
                                     val typedValue = TypedValue()
-                                    context.theme.resolveAttribute(
-                                        com.google.android.material.R.attr.colorSurface,
-                                        typedValue,
-                                        true
-                                    )
-                                    val surfaceColor = typedValue.data
 
                                     context.theme.resolveAttribute(
                                         com.google.android.material.R.attr.colorOnSurface,
                                         typedValue,
                                         true
                                     )
-
-                                    setBackgroundColor(surfaceColor)
                                     keepScreenOn = true
                                     requestFocus()
                                     setFocusableInTouchMode(true)
@@ -115,13 +106,6 @@ fun Terminal(modifier: Modifier = Modifier) {
                                 id = virtualKeysId
                                 val typedValue = TypedValue()
                                 context.theme.resolveAttribute(
-                                    com.google.android.material.R.attr.colorSurface,
-                                    typedValue,
-                                    true
-                                )
-                                val surfaceColor = typedValue.data
-
-                                context.theme.resolveAttribute(
                                     com.google.android.material.R.attr.colorOnSurface,
                                     typedValue,
                                     true
@@ -132,7 +116,6 @@ fun Terminal(modifier: Modifier = Modifier) {
                                     terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
 
                                 buttonTextColor = typedValue.data
-                                setBackgroundColor(surfaceColor)
 
                                 reload(
                                     VirtualKeysInfo(

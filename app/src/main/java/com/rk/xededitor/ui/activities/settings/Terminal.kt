@@ -3,7 +3,6 @@ package com.rk.xededitor.ui.activities.settings
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.system.Os
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -36,9 +35,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.LinkOption
-import java.nio.file.Paths
 
 class Terminal : ComponentActivity() {
 
@@ -65,7 +61,6 @@ class Terminal : ComponentActivity() {
             try {
                 val abi = Build.SUPPORTED_ABIS
 
-
                 val filesToDownload = listOf(
                     DownloadFile(
                         url = if (abi.contains("x86_64")) {
@@ -88,7 +83,7 @@ class Terminal : ComponentActivity() {
                             proot_arm
                         } else {
                             throw RuntimeException("Unsupported CPU")
-                        }, outputPath = "local/bin/karbon-proot"
+                        }, outputPath = "local/bin/proot"
                     ),
                 ).toMutableList()
 
@@ -176,16 +171,6 @@ class Terminal : ComponentActivity() {
     ) {
         withContext(Dispatchers.IO) {
             try {
-                if (!Files.exists(
-                        Paths.get(context.localBinDir().absolutePath, "loader"),
-                        LinkOption.NOFOLLOW_LINKS
-                    )
-                ) {
-                    Os.symlink(
-                        context.applicationInfo.nativeLibraryDir + "/libloader.so",
-                        Paths.get(context.localBinDir().absolutePath, "loader").toString()
-                    )
-                }
 
                 var completedFiles = 0
                 val totalFiles = filesToDownload.size
@@ -216,6 +201,10 @@ class Terminal : ComponentActivity() {
                     withContext(Dispatchers.Main) {
                         onProgress(completedFiles, totalFiles, totalProgress)
                     }
+
+                    runCatching {
+                        outputFile.setExecutable(true)
+                    }.onFailure { it.printStackTrace() }
                 }
 
                 MkRootfs(this@Terminal){
@@ -226,6 +215,7 @@ class Terminal : ComponentActivity() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                localDir().deleteRecursively()
                 withContext(Dispatchers.Main) {
                     onError(e)
                 }
@@ -310,11 +300,17 @@ private const val talloc_aarch64 =
 private const val talloc_x86_64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/libtalloc.so.2"
 private const val proot_arm =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/karbon-proot"
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/proot"
 private const val proot_aarch64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/karbon-proot"
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
 private const val proot_x86_64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/karbon-proot"
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
+private const val loader_arm =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/loader"
+private const val loader_aarch64 =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/loader"
+private const val loader_x86_64 =
+    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/loader"
 private const val alpine_arm = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz"
 private const val alpine_aarch64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz"
 private const val alpine_x86_64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"
