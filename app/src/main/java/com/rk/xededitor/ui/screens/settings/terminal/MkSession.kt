@@ -40,9 +40,7 @@ object MkSession {
                 }
             }
 
-            val workingDir = getPwd().replace(
-                filesDir.parentFile!!.absolutePath, Environment.getExternalStorageDirectory().path
-            )
+            val workingDir = getPwd()
 
             val tmpDir = File(getTempDir(), "terminal")
 

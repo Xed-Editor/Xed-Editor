@@ -6,11 +6,12 @@ unset PROOT_TMP_DIR
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin
 
-export PS1="\[\e[38;5;46m\]\u\[\e[38;5;231m\]@karbon \[\e[38;5;231m\]\w \[\033[0m\]\\$ "
+export PROMPT_DIRTRIM=2
+export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@karbon \[\033[39m\]\w \[\033[0m\]\\$ "
 
-START_SHELL="/bin/sh"
+START_SHELL="/bin/bash"
 
-required_packages="bash gcompat glib git nano sudo file"
+required_packages="bash gcompat glib git nano sudo file build-base"
 
 # Check if each package is installed
 missing_packages=""
