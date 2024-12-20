@@ -87,7 +87,7 @@ quickjs-android = { module = "app.cash.quickjs:quickjs-android", version.ref = "
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
-kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.9.0" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.1" }
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
 gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
