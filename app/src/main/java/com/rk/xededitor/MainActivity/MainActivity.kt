@@ -42,6 +42,8 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.lang.ref.WeakReference
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 
 
 class MainActivity : BaseActivity() {
