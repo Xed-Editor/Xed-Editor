@@ -31,6 +31,9 @@ class SessionService : Service() {
         fun terminateSession(id:String){
             sessions[id]?.finishIfRunning()
             sessions.remove(id)
+            if (sessions.isEmpty()){
+                stopSelf()
+            }
         }
     }
 
