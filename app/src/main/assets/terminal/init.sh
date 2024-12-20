@@ -6,7 +6,7 @@ unset PROOT_TMP_DIR
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin
 
-export PS1="\[\e[38;5;46m\]\u\[\e[38;5;231m\]@\[\e[38;5;231m\]\h \[\e[38;5;231m\]\w \[\033[0m\]\\$ "
+export PS1="\[\e[38;5;46m\]\u\[\e[38;5;231m\]@karbon \[\e[38;5;231m\]\w \[\033[0m\]\\$ "
 
 START_SHELL="/bin/sh"
 
