@@ -1,4 +1,4 @@
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # Exit immediately on Failure
 
 export PIP_BREAK_SYSTEM_PACKAGES=1
 unset LD_LIBRARY_PATH
@@ -6,7 +6,9 @@ unset PROOT_TMP_DIR
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin
 
-START_SHELL="/bin/bash"
+export PS1="\[\e[38;5;46m\]\u\[\e[38;5;231m\]@\[\e[38;5;231m\]\h \[\e[38;5;231m\]\w \[\033[0m\]\\$ "
+
+START_SHELL="/bin/sh"
 
 required_packages="bash gcompat glib git nano sudo file"
 
