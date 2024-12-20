@@ -13,10 +13,12 @@ import com.rk.karbon_exec.isExecPermissionGranted
 import com.rk.karbon_exec.isTermuxCompatible
 import com.rk.karbon_exec.isTermuxInstalled
 import com.rk.karbon_exec.isTermuxRunning
+import com.rk.karbon_exec.launchInternalTerminal
 import com.rk.karbon_exec.launchTermux
 import com.rk.karbon_exec.runBashScript
 import com.rk.karbon_exec.testExecPermission
 import com.rk.libcommons.application
+import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -26,45 +28,21 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun run(file: File, context: Context) {
-        if (failsafe) {
-            return
-        }
-
-        if (!(isTermuxInstalled() && isExecPermissionGranted() && isTermuxCompatible() && testExecPermission().first)) {
-            Handler(Looper.getMainLooper()).post {
-                Toast.makeText(
-                    context,
-                    "Termux-Exec is not enabled",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            return
-        }
-
-        runBashScript(
-            context, script = """
-                cd ${file.parentFile.absolutePath}
-                
-                bash -c ${file.absolutePath}
-                
-                echo "Process Completed (Press Enter to exit)"
-                read -r
-                
-                """, background = false
+        launchInternalTerminal(
+            context = context,
+            shell = "/bin/sh",
+            arrayOf("-c",file.absolutePath),
+            id = "shell",
+            alpine = failsafe.not(),
+            workingDir = file.parentFile.absolutePath
         )
-
-        if (isTermuxRunning().not()) {
-            askLaunchTermux(context)
-        }
-
-
     }
 
     override fun getName(): String {
         return if (failsafe) {
             "Android Shell"
         } else {
-            "Termux"
+            "Alpine"
         }
     }
 
@@ -72,7 +50,7 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
         return if (failsafe) {
             "Android"
         } else {
-            "Termux"
+            "Alpine"
         }
     }
 

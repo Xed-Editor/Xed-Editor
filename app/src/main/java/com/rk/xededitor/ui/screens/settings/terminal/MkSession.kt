@@ -2,21 +2,21 @@ package com.rk.xededitor.ui.screens.settings.terminal
 
 import android.app.Activity
 import android.os.Environment
+import com.rk.libcommons.localBinDir
+import com.rk.libcommons.localLibDir
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
-import com.rk.xededitor.ui.activities.settings.localBinDir
-import com.rk.xededitor.ui.activities.settings.localDir
-import com.rk.xededitor.ui.activities.settings.localLibDir
+import com.rk.xededitor.ui.activities.settings.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
 
 object MkSession {
-    fun createSession(activity: Activity, sessionClient: TerminalSessionClient): TerminalSession {
+    fun createSession(activity: Terminal, sessionClient: TerminalSessionClient,session_id:String): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
@@ -67,36 +67,8 @@ object MkSession {
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
 
-            if (intent.hasExtra("run_cmd")) {
-
-                var cwd = intent.getStringExtra("cwd")
-
-                if (cwd!!.isEmpty()) {
-                    cwd = workingDir
-                }
-
-                val env1 = if (intent.getBooleanExtra("overrideEnv", false)) {
-                    intent.getStringArrayExtra("env")
-                } else {
-                    with(mutableListOf<String>()) {
-                        addAll(env)
-                        addAll(intent.getStringArrayExtra("env")!!.toList())
-                        toTypedArray()
-                    }
-                }
-
-
-                val shell: String = intent.getStringExtra("shell").toString()
-                val args: Array<String> = intent.getStringArrayExtra("args")!!
-
-                return TerminalSession(
-                    shell,
-                    cwd,
-                    args,
-                    env1,
-                    TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
-                    sessionClient,
-                )
+            if (intent.hasExtra("run_cmd")){
+                return TerminalExec.getSession(activity,intent,sessionClient,env.toTypedArray())
             }
 
 

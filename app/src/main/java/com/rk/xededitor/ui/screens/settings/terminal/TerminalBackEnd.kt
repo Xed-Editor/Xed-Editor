@@ -2,6 +2,7 @@ package com.rk.xededitor.ui.screens.settings.terminal
 
 import android.app.Activity
 import android.util.Log
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
@@ -107,8 +108,42 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : Termin
     
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            activity.sessionBinder?.terminateSession("main")
-            activity.finish()
+            activity.sessionBinder?.terminateSession(activity.sessionBinder!!.currentSession.value)
+            if (activity.sessionBinder!!.sessionList.isEmpty()){
+                activity.finish()
+            }else{
+                terminal?.apply {
+                    val id = activity.sessionBinder!!.sessionList.first()
+                    val client = TerminalBackEnd(this, activity)
+                    val session =
+                        activity.sessionBinder!!.getSession(id)
+                            ?: activity.sessionBinder!!.createSession(
+                                id,
+                                client,
+                                activity
+                            )
+                    session.updateTerminalSessionClient(client)
+                    attachSession(session)
+                    setTerminalViewClient(client)
+                    post {
+                        val typedValue = TypedValue()
+
+                        context.theme.resolveAttribute(
+                            com.google.android.material.R.attr.colorOnSurface,
+                            typedValue,
+                            true
+                        )
+                        keepScreenOn = true
+                        requestFocus()
+                        setFocusableInTouchMode(true)
+
+                        mEmulator?.mColors?.mCurrentColors?.apply {
+                            set(256, typedValue.data)
+                            set(258, typedValue.data)
+                        }
+                    }
+                }
+            }
             return true
         }
         return false

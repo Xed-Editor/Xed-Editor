@@ -30,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rk.libcommons.alpineDir
+import com.rk.libcommons.localDir
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.service.SessionService
 import com.rk.xededitor.ui.screens.settings.terminal.MkRootfs
@@ -297,37 +299,7 @@ class Terminal : ComponentActivity() {
     }
 }
 
-fun Context.localDir(): File {
-    return File(filesDir.parentFile, "local").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
-    }
-}
 
-fun Context.localBinDir(): File {
-    return File(filesDir.parentFile, "local/bin").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
-    }
-}
-
-fun Context.localLibDir(): File {
-    return File(filesDir.parentFile, "local/lib").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
-    }
-}
-
-fun Context.alpineDir():File{
-    return File(localDir(),"alpine").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
-    }
-}
 
 
 private const val talloc_arm =

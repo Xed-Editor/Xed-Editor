@@ -1,31 +1,44 @@
 package com.rk.xededitor.ui.screens.settings.terminal
 
-import androidx.compose.material3.Text
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.View
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -39,7 +52,6 @@ import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysCons
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
-import com.termux.terminal.TerminalSession
 import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -50,7 +62,7 @@ var virtualKeysId = View.generateViewId()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Terminal(modifier: Modifier = Modifier,terminalActivity:Terminal) {
+fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
     val context = LocalContext.current
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
@@ -59,91 +71,257 @@ fun Terminal(modifier: Modifier = Modifier,terminalActivity:Terminal) {
         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
         val scope = rememberCoroutineScope()
 
-    ModalNavigationDrawer(drawerState = drawerState,gesturesEnabled = drawerState.isOpen ,drawerContent = {
-        ModalDrawerSheet {
-            //drawer content
-        }
-    }, content = {
-        Scaffold(topBar = {
-            TopAppBar(title = { Text(text = stringResource(strings.terminal))}, navigationIcon = {
-                IconButton(onClick = {
-                    scope.launch { drawerState.open() }
-                    }) {
-                        Icon(Icons.Default.Menu, null)
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            gesturesEnabled = drawerState.isOpen,
+            drawerContent = {
+                ModalDrawerSheet {
+                    var selectedOption by remember { mutableStateOf(terminalActivity.sessionBinder?.currentSession.toString()) }
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Heading with a plus button
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Sessions",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            IconButton(onClick = {
+                                fun generateUniqueString(existingStrings: List<String>): String {
+                                    var index = 1
+                                    var newString: String
+
+                                    do {
+                                        newString = "main$index"
+                                        index++
+                                    } while (newString in existingStrings)
+
+                                    return newString
+                                }
+                                terminalView.get()
+                                    ?.let {
+                                        val client = TerminalBackEnd(it, terminalActivity)
+                                        terminalActivity.sessionBinder!!.createSession(
+                                            generateUniqueString(terminalActivity.sessionBinder!!.sessionList),
+                                            client,
+                                            terminalActivity
+                                        )
+                                    }
+
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Add, // Material Design "Add" icon
+                                    contentDescription = "Add Session"
+                                )
+                            }
+                        }
+
+                        // Session list
+                        terminalActivity.sessionBinder?.sessionList?.forEach { option ->
+                            SelectableCard(
+                                selected = option == selectedOption,
+                                onSelect = {
+                                    terminalView.get()?.apply {
+                                        val client = TerminalBackEnd(this, terminalActivity)
+                                        val session =
+                                            terminalActivity.sessionBinder!!.getSession(option)
+                                                ?: terminalActivity.sessionBinder!!.createSession(
+                                                    option,
+                                                    client,
+                                                    terminalActivity
+                                                )
+                                        session.updateTerminalSessionClient(client)
+                                        attachSession(session)
+                                        setTerminalViewClient(client)
+                                        post {
+                                            val typedValue = TypedValue()
+
+                                            context.theme.resolveAttribute(
+                                                com.google.android.material.R.attr.colorOnSurface,
+                                                typedValue,
+                                                true
+                                            )
+                                            keepScreenOn = true
+                                            requestFocus()
+                                            setFocusableInTouchMode(true)
+
+                                            mEmulator?.mColors?.mCurrentColors?.apply {
+                                                set(256, typedValue.data)
+                                                set(258, typedValue.data)
+                                            }
+                                        }
+                                    }
+                                    selectedOption = option
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                Text(
+                                    text = option,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
                     }
-                })
-            }) { paddingValues ->
-                Column(modifier = Modifier.padding(paddingValues)) {
-                    AndroidView(
-                        factory = { context ->
-                            TerminalView(context, null).apply {
-                                terminalView = WeakReference(this)
-                                setTextSize(rkUtils.dpToPx(14f, context))
-                                val client = TerminalBackEnd(this, terminalActivity)
+                }
 
-                                val session = terminalActivity.sessionBinder!!.getSession("main") ?: terminalActivity.sessionBinder!!.createSession("main",client,terminalActivity)
-                                session.updateTerminalSessionClient(client)
-                                attachSession(session)
-                                setTerminalViewClient(client)
-                                setTypeface(Typeface.createFromAsset(context.assets,"fonts/Default.ttf"))
+            },
+            content = {
+                Scaffold(topBar = {
+                    TopAppBar(
+                        title = { Text(text = stringResource(strings.terminal)) },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                scope.launch { drawerState.open() }
+                            }) {
+                                Icon(Icons.Default.Menu, null)
+                            }
+                        })
+                }) { paddingValues ->
+                    Column(modifier = Modifier.padding(paddingValues)) {
+                        AndroidView(
+                            factory = { context ->
+                                TerminalView(context, null).apply {
+                                    terminalView = WeakReference(this)
+                                    setTextSize(rkUtils.dpToPx(14f, context))
+                                    val client = TerminalBackEnd(this, terminalActivity)
+                                    val id = terminalActivity.intent.getStringExtra("session_id")
+                                        ?: "main"
+                                    terminalActivity.intent.removeExtra("session_id")
+                                    terminalActivity.intent.removeExtra("run_cmd")
+                                    terminalActivity.sessionBinder!!.currentSession.apply {
+                                        if (value != id) {
+                                            value = id
+                                        }
+                                    }
+                                    val session = terminalActivity.sessionBinder!!.getSession(id)
+                                        ?: terminalActivity.sessionBinder!!.createSession(
+                                            id,
+                                            client,
+                                            terminalActivity
+                                        )
+                                    session.updateTerminalSessionClient(client)
+                                    attachSession(session)
+                                    setTerminalViewClient(client)
+                                    setTypeface(
+                                        Typeface.createFromAsset(
+                                            context.assets,
+                                            "fonts/Default.ttf"
+                                        )
+                                    )
 
-                                post {
+                                    post {
+                                        val typedValue = TypedValue()
+
+                                        context.theme.resolveAttribute(
+                                            com.google.android.material.R.attr.colorOnSurface,
+                                            typedValue,
+                                            true
+                                        )
+                                        keepScreenOn = true
+                                        requestFocus()
+                                        setFocusableInTouchMode(true)
+
+                                        mEmulator?.mColors?.mCurrentColors?.apply {
+                                            set(256, typedValue.data)
+                                            set(258, typedValue.data)
+                                        }
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                            update = { terminalView -> terminalView.onScreenUpdated() },
+                        )
+
+                        AndroidView(
+                            factory = { context ->
+                                VirtualKeysView(context, null).apply {
+
+                                    id = virtualKeysId
                                     val typedValue = TypedValue()
-
                                     context.theme.resolveAttribute(
                                         com.google.android.material.R.attr.colorOnSurface,
                                         typedValue,
                                         true
                                     )
-                                    keepScreenOn = true
-                                    requestFocus()
-                                    setFocusableInTouchMode(true)
-
-                                    mEmulator?.mColors?.mCurrentColors?.apply {
-                                        set(256, typedValue.data)
-                                        set(258, typedValue.data)
-                                    }
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        update = { terminalView -> terminalView.onScreenUpdated() },
-                    )
-
-                    AndroidView(
-                        factory = { context ->
-                            VirtualKeysView(context, null).apply {
-
-                                id = virtualKeysId
-                                val typedValue = TypedValue()
-                                context.theme.resolveAttribute(
-                                    com.google.android.material.R.attr.colorOnSurface,
-                                    typedValue,
-                                    true
-                                )
 
 
-                                virtualKeysViewClient =
-                                    terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
+                                    virtualKeysViewClient =
+                                        terminalView.get()?.mTermSession?.let {
+                                            VirtualKeysListener(
+                                                it
+                                            )
+                                        }
 
-                                buttonTextColor = typedValue.data
+                                    buttonTextColor = typedValue.data
 
-                                reload(
-                                    VirtualKeysInfo(
-                                        VIRTUAL_KEYS, "", VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                                    reload(
+                                        VirtualKeysInfo(
+                                            VIRTUAL_KEYS,
+                                            "",
+                                            VirtualKeysConstants.CONTROL_CHARS_ALIASES
+                                        )
                                     )
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(75.dp)
-                    )
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(75.dp)
+                        )
+                    }
                 }
+            })
+    }
+}
+
+@Composable
+fun SelectableCard(
+    selected: Boolean,
+    onSelect: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    val containerColor by animateColorAsState(
+        targetValue = when {
+            selected -> MaterialTheme.colorScheme.primaryContainer
+            else -> MaterialTheme.colorScheme.surface
+        },
+        label = "containerColor"
+    )
+
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = containerColor,
+            contentColor = if (selected) {
+                MaterialTheme.colorScheme.onPrimaryContainer
+            } else {
+                MaterialTheme.colorScheme.onSurface
             }
-        })
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (selected) 8.dp else 2.dp
+        ),
+        enabled = enabled,
+        onClick = onSelect
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            content()
+        }
     }
 }
 

@@ -1,10 +1,10 @@
 package com.rk.xededitor.ui.screens.settings.terminal
 
 import android.content.Context
+import com.rk.libcommons.alpineDir
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
-import com.rk.xededitor.ui.activities.settings.alpineDir
 import java.io.File
 import java.lang.Runtime.getRuntime
 

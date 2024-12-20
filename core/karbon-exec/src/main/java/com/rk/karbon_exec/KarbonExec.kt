@@ -114,12 +114,31 @@ fun runCommandTermux(
 }
 
 
+
 fun runBashScript(context: Context, script: String, background: Boolean = true) {
      runCommandTermux(
         context = context,
         exe = "$TERMUX_PREFIX/bin/bash",
         arrayOf("-c", script),
         background = background
+    )
+}
+
+fun launchInternalTerminal(context: Context,shell:String,args:Array<String> = arrayOf(),id:String,terminatePreviousSession:Boolean = true,alpine:Boolean = true,workingDir:String,env:Array<String> = arrayOf()){
+    context.startActivity(
+        Intent(
+            context,
+            Class.forName("com.rk.xededitor.ui.activities.settings.Terminal")
+        ).apply {
+            putExtra("run_cmd","")
+            putExtra("shell",shell)
+            putExtra("args",args)
+            putExtra("session_id",id)
+            putExtra("terminate_prev",terminatePreviousSession)
+            putExtra("alpine",alpine)
+            putExtra("cwd",workingDir)
+            putExtra("env",env)
+        }
     )
 }
 
