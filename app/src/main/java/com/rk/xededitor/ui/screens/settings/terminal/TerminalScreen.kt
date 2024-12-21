@@ -74,7 +74,7 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         val scope = rememberCoroutineScope()
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
-        val drawerWidth = (screenWidthDp * 0.60).dp
+        val drawerWidth = (screenWidthDp * 0.84).dp
 
         ModalNavigationDrawer(
             drawerState = drawerState,
