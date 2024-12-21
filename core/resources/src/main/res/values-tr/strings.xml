@@ -132,7 +132,7 @@
     <string name="pull">Yürüyüş</string>
     <string name="pull_desc">Yerel depoyu uzak depoyla senkronize edin</string>
     <string name="commit_push">Bağlan ve yazdır</string>
-    <string name="push_desc">"Bir taahhüt oluşturun ve değişiklikleri uzak depoya aktarın"</string>
+    <string name="push_desc">Bir taahhüt oluşturun ve değişiklikleri uzak depoya aktarın</string>
     <string name="fill_both">Lütfen her iki alanı da doldurun</string>
     <string name="pushing">Şu anda uzak depoya yazdırılıyor…</string>
     <string name="nogit">Hata: .git klasörü bulunamadı</string>
