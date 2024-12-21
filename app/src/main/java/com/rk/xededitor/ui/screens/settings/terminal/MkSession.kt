@@ -42,7 +42,7 @@ object MkSession {
 
             val workingDir = getPwd()
 
-            val tmpDir = File(getTempDir(), "terminal")
+            val tmpDir = File(getTempDir(), "terminal/$session_id")
 
             if (tmpDir.exists()) {
                 tmpDir.deleteRecursively()
