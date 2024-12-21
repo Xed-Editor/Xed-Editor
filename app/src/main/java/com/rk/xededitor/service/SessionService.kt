@@ -17,20 +17,21 @@ import com.termux.terminal.TerminalSessionClient
 class SessionService : Service() {
 
     private val sessions = hashMapOf<String, TerminalSession>()
+    val sessionList = mutableStateListOf<String>()
+    var currentSession = mutableStateOf<String>("main")
 
     inner class SessionBinder : Binder() {
-        val sessionList = mutableStateListOf<String>()
-        var currentSession = mutableStateOf<String>("")
+        fun getService():SessionService{
+            return this@SessionService
+        }
         fun createSession(id: String, client: TerminalSessionClient, activity: Terminal): TerminalSession {
             return MkSession.createSession(activity, client, id).also {
                 sessions[id] = it
                 sessionList.add(id)
                 updateNotification()
-                currentSession.value = id
             }
         }
         fun getSession(id: String): TerminalSession? {
-            currentSession.value = id
             return sessions[id]
         }
         fun terminateSession(id: String) {

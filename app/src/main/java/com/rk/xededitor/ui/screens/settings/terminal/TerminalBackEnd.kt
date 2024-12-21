@@ -108,12 +108,13 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : Termin
     
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            activity.sessionBinder?.terminateSession(activity.sessionBinder!!.currentSession.value)
-            if (activity.sessionBinder!!.sessionList.isEmpty()){
+            activity.sessionBinder?.terminateSession(activity.sessionBinder!!.getService().currentSession.value)
+            if (activity.sessionBinder!!.getService().sessionList.isEmpty()){
                 activity.finish()
             }else{
                 terminal?.apply {
-                    val id = activity.sessionBinder!!.sessionList.first()
+                    val id = activity.sessionBinder!!.getService().sessionList.first()
+                    activity.sessionBinder!!.getService().currentSession.value = id
                     val client = TerminalBackEnd(this, activity)
                     val session =
                         activity.sessionBinder!!.getSession(id)

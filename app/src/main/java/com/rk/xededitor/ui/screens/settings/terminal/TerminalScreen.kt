@@ -81,8 +81,6 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
             gesturesEnabled = drawerState.isOpen,
             drawerContent = {
                 ModalDrawerSheet(modifier = Modifier.width(drawerWidth)) {
-                    var selectedOption by remember { mutableStateOf(terminalActivity.sessionBinder?.currentSession.toString()) }
-
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -114,7 +112,7 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                     ?.let {
                                         val client = TerminalBackEnd(it, terminalActivity)
                                         terminalActivity.sessionBinder!!.createSession(
-                                            generateUniqueString(terminalActivity.sessionBinder!!.sessionList),
+                                            generateUniqueString(terminalActivity.sessionBinder!!.getService().sessionList),
                                             client,
                                             terminalActivity
                                         )
@@ -129,9 +127,9 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                         }
 
                         // Session list
-                        terminalActivity.sessionBinder?.sessionList?.forEach { option ->
+                        terminalActivity.sessionBinder?.getService()?.sessionList?.forEach { option ->
                             SelectableCard(
-                                selected = option == selectedOption,
+                                selected = option == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
                                 onSelect = {
                                     terminalView.get()?.apply {
                                         val client = TerminalBackEnd(this, terminalActivity)
@@ -163,7 +161,7 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                             }
                                         }
                                     }
-                                    selectedOption = option
+                                    terminalActivity.sessionBinder!!.getService().currentSession.value = option
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -198,21 +196,14 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                     terminalView = WeakReference(this)
                                     setTextSize(rkUtils.dpToPx(14f, context))
                                     val client = TerminalBackEnd(this, terminalActivity)
-                                    val id = terminalActivity.intent.getStringExtra("session_id")
-                                        ?: "main"
-                                    terminalActivity.intent.removeExtra("session_id")
-                                    terminalActivity.intent.removeExtra("run_cmd")
-                                    terminalActivity.sessionBinder!!.currentSession.apply {
-                                        if (value != id) {
-                                            value = id
-                                        }
-                                    }
-                                    val session = terminalActivity.sessionBinder!!.getSession(id)
+
+                                    val session = terminalActivity.sessionBinder!!.getSession(terminalActivity.sessionBinder!!.getService().currentSession.value)
                                         ?: terminalActivity.sessionBinder!!.createSession(
-                                            id,
+                                            terminalActivity.sessionBinder!!.getService().currentSession.value,
                                             client,
                                             terminalActivity
                                         )
+
                                     session.updateTerminalSessionClient(client)
                                     attachSession(session)
                                     setTerminalViewClient(client)
@@ -245,7 +236,21 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            update = { terminalView -> terminalView.onScreenUpdated() },
+                            update = { terminalView -> terminalView.onScreenUpdated();
+                                val typedValue = TypedValue()
+
+                                context.theme.resolveAttribute(
+                                    com.google.android.material.R.attr.colorOnSurface,
+                                    typedValue,
+                                    true
+                                )
+
+                                terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
+                                    set(256, typedValue.data)
+                                    set(258, typedValue.data)
+                                }
+
+                                     },
                         )
 
                         AndroidView(

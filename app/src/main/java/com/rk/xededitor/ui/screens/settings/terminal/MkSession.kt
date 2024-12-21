@@ -67,11 +67,6 @@ object MkSession {
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
 
-            if (intent.hasExtra("run_cmd")){
-                return TerminalExec.getSession(activity,intent,sessionClient,env.toTypedArray())
-            }
-
-
             val shell = "/system/bin/sh"
             val args = if (PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, "Alpine") == "Android") {
                 arrayOf()
