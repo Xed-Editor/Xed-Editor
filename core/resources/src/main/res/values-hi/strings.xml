@@ -132,7 +132,7 @@
     <string name="pull">यात्रा</string>
     <string name="pull_desc">स्थानीय रिपॉजिटरी को रिमोट रिपॉजिटरी के साथ सिंक्रोनाइज़ करें</string>
     <string name="commit_push">कनेक्ट करें और प्रिंट करें</string>
-    <string name="push_desc">"एक कमिट बनाएं और रिमोट रिपॉजिटरी में परिवर्तन पुश करें"</string>
+    <string name="push_desc">एक कमिट बनाएं और रिमोट रिपॉजिटरी में परिवर्तन पुश करें</string>
     <string name="fill_both">कृपया दोनों फील्ड में भरें</string>
     <string name="pushing">वर्तमान में दूरस्थ रिपॉजिटरी पर मुद्रण हो रहा है...</string>
     <string name="nogit">त्रुटि: .git फ़ोल्डर नहीं मिला</string>
