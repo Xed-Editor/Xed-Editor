@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -126,53 +128,62 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             }
                         }
 
-                        // Session list
-                        terminalActivity.sessionBinder?.getService()?.sessionList?.forEach { option ->
-                            SelectableCard(
-                                selected = option == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
-                                onSelect = {
-                                    terminalView.get()?.apply {
-                                        val client = TerminalBackEnd(this, terminalActivity)
-                                        val session =
-                                            terminalActivity.sessionBinder!!.getSession(option)
-                                                ?: terminalActivity.sessionBinder!!.createSession(
-                                                    option,
-                                                    client,
-                                                    terminalActivity
-                                                )
-                                        session.updateTerminalSessionClient(client)
-                                        attachSession(session)
-                                        setTerminalViewClient(client)
-                                        post {
-                                            val typedValue = TypedValue()
+//                        // Session list
+//                        terminalActivity.sessionBinder?.getService()?.sessionList?.forEach { option ->
+//
+//                        }
 
-                                            context.theme.resolveAttribute(
-                                                com.google.android.material.R.attr.colorOnSurface,
-                                                typedValue,
-                                                true
-                                            )
-                                            keepScreenOn = true
-                                            requestFocus()
-                                            setFocusableInTouchMode(true)
+                        terminalActivity.sessionBinder?.getService()?.sessionList?.let{
+                            LazyColumn {
+                                items(it){ session_id ->
+                                    SelectableCard(
+                                        selected = session_id == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
+                                        onSelect = {
+                                            terminalView.get()?.apply {
+                                                val client = TerminalBackEnd(this, terminalActivity)
+                                                val session =
+                                                    terminalActivity.sessionBinder!!.getSession(session_id)
+                                                        ?: terminalActivity.sessionBinder!!.createSession(
+                                                            session_id,
+                                                            client,
+                                                            terminalActivity
+                                                        )
+                                                session.updateTerminalSessionClient(client)
+                                                attachSession(session)
+                                                setTerminalViewClient(client)
+                                                post {
+                                                    val typedValue = TypedValue()
 
-                                            mEmulator?.mColors?.mCurrentColors?.apply {
-                                                set(256, typedValue.data)
-                                                set(258, typedValue.data)
+                                                    context.theme.resolveAttribute(
+                                                        com.google.android.material.R.attr.colorOnSurface,
+                                                        typedValue,
+                                                        true
+                                                    )
+                                                    keepScreenOn = true
+                                                    requestFocus()
+                                                    setFocusableInTouchMode(true)
+
+                                                    mEmulator?.mColors?.mCurrentColors?.apply {
+                                                        set(256, typedValue.data)
+                                                        set(258, typedValue.data)
+                                                    }
+                                                }
                                             }
-                                        }
+                                            terminalActivity.sessionBinder!!.getService().currentSession.value = session_id
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp)
+                                    ) {
+                                        Text(
+                                            text = session_id,
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
                                     }
-                                    terminalActivity.sessionBinder!!.getService().currentSession.value = option
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
-                            ) {
-                                Text(
-                                    text = option,
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                }
                             }
                         }
+
                     }
                 }
 
@@ -333,6 +344,8 @@ fun SelectableCard(
         }
     }
 }
+
+
 
 const val VIRTUAL_KEYS =
     ("[" + "\n  [" + "\n    \"ESC\"," + "\n    {" + "\n      \"key\": \"/\"," + "\n      \"popup\": \"\\\\\"" + "\n    }," + "\n    {" + "\n      \"key\": \"-\"," + "\n      \"popup\": \"|\"" + "\n    }," + "\n    \"HOME\"," + "\n    \"UP\"," + "\n    \"END\"," + "\n    \"PGUP\"" + "\n  ]," + "\n  [" + "\n    \"TAB\"," + "\n    \"CTRL\"," + "\n    \"ALT\"," + "\n    \"LEFT\"," + "\n    \"DOWN\"," + "\n    \"RIGHT\"," + "\n    \"PGDN\"" + "\n  ]" + "\n]")
