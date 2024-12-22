@@ -60,7 +60,8 @@ import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-private var terminalView = WeakReference<TerminalView?>(null)
+var terminalView = WeakReference<TerminalView?>(null)
+var virtualKeysView = WeakReference<VirtualKeysView?>(null)
 var virtualKeysId = View.generateViewId()
 
 
@@ -128,49 +129,12 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             }
                         }
 
-//                        // Session list
-//                        terminalActivity.sessionBinder?.getService()?.sessionList?.forEach { option ->
-//
-//                        }
-
                         terminalActivity.sessionBinder?.getService()?.sessionList?.let{
                             LazyColumn {
                                 items(it){ session_id ->
                                     SelectableCard(
                                         selected = session_id == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
-                                        onSelect = {
-                                            terminalView.get()?.apply {
-                                                val client = TerminalBackEnd(this, terminalActivity)
-                                                val session =
-                                                    terminalActivity.sessionBinder!!.getSession(session_id)
-                                                        ?: terminalActivity.sessionBinder!!.createSession(
-                                                            session_id,
-                                                            client,
-                                                            terminalActivity
-                                                        )
-                                                session.updateTerminalSessionClient(client)
-                                                attachSession(session)
-                                                setTerminalViewClient(client)
-                                                post {
-                                                    val typedValue = TypedValue()
-
-                                                    context.theme.resolveAttribute(
-                                                        com.google.android.material.R.attr.colorOnSurface,
-                                                        typedValue,
-                                                        true
-                                                    )
-                                                    keepScreenOn = true
-                                                    requestFocus()
-                                                    setFocusableInTouchMode(true)
-
-                                                    mEmulator?.mColors?.mCurrentColors?.apply {
-                                                        set(256, typedValue.data)
-                                                        set(258, typedValue.data)
-                                                    }
-                                                }
-                                            }
-                                            terminalActivity.sessionBinder!!.getService().currentSession.value = session_id
-                                        },
+                                        onSelect = { changeSession(terminalActivity,session_id) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
@@ -259,15 +223,13 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                 terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
                                     set(256, typedValue.data)
                                     set(258, typedValue.data)
-                                }
-
-                                     },
+                                } },
                         )
 
                         AndroidView(
                             factory = { context ->
                                 VirtualKeysView(context, null).apply {
-
+                                    virtualKeysView = WeakReference(this)
                                     id = virtualKeysId
                                     val typedValue = TypedValue()
                                     context.theme.resolveAttribute(
@@ -343,6 +305,46 @@ fun SelectableCard(
             content()
         }
     }
+}
+
+
+fun changeSession(terminalActivity: Terminal,session_id:String){
+    terminalView.get()?.apply {
+        val client = TerminalBackEnd(this, terminalActivity)
+        val session =
+            terminalActivity.sessionBinder!!.getSession(session_id)
+                ?: terminalActivity.sessionBinder!!.createSession(
+                    session_id,
+                    client,
+                    terminalActivity
+                )
+        session.updateTerminalSessionClient(client)
+        attachSession(session)
+        setTerminalViewClient(client)
+        post {
+            val typedValue = TypedValue()
+
+            context.theme.resolveAttribute(
+                com.google.android.material.R.attr.colorOnSurface,
+                typedValue,
+                true
+            )
+            keepScreenOn = true
+            requestFocus()
+            setFocusableInTouchMode(true)
+
+            mEmulator?.mColors?.mCurrentColors?.apply {
+                set(256, typedValue.data)
+                set(258, typedValue.data)
+            }
+        }
+        virtualKeysView.get()?.apply {
+            virtualKeysViewClient = terminalView.get()?.mTermSession?.let {VirtualKeysListener(it)}
+        }
+
+    }
+    terminalActivity.sessionBinder!!.getService().currentSession.value = session_id
+
 }
 
 

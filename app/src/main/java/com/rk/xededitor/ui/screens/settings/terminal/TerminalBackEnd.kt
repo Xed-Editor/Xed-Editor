@@ -10,6 +10,7 @@ import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.Terminal
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.SpecialButton
+import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -112,7 +113,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : Termin
             if (activity.sessionBinder!!.getService().sessionList.isEmpty()){
                 activity.finish()
             }else{
-                terminal?.apply {
+                terminal.apply {
                     val id = activity.sessionBinder!!.getService().sessionList.first()
                     activity.sessionBinder!!.getService().currentSession.value = id
                     val client = TerminalBackEnd(this, activity)
@@ -142,6 +143,9 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : Termin
                             set(256, typedValue.data)
                             set(258, typedValue.data)
                         }
+                    }
+                    virtualKeysView.get()?.apply {
+                        virtualKeysViewClient = terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
                     }
                 }
             }
