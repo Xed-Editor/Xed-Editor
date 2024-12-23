@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.activities.settings
+package com.rk.xededitor.ui.activities.terminal
 
 import android.content.ComponentName
 import android.content.Context
@@ -34,8 +34,8 @@ import com.rk.libcommons.alpineDir
 import com.rk.libcommons.localDir
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.service.SessionService
-import com.rk.xededitor.ui.screens.settings.terminal.MkRootfs
-import com.rk.xededitor.ui.screens.settings.terminal.Terminal
+import com.rk.xededitor.ui.screens.terminal.MkRootfs
+import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -83,14 +83,14 @@ class Terminal : ComponentActivity() {
         setContent {
             KarbonTheme {
                 Surface {
-                    TerminalScreen(this)
+                    TerminalScreenHost(this)
                 }
             }
         }
     }
 
     @Composable
-    fun TerminalScreen(context: Context) {
+    fun TerminalScreenHost(context: Context) {
         var progress by remember { mutableFloatStateOf(0f) }
         var progressText by remember { mutableStateOf("Initializing...") }
         var isSetupComplete by remember { mutableStateOf(false) }
@@ -191,7 +191,7 @@ class Terminal : ComponentActivity() {
                     }
                 }
             } else {
-                Terminal(terminalActivity = this@Terminal)
+                TerminalScreen(terminalActivity = this@Terminal)
             }
         }
     }

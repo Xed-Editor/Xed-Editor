@@ -16,7 +16,6 @@ import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
-import com.rk.xededitor.ui.screens.settings.terminal.Terminal
 
 @Composable
 fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity) {

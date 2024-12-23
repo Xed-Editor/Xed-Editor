@@ -1,5 +1,6 @@
 package com.rk.xededitor.MainActivity.handlers
 
+import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.provider.file
 import com.rk.karbon_exec.launchTermux
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
@@ -25,14 +27,19 @@ import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager
+import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
+import com.rk.xededitor.MainActivity.handlers.git.commit
+import com.rk.xededitor.MainActivity.handlers.git.pull
+import com.rk.xededitor.MainActivity.handlers.git.push
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
+import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
-import com.rk.xededitor.ui.activities.settings.Terminal
+import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -225,172 +232,127 @@ object MenuClickHandler {
                 return true
             }
 
-            Id.git -> {
-                val pull = View.generateViewId()
-                val push = View.generateViewId()
-
-                var dialog: AlertDialog? = null
-                val credentials = PreferencesData.getString(PreferencesKeys.GIT_CRED, "").split(":")
-                if (credentials.size != 2) {
-                    rkUtils.toast(getString(strings.inavalid_git_cred))
-                    return true
-                }
-                val userdata =
-                    PreferencesData.getString(PreferencesKeys.GIT_USER_DATA, "").split(":")
-                if (userdata.size != 2) {
-                    rkUtils.toast(getString(strings.inavalid_userdata))
-                    return true
-                }
-                val listener = View.OnClickListener { v ->
-                    when (v.id) {
-                        pull -> {
-                            val loadingPopup = LoadingPopup(
-                                activity, null
-                            ).setMessage(getString(strings.wait_download))
-                            loadingPopup.show()
-
-                            DefaultScope.launch(Dispatchers.IO) {
-                                try {
-                                    val gitRoot = FileManager.findGitRoot(
-                                        editorFragment?.file
-                                    )
-                                    if (gitRoot != null) {
-                                        val git = Git.open(gitRoot)
-                                        git.pull().setCredentialsProvider(
-                                            UsernamePasswordCredentialsProvider(
-                                                credentials[0],
-                                                credentials[1],
-                                            )
-                                        ).call()
-                                    }
-                                } catch (e: GitAPIException) {
-                                    rkUtils.toast(e.message)
-                                }
-                                withContext(Dispatchers.Main) {
-                                    rkUtils.toast(getString(strings.done))
-                                    loadingPopup.hide()
-                                }
-                            }
-                        }
-
-                        push -> {
-                            val gitRoot = FileManager.findGitRoot(
-                                editorFragment?.file
-                            )
-                            if (gitRoot != null) {
-                                val git = Git.open(gitRoot)
-                                val view =
-                                    LayoutInflater.from(activity).inflate(R.layout.popup_new, null)
-                                view.findViewById<LinearLayout>(Id.mimeTypeEditor).visibility =
-                                    View.VISIBLE
-                                val branchedit = view.findViewById<EditText>(Id.name).apply {
-                                    hint = getString(strings.git_branch)
-                                    setText(git.repository.branch)
-                                }
-                                val commitedit = view.findViewById<EditText>(Id.mime).apply {
-                                    hint = getString(strings.git_commit_msg)
-                                    setText("")
-                                }
-                                MaterialAlertDialogBuilder(activity).setTitle(getString(strings.push))
-                                    .setView(view)
-                                    .setNegativeButton(getString(strings.cancel), null)
-                                    .setPositiveButton(getString(strings.apply)) { _, _ ->
-                                        val branch = branchedit.text.toString()
-                                        val commit = commitedit.text.toString()
-                                        if (branch.isEmpty() || commit.isEmpty()) {
-                                            rkUtils.toast(getString(strings.fill_both))
-                                            return@setPositiveButton
-                                        }
-                                        val loadingPopup = LoadingPopup(activity, null).setMessage(
-                                            getString(strings.pushing)
-                                        )
-                                        loadingPopup.show()
-                                        DefaultScope.launch(Dispatchers.IO) {
-                                            try {
-                                                val ref = git.repository.findRef(branch)
-                                                if (ref == null) {
-                                                    git.branchCreate().setName(branch).call()
-                                                    git.checkout().setName(branch).call()
-                                                } else if (git.repository.branch != branch) {
-                                                    git.checkout().setName(branch).call()
-                                                }
-                                                val config = git.repository.config
-                                                config.setString(
-                                                    "user",
-                                                    null,
-                                                    "name",
-                                                    userdata[0],
-                                                )
-                                                config.setString(
-                                                    "user",
-                                                    null,
-                                                    "email",
-                                                    userdata[1],
-                                                )
-                                                config.save()
-                                                git.add().addFilepattern(".").call()
-                                                git.commit().setMessage(commit).call()
-                                                git.push().setCredentialsProvider(
-                                                    UsernamePasswordCredentialsProvider(
-                                                        credentials[0],
-                                                        credentials[1],
-                                                    )
-                                                ).call()
-                                            } catch (e: GitAPIException) {
-                                                rkUtils.toast(e.message)
-                                            }
-                                            withContext(Dispatchers.Main) {
-                                                rkUtils.toast(getString(strings.done))
-                                                loadingPopup.hide()
-                                            }
-                                        }
-                                    }.show()
-                            } else {
-                                rkUtils.toast(getString(strings.nogit))
-                            }
-                        }
-                    }
-                    dialog?.dismiss()
-                    dialog = null
-                }
-                ActionPopup(activity).apply {
-                    addItem(
-                        getString(strings.pull),
-                        getString(strings.pull_desc),
-                        ContextCompat.getDrawable(activity, drawables.sync),
-                        pull,
-                        listener,
-                    )
-                    addItem(
-                        getString(strings.commit_push),
-                        getString(strings.push_desc),
-                        ContextCompat.getDrawable(activity, drawables.upload),
-                        push,
-                        listener,
-                    )
-                    setTitle(getString(strings.git))
-                    getDialogBuilder().setNegativeButton(getString(strings.cancel), null)
-                    dialog = show()
-                }
-                return true
-            }
-
             Id.action_add -> {
                 val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.setType("application/octet-stream")
                 intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
                 activity.fileManager!!.createFileLauncher.launch(intent)
-              return true
+                return true
             }
 
-            else -> return if (activity.toolItems.contains(menuItem.itemId)){
+            Id.action_pull -> {
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment) {
+                        it.file?.let { it1 -> pull(activity, it1) }
+                    }else{
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
+            }
+
+            Id.action_push -> {
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment) {
+                        it.file?.let { it1 -> push(activity, it1) }
+                    }else{
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
+            }
+
+            Id.action_commit -> {
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment) {
+                        it.file?.let { it1 -> commit(activity, it1) }
+                    }else{
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
+            }
+
+            Id.action_branch -> {
+                fun showRadioButtonDialog(
+                    context: Context,
+                    title: String,
+                    items: List<String>,
+                    defaultSelection: String,
+                    onItemSelected: (String) -> Unit
+                ) {
+                    var selectedItem = defaultSelection
+                    val checkedItem = items.indexOf(defaultSelection)
+
+                    MaterialAlertDialogBuilder(context)
+                        .setTitle(title)
+                        .setSingleChoiceItems(
+                            items.toTypedArray(),
+                            checkedItem
+                        ) { _, which ->
+                            selectedItem = items[which]
+                        }
+                        .setPositiveButton("OK") { _, _ ->
+                            onItemSelected(selectedItem)
+                        }
+                        .setNegativeButton("Cancel") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+
+
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment) {
+                        DefaultScope.launch(Dispatchers.IO) {
+
+                            it.file?.let { it1 ->
+                                findGitRoot(it1)?.let { root ->
+                                    GitClient.getAllBranches(activity,
+                                        root, onResult = { branches, eror ->
+                                            GitClient.getCurrentBranchFull(activity,root, onResult = {branch,erorr ->
+                                                runOnUiThread{
+                                                    if (branches != null) {
+                                                        if (branch != null) {
+                                                            showRadioButtonDialog(
+                                                                activity,
+                                                                title = "Branches",
+                                                                items = branches,
+                                                                defaultSelection = branch,
+                                                                onItemSelected = { selectedBranch ->
+                                                                    DefaultScope.launch(Dispatchers.IO){
+                                                                        GitClient.setBranch(activity,root,selectedBranch,{})
+                                                                    }
+                                                                },
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            })
+
+                                        })
+                                }
+                            }
+                        }
+
+                    }else{
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
+
+
+
+
+            }
+
+            else -> return if (activity.toolItems.contains(menuItem.itemId)) {
                 Mutators.run(menuItem.itemId)
                 true
-            }else{
+            } else {
                 false
             }
+
         }
+
+        return false
     }
 
     private fun handleReplace(activity: MainActivity): Boolean {

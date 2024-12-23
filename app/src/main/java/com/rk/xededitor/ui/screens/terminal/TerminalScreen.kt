@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.screens.settings.terminal
+package com.rk.xededitor.ui.screens.terminal
 
 import android.content.Intent
 import android.graphics.Typeface
@@ -37,10 +37,7 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -51,11 +48,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.resources.strings
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.service.SessionService
-import com.rk.xededitor.ui.activities.settings.Terminal
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysConstants
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysInfo
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysListener
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
+import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysConstants
+import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysInfo
+import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysListener
+import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysView
 import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -67,7 +64,7 @@ var virtualKeysId = View.generateViewId()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
+fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
     val context = LocalContext.current
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
@@ -211,7 +208,9 @@ fun Terminal(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            update = { terminalView -> terminalView.onScreenUpdated();
+                            update = { terminalView ->
+                                terminalView.onScreenUpdated();
+
                                 val typedValue = TypedValue()
 
                                 context.theme.resolveAttribute(
@@ -308,7 +307,7 @@ fun SelectableCard(
 }
 
 
-fun changeSession(terminalActivity: Terminal,session_id:String){
+fun changeSession(terminalActivity: Terminal, session_id:String){
     terminalView.get()?.apply {
         val client = TerminalBackEnd(this, terminalActivity)
         val session =
@@ -339,7 +338,7 @@ fun changeSession(terminalActivity: Terminal,session_id:String){
             }
         }
         virtualKeysView.get()?.apply {
-            virtualKeysViewClient = terminalView.get()?.mTermSession?.let {VirtualKeysListener(it)}
+            virtualKeysViewClient = terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
         }
 
     }

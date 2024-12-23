@@ -1,24 +1,21 @@
-package com.rk.xededitor.ui.screens.settings.terminal
+package com.rk.xededitor.ui.screens.terminal
 
-import android.app.Activity
 import android.util.Log
-import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.MotionEvent
 import com.blankj.utilcode.util.ClipboardUtils
 import com.blankj.utilcode.util.KeyboardUtils
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.ui.activities.settings.Terminal
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.SpecialButton
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysListener
-import com.rk.xededitor.ui.screens.settings.terminal.virtualkeys.VirtualKeysView
+import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.screens.terminal.virtualkeys.SpecialButton
+import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysView
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import com.termux.view.TerminalView
 import com.termux.view.TerminalViewClient
 
-class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : TerminalViewClient, TerminalSessionClient {
+class TerminalBackEnd(val terminal: TerminalView,val activity: Terminal) : TerminalViewClient, TerminalSessionClient {
     override fun onTextChanged(changedSession: TerminalSession) {
         terminal.onScreenUpdated()
     }
@@ -113,41 +110,7 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : Termin
             if (activity.sessionBinder!!.getService().sessionList.isEmpty()){
                 activity.finish()
             }else{
-                terminal.apply {
-                    val id = activity.sessionBinder!!.getService().sessionList.first()
-                    activity.sessionBinder!!.getService().currentSession.value = id
-                    val client = TerminalBackEnd(this, activity)
-                    val session =
-                        activity.sessionBinder!!.getSession(id)
-                            ?: activity.sessionBinder!!.createSession(
-                                id,
-                                client,
-                                activity
-                            )
-                    session.updateTerminalSessionClient(client)
-                    attachSession(session)
-                    setTerminalViewClient(client)
-                    post {
-                        val typedValue = TypedValue()
-
-                        context.theme.resolveAttribute(
-                            com.google.android.material.R.attr.colorOnSurface,
-                            typedValue,
-                            true
-                        )
-                        keepScreenOn = true
-                        requestFocus()
-                        setFocusableInTouchMode(true)
-
-                        mEmulator?.mColors?.mCurrentColors?.apply {
-                            set(256, typedValue.data)
-                            set(258, typedValue.data)
-                        }
-                    }
-                    virtualKeysView.get()?.apply {
-                        virtualKeysViewClient = terminalView.get()?.mTermSession?.let { VirtualKeysListener(it) }
-                    }
-                }
+                changeSession(activity,activity.sessionBinder!!.getService().sessionList.first())
             }
             return true
         }
@@ -164,22 +127,26 @@ class TerminalBackEnd(val terminal: TerminalView,val activity:Terminal) : Termin
     
     // keys
     override fun readControlKey(): Boolean {
-        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.CTRL, true)
+        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+            SpecialButton.CTRL, true)
         return state != null && state
     }
     
     override fun readAltKey(): Boolean {
-       val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.ALT, true)
+       val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+           SpecialButton.ALT, true)
         return state != null && state
     }
     
     override fun readShiftKey(): Boolean {
-        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.SHIFT, true)
+        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+            SpecialButton.SHIFT, true)
         return state != null && state
     }
     
     override fun readFnKey(): Boolean {
-        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(SpecialButton.FN, true)
+        val state = activity.findViewById<VirtualKeysView>(virtualKeysId).readSpecialButton(
+            SpecialButton.FN, true)
         return state != null && state
     }
     

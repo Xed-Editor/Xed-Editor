@@ -55,6 +55,7 @@ fun PreferenceLayout(
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(8.dp),
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     scrollState: ScrollState? = rememberScrollState(),
+    fab: (@Composable () -> Unit) = {},
     actions: @Composable RowScope.() -> Unit = {},
     bottomBar: @Composable () -> Unit = { BottomSpacer() },
     content: @Composable ColumnScope.() -> Unit,
@@ -66,6 +67,7 @@ fun PreferenceLayout(
         isExpandedScreen = isExpandedScreen,
         actions = actions,
         bottomBar = bottomBar,
+        fab = fab
     ) {
         PreferenceColumn(
             contentPadding = it,

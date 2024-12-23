@@ -44,6 +44,7 @@ import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.components.InputDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,122 +62,77 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
     val context = LocalContext.current
 
-    Scaffold(
-        floatingActionButton = {
+    PreferenceLayout(
+        label = stringResource(id = strings.mutators),
+        backArrowVisible = true,
+        fab = {
             FloatingActionButton(onClick = {
                 showDialog = true
             }) {
                 Icon(imageVector = Icons.Outlined.Add, contentDescription = "Add Mutator")
             }
-        },
-        content = { innerPadding ->
-            Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-                PreferenceLayout(
-                    label = stringResource(id = strings.mutators),
-                    backArrowVisible = true
-                ) {
-                    PreferenceGroup {
-                        if (mutators.isEmpty()) {
-                            Text(
-                                text = "No mutators",
-                                modifier = Modifier.padding(16.dp)
-                            )
-                        } else {
-                            mutators.toList().forEach { mut ->
-                                PreferenceTemplate(
-                                    modifier = modifier.clickable {
-                                        DefaultScope.launch {
-                                            val file = File(context.getTempDir(),mut.name+"&mut.js")
-                                            withContext(Dispatchers.IO){
-                                                file.writeText(mut.script)
-                                            }
-                                            withContext(Dispatchers.Main){
-                                                MainActivity.activityRef.get()?.adapter?.addFragment(file,FragmentType.EDITOR)
-                                                rkUtils.toast("Opened in Editor")
-                                            }
+        }
+    ) {
+        PreferenceGroup {
+            if (mutators.isEmpty()) {
+                Text(
+                    text = "No mutators",
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                mutators.toList().forEach { mut ->
+                    PreferenceTemplate(
+                        modifier = modifier.clickable {
+                            DefaultScope.launch {
+                                val file = File(context.getTempDir(),mut.name+"&mut.js")
+                                withContext(Dispatchers.IO){
+                                    file.writeText(mut.script)
+                                }
+                                withContext(Dispatchers.Main){
+                                    MainActivity.activityRef.get()?.adapter?.addFragment(file,FragmentType.EDITOR)
+                                    rkUtils.toast("Opened in Editor")
+                                }
 
-                                        }
+                            }
 
-                                    },
-                                    contentModifier = Modifier.fillMaxHeight(),
-                                    title = { Text(text = mut.name) },
-                                    enabled = true,
-                                    applyPaddings = true,
-                                    endWidget = {
-                                        IconButton(onClick = { Mutators.deleteMutator(mut) }) {
-                                            Icon(
-                                                imageVector = Icons.Outlined.Delete,
-                                                contentDescription = null
-                                            )
-                                        }
-                                    }
+                        },
+                        contentModifier = Modifier.fillMaxHeight(),
+                        title = { Text(text = mut.name) },
+                        enabled = true,
+                        applyPaddings = true,
+                        endWidget = {
+                            IconButton(onClick = { Mutators.deleteMutator(mut) }) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Delete,
+                                    contentDescription = null
                                 )
                             }
                         }
-                    }
+                    )
                 }
             }
         }
-    )
+    }
 
     if (showDialog) {
-        inputText = ""
-        Dialog(onDismissRequest = { showDialog = false }) {
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                tonalElevation = 8.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .wrapContentSize()
-                ) {
-                    Text(
-                        text = "Enter name:",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    OutlinedTextField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        placeholder = { Text("Enter mutator name") },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                if (onDone(inputText)){
-                                    showDialog = false
-                                }
-                            }
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        TextButton(onClick = { showDialog = false }) {
-                            Text("Cancel")
-                        }
-                        TextButton(onClick = {
-                            if (onDone(inputText)){
-                                showDialog = false
-                            }
-                        }) {
-                            Text("Create")
-                        }
-                    }
+        InputDialog(
+            title = "Name",
+            inputLabel = "Mutator Name",
+            inputValue = inputText,
+            onInputValueChange = { text ->
+                inputText = text
+            },
+            onConfirm = {
+                if (onDone(inputText)) {
+                    showDialog = false
                 }
-            }
-        }
+            },
+            onDismiss = {
+                showDialog = false
+                inputText = ""
+            },
+        )
+
     }
 }
 
@@ -199,7 +155,7 @@ private fun onDone(name:String):Boolean{
 
 
             //network
-            //let response = http(url, options)
+            //let response = http(url, jsonString)
             //dialog
             //showDialog(title,msg)
 
@@ -214,3 +170,5 @@ private fun onDone(name:String):Boolean{
 
     //return true to hide the dialog
 }
+
+

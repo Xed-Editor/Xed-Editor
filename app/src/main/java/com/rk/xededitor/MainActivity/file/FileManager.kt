@@ -134,10 +134,16 @@ class FileManager(private val mainActivity: MainActivity) {
     }
 
     companion object {
-        fun findGitRoot(file: File?): File? {
+        private val gits = mutableSetOf<String>()
+
+        suspend fun findGitRoot(file: File): File? {
+            gits.forEach { root -> if (file.absolutePath.contains(root)){
+                return File(root)
+            } }
             var currentFile = file
-            while (currentFile?.parentFile != null) {
+            while (currentFile.parentFile != null) {
                 if (File(currentFile.parentFile, ".git").exists()) {
+                    currentFile.parentFile?.let { gits.add(it.absolutePath) }
                     return currentFile.parentFile
                 }
                 currentFile = currentFile.parentFile

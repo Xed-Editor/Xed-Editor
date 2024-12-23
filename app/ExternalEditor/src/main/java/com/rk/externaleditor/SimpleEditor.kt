@@ -97,7 +97,7 @@ class SimpleEditor : AppCompatActivity() {
         kotlin.runCatching {
             handleIntent(intent)
         }.onFailure {
-            Toast.makeText(application!!,it.message,Toast.LENGTH_LONG).show()
+            Toast.makeText(application!!,it.message.toString(),Toast.LENGTH_LONG).show()
         }
 
         AutoSaver(this)

@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.screens.settings.terminal.virtualkeys;
+package com.rk.xededitor.ui.screens.terminal.virtualkeys;
 
 import android.widget.Button;
 

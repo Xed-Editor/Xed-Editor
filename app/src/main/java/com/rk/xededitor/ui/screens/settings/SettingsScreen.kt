@@ -44,7 +44,7 @@ private fun Categories(navController: NavController) {
     PreferenceCategory(
         label = stringResource(id = strings.git),
         description = stringResource(id = strings.git_desc),
-        iconResource = drawables.git,
+        iconResource = drawables.github,
         onNavigate = { navController.navigate(SettingsRoutes.GitSettings.route) },
     )
     PreferenceCategory(

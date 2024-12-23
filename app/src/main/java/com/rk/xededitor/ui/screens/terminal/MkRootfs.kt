@@ -1,7 +1,9 @@
-package com.rk.xededitor.ui.screens.settings.terminal
+package com.rk.xededitor.ui.screens.terminal
 
 import android.content.Context
 import com.rk.libcommons.alpineDir
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
@@ -29,15 +31,4 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
         }
         onComplete.invoke()
     }
-}
-
-fun File.child(fileName:String):File {
-    return File(this,fileName)
-}
-
-fun File.createFileIfNot():File{
-    if (exists().not()){
-        createNewFile()
-    }
-    return this
 }

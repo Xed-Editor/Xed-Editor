@@ -86,6 +86,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         return holder
     }
 
+    //parent file
     fun newFile(file: FileObject) {
 
         val tempData = currentList.toMutableList()

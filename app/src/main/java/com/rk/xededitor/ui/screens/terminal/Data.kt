@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.screens.settings.terminal
+package com.rk.xededitor.ui.screens.terminal
 
 const val hosts = """
 127.0.0.1   localhost.localdomain localhost

@@ -33,8 +33,6 @@ object ProjectBar {
             val openDirId = View.generateViewId()
             val openPathId = View.generateViewId()
             val privateFilesId = View.generateViewId()
-            val cloneRepo = View.generateViewId()
-            val pluginDir = View.generateViewId()
 
             var dialog: AlertDialog? = null
 
@@ -55,104 +53,6 @@ object ProjectBar {
 
                         privateFilesId -> {
                             ProjectManager.addProject(this, filesDir.parentFile!!)
-                        }
-
-                        cloneRepo -> {
-                            val view =
-                                LayoutInflater.from(this@with).inflate(R.layout.popup_new, null)
-                            view.findViewById<LinearLayout>(R.id.mimeTypeEditor).visibility =
-                                View.VISIBLE
-                            val repoLinkEdit =
-                                view.findViewById<EditText>(R.id.name).apply {
-                                    hint = "https://github.com/UserName/repo.git"
-                                }
-                            val branchEdit =
-                                view.findViewById<EditText>(R.id.mime).apply {
-                                    hint = getString(strings.git_branch)
-                                    setText("main")
-                                }
-                            MaterialAlertDialogBuilder(this)
-                                .setTitle(getString(strings.clone_repo))
-                                .setView(view)
-                                .setNegativeButton(getString(strings.cancel), null)
-                                .setPositiveButton(getString(strings.apply)) { _, _ ->
-                                    val repoLink = repoLinkEdit.text.toString()
-                                    val branch = branchEdit.text.toString()
-                                    val repoName =
-                                        repoLink.substringAfterLast("/").removeSuffix(".git")
-                                    val repoDir =
-                                        File(
-                                            PreferencesData.getString(
-                                                PreferencesKeys.GIT_REPO_DIR,
-                                                "/storage/emulated/0",
-                                            ) + "/" + repoName
-                                        )
-                                    if (repoLink.isEmpty() || branch.isEmpty()) {
-                                        rkUtils.toast(getString(strings.fill_both))
-                                    } else if (repoDir.exists()) {
-                                        rkUtils.toast("$repoDir ${getString(strings.exists)}")
-                                    } else {
-                                        val loadingPopup =
-                                            LoadingPopup(this, null)
-                                                .setMessage(getString(strings.cloning))
-                                        loadingPopup.show()
-                                        DefaultScope.launch(Dispatchers.IO) {
-                                            try {
-                                                Git.cloneRepository()
-                                                    .setURI(repoLink)
-                                                    .setDirectory(repoDir)
-                                                    .setBranch(branch)
-                                                    .call()
-                                                withContext(Dispatchers.Main) {
-                                                    loadingPopup.hide()
-                                                    ProjectManager.addProject(this@with, repoDir)
-                                                }
-                                            } catch (e: Exception) {
-                                                val credentials =
-                                                    PreferencesData.getString(
-                                                            PreferencesKeys.GIT_CRED,
-                                                            "",
-                                                        )
-                                                        .split(":")
-                                                if (credentials.size != 2) {
-                                                    withContext(Dispatchers.Main) {
-                                                        loadingPopup.hide()
-                                                        rkUtils.toast(getString(strings.clone_err))
-                                                    }
-                                                } else {
-                                                    try {
-                                                        Git.cloneRepository()
-                                                            .setURI(repoLink)
-                                                            .setDirectory(repoDir)
-                                                            .setBranch(branch)
-                                                            .setCredentialsProvider(
-                                                                UsernamePasswordCredentialsProvider(
-                                                                    credentials[0],
-                                                                    credentials[1],
-                                                                )
-                                                            )
-                                                            .call()
-                                                        withContext(Dispatchers.Main) {
-                                                            loadingPopup.hide()
-                                                            ProjectManager.addProject(
-                                                                this@with,
-                                                                repoDir,
-                                                            )
-                                                        }
-                                                    } catch (e: Exception) {
-                                                        withContext(Dispatchers.Main) {
-                                                            loadingPopup.hide()
-                                                            rkUtils.toast(
-                                                                "${getString(strings.err)}: ${e.message}"
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                .show()
                         }
                     }
                     dialog?.dismiss()
@@ -181,13 +81,6 @@ object ProjectBar {
                         getString(strings.private_files_desc),
                         ContextCompat.getDrawable(this@with, drawables.android),
                         privateFilesId,
-                        listener,
-                    )
-                    addItem(
-                        getString(strings.clone_repo),
-                        getString(strings.clone_repo_desc),
-                        ContextCompat.getDrawable(this@with, drawables.git),
-                        cloneRepo,
                         listener,
                     )
 

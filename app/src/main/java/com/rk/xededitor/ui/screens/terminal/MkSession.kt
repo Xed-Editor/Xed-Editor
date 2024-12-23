@@ -1,7 +1,8 @@
-package com.rk.xededitor.ui.screens.settings.terminal
+package com.rk.xededitor.ui.screens.terminal
 
-import android.app.Activity
 import android.os.Environment
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localLibDir
 import com.rk.settings.PreferencesData
@@ -9,14 +10,14 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
-import com.rk.xededitor.ui.activities.settings.Terminal
+import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import java.io.File
 
 object MkSession {
-    fun createSession(activity: Terminal, sessionClient: TerminalSessionClient,session_id:String): TerminalSession {
+    fun createSession(activity: Terminal, sessionClient: TerminalSessionClient, session_id:String): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),

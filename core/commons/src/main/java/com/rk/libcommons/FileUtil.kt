@@ -34,3 +34,14 @@ fun Context.alpineDir(): File {
         }
     }
 }
+
+fun File.child(fileName:String):File {
+    return File(this,fileName)
+}
+
+fun File.createFileIfNot():File{
+    if (exists().not()){
+        createNewFile()
+    }
+    return this
+}

@@ -7,16 +7,21 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.git.GitClient
+import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.File
 
 
+
+//the worst code i ever written
 object MenuItemHandler {
-    
+    //this is so stupid but it works
     private val mutex = Mutex()
     private var lastUpdate = System.currentTimeMillis()
     private var isUpdating = false
@@ -101,9 +106,18 @@ object MenuItemHandler {
                 menu.findItem(Id.git).isVisible = false
             }
         }
-        withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
             val gitRoot = editorFragment?.file?.let { findGitRoot(it) }
-            
+            if (gitRoot != null){
+                GitClient.getCurrentBranch(activity,gitRoot, onResult = { branch,err ->
+                    rkUtils.runOnUiThread{
+                        menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)?.apply {
+                            title = "Branch : ${branch ?: "error"}"
+                        }
+                    }
+                })
+            }
+
             withContext(Dispatchers.Main) {
                 menu.findItem(Id.git).isVisible = gitRoot != null && activity.tabLayout!!.tabCount > 0
             }

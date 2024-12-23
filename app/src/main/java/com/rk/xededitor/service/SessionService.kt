@@ -3,14 +3,13 @@ package com.rk.xededitor.service
 import android.app.*
 import android.content.Intent
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
-import com.rk.xededitor.ui.activities.settings.Terminal
-import com.rk.xededitor.ui.screens.settings.terminal.MkSession
+import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 

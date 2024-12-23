@@ -121,7 +121,31 @@
                 android:icon="@drawable/git"
                 android:title="@string/git"
                 android:visible="false"
-                app:showAsAction="ifRoom" />
+                app:showAsAction="ifRoom">
+                <menu>
+                    <item
+                        android:id="@+id/action_push"
+                        android:icon="@drawable/github"
+                        android:title="Push"
+                        app:showAsAction="never" />
+                    <item
+                        android:id="@+id/action_pull"
+                        android:icon="@drawable/github"
+                        android:title="Pull"
+                        app:showAsAction="never" />
+                    <item
+                        android:id="@+id/action_commit"
+                        android:icon="@drawable/github"
+                        android:title="Commit"
+                        app:showAsAction="never" />
+                    <item
+                        android:id="@+id/action_branch"
+                        android:icon="@drawable/github"
+                        android:title="Branch : "
+                        app:showAsAction="never" />
+
+                </menu>
+            </item>
             <item
                 android:id="@+id/action_print"
                 android:icon="@drawable/print"

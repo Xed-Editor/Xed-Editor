@@ -17,22 +17,24 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.child
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.R
+import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.ui.activities.settings.Terminal
+import com.rk.xededitor.rkUtils.runOnUiThread
+import com.rk.xededitor.rkUtils.toastIt
+import com.rk.xededitor.ui.activities.terminal.Terminal
 import java.io.File
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -122,6 +124,14 @@ class FileAction(
 
                 val fileDrawable = getDrawable(drawables.outline_insert_drive_file_24)
                 if (file.isDirectory) {
+                    addItem(
+                        title = "Clone Repo",
+                        description = "Clone a git repo here",
+                        icon = getDrawable(drawables.github),
+                        listener = {
+                            cloneRepo()
+                        }
+                    )
                     addItem(
                         getString(strings.open_in_terminal),
                         getString(strings.open_dir_in_terminal),
@@ -395,5 +405,44 @@ class FileAction(
             e.printStackTrace()
             rkUtils.toast(getString(strings.file_open_denied))
         }
+    }
+
+
+    private fun cloneRepo() {
+        val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
+        val editText = popupView.findViewById<EditText>(R.id.name)
+
+        var title = "Clone"
+        editText.hint = "repo url"
+
+        MaterialAlertDialogBuilder(mainActivity)
+            .setTitle(title)
+            .setView(popupView)
+            .setNegativeButton(mainActivity.getString(strings.cancel), null)
+            .setPositiveButton("clone") { _: DialogInterface?, _: Int ->
+                if (editText.text.toString().isEmpty()) {
+                    "Invalid url".toastIt()
+                    return@setPositiveButton
+                }
+
+                val loading = LoadingPopup(mainActivity, null)
+                loading.show()
+
+                val url = editText.text.toString()
+
+                mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                    GitClient.clone(mainActivity,url,file, onResult = {
+                        runOnUiThread{
+                            if (it == null){
+                                ProjectManager.currentProject.updateFileAdded(mainActivity,file)
+                            }
+                            loading.hide()
+                            it?.message?.toastIt()
+                        }
+                    })
+
+                }
+            }
+            .show()
     }
 }
