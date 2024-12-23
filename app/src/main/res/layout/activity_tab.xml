@@ -5,6 +5,7 @@
     android:id="@+id/drawer_layout"
     android:defaultFocusHighlightEnabled="false"
     android:layout_width="match_parent"
+    android:fitsSystemWindows="false"
     android:layout_height="match_parent">
 
     <!-- Main content -->

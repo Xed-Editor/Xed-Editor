@@ -2,8 +2,12 @@ package com.rk.xededitor
 
 import android.os.Bundle
 import android.view.KeyEvent
+import android.view.View
 import androidx.annotation.Keep
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.ui.theme.ThemeManager
@@ -22,6 +26,9 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.apply(this)
+
+
+
         super.onCreate(savedInstanceState)
     }
 

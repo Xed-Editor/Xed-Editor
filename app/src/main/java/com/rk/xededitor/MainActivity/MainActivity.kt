@@ -10,7 +10,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.Insets
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
@@ -90,6 +93,9 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         binding = ActivityTabBinding.inflate(layoutInflater)
+
+
+
         setContentView(binding!!.root)
 
 
