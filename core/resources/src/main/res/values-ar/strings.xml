@@ -132,7 +132,7 @@
     <string name="pull">جذب</string>
     <string name="pull_desc">مزامنة المستودع المحلي مع المستودع البعيد</string>
     <string name="commit_push">الكوميت والدفع</string>
-    <string name="push_desc">إنشاء كوميت ودفع التغييرات إلى المستودع البعيد</string>
+    <string name="push_desc">إنشاء كوميت ودفع التغييرات إلى المستودع البعيد_</string>
     <string name="fill_both">يرجى ملء كلا الخانتين</string>
     <string name="pushing">تتم الدفع حاليًا إلى المستودع البعيد…</string>
     <string name="nogit">خطأ: لم يتم العثور على مجلد git</string>
@@ -256,7 +256,7 @@
     <string name="version">الإصدار</string>
     <string name="version_code">رمز الإصدار</string>
     <string name="github">جيتهب</string>
-    <string name="github_desc">كربون تطبيقٌ مفتوح المصدر!</string>
+    <string name="github_desc">ضع نجمة في الجيتهب🤩</string>
     <string name="telegram">مجموعة التلجرام</string>
     <string name="telegram_desc">انضم إلى مجتمع تلجرام</string>
     <string name="join">انضمام</string>
@@ -301,4 +301,12 @@
     <string name="line_spacing_multiplier">مضعف بعد الخطوط</string>
     <string name="warning">تحذير</string>
     <string name="encoding_warning">لا ينصح بشدة بتغيير الترميز الافتراضي، حيث قد يؤدي ذلك إلى تلف الملف. يوصى بشدة باستخدام UTF-8 ما لم تكن تفهم تمامًا العواقب المترتبة على ذلك وقمت بإنشاء نسخ احتياطية مناسبة.</string>
+    <string name="mutators">المتحولات</string>
+    <string name="update_av">هناك تحديث قادم</string>
+    <string name="update">تحديث</string>
+    <string name="ignore">تجاهل</string>
+    <string name="update_disable">تم اغلاق تفقد التحديثات</string>
+    <string name="launch_termux">فتح ترمكس؟</string>
+    <string name="launch_termux_explanation">تم ايقاف ترمكس وبالتالي لن يتمكن كربون من تشغيل الأوامر فيه. هل ترغب في تشغيله؟</string>
+    <string name="launch">تشغيل</string>
 </resources>
