@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.util.Pair
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -13,10 +14,7 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.view.ContextThemeWrapper
-import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
-import com.rk.libcommons.R
 import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -51,10 +49,11 @@ import java.io.InputStreamReader
 
 private typealias onClick = OnClickListener
 
+
+// performance could be improved but i don't have time
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: CoroutineScope) {
 
     init {
-
         job?.let {
             if (it.isCompleted.not()) {
                 runBlocking { job?.join() }
@@ -81,12 +80,10 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             )
             showSuggestions(PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
             lineSpacingExtra = PreferencesData.getString(
-                PreferencesKeys.LINE_SPACING,
-                lineSpacingExtra.toString()
+                PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()
             ).toFloat()
             lineSpacingMultiplier = PreferencesData.getString(
-                PreferencesKeys.LINE_SPACING_MULTIPLAYER,
-                lineSpacingMultiplier.toString()
+                PreferencesKeys.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
             ).toFloat()
             kotlin.runCatching { applyFont(this) }.onFailure {
                 scope.launch(Dispatchers.Main) {
@@ -100,10 +97,13 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }
             }
 
-            getComponent(EditorAutoCompletion::class.java).setLayout(object : DefaultCompletionLayout() {
+            getComponent(EditorAutoCompletion::class.java).setLayout(object :
+                DefaultCompletionLayout() {
                 override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
                     val typedValue = TypedValue()
-                    ctx.theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true)
+                    ctx.theme.resolveAttribute(
+                        com.google.android.material.R.attr.colorSurface, typedValue, true
+                    )
                     val colorSurface = typedValue.data
                     (completionList.parent as? ViewGroup)?.background = ColorDrawable(colorSurface)
                 }
@@ -135,7 +135,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             "lua" -> setLanguage("source.lua")
             "php" -> setLanguage("source.php")
             "smali" -> setLanguage("source.smali")
-            "v","coq" -> setLanguage("source.coq")
+            "v", "coq" -> setLanguage("source.coq")
         }
     }
 
@@ -162,10 +162,17 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             }
         }
 
-        suspend fun initActivity(activity: Activity,calculateColors:()->kotlin.Pair<String,String>){
-            if (!activityInit){
-                val colors = calculateColors.invoke()
-                initTextMateTheme(activity,colors.first, colors.second)
+        suspend fun initActivity(
+            activity: Activity, calculateColors: () -> kotlin.Pair<String, String>
+        ) {
+            if (!activityInit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val colors = calculateColors.invoke()
+                    initTextMateTheme(activity, colors.first, colors.second)
+                } else {
+                    initTextMateTheme(activity,null,null)
+                }
+
                 activityInit = true
             }
 
@@ -195,7 +202,9 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
         }
 
-        private suspend fun initTextMateTheme(ctx: Context,darkSurfaceColor:String,lightSurfaceColor:String) {
+        private suspend fun initTextMateTheme(
+            ctx: Context, darkSurfaceColor: String?, lightSurfaceColor: String?
+        ) {
 
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
@@ -206,35 +215,52 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             val quietlight = ctx.assets.open("textmate/quietlight.json")
 
             try {
-//                darkThemeRegistry?.loadTheme(
-//                    ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
-//                )
                 oledThemeRegistry?.loadTheme(
                     ThemeModel(IThemeSource.fromInputStream(darcula_oled, "darcula.json", null))
                 )
-//                lightThemeRegistry?.loadTheme(
-//                    ThemeModel(IThemeSource.fromInputStream(quietlight, "quietlight.json", null))
-//                )
 
-                fun read(inputStream: InputStream, replacements: Map<String, String>): String {
-                    val content = inputStream.bufferedReader().use { it.readText() }
-                    var modifiedContent = content
-                    for ((oldValue, newValue) in replacements) {
-                        modifiedContent = modifiedContent.replace(oldValue, newValue)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    fun read(inputStream: InputStream, replacements: Map<String, String>): String {
+                        val content = inputStream.bufferedReader().use { it.readText() }
+                        var modifiedContent = content
+                        for ((oldValue, newValue) in replacements) {
+                            modifiedContent = modifiedContent.replace(oldValue, newValue)
+                        }
+
+                        return modifiedContent
                     }
 
-                    return modifiedContent
+
+                    lightThemeRegistry?.loadTheme(
+                        ThemeModel(
+                            IThemeSource.fromString(
+                                IThemeSource.ContentType.JSON,
+                                read(quietlight, mapOf("#FAF9FF" to lightSurfaceColor!!))
+                            )
+                        )
+                    )
+
+                    darkThemeRegistry?.loadTheme(
+                        ThemeModel(
+                            IThemeSource.fromString(
+                                IThemeSource.ContentType.JSON,
+                                read(darcula, mapOf("#1C1B20" to darkSurfaceColor!!))
+                            )
+                        )
+                    )
+                } else {
+                    darkThemeRegistry?.loadTheme(
+                        ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
+                    )
+                    lightThemeRegistry?.loadTheme(
+                        ThemeModel(
+                            IThemeSource.fromInputStream(
+                                quietlight, "quietlight.json", null
+                            )
+                        )
+                    )
                 }
-
-
-                lightThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromString(IThemeSource.ContentType.JSON,
-                    read(quietlight, mapOf("#FAF9FF" to lightSurfaceColor))
-                )))
-
-                darkThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromString(IThemeSource.ContentType.JSON,
-                    read(darcula, mapOf("#1C1B20" to darkSurfaceColor))
-                )))
-
 
 
             } catch (e: Exception) {
@@ -276,8 +302,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
     private suspend fun ensureTextmateTheme(ctx: Context) {
         val darkTheme: Boolean = when (PreferencesData.getString(
-            PreferencesKeys.DEFAULT_NIGHT_MODE,
-            "-1"
+            PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
@@ -308,8 +333,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         }
 
         val darkTheme: Boolean = when (PreferencesData.getString(
-            PreferencesKeys.DEFAULT_NIGHT_MODE,
-            "-1"
+            PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
