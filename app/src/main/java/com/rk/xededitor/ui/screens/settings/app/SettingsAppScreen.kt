@@ -77,7 +77,7 @@ fun SettingsAppScreen(activity: SettingsActivity) {
                 label = stringResource(id = strings.monet),
                 description = stringResource(id = strings.monet_desc),
                 key = PreferencesKeys.MONET,
-                default = false,
+                default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
                 isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             )
         }

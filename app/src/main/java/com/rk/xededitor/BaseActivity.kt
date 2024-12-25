@@ -27,8 +27,6 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         ThemeManager.apply(this)
 
-
-
         super.onCreate(savedInstanceState)
     }
 

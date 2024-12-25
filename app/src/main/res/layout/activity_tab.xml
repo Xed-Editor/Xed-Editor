@@ -44,11 +44,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone"
+            android:background="?attr/colorSurface"
             android:defaultFocusHighlightEnabled="false"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewpager2"
+                android:background="?attr/colorSurface"
                 android:defaultFocusHighlightEnabled="false"
                 android:focusable="false"
                 android:layout_width="match_parent"

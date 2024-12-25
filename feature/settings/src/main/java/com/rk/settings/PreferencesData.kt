@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 
 
@@ -21,7 +22,7 @@ object PreferencesData {
     }
 
     fun isMonet(): Boolean {
-        return getBoolean(PreferencesKeys.MONET, false)
+        return getBoolean(PreferencesKeys.MONET, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
     }
     
     

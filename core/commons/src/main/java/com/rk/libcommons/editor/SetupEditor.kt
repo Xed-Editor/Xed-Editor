@@ -1,5 +1,6 @@
 package com.rk.libcommons.editor
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -12,7 +13,10 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.view.ContextThemeWrapper
+import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
+import com.rk.libcommons.R
 import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -42,6 +46,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
 import org.greenrobot.eventbus.EventBus
 import java.io.File
+import java.io.InputStream
 import java.io.InputStreamReader
 
 private typealias onClick = OnClickListener
@@ -136,6 +141,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
     companion object {
         private var isInit = false
+        private var activityInit = false
         private var darkThemeRegistry: ThemeRegistry? = null
         private var oledThemeRegistry: ThemeRegistry? = null
         private var lightThemeRegistry: ThemeRegistry? = null
@@ -143,18 +149,26 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         private var job: Job? = null
 
         @OptIn(DelicateCoroutinesApi::class)
-        suspend fun init() {
+        suspend fun init(activity: Activity? = null) {
             job = GlobalScope.launch {
                 mutex.withLock {
                     if (!isInit) {
                         withContext(Dispatchers.IO) {
                             initGrammarRegistry(application!!)
-                            initTextMateTheme(application!!)
                         }
                         isInit = true
                     }
                 }
             }
+        }
+
+        suspend fun initActivity(activity: Activity,calculateColors:()->kotlin.Pair<String,String>){
+            if (!activityInit){
+                val colors = calculateColors.invoke()
+                initTextMateTheme(activity,colors.first, colors.second)
+                activityInit = true
+            }
+
         }
 
         fun applyFont(editor: CodeEditor) {
@@ -181,7 +195,8 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
         }
 
-        private suspend fun initTextMateTheme(ctx: Context) {
+        private suspend fun initTextMateTheme(ctx: Context,darkSurfaceColor:String,lightSurfaceColor:String) {
+
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
@@ -191,15 +206,37 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             val quietlight = ctx.assets.open("textmate/quietlight.json")
 
             try {
-                darkThemeRegistry?.loadTheme(
-                    ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
-                )
+//                darkThemeRegistry?.loadTheme(
+//                    ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
+//                )
                 oledThemeRegistry?.loadTheme(
                     ThemeModel(IThemeSource.fromInputStream(darcula_oled, "darcula.json", null))
                 )
-                lightThemeRegistry?.loadTheme(
-                    ThemeModel(IThemeSource.fromInputStream(quietlight, "quietlight.json", null))
-                )
+//                lightThemeRegistry?.loadTheme(
+//                    ThemeModel(IThemeSource.fromInputStream(quietlight, "quietlight.json", null))
+//                )
+
+                fun read(inputStream: InputStream, replacements: Map<String, String>): String {
+                    val content = inputStream.bufferedReader().use { it.readText() }
+                    var modifiedContent = content
+                    for ((oldValue, newValue) in replacements) {
+                        modifiedContent = modifiedContent.replace(oldValue, newValue)
+                    }
+
+                    return modifiedContent
+                }
+
+
+                lightThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromString(IThemeSource.ContentType.JSON,
+                    read(quietlight, mapOf("#FAF9FF" to lightSurfaceColor))
+                )))
+
+                darkThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromString(IThemeSource.ContentType.JSON,
+                    read(darcula, mapOf("#1C1B20" to darkSurfaceColor))
+                )))
+
+
+
             } catch (e: Exception) {
                 throw RuntimeException(e)
             } finally {
