@@ -255,7 +255,7 @@
     <string name="version">版本</string>
     <string name="version_code">版本代号</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Karbon 是开源的！</string>
+    <string name="github_desc">在 Github 给我们加星 🤩</string>
     <string name="default_encoding">默认编码</string>
     <string name="Save_as">另存为</string>
     <string name="file_not_saved">部分文件尚未保存</string>
@@ -301,4 +301,12 @@
     <string name="txt_ww_desc">文本文件自动换行</string>
     <string name="sora_s">Sora 文本搜索</string>
     <string name="telegram">Telegram 群</string>
+    <string name="mutators">变形器</string>
+    <string name="update_av">有新版本可用</string>
+    <string name="update">更新</string>
+    <string name="ignore">忽略</string>
+    <string name="update_disable">更新检查已禁用</string>
+    <string name="launch_termux">要启动 Termux 吗？</string>
+    <string name="launch_termux_explanation">Termux 不在运行，所以 Karbon 无法在其中运行命令。你想要启动它吗？</string>
+    <string name="launch">启动</string>
 </resources>
