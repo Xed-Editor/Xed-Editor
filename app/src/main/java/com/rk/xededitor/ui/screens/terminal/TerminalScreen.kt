@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.service.SessionService
@@ -169,12 +170,21 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                     setTextSize(rkUtils.dpToPx(14f, context))
                                     val client = TerminalBackEnd(this, terminalActivity)
 
-                                    val session = terminalActivity.sessionBinder!!.getSession(terminalActivity.sessionBinder!!.getService().currentSession.value)
-                                        ?: terminalActivity.sessionBinder!!.createSession(
-                                            terminalActivity.sessionBinder!!.getService().currentSession.value,
-                                            client,
-                                            terminalActivity
-                                        )
+                                    val session = if (pendingCommand != null){
+                                        terminalActivity.sessionBinder!!.getSession(pendingCommand!!.id)
+                                            ?: terminalActivity.sessionBinder!!.createSession(
+                                                pendingCommand!!.id,
+                                                client,
+                                                terminalActivity
+                                            )
+                                    }else{
+                                        terminalActivity.sessionBinder!!.getSession(terminalActivity.sessionBinder!!.getService().currentSession.value)
+                                            ?: terminalActivity.sessionBinder!!.createSession(
+                                                terminalActivity.sessionBinder!!.getService().currentSession.value,
+                                                client,
+                                                terminalActivity
+                                            )
+                                    }
 
                                     session.updateTerminalSessionClient(client)
                                     attachSession(session)

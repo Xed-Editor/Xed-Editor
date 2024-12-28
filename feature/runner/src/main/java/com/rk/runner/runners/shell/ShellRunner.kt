@@ -17,6 +17,7 @@ import com.rk.karbon_exec.launchInternalTerminal
 import com.rk.karbon_exec.launchTermux
 import com.rk.karbon_exec.runBashScript
 import com.rk.karbon_exec.testExecPermission
+import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.application
 import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
@@ -30,11 +31,13 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
     override fun run(file: File, context: Context) {
         launchInternalTerminal(
             context = context,
-            shell = "/bin/sh",
-            arrayOf("-c",file.absolutePath),
-            id = "shell",
-            alpine = failsafe.not(),
-            workingDir = file.parentFile.absolutePath
+            TerminalCommand(
+                shell = "/bin/sh",
+                args = arrayOf(file.absolutePath),
+                id = "shell",
+                alpine = failsafe.not(),
+                workingDir = file.parentFile.absolutePath
+            )
         )
     }
 

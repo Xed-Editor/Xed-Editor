@@ -5,6 +5,7 @@ import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localLibDir
+import com.rk.libcommons.pendingCommand
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
@@ -17,7 +18,11 @@ import com.termux.terminal.TerminalSessionClient
 import java.io.File
 
 object MkSession {
-    fun createSession(activity: Terminal, sessionClient: TerminalSessionClient, session_id:String): TerminalSession {
+    fun createSession(
+        activity: Terminal,
+        sessionClient: TerminalSessionClient,
+        session_id: String
+    ): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
                 "ANDROID_ART_ROOT" to System.getenv("ANDROID_ART_ROOT"),
@@ -41,7 +46,7 @@ object MkSession {
                 }
             }
 
-            val workingDir = getPwd()
+            val workingDir = pendingCommand?.workingDir ?: getPwd()
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 
@@ -59,7 +64,7 @@ object MkSession {
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
-                "PREFIX=${filesDir.parentFile.path}",
+                "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
             )
 
@@ -67,26 +72,64 @@ object MkSession {
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
+            pendingCommand?.env?.let {
+                env.addAll(it)
+            }
 
-            val shell = "/system/bin/sh"
-            val args = if (PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, "Alpine") == "Android") {
-                arrayOf()
+
+            var args: Array<String>? = null
+            val shell = if (pendingCommand == null) {
+                args = if (PreferencesData.getString(
+                        PreferencesKeys.TERMINAL_RUNTIME,
+                        "Alpine"
+                    ) == "Android"
+                ) {
+                    arrayOf()
+                } else {
+                    val initHost = localBinDir().child("init-host")
+                    if (initHost.exists().not()) {
+                        initHost.createFileIfNot()
+                        initHost.writeText(
+                            assets.open("terminal/init-host.sh").bufferedReader()
+                                .use { it.readText() })
+                    }
+
+                    val init = localBinDir().child("init")
+                    if (init.exists().not()) {
+                        init.createFileIfNot()
+                        init.writeText(
+                            assets.open("terminal/init.sh").bufferedReader().use { it.readText() })
+                    }
+
+                    arrayOf("-c", initHost.absolutePath)
+                }
+                "/system/bin/sh"
+            } else if (pendingCommand!!.alpine.not()) {
+                args = pendingCommand!!.args
+                pendingCommand!!.shell
             } else {
                 val initHost = localBinDir().child("init-host")
                 if (initHost.exists().not()) {
                     initHost.createFileIfNot()
-                    initHost.writeText(assets.open("terminal/init-host.sh").bufferedReader().use { it.readText() })
+                    initHost.writeText(
+                        assets.open("terminal/init-host.sh").bufferedReader()
+                            .use { it.readText() })
                 }
-
                 val init = localBinDir().child("init")
                 if (init.exists().not()) {
                     init.createFileIfNot()
-                    init.writeText(assets.open("terminal/init.sh").bufferedReader().use { it.readText() })
+                    init.writeText(
+                        assets.open("terminal/init.sh").bufferedReader().use { it.readText() })
                 }
+                args = mutableListOf("-c", initHost.absolutePath,pendingCommand!!.shell).also<MutableList<String>> {
+                    it.addAll(pendingCommand!!.args)
+                }.toTypedArray<String>()
 
-                arrayOf("-c", initHost.absolutePath)
+                "/system/bin/sh"
             }
 
+
+            pendingCommand = null
             return TerminalSession(
                 shell,
                 workingDir,

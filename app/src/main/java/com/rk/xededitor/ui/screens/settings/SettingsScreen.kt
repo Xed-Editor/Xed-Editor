@@ -53,11 +53,11 @@ private fun Categories(navController: NavController) {
         iconResource = drawables.android,
         onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )
-    PreferenceCategory(
-        label = stringResource(strings.gestures),
-        description = stringResource(strings.config_gestures),
-        onNavigate = { rkUtils.toast(strings.ni.getString()) },
-        iconResource = drawables.baseline_gesture_24,
-    )
+//    PreferenceCategory(
+//        label = stringResource(strings.gestures),
+//        description = stringResource(strings.config_gestures),
+//        onNavigate = { rkUtils.toast(strings.ni.getString()) },
+//        iconResource = drawables.baseline_gesture_24,
+//    )
 
 }

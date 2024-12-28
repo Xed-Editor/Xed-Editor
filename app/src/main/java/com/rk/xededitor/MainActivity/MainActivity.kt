@@ -128,6 +128,13 @@ class MainActivity : BaseActivity() {
             }
         }
 
+
+
+        After(7000){
+            val x:String? = null
+            x!!.length
+        }
+
     }
     
     inline fun isMenuInitialized(): Boolean = menu != null

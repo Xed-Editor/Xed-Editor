@@ -23,9 +23,9 @@ import java.util.regex.PatternSyntaxException
 class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
     val view: LinearLayout = LayoutInflater.from(root.context).inflate(R.layout.search_layout, root, false) as LinearLayout
     
-    var ignoreCase = true
-    var searchWholeWord = false
-    var searchRegex = false
+    private var ignoreCase = true
+    private var searchWholeWord = false
+    private var searchRegex = false
     
     
     init {

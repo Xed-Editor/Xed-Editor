@@ -11,8 +11,10 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.application
 import com.rk.libcommons.isAppInBackground
+import com.rk.libcommons.pendingCommand
 import com.rk.resources.getString
 import com.rk.resources.strings
 import kotlinx.coroutines.CoroutineScope
@@ -124,21 +126,13 @@ fun runBashScript(context: Context, script: String, background: Boolean = true) 
     )
 }
 
-fun launchInternalTerminal(context: Context,shell:String,args:Array<String> = arrayOf(),id:String,terminatePreviousSession:Boolean = true,alpine:Boolean = true,workingDir:String,env:Array<String> = arrayOf()){
+fun launchInternalTerminal(context: Context,terminalCommand: TerminalCommand){
+    pendingCommand = terminalCommand
     context.startActivity(
         Intent(
             context,
-            Class.forName("com.rk.xededitor.ui.activities.settings.Terminal")
-        ).apply {
-            putExtra("run_cmd","")
-            putExtra("shell",shell)
-            putExtra("args",args)
-            putExtra("session_id",id)
-            putExtra("terminate_prev",terminatePreviousSession)
-            putExtra("alpine",alpine)
-            putExtra("cwd",workingDir)
-            putExtra("env",env)
-        }
+            Class.forName("com.rk.xededitor.ui.activities.terminal.Terminal")
+        )
     )
 }
 

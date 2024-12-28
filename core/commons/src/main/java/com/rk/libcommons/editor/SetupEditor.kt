@@ -75,7 +75,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             isLineNumberEnabled =
                 PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
             isCursorAnimationEnabled =
-                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
+                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, false)
             setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
             setWordwrap(

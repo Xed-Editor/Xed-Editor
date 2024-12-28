@@ -39,5 +39,5 @@ include(":core:commons")
 include(":app:ExternalEditor")
 include(":core:resources")
 include(":core:karbon-exec")
-include(":feature:git")
+
 include(":core:Engine")

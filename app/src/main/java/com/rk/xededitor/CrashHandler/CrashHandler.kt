@@ -45,19 +45,21 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
 
             applicationContext!!.startActivity(intent)
 
-            if (Looper.myLooper() != null) {
-                while (true) {
-                    try {
-                        Looper.loop()
-                        return
-                    } catch (t: Throwable) {
-                        exitProcess(1)
-                    }
-                }
-            }
+
         }.onFailure {
             it.printStackTrace()
             exitProcess(1)
+        }
+
+        if (Looper.myLooper() != null) {
+            while (true) {
+                try {
+                    Looper.loop()
+                    return
+                } catch (t: Throwable) {
+                    //exitProcess(1)
+                }
+            }
         }
     }
 
