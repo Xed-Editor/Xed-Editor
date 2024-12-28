@@ -143,7 +143,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 key = PreferencesKeys.SHOW_SUGGESTIONS,
                 default = false,
                 sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments.values.forEach { f ->
+                    MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
                         if (f.get() != null && f.get()?.fragment is EditorFragment) {
                             (f.get()?.fragment as EditorFragment).editor?.showSuggestions(it)
                         }

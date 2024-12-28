@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.libcommons.After
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.resources.drawables
@@ -47,6 +48,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import kotlinx.coroutines.isActive
 
 
 class MainActivity : BaseActivity() {
@@ -117,15 +119,15 @@ class MainActivity : BaseActivity() {
             binding!!.mainView.visibility = View.VISIBLE
             binding!!.openBtn.visibility = View.GONE
         }
-        
+
+
         lifecycleScope.launch(Dispatchers.Default){
-            while (true){
+            while (isActive){
                 delay(2000)
                 MenuItemHandler.update(this@MainActivity)
             }
         }
-        
-        
+
     }
     
     inline fun isMenuInitialized(): Boolean = menu != null

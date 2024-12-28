@@ -55,16 +55,14 @@ class CrashActivity : AppCompatActivity() {
             val sb = StringBuilder()
 
             sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("\n\n")
-
-
             sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
             sb.append("Unix Time : ").append(System.currentTimeMillis()).append("\n")
-            sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).append("\n\n")
-            sb.append("Android Version : ").append(Build.VERSION.RELEASE)
-            sb.append("SDK Version : ").append(Build.VERSION.SDK_INT)
-            sb.append("Brand : ").append(Build.BRAND)
-            sb.append("Manufacturer : ").append(Build.MANUFACTURER)
+            sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).append("\n")
+            sb.append("Android Version : ").append(Build.VERSION.RELEASE).append("\n")
+            sb.append("SDK Version : ").append(Build.VERSION.SDK_INT).append("\n")
+            sb.append("Brand : ").append(Build.BRAND).append("\n")
+            sb.append("Manufacturer : ").append(Build.MANUFACTURER).append("\n\n")
 
             sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
             sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).append("\n")
@@ -77,7 +75,7 @@ class CrashActivity : AppCompatActivity() {
             runCatching { SetupEditor(editor,this,lifecycleScope) }
         }.onFailure{
             it.printStackTrace()
-            finishAffinity()
+            runCatching { finishAffinity() }
             exitProcess(1)
         }
 

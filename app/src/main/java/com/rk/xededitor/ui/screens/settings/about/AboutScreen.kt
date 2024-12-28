@@ -32,7 +32,7 @@ fun AboutScreen() {
             PreferenceTemplate(
                 title = { Text(text = stringResource(id = strings.version), style = MaterialTheme.typography.titleMedium) },
                 description = {
-                    Text(text = versionName, style = MaterialTheme.typography.titleSmall)
+                    Text(text = versionName.toString(), style = MaterialTheme.typography.titleSmall)
                 },
             )
 

@@ -1,5 +1,6 @@
 package com.rk.libcommons.editor
 
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -35,7 +36,8 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
         
         val searchEditText = view.findViewById<EditText>(R.id.search_editor)
         val replaceEditText = view.findViewById<EditText>(R.id.replace_editor)
-        
+        val defaultColor = searchEditText.textColors.defaultColor
+
         view.findViewById<Button>(R.id.btn_replace).setOnClickListener {
             if (isSearching) {
                 searcher.replaceCurrentMatch(replaceEditText.text.toString())
@@ -67,9 +69,12 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
                         getSearchOptions()
                     )
                     isSearching = true
+                    Handler(Looper.getMainLooper()).post {
+                        searchEditText.setTextColor(defaultColor)
+                    }
                 } catch (e: PatternSyntaxException) {
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(root.context,e.message,Toast.LENGTH_LONG).show()
+                        searchEditText.setTextColor(Color.RED)
                     }
                 }
             } else {
