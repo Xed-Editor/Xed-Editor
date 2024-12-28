@@ -149,7 +149,9 @@ class FileAction(
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                         intent.addCategory(Intent.CATEGORY_OPENABLE)
                         intent.type = "*/*"
-                        mainActivity.startActivityForResult(intent, REQUEST_ADD_FILE)
+                        mainActivity.fileManager?.parentFile = file
+                        //mainActivity.startActivityForResult(intent, REQUEST_ADD_FILE)
+                        mainActivity.fileManager?.requestAddFile?.launch(intent)
                     }
                     addItem(
                         getString(strings.new_file),

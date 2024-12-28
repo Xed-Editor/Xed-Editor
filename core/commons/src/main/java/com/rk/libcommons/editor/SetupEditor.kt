@@ -332,10 +332,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
     }
 
     fun getInputView(): SymbolInputView {
-        fun hapticFeedBack(view: View) {
-            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
-        }
-
         val darkTheme: Boolean = when (PreferencesData.getString(
             PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
@@ -353,7 +349,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
             val keys = mutableListOf<Pair<String, View.OnClickListener>>().apply {
                 add(Pair("->", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
                     )
@@ -362,14 +357,11 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("⌘", onClick {
-                    hapticFeedBack(it)
-
                     EventBus.getDefault().post(ControlPanel())
 
                 }))
 
                 add(Pair("←", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_LEFT,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT)
@@ -377,7 +369,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("↑", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_UP,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP)
@@ -386,7 +377,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("→", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_RIGHT,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT)
@@ -395,7 +385,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("↓", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_DOWN,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN)
@@ -404,7 +393,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("⇇", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_MOVE_HOME,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME)
@@ -412,7 +400,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("⇉", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_MOVE_END,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END)
