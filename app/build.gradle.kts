@@ -40,7 +40,7 @@ fun getFullGitCommitHash(): String {
 
 android {
     namespace = "com.rk.xededitor"
-    compileSdk = 34
+    compileSdk = 35
     android.buildFeatures.buildConfig = true
 
     println("Building for commit ${getGitCommitHash()}")
@@ -114,8 +114,8 @@ android {
         minSdk = 26
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
-        versionCode = 36
-        versionName = "2.9.0"
+        versionCode = 37
+        versionName = "2.9.1"
         vectorDrawables {
             useSupportLibrary = true
         }

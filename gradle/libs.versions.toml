@@ -7,16 +7,16 @@ bsh = "3.0.0-SNAPSHOT"
 collection = "1.4.5"
 commonsNet = "3.11.1"
 datastorePreferences = "1.1.1"
-desugar_jdk_libs = "2.1.3"
+desugar_jdk_libs = "2.1.4"
 eventbus = "3.3.1"
 glide = "4.16.0"
 ktsh = "1.0.0"
 lsp4j = "0.23.1"
 material = "1.12.0"
 constraintlayout = "2.2.0"
-media3Exoplayer = "1.4.1"
-media3ExoplayerDash = "1.4.1"
-media3Ui = "1.4.1"
+media3Exoplayer = "1.5.1"
+media3ExoplayerDash = "1.5.1"
+media3Ui = "1.5.1"
 modernandroidpreferences = "2.4.0-beta1"
 nanohttpd = "2.3.1"
 navigationFragment = "2.8.5"
@@ -87,7 +87,7 @@ quickjs-android = { module = "app.cash.quickjs:quickjs-android", version.ref = "
 sshj = { module = "com.hierynomus:sshj", version.ref = "sshj" }
 swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 utilcode = { module = "com.blankj:utilcodex", version = "1.31.1" }
-kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.9.0" }
+kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.10.1" }
 terminal-view = {group = "com.github.termux.termux-app", name = "terminal-view", version.ref = "terminalView" }
 terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-emulator", version.ref = "terminalView" }
 gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
