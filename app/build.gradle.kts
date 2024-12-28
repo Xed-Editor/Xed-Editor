@@ -40,7 +40,7 @@ fun getFullGitCommitHash(): String {
 
 android {
     namespace = "com.rk.xededitor"
-    compileSdk = 34
+    compileSdk = 35
     android.buildFeatures.buildConfig = true
 
     println("Building for commit ${getGitCommitHash()}")
