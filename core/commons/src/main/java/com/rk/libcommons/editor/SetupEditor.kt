@@ -60,7 +60,11 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             }
         }
 
-        scope.launch { ensureTextmateTheme(ctx) }
+        scope.launch {
+            runCatching {
+                ensureTextmateTheme(ctx)
+            }
+        }
         with(editor) {
             val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
             props.deleteMultiSpaces = tabSize

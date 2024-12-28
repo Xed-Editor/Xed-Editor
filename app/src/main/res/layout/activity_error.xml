@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp" />
 
-    <io.github.rosemoe.sora.widget.CodeEditor
+    <com.rk.libcommons.editor.KarbonEditor
         android:id="@+id/error_editor"
         android:layout_width="match_parent"
         android:layout_height="fill_parent" />

@@ -5,17 +5,23 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import com.rk.libcommons.editor.KarbonEditor
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.CodeEditor
+import java.lang.System
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
@@ -24,12 +30,12 @@ import kotlin.system.exitProcess
 
 @Suppress("NOTHING_TO_INLINE")
 class CrashActivity : AppCompatActivity() {
-    private lateinit var editor: CodeEditor
+    private lateinit var editor: KarbonEditor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        try {
+        runCatching{
             enableEdgeToEdge()
             setContentView(R.layout.activity_error)
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -37,50 +43,44 @@ class CrashActivity : AppCompatActivity() {
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
                 insets
             }
+
             val toolbar = findViewById<Toolbar>(R.id.toolbar)
             toolbar.setTitle("Error")
             setSupportActionBar(toolbar)
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowTitleEnabled(true)
             editor = findViewById(R.id.error_editor)
-            editor.setTextSize(11f)
-            //SetupEditor(editor, this).ensureTextmateTheme(this)
+            editor.setTextSize(10f)
 
-            try {
-                val sb = StringBuilder()
-                sb.append("Fatal Crash occurred on Thread named '")
-                    .append(intent.getStringExtra("thread"))
-                    .append("'\nUnix Time : ")
-                    .append(System.currentTimeMillis())
-                    .append("\n")
-                sb.append("git commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
-                sb.append("git commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
-                sb.append("LocalTime : ")
-                    .append(
-                        SimpleDateFormat.getDateTimeInstance()
-                            .format(Date(System.currentTimeMillis()))
-                    )
-                    .append("\n\n")
-                sb.append(intent.getStringExtra("info")).append("\n\n")
-                sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
-                sb.append("Error Cause : ")
-                    .append(intent.getStringExtra("error_cause"))
-                    .append("\n")
-                sb.append("Error StackTrace : \n\n").append(intent.getStringExtra("stacktrace"))
-                editor.setText(sb.toString())
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val sb = StringBuilder()
+
+            sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("\n\n")
+
+
+            sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
+            sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
+            sb.append("Unix Time : ").append(System.currentTimeMillis()).append("\n")
+            sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).append("\n\n")
+            sb.append("Android Version : ").append(Build.VERSION.RELEASE)
+            sb.append("SDK Version : ").append(Build.VERSION.SDK_INT)
+            sb.append("Brand : ").append(Build.BRAND)
+            sb.append("Manufacturer : ").append(Build.MANUFACTURER)
+
+            sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
+            sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).append("\n")
+            sb.append("Error StackTrace : \n").append(intent.getStringExtra("stacktrace"))
+
+
+            editor.setText(sb.toString())
             editor.editable = false
-        } catch (e: Exception) {
-            e.printStackTrace()
-            try {
-                finishAffinity()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+
+            runCatching { SetupEditor(editor,this,lifecycleScope) }
+        }.onFailure{
+            it.printStackTrace()
+            finishAffinity()
             exitProcess(1)
         }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -100,6 +100,7 @@ class CrashActivity : AppCompatActivity() {
 
             R.id.copy_error -> {
                 copyToClipboard(this, editor.text.toString())
+                android.widget.Toast.makeText(this,"Copied",android.widget.Toast.LENGTH_SHORT).show()
             }
 
             R.id.report_issue -> {
