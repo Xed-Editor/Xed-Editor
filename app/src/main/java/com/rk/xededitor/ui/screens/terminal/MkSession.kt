@@ -11,6 +11,7 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
+import com.rk.xededitor.rkUtils.toastIt
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -19,9 +20,7 @@ import java.io.File
 
 object MkSession {
     fun createSession(
-        activity: Terminal,
-        sessionClient: TerminalSessionClient,
-        session_id: String
+        activity: Terminal, sessionClient: TerminalSessionClient, session_id: String
     ): TerminalSession {
         with(activity) {
             val envVariables = mapOf(
@@ -76,31 +75,27 @@ object MkSession {
                 env.addAll(it)
             }
 
+            val initHost = localBinDir().child("init-host")
+            if (initHost.exists().not()) {
+                initHost.createFileIfNot()
+                initHost.writeText(assets.open("terminal/init-host.sh").bufferedReader()
+                    .use { it.readText() })
+            }
+            val init = localBinDir().child("init")
+            if (init.exists().not()) {
+                init.createFileIfNot()
+                init.writeText(assets.open("terminal/init.sh").bufferedReader()
+                    .use { it.readText() })
+            }
 
             var args: Array<String>? = null
             val shell = if (pendingCommand == null) {
                 args = if (PreferencesData.getString(
-                        PreferencesKeys.TERMINAL_RUNTIME,
-                        "Alpine"
+                        PreferencesKeys.TERMINAL_RUNTIME, "Alpine"
                     ) == "Android"
                 ) {
                     arrayOf()
                 } else {
-                    val initHost = localBinDir().child("init-host")
-                    if (initHost.exists().not()) {
-                        initHost.createFileIfNot()
-                        initHost.writeText(
-                            assets.open("terminal/init-host.sh").bufferedReader()
-                                .use { it.readText() })
-                    }
-
-                    val init = localBinDir().child("init")
-                    if (init.exists().not()) {
-                        init.createFileIfNot()
-                        init.writeText(
-                            assets.open("terminal/init.sh").bufferedReader().use { it.readText() })
-                    }
-
                     arrayOf("-c", initHost.absolutePath)
                 }
                 "/system/bin/sh"
@@ -108,26 +103,14 @@ object MkSession {
                 args = pendingCommand!!.args
                 pendingCommand!!.shell
             } else {
-                val initHost = localBinDir().child("init-host")
-                if (initHost.exists().not()) {
-                    initHost.createFileIfNot()
-                    initHost.writeText(
-                        assets.open("terminal/init-host.sh").bufferedReader()
-                            .use { it.readText() })
-                }
-                val init = localBinDir().child("init")
-                if (init.exists().not()) {
-                    init.createFileIfNot()
-                    init.writeText(
-                        assets.open("terminal/init.sh").bufferedReader().use { it.readText() })
-                }
-                args = mutableListOf("-c", initHost.absolutePath,pendingCommand!!.shell).also<MutableList<String>> {
+                args = mutableListOf(
+                    "-c", initHost.absolutePath, pendingCommand!!.shell
+                ).also<MutableList<String>> {
                     it.addAll(pendingCommand!!.args)
                 }.toTypedArray<String>()
 
                 "/system/bin/sh"
             }
-
 
             pendingCommand = null
             return TerminalSession(

@@ -32,11 +32,15 @@ class ShellRunner(private val failsafe: Boolean) : RunnerImpl {
         launchInternalTerminal(
             context = context,
             TerminalCommand(
-                shell = "/bin/sh",
-                args = arrayOf(file.absolutePath),
-                id = "shell",
+                shell = if (failsafe){"/system/bin/sh"}else{"/bin/sh"},
+                args = if (failsafe){
+                    arrayOf("-c",file.absolutePath)
+                }else{
+                    arrayOf(file.absolutePath)
+                },
+                id = if (failsafe){"shell-android"}else{"shell"},
                 alpine = failsafe.not(),
-                workingDir = file.parentFile.absolutePath
+                workingDir = file.parentFile!!.absolutePath
             )
         )
     }

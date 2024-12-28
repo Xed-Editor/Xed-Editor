@@ -1,4 +1,4 @@
-required_packages="nodejs npm"
+required_packages="python3 pip"
 missing_packages=""
 for pkg in $required_packages; do
     if ! apk info -e $pkg >/dev/null 2>&1; then
@@ -10,4 +10,4 @@ if [ -n "$missing_packages" ]; then
     apk add $missing_packages
 fi
 # shellcheck disable=SC2068
-node $@
+python3 $@

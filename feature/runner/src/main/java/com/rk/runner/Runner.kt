@@ -67,41 +67,36 @@ object Runner {
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun run(file: File, context: Context) {
         withContext(Dispatchers.Default) {
-            runCatching {
-                if (isRunnable(file)) {
-                    val ext = file.name.substringAfterLast('.', "")
-                    val runners = registry[ext]
-                    if (runners?.size!! == 0) {
-                        return@withContext
-                    }
-                    if (runners.size == 1) {
-                        Thread {
-                            runCatching { runners[0].run(file, context) }.onFailure {
-                                Handler(Looper.getMainLooper()).post {
-                                    Toast.makeText(application!!, it.message, Toast.LENGTH_LONG)
-                                        .show()
-                                }
-                            }
-                        }.start()
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            showRunnerSelectionDialog(context, runners) { selectedRunner ->
-                                Thread {
-                                    runCatching { selectedRunner.run(file, context) }.onFailure {
-                                        Handler(Looper.getMainLooper()).post {
-                                            Toast.makeText(
-                                                application!!, it.message, Toast.LENGTH_LONG
-                                            ).show()
-                                        }
-                                    }
-                                }.start()
+
+            if (isRunnable(file)) {
+                val ext = file.name.substringAfterLast('.', "")
+                val runners = registry[ext]
+                if (runners?.size!! == 0) {
+                    return@withContext
+                }
+                if (runners.size == 1) {
+                    Thread {
+                        runCatching { runners[0].run(file, context) }.onFailure {
+                            Handler(Looper.getMainLooper()).post {
+                                Toast.makeText(application!!, it.message, Toast.LENGTH_LONG)
+                                    .show()
                             }
                         }
+                    }.start()
+                } else {
+                    withContext(Dispatchers.Main) {
+                        showRunnerSelectionDialog(context, runners) { selectedRunner ->
+                            Thread {
+                                runCatching { selectedRunner.run(file, context) }.onFailure {
+                                    Handler(Looper.getMainLooper()).post {
+                                        Toast.makeText(
+                                            application!!, it.message, Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                            }.start()
+                        }
                     }
-                }
-            }.onFailure {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(application!!, it.message, Toast.LENGTH_LONG).show()
                 }
             }
 

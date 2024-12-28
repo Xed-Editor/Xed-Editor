@@ -171,6 +171,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                     val client = TerminalBackEnd(this, terminalActivity)
 
                                     val session = if (pendingCommand != null){
+                                        terminalActivity.sessionBinder!!.getService().currentSession.value = pendingCommand!!.id
                                         terminalActivity.sessionBinder!!.getSession(pendingCommand!!.id)
                                             ?: terminalActivity.sessionBinder!!.createSession(
                                                 pendingCommand!!.id,

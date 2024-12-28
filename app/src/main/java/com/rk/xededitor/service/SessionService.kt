@@ -14,7 +14,6 @@ import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 
 class SessionService : Service() {
-
     private val sessions = hashMapOf<String, TerminalSession>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf<String>("main")
