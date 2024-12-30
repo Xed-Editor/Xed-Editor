@@ -7,26 +7,18 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.filetree.provider.file
 import com.rk.karbon_exec.launchTermux
-import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.Printer
-import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.handlers.git.commit
 import com.rk.xededitor.MainActivity.handlers.git.pull
@@ -46,10 +38,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.errors.GitAPIException
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 typealias Id = R.id
 

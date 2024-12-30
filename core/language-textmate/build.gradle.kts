@@ -1,4 +1,4 @@
-  /*******************************************************************************
+/*******************************************************************************
  *    sora-editor - the awesome code editor for Android
  *    https://github.com/Rosemoe/sora-editor
  *    Copyright (C) 2020-2024  Rosemoe
@@ -21,19 +21,26 @@
  *     Please contact Rosemoe by email 2073412493@qq.com if you need
  *     additional information or have any questions
  ******************************************************************************/
+
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinAndroid)
+    id("com.android.library")
+    kotlin("android")
 }
 
 
+
 android {
-    namespace = "io.github.rosemoe.sora.lsp"
+    namespace = "io.github.rosemoe.sora.langs.textmate"
     compileSdkVersion = "android-34"
 
     defaultConfig {
         minSdk = 26
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -42,9 +49,11 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -53,7 +62,12 @@ android {
 }
 
 dependencies {
-    compileOnly(project(":editor:editor"))
-    implementation(libs.lsp4j)
-    implementation(libs.kotlinx.coroutines)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    compileOnly(project(":core:editor"))
+    implementation(libs.gson)
+    implementation(libs.jcodings)
+    implementation(libs.joni)
+    implementation(libs.snakeyaml.engine)
+    implementation(libs.jdt.annotation)
 }

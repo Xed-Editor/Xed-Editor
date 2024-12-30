@@ -5,23 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.rk.filetree.interfaces.FileClickListener
-import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.interfaces.FileObject
-import com.rk.filetree.model.Node
-import com.rk.filetree.provider.file
+import com.rk.filetree.provider.FileWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.libcommons.After
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.LoadingPopup
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.LinkedList
@@ -33,8 +25,8 @@ import kotlinx.coroutines.withContext
 
 object ProjectManager {
 
-    val projects = HashMap<Int, String>()
-    private val queue: Queue<File> = LinkedList()
+    val projects = HashMap<Int, FileObject>()
+    private val queue: Queue<FileObject> = LinkedList()
 
     fun processQueue(activity: MainActivity) {
         if (activityRef.get() == null) {
@@ -48,7 +40,7 @@ object ProjectManager {
         }
     }
 
-    fun addProject(activity: MainActivity, file: File) {
+    fun addProject(activity: MainActivity, file: FileObject) {
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
         }
@@ -66,21 +58,19 @@ object ProjectManager {
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
             if (menuItemId != R.id.add_new && !projects.contains(menuItemId)) {
-                item.title = file.name
+                item.title = file.getName()
                 item.isVisible = true
                 item.isChecked = true
 
-                synchronized(projects) { projects[menuItemId] = file.absolutePath }
-
-                val fileObj = file(file)
-
+                synchronized(projects) { projects[menuItemId] = file }
+                
                 val fileTree = FileTree(activity)
-                fileTree.loadFiles(fileObj)
+                fileTree.loadFiles(file)
                 fileTree.setOnFileClickListener(fileClickListener)
                 fileTree.setOnFileLongClickListener(fileLongClickListener)
                 val scrollView =
                     FileTreeScrollViewManager.getFileTreeParentScrollView(activity, fileTree)
-                scrollView.id = file.absolutePath.hashCode()
+                scrollView.id = file.getAbsolutePath().hashCode()
 
                 activity.binding!!.maindrawer.addView(scrollView)
 
@@ -99,21 +89,19 @@ object ProjectManager {
 
     }
 
-    fun removeProject(activity: MainActivity, file: File, saveState: Boolean = true) {
-        val filePath = file.absolutePath
-        // BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
+    fun removeProject(activity: MainActivity, file: FileObject, saveState: Boolean = true) {
         val rail = activity.binding!!.navigationRail
         for (i in 0 until rail.menu.size()) {
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
-            if (projects[menuItemId] == filePath) {
+            if (projects[menuItemId] == file) {
                 item.isChecked = false
                 item.isVisible = false
 
                 for (i in 0 until activity.binding!!.maindrawer.childCount) {
                     val view = activity.binding!!.maindrawer.getChildAt(i)
                     if (view is DiagonalScrollView) {
-                        if (view.id == file.absolutePath.hashCode()) {
+                        if (view.id == file.getAbsolutePath().hashCode()) {
                             activity.binding!!.maindrawer.removeView(view)
                         }
                     }
@@ -125,10 +113,9 @@ object ProjectManager {
                 }
 
                 fun selectItem(itemx: MenuItem) {
-                    val previousFilePath = projects[itemx.itemId]
-                    if (previousFilePath != null) {
+                    val previousFile = projects[itemx.itemId]
+                    if (previousFile != null) {
                         itemx.isChecked = true
-                        val previousFile = File(previousFilePath)
                         changeProject(previousFile, activity)
                     }
                 }
@@ -151,7 +138,7 @@ object ProjectManager {
                 //                }
 
                 activity.binding!!.maindrawer.removeView(
-                    activity.binding!!.maindrawer.findViewById(file.absolutePath.hashCode())
+                    activity.binding!!.maindrawer.findViewById(file.getAbsolutePath().hashCode())
                 )
 
                 break
@@ -162,15 +149,15 @@ object ProjectManager {
 
     private var currentProjectId: Int = -1
 
-    fun changeProject(file: File, activity: MainActivity) {
+    fun changeProject(file: FileObject, activity: MainActivity) {
         for (i in 0 until activity.binding!!.maindrawer.childCount) {
             val view = activity.binding!!.maindrawer.getChildAt(i)
             if (view is ViewGroup) {
-                if (view.id != file.absolutePath.hashCode()) {
+                if (view.id != file.getAbsolutePath().hashCode()) {
                     view.visibility = View.GONE
                 } else {
                     view.visibility = View.VISIBLE
-                    currentProjectId = file.absolutePath.hashCode()
+                    currentProjectId = file.getAbsolutePath().hashCode()
                 }
             }
         }
@@ -186,7 +173,7 @@ object ProjectManager {
         }
     }
 
-    fun getSelectedProjectRootFilePath(activity: MainActivity): String? {
+    fun getSelectedProjectRootFile(activity: MainActivity): FileObject? {
         return projects[activity.binding!!.navigationRail.selectedItemId]
     }
 
@@ -204,16 +191,16 @@ object ProjectManager {
             getSelectedView(activity).reloadFileTree()
         }
 
-        fun updateFileRenamed(activity: MainActivity, file: File, newFile: File) {
-            getSelectedView(activity).onFileRenamed(file(file), file(newFile))
+        fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: File) {
+            getSelectedView(activity).onFileRenamed(file, FileWrapper(newFile))
         }
 
-        fun updateFileDeleted(activity: MainActivity, file: File) {
-            getSelectedView(activity).onFileRemoved(file(file))
+        fun updateFileDeleted(activity: MainActivity, file: FileObject) {
+            getSelectedView(activity).onFileRemoved(file)
         }
 
-        fun updateFileAdded(activity: MainActivity, file: File) {
-            getSelectedView(activity).onFileAdded(file(file))
+        fun updateFileAdded(activity: MainActivity, file: FileObject) {
+            getSelectedView(activity).onFileAdded(file)
         }
     }
 
@@ -226,15 +213,14 @@ object ProjectManager {
         val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
         if (jsonString.isNotEmpty()) {
             val gson = Gson()
-            val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
+            val projectsList = gson.fromJson(jsonString, Array<FileObject>::class.java).toList()
 
             projectsList.forEach {
                 if (projects.values.contains(it)){
                     return
                 }
-                val file = File(it)
                 activity.binding!!.mainView.visibility = View.VISIBLE
-                addProject(activity, file)
+                addProject(activity, it)
             }
         }
     }

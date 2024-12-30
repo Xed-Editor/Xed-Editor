@@ -28,7 +28,7 @@ class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 
 class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
     override fun areItemsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
-        return oldItem.value.getAbsolutePath() == newItem.value.getAbsolutePath()
+        return oldItem.value == newItem.value
     }
 
     override fun areContentsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
@@ -93,7 +93,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
         var xnode: Node<FileObject>? = null
         for (node in tempData) {
-            if (node.value.getAbsolutePath() == file.getAbsolutePath()) {
+            if (node.value == file) {
                 xnode = node
                 break
             }
@@ -121,7 +121,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         var nodetoremove: Node<FileObject>? = null
 
         for (node in tempData) {
-            if (node.value.getAbsolutePath() == file.getAbsolutePath()) {
+            if (node.value == file) {
                 nodetoremove = node
                 break
             }
@@ -152,7 +152,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     fun renameFile(child: FileObject, newFile: FileObject) {
         val tempData = currentList.toMutableList()
         for (node in tempData) {
-            if (node.value.getAbsolutePath() == child.getAbsolutePath()) {
+            if (node.value == child) {
                 node.value = newFile
                 submitList(tempData)
 

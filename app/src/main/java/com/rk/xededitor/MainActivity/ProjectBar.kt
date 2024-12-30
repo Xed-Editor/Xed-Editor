@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.provider.FileWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
@@ -52,7 +53,7 @@ object ProjectBar {
                         }
 
                         privateFilesId -> {
-                            ProjectManager.addProject(this, filesDir.parentFile!!)
+                            ProjectManager.addProject(this, FileWrapper(filesDir.parentFile!!))
                         }
                     }
                     dialog?.dismiss()
@@ -96,7 +97,7 @@ object ProjectBar {
                     false
                 } else {
                     ProjectManager.projects[item.itemId]?.let {
-                        ProjectManager.changeProject(File(it), this)
+                        ProjectManager.changeProject(it, this)
                     }
                     true
                 }

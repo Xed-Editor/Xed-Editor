@@ -41,10 +41,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation(project(":editor:editor"))
+    implementation(project(":core:editor"))
     implementation(project(":core:commons"))
-    implementation(project(":feature:runner"))
+    implementation(project(":core:runner"))
     implementation(project(":core:resources"))
-    implementation(project(":feature:settings"))
+    implementation(project(":core:settings"))
     implementation(project(":core:karbon-exec"))
 }

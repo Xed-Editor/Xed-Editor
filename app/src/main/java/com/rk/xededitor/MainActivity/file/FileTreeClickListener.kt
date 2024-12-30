@@ -8,7 +8,7 @@ import com.rk.libcommons.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
-import com.rk.xededitor.MainActivity.file.ProjectManager.getSelectedProjectRootFilePath
+import com.rk.xededitor.MainActivity.file.ProjectManager.getSelectedProjectRootFile
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -50,8 +50,8 @@ val fileLongClickListener =
     object : FileLongClickListener {
         override fun onLongClick(node: Node<FileObject>) {
             activityRef.get()?.apply {
-                getSelectedProjectRootFilePath(this)?.let {
-                    FileAction(this, File(it), File(node.value.getAbsolutePath()))
+                getSelectedProjectRootFile(this)?.let {
+                    FileAction(this, File(it.getAbsolutePath()), File(node.value.getAbsolutePath()))
                 }
             }
         }

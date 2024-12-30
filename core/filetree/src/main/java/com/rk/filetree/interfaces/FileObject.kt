@@ -14,6 +14,4 @@ interface FileObject : Serializable {
     fun getParentFile(): FileObject?
 
     fun getAbsolutePath(): String
-
-    fun createFromPath(path: String): FileObject
 }

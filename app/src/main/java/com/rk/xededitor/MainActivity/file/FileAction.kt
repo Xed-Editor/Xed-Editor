@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.provider.FileWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.child
@@ -71,7 +72,7 @@ class FileAction(
                         getString(strings.close_current_project),
                         getDrawable(drawables.close),
                     ) {
-                        ProjectManager.removeProject(mainActivity, rootFolder)
+                        ProjectManager.removeProject(mainActivity,FileWrapper(rootFolder))
                     }
                 } else {
                     addItem(
@@ -99,7 +100,7 @@ class FileAction(
                             .setNegativeButton(getString(strings.cancel), null)
                             .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
                                 val loading = LoadingPopup(mainActivity, null).show()
-                                ProjectManager.currentProject.updateFileDeleted(mainActivity, file)
+                                ProjectManager.currentProject.updateFileDeleted(mainActivity, FileWrapper(file))
                                 mainActivity.lifecycleScope.launch(Dispatchers.IO) {
                                     try {
                                         if (file.isFile) {
@@ -207,7 +208,7 @@ class FileAction(
                                             withContext(Dispatchers.Main) {
                                                 ProjectManager.currentProject.updateFileAdded(
                                                     mainActivity,
-                                                    targetPath.parent.toFile()
+                                                    FileWrapper(targetPath.parent.toFile())
                                                 )
                                             }
 
@@ -294,7 +295,7 @@ class FileAction(
                         Files.createDirectory(newFilePath)
                     }
                     withContext(Dispatchers.Main) {
-                        ProjectManager.currentProject.updateFileAdded(mainActivity, newFilePath.parent.toFile())
+                        ProjectManager.currentProject.updateFileAdded(mainActivity, FileWrapper(newFilePath.parent.toFile()))
                         loading.hide()
                     }
                 }
@@ -342,7 +343,7 @@ class FileAction(
                         withContext(Dispatchers.Main) {
                             ProjectManager.currentProject.updateFileRenamed(
                                 mainActivity,
-                                file,
+                                FileWrapper(file),
                                 targetPath.toFile()
                             )
 
@@ -436,7 +437,7 @@ class FileAction(
                     GitClient.clone(mainActivity,url,file, onResult = {
                         runOnUiThread{
                             if (it == null){
-                                ProjectManager.currentProject.updateFileAdded(mainActivity,file)
+                                ProjectManager.currentProject.updateFileAdded(mainActivity,FileWrapper(file))
                             }
                             loading.hide()
                             it?.message?.toastIt()

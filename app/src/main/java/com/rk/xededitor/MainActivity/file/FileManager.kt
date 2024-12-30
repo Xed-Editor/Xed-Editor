@@ -14,8 +14,11 @@ import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.provider.FileWrapper
+import com.rk.filetree.provider.UriWrapper
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.libcommons.PathUtils.toPath
+import com.rk.libcommons.application
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.R
@@ -84,7 +87,7 @@ class FileManager(private val mainActivity: MainActivity) {
 
                     parentFile?.let {
                         ProjectManager.currentProject.updateFileAdded(mainActivity,
-                            it
+                            FileWrapper(it)
                         )
                     }
                 }
@@ -96,7 +99,12 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                ProjectManager.addProject(mainActivity, file)
+                if (file.exists().not()){
+                    ProjectManager.addProject(mainActivity, UriWrapper(application!!,it.data!!.data!!) { it.toPath() })
+                }else{
+                    ProjectManager.addProject(mainActivity, FileWrapper(file))
+                }
+
             }
         }
     
@@ -185,7 +193,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 }
 
                 if (file.isDirectory) {
-                    ProjectManager.addProject(mainActivity, file)
+                    ProjectManager.addProject(mainActivity, FileWrapper(file))
                 } else {
                     mainActivity.adapter!!.addFragment(file)
                 }
