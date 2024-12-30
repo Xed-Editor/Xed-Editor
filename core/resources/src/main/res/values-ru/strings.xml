@@ -256,7 +256,7 @@
     <string name="version">Версия</string>
     <string name="version_code">Код версии</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Karbon имеет открытый исходный код!</string>
+    <string name="github_desc">Поставьте звезду на GitHub 🤩</string>
     <string name="telegram">Telegram группа</string>
     <string name="telegram_desc">Присоединяйтесь к сообществу в Telegram</string>
     <string name="join">Присоединиться</string>
