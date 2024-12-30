@@ -302,4 +302,11 @@
     <string name="line_spacing_multiplier">Множитель межстрочного интервала</string>
     <string name="line_spacing">Межстрочный интервал</string>
     <string name="mutators">Инструменты</string>
+    <string name="update_av">Доступны обновления</string>
+    <string name="update">Обновить</string>
+    <string name="update_disable">Проверка обновлений отключена</string>
+    <string name="ignore">Игнорировать</string>
+    <string name="launch_termux">Запустить Termux?</string>
+    <string name="launch_termux_explanation">Termux остановлен, поэтому karbon не может выполнять в нем команды. Хотите его запустить?</string>
+    <string name="launch">Запустить</string>
 </resources>
