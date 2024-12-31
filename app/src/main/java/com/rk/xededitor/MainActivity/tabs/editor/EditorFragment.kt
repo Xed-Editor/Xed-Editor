@@ -1,7 +1,6 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
-import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -10,7 +9,7 @@ import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.filetree.interfaces.FileObject
+import com.rk.file.FileObject
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
@@ -34,7 +33,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.nio.charset.Charset
 
 
@@ -42,7 +40,7 @@ import java.nio.charset.Charset
 class EditorFragment(val context: Context) : CoreFragment {
 
     @JvmField
-    var file: FileObject? = null
+    var file: com.rk.file.FileObject? = null
     var editor: KarbonEditor? = null
     val scope = CustomScope()
     private var constraintLayout: ConstraintLayout? = null
@@ -221,7 +219,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
-    override fun loadFile(file: FileObject) {
+    override fun loadFile(file: com.rk.file.FileObject) {
         this.file = file
         scope.launch(Dispatchers.Default) {
             if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
@@ -253,7 +251,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
-    override fun getFile(): FileObject? = file
+    override fun getFile(): com.rk.file.FileObject? = file
 
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {

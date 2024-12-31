@@ -7,21 +7,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
-import com.rk.filetree.interfaces.FileObject
+import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.Serializable
 import java.lang.ref.WeakReference
 
-class Kee(val file: FileObject) {
+class Kee(val file: com.rk.file.FileObject) {
     override fun equals(other: Any?): Boolean {
         if (other !is Kee) {
             return false
@@ -207,7 +204,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
     }
     
-    fun addFragment(file: FileObject, fragmentType: FragmentType? = null) {
+    fun addFragment(file: com.rk.file.FileObject, fragmentType: FragmentType? = null) {
 
         val type = fragmentType ?: file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {

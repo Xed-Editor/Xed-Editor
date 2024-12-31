@@ -2,6 +2,7 @@ package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
 import androidx.lifecycle.lifecycleScope
+import com.rk.file.FileWrapper
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
@@ -15,8 +16,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
-
 
 
 //the worst code i ever written
@@ -25,7 +24,7 @@ object MenuItemHandler {
     private val mutex = Mutex()
     private var lastUpdate = System.currentTimeMillis()
     private var isUpdating = false
-    
+
     fun update(activity: MainActivity) {
         activity.lifecycleScope.launch(Dispatchers.Default) {
             if (mutex.isLocked) {
@@ -39,51 +38,53 @@ object MenuItemHandler {
                 isUpdating = true
                 lastUpdate = System.currentTimeMillis()
             }
-            
+
             //wait for menu
             while (!activity.isMenuInitialized()) {
                 delay(100)
             }
-            
+
             updateInternal(activity)
-            
+
             mutex.withLock { isUpdating = false }
-            
+
         }
-        
-        
+
+
     }
 
     //warning: do not go below this 💀💀💀💀
-    
+
     private suspend fun updateInternal(activity: MainActivity) {
         withContext(Dispatchers.Main) {
             val currentFragment = activity.adapter!!.getCurrentFragment()?.fragment
             val menu = activity.menu!!
             val hasFiles = activity.tabViewModel.fragmentFiles.isNotEmpty()
             val isEditor = currentFragment is EditorFragment
-            
+
             val editorFragment = if (isEditor) {
                 currentFragment as EditorFragment
             } else {
                 null
             }
-            
+
             if (updateSearchMenu(menu, editorFragment)) {
                 //searching, no need to update other values
                 return@withContext
             }
-            
+
             updateEditorMenuVisibility(menu, hasFiles && isEditor)
-            
+
             if (hasFiles && isEditor) {
                 (currentFragment as EditorFragment).file?.let { file ->
-                    //menu.findItem(Id.run).isVisible = Runner.isRunnable(file)
+                    if (file is FileWrapper) {
+                        menu.findItem(Id.run).isVisible = Runner.isRunnable(file.file)
+                    }
                 }
             } else {
                 menu.findItem(Id.run).isVisible = false
             }
-            
+
             updateGitMenuVisibility(
                 menu, if (isEditor) {
                     currentFragment as EditorFragment
@@ -91,45 +92,56 @@ object MenuItemHandler {
                     null
                 }, activity
             )
-            
+
             if (isEditor) {
-                activity.adapter!!.getCurrentFragment()?.let { updateUndoRedoAndModifiedStar(menu, it, activity) }
+                activity.adapter!!.getCurrentFragment()
+                    ?.let { updateUndoRedoAndModifiedStar(menu, it, activity) }
             }
-            
-            
+
+
         }
     }
-    
-    private suspend fun updateGitMenuVisibility(menu: Menu, editorFragment: EditorFragment?, activity: MainActivity) {
+
+    private suspend fun updateGitMenuVisibility(
+        menu: Menu, editorFragment: EditorFragment?, activity: MainActivity
+    ) {
         if (editorFragment == null) {
             withContext(Dispatchers.Main) {
                 menu.findItem(Id.git).isVisible = false
             }
+            return
         }
-//        withContext(Dispatchers.IO) {
-//            val gitRoot = editorFragment?.file?.let { findGitRoot(it) }
-//            if (gitRoot != null){
-//                GitClient.getCurrentBranch(activity,gitRoot, onResult = { branch,err ->
-//                    rkUtils.runOnUiThread{
-//                        menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)?.apply {
-//                            title = "Branch : ${branch ?: "error"}"
-//                        }
-//                    }
-//                })
-//            }
-//
-//            withContext(Dispatchers.Main) {
-//                menu.findItem(Id.git).isVisible = gitRoot != null && activity.tabLayout!!.tabCount > 0
-//            }
-//        }
+        withContext(Dispatchers.IO) {
+            if (editorFragment.file is FileWrapper) {
+                val gitRoot = editorFragment.file?.let { findGitRoot((it as FileWrapper).file) }
+                if (gitRoot != null) {
+                    GitClient.getCurrentBranch(activity, gitRoot, onResult = { branch, err ->
+                        rkUtils.runOnUiThread {
+                            menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)
+                                ?.apply {
+                                    title = "Branch : ${branch ?: "error"}"
+                                }
+                        }
+                    })
+                }
+
+                withContext(Dispatchers.Main) {
+                    menu.findItem(Id.git).isVisible =
+                        gitRoot != null && activity.tabLayout!!.tabCount > 0
+                }
+            }
+
+        }
     }
-    
-    private fun updateUndoRedoAndModifiedStar(menu: Menu, currentFragment: TabFragment, activity: MainActivity) {
+
+    private fun updateUndoRedoAndModifiedStar(
+        menu: Menu, currentFragment: TabFragment, activity: MainActivity
+    ) {
         val editorFragment = currentFragment.fragment as EditorFragment
         menu.findItem(Id.redo).isEnabled = editorFragment.editor?.canRedo() == true
         menu.findItem(Id.undo).isEnabled = editorFragment.editor?.canUndo() == true
     }
-    
+
     private fun updateEditorMenuVisibility(menu: Menu, show: Boolean) {
         menu.apply {
             findItem(Id.action_save).isVisible = show
@@ -145,7 +157,7 @@ object MenuItemHandler {
             findItem(Id.tools).isVisible = show
         }
     }
-    
+
     private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?): Boolean {
         val isSearching = editorFragment != null && (editorFragment.editor?.isSearching() == true)
         menu.apply {
@@ -153,10 +165,10 @@ object MenuItemHandler {
             findItem(Id.search_previous).isVisible = isSearching
             findItem(Id.search_close).isVisible = isSearching
             findItem(Id.replace).isVisible = isSearching
-            
-            
+
+
             //disable editor menu
-            updateEditorMenuVisibility(menu,isSearching.not())
+            updateEditorMenuVisibility(menu, isSearching.not())
         }
         return isSearching
     }

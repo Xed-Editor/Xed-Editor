@@ -17,7 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.filetree.interfaces.FileObject
+import com.rk.file.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.resources.drawables
@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.io.File
 import java.lang.ref.WeakReference
 
 
@@ -67,7 +66,7 @@ class MainActivity : BaseActivity() {
 
 
     class TabViewModel : ViewModel() {
-        val fragmentFiles = mutableListOf<FileObject>()
+        val fragmentFiles = mutableListOf<com.rk.file.FileObject>()
         val fragmentTypes = mutableListOf<FragmentType>()
         val fragmentTitles = mutableListOf<String>()
         val fileSet = HashSet<String>()

@@ -2,7 +2,6 @@ package com.rk.filetree.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,12 +14,11 @@ import com.rk.filetree.R
 import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileIconProvider
 import com.rk.filetree.interfaces.FileLongClickListener
-import com.rk.filetree.interfaces.FileObject
+import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.model.TreeViewModel
 import com.rk.filetree.util.Sorter
 import com.rk.filetree.widget.FileTree
-import java.io.File
 
 class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
@@ -28,18 +26,18 @@ class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val textView: TextView = v.findViewById(R.id.text_view)
 }
 
-class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
-    override fun areItemsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
+class NodeDiffCallback : DiffUtil.ItemCallback<Node<com.rk.file.FileObject>>() {
+    override fun areItemsTheSame(oldItem: Node<com.rk.file.FileObject>, newItem: Node<com.rk.file.FileObject>): Boolean {
         return oldItem.value.getAbsolutePath() == newItem.value.getAbsolutePath()
     }
 
-    override fun areContentsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
+    override fun areContentsTheSame(oldItem: Node<com.rk.file.FileObject>, newItem: Node<com.rk.file.FileObject>): Boolean {
         return areItemsTheSame(oldItem, newItem)
     }
 }
 
 class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
-    ListAdapter<Node<FileObject>, ViewHolder>(NodeDiffCallback()) {
+    ListAdapter<Node<com.rk.file.FileObject>, ViewHolder>(NodeDiffCallback()) {
 
     var onClickListener: FileClickListener? = null
     var onLongClickListener: FileLongClickListener? = null
@@ -90,11 +88,11 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
     //parent file
-    fun newFile(file: FileObject) {
+    fun newFile(file: com.rk.file.FileObject) {
 
         val tempData = currentList.toMutableList()
 
-        var xnode: Node<FileObject>? = null
+        var xnode: Node<com.rk.file.FileObject>? = null
         for (node in tempData) {
             if (node.value == file) {
                 xnode = node
@@ -119,9 +117,9 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         submitList(tempData)
     }
 
-    fun removeFile(file: FileObject) {
+    fun removeFile(file: com.rk.file.FileObject) {
         val tempData = currentList.toMutableList()
-        var nodetoremove: Node<FileObject>? = null
+        var nodetoremove: Node<com.rk.file.FileObject>? = null
 
         for (node in tempData) {
             if (node.value == file) {
@@ -152,7 +150,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
     }
 
-    fun renameFile(child: FileObject, newFile: FileObject) {
+    fun renameFile(child: com.rk.file.FileObject, newFile: com.rk.file.FileObject) {
         val tempData = currentList.toMutableList()
         for (node in tempData) {
             if (node.value == child) {
@@ -208,7 +206,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         holder.textView.text = " ${node.value.getName()}              "
     }
 
-    fun expandNode(clickedNode: Node<FileObject>) {
+    fun expandNode(clickedNode: Node<com.rk.file.FileObject>) {
         val tempData = currentList.toMutableList()
         val index = tempData.indexOf(clickedNode)
         val children = Sorter.sort(clickedNode.value)
@@ -218,7 +216,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         submitList(tempData)
     }
 
-    private fun collapseNode(clickedNode: Node<FileObject>) {
+    private fun collapseNode(clickedNode: Node<com.rk.file.FileObject>) {
         val tempData = currentList.toMutableList()
         val children = TreeViewModel.getChildren(clickedNode)
         tempData.removeAll(children.toSet())

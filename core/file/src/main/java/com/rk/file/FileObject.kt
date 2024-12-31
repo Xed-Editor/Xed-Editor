@@ -1,11 +1,7 @@
-package com.rk.filetree.interfaces
+package com.rk.file
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.net.toUri
-import com.rk.filetree.provider.FileWrapper
-import com.rk.filetree.provider.UriWrapper
-import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
@@ -27,4 +23,10 @@ interface FileObject : Serializable {
     fun length():Long
     fun delete():Boolean
     fun toUri():Uri
+    fun getMimeType(context:Context):String?
+    fun renameTo(string: String):Boolean
+    fun hasChild(name:String):Boolean
+    fun createChild(createFile:Boolean,name: String):FileObject?
+    fun canWrite():Boolean
+    fun canRead():Boolean
 }

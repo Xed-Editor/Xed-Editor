@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.filetree.interfaces.FileIconProvider
-import com.rk.filetree.interfaces.FileObject
+import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.resources.drawables
 
@@ -40,7 +40,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val markdown by lazy { ContextCompat.getDrawable(context, drawables.markdown) }
     private val php by lazy { ContextCompat.getDrawable(context, drawables.php) }
     
-    override fun getIcon(node: Node<FileObject>): Drawable? {
+    override fun getIcon(node: Node<com.rk.file.FileObject>): Drawable? {
         return if (node.value.isFile()) {
             when (node.value.getName()) {
                 "contract.sol",

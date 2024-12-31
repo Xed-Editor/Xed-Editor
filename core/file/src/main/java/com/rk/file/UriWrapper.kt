@@ -1,33 +1,20 @@
-package com.rk.filetree.provider
+package com.rk.file
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
-import androidx.core.net.toUri
+import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
-import com.rk.filetree.interfaces.FileObject
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
-import java.net.URI
+import java.util.Locale
 
-/**
- * A wrapper class that implements FileObject interface for Android's DocumentFile API.
- * Provides file system operations using Storage Access Framework.
- *
- * @property context Android context required for content resolver operations
- * @property file DocumentFile instance being wrapped
- */
-class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
-
-    /**
-     * Creates a UriWrapper from a Uri, automatically determining if it's a single file or tree Uri
-     * @throws IllegalArgumentException if the Uri is invalid or permission is not granted
-     */
+class UriWrapper(val context: Application, val file: DocumentFile) : FileObject {
 
     @Throws(IllegalArgumentException::class)
-    constructor(context: Context, uri: Uri) : this(
+    constructor(context: Application, uri: Uri) : this(
         context, when {
             uri.toString().contains("tree/") -> DocumentFile.fromTreeUri(context, uri)
             else -> DocumentFile.fromSingleUri(context, uri)
@@ -40,19 +27,14 @@ class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
         else -> file.listFiles().map { UriWrapper(context, it) }
     }
 
-    inline override fun isDirectory(): Boolean = file.isDirectory
-    inline override fun isFile(): Boolean = file.isFile
-    inline override fun getName(): String = file.name.orEmpty()
-    inline override fun getParentFile(): FileObject? =
+    override fun isDirectory(): Boolean = file.isDirectory
+    override fun isFile(): Boolean = file.isFile
+    override fun getName(): String = file.name.orEmpty()
+    override fun getParentFile(): FileObject? =
         file.parentFile?.let { UriWrapper(context, it) }
 
-    inline override fun exists(): Boolean = file.exists()
+    override fun exists(): Boolean = file.exists()
 
-    /**
-     * Creates a new file in the parent directory
-     * @return true if file was created successfully, false if it already exists
-     * @throws IOException if creation fails or parent directory doesn't exist
-     */
     @Throws(IOException::class)
     override fun createNewFile(): Boolean {
         if (exists()) return false
@@ -67,11 +49,6 @@ class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
         ) != null
     }
 
-    /**
-     * Creates a new directory
-     * @return true if directory was created successfully, false if it already exists
-     * @throws IOException if creation fails or parent directory doesn't exist
-     */
     @Throws(IOException::class)
     override fun mkdir(): Boolean {
         if (exists()) return false
@@ -84,11 +61,6 @@ class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
         return parent.createDirectory(file.name ?: "unnamed") != null
     }
 
-    /**
-     * Creates directory and any necessary parent directories
-     * @return true if directory was created successfully or already exists
-     * @throws IOException if creation fails
-     */
     @Throws(IOException::class)
     override fun mkdirs(): Boolean {
         if (exists()) return true
@@ -100,10 +72,6 @@ class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
         return mkdir()
     }
 
-    /**
-     * Writes text content to the file
-     * @throws IOException if writing fails
-     */
     @Throws(IOException::class)
     override fun writeText(text: String) {
         if (!file.canWrite()) {
@@ -120,11 +88,6 @@ class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
         } ?: throw IOException("Could not open output stream for: ${file.uri}")
     }
 
-    /**
-     * Opens an input stream to read the file
-     * @throws FileNotFoundException if the file doesn't exist or can't be opened
-     * @throws SecurityException if read permission is not granted
-     */
     @Throws(FileNotFoundException::class, SecurityException::class)
     override fun getInputStream(): InputStream {
         if (!file.canRead()) {
@@ -140,27 +103,72 @@ class UriWrapper(val context: Context, val file: DocumentFile) : FileObject {
             throw SecurityException("No read permission for file: ${file.uri}")
         }
         val mode = if (append) "wa" else "w"
-        return context.contentResolver?.openOutputStream(file.uri,mode)
+        return context.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw FileNotFoundException("Could not open input stream for: ${file.uri}")
 
     }
 
+    override fun getMimeType(context: Context): String? {
+        val uri = toUri()
+        val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
+        return if (extension != null) {
+            MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(extension.lowercase(Locale.getDefault()))
+        } else {
+            context.contentResolver.getType(uri)
+        }
+    }
 
-    inline override fun getAbsolutePath(): String = toString()
+    override fun renameTo(string: String): Boolean {
+        return file.renameTo(string)
+    }
 
-    inline override fun length(): Long {
+    override fun hasChild(name: String): Boolean {
+        if (isDirectory()) {
+            for (child in listFiles()) {
+                if (child.getName() == name) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    override fun createChild(createFile: Boolean, name: String):FileObject? {
+        return if (createFile){
+            file.createFile("application/octet-stream",name)?.let { UriWrapper(context, it) }
+        }else{
+            file.createDirectory(name)?.let { UriWrapper(context,it) }
+        }
+    }
+
+
+    override fun getAbsolutePath(): String = toString()
+
+    override fun length(): Long {
         return file.length()
     }
 
-    inline override fun delete(): Boolean {
+    override fun delete(): Boolean {
         return file.delete()
     }
-    inline override fun toUri(): Uri {
+
+    override fun toUri(): Uri {
         return file.uri
     }
 
+    override fun canWrite(): Boolean {
+        return file.canWrite()
+    }
+
+    override fun canRead(): Boolean {
+        return file.canRead()
+    }
+
     override fun equals(other: Any?): Boolean {
-        if (other !is UriWrapper){return false}
+        if (other !is UriWrapper) {
+            return false
+        }
         return other.file.uri.toString() == file.uri.toString()
     }
 

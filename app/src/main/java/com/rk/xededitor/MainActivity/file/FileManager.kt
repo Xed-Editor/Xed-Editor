@@ -1,37 +1,28 @@
 package com.rk.xededitor.MainActivity.file
 
-import android.R.attr.data
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
-import android.os.storage.StorageVolume
-import android.provider.DocumentsContract
 import android.provider.OpenableColumns
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.filetree.interfaces.FileObject
-import com.rk.filetree.provider.FileWrapper
-import com.rk.filetree.provider.UriWrapper
-import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
-import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
+import org.apache.commons.net.io.Util.copyStream
 import java.io.File
-import java.io.IOException
-import java.net.URLConnection
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 
 class FileManager(private val mainActivity: MainActivity) {
 
@@ -39,127 +30,131 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                if (file.exists()){
+                if (file.exists()) {
                     mainActivity.adapter!!.addFragment(FileWrapper(file))
-                }else{
-                    mainActivity.adapter!!.addFragment(UriWrapper(application!!,it.data!!.data!!))
+                } else {
+                    mainActivity.adapter!!.addFragment(
+                        UriWrapper(
+                            application!!, it.data!!.data!!
+                        )
+                    )
                 }
 
             }
         }
 
-    var parentFile:File? = null
+    var parentFile: FileObject? = null
     var requestAddFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val uri = result.data?.data
-                if (uri != null){
-                    val file = File(uri.toPath())
-                    if (file.exists()){
-                        if (parentFile == null || parentFile?.isDirectory?.not() == true) {
-                            throw IllegalArgumentException("The parentFile must be a valid directory")
-                        }
+                val sourceUri = result.data!!.data!!
 
-                        val sourcePath: Path = file.toPath()
-                        val destinationPath: Path = parentFile!!.toPath().resolve(file.name)
-
-                        Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING)
-                    }else{
-                        val contentResolver = mainActivity.contentResolver
-                        runCatching {
-                             fun getFileName(contentResolver: ContentResolver, uri: Uri): String {
-                                var name = "default_file"
-                                val cursor = contentResolver.query(uri, null, null, null, null)
-                                cursor?.use {
-                                    if (it.moveToFirst()) {
-                                        val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-                                        if (nameIndex >= 0) {
-                                            name = it.getString(nameIndex)
-                                        }
-                                    }
-                                }
-                                return name
-                            }
-                            val fileName = getFileName(contentResolver, uri)
-                            val targetFile = File(parentFile, fileName)
-                            contentResolver.openInputStream(uri)?.use { inputStream ->
-                                Files.copy(
-                                    inputStream,
-                                    targetFile.toPath(),
-                                    StandardCopyOption.REPLACE_EXISTING
-                                )
+                fun getFileName(contentResolver: ContentResolver, uri: Uri): String {
+                    var name = "default_file"
+                    val cursor = contentResolver.query(uri, null, null, null, null)
+                    cursor?.use {
+                        if (it.moveToFirst()) {
+                            val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                            if (nameIndex >= 0) {
+                                name = it.getString(nameIndex)
                             }
                         }
                     }
+                    return name
+                }
 
-                    parentFile?.let {
-                        ProjectManager.currentProject.updateFileAdded(mainActivity,
-                            FileWrapper(it)
-                        )
+                fun copyUriData(contentResolver: ContentResolver, sourceUri: Uri, destinationUri: Uri) {
+                    try {
+                        contentResolver.openInputStream(sourceUri)?.use { inputStream ->
+                            contentResolver.openOutputStream(destinationUri)?.use { outputStream ->
+                                copyStream(inputStream, outputStream)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        throw RuntimeException("Failed to copy data from $sourceUri to $destinationUri", e)
                     }
                 }
-                parentFile = null
+
+
+
+                val destinationFile = parentFile!!.createChild(
+                    true, getFileName(mainActivity.contentResolver, sourceUri)
+                )
+
+                val destinationUri = destinationFile!!.toUri()
+
+                copyUriData(mainActivity.contentResolver,sourceUri,destinationUri)
+
+                parentFile?.let {
+                    ProjectManager.currentProject.updateFileAdded(
+                        mainActivity, it
+                    )
+                }
             }
+            parentFile = null
         }
 
     private var requestOpenDir =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                if (file.exists().not()){
+                if (file.exists().not()) {
                     kotlin.runCatching {
-                        val takeFlags: Int = (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-                        mainActivity.contentResolver.takePersistableUriPermission(it.data!!.data!!, takeFlags)
+                        val takeFlags: Int =
+                            (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+                        mainActivity.contentResolver.takePersistableUriPermission(
+                            it.data!!.data!!, takeFlags
+                        )
                     }
-                    ProjectManager.addProject(mainActivity, UriWrapper(application!!,it.data!!.data!!))
-                }else{
+                    ProjectManager.addProject(
+                        mainActivity, UriWrapper(application!!, it.data!!.data!!)
+                    )
+                } else {
                     ProjectManager.addProject(mainActivity, FileWrapper(file))
                 }
 
             }
         }
-    
-    val createFileLauncher = mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data: Intent? = result.data
-            val path = data?.data?.toPath()
-            val file = File(path.toString())
 
-            val wrapper:FileObject = if (file.exists()){
-                FileWrapper(file)
-            }else{
-                UriWrapper(application!!,data!!.data!!)
-            }
+    val createFileLauncher =
+        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data: Intent? = result.data
+                val path = data?.data?.toPath()
+                val file = File(path.toString())
 
-            if (wrapper.isFile()){
+                val wrapper: FileObject = if (file.exists()) {
+                    FileWrapper(file)
+                } else {
+                    UriWrapper(application!!, data!!.data!!)
+                }
                 mainActivity.adapter?.addFragment(wrapper)
-            }else{
-                rkUtils.toast("Unsupported file location ${data?.data}")
             }
         }
-    }
 
 
     private var toSaveAsFile: File? = null
 
-    private val directoryPickerLauncher = mainActivity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
-        runCatching {
-            uri?.let { selectedUri ->
-                val documentFile = DocumentFile.fromTreeUri(mainActivity, selectedUri)
-                val newFile = documentFile?.createFile("*/*", toSaveAsFile?.name ?: "new_file")
+    private val directoryPickerLauncher =
+        mainActivity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+            runCatching {
+                uri?.let { selectedUri ->
+                    val documentFile = DocumentFile.fromTreeUri(mainActivity, selectedUri)
+                    val newFile = documentFile?.createFile("*/*", toSaveAsFile?.name ?: "new_file")
 
-                newFile?.uri?.let { newUri ->
-                    mainActivity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
-                        toSaveAsFile?.inputStream()?.use { inputStream ->
-                            inputStream.copyTo(outputStream)
+                    newFile?.uri?.let { newUri ->
+                        mainActivity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
+                            toSaveAsFile?.inputStream()?.use { inputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
                         }
                     }
                 }
+            }.onFailure {
+                rkUtils.toast(it.message)
             }
-        }.onFailure {
-            rkUtils.toast(it.message)
         }
-    }
 
     fun saveAsFile(file: File) {
         toSaveAsFile = file
@@ -167,11 +162,10 @@ class FileManager(private val mainActivity: MainActivity) {
     }
 
 
-
     fun requestOpenFile() {
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            setType("*/*")
+            type = "*/*"
             requestOpenFile.launch(this)
         }
     }
@@ -187,8 +181,7 @@ class FileManager(private val mainActivity: MainActivity) {
         editText.setText("/sdcard")
         editText.hint = getString(strings.ff_path)
 
-        MaterialAlertDialogBuilder(mainActivity)
-            .setView(popupView)
+        MaterialAlertDialogBuilder(mainActivity).setView(popupView)
             .setTitle(getString(strings.path))
             .setNegativeButton(mainActivity.getString(strings.cancel), null)
             .setPositiveButton(getString(strings.open)) { _, _ ->
@@ -215,24 +208,25 @@ class FileManager(private val mainActivity: MainActivity) {
                 } else {
                     mainActivity.adapter!!.addFragment(FileWrapper(file))
                 }
-            }
-            .show()
+            }.show()
     }
 
     companion object {
         private val gits = mutableSetOf<String>()
 
         suspend fun findGitRoot(file: File): File? {
-            gits.forEach { root -> if (file.absolutePath.contains(root)){
-                return File(root)
-            } }
+            gits.forEach { root ->
+                if (file.absolutePath.contains(root)) {
+                    return File(root)
+                }
+            }
             var currentFile = file
             while (currentFile.parentFile != null) {
                 if (File(currentFile.parentFile, ".git").exists()) {
                     currentFile.parentFile?.let { gits.add(it.absolutePath) }
                     return currentFile.parentFile
                 }
-                currentFile = currentFile.parentFile
+                currentFile = currentFile.parentFile!!
             }
             return null
         }

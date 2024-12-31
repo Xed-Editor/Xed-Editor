@@ -3,5 +3,5 @@ package com.rk.filetree.interfaces
 import com.rk.filetree.model.Node
 
 interface FileLongClickListener {
-    fun onLongClick(node: Node<FileObject>)
+    fun onLongClick(node: Node<com.rk.file.FileObject>)
 }

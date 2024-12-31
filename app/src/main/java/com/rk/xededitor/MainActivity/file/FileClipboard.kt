@@ -1,13 +1,13 @@
 package com.rk.xededitor.MainActivity.file
 
-import java.io.File
+import com.rk.file.FileObject
 
 @Suppress("NOTHING_TO_INLINE")
 object FileClipboard {
-     var fileClipboard: File? = null
+     var fileClipboard: FileObject? = null
      var isPasted: Boolean = true
 
-    inline fun setFile(file: File?) {
+    inline fun setFile(file: FileObject?) {
         synchronized(this) {
             fileClipboard = file
             isPasted = false
@@ -21,7 +21,7 @@ object FileClipboard {
         }
     }
 
-    inline fun getFile(): File? {
+    inline fun getFile(): FileObject? {
         synchronized(this) {
             val file = fileClipboard
             if (isPasted) {

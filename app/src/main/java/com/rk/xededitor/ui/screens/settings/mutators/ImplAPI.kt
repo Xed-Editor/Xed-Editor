@@ -1,12 +1,8 @@
 package com.rk.xededitor.ui.screens.settings.mutators
 
-import android.os.Bundle
-import android.widget.EditText
-import app.cash.quickjs.QuickJs
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
-import com.rk.filetree.provider.FileWrapper
+import com.rk.file.FileWrapper
 import com.rk.libcommons.LoadingPopup
 import com.rk.scriptingengine.Engine
 import com.rk.scriptingengine.EngineAPI
@@ -15,7 +11,6 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -87,7 +82,11 @@ class ImplAPI(val engine: Engine) : EngineAPI {
             withContext(Dispatchers.Main) {
                 MainActivity.withContext {
                     val fragment =
-                        adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(FileWrapper(it)) })
+                        adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(
+                            com.rk.file.FileWrapper(
+                                it
+                            )
+                        ) })
                             ?.get()?.fragment
                     if (fragment is EditorFragment) {
                         result = fragment.editor?.text.toString()

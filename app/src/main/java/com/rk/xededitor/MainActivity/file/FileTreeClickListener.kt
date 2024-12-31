@@ -2,10 +2,9 @@ package com.rk.xededitor.MainActivity.file
 
 import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileLongClickListener
-import com.rk.filetree.interfaces.FileObject
+import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
@@ -18,7 +17,7 @@ import java.io.File
 
 val fileClickListener =
     object : FileClickListener {
-        override fun onClick(node: Node<FileObject>) {
+        override fun onClick(node: Node<com.rk.file.FileObject>) {
             if (node.value.isDirectory()) {
                 return
             }
@@ -49,10 +48,10 @@ val fileClickListener =
 
 val fileLongClickListener =
     object : FileLongClickListener {
-        override fun onLongClick(node: Node<FileObject>) {
+        override fun onLongClick(node: Node<com.rk.file.FileObject>) {
             activityRef.get()?.apply {
                 getSelectedProjectRootFile(this)?.let {
-                    FileAction(this, File(it.getAbsolutePath()), File(node.value.getAbsolutePath()))
+                    FileAction(this, it, node.value)
                 }
             }
         }

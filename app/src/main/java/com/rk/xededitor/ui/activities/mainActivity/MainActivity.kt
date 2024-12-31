@@ -28,8 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rk.filetree.interfaces.FileObject
-import com.rk.filetree.provider.FileWrapper
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.ui.components.ScrollableTabLayout
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
 class MyViewModel : ViewModel() {
     val openedTabs = mutableStateListOf<String>()
     val openedTabsTypes = mutableStateListOf<FragmentType>()
-    val openedTabsFiles = mutableStateListOf<FileObject?>()
+    val openedTabsFiles = mutableStateListOf<com.rk.file.FileObject?>()
 
     fun addNewTab(title: String, type: FragmentType) {
         openedTabs.add(title)
@@ -61,7 +61,7 @@ class MyViewModel : ViewModel() {
         openedTabsFiles.add(null)
     }
 
-    fun addNewTab(file: FileObject, type: FragmentType? = null) {
+    fun addNewTab(file: com.rk.file.FileObject, type: FragmentType? = null) {
         openedTabs.add(file.getName())
         openedTabsTypes.add(type ?: file.getFragmentType())
         openedTabsFiles.add(file)
@@ -134,7 +134,8 @@ fun MainContent(modifier: Modifier = Modifier, viewModel: MyViewModel) {
     val isInitialized = remember { mutableStateOf(false) }
 
     if (!isInitialized.value) {
-        val file = FileWrapper(File(LocalContext.current.filesDir.parentFile, "test.txt"))
+        val file =
+            com.rk.file.FileWrapper(File(LocalContext.current.filesDir.parentFile, "test.txt"))
         if (!file.exists()) {
             file.createNewFile()
             file.writeText("This is a test")

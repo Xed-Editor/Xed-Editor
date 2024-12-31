@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.rk.filetree.interfaces.FileObject
-import com.rk.filetree.provider.FileWrapper
-import com.rk.filetree.provider.UriWrapper
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.application
@@ -31,7 +31,7 @@ import java.util.Queue
 object ProjectManager {
 
     val projects = HashMap<Int, String>()
-    private val queue: Queue<FileObject> = LinkedList()
+    private val queue: Queue<com.rk.file.FileObject> = LinkedList()
 
     fun processQueue(activity: MainActivity) {
         if (activityRef.get() == null) {
@@ -45,7 +45,7 @@ object ProjectManager {
         }
     }
 
-    fun addProject(activity: MainActivity, file: FileObject) {
+    fun addProject(activity: MainActivity, file: com.rk.file.FileObject) {
 
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
@@ -95,7 +95,7 @@ object ProjectManager {
 
     }
 
-    fun removeProject(activity: MainActivity, file: FileObject, saveState: Boolean = true) {
+    fun removeProject(activity: MainActivity, file: com.rk.file.FileObject, saveState: Boolean = true) {
 
         val rail = activity.binding!!.navigationRail
         for (i in 0 until rail.menu.size()) {
@@ -134,7 +134,7 @@ object ProjectManager {
                 }
 
                 if (saveState) {
-                    if (file is UriWrapper) {
+                    if (file is com.rk.file.UriWrapper) {
                         kotlin.runCatching {
                             activity.getContentResolver().releasePersistableUriPermission(
                                 file.file.uri,
@@ -189,13 +189,13 @@ object ProjectManager {
         }
     }
 
-    fun getSelectedProjectRootFile(activity: MainActivity): FileObject? {
+    fun getSelectedProjectRootFile(activity: MainActivity): com.rk.file.FileObject? {
         projects[activity.binding!!.navigationRail.selectedItemId]?.let {
             val file = File(it)
             return if (file.exists()) {
-                FileWrapper(file)
+                com.rk.file.FileWrapper(file)
             } else {
-                UriWrapper(application!!, Uri.parse(it))
+                com.rk.file.UriWrapper(application!!, Uri.parse(it))
             }
         }
         return null
@@ -207,28 +207,28 @@ object ProjectManager {
     }
 
     object currentProject {
-        fun get(activity: MainActivity): File {
-            return File(getSelectedView(activity).getRootFileObject().getAbsolutePath())
+        fun get(activity: MainActivity): FileObject {
+            return getSelectedView(activity).getRootFileObject()
         }
 
         fun refresh(activity: MainActivity) {
             getSelectedView(activity).reloadFileTree()
         }
 
-        fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: File) {
-            getSelectedView(activity).onFileRenamed(file, FileWrapper(newFile))
+        fun updateFileRenamed(activity: MainActivity, file: com.rk.file.FileObject, newFile: FileObject) {
+            getSelectedView(activity).onFileRenamed(file, file)
         }
 
-        fun updateFileDeleted(activity: MainActivity, file: FileObject) {
+        fun updateFileDeleted(activity: MainActivity, file: com.rk.file.FileObject) {
             getSelectedView(activity).onFileRemoved(file)
         }
 
-        fun updateFileAdded(activity: MainActivity, file: FileObject) {
+        fun updateFileAdded(activity: MainActivity, file: com.rk.file.FileObject) {
             getSelectedView(activity).onFileAdded(file)
         }
     }
 
-    fun changeCurrentProjectRoot(file: FileObject, activity: MainActivity) {
+    fun changeCurrentProjectRoot(file: com.rk.file.FileObject, activity: MainActivity) {
         getSelectedView(activity).loadFiles(file)
     }
 
@@ -247,9 +247,9 @@ object ProjectManager {
 
                 val file = File(it)
                 if (file.exists()) {
-                    addProject(activity, FileWrapper(file))
+                    addProject(activity, com.rk.file.FileWrapper(file))
                 } else {
-                    addProject(activity, UriWrapper(application!!, Uri.parse(it)))
+                    addProject(activity, com.rk.file.UriWrapper(application!!, Uri.parse(it)))
                 }
 
 

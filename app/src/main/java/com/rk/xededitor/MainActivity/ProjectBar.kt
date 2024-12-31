@@ -1,30 +1,15 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
-import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.filetree.provider.FileWrapper
+import com.rk.file.FileWrapper
 import com.rk.libcommons.ActionPopup
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.LoadingPopup
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
-import java.io.File
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 
 object ProjectBar {
     @SuppressLint("SetTextI18n")
@@ -53,7 +38,9 @@ object ProjectBar {
                         }
 
                         privateFilesId -> {
-                            ProjectManager.addProject(this, FileWrapper(filesDir.parentFile!!))
+                            ProjectManager.addProject(this,
+                                com.rk.file.FileWrapper(filesDir.parentFile!!)
+                            )
                         }
                     }
                     dialog?.dismiss()

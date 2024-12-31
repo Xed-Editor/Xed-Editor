@@ -5,15 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.rk.filetree.interfaces.FileObject
-import com.rk.libcommons.application
+import com.rk.file.FileObject
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.media.ImageFragment
 import com.rk.xededitor.MainActivity.tabs.media.WebFragment
 import com.rk.xededitor.MainActivity.tabs.media.VideoFragment
-import java.io.File
 
 
 class TabFragment : Fragment() {
@@ -32,7 +30,7 @@ class TabFragment : Fragment() {
                         val editorFragment = EditorFragment(requireContext())
                         editorFragment.onCreate()
                         fragment = editorFragment
-                        editorFragment.loadFile(file as FileObject)
+                        editorFragment.loadFile(file as com.rk.file.FileObject)
                     }
 
                 }
@@ -44,7 +42,7 @@ class TabFragment : Fragment() {
                         val mediaFragment = WebFragment(requireContext())
                         mediaFragment.onCreate()
                         fragment = mediaFragment
-                        mediaFragment.loadFile(file as FileObject)
+                        mediaFragment.loadFile(file as com.rk.file.FileObject)
                     }
                 }
             }
@@ -55,7 +53,7 @@ class TabFragment : Fragment() {
                         val imageFragment = ImageFragment(requireContext())
                         imageFragment.onCreate()
                         fragment = imageFragment
-                        imageFragment.loadFile(file as FileObject)
+                        imageFragment.loadFile(file as com.rk.file.FileObject)
                     }
                 }
             }
@@ -66,7 +64,7 @@ class TabFragment : Fragment() {
                         val videoFragment = VideoFragment(requireContext())
                         videoFragment.onCreate()
                         fragment = videoFragment
-                        videoFragment.loadFile(file as FileObject)
+                        videoFragment.loadFile(file as com.rk.file.FileObject)
                     }
                 }
             }
@@ -92,7 +90,7 @@ class TabFragment : Fragment() {
     companion object {
         private const val ARG_FILE_PATH = "file_path"
         
-        fun newInstance(file: FileObject, type: FragmentType): TabFragment {
+        fun newInstance(file: com.rk.file.FileObject, type: FragmentType): TabFragment {
             val fragment = TabFragment()
             val args = Bundle()
             args.putSerializable("type", type)

@@ -1,6 +1,7 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
+import com.rk.file.FileWrapper
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
@@ -11,7 +12,6 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
-import com.rk.xededitor.rkUtils.toastIt
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -39,7 +39,13 @@ object MkSession {
                 return if (intent.hasExtra("cwd")) {
                     intent.getStringExtra("cwd").toString()
                 } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
-                    ProjectManager.currentProject.get(MainActivity.activityRef.get()!!).absolutePath
+                    val fileObject =
+                        ProjectManager.currentProject.get(MainActivity.activityRef.get()!!)
+                    var path = Environment.getExternalStorageDirectory().path
+                    if (fileObject is FileWrapper) {
+                        path = fileObject.getAbsolutePath()
+                    }
+                    path
                 } else {
                     Environment.getExternalStorageDirectory().path
                 }
