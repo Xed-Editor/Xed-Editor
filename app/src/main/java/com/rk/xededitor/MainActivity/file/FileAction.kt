@@ -208,6 +208,10 @@ class FileAction(
                                             loading.hide()
                                         }
                                     }
+                                    
+                                    withContext(Dispatchers.Main) {
+                                        loading.hide()
+                                    }
 
                                     FileClipboard.clear()
                                 }
