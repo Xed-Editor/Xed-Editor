@@ -31,14 +31,14 @@
   - [x] Run Python, Node.js, etc.
 
 
-<br><br>
+<br>
 
 ## Community
 > [!TIP]
 Join the Karbon community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
 
-<br><br>
+<br>
 
 ## Installation
 
@@ -68,7 +68,7 @@ Release builds on F-Droid Izzy and GitHub releases can become outdated quickly. 
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Xed-Editor/Xed-Editor/releases/latest)
 
-<br><br>
+<br>
 ## Screenshots
 
 <div>
