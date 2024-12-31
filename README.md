@@ -59,7 +59,9 @@ Join the Karbon community to stay updated and engage with other users:
 Release builds on F-Droid Izzy and GitHub releases can become outdated quickly. Please use the action builds if the release is older than a few weeks.
 
 - **Latest Alpha Build**: Download from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
+
 <br>
+
 - **Latest Stable Build**: Download from [Releases](https://github.com/Xed-Editor/Xed-Editor/releases)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.rk.xededitor)
