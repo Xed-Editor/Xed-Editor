@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
+import android.net.Uri
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -9,6 +10,7 @@ import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.filetree.interfaces.FileObject
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
@@ -40,7 +42,7 @@ import java.nio.charset.Charset
 class EditorFragment(val context: Context) : CoreFragment {
 
     @JvmField
-    var file: File? = null
+    var file: FileObject? = null
     var editor: KarbonEditor? = null
     val scope = CustomScope()
     private var constraintLayout: ConstraintLayout? = null
@@ -142,26 +144,26 @@ class EditorFragment(val context: Context) : CoreFragment {
                 kotlin.runCatching {
 
                     file?.let {
-                        editor?.loadFile(it,Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())))
+                        editor?.loadFile(it.getInputStream(),Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())))
                     }
                     MainActivity.activityRef.get()?.let { activity ->
                         val index = activity.tabViewModel.fragmentFiles.indexOf(file)
                         activity.tabViewModel.fragmentTitles.let {
-                            if (file!!.name != it[index]) {
-                                it[index] = file!!.name
+                            if (file!!.getName() != it[index]) {
+                                it[index] = file!!.getName()
                                 withContext(Dispatchers.Main) {
-                                    activity.tabLayout!!.getTabAt(index)?.text = file!!.name
+                                    activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
                                 }
                             }
                         }
                     }
                     file?.let {
-                        if (fileset.contains(it.name)) {
-                            fileset.remove(it.name)
+                        if (fileset.contains(it.getName())) {
+                            fileset.remove(it.getName())
                         }
                     }
                     withContext(Dispatchers.IO){
-                        FilesContent.remove(file!!.absolutePath)
+                        FilesContent.remove(file!!.getAbsolutePath())
                     }
 
                 }.onFailure {
@@ -219,25 +221,27 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
-    override fun loadFile(file: File) {
+    override fun loadFile(file: FileObject) {
         this.file = file
         scope.launch(Dispatchers.Default) {
-            if (FilesContent.containsKey(this@EditorFragment.file!!.absolutePath)) {
+            if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                 withContext(Dispatchers.Main) {
-                    editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.absolutePath))
+                    editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
                 }
             } else {
                 launch {
-                    editor!!.loadFile(file,Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())));FilesContent.setContent(
-                    this@EditorFragment.file!!.absolutePath, editor!!.text.toString()
+                    editor!!.loadFile(file.getInputStream(),Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,
+                        Charset.defaultCharset().name()
+                    )));FilesContent.setContent(
+                    this@EditorFragment.file!!.getAbsolutePath(), editor!!.text.toString()
                 )
                 }
             }
-            launch { setupEditor.setupLanguage(this@EditorFragment.file!!.name) }
+            launch { setupEditor.setupLanguage(this@EditorFragment.file!!.getName()) }
             withContext(Dispatchers.Main) {
                 setChangeListener()
                 this@EditorFragment.file?.let {
-                    if (it.name.endsWith(".txt") && PreferencesData.getBoolean(
+                    if (it.getName().endsWith(".txt") && PreferencesData.getBoolean(
                             PreferencesKeys.WORD_WRAP_TXT, true
                         )
                     ) {
@@ -249,7 +253,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
-    override fun getFile(): File? = file
+    override fun getFile(): FileObject? = file
 
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
@@ -264,20 +268,22 @@ class EditorFragment(val context: Context) : CoreFragment {
             return
         }
         scope.launch(Dispatchers.IO) {
-            editor?.saveToFile(file!!,Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())))
+            editor?.saveToFile(file!!.getOutPutStream(false),Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,
+                Charset.defaultCharset().name()
+            )))
             try {
                 MainActivity.activityRef.get()?.let { activity ->
                     val index = activity.tabViewModel.fragmentFiles.indexOf(file)
                     activity.tabViewModel.fragmentTitles.let {
-                        if (file!!.name != it[index]) {
-                            it[index] = file!!.name
+                        if (file!!.getName() != it[index]) {
+                            it[index] = file!!.getName()
                             withContext(Dispatchers.Main) {
-                                activity.tabLayout!!.getTabAt(index)?.text = file!!.name
+                                activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
                             }
                         }
                     }
                 }
-                fileset.remove(file!!.name)
+                fileset.remove(file!!.getName())
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
@@ -287,10 +293,10 @@ class EditorFragment(val context: Context) : CoreFragment {
             }
 
 
-            if (file!!.parentFile!!.absolutePath == context.getTempDir().absolutePath && file!!.name.endsWith("&mut.js")){
+            if (file!!.getParentFile()?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName().endsWith("&mut.js")){
                 withContext(Dispatchers.IO){
                     Mutators.getMutators().forEach { mut ->
-                        if (mut.name+"&mut.js" == file!!.name){
+                        if (mut.name+"&mut.js" == file!!.getName()){
                             mut.script = editor?.text.toString()
                             Mutators.saveMutator(mut)
                         }
@@ -312,8 +318,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor?.scope?.cancel()
         editor?.release()
         file?.let {
-            if (fileset.contains(it.name)) {
-                fileset.remove(it.name)
+            if (fileset.contains(it.getName())) {
+                fileset.remove(it.getName())
             }
         }
 
@@ -322,8 +328,8 @@ class EditorFragment(val context: Context) : CoreFragment {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
-            FilesContent.remove(file!!.absolutePath)
-            if (file!!.parentFile!!.absolutePath == context.getTempDir().absolutePath && file!!.name.endsWith("&mut.js")){
+            FilesContent.remove(file!!.getAbsolutePath())
+            if (file!!.getParentFile()!!.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName().endsWith("&mut.js")){
                 file!!.delete()
             }
         }
@@ -363,7 +369,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
 
     fun isModified(): Boolean {
-        return fileset.contains(file!!.name)
+        return fileset.contains(file!!.getName())
     }
 
     private var t = 0
@@ -371,7 +377,7 @@ class EditorFragment(val context: Context) : CoreFragment {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             scope.launch {
                 launch(Dispatchers.IO) {
-                    FilesContent.setContent(file!!.absolutePath, editor!!.text.toString())
+                    FilesContent.setContent(file!!.getAbsolutePath(), editor!!.text.toString())
                 }
                 updateUndoRedo()
 
@@ -381,7 +387,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }
 
                 try {
-                    val fileName = file!!.name
+                    val fileName = file!!.getName()
                     fun addStar() {
                         val index =
                             MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles.indexOf(file)

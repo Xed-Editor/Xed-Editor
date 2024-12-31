@@ -49,7 +49,8 @@ object KeyEventHandler {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_S -> {
                     currentFragment?.fragment?.getFile()?.let {
-                        to_save_file = it
+                        throw RuntimeException("disabled")
+                        //to_save_file = it
                         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                         MainActivity.activityRef.get()?.let { activity ->
                             startActivityForResult(

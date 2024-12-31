@@ -2,6 +2,7 @@ package com.rk.filetree.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +20,7 @@ import com.rk.filetree.model.Node
 import com.rk.filetree.model.TreeViewModel
 import com.rk.filetree.util.Sorter
 import com.rk.filetree.widget.FileTree
+import java.io.File
 
 class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
@@ -28,7 +30,7 @@ class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 
 class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
     override fun areItemsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
-        return oldItem.value == newItem.value
+        return oldItem.value.getAbsolutePath() == newItem.value.getAbsolutePath()
     }
 
     override fun areContentsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
@@ -66,6 +68,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
                         }
                         notifyItemChanged(adapterPosition)
                     }
+
                     onClickListener?.onClick(clickedNode)
                 }
             }

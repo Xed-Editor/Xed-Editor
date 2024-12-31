@@ -6,6 +6,7 @@ import app.cash.quickjs.QuickJs
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import com.rk.filetree.provider.FileWrapper
 import com.rk.libcommons.LoadingPopup
 import com.rk.scriptingengine.Engine
 import com.rk.scriptingengine.EngineAPI
@@ -86,7 +87,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
             withContext(Dispatchers.Main) {
                 MainActivity.withContext {
                     val fragment =
-                        adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(it) })
+                        adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(FileWrapper(it)) })
                             ?.get()?.fragment
                     if (fragment is EditorFragment) {
                         result = fragment.editor?.text.toString()

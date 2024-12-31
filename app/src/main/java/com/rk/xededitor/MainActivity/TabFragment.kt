@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.rk.filetree.interfaces.FileObject
+import com.rk.libcommons.application
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -26,12 +28,11 @@ class TabFragment : Fragment() {
         when (type) {
             FragmentType.EDITOR -> {
                 arguments?.let {
-                    it.getString(ARG_FILE_PATH)?.let { filePath ->
-                        val file = File(filePath)
+                    it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val editorFragment = EditorFragment(requireContext())
                         editorFragment.onCreate()
                         fragment = editorFragment
-                        editorFragment.loadFile(file)
+                        editorFragment.loadFile(file as FileObject)
                     }
 
                 }
@@ -39,36 +40,33 @@ class TabFragment : Fragment() {
             
             FragmentType.AUDIO -> {
                 arguments?.let {
-                    it.getString(ARG_FILE_PATH)?.let { filePath ->
-                        val file = File(filePath)
+                    it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val mediaFragment = WebFragment(requireContext())
                         mediaFragment.onCreate()
                         fragment = mediaFragment
-                        mediaFragment.loadFile(file)
+                        mediaFragment.loadFile(file as FileObject)
                     }
                 }
             }
             
             FragmentType.IMAGE -> {
                 arguments?.let {
-                    it.getString(ARG_FILE_PATH)?.let { filePath ->
-                        val file = File(filePath)
+                    it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val imageFragment = ImageFragment(requireContext())
                         imageFragment.onCreate()
                         fragment = imageFragment
-                        imageFragment.loadFile(file)
+                        imageFragment.loadFile(file as FileObject)
                     }
                 }
             }
             
             FragmentType.VIDEO -> {
                 arguments?.let {
-                    it.getString(ARG_FILE_PATH)?.let { filePath ->
-                        val file = File(filePath)
+                    it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val videoFragment = VideoFragment(requireContext())
                         videoFragment.onCreate()
                         fragment = videoFragment
-                        videoFragment.loadFile(file)
+                        videoFragment.loadFile(file as FileObject)
                     }
                 }
             }
@@ -93,9 +91,8 @@ class TabFragment : Fragment() {
     
     companion object {
         private const val ARG_FILE_PATH = "file_path"
-        private const val ARG_ON_SAVE_HOOK = "on_save_hook"
         
-        fun newInstance(file: File, type: FragmentType): TabFragment {
+        fun newInstance(file: FileObject, type: FragmentType): TabFragment {
             val fragment = TabFragment()
             val args = Bundle()
             args.putSerializable("type", type)
@@ -103,14 +100,13 @@ class TabFragment : Fragment() {
 
             when (type) {
                 FragmentType.EDITOR -> {
-                    args.putString(ARG_FILE_PATH, file.absolutePath)
+                    args.putSerializable(ARG_FILE_PATH,file)
                 }
                 
                 FragmentType.IMAGE, FragmentType.AUDIO, FragmentType.VIDEO -> {
-                    args.putString(ARG_FILE_PATH, file.absolutePath)
+                    args.putSerializable(ARG_FILE_PATH,file)
                 }
             }
-            
             fragment.arguments = args
             return fragment
         }

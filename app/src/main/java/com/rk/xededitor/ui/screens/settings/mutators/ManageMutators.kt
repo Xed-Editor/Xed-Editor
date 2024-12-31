@@ -38,6 +38,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.rk.filetree.provider.FileWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
@@ -89,7 +90,7 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                                     file.writeText(mut.script)
                                 }
                                 withContext(Dispatchers.Main){
-                                    MainActivity.activityRef.get()?.adapter?.addFragment(file,FragmentType.EDITOR)
+                                    MainActivity.activityRef.get()?.adapter?.addFragment(FileWrapper(file),FragmentType.EDITOR)
                                     rkUtils.toast("Opened in Editor")
                                 }
 

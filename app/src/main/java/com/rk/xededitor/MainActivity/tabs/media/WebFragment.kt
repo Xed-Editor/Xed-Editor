@@ -4,6 +4,8 @@ import android.content.Context
 import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import com.rk.filetree.interfaces.FileObject
+import com.rk.filetree.provider.FileWrapper
 import com.rk.libcommons.CustomScope
 import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
@@ -44,21 +46,22 @@ class WebFragment(val context: Context) : CoreFragment {
         webView.settings.displayZoomControls = false
     }
     
-    override fun loadFile(file: File) {
-        this.file = file
+    override fun loadFile(file: FileObject) {
+        file as FileWrapper
+        this.file = file.file
         scope.launch(Dispatchers.IO) {
-            httpServer = HttpServer(port, file.parentFile!!)
+            httpServer = HttpServer(port, file.file.parentFile)
             withContext(Dispatchers.Main){
                 webView.loadUrl("http://localhost:$port/${
                     withContext(Dispatchers.IO) {
-                        URLEncoder.encode(file.name, "UTF-8")
+                        URLEncoder.encode(file.getName(), "UTF-8")
                     }
                 }")
             }
         }
     }
     
-    override fun getFile(): File? {
-        return file
+    override fun getFile(): FileObject? {
+        return file?.let { FileWrapper(it) }
     }
 }

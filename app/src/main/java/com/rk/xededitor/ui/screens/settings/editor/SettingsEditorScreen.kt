@@ -81,7 +81,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                         if (f.value.get()?.fragment is EditorFragment) {
                             (f.value.get()?.fragment as EditorFragment).apply {
-                                if (file?.name?.endsWith(".txt") == true) {
+                                if (file?.getName()?.endsWith(".txt") == true) {
                                     if (editor?.isWordwrap!!.not()) {
                                         editor?.isWordwrap = it
                                     }

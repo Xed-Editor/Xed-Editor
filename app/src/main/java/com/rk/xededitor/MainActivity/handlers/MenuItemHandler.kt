@@ -78,7 +78,7 @@ object MenuItemHandler {
             
             if (hasFiles && isEditor) {
                 (currentFragment as EditorFragment).file?.let { file ->
-                    menu.findItem(Id.run).isVisible = Runner.isRunnable(file)
+                    //menu.findItem(Id.run).isVisible = Runner.isRunnable(file)
                 }
             } else {
                 menu.findItem(Id.run).isVisible = false
@@ -106,22 +106,22 @@ object MenuItemHandler {
                 menu.findItem(Id.git).isVisible = false
             }
         }
-        withContext(Dispatchers.IO) {
-            val gitRoot = editorFragment?.file?.let { findGitRoot(it) }
-            if (gitRoot != null){
-                GitClient.getCurrentBranch(activity,gitRoot, onResult = { branch,err ->
-                    rkUtils.runOnUiThread{
-                        menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)?.apply {
-                            title = "Branch : ${branch ?: "error"}"
-                        }
-                    }
-                })
-            }
-
-            withContext(Dispatchers.Main) {
-                menu.findItem(Id.git).isVisible = gitRoot != null && activity.tabLayout!!.tabCount > 0
-            }
-        }
+//        withContext(Dispatchers.IO) {
+//            val gitRoot = editorFragment?.file?.let { findGitRoot(it) }
+//            if (gitRoot != null){
+//                GitClient.getCurrentBranch(activity,gitRoot, onResult = { branch,err ->
+//                    rkUtils.runOnUiThread{
+//                        menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)?.apply {
+//                            title = "Branch : ${branch ?: "error"}"
+//                        }
+//                    }
+//                })
+//            }
+//
+//            withContext(Dispatchers.Main) {
+//                menu.findItem(Id.git).isVisible = gitRoot != null && activity.tabLayout!!.tabCount > 0
+//            }
+//        }
     }
     
     private fun updateUndoRedoAndModifiedStar(menu: Menu, currentFragment: TabFragment, activity: MainActivity) {

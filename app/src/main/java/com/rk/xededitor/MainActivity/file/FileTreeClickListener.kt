@@ -5,6 +5,7 @@ import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.interfaces.FileObject
 import com.rk.filetree.model.Node
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
@@ -26,8 +27,8 @@ val fileClickListener =
                 if (it.isPaused) {
                     return@let
                 }
-                val file = File(node.value.getAbsolutePath())
-                
+                val file = node.value
+
                 it.adapter!!.addFragment(file)
                 if (
                     !PreferencesData.getBoolean(

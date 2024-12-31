@@ -58,19 +58,20 @@ object MenuClickHandler {
         when (id) {
             Id.saveAs -> {
                 editorFragment?.file?.let {
-                    activity.fileManager?.saveAsFile(it)
+                    throw RuntimeException("disabled")
+                    //activity.fileManager?.saveAsFile(it)
                 }
                 return true
             }
 
             Id.run -> {
-                GlobalScope.launch {
-                    editorFragment?.file?.let { it1 ->
-                        Runner.run(
-                            it1, activity
-                        )
-                    }
-                }
+//                GlobalScope.launch {
+//                    editorFragment?.file?.let { it1 ->
+//                        Runner.run(
+//                            it1, activity
+//                        )
+//                    }
+//                }
                 return true
             }
 
@@ -184,24 +185,25 @@ object MenuClickHandler {
             }
 
             Id.share -> {
+                throw RuntimeException("disabled")
                 runCatching {
-                    if (editorFragment!!.file!!.absolutePath.contains(activity.filesDir!!.parentFile!!.absolutePath)) {
-                        rkUtils.toast(strings.permission_denied.getString())
-                        return true
-                    }
-
-                    val fileUri = FileProvider.getUriForFile(
-                        activity, "${activity.packageName}.fileprovider", editorFragment.file!!
-                    )
-
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = activity.contentResolver.getType(fileUri) ?: "*/*"
-                        setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
-                        putExtra(Intent.EXTRA_STREAM, fileUri)
-                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    }
-
-                    activity.startActivity(Intent.createChooser(intent, "Share file"))
+//                    if (editorFragment!!.file!!.getAbsolutePath().contains(activity.filesDir!!.parentFile!!.absolutePath)) {
+//                        rkUtils.toast(strings.permission_denied.getString())
+//                        return true
+//                    }
+//
+//                    val fileUri = FileProvider.getUriForFile(
+//                        activity, "${activity.packageName}.fileprovider", editorFragment.file!!
+//                    )
+//
+//                    val intent = Intent(Intent.ACTION_SEND).apply {
+//                        type = activity.contentResolver.getType(fileUri) ?: "*/*"
+//                        setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
+//                        putExtra(Intent.EXTRA_STREAM, fileUri)
+//                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+//                    }
+//
+//                    activity.startActivity(Intent.createChooser(intent, "Share file"))
 
                     return true
                 }.onFailure {
@@ -230,33 +232,33 @@ object MenuClickHandler {
             }
 
             Id.action_pull -> {
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment) {
-                        it.file?.let { it1 -> pull(activity, it1) }
-                    }else{
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
+//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+//                    if (it is EditorFragment) {
+//                        it.file?.let { it1 -> pull(activity, it1) }
+//                    }else{
+//                        throw RuntimeException("wtf just happened?")
+//                    }
+//                }
             }
 
             Id.action_push -> {
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment) {
-                        it.file?.let { it1 -> push(activity, it1) }
-                    }else{
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
+//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+//                    if (it is EditorFragment) {
+//                        it.file?.let { it1 -> push(activity, it1) }
+//                    }else{
+//                        throw RuntimeException("wtf just happened?")
+//                    }
+//                }
             }
 
             Id.action_commit -> {
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment) {
-                        it.file?.let { it1 -> commit(activity, it1) }
-                    }else{
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
+//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+//                    if (it is EditorFragment) {
+//                        it.file?.let { it1 -> commit(activity, it1) }
+//                    }else{
+//                        throw RuntimeException("wtf just happened?")
+//                    }
+//                }
             }
 
             Id.action_branch -> {
@@ -288,43 +290,43 @@ object MenuClickHandler {
                 }
 
 
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment) {
-                        DefaultScope.launch(Dispatchers.IO) {
-
-                            it.file?.let { it1 ->
-                                findGitRoot(it1)?.let { root ->
-                                    GitClient.getAllBranches(activity,
-                                        root, onResult = { branches, eror ->
-                                            GitClient.getCurrentBranchFull(activity,root, onResult = {branch,erorr ->
-                                                runOnUiThread{
-                                                    if (branches != null) {
-                                                        if (branch != null) {
-                                                            showRadioButtonDialog(
-                                                                activity,
-                                                                title = "Branches",
-                                                                items = branches,
-                                                                defaultSelection = branch,
-                                                                onItemSelected = { selectedBranch ->
-                                                                    DefaultScope.launch(Dispatchers.IO){
-                                                                        GitClient.setBranch(activity,root,selectedBranch,{})
-                                                                    }
-                                                                },
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            })
-
-                                        })
-                                }
-                            }
-                        }
-
-                    }else{
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
+//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+//                    if (it is EditorFragment) {
+//                        DefaultScope.launch(Dispatchers.IO) {
+//
+//                            it.file?.let { it1 ->
+//                                findGitRoot(it1)?.let { root ->
+//                                    GitClient.getAllBranches(activity,
+//                                        root, onResult = { branches, eror ->
+//                                            GitClient.getCurrentBranchFull(activity,root, onResult = {branch,erorr ->
+//                                                runOnUiThread{
+//                                                    if (branches != null) {
+//                                                        if (branch != null) {
+//                                                            showRadioButtonDialog(
+//                                                                activity,
+//                                                                title = "Branches",
+//                                                                items = branches,
+//                                                                defaultSelection = branch,
+//                                                                onItemSelected = { selectedBranch ->
+//                                                                    DefaultScope.launch(Dispatchers.IO){
+//                                                                        GitClient.setBranch(activity,root,selectedBranch,{})
+//                                                                    }
+//                                                                },
+//                                                            )
+//                                                        }
+//                                                    }
+//                                                }
+//                                            })
+//
+//                                        })
+//                                }
+//                            }
+//                        }
+//
+//                    }else{
+//                        throw RuntimeException("wtf just happened?")
+//                    }
+//                }
 
 
 

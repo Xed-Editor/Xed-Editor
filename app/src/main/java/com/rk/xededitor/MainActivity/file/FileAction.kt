@@ -347,15 +347,15 @@ class FileAction(
                                 targetPath.toFile()
                             )
 
-                            // Update file references in editor
-                            MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
-                                if (f.get()?.type == FragmentType.EDITOR) {
-                                    val editorFragment = f.get()!!.fragment as EditorFragment
-                                    if (editorFragment.file?.absolutePath == file.absolutePath) {
-                                        editorFragment.file = targetPath.toFile()
-                                    }
-                                }
-                            }
+//                            // Update file references in editor
+//                            MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
+//                                if (f.get()?.type == FragmentType.EDITOR) {
+//                                    val editorFragment = f.get()!!.fragment as EditorFragment
+//                                    if (editorFragment.file?.getAbsolutePath() == file.absolutePath) {
+//                                        editorFragment.file = targetPath.toFile()
+//                                    }
+//                                }
+//                            }
                         }
                     } catch (e: Exception) {
                         withContext(Dispatchers.Main) {

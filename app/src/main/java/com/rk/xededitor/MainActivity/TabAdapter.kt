@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
+import com.rk.filetree.interfaces.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
@@ -20,16 +21,16 @@ import java.io.File
 import java.io.Serializable
 import java.lang.ref.WeakReference
 
-class Kee(val file: File) {
+class Kee(val file: FileObject) {
     override fun equals(other: Any?): Boolean {
         if (other !is Kee) {
             return false
         }
-        return other.file.absolutePath == file.absolutePath
+        return other.file.getAbsolutePath() == file.getAbsolutePath()
     }
     
     override fun hashCode(): Int {
-        return file.absolutePath.hashCode()
+        return file.getAbsolutePath().hashCode()
     }
 }
 
@@ -126,10 +127,10 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 
                 fun close() {
                     tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
-                    tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].absolutePath)
+                    tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].getAbsolutePath())
                     
                     synchronized(EditorFragment.fileset) {
-                        EditorFragment.fileset.remove(tabViewModel.fragmentFiles[position].name)
+                        EditorFragment.fileset.remove(tabViewModel.fragmentFiles[position].getName())
                     }
                     
                     tabViewModel.fragmentFiles.removeAt(position)
@@ -206,7 +207,8 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
     }
     
-    fun addFragment(file: File, fragmentType: FragmentType? = null) {
+    fun addFragment(file: FileObject, fragmentType: FragmentType? = null) {
+
         val type = fragmentType ?: file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
             rkUtils.toast(rkUtils.getString(strings.file_too_large))
@@ -214,7 +216,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
         
         with(mainActivity) {
-            if (tabViewModel.fileSet.contains(file.absolutePath)) {
+            if (tabViewModel.fileSet.contains(file.getAbsolutePath())) {
                 kotlin.runCatching {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout!!.selectedTabPosition == 0) {
@@ -242,13 +244,13 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 )
                 return
             }
-            tabViewModel.fileSet.add(file.absolutePath)
+            tabViewModel.fileSet.add(file.getAbsolutePath())
             tabViewModel.fragmentFiles.add(file)
 
-            if(tabViewModel.fragmentTitles.contains(file.name)){
-                tabViewModel.fragmentTitles.add(file.parentFile!!.name+"/"+file.name)
+            if(tabViewModel.fragmentTitles.contains(file.getName())){
+                tabViewModel.fragmentTitles.add(file.getParentFile()!!.getName()+"/"+file.getName())
             }else{
-                tabViewModel.fragmentTitles.add(file.name)
+                tabViewModel.fragmentTitles.add(file.getName())
             }
 
             tabViewModel.fragmentTypes.add(type)

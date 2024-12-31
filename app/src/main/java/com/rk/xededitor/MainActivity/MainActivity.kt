@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.filetree.interfaces.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.resources.drawables
@@ -66,7 +67,7 @@ class MainActivity : BaseActivity() {
 
 
     class TabViewModel : ViewModel() {
-        val fragmentFiles = mutableListOf<File>()
+        val fragmentFiles = mutableListOf<FileObject>()
         val fragmentTypes = mutableListOf<FragmentType>()
         val fragmentTitles = mutableListOf<String>()
         val fileSet = HashSet<String>()
