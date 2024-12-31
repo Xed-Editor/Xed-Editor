@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">يفتح</string>
+    <string name="open_drawer">فتح</string>
     <string name="close_drawer">اغلاق</string>
     <string name="title_activity_batch_replacement">استبدال الدفعة</string>
     <string name="ni">هذه الميزة غير منجزة</string>
     <string name="unsupported_contnt">محتوى غير مدعوم</string>
     <string name="null_contnt">خطأ: المحتوى فارغ</string>
-    <string name="restart_required">يرجى إعادة التشغيل</string>
+    <string name="restart_required">إعاد تشغيل مطلوبة</string>
     <string name="save">تم حفظ الملف</string>
     <string name="saveAll">تم حفظ جميع الملفات</string>
     <string name="save_label">حفظ</string>
-    <string name="ww_wait">يرجى الانتظار حتى يكتمل الوردوراب</string>
+    <string name="ww_wait">يرجى الانتظار حتى يكتمل إلتفاف الكلمة</string>
     <string name="open_file_or_folder">فتح الملف أو المجلد</string>
     <string name="open_file">فتح ملف</string>
     <string name="open_directory">فتح مسار</string>
@@ -43,20 +43,20 @@
     <string name="save_as">حفظ ك</string>
     <string name="paste">لصق</string>
     <string name="delete">حذف</string>
-    <string name="close_this">اغلاق هذا</string>
-    <string name="close_others">اغلاق الآخرين</string>
-    <string name="close_all">اغلاق الكل</string>
+    <string name="close_this">إغلاق هذا</string>
+    <string name="close_others">إغلاق الآخرين</string>
+    <string name="close_all">إغلاق الكل</string>
     <string name="insertdate">إدخال التاريخ</string>
-    <string name="close">اغلاق</string>
+    <string name="close">إغلاق</string>
     <string name="unsaved">الملفات الغير محفوظة</string>
     <string name="unsavedfiles">لديك ملفات غير محفوظة!</string>
     <string name="cancel">إلغاء</string>
-    <string name="saveexit">حفظ و خروج</string>
+    <string name="saveexit">حفظ وخروج</string>
     <string name="exit">خروج</string>
     <string name="rr">إعادة التشغيل مطلوبة</string>
     <string name="rapply">يرجى إعادة التشغيل لتطبيق الإعدادات</string>
     <string name="oled">ثيم الليل الأسود</string>
-    <string name="ww">ورد وراب</string>
+    <string name="ww">ألتفاف النص</string>
     <string name="keepdl">بقاء الدرج مغلقا</string>
     <string name="restart">إعادة تشغيل</string>
     <string name="plugin">الإضافات</string>
@@ -140,7 +140,7 @@
     <string name="manage_storage_reason">يحتاج Karbon إلى الوصول لتحرير الملفات الموجودة في مساحة التخزين الخاصة بك. يرجى السماح بالوصول في إعداد النظام القادم.</string>
     <string name="ok">حسنا</string>
     <string name="data_clear">يتم حذف بيانات التطبيق</string>
-    <string name="action_done">اكتمال الإجراء</string>
+    <string name="action_done">اكتمل الإجراء</string>
     <string name="clone_repo">نسخ مستودع</string>
     <string name="exists">موجودة بالفعل!</string>
     <string name="plugin_dir">مسار الإضافات</string>
@@ -179,8 +179,8 @@
     <string name="drawer_lock_desc">بقاء الدرج مغلقًا عند فتح الملف</string>
     <string name="diagonal_scroll">التمرير القطري</string>
     <string name="diagonal_scroll_desc">تمكين التمرير القطري في شجرة الملفات</string>
-    <string name="cursor_anim">الانيمشين للمؤشر</string>
-    <string name="cursor_anim_desc">تمكين الانيمشن السلسة للمؤشر</string>
+    <string name="cursor_anim">الرسوم المتحركة للمؤشر</string>
+    <string name="cursor_anim_desc">تمكين الرسوم المتحركة السلسة للمؤشر</string>
     <string name="show_line_number">إظهار أرقام الأسطر</string>
     <string name="pin_line_number">تثبيت أرقام الأسطر</string>
     <string name="extra_keys">مفاتيح اضافية</string>
@@ -197,7 +197,7 @@
     <string name="text_size_desc">ضبط حجم النص</string>
     <string name="tab_size">حجم علامة التبويب</string>
     <string name="tab_size_desc">ضبط حجم علامة التبويب</string>
-    <string name="monet">الألوان الديناميكية</string>
+    <string name="monet">الألوان التلقائية</string>
     <string name="monet_desc">استخدم سمة الجهاز في التطبيق.</string>
     <string name="restart_app">الرجاء إعادة تشغيل التطبيق.</string>
     <string name="old_android">نسخة أندرويد غير مدعومة</string>
@@ -255,8 +255,8 @@
     <string name="about_desc">حول كربون</string>
     <string name="version">الإصدار</string>
     <string name="version_code">رمز الإصدار</string>
-    <string name="github">جيتهب</string>
-    <string name="github_desc">ضع نجمة في الجيتهب🤩</string>
+    <string name="github">github</string>
+    <string name="github_desc">ضع نجمة في github🤩</string>
     <string name="telegram">مجموعة التلجرام</string>
     <string name="telegram_desc">انضم إلى مجتمع تلجرام</string>
     <string name="join">انضمام</string>
@@ -306,7 +306,7 @@
     <string name="update">تحديث</string>
     <string name="ignore">تجاهل</string>
     <string name="update_disable">تم اغلاق تفقد التحديثات</string>
-    <string name="launch_termux">فتح ترمكس؟</string>
+    <string name="launch_termux">فتح termux؟</string>
     <string name="launch_termux_explanation">تم ايقاف ترمكس وبالتالي لن يتمكن كربون من تشغيل الأوامر فيه. هل ترغب في تشغيله؟</string>
     <string name="launch">تشغيل</string>
 </resources>
