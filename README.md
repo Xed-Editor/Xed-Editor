@@ -31,6 +31,7 @@
   - [x] Run Python, Node.js, etc.
 
 
+<br><br>
 
 ## Community
 > [!TIP]
@@ -58,13 +59,14 @@ Join the Karbon community to stay updated and engage with other users:
 Release builds on F-Droid Izzy and GitHub releases can become outdated quickly. Please use the action builds if the release is older than a few weeks.
 
 - **Latest Alpha Build**: Download from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
+<br>
 - **Latest Stable Build**: Download from [Releases](https://github.com/Xed-Editor/Xed-Editor/releases)
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.rk.xededitor)
 [<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png?ref_type=heads" alt="Get it on IzzyOnDroid" height="80">](https://apt.izzysoft.de/fdroid/index/apk/com.rk.xededitor)
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Xed-Editor/Xed-Editor/releases/latest)
 
-
+<br><br>
 ## Screenshots
 
 <div>
