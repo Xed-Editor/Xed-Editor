@@ -69,6 +69,7 @@ Release builds on F-Droid Izzy and GitHub releases can become outdated quickly. 
 [<img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/Xed-Editor/Xed-Editor/releases/latest)
 
 <br>
+
 ## Screenshots
 
 <div>
