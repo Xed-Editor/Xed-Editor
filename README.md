@@ -30,10 +30,14 @@
   - [x] Termux Interoperability
   - [x] Run Python, Node.js, etc.
 
+
+
 ## Community
 > [!TIP]
 Join the Karbon community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
+
+<br><br>
 
 ## Installation
 
