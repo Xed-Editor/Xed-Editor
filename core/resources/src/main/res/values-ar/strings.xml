@@ -168,7 +168,7 @@
     <string name="download_done">تم التنزيل بنجاح.</string>
     <string name="plugin_download_failed">غير قادر على تحميل الإضافة</string>
     <string name="fetch_failed">تم إرجاع طلب الجلب فارغًا</string>
-    <string name="app">طلب</string>
+    <string name="app">تطبيق</string>
     <string name="oled_desc">سمة سوداء نقية لأجهزة الأمولد</string>
     <string name="themes">السمات</string>
     <string name="change_theme">تغيير السمة</string>
