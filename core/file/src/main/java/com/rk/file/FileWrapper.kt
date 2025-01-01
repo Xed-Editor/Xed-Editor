@@ -9,10 +9,9 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
-import java.nio.file.Files
 import java.util.Locale
 
-class FileWrapper(val file: File) : FileObject {
+class FileWrapper(var file: File) : FileObject {
     override fun listFiles(): List<FileObject> {
         val list = file.listFiles()
         if (list.isNullOrEmpty()) {
@@ -74,7 +73,11 @@ class FileWrapper(val file: File) : FileObject {
     }
 
     override fun delete(): Boolean {
-        return file.delete()
+        return if (isDirectory()) {
+            file.deleteRecursively()
+        } else {
+            file.delete()
+        }
     }
 
     override fun toUri(): Uri {
@@ -93,21 +96,22 @@ class FileWrapper(val file: File) : FileObject {
     }
 
     override fun renameTo(string: String): Boolean {
-       return file.renameTo(File(file.parentFile,string))
+        val newFile = File(file.parentFile, string)
+        return file.renameTo(newFile).also { this.file = newFile }
     }
 
     override fun hasChild(name: String): Boolean {
-        return File(file,name).exists()
+        return File(file, name).exists()
     }
 
-    override fun createChild(createFile: Boolean, name: String):FileObject? {
-        if (createFile){
-            File(file,name).apply {
+    override fun createChild(createFile: Boolean, name: String): FileObject? {
+        if (createFile) {
+            File(file, name).apply {
                 createNewFile()
                 return FileWrapper(this)
             }
-        }else{
-            File(file,name).apply {
+        } else {
+            File(file, name).apply {
                 mkdir()
                 return FileWrapper(this)
             }

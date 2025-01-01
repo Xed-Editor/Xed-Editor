@@ -150,7 +150,18 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
     }
 
     override fun delete(): Boolean {
-        return file.delete()
+        fun deleteFolder(documentFile: DocumentFile): Boolean {
+            if (!documentFile.isDirectory) {
+                return documentFile.delete()
+            }
+            documentFile.listFiles().forEach { child ->
+                deleteFolder(child)
+            }
+            return documentFile.delete()
+        }
+
+
+        return deleteFolder(file)
     }
 
     override fun toUri(): Uri {

@@ -34,9 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 
-const val REQUEST_ADD_FILE = 38758
-const val REQUEST_CODE_OPEN_DIRECTORY = 8359487
-
 class FileAction(
     private val mainActivity: MainActivity,
     private val rootFolder: FileObject,
@@ -99,13 +96,13 @@ class FileAction(
                                 mainActivity, file
                             )
                             mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                                try {
-                                    file.delete()
-                                    withContext(Dispatchers.Main) { loading.hide() }
-                                } catch (e: Exception) {
+                                runCatching {
+                                    val success = file.delete()
                                     withContext(Dispatchers.Main) {
                                         loading.hide()
-                                        rkUtils.toast("${getString(strings.failed_move)}: ${e.message}")
+                                        if (success.not()) {
+                                            rkUtils.toast("Failed to delete file")
+                                        }
                                     }
                                 }
                             }
@@ -175,32 +172,38 @@ class FileAction(
 
                         mainActivity.lifecycleScope.launch(Dispatchers.IO) {
                             if (!FileClipboard.isEmpty()) {
-                                val sourceFile = FileClipboard.getFile()
-                                if (file.isDirectory() && sourceFile != null) {
-
+                                val source = FileClipboard.getFile()
+                                if (file.isDirectory() && source != null) {
                                     runCatching {
-                                        val sourceUri = sourceFile.toUri()
 
-                                        if (!sourceFile.isFile() || !file.isDirectory()) {
-                                            throw IllegalArgumentException("Invalid source or target")
-                                        }
-
-                                        if (!file.canWrite()) {
-                                            throw IllegalStateException("Target directory is not writable")
-                                        }
-
-                                        val newFile = file.createChild(
-                                            createFile = true, sourceFile.getName()
-                                        )!!
-
-                                        context.contentResolver.openInputStream(sourceUri)
-                                            .use { inputStream ->
-                                                context.contentResolver.openOutputStream(newFile.toUri())
-                                                    ?.use { outputStream ->
-                                                        copyStream(inputStream, outputStream)
-                                                    }
+                                        fun copy(sourceFile: FileObject, targetFolder: FileObject) {
+                                            if (!targetFolder.canWrite()) {
+                                                throw IllegalStateException("Target directory is not writable")
                                             }
 
+                                            if (sourceFile.isDirectory()) {
+                                                sourceFile.listFiles().forEach { sourceFileChild ->
+                                                    copy(
+                                                        sourceFileChild, targetFolder.createChild(
+                                                            false, sourceFile.getName()
+                                                        )!!
+                                                    )
+                                                }
+                                            } else {
+                                                context.contentResolver.openInputStream(sourceFile.toUri())
+                                                    .use { inputStream ->
+                                                        context.contentResolver.openOutputStream(
+                                                            targetFolder.createChild(
+                                                                true, sourceFile.getName()
+                                                            )!!.toUri()
+                                                        )?.use { outputStream ->
+                                                            copyStream(inputStream, outputStream)
+                                                        }
+                                                    }
+                                            }
+                                        }
+
+                                        copy(source, file)
                                     }.onFailure {
                                         it.printStackTrace()
                                         withContext(Dispatchers.Main) {
@@ -208,7 +211,7 @@ class FileAction(
                                             loading.hide()
                                         }
                                     }
-                                    
+
                                     withContext(Dispatchers.Main) {
                                         loading.hide()
                                     }
@@ -228,13 +231,7 @@ class FileAction(
                     getDrawable(drawables.save),
                 ) {
                     to_save_file = file
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                    startActivityForResult(
-                        mainActivity,
-                        intent,
-                        REQUEST_CODE_OPEN_DIRECTORY,
-                        null,
-                    )
+                    MainActivity.activityRef?.get()?.fileManager?.requestOpenDirectoryToSaveFile()
                 }
             }
 
@@ -327,7 +324,11 @@ class FileAction(
                             return@launch
                         }
 
-                        file.renameTo(newFileName)
+                        val success = file.renameTo(newFileName)
+
+                        if (success.not()) {
+                            throw IllegalStateException("Unable to rename file")
+                        }
 
                         withContext(Dispatchers.Main) {
                             ProjectManager.currentProject.updateFileRenamed(

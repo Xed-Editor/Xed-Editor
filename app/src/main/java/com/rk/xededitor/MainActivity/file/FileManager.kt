@@ -18,6 +18,7 @@ import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
@@ -117,6 +118,23 @@ class FileManager(private val mainActivity: MainActivity) {
             }
         }
 
+
+    private var requestToSaveFile =
+        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK && to_save_file != null) {
+                val sourceUri = to_save_file!!.toUri()
+
+                mainActivity.contentResolver.openInputStream(sourceUri)
+                    .use { inputStream ->
+                        mainActivity.contentResolver.openOutputStream(
+                            it.data!!.data!!
+                        )?.use { outputStream ->
+                            copyStream(inputStream, outputStream)
+                        }
+                    }
+            }
+        }
+
     val createFileLauncher =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -134,18 +152,18 @@ class FileManager(private val mainActivity: MainActivity) {
         }
 
 
-    private var toSaveAsFile: File? = null
+    private var toSaveAsFile: FileObject? = null
 
     private val directoryPickerLauncher =
         mainActivity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
             runCatching {
                 uri?.let { selectedUri ->
                     val documentFile = DocumentFile.fromTreeUri(mainActivity, selectedUri)
-                    val newFile = documentFile?.createFile("*/*", toSaveAsFile?.name ?: "new_file")
+                    val newFile = documentFile?.createFile("*/*", toSaveAsFile?.getName() ?: "new_file")
 
                     newFile?.uri?.let { newUri ->
                         mainActivity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
-                            toSaveAsFile?.inputStream()?.use { inputStream ->
+                            toSaveAsFile?.getInputStream()?.use { inputStream ->
                                 inputStream.copyTo(outputStream)
                             }
                         }
@@ -156,7 +174,7 @@ class FileManager(private val mainActivity: MainActivity) {
             }
         }
 
-    fun saveAsFile(file: File) {
+    fun saveAsFile(file: FileObject) {
         toSaveAsFile = file
         directoryPickerLauncher.launch(null)
     }
@@ -172,6 +190,10 @@ class FileManager(private val mainActivity: MainActivity) {
 
     fun requestOpenDirectory() {
         requestOpenDir.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+    }
+
+    fun requestOpenDirectoryToSaveFile() {
+        requestToSaveFile.launch(Intent(Intent.ACTION_CREATE_DOCUMENT))
     }
 
     fun requestOpenFromPath() {

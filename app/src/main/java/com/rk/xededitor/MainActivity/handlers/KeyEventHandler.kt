@@ -9,7 +9,6 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
-import com.rk.xededitor.MainActivity.file.REQUEST_CODE_OPEN_DIRECTORY
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.event.KeyBindingEvent
@@ -49,17 +48,8 @@ object KeyEventHandler {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_S -> {
                     currentFragment?.fragment?.getFile()?.let {
-                        throw RuntimeException("disabled")
-                        //to_save_file = it
-                        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-                        MainActivity.activityRef.get()?.let { activity ->
-                            startActivityForResult(
-                                activity,
-                                intent,
-                                REQUEST_CODE_OPEN_DIRECTORY,
-                                null,
-                            )
-                        }
+                        to_save_file = it
+                        MainActivity.activityRef?.get()?.fileManager?.requestOpenDirectoryToSaveFile()
                     }
                 }
             }

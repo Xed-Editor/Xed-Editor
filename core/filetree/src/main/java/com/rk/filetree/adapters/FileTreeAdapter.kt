@@ -26,18 +26,18 @@ class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val textView: TextView = v.findViewById(R.id.text_view)
 }
 
-class NodeDiffCallback : DiffUtil.ItemCallback<Node<com.rk.file.FileObject>>() {
-    override fun areItemsTheSame(oldItem: Node<com.rk.file.FileObject>, newItem: Node<com.rk.file.FileObject>): Boolean {
+class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
+    override fun areItemsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
         return oldItem.value.getAbsolutePath() == newItem.value.getAbsolutePath()
     }
 
-    override fun areContentsTheSame(oldItem: Node<com.rk.file.FileObject>, newItem: Node<com.rk.file.FileObject>): Boolean {
+    override fun areContentsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
         return areItemsTheSame(oldItem, newItem)
     }
 }
 
 class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
-    ListAdapter<Node<com.rk.file.FileObject>, ViewHolder>(NodeDiffCallback()) {
+    ListAdapter<Node<FileObject>, ViewHolder>(NodeDiffCallback()) {
 
     var onClickListener: FileClickListener? = null
     var onLongClickListener: FileLongClickListener? = null
@@ -88,11 +88,11 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
     //parent file
-    fun newFile(file: com.rk.file.FileObject) {
+    fun newFile(file: FileObject) {
 
         val tempData = currentList.toMutableList()
 
-        var xnode: Node<com.rk.file.FileObject>? = null
+        var xnode: Node<FileObject>? = null
         for (node in tempData) {
             if (node.value == file) {
                 xnode = node
@@ -117,9 +117,9 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         submitList(tempData)
     }
 
-    fun removeFile(file: com.rk.file.FileObject) {
+    fun removeFile(file: FileObject) {
         val tempData = currentList.toMutableList()
-        var nodetoremove: Node<com.rk.file.FileObject>? = null
+        var nodetoremove: Node<FileObject>? = null
 
         for (node in tempData) {
             if (node.value == file) {
@@ -150,7 +150,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
     }
 
-    fun renameFile(child: com.rk.file.FileObject, newFile: com.rk.file.FileObject) {
+    fun renameFile(child: FileObject, newFile: FileObject) {
         val tempData = currentList.toMutableList()
         for (node in tempData) {
             if (node.value == child) {
@@ -206,7 +206,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         holder.textView.text = " ${node.value.getName()}              "
     }
 
-    fun expandNode(clickedNode: Node<com.rk.file.FileObject>) {
+    fun expandNode(clickedNode: Node<FileObject>) {
         val tempData = currentList.toMutableList()
         val index = tempData.indexOf(clickedNode)
         val children = Sorter.sort(clickedNode.value)
@@ -216,7 +216,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         submitList(tempData)
     }
 
-    private fun collapseNode(clickedNode: Node<com.rk.file.FileObject>) {
+    private fun collapseNode(clickedNode: Node<FileObject>) {
         val tempData = currentList.toMutableList()
         val children = TreeViewModel.getChildren(clickedNode)
         tempData.removeAll(children.toSet())

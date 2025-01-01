@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.file.FileWrapper
 import com.rk.karbon_exec.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
@@ -58,20 +59,22 @@ object MenuClickHandler {
         when (id) {
             Id.saveAs -> {
                 editorFragment?.file?.let {
-                    throw RuntimeException("disabled")
-                    //activity.fileManager?.saveAsFile(it)
+                    activity.fileManager?.saveAsFile(it)
                 }
                 return true
             }
 
             Id.run -> {
-//                GlobalScope.launch {
-//                    editorFragment?.file?.let { it1 ->
-//                        Runner.run(
-//                            it1, activity
-//                        )
-//                    }
-//                }
+                editorFragment?.file?.let { fileObject ->
+                    if (fileObject is FileWrapper){
+                        DefaultScope.launch {
+                            Runner.run(
+                                fileObject.file, activity
+                            )
+                        }
+                    }
+                }
+
                 return true
             }
 
@@ -185,26 +188,28 @@ object MenuClickHandler {
             }
 
             Id.share -> {
-                throw RuntimeException("disabled")
                 runCatching {
-//                    if (editorFragment!!.file!!.getAbsolutePath().contains(activity.filesDir!!.parentFile!!.absolutePath)) {
-//                        rkUtils.toast(strings.permission_denied.getString())
-//                        return true
-//                    }
-//
-//                    val fileUri = FileProvider.getUriForFile(
-//                        activity, "${activity.packageName}.fileprovider", editorFragment.file!!
-//                    )
-//
-//                    val intent = Intent(Intent.ACTION_SEND).apply {
-//                        type = activity.contentResolver.getType(fileUri) ?: "*/*"
-//                        setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
-//                        putExtra(Intent.EXTRA_STREAM, fileUri)
-//                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-//                    }
-//
-//                    activity.startActivity(Intent.createChooser(intent, "Share file"))
+                    if (editorFragment!!.file!!.getAbsolutePath().contains(activity.filesDir!!.parentFile!!.absolutePath)){
+                        rkUtils.toast(strings.permission_denied.getString())
+                        return true
+                    }
 
+                    val fileUri = if (editorFragment!!.file!! is FileWrapper){
+                        FileProvider.getUriForFile(
+                        activity, "${activity.packageName}.fileprovider", (editorFragment.file!! as FileWrapper).file
+                    )
+                    }else{
+                        editorFragment.file!!.toUri()
+                    }
+
+                    val intent = Intent(Intent.ACTION_SEND).apply {
+                        type = activity.contentResolver.getType(fileUri) ?: "*/*"
+                        setDataAndType(fileUri, activity.contentResolver.getType(fileUri) ?: "*/*")
+                        putExtra(Intent.EXTRA_STREAM, fileUri)
+                        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    }
+
+                    activity.startActivity(Intent.createChooser(intent, "Share file"))
                     return true
                 }.onFailure {
                     rkUtils.toast(it.message)
