@@ -179,7 +179,7 @@
     <string name="drawer_lock_desc">بقاء الدرج مغلقًا عند فتح الملف</string>
     <string name="diagonal_scroll">التمرير القطري</string>
     <string name="diagonal_scroll_desc">تمكين التمرير القطري في شجرة الملفات</string>
-    <string name="cursor_anim">الانيمشين للمؤشر</string>
+    <string name="cursor_anim">التحريك للمؤشر</string>
     <string name="cursor_anim_desc">تمكين التحريك السلس للمؤشر</string>
     <string name="show_line_number">إظهار أرقام الأسطر</string>
     <string name="pin_line_number">تثبيت أرقام الأسطر</string>
