@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">يفتح</string>
-    <string name="close_drawer">اغلاق</string>
+    <string name="open_drawer">فتح</string>
+    <string name="close_drawer">إغلاق</string>
     <string name="title_activity_batch_replacement">استبدال الدفعة</string>
     <string name="ni">هذه الميزة غير منجزة</string>
     <string name="unsupported_contnt">محتوى غير مدعوم</string>
     <string name="null_contnt">خطأ: المحتوى فارغ</string>
-    <string name="restart_required">يرجى إعادة التشغيل</string>
+    <string name="restart_required"> إعادة التشغيل مطلوبة</string>
     <string name="save">تم حفظ الملف</string>
     <string name="saveAll">تم حفظ جميع الملفات</string>
     <string name="save_label">حفظ</string>
-    <string name="ww_wait">يرجى الانتظار حتى يكتمل الوردوراب</string>
+    <string name="ww_wait">يرجى الانتظار حتى يكتمل ألتفاف النص</string>
     <string name="open_file_or_folder">فتح الملف أو المجلد</string>
     <string name="open_file">فتح ملف</string>
     <string name="open_directory">فتح مسار</string>
@@ -43,27 +43,27 @@
     <string name="save_as">حفظ ك</string>
     <string name="paste">لصق</string>
     <string name="delete">حذف</string>
-    <string name="close_this">اغلاق هذا</string>
-    <string name="close_others">اغلاق الآخرين</string>
-    <string name="close_all">اغلاق الكل</string>
+    <string name="close_this">إغلاق هذا</string>
+    <string name="close_others">إغلاق الآخرين</string>
+    <string name="close_all">إغلاق الكل</string>
     <string name="insertdate">إدخال التاريخ</string>
-    <string name="close">اغلاق</string>
+    <string name="close">إغلاق</string>
     <string name="unsaved">الملفات الغير محفوظة</string>
     <string name="unsavedfiles">لديك ملفات غير محفوظة!</string>
     <string name="cancel">إلغاء</string>
-    <string name="saveexit">حفظ و خروج</string>
+    <string name="saveexit">حفظ وخروج</string>
     <string name="exit">خروج</string>
     <string name="rr">إعادة التشغيل مطلوبة</string>
     <string name="rapply">يرجى إعادة التشغيل لتطبيق الإعدادات</string>
-    <string name="oled">ثيم الليل الأسود</string>
-    <string name="ww">ورد وراب</string>
+    <string name="oled">سمة الليل الأسود</string>
+    <string name="ww">ألتفاف النص</string>
     <string name="keepdl">بقاء الدرج مغلقا</string>
     <string name="restart">إعادة تشغيل</string>
     <string name="plugin">الإضافات</string>
     <string name="mp">إدارة المكونات الإضافية</string>
     <string name="ap">الإضافات المتاحة</string>
     <string name="nip">لا توجد مكونات إضافية مثبتة</string>
-    <string name="refresh">اعادة التحديث</string>
+    <string name="refresh">إعادة التحديث</string>
     <string name="dir_example">على سبيل المثال، الاسم: Test</string>
     <string name="create">انشاء</string>
     <string name="ask_enter_name">الرجاء إدخال اسم</string>
@@ -129,7 +129,7 @@
     <string name="git_branch">فرع. مثال: main</string>
     <string name="git_commit_msg">رسالة الكوميت</string>
     <string name="push">دفع</string>
-    <string name="pull">جذب</string>
+    <string name="pull">سحب</string>
     <string name="pull_desc">مزامنة المستودع المحلي مع المستودع البعيد</string>
     <string name="commit_push">الكوميت والدفع</string>
     <string name="push_desc">إنشاء كوميت ودفع التغييرات إلى المستودع البعيد_</string>
@@ -169,9 +169,9 @@
     <string name="plugin_download_failed">غير قادر على تحميل الإضافة</string>
     <string name="fetch_failed">تم إرجاع طلب الجلب فارغًا</string>
     <string name="app">طلب</string>
-    <string name="oled_desc">ثيم أسود نقي لأجهزة الأمولد</string>
-    <string name="themes">الثيمات</string>
-    <string name="change_theme">تغيير الثيم</string>
+    <string name="oled_desc">سمة سوداء نقية لأجهزة الأمولد</string>
+    <string name="themes">السمات</string>
+    <string name="change_theme">تغيير السمة</string>
     <string name="editor">محرر</string>
     <string name="smooth_tabs">علامات التبويب السلسة</string>
     <string name="smooth_tab_desc">التبديل بين علامات التبويب بسلاسة</string>
@@ -180,7 +180,7 @@
     <string name="diagonal_scroll">التمرير القطري</string>
     <string name="diagonal_scroll_desc">تمكين التمرير القطري في شجرة الملفات</string>
     <string name="cursor_anim">الانيمشين للمؤشر</string>
-    <string name="cursor_anim_desc">تمكين الانيمشن السلسة للمؤشر</string>
+    <string name="cursor_anim_desc">تمكين التحريك السلس للمؤشر</string>
     <string name="show_line_number">إظهار أرقام الأسطر</string>
     <string name="pin_line_number">تثبيت أرقام الأسطر</string>
     <string name="extra_keys">مفاتيح اضافية</string>
@@ -245,17 +245,17 @@
     <string name="light_mode">ساطع</string>
     <string name="dark_mode">مظلم</string>
     <string name="auto_mode">تلقائي</string>
-    <string name="select_theme_mode">حدد وضع الثيم</string>
+    <string name="select_theme_mode">حدد وضع السمة</string>
     <string name="cannot_be_empty">لا يمكن أن تكون فارغة.</string>
-    <string name="theme_mode">وضع الثيم</string>
-    <string name="theme_mode_desc">قم بتغيير وضع الثيم إلى تلقائي أو فاتح أو داكن.</string>
+    <string name="theme_mode">وضع السمة</string>
+    <string name="theme_mode_desc">قم بتغيير وضع السمة إلى تلقائي أو فاتح أو داكن.</string>
     <string name="no_plugins_available">لا توجد مكونات إضافية متاحة</string>
     <string name="show_suggestions">عرض الاقتراحات</string>
     <string name="about">حول</string>
     <string name="about_desc">حول كربون</string>
     <string name="version">الإصدار</string>
     <string name="version_code">رمز الإصدار</string>
-    <string name="github">جيتهب</string>
+    <string name="github">Github</string>
     <string name="github_desc">ضع نجمة في الجيتهب🤩</string>
     <string name="telegram">مجموعة التلجرام</string>
     <string name="telegram_desc">انضم إلى مجتمع تلجرام</string>
@@ -305,7 +305,7 @@
     <string name="update_av">هناك تحديث قادم</string>
     <string name="update">تحديث</string>
     <string name="ignore">تجاهل</string>
-    <string name="update_disable">تم اغلاق تفقد التحديثات</string>
+    <string name="update_disable">تم إغلاق تفقد التحديثات</string>
     <string name="launch_termux">فتح ترمكس؟</string>
     <string name="launch_termux_explanation">تم ايقاف ترمكس وبالتالي لن يتمكن كربون من تشغيل الأوامر فيه. هل ترغب في تشغيله؟</string>
     <string name="launch">تشغيل</string>
