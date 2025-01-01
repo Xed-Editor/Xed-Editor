@@ -18,7 +18,9 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.R
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,7 +33,7 @@ import java.util.Queue
 object ProjectManager {
 
     val projects = HashMap<Int, String>()
-    private val queue: Queue<com.rk.file.FileObject> = LinkedList()
+    private val queue: Queue<FileObject> = LinkedList()
 
     fun processQueue(activity: MainActivity) {
         if (activityRef.get() == null) {
@@ -45,7 +47,7 @@ object ProjectManager {
         }
     }
 
-    fun addProject(activity: MainActivity, file: com.rk.file.FileObject) {
+    fun addProject(activity: MainActivity, file: FileObject) {
 
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
@@ -54,7 +56,11 @@ object ProjectManager {
             return
         }
 
-        // BaseActivity.getActivity(MainActivity::class.java)?.let { activity ->
+        if (projects.values.contains(file.getAbsolutePath())){
+            changeProject(file.getAbsolutePath(),activity)
+            return
+        }
+
         if (activity.isPaused) {
             queue.add(file)
             return
@@ -95,7 +101,7 @@ object ProjectManager {
 
     }
 
-    fun removeProject(activity: MainActivity, file: com.rk.file.FileObject, saveState: Boolean = true) {
+    fun removeProject(activity: MainActivity, file: FileObject, saveState: Boolean = true) {
 
         val rail = activity.binding!!.navigationRail
         for (i in 0 until rail.menu.size()) {
@@ -134,7 +140,7 @@ object ProjectManager {
                 }
 
                 if (saveState) {
-                    if (file is com.rk.file.UriWrapper) {
+                    if (file is UriWrapper) {
                         kotlin.runCatching {
                             activity.getContentResolver().releasePersistableUriPermission(
                                 file.file.uri,
@@ -189,13 +195,13 @@ object ProjectManager {
         }
     }
 
-    fun getSelectedProjectRootFile(activity: MainActivity): com.rk.file.FileObject? {
+    fun getSelectedProjectRootFile(activity: MainActivity): FileObject? {
         projects[activity.binding!!.navigationRail.selectedItemId]?.let {
             val file = File(it)
             return if (file.exists()) {
-                com.rk.file.FileWrapper(file)
+                FileWrapper(file)
             } else {
-                com.rk.file.UriWrapper(application!!, Uri.parse(it))
+                UriWrapper(application!!, Uri.parse(it))
             }
         }
         return null
@@ -215,50 +221,64 @@ object ProjectManager {
             getSelectedView(activity).reloadFileTree()
         }
 
-        fun updateFileRenamed(activity: MainActivity, file: com.rk.file.FileObject, newFile: FileObject) {
+        fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: FileObject) {
             getSelectedView(activity).onFileRenamed(file, file)
         }
 
-        fun updateFileDeleted(activity: MainActivity, file: com.rk.file.FileObject) {
+        fun updateFileDeleted(activity: MainActivity, file: FileObject) {
             getSelectedView(activity).onFileRemoved(file)
         }
 
-        fun updateFileAdded(activity: MainActivity, file: com.rk.file.FileObject) {
+        fun updateFileAdded(activity: MainActivity, file: FileObject) {
             getSelectedView(activity).onFileAdded(file)
         }
     }
 
-    fun changeCurrentProjectRoot(file: com.rk.file.FileObject, activity: MainActivity) {
+    fun changeCurrentProjectRoot(file: FileObject, activity: MainActivity) {
         getSelectedView(activity).loadFiles(file)
     }
 
     fun restoreProjects(activity: MainActivity) {
         clear(activity)
-        val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
-        if (jsonString.isNotEmpty()) {
-            val gson = Gson()
-            val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
+        activity.lifecycleScope.launch(Dispatchers.IO){
+            val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
+            if (jsonString.isNotEmpty()) {
+                val gson = Gson()
+                val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
 
-            projectsList.forEach {
-                if (projects.values.contains(it)) {
-                    return
-                }
-                activity.binding!!.mainView.visibility = View.VISIBLE
-
-                val file = File(it)
-                if (file.exists()) {
-                    addProject(activity, com.rk.file.FileWrapper(file))
-                } else {
-                    addProject(activity, com.rk.file.UriWrapper(application!!, Uri.parse(it)))
+                withContext(Dispatchers.Main){
+                    activity.binding?.progressBar?.visibility = View.VISIBLE
+                    activity.binding?.navigationRail?.visibility = View.INVISIBLE
+                    activity.binding?.maindrawer?.visibility = View.INVISIBLE
                 }
 
+                projectsList.forEach {
+                    if (projects.values.contains(it).not()) {
+                        withContext(Dispatchers.Main){
+                            val file = File(it)
+                            if (file.exists()) {
+                                addProject(activity, FileWrapper(file))
+                            } else {
+                                addProject(activity, UriWrapper(application!!, Uri.parse(it)))
+                            }
+                        }
+                    }
+                    //let the main thread render the file trees
+                    delay(100)
+                }
 
+                withContext(Dispatchers.Main){
+                    activity.binding?.progressBar?.visibility = View.GONE
+                    activity.binding?.navigationRail?.visibility = View.VISIBLE
+                    activity.binding?.maindrawer?.visibility = View.VISIBLE
+                }
             }
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     private fun saveProjects(activity: MainActivity) {
-        activity.lifecycleScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
             val gson = Gson()
             val uniqueProjects = projects.values.toSet()
             val jsonString = gson.toJson(uniqueProjects.toList())

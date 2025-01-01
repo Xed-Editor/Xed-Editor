@@ -79,6 +79,16 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
        >
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:foregroundGravity="center"
+            android:visibility="gone" />
+
         <!-- Container for NavigationRailView -->
         <LinearLayout
             android:layout_width="wrap_content"
@@ -101,13 +111,6 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="vertical">
-
-                <ProgressBar
-                    android:id="@+id/progress_bar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/maindrawer"

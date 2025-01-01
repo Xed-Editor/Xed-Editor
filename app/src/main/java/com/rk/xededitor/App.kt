@@ -131,7 +131,7 @@ class App : Application() {
 
             AutoSaver.start()
 
-            delay(6000)
+            delay(1000)
 
             try {
                 UpdateManager.fetch("dev")

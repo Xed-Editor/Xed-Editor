@@ -98,7 +98,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                         "gif",
                         "bmp" -> image
                         "rs" -> rust
-                        "jsx" -> react
+                        "jsx","tsx" -> react
                         "php" -> php
                         else -> file
                     }
