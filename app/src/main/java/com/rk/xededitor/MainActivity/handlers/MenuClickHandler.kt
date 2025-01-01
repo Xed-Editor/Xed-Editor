@@ -37,7 +37,6 @@ import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 typealias Id = R.id
@@ -46,7 +45,6 @@ object MenuClickHandler {
 
     private var searchText: String? = ""
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
         val editorFragment =
@@ -66,7 +64,7 @@ object MenuClickHandler {
 
             Id.run -> {
                 editorFragment?.file?.let { fileObject ->
-                    if (fileObject is FileWrapper){
+                    if (fileObject is FileWrapper) {
                         DefaultScope.launch {
                             Runner.run(
                                 fileObject.file, activity
@@ -109,8 +107,7 @@ object MenuClickHandler {
             }
 
             Id.terminal -> {
-                val runtime =
-                    PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, "Alpine")
+                val runtime = PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, "Alpine")
                 if (runtime == "Termux") {
                     kotlin.runCatching {
                         launchTermux()
@@ -122,8 +119,7 @@ object MenuClickHandler {
                 } else {
                     activity.startActivity(
                         Intent(
-                            activity,
-                            Terminal::class.java
+                            activity, Terminal::class.java
                         )
                     )
 
@@ -189,16 +185,20 @@ object MenuClickHandler {
 
             Id.share -> {
                 runCatching {
-                    if (editorFragment!!.file!!.getAbsolutePath().contains(activity.filesDir!!.parentFile!!.absolutePath)){
+                    if (editorFragment!!.file!!.getAbsolutePath()
+                            .contains(activity.filesDir!!.parentFile!!.absolutePath)
+                    ) {
                         rkUtils.toast(strings.permission_denied.getString())
                         return true
                     }
 
-                    val fileUri = if (editorFragment!!.file!! is FileWrapper){
+                    val fileUri = if (editorFragment!!.file!! is FileWrapper) {
                         FileProvider.getUriForFile(
-                        activity, "${activity.packageName}.fileprovider", (editorFragment.file!! as FileWrapper).file
-                    )
-                    }else{
+                            activity,
+                            "${activity.packageName}.fileprovider",
+                            (editorFragment.file!! as FileWrapper).file
+                        )
+                    } else {
                         editorFragment.file!!.toUri()
                     }
 
@@ -237,33 +237,33 @@ object MenuClickHandler {
             }
 
             Id.action_pull -> {
-//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-//                    if (it is EditorFragment) {
-//                        it.file?.let { it1 -> pull(activity, it1) }
-//                    }else{
-//                        throw RuntimeException("wtf just happened?")
-//                    }
-//                }
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment && it.file is FileWrapper) {
+                        it.file?.let { it1 -> pull(activity, (it1 as FileWrapper).file) }
+                    } else {
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
             }
 
             Id.action_push -> {
-//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-//                    if (it is EditorFragment) {
-//                        it.file?.let { it1 -> push(activity, it1) }
-//                    }else{
-//                        throw RuntimeException("wtf just happened?")
-//                    }
-//                }
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment && it.file is FileWrapper) {
+                        it.file?.let { it1 -> push(activity, (it1 as FileWrapper).file) }
+                    } else {
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
             }
 
             Id.action_commit -> {
-//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-//                    if (it is EditorFragment) {
-//                        it.file?.let { it1 -> commit(activity, it1) }
-//                    }else{
-//                        throw RuntimeException("wtf just happened?")
-//                    }
-//                }
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment && it.file is FileWrapper) {
+                        it.file?.let { it1 -> commit(activity, (it1 as FileWrapper).file) }
+                    } else {
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
             }
 
             Id.action_branch -> {
@@ -277,63 +277,65 @@ object MenuClickHandler {
                     var selectedItem = defaultSelection
                     val checkedItem = items.indexOf(defaultSelection)
 
-                    MaterialAlertDialogBuilder(context)
-                        .setTitle(title)
-                        .setSingleChoiceItems(
-                            items.toTypedArray(),
-                            checkedItem
+                    MaterialAlertDialogBuilder(context).setTitle(title).setSingleChoiceItems(
+                            items.toTypedArray(), checkedItem
                         ) { _, which ->
                             selectedItem = items[which]
-                        }
-                        .setPositiveButton("OK") { _, _ ->
+                        }.setPositiveButton("OK") { _, _ ->
                             onItemSelected(selectedItem)
-                        }
-                        .setNegativeButton("Cancel") { dialog, _ ->
+                        }.setNegativeButton("Cancel") { dialog, _ ->
                             dialog.dismiss()
-                        }
-                        .show()
+                        }.show()
                 }
 
 
-//                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
-//                    if (it is EditorFragment) {
-//                        DefaultScope.launch(Dispatchers.IO) {
-//
-//                            it.file?.let { it1 ->
-//                                findGitRoot(it1)?.let { root ->
-//                                    GitClient.getAllBranches(activity,
-//                                        root, onResult = { branches, eror ->
-//                                            GitClient.getCurrentBranchFull(activity,root, onResult = {branch,erorr ->
-//                                                runOnUiThread{
-//                                                    if (branches != null) {
-//                                                        if (branch != null) {
-//                                                            showRadioButtonDialog(
-//                                                                activity,
-//                                                                title = "Branches",
-//                                                                items = branches,
-//                                                                defaultSelection = branch,
-//                                                                onItemSelected = { selectedBranch ->
-//                                                                    DefaultScope.launch(Dispatchers.IO){
-//                                                                        GitClient.setBranch(activity,root,selectedBranch,{})
-//                                                                    }
-//                                                                },
-//                                                            )
-//                                                        }
-//                                                    }
-//                                                }
-//                                            })
-//
-//                                        })
-//                                }
-//                            }
-//                        }
-//
-//                    }else{
-//                        throw RuntimeException("wtf just happened?")
-//                    }
-//                }
+                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                    if (it is EditorFragment && it.file is FileWrapper) {
+                        DefaultScope.launch(Dispatchers.IO) {
 
+                            it.file?.let { it1 ->
+                                findGitRoot((it1 as FileWrapper).file)?.let { root ->
+                                    GitClient.getAllBranches(
+                                        activity,
+                                        root,
+                                        onResult = { branches, eror ->
+                                            GitClient.getCurrentBranchFull(activity,
+                                                root,
+                                                onResult = { branch, erorr ->
+                                                    runOnUiThread {
+                                                        if (branches != null) {
+                                                            if (branch != null) {
+                                                                showRadioButtonDialog(
+                                                                    activity,
+                                                                    title = "Branches",
+                                                                    items = branches,
+                                                                    defaultSelection = branch,
+                                                                    onItemSelected = { selectedBranch ->
+                                                                        DefaultScope.launch(
+                                                                            Dispatchers.IO
+                                                                        ) {
+                                                                            GitClient.setBranch(
+                                                                                activity,
+                                                                                root,
+                                                                                selectedBranch,
+                                                                                {})
+                                                                        }
+                                                                    },
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                })
 
+                                        })
+                                }
+                            }
+                        }
+
+                    } else {
+                        throw RuntimeException("wtf just happened?")
+                    }
+                }
 
 
             }
