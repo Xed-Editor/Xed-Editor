@@ -143,7 +143,7 @@ object HandleMenuItemClick {
                         startActivity(
                             Intent(
                                 this,
-                                Class.forName("com.rk.xededitor.ui.activities.settings.Terminal")
+                                Class.forName("com.rk.xededitor.ui.activities.terminal.Terminal")
                             )
                         )
 
