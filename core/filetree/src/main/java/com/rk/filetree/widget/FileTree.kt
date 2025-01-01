@@ -2,6 +2,7 @@ package com.rk.filetree.widget
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.animation.AnimationUtils
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.filetree.adapters.FileTreeAdapter
@@ -12,6 +13,7 @@ import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
 import com.rk.filetree.util.Sorter
+import com.rk.filetree.R
 
 class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
@@ -30,6 +32,8 @@ class FileTree : RecyclerView {
     init {
         setItemViewCacheSize(100)
         layoutManager = LinearLayoutManager(context)
+        val animation = AnimationUtils.loadLayoutAnimation(context, R.anim.animation)
+        this.layoutAnimation = animation
         fileTreeAdapter = FileTreeAdapter(context, this)
     }
 

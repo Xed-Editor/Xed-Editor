@@ -43,8 +43,6 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     var onLongClickListener: FileLongClickListener? = null
     var iconProvider: FileIconProvider? = null
 
-    private var animator = fileTree.itemAnimator
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View =
             LayoutInflater.from(context).inflate(R.layout.recycler_view_item, parent, false)
@@ -58,10 +56,8 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
                     if (clickedNode.value.isDirectory()) {
                         if (!clickedNode.isExpand) {
-                            fileTree.itemAnimator = animator
                             expandNode(clickedNode)
                         } else {
-                            fileTree.itemAnimator = null
                             collapseNode(clickedNode)
                         }
                         notifyItemChanged(adapterPosition)
@@ -215,6 +211,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         clickedNode.isExpand = true
         submitList(tempData)
     }
+
 
     private fun collapseNode(clickedNode: Node<FileObject>) {
         val tempData = currentList.toMutableList()

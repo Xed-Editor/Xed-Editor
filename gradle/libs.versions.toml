@@ -49,6 +49,7 @@ coilCompose = "2.7.0"
 navigationCompose = "2.8.5"
 lifecycleViewmodelAndroid = "2.8.7"
 wordWrap = "0.1.13"
+coreAnimation = "1.0.0"
 
 [libraries]
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
@@ -116,6 +117,7 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-compose
 material-motion-compose-core = { group = "io.github.fornewid", name = "material-motion-compose-core", version = "2.0.1" }
 lifecycle-viewmodel-android = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-android", version.ref = "lifecycleViewmodelAndroid" }
 word-wrap = { module = "com.github.davidmoten:word-wrap", version.ref = "wordWrap" }
+core-animation = { group = "androidx.core", name = "core-animation", version.ref = "coreAnimation" }
 [plugins]
 
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
