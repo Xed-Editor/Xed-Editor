@@ -1,4 +1,4 @@
-required_packages="python3 pip"
+required_packages="python3 py3-pip"
 missing_packages=""
 for pkg in $required_packages; do
     if ! apk info -e $pkg >/dev/null 2>&1; then
