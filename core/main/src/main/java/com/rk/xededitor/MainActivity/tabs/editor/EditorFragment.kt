@@ -40,7 +40,7 @@ import java.nio.charset.Charset
 class EditorFragment(val context: Context) : CoreFragment {
 
     @JvmField
-    var file: com.rk.file.FileObject? = null
+    var file: FileObject? = null
     var editor: KarbonEditor? = null
     val scope = CustomScope()
     private var constraintLayout: ConstraintLayout? = null
@@ -136,13 +136,20 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
     }
 
-   fun refreshEditorContent() {
-        fun refresh(){
+    fun refreshEditorContent() {
+        fun refresh() {
             scope.launch(Dispatchers.IO) {
                 kotlin.runCatching {
 
                     file?.let {
-                        editor?.loadFile(it.getInputStream(),Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,Charset.defaultCharset().name())))
+                        editor?.loadFile(
+                            it.getInputStream(), Charset.forName(
+                                PreferencesData.getString(
+                                    PreferencesKeys.SELECTED_ENCODING,
+                                    Charset.defaultCharset().name()
+                                )
+                            )
+                        )
                     }
                     MainActivity.activityRef.get()?.let { activity ->
                         val index = activity.tabViewModel.fragmentFiles.indexOf(file)
@@ -160,7 +167,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                             fileset.remove(it.getName())
                         }
                     }
-                    withContext(Dispatchers.IO){
+                    withContext(Dispatchers.IO) {
                         FilesContent.remove(file!!.getAbsolutePath())
                     }
 
@@ -177,11 +184,10 @@ class EditorFragment(val context: Context) : CoreFragment {
                 .setMessage(strings.ask_unsaved.getString())
                 .setNegativeButton(strings.keep_editing.getString()) { _, _ ->
 
-                }
-                .setPositiveButton(strings.refresh.getString()) { _, _ ->
+                }.setPositiveButton(strings.refresh.getString()) { _, _ ->
                     refresh()
                 }.show()
-        }else{
+        } else {
             refresh()
         }
 
@@ -219,43 +225,68 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
-    override fun loadFile(file: com.rk.file.FileObject) {
+    override fun loadFile(file: FileObject) {
         this.file = file
         scope.launch(Dispatchers.Default) {
-            if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
-                withContext(Dispatchers.Main) {
-                    editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
-                }
-            } else {
-                launch {
-                    editor!!.loadFile(file.getInputStream(),Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,
-                        Charset.defaultCharset().name()
-                    )));FilesContent.setContent(
-                    this@EditorFragment.file!!.getAbsolutePath(), editor!!.text.toString()
-                )
-                }
-            }
-            launch { setupEditor.setupLanguage(this@EditorFragment.file!!.getName()) }
-            withContext(Dispatchers.Main) {
-                setChangeListener()
-                this@EditorFragment.file?.let {
-                    if (it.getName().endsWith(".txt") && PreferencesData.getBoolean(
-                            PreferencesKeys.WORD_WRAP_TXT, true
-                        )
-                    ) {
-                        editor?.isWordwrap = true
+
+            runCatching {
+                if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
+                    withContext(Dispatchers.Main) {
+                        editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
+                    }
+                } else {
+                    launch {
+                        runCatching {
+                            editor!!.loadFile(
+                                file.getInputStream(), Charset.forName(
+                                    PreferencesData.getString(
+                                        PreferencesKeys.SELECTED_ENCODING,
+                                        Charset.defaultCharset().name()
+                                    )
+                                )
+                            );
+                            FilesContent.setContent(
+                                this@EditorFragment.file!!.getAbsolutePath(),
+                                editor!!.text.toString()
+                            )
+                        }.onFailure {
+                            rkUtils.toast(it.message)
+                        }
                     }
                 }
+
+                launch {
+                    runCatching {
+                        setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
+                    }.onFailure {
+                        rkUtils.toast(it.message)
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    setChangeListener()
+                    this@EditorFragment.file?.let {
+                        if (it.getName().endsWith(".txt") && PreferencesData.getBoolean(
+                                PreferencesKeys.WORD_WRAP_TXT, true
+                            )
+                        ) {
+                            editor?.isWordwrap = true
+                        }
+                    }
+                }
+            }.onFailure {
+                rkUtils.toast(it.message)
             }
+
+
         }
 
     }
 
-    override fun getFile(): com.rk.file.FileObject? = file
+    override fun getFile(): FileObject? = file
 
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
-        if(file!!.exists().not()){
+        if (file!!.exists().not()) {
             rkUtils.toast("File No longer exists")
             return
         }
@@ -266,9 +297,13 @@ class EditorFragment(val context: Context) : CoreFragment {
             return
         }
         scope.launch(Dispatchers.IO) {
-            editor?.saveToFile(file!!.getOutPutStream(false),Charset.forName(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING,
-                Charset.defaultCharset().name()
-            )))
+            editor?.saveToFile(
+                file!!.getOutPutStream(false), Charset.forName(
+                    PreferencesData.getString(
+                        PreferencesKeys.SELECTED_ENCODING, Charset.defaultCharset().name()
+                    )
+                )
+            )
             try {
                 MainActivity.activityRef.get()?.let { activity ->
                     val index = activity.tabViewModel.fragmentFiles.indexOf(file)
@@ -291,10 +326,13 @@ class EditorFragment(val context: Context) : CoreFragment {
             }
 
 
-            if (file!!.getParentFile()?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName().endsWith("&mut.js")){
-                withContext(Dispatchers.IO){
+            if (file!!.getParentFile()
+                    ?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName()
+                    .endsWith("&mut.js")
+            ) {
+                withContext(Dispatchers.IO) {
                     Mutators.getMutators().forEach { mut ->
-                        if (mut.name+"&mut.js" == file!!.getName()){
+                        if (mut.name + "&mut.js" == file!!.getName()) {
                             mut.script = editor?.text.toString()
                             Mutators.saveMutator(mut)
                         }
@@ -302,7 +340,6 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }
             }
         }
-
 
 
     }
@@ -326,9 +363,16 @@ class EditorFragment(val context: Context) : CoreFragment {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
-            FilesContent.remove(file!!.getAbsolutePath())
-            if (file!!.getParentFile()!!.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName().endsWith("&mut.js")){
-                file!!.delete()
+            runCatching {
+                file?.getAbsolutePath()?.let { FilesContent.remove(it) }
+                if (file?.getParentFile()?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName()
+                        .endsWith("&mut.js")
+                ) {
+                    file?.delete()
+                }
+
+            }.onFailure {
+                rkUtils.toast(it.message)
             }
         }
         onDestroy()

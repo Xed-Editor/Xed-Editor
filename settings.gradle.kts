@@ -13,6 +13,9 @@ pluginManagement {
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
+    plugins {
+        kotlin("jvm") version "2.0.10"
+    }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
@@ -25,8 +28,9 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Karbon"
+rootProject.name = "Xed-Editor"
 include(":app")
+include(":core:main")
 
 include(":core:editor")
 include(":core:editor-lsp")
@@ -36,9 +40,9 @@ include(":core:filetree")
 include(":core:settings")
 include(":core:components")
 include(":core:commons")
-include(":app:external-editor")
+include(":core:external-editor")
 include(":core:resources")
 include(":core:karbon-exec")
-
 include(":core:mutator-engine")
 include(":core:file")
+

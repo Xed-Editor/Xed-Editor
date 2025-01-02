@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -18,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-class Kee(val file: com.rk.file.FileObject) {
+class Kee(val file: FileObject) {
     override fun equals(other: Any?): Boolean {
         if (other !is Kee) {
             return false
@@ -204,14 +205,17 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
     }
     
-    fun addFragment(file: com.rk.file.FileObject, fragmentType: FragmentType? = null) {
-
+    fun addFragment(file: FileObject, fragmentType: FragmentType? = null) {
+        if (file.getName().isBlank()){
+            rkUtils.toast("File Cannot be opened")
+            return
+        }
         val type = fragmentType ?: file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
             rkUtils.toast(rkUtils.getString(strings.file_too_large))
             return
         }
-        
+
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.getAbsolutePath())) {
                 kotlin.runCatching {
@@ -251,7 +255,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             }
 
             tabViewModel.fragmentTypes.add(type)
-            
+
             (viewPager?.adapter as? TabAdapter)?.notifyItemInsertedX(
                 tabViewModel.fragmentFiles.size - 1
             )

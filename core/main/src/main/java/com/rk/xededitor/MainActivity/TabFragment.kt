@@ -20,9 +20,8 @@ class TabFragment : Fragment() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
         type = arguments?.getSerializable("type") as FragmentType
-        
+
         when (type) {
             FragmentType.EDITOR -> {
                 arguments?.let {
@@ -30,41 +29,41 @@ class TabFragment : Fragment() {
                         val editorFragment = EditorFragment(requireContext())
                         editorFragment.onCreate()
                         fragment = editorFragment
-                        editorFragment.loadFile(file as com.rk.file.FileObject)
+                        editorFragment.loadFile(file as FileObject)
                     }
 
                 }
             }
-            
+
             FragmentType.AUDIO -> {
                 arguments?.let {
                     it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val mediaFragment = WebFragment(requireContext())
                         mediaFragment.onCreate()
                         fragment = mediaFragment
-                        mediaFragment.loadFile(file as com.rk.file.FileObject)
+                        mediaFragment.loadFile(file as FileObject)
                     }
                 }
             }
-            
+
             FragmentType.IMAGE -> {
                 arguments?.let {
                     it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val imageFragment = ImageFragment(requireContext())
                         imageFragment.onCreate()
                         fragment = imageFragment
-                        imageFragment.loadFile(file as com.rk.file.FileObject)
+                        imageFragment.loadFile(file as FileObject)
                     }
                 }
             }
-            
+
             FragmentType.VIDEO -> {
                 arguments?.let {
                     it.getSerializable(ARG_FILE_PATH)?.let { file ->
                         val videoFragment = VideoFragment(requireContext())
                         videoFragment.onCreate()
                         fragment = videoFragment
-                        videoFragment.loadFile(file as com.rk.file.FileObject)
+                        videoFragment.loadFile(file as FileObject)
                     }
                 }
             }
@@ -90,11 +89,10 @@ class TabFragment : Fragment() {
     companion object {
         private const val ARG_FILE_PATH = "file_path"
         
-        fun newInstance(file: com.rk.file.FileObject, type: FragmentType): TabFragment {
+        fun newInstance(file: FileObject, type: FragmentType): TabFragment {
             val fragment = TabFragment()
             val args = Bundle()
             args.putSerializable("type", type)
-            
 
             when (type) {
                 FragmentType.EDITOR -> {

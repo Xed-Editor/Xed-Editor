@@ -39,7 +39,7 @@ object ProjectBar {
 
                         privateFilesId -> {
                             ProjectManager.addProject(this,
-                                com.rk.file.FileWrapper(filesDir.parentFile!!)
+                                FileWrapper(filesDir.parentFile!!)
                             )
                         }
                     }

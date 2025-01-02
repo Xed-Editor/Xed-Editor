@@ -23,19 +23,18 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
 
     override fun listFiles(): List<FileObject> = when {
         !file.isDirectory -> emptyList()
-        !file.canRead() -> throw SecurityException("No read permission for directory: ${file.uri}")
+        !file.canRead() -> emptyList()
         else -> file.listFiles().map { UriWrapper(context, it) }
     }
 
     override fun isDirectory(): Boolean = file.isDirectory
     override fun isFile(): Boolean = file.isFile
-    override fun getName(): String = file.name.orEmpty()
+    override fun getName(): String = file.name ?: ""
     override fun getParentFile(): FileObject? =
         file.parentFile?.let { UriWrapper(context, it) }
 
     override fun exists(): Boolean = file.exists()
 
-    @Throws(IOException::class)
     override fun createNewFile(): Boolean {
         if (exists()) return false
 
@@ -61,7 +60,6 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
         return parent.createDirectory(file.name ?: "unnamed") != null
     }
 
-    @Throws(IOException::class)
     override fun mkdirs(): Boolean {
         if (exists()) return true
 
@@ -72,7 +70,6 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
         return mkdir()
     }
 
-    @Throws(IOException::class)
     override fun writeText(text: String) {
         if (!file.canWrite()) {
             throw SecurityException("No write permission for file: ${file.uri}")

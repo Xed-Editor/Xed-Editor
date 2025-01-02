@@ -66,7 +66,7 @@ class MainActivity : BaseActivity() {
 
 
     class TabViewModel : ViewModel() {
-        val fragmentFiles = mutableListOf<com.rk.file.FileObject>()
+        val fragmentFiles = mutableListOf<FileObject>()
         val fragmentTypes = mutableListOf<FragmentType>()
         val fragmentTitles = mutableListOf<String>()
         val fileSet = HashSet<String>()
