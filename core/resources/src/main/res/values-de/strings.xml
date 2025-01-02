@@ -64,4 +64,14 @@
     <string name="terminal">Terminal</string>
     <string name="github_desc">Stern auf GitHub vergeben 🤩</string>
     <string name="telegram">Telegram-Gruppe</string>
+    <string name="close_drawer">schließen</string>
+    <string name="unsupported_contnt">Nicht unterstützter Inhalt</string>
+    <string name="null_contnt">Fehler: Inhalt ist null</string>
+    <string name="rep">Ersatz</string>
+    <string name="searck_keyword">Schlüsselwort suchen</string>
+    <string name="copy">Kopieren</string>
+    <string name="exit">Beenden</string>
+    <string name="attention">Achtung</string>
+    <string name="open_drawer">öffnen</string>
+    <string name="add_file">Datei hinzufügen</string>
 </resources>

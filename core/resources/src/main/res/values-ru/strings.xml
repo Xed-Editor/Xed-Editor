@@ -256,7 +256,7 @@
     <string name="version">Версия</string>
     <string name="version_code">Код версии</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Karbon имеет открытый исходный код!</string>
+    <string name="github_desc">Поставьте звезду на GitHub 🤩</string>
     <string name="telegram">Telegram группа</string>
     <string name="telegram_desc">Присоединяйтесь к сообществу в Telegram</string>
     <string name="join">Присоединиться</string>
@@ -302,4 +302,11 @@
     <string name="line_spacing_multiplier">Множитель межстрочного интервала</string>
     <string name="line_spacing">Межстрочный интервал</string>
     <string name="mutators">Инструменты</string>
+    <string name="update_av">Доступны обновления</string>
+    <string name="update">Обновить</string>
+    <string name="update_disable">Проверка обновлений отключена</string>
+    <string name="ignore">Игнорировать</string>
+    <string name="launch_termux">Запустить Termux?</string>
+    <string name="launch_termux_explanation">Termux остановлен, поэтому karbon не может выполнять в нем команды. Хотите его запустить?</string>
+    <string name="launch">Запустить</string>
 </resources>

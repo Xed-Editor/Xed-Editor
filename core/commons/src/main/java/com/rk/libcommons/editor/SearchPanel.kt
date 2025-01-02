@@ -1,5 +1,6 @@
 package com.rk.libcommons.editor
 
+import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
@@ -22,9 +23,9 @@ import java.util.regex.PatternSyntaxException
 class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
     val view: LinearLayout = LayoutInflater.from(root.context).inflate(R.layout.search_layout, root, false) as LinearLayout
     
-    var ignoreCase = true
-    var searchWholeWord = false
-    var searchRegex = false
+    private var ignoreCase = true
+    private var searchWholeWord = false
+    private var searchRegex = false
     
     
     init {
@@ -35,7 +36,8 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
         
         val searchEditText = view.findViewById<EditText>(R.id.search_editor)
         val replaceEditText = view.findViewById<EditText>(R.id.replace_editor)
-        
+        val defaultColor = searchEditText.textColors.defaultColor
+
         view.findViewById<Button>(R.id.btn_replace).setOnClickListener {
             if (isSearching) {
                 searcher.replaceCurrentMatch(replaceEditText.text.toString())
@@ -67,9 +69,12 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
                         getSearchOptions()
                     )
                     isSearching = true
+                    Handler(Looper.getMainLooper()).post {
+                        searchEditText.setTextColor(defaultColor)
+                    }
                 } catch (e: PatternSyntaxException) {
                     Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(root.context,e.message,Toast.LENGTH_LONG).show()
+                        searchEditText.setTextColor(Color.RED)
                     }
                 }
             } else {

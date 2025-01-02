@@ -14,6 +14,7 @@ import android.view.View.OnClickListener
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
@@ -49,19 +50,18 @@ import java.io.InputStreamReader
 
 private typealias onClick = OnClickListener
 
-
-// performance could be improved but i don't have time
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: CoroutineScope) {
 
     init {
-        job?.let {
-            if (it.isCompleted.not()) {
-                runBlocking { job?.join() }
-            }
-        }
-
-        scope.launch { ensureTextmateTheme(ctx) }
         with(editor) {
+            setBackgroundColor(Color.TRANSPARENT)
+
+            scope.launch {
+                runCatching {
+                    ensureTextmateTheme(ctx)
+                }
+            }
+
             val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
             props.deleteMultiSpaces = tabSize
             tabWidth = tabSize
@@ -71,7 +71,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             isLineNumberEnabled =
                 PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
             isCursorAnimationEnabled =
-                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, true)
+                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, false)
             setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
             setWordwrap(
@@ -154,13 +154,17 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 mutex.withLock {
                     if (!isInit) {
                         withContext(Dispatchers.IO) {
-                            initGrammarRegistry(application!!)
+                            FileProviderRegistry.getInstance()
+                                .addFileProvider(AssetsFileResolver(application!!.assets))
+                            GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
                         }
                         isInit = true
                     }
                 }
             }
         }
+
+        suspend fun waitForInit() = job?.let { if (it.isCompleted.not()) { it.join() } }
 
         suspend fun initActivity(
             activity: Activity, calculateColors: () -> kotlin.Pair<String, String>
@@ -170,7 +174,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                     val colors = calculateColors.invoke()
                     initTextMateTheme(activity, colors.first, colors.second)
                 } else {
-                    initTextMateTheme(activity,null,null)
+                    initTextMateTheme(activity, null, null)
                 }
 
                 activityInit = true
@@ -178,34 +182,11 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
         }
 
-        fun applyFont(editor: CodeEditor) {
-            val fontPath = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
-            if (fontPath.isNotEmpty()) {
-                val isAsset =
-                    PreferencesData.getBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, false)
-                if (isAsset) {
-                    editor.typefaceText = Typeface.createFromAsset(editor.context.assets, fontPath)
-                } else {
-                    editor.typefaceText = Typeface.createFromFile(File(fontPath))
-                }
-            } else {
-                println("fallback: font Path is empty")
-                editor.typefaceText =
-                    Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
-            }
-            editor.invalidate()
-        }
-
-        private suspend fun initGrammarRegistry(ctx: Context) {
-            FileProviderRegistry.getInstance()
-                .addFileProvider(AssetsFileResolver(ctx.applicationContext?.assets))
-            GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-        }
 
         private suspend fun initTextMateTheme(
             ctx: Context, darkSurfaceColor: String?, lightSurfaceColor: String?
         ) {
-
+            waitForInit()
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
@@ -277,9 +258,28 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }
             }
         }
+
+        fun applyFont(editor: CodeEditor) {
+            val fontPath = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
+            if (fontPath.isNotEmpty()) {
+                val isAsset =
+                    PreferencesData.getBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, false)
+                if (isAsset) {
+                    editor.typefaceText = Typeface.createFromAsset(editor.context.assets, fontPath)
+                } else {
+                    editor.typefaceText = Typeface.createFromFile(File(fontPath))
+                }
+            } else {
+                println("fallback: font Path is empty")
+                editor.typefaceText =
+                    Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
+            }
+            editor.invalidate()
+        }
     }
 
     private suspend fun setLanguage(languageScopeName: String) {
+        waitForInit()
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
         val kw = ctx.assets.open("textmate/keywords.json")
@@ -301,6 +301,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
 
     private suspend fun ensureTextmateTheme(ctx: Context) {
+        waitForInit()
         val darkTheme: Boolean = when (PreferencesData.getString(
             PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
@@ -327,11 +328,18 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         }
     }
 
-    fun getInputView(): SymbolInputView {
-        fun hapticFeedBack(view: View) {
-            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
-        }
 
+
+
+
+
+
+
+
+
+
+
+    fun getInputView(): SymbolInputView {
         val darkTheme: Boolean = when (PreferencesData.getString(
             PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
@@ -349,23 +357,16 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
             val keys = mutableListOf<Pair<String, View.OnClickListener>>().apply {
                 add(Pair("->", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
                     )
-
-
                 }))
 
                 add(Pair("⌘", onClick {
-                    hapticFeedBack(it)
-
                     EventBus.getDefault().post(ControlPanel())
-
                 }))
 
                 add(Pair("←", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_LEFT,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT)
@@ -373,7 +374,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("↑", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_UP,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP)
@@ -382,7 +382,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("→", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_RIGHT,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT)
@@ -391,7 +390,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("↓", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_DPAD_DOWN,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN)
@@ -400,7 +398,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("⇇", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_MOVE_HOME,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME)
@@ -408,7 +405,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
                 }))
 
                 add(Pair("⇉", onClick {
-                    hapticFeedBack(it)
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_MOVE_END,
                         KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END)
