@@ -53,4 +53,4 @@ ARGS="$ARGS -0"
 #Replace hard links with symlinks, pretending they are really hardlinks
 ARGS="$ARGS --link2symlink"
 
-echo $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+$PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
