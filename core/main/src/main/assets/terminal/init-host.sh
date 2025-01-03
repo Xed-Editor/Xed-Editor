@@ -35,6 +35,7 @@ fi
 if [ -d /storage ]; then
 	ARGS="$ARGS -b /storage:/storage"
 fi
+ARGS="$ARGS -b /sdcard:/sdcard"
 
 # Mimic traditional Linux file system hierarchy- system dirs:
 for f in dev proc; do
