@@ -20,6 +20,13 @@ if [ -n "$missing_packages" ]; then
     fi
     echo -e "\e[32mUse apk to install new packages\e[0m"
 fi
+
+#fix linker warning
+if [[ ! -f /linkerconfig/ld.config.txt ]];then
+    mkdir -p /linkerconfig
+    touch /linkerconfig/ld.config.txt
+fi
+
 if [ "$#" -eq 0 ]; then
     $START_SHELL
 else
