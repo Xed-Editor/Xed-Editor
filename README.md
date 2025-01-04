@@ -2,7 +2,7 @@
   <img src="/fastlane/metadata/android/en-US/images/icon.png" alt="Karbon Editor" width="90" height="90"/>
 </p>
 
-<h2 align="center"><b>Karbon (Xed-Editor)</b></h2>
+<h2 align="center"><b>Xed-Editor (Karbon)</b></h2>
 
 <div align="center">
 
