@@ -132,7 +132,7 @@
     <string name="pull">Вытянуть</string>
     <string name="pull_desc">Синхронизировать локальный репозиторий с удаленным репозиторием</string>
     <string name="commit_push">Фиксация и отправка</string>
-    <string name="push_desc">Зафиксировать и отправить изменения на удалённый репозиторий\"</string>
+    <string name="push_desc">Зафиксировать и отправить изменения на удалённый репозиторий</string>
     <string name="fill_both">Пожалуйста, заполните оба поля</string>
     <string name="pushing">Отправка в удалённый репозиторий…</string>
     <string name="nogit">Ошибка: папка .git не найдена</string>
