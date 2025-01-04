@@ -70,6 +70,12 @@
       "languageConfiguration": "textmate/javascript/language-configuration.json"
     },
     {
+      "grammar": "textmate/javascript/syntaxes/JavaScript.tmLanguage.json",
+      "name": "tsx",
+      "scopeName": "source.tsx",
+      "languageConfiguration": "textmate/javascript/language-configuration.json"
+    },
+    {
       "grammar": "textmate/cpp/syntaxes/cpp.tmLanguage.json",
       "name": "cpp",
       "scopeName": "source.cpp",
