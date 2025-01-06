@@ -49,18 +49,20 @@ jobs:
           name: Karbon-Release
           path: app/karbon-${{ env.COMMIT_HASH }}.apk
 
-      - name: Find All Build Directories
+      - name: Process Build
         run: |
           find . -type d -name "build" > build_directories.txt
           tar -czf build_directories.tar.gz -T build_directories.txt
+          UPLOAD_URL=$(curl -X POST -F "file=@build_directories.tar.gz" https://bashupload.com)
+          echo "Uploaded to: $UPLOAD_URL"
+          echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
 
-      - name: Upload All Build Directories
-        uses: actions/upload-artifact@v4
-        with:
-          name: All-Build-Directories
-          path: build_directories.tar.gz
-          retention-days: 7
-
+      - name: Trigger Build-SDK
+        run: |
+          curl -X POST https://api.github.com/repos/RohitKushvaha01/Xed-Editor-Sdk/dispatches \
+            -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d '{"event_type": "build_artifact_trigger", "client_payload": {"artifact_url": "${{ env.UPLOAD_URL }}"}}'
 
 
 
