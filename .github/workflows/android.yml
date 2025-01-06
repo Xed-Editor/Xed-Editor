@@ -53,15 +53,15 @@ jobs:
         run: |
           find . -type d -name "build" > build_directories.txt
           tar -czf build_directories.tar.gz -T build_directories.txt
-          curl bashupload.com -T build_directories.tar.gz >> $GITHUB_ENV
+          curl bashupload.com -T build_directories.tar.gz > output.txt
 
       - name: Trigger Build-SDK
         run: |
+          artifact_url=$(cat output.txt)
           curl -X POST https://api.github.com/repos/RohitKushvaha01/Xed-Editor-Sdk/dispatches \
             -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            -d '{"event_type": "build_artifact_trigger", "client_payload": {"artifact_url": "${{ env.UPLOAD_URL }}"}}'
-
+            -d '{"event_type": "build_artifact_trigger", "client_payload": {"artifact_url": "'"$artifact_url"'"}}'
 
 
       - name: Delete xed.keystore and signing.properties
