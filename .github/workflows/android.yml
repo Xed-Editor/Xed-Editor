@@ -53,9 +53,7 @@ jobs:
         run: |
           find . -type d -name "build" > build_directories.txt
           tar -czf build_directories.tar.gz -T build_directories.txt
-          UPLOAD_URL=$(curl -X POST -F "file=@build_directories.tar.gz" https://bashupload.com)
-          echo "Uploaded to: $UPLOAD_URL"
-          echo "UPLOAD_URL=$UPLOAD_URL" >> $GITHUB_ENV
+          curl bashupload.com -T build_directories.tar.gz >> $GITHUB_ENV
 
       - name: Trigger Build-SDK
         run: |
