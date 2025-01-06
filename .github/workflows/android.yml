@@ -57,7 +57,7 @@ jobs:
 
       - name: Trigger Build-SDK
         run: |
-          artifact_url=$(cat output.txt)
+          artifact_url=$(grep -o '"artifact_url": *"[^"]*"' output.txt | awk -F'"' '{print $4}')
           curl -X POST https://api.github.com/repos/RohitKushvaha01/Xed-Editor-Sdk/dispatches \
             -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
