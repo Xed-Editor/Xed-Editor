@@ -10,4 +10,5 @@ sealed class SettingsRoutes(val route: String) {
     data object EditorFontScreen : SettingsRoutes("editorFontScreen")
     data object DefaultEncoding : SettingsRoutes("defaultEncoding")
     data object ManageMutators : SettingsRoutes("manageMutators")
+    data object Extensions : SettingsRoutes("extensions")
 }

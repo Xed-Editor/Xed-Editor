@@ -1,7 +1,9 @@
 package com.rk.xededitor.ui.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
@@ -18,9 +20,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesData.getBoolean
+import com.rk.xededitor.rkUtils
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 import org.robok.engine.core.components.compose.preferences.switch.PreferenceSwitch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingsToggle(
     modifier: Modifier = Modifier,
@@ -32,6 +36,7 @@ fun SettingsToggle(
     ReactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
+    onLongClick: (() -> Unit)? = null,
     isEnabled: Boolean = true,
     isSwitchLocked: Boolean = false
 ) {
@@ -46,7 +51,9 @@ fun SettingsToggle(
     }
     
     if (showSwitch) {
-        PreferenceSwitch(checked = state, onCheckedChange = {
+        PreferenceSwitch(checked = state,
+            onLongClick = onLongClick,
+            onCheckedChange = {
             if (isSwitchLocked.not()) {
                 state = !state
                 if (key != null) {
@@ -76,13 +83,13 @@ fun SettingsToggle(
     } else {
         val interactionSource = remember { MutableInteractionSource() }
         PreferenceTemplate(
-            modifier = modifier.clickable(
+            modifier = modifier.combinedClickable(
                 enabled = isEnabled,
                 indication = ripple(),
                 interactionSource = interactionSource,
-            ) {
-                sideEffect?.invoke(false)
-            },
+                onLongClick = onLongClick,
+                onClick = {sideEffect?.invoke(false)}
+            ),
             contentModifier = Modifier
                 .fillMaxHeight()
                 .padding(vertical = 16.dp)

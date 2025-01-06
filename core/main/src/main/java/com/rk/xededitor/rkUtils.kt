@@ -141,7 +141,7 @@ object rkUtils {
 
 
     inline fun getString(stringId: Int): String {
-        return ContextCompat.getString(App.app, stringId)
+        return ContextCompat.getString(application!!, stringId)
     }
 
     inline fun dpToPx(dp: Float, ctx: Context): Int {

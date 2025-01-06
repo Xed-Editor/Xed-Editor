@@ -4,12 +4,14 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import kotlinx.parcelize.Parcelize
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.Locale
+
 
 class FileWrapper(var file: File) : FileObject {
     override fun listFiles(): List<FileObject> {

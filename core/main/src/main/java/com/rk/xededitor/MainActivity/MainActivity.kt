@@ -17,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.extension.ExtensionManager
 import com.rk.file.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.editor.ControlPanel
@@ -125,6 +126,18 @@ class MainActivity : BaseActivity() {
             }
         }
 
+
+        lifecycleScope.launch(Dispatchers.IO){
+            ExtensionManager.extensions.apply {
+                ifEmpty {
+                    ExtensionManager.loadExistingPlugins(application!!)
+                }
+                forEach {
+                    it.value?.onAppLaunch()
+                }
+            }
+        }
+
     }
 
     inline fun isMenuInitialized(): Boolean = menu != null
@@ -169,6 +182,17 @@ class MainActivity : BaseActivity() {
         isPaused = true
         if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
+        }
+
+        lifecycleScope.launch(Dispatchers.IO){
+            ExtensionManager.extensions.apply {
+                ifEmpty {
+                    ExtensionManager.loadExistingPlugins(application!!)
+                }
+                forEach {
+                    it.value?.onAppPaused()
+                }
+            }
         }
 
         super.onPause()
@@ -278,6 +302,17 @@ class MainActivity : BaseActivity() {
     override fun onDestroy() {
         if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
+        }
+
+        lifecycleScope.launch(Dispatchers.IO){
+            ExtensionManager.extensions.apply {
+                ifEmpty {
+                    ExtensionManager.loadExistingPlugins(application!!)
+                }
+                forEach {
+                    it.value?.onMainActivityDestroyed()
+                }
+            }
         }
 
         DefaultScope.cancel()

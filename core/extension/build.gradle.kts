@@ -1,11 +1,11 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
-    alias(libs.plugins.kotlinParcelize)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
-    namespace = "com.rk.file"
+    namespace = "com.rk.extension"
     compileSdk = 34
 
     defaultConfig {
@@ -31,13 +31,23 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
+
+    implementation(platform(libs.compose.bom))
+    implementation(libs.material3)
+    implementation(libs.material)
+    implementation(libs.ui)
+    implementation(libs.ui.graphics)
+    implementation(libs.activity.compose)
+    implementation(project(":core:commons"))
+    implementation(project(":core:settings"))
+
 }

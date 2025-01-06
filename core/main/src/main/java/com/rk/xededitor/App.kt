@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
+import com.rk.extension.ExtensionLoader
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
 import com.rk.libcommons.currentActivity
@@ -30,10 +31,7 @@ import java.nio.file.Paths
 class App : Application() {
 
     companion object {
-        @Deprecated("use libcommons application instead")
-        lateinit var app: Application
-
-        inline fun Context.getTempDir(): File {
+        fun Context.getTempDir(): File {
             val tmp = File(filesDir.parentFile, "tmp")
             if (!tmp.exists()) {
                 tmp.mkdir()
@@ -44,7 +42,6 @@ class App : Application() {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
-        app = this
         application = this
         Res.context = this
         super.onCreate()
@@ -131,15 +128,12 @@ class App : Application() {
 
             AutoSaver.start()
 
-            delay(1000)
-
-            try {
+            runCatching {
                 UpdateManager.fetch("dev")
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
 
-
+            delay(1000)
+            ExtensionLoader.loadExtensions(this@App,GlobalScope)
         }
 
     }
