@@ -60,3 +60,37 @@ jobs:
           -F message_thread_id="582" \
           -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
           -F document=@"app/karbon-${{ env.COMMIT_HASH }}.apk"
+
+  trigger-build-plugin-sdk:
+    name: Build Plugin SDK
+    runs-on: ubuntu-latest
+    needs: build-release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Bash Script
+        run: |
+          # Bash script to gather files
+          OUTPUT_DIR=./outputs
+          CORE_DIR=core
+          
+          mkdir -p "$OUTPUT_DIR"
+          MODULES=$(find "$CORE_DIR" -mindepth 1 -maxdepth 1 -type d)
+          
+          for MODULE in $MODULES; do
+              FULL_PATH="$MODULE/build/intermediates/full_jar/release/createFullJarRelease/full.jar"
+              if [[ -f "$FULL_PATH" ]]; then
+                  MODULE_NAME=$(basename "$MODULE")
+                  OUTPUT_JAR="$OUTPUT_DIR/$MODULE_NAME.jar"
+                  cp "$FULL_PATH" "$OUTPUT_JAR"
+              else
+                  echo "Warning: not found : $MODULE"
+              fi
+          done
+
+      - name: Archive Outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: TriggerData
+          path: outputs/
