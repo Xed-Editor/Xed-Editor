@@ -6,7 +6,7 @@ for pkg in $required_packages; do
     fi
 done
 if [ -n "$missing_packages" ]; then
-    echo "\e[34;1m[*]\e[37m Installing missing packages: $missing_packages\e[0m"
+    echo -e "\e[34;1m[*]\e[37m Installing missing packages: $missing_packages\e[0m"
     apk add $missing_packages
 fi
 # shellcheck disable=SC2068
