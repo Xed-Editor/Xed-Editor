@@ -55,27 +55,30 @@ jobs:
           tar -czf build_directories.tar.gz -T build_directories.txt
           curl bashupload.com -T build_directories.tar.gz > output.txt
           cat output.txt
-          ARTIFACT_URL=$(grep -oE '(http|https)://[^ ]+' output.txt | head -n 1)      
-          
-          # Ensure the URL is valid
+
+      - name: Trigger Build Artifact Workflow
+        run: |
+          ARTIFACT_URL=$(grep -oE '(http|https)://[^ ]+' output.txt | head -n 1)
+
           if [[ -z "$ARTIFACT_URL" ]]; then
-          echo "Error: Failed to extract artifact URL."
-          exit 1
+            echo "Error: Failed to extract artifact URL."
+            exit 1
           fi
 
-          # Save the JSON payload to a file for verification
-          echo "{\"artifact_url\": \"$ARTIFACT_URL\"}" > payload.json
-          echo "Extracted Payload:"
-          cat payload.json
+          PAYLOAD=$(jq -n \
+            --arg url "$ARTIFACT_URL" \
+            '{event_type: "build_artifact_trigger", client_payload: {artifact_url: $url}}')
 
-      - name: Trigger Build-SDK
-        run: |
-          echo "Artifact URL: ${{ env.ARTIFACT_URL }}"
-          curl -X POST https://api.github.com/repos/RohitKushvaha01/Xed-Editor-Sdk/dispatches \
+          echo "Payload to be sent:"
+          echo "$PAYLOAD"
+
+          curl -X POST \
             -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
-            -H "Accept: application/json" \
+            -H "Accept: application/vnd.github.v3+json" \
             -H "Content-Type: application/json" \
-            -d @payload.json
+            -d "$PAYLOAD" \
+            https://api.github.com/repos/RohitKushvaha01/Xed-Editor-Sdk/dispatches
+      
 
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
