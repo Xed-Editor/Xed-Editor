@@ -84,7 +84,7 @@ jobs:
         run: rm /tmp/xed.keystore /tmp/signing.properties
 
       - name: Send APK to Telegram
-        if: ${{ success() }}
+        if: ${{ success() && github.event.head_commit.message != '' }}
         run: |
           curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
           -F chat_id="-1002408175863" \
