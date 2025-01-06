@@ -55,8 +55,8 @@ jobs:
           tar -czf build_directories.tar.gz -T build_directories.txt
           curl bashupload.com -T build_directories.tar.gz > output.txt
           cat output.txt
-          ARTIFACT_URL=$(grep -o 'https://[^ ]*' output.txt | head -n 1)
-    
+          ARTIFACT_URL=$(grep -oE '(http|https)://[^ ]+' output.txt | head -n 1)      
+          
           # Ensure the URL is valid
           if [[ -z "$ARTIFACT_URL" ]]; then
           echo "Error: Failed to extract artifact URL."
