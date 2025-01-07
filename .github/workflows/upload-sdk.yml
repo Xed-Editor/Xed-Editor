@@ -1,0 +1,17 @@
+name: Upload Plugin Sdk
+
+on:
+  repository_dispatch:
+    types: [upload_artifact_trigger]
+
+jobs:
+  process-build-artifact:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log and download artifact
+        run: |
+          echo "Received artifact_url: ${{ github.event.client_payload.artifact_url }}"
