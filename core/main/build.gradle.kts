@@ -130,6 +130,7 @@ dependencies {
     api(libs.eventbus)
     api(libs.quickjs.android)
 
+
     api(project(":core:runner"))
     api(project(":core:file"))
     api(project(":core:filetree"))
@@ -142,4 +143,6 @@ dependencies {
     api(project(":core:resources"))
     api(project(":core:karbon-exec"))
     api(project(":core:mutator-engine"))
+    api(project(":core:extension"))
+
 }

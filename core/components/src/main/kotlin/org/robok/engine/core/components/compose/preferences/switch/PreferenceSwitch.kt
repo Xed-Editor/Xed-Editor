@@ -17,8 +17,10 @@ package org.robok.engine.core.components.compose.preferences.switch
  *   along with Robok.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -43,6 +45,7 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceTempl
  *
  * @author Aquiles Trindade (trindadedev).
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PreferenceSwitch(
     checked: Boolean,
@@ -50,24 +53,32 @@ fun PreferenceSwitch(
     label: String,
     modifier: Modifier = Modifier,
     description: String? = null,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
+
 ) {
     val interactionSource = remember { MutableInteractionSource() }
 
     PreferenceTemplate(
         modifier =
-            modifier.clickable(
+            modifier.combinedClickable(
                 enabled = enabled,
                 indication = ripple(),
+                onLongClick = {
+                    if (onLongClick != null) {
+                        onLongClick()
+                    }
+                },
                 interactionSource = interactionSource,
-            ) {
-                if (onClick != null) {
-                    onClick()
-                } else {
-                    onCheckedChange(!checked)
+                onClick = {
+                    if (onClick != null) {
+                        onClick()
+                    } else {
+                        onCheckedChange(!checked)
+                    }
                 }
-            },
+            ),
         contentModifier = Modifier.fillMaxHeight().padding(vertical = 16.dp).padding(start = 16.dp),
         title = { Text(fontWeight = FontWeight.Bold, text = label) },
         description = { description?.let { Text(text = it) } },

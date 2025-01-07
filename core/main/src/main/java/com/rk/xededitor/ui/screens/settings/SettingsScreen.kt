@@ -8,6 +8,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.screens.settings.app.showExtensions
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
 
@@ -53,11 +54,15 @@ private fun Categories(navController: NavController) {
         iconResource = drawables.android,
         onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )
-//    PreferenceCategory(
-//        label = stringResource(strings.gestures),
-//        description = stringResource(strings.config_gestures),
-//        onNavigate = { rkUtils.toast(strings.ni.getString()) },
-//        iconResource = drawables.baseline_gesture_24,
-//    )
+
+    if (showExtensions.value){
+        PreferenceCategory(
+            label = "Extensions",
+            description = "Manage Extensions",
+            iconResource = drawables.extension,
+            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
+        )
+    }
+
 
 }

@@ -31,6 +31,7 @@ object PreferencesKeys {
     const val LINE_SPACING_MULTIPLAYER="line_spacing_multiplayer"
     const val MUTATORS="mutators"
     const val TERMINAL_RUNTIME="terminal_runtime"
+    const val ENABLE_EXTENSIONS="enable_extensions"
     // todo encrypt git keys
     const val VIEWPAGER_SMOOTH_SCROLL = "viewpager_smooth_scroll"
 }

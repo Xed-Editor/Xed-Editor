@@ -49,11 +49,42 @@ jobs:
           name: Karbon-Release
           path: app/karbon-${{ env.COMMIT_HASH }}.apk
 
+      - name: Process Build
+        run: |
+          find . -type d -name "build" > build_directories.txt
+          tar -czf build_directories.tar.gz -T build_directories.txt
+          curl bashupload.com -T build_directories.tar.gz > output.txt
+          cat output.txt
+
+      - name: Trigger Build Artifact Workflow
+        run: |
+          ARTIFACT_URL=$(grep -oE '(http|https)://[^ ]+' output.txt | head -n 1)
+
+          if [[ -z "$ARTIFACT_URL" ]]; then
+            echo "Error: Failed to extract artifact URL."
+            exit 1
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg url "$ARTIFACT_URL" \
+            '{event_type: "build_artifact_trigger", client_payload: {artifact_url: $url}}')
+
+          echo "Payload to be sent:"
+          echo "$PAYLOAD"
+
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            https://api.github.com/repos/RohitKushvaha01/Xed-Editor-Sdk/dispatches
+      
+
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
 
       - name: Send APK to Telegram
-        if: ${{ success() }}
+        if: ${{ success() && github.event.head_commit.message != '' }}
         run: |
           curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
           -F chat_id="-1002408175863" \
