@@ -20,5 +20,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: xed-editor-sdk
+          name: xed-editor-sdk.zip
           path: xed-editor-sdk.jar
