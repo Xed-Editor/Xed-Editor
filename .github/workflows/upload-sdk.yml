@@ -16,3 +16,9 @@ jobs:
         run: |
           echo "Received artifact_url: ${{ github.event.client_payload.artifact_url }}"
           curl -o xed-editor-sdk.jar "${{ github.event.client_payload.artifact_url }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: xed-editor-sdk
+          path: xed-editor-sdk.jar
