@@ -7,7 +7,8 @@ import android.graphics.Color
 import android.os.Bundle
 import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
-import com.rk.extension.ExtensionLoader
+import com.rk.extension.Extension
+import com.rk.extension.ExtensionManager
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
 import com.rk.libcommons.currentActivity
@@ -24,9 +25,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
-import java.nio.file.Files
-import java.nio.file.LinkOption
-import java.nio.file.Paths
 
 class App : Application() {
 
@@ -132,8 +130,9 @@ class App : Application() {
                 UpdateManager.fetch("dev")
             }
 
-            delay(1000)
-            ExtensionLoader.loadExtensions(this@App,GlobalScope)
+            delay(500)
+            Extension.executeExtensions(this@App,GlobalScope)
+            ExtensionManager.onAppLaunched()
         }
 
     }
@@ -141,6 +140,11 @@ class App : Application() {
     override fun onTerminate() {
         getTempDir().deleteRecursively()
         super.onTerminate()
+    }
+
+    override fun onLowMemory() {
+        ExtensionManager.onLowMemory()
+        super.onLowMemory()
     }
 
 }

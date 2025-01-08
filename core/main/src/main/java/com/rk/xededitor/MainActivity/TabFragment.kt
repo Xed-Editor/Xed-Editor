@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.rk.file.FileObject
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -71,6 +72,9 @@ class TabFragment : Fragment() {
                 throw RuntimeException("the type is null")
             }
         }
+
+        MainActivity.withContext { MenuItemHandler.update(this) }
+
     }
     
     override fun onCreateView(
@@ -82,8 +86,9 @@ class TabFragment : Fragment() {
     }
     
     override fun onDestroy() {
-        super.onDestroy()
         fragment?.onDestroy()
+        super.onDestroy()
+        MainActivity.withContext { MenuItemHandler.update(this) }
     }
     
     companion object {

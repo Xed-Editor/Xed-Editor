@@ -94,11 +94,7 @@ class MainActivity : BaseActivity() {
         activityRef = WeakReference(this)
         binding = ActivityTabBinding.inflate(layoutInflater)
 
-
-
         setContentView(binding!!.root)
-
-
         setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
@@ -118,26 +114,7 @@ class MainActivity : BaseActivity() {
             binding!!.openBtn.visibility = View.GONE
         }
 
-
-        lifecycleScope.launch(Dispatchers.Default) {
-            while (isActive) {
-                delay(2000)
-                MenuItemHandler.update(this@MainActivity)
-            }
-        }
-
-
-        lifecycleScope.launch(Dispatchers.IO){
-            ExtensionManager.extensions.apply {
-                ifEmpty {
-                    ExtensionManager.loadExistingPlugins(application!!)
-                }
-                forEach {
-                    it.value?.onAppLaunch()
-                }
-            }
-        }
-
+        ExtensionManager.onAppCreated()
     }
 
     inline fun isMenuInitialized(): Boolean = menu != null
@@ -180,19 +157,9 @@ class MainActivity : BaseActivity() {
     var isPaused = true
     override fun onPause() {
         isPaused = true
+
         if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
-        }
-
-        lifecycleScope.launch(Dispatchers.IO){
-            ExtensionManager.extensions.apply {
-                ifEmpty {
-                    ExtensionManager.loadExistingPlugins(application!!)
-                }
-                forEach {
-                    it.value?.onAppPaused()
-                }
-            }
         }
 
         super.onPause()
@@ -213,6 +180,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         isPaused = false
+        ExtensionManager.onAppResumed()
         super.onResume()
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
@@ -303,18 +271,7 @@ class MainActivity : BaseActivity() {
         if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
         }
-
-        lifecycleScope.launch(Dispatchers.IO){
-            ExtensionManager.extensions.apply {
-                ifEmpty {
-                    ExtensionManager.loadExistingPlugins(application!!)
-                }
-                forEach {
-                    it.value?.onMainActivityDestroyed()
-                }
-            }
-        }
-
+        ExtensionManager.onAppDestroyed()
         DefaultScope.cancel()
         super.onDestroy()
         binding = null

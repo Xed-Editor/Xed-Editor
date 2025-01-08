@@ -1,15 +1,14 @@
 package com.rk.extension
 
-import android.content.Context
-import androidx.compose.runtime.mutableStateListOf
+import android.app.Application
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.rk.libcommons.application
+import com.rk.libcommons.postIO
+import com.rk.settings.PreferencesData
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
@@ -18,24 +17,23 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
 
-object ExtensionManager {
+object ExtensionManager : ExtensionAPI() {
     val isLoaded = mutableStateOf(false)
-    val extensions = mutableStateMapOf<Extension,ExtensionAPI?>()
+    val extensions = mutableStateMapOf<Extension, ExtensionAPI?>()
 
     init {
-        if (isLoaded.value.not()){
-            GlobalScope.launch {
+        if (isLoaded.value.not()) {
+            postIO {
                 loadExistingPlugins(application!!)
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     isLoaded.value = true
                 }
             }
         }
     }
 
-    suspend fun loadExistingPlugins(context: Context): Map<Extension,ExtensionAPI?> =
+    suspend fun loadExistingPlugins(context: Application): Map<Extension, ExtensionAPI?> =
         withContext(Dispatchers.IO) {
-            extensions.clear()
             context.pluginDir.listFiles()?.forEach { pluginFolder ->
                 val manifestFile = File(pluginFolder, "manifest.properties")
                 val codeFolder = File(pluginFolder, "code")
@@ -50,21 +48,23 @@ object ExtensionManager {
                         properties.load(inputStream)
                     }
 
-                    extensions.put(
-                        Extension(
-                            manifest = manifestFile,
-                            dexFiles = dexFiles,
-                            name = properties.getProperty("name") ?: "Unknown",
-                            packageName = properties.getProperty("packageName"),
-                            mainClass = properties.getProperty("mainClass") ?: "",
-                            settingsClass = properties.getProperty("settingsClass"),
-                            website = properties.getProperty("pluginWebsite"),
-                            author = properties.getProperty("author"),
-                            version = properties.getProperty("version") ?: "1.0",
-                            versionCode = properties.getProperty("versionCode")?.toIntOrNull()
-                                ?: 1
-                        ),null
+                    val ext = Extension(
+                        manifest = manifestFile,
+                        dexFiles = dexFiles,
+                        name = properties.getProperty("name") ?: "Unknown",
+                        packageName = properties.getProperty("packageName"),
+                        mainClass = properties.getProperty("mainClass") ?: "",
+                        settingsClass = properties.getProperty("settingsClass"),
+                        website = properties.getProperty("pluginWebsite"),
+                        author = properties.getProperty("author"),
+                        version = properties.getProperty("version") ?: "1.0",
+                        versionCode = properties.getProperty("versionCode")?.toIntOrNull() ?: 1,
+                        application = context
                     )
+
+                    if (extensions[ext] == null) {
+                        extensions[ext] = null
+                    }
                 }
             }
 
@@ -72,26 +72,30 @@ object ExtensionManager {
         }
 
 
-    private fun requiredByOthers(dex:File,except:Extension):Boolean{
+    private fun requiredByOthers(dex: File, except: Extension): Boolean {
         extensions.keys.forEach {
-            if (it != except && it.dexFiles.contains(dex)){
+            if (it != except && it.dexFiles.contains(dex)) {
                 return true
             }
         }
         return false
     }
 
-    suspend fun deletePlugin(extension: Extension) = withContext(Dispatchers.IO){
+    suspend fun deletePlugin(extension: Extension) = withContext(Dispatchers.IO) {
         extension.dexFiles.forEach { dex ->
-            if (requiredByOthers(dex,extension).not()){
+            if (requiredByOthers(dex, extension).not()) {
                 dex.delete()
             }
         }
         extension.manifest.parentFile!!.deleteRecursively()
         extensions.remove(extension)
+        runCatching {
+            PreferencesData.removeKey("ext_" + extension.packageName)
+        }
     }
 
-    suspend fun installPlugin(context: Context, zipFile: File): Extension? =
+    @OptIn(DelicateCoroutinesApi::class)
+    suspend fun installPlugin(context: Application, zipFile: File): Extension? =
         withContext(Dispatchers.IO) {
             val properties = getProperties(zipFile)
             val pluginName = properties.getProperty("packageName")
@@ -121,7 +125,7 @@ object ExtensionManager {
                     ?: emptyList()
 
                 if (manifestFile.exists() && dexFiles.isNotEmpty()) {
-                    val newExtension =  Extension(
+                    val newExtension = Extension(
                         manifest = manifestFile,
                         dexFiles = dexFiles,
                         name = properties.getProperty("name") ?: "Unknown",
@@ -131,10 +135,11 @@ object ExtensionManager {
                         website = properties.getProperty("pluginWebsite"),
                         author = properties.getProperty("author"),
                         version = properties.getProperty("version") ?: "1.0",
-                        versionCode = properties.getProperty("versionCode")?.toIntOrNull()
-                            ?: 1
+                        versionCode = properties.getProperty("versionCode")?.toIntOrNull() ?: 1,
+                        application = context
                     )
                     extensions[newExtension] = null
+                    Extension.executeExtensions(context, GlobalScope)
                     return@withContext newExtension
                 } else {
                     destinationFolder.deleteRecursively()
@@ -147,25 +152,8 @@ object ExtensionManager {
             return@withContext null
         }
 
-
-    private suspend fun readFileFromZip(zipFile: File, fileName: String): String? {
-        var content: String? = null
-        withContext(Dispatchers.IO) {
-            ZipFile(zipFile).use { zip ->
-                val entry = zip.getEntry(fileName)
-                if (entry != null) {
-                    zip.getInputStream(entry).use { inputStream ->
-                        content = inputStream.bufferedReader().readText()
-                    }
-                }
-            }
-        }
-        return content
-    }
-
     private suspend fun getProperties(zipFile: File): Properties = withContext(Dispatchers.IO) {
         val properties = Properties()
-
         ZipFile(zipFile).use { zip ->
             val entry = zip.getEntry("manifest.properties")
             if (entry != null) {
@@ -174,7 +162,78 @@ object ExtensionManager {
                 }
             }
         }
-
         return@withContext properties
+    }
+
+    override fun onPluginLoaded() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onPluginLoaded()
+                }.onFailure { PluginException(ext,"Failed to call method onPluginLoaded() on plugin ${ext.name}",it) }
+            }
+        }
+
+    }
+
+    override fun onAppCreated() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onAppCreated()
+                }.onFailure { PluginException(ext,"Failed to call method onAppCreated() on plugin ${ext.name}",it) }
+            }
+        }
+    }
+
+    override fun onAppLaunched() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onAppLaunched()
+                }.onFailure { PluginException(ext,"Failed to call method onAppLaunched() on plugin ${ext.name}",it) }
+            }
+        }
+
+    }
+
+    override fun onAppPaused() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onAppPaused()
+                }.onFailure { PluginException(ext,"Failed to call method onAppPaused() on plugin ${ext.name}",it) }
+            }
+        }
+    }
+
+    override fun onAppResumed() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onAppResumed()
+                }.onFailure { PluginException(ext,"Failed to call method onAppResumed() on plugin ${ext.name}",it) }
+            }
+        }
+    }
+
+    override fun onAppDestroyed() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onAppDestroyed()
+                }.onFailure { PluginException(ext,"Failed to call method onAppDestroyed() on plugin ${ext.name}",it) }
+            }
+        }
+    }
+
+    override fun onLowMemory() {
+        postIO {
+            extensions.forEach { (ext, instance) ->
+                runCatching {
+                    instance?.onLowMemory()
+                }.onFailure { PluginException(ext,"Failed to call method onLowMemory() on plugin ${ext.name}",it) }
+            }
+        }
     }
 }

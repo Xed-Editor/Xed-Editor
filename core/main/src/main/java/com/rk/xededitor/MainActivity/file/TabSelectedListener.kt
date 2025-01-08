@@ -20,9 +20,11 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
         if (smoothTabs.not()) { activity.viewPager!!.setCurrentItem(tab!!.position, false) }
         MenuItemHandler.update(activity)
         tab?.text = tab?.text
+        MainActivity.withContext { MenuItemHandler.update(this) }
     }
     
     override fun onTabReselected(tab: Tab?) {
+        MainActivity.withContext { MenuItemHandler.update(this) }
         val popupMenu = PopupMenu(activity, tab!!.view)
         popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item ->
@@ -54,5 +56,7 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
         }
         popupMenu.show()
     }
-    override fun onTabUnselected(tab: Tab?) {}
+    override fun onTabUnselected(tab: Tab?) {
+        MainActivity.withContext { MenuItemHandler.update(this) }
+    }
 }

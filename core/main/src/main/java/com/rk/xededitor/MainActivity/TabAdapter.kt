@@ -12,6 +12,7 @@ import com.rk.file.FileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
+import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
@@ -116,6 +117,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             binding!!.tabs.visibility = View.GONE
             binding!!.mainView.visibility = View.GONE
             binding!!.openBtn.visibility = View.VISIBLE
+            MenuItemHandler.update(mainActivity)
         }
     }
     
@@ -161,6 +163,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 }
                 
             }
+            MenuItemHandler.update(mainActivity)
         }
     }
     
@@ -201,7 +204,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 close()
             }
             
-            
+            MenuItemHandler.update(mainActivity)
         }
     }
     
@@ -264,6 +267,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             binding!!.mainView.visibility = View.VISIBLE
             binding!!.openBtn.visibility = View.GONE
         }
+        MenuItemHandler.update(mainActivity)
     }
     
     
