@@ -146,7 +146,7 @@ object ProjectManager {
                 if (saveState) {
                     if (file is UriWrapper) {
                         kotlin.runCatching {
-                            activity.getContentResolver().releasePersistableUriPermission(
+                            activity.contentResolver.releasePersistableUriPermission(
                                 file.file.uri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                             )

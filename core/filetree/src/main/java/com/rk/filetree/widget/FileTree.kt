@@ -30,11 +30,12 @@ class FileTree : RecyclerView {
     ) : super(context, attrs, defStyleAttr)
 
     init {
-        setItemViewCacheSize(100)
+        setItemViewCacheSize(60)
         layoutManager = LinearLayoutManager(context)
         val animation = AnimationUtils.loadLayoutAnimation(context, R.anim.animation)
         this.layoutAnimation = animation
         fileTreeAdapter = FileTreeAdapter(context, this)
+
     }
 
     fun getRootFileObject(): com.rk.file.FileObject {
