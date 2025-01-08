@@ -147,4 +147,9 @@ class App : Application() {
         super.onLowMemory()
     }
 
+    override fun onTrimMemory(level: Int) {
+        ExtensionManager.onLowMemory()
+        super.onTrimMemory(level)
+    }
+
 }
