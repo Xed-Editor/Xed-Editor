@@ -12,7 +12,31 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.util.Locale
 
-class UriWrapper(val file: DocumentFile) : FileObject {
+class UriWrapper : FileObject {
+    @Transient
+    private var _file: DocumentFile? = null
+
+    var file: DocumentFile
+        get() {
+            if (_file == null) {
+                _file = when {
+                    uri.toString().contains("tree/") -> DocumentFile.fromTreeUri(application!!, uri)
+                    else -> DocumentFile.fromSingleUri(application!!, uri)
+                } ?: throw IllegalArgumentException("Invalid Uri or missing permission: $uri")
+            }
+            return _file!!
+        }
+        set(value) {
+            _file = value
+        }
+
+
+    private val uri:Uri
+
+    constructor(file:DocumentFile){
+        this.file = file
+        this.uri = file.uri
+    }
 
     @Throws(IllegalArgumentException::class)
     constructor(uri: Uri) : this(
