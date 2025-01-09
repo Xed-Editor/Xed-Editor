@@ -278,7 +278,7 @@
     <string name="sora_s">Pesquisa de texto Sora</string>
     <string name="manage_editor_font">Gerenciar fontes do editor</string>
     <string name="default_encoding">Codificação Padrão</string>
-    <string name="default_encoding_desc">Codificação padrão ao abrir e criar arquivos</string>
+    <string name="default_encoding_desc">Codificação Padrão do Editor</string>
     <string name="other">Outro</string>
     <string name="content">Conteúdo</string>
     <string name="fonts">Fontes</string>
