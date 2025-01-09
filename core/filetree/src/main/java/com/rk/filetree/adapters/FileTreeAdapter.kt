@@ -1,12 +1,15 @@
 package com.rk.filetree.adapters
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -17,8 +20,11 @@ import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.model.TreeViewModel
-import com.rk.filetree.util.Sorter
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import com.rk.filetree.util.sort
 import com.rk.filetree.widget.FileTree
+import kotlinx.coroutines.launch
 
 class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
@@ -32,7 +38,7 @@ class NodeDiffCallback : DiffUtil.ItemCallback<Node<FileObject>>() {
     }
 
     override fun areContentsTheSame(oldItem: Node<FileObject>, newItem: Node<FileObject>): Boolean {
-        return areItemsTheSame(oldItem, newItem)
+        return areItemsTheSame(oldItem, newItem) && oldItem.isExpand == newItem.isExpand
     }
 }
 
@@ -42,6 +48,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     var onClickListener: FileClickListener? = null
     var onLongClickListener: FileLongClickListener? = null
     var iconProvider: FileIconProvider? = null
+    private var isBusy = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View =
@@ -54,11 +61,15 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
                 if (adapterPosition != RecyclerView.NO_POSITION) {
                     val clickedNode = getItem(adapterPosition)
 
-                    if (clickedNode.value.isDirectory()) {
+                    if (clickedNode.value.isDirectory() && isBusy.not()) {
                         if (!clickedNode.isExpand) {
-                            expandNode(clickedNode)
+                            it.findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
+                                expandNode(clickedNode)
+                                isBusy = false
+                            }
                         } else {
                             collapseNode(clickedNode)
+                            isBusy = false
                         }
                         notifyItemChanged(adapterPosition)
                     }
@@ -84,8 +95,8 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
     //parent file
-    fun newFile(file: FileObject) {
-
+    suspend fun newFile(file: FileObject) {
+        isBusy = true
         val tempData = currentList.toMutableList()
 
         var xnode: Node<FileObject>? = null
@@ -96,8 +107,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             }
         }
 
-        val cache = Sorter.sort(file)
-
+        val cache = sort(file)
         val children1 = TreeViewModel.getChildren(xnode!!)
 
         tempData.removeAll(children1.toSet())
@@ -111,6 +121,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         xnode.isExpand = true
 
         submitList(tempData)
+        isBusy = false
     }
 
     fun removeFile(file: FileObject) {
@@ -125,6 +136,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
 
         if (nodetoremove != null) {
+            isBusy = true
             if (file.isFile()) {
                 val index = tempData.indexOf(nodetoremove)
                 if (index != -1) {
@@ -143,10 +155,12 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             }
 
             submitList(tempData)
+            isBusy = false
         }
     }
 
     fun renameFile(child: FileObject, newFile: FileObject) {
+        isBusy = true
         val tempData = currentList.toMutableList()
         for (node in tempData) {
             if (node.value == child) {
@@ -160,6 +174,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
                 break
             }
         }
+        isBusy = false
     }
 
     private fun dpToPx(dpValue: Float): Int {
@@ -186,43 +201,58 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
         val icChevronRight = iconProvider?.getChevronRight()
 
+
+        val targetRotation = when {
+            node.isExpand -> 90f
+            else -> 0f
+        }
+
+        val currentRotation = expandView.rotation
+        if (currentRotation != targetRotation) {
+            val rotationAnimator = ObjectAnimator.ofFloat(expandView, "rotation", currentRotation, targetRotation).apply {
+                duration = 300
+                interpolator = LinearInterpolator()
+            }
+            expandView.rotation = targetRotation
+            rotationAnimator.setDuration(300)
+            rotationAnimator.start()
+        }
+
+
+
         if (isDir) {
             expandView.visibility = View.VISIBLE
-            if (!node.isExpand) {
-                expandView.setImageDrawable(icChevronRight)
-            } else {
-                expandView.setImageDrawable(iconProvider?.getExpandMore())
-            }
         } else {
             layoutParams.setMargins(icChevronRight!!.intrinsicWidth + dpToPx(10f), 0, 0, 0)
             fileView.layoutParams = layoutParams
             expandView.visibility = View.GONE
         }
 
-        holder.textView.text = if (node.value.getName().isBlank()){
-            "no_name"
-        }else{
-            node.value.getName()
+        holder.textView.text = node.value.getName().ifBlank {
+            "invalid"
         }
     }
 
-    fun expandNode(clickedNode: Node<FileObject>) {
+    suspend fun expandNode(clickedNode: Node<FileObject>) {
         val tempData = currentList.toMutableList()
         val index = tempData.indexOf(clickedNode)
-        val children = Sorter.sort(clickedNode.value)
+        val children = sort(clickedNode.value)
         tempData.addAll(index + 1, children)
         TreeViewModel.add(clickedNode, children)
         clickedNode.isExpand = true
         submitList(tempData)
+        notifyItemChanged(index)
     }
 
 
     private fun collapseNode(clickedNode: Node<FileObject>) {
         val tempData = currentList.toMutableList()
+        val index = tempData.indexOf(clickedNode)
         val children = TreeViewModel.getChildren(clickedNode)
         tempData.removeAll(children.toSet())
         TreeViewModel.remove(clickedNode, clickedNode.child)
         clickedNode.isExpand = false
         submitList(tempData)
+        notifyItemChanged(index)
     }
 }

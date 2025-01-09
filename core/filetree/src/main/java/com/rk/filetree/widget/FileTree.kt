@@ -12,12 +12,13 @@ import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
-import com.rk.filetree.util.Sorter
 import com.rk.filetree.R
+import com.rk.filetree.util.sort
+
 
 class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
-    private lateinit var rootFileObject: com.rk.file.FileObject
+    private lateinit var rootFileObject: FileObject
 
     constructor(context: Context) : super(context)
 
@@ -30,15 +31,14 @@ class FileTree : RecyclerView {
     ) : super(context, attrs, defStyleAttr)
 
     init {
-        setItemViewCacheSize(60)
+        setItemViewCacheSize(70)
         layoutManager = LinearLayoutManager(context)
         val animation = AnimationUtils.loadLayoutAnimation(context, R.anim.animation)
         this.layoutAnimation = animation
         fileTreeAdapter = FileTreeAdapter(context, this)
-
     }
 
-    fun getRootFileObject(): com.rk.file.FileObject {
+    fun getRootFileObject(): FileObject {
         return rootFileObject
     }
 
@@ -61,16 +61,16 @@ class FileTree : RecyclerView {
         return showRootNode
     }
 
-    fun loadFiles(file: com.rk.file.FileObject, showRootNodeX: Boolean? = null) {
+    suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) {
         rootFileObject = file
 
         showRootNodeX?.let { showRootNode = it }
 
-        val nodes: List<Node<com.rk.file.FileObject>> =
+        val nodes: List<Node<FileObject>> =
             if (showRootNode) {
-                mutableListOf<Node<com.rk.file.FileObject>>().apply { add(Node(file)) }
+                mutableListOf<Node<FileObject>>().apply { add(Node(file)) }
             } else {
-                Sorter.sort(file)
+                sort(file)
             }
 
         if (init.not()) {
@@ -86,25 +86,25 @@ class FileTree : RecyclerView {
         }
     }
 
-    fun reloadFileTree() {
-        val nodes: List<Node<com.rk.file.FileObject>> =
+    suspend fun reloadFileTree() {
+        val nodes: List<Node<FileObject>> =
             if (showRootNode) {
-                mutableListOf<Node<com.rk.file.FileObject>>().apply { add(Node(rootFileObject)) }
+                mutableListOf<Node<FileObject>>().apply { add(Node(rootFileObject)) }
             } else {
-                Sorter.sort(rootFileObject)
+                sort(rootFileObject)
             }
         fileTreeAdapter.submitList(nodes)
     }
 
-    fun onFileAdded(file: com.rk.file.FileObject) {
+    suspend fun onFileAdded(file: FileObject) {
         fileTreeAdapter.newFile(file)
     }
 
-    fun onFileRemoved(file: com.rk.file.FileObject) {
+    fun onFileRemoved(file: FileObject) {
         fileTreeAdapter.removeFile(file)
     }
 
-    fun onFileRenamed(file: com.rk.file.FileObject, newFileObject: com.rk.file.FileObject) {
+    fun onFileRenamed(file: FileObject, newFileObject: FileObject) {
         fileTreeAdapter.renameFile(file, newFileObject)
     }
 }

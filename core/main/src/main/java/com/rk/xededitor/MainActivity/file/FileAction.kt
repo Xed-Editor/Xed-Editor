@@ -56,7 +56,9 @@ class FileAction(
                     getString(strings.reload_file_tree),
                     getDrawable(drawables.sync),
                 ) {
-                    ProjectManager.currentProject.refresh(mainActivity)
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.currentProject.refresh(mainActivity)
+                    }
                 }
                 addItem(
                     getString(strings.close),
@@ -231,7 +233,7 @@ class FileAction(
                     getDrawable(drawables.save),
                 ) {
                     to_save_file = file
-                    MainActivity.activityRef?.get()?.fileManager?.requestOpenDirectoryToSaveFile()
+                    MainActivity.activityRef.get()?.fileManager?.requestOpenDirectoryToSaveFile()
                 }
             }
 
@@ -425,7 +427,9 @@ class FileAction(
                     GitClient.clone(mainActivity, url, file.file, onResult = {
                         runOnUiThread {
                             if (it == null) {
-                                ProjectManager.currentProject.updateFileAdded(mainActivity, file)
+                                mainActivity.lifecycleScope.launch {
+                                    ProjectManager.currentProject.updateFileAdded(mainActivity, file)
+                                }
                             }
                             loading.hide()
                             it?.message?.toastIt()

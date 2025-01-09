@@ -47,7 +47,7 @@ object ProjectManager {
         }
     }
 
-    fun addProject(activity: MainActivity, file: FileObject) {
+    suspend fun addProject(activity: MainActivity, file: FileObject) {
 
         if (activityRef.get() == null) {
             activityRef = WeakReference(activity)
@@ -221,7 +221,7 @@ object ProjectManager {
             return getSelectedView(activity).getRootFileObject()
         }
 
-        fun refresh(activity: MainActivity) {
+        suspend fun refresh(activity: MainActivity) {
             getSelectedView(activity).reloadFileTree()
         }
 
@@ -233,12 +233,12 @@ object ProjectManager {
             getSelectedView(activity).onFileRemoved(file)
         }
 
-        fun updateFileAdded(activity: MainActivity, file: FileObject) {
+        suspend fun updateFileAdded(activity: MainActivity, file: FileObject) {
             getSelectedView(activity).onFileAdded(file)
         }
     }
 
-    fun changeCurrentProjectRoot(file: FileObject, activity: MainActivity) {
+    suspend fun changeCurrentProjectRoot(file: FileObject, activity: MainActivity) {
         getSelectedView(activity).loadFiles(file)
     }
 

@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -22,6 +23,7 @@ import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.getString
+import kotlinx.coroutines.launch
 import org.apache.commons.net.io.Util.copyStream
 import java.io.File
 
@@ -86,9 +88,11 @@ class FileManager(private val mainActivity: MainActivity) {
                 copyUriData(mainActivity.contentResolver,sourceUri,destinationUri)
 
                 parentFile?.let {
-                    ProjectManager.currentProject.updateFileAdded(
-                        mainActivity, it
-                    )
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.currentProject.updateFileAdded(
+                            mainActivity, it
+                        )
+                    }
                 }
             }
             parentFile = null
@@ -106,11 +110,16 @@ class FileManager(private val mainActivity: MainActivity) {
                             it.data!!.data!!, takeFlags
                         )
                     }
-                    ProjectManager.addProject(
-                        mainActivity, UriWrapper(it.data!!.data!!)
-                    )
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.addProject(
+                            mainActivity, UriWrapper(it.data!!.data!!)
+                        )
+                    }
+
                 } else {
-                    ProjectManager.addProject(mainActivity, FileWrapper(file))
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.addProject(mainActivity, FileWrapper(file))
+                    }
                 }
 
             }
@@ -224,7 +233,9 @@ class FileManager(private val mainActivity: MainActivity) {
                 }
 
                 if (file.isDirectory) {
-                    ProjectManager.addProject(mainActivity, FileWrapper(file))
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.addProject(mainActivity, FileWrapper(file))
+                    }
                 } else {
                     mainActivity.adapter!!.addFragment(FileWrapper(file))
                 }
