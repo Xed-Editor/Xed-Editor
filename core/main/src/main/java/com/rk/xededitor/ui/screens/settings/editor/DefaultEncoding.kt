@@ -3,6 +3,10 @@ package com.rk.xededitor.ui.screens.settings.editor
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
@@ -17,10 +21,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.toLowerCase
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.ui.components.InfoBlock
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
@@ -39,6 +45,18 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
             mutableStateOf(PreferencesData.getString(PreferencesKeys.SELECTED_ENCODING, Charset.defaultCharset().name()))
         }
         val intraction = remember { MutableInteractionSource() }
+
+
+        InfoBlock(
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Warning, contentDescription = null
+                )
+            },
+            text = strings.encoding_warning.getString(),
+        )
+
+
         PreferenceGroup {
             PreferenceTemplate(
                 modifier = modifier.clickable(
@@ -60,8 +78,6 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                 }
             )
 
-            val context = LocalContext.current
-
             DefaultEncoding.charsets.forEach { charset ->
                 val intraction = remember { MutableInteractionSource() }
                 if (charset.name().lowercase(Locale.getDefault()) != "utf-8") {
@@ -70,17 +86,9 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                             indication = ripple(),
                             interactionSource = intraction
                         ) {
-                            MaterialAlertDialogBuilder(context).apply {
-                                setTitle(strings.warning)
-                                setMessage(strings.encoding_warning)
-                                setPositiveButton(strings.ok){_,_ ->
-                                    MainActivity.activityRef.get()?.adapter?.clearAllFragments()
-                                    selectedEncoding = charset.name()
-                                    PreferencesData.setString(PreferencesKeys.SELECTED_ENCODING,charset.name())
-                                }
-                                setNegativeButton(strings.cancel,null)
-                                show()
-                            }
+                            MainActivity.activityRef.get()?.adapter?.clearAllFragments()
+                            selectedEncoding = charset.name()
+                            PreferencesData.setString(PreferencesKeys.SELECTED_ENCODING,charset.name())
                         },
                         contentModifier = Modifier.fillMaxHeight(),
                         title = { Text(fontWeight = FontWeight.Bold, text = charset.name()) },

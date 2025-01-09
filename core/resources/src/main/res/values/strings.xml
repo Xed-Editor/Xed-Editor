@@ -294,7 +294,7 @@
 
     <string name="manage_editor_font">Manage Editor Fonts</string>
     <string name="default_encoding">Default Encoding</string>
-    <string name="default_encoding_desc">Default Encoding when opening and creating files</string>
+    <string name="default_encoding_desc">Editor Default Encoding</string>
     <string name="other">Other</string>
     <string name="content">Content</string>
     <string name="fonts">Fonts</string>

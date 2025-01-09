@@ -14,6 +14,7 @@ import com.rk.libcommons.application
 import com.rk.libcommons.currentActivity
 import com.rk.resources.Res
 import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
@@ -131,8 +132,11 @@ class App : Application() {
             }
 
             delay(500)
-            Extension.executeExtensions(this@App,GlobalScope)
-            ExtensionManager.onAppLaunched()
+            if (PreferencesData.getBoolean(PreferencesKeys.ENABLE_EXTENSIONS,false)){
+                Extension.executeExtensions(this@App,GlobalScope)
+                ExtensionManager.onAppLaunched()
+            }
+
         }
 
     }

@@ -87,7 +87,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             )
 
-
             SettingsToggle(
                 label = "Enable Extensions",
                 description = "Load third party Extensions",

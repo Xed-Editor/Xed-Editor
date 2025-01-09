@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.InputDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,6 +39,7 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceLayou
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 import java.io.File
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) {
 
@@ -45,43 +49,48 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
     val context = LocalContext.current
 
-    PreferenceLayout(
-        label = stringResource(id = strings.mutators),
-        backArrowVisible = true,
-        fab = {
-            FloatingActionButton(onClick = {
-                showDialog = true
-            }) {
-                Icon(imageVector = Icons.Outlined.Add, contentDescription = "Add Mutator")
-            }
+    PreferenceLayout(label = stringResource(id = strings.mutators), backArrowVisible = true, fab = {
+        FloatingActionButton(onClick = {
+            showDialog = true
+        }) {
+            Icon(imageVector = Icons.Outlined.Add, contentDescription = "Add Mutator")
         }
-    ) {
+    }) {
+
+        InfoBlock(
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Info, contentDescription = null
+                )
+            },
+            text = "Mutators are small scripts that are used to modify the editor text. Create a mutator and click on it to open it in the editor.",
+        )
+
         PreferenceGroup {
             if (mutators.isEmpty()) {
                 Text(
-                    text = "No mutators",
-                    modifier = Modifier.padding(16.dp)
+                    text = "No mutators", modifier = Modifier.padding(16.dp)
                 )
             } else {
                 mutators.toList().forEach { mut ->
-                    PreferenceTemplate(
-                        modifier = modifier.clickable {
-                            DefaultScope.launch {
-                                val file = File(context.getTempDir(),mut.name+"&mut.js")
-                                withContext(Dispatchers.IO){
-                                    file.writeText(mut.script)
-                                }
-                                withContext(Dispatchers.Main){
-                                    MainActivity.activityRef.get()?.adapter?.addFragment(
-                                        com.rk.file.FileWrapper(
-                                            file
-                                        ),FragmentType.EDITOR)
-                                    rkUtils.toast("Opened in Editor")
-                                }
-
+                    PreferenceTemplate(modifier = modifier.clickable {
+                        DefaultScope.launch {
+                            val file = File(context.getTempDir(), mut.name + "&mut.js")
+                            withContext(Dispatchers.IO) {
+                                file.writeText(mut.script)
+                            }
+                            withContext(Dispatchers.Main) {
+                                MainActivity.activityRef.get()?.adapter?.addFragment(
+                                    FileWrapper(
+                                        file
+                                    ), FragmentType.EDITOR
+                                )
+                                rkUtils.toast("Opened in Editor")
                             }
 
-                        },
+                        }
+
+                    },
                         contentModifier = Modifier.fillMaxHeight(),
                         title = { Text(text = mut.name) },
                         enabled = true,
@@ -89,12 +98,10 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                         endWidget = {
                             IconButton(onClick = { Mutators.deleteMutator(mut) }) {
                                 Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = null
+                                    imageVector = Icons.Outlined.Delete, contentDescription = null
                                 )
                             }
-                        }
-                    )
+                        })
                 }
             }
         }
@@ -122,16 +129,18 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
     }
 }
 
-private fun onDone(name:String):Boolean{
-    if (name.isBlank()){
+private fun onDone(name: String): Boolean {
+    if (name.isBlank()) {
         rkUtils.toast("Name cant be empty")
         return false
-    }else{
-        if (Mutators.getMutators().map { it.name }.contains(name)){
+    } else {
+        if (Mutators.getMutators().map { it.name }.contains(name)) {
             rkUtils.toast("Name already used")
             return false
         }
-        Mutators.createMutator(Mutators.Mutator(name = name, script = """
+        Mutators.createMutator(
+            Mutators.Mutator(
+                name = name, script = """
 
             //get text
             //let text = getEditorText()
@@ -150,7 +159,9 @@ private fun onDone(name:String):Boolean{
             
             
 
-        """.trimIndent()))
+        """.trimIndent()
+            )
+        )
         return true
     }
 

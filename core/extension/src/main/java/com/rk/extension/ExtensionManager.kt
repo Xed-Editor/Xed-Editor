@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.rk.libcommons.application
 import com.rk.libcommons.postIO
 import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -22,7 +23,7 @@ object ExtensionManager : ExtensionAPI() {
     val extensions = mutableStateMapOf<Extension, ExtensionAPI?>()
 
     init {
-        if (isLoaded.value.not()) {
+        if (isLoaded.value.not() && isPluginEnabled()) {
             postIO {
                 loadExistingPlugins(application!!)
                 withContext(Dispatchers.Main) {
@@ -71,7 +72,6 @@ object ExtensionManager : ExtensionAPI() {
             extensions
         }
 
-
     private fun requiredByOthers(dex: File, except: Extension): Boolean {
         extensions.keys.forEach {
             if (it != except && it.dexFiles.contains(dex)) {
@@ -97,6 +97,11 @@ object ExtensionManager : ExtensionAPI() {
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun installPlugin(context: Application, zipFile: File): Extension? =
         withContext(Dispatchers.IO) {
+
+            if (isPluginEnabled().not()){
+                return@withContext null
+            }
+
             val properties = getProperties(zipFile)
             val pluginName = properties.getProperty("packageName")
             val destinationFolder = File(context.pluginDir, pluginName).apply { mkdirs() }
@@ -165,7 +170,15 @@ object ExtensionManager : ExtensionAPI() {
         return@withContext properties
     }
 
+    private fun isPluginEnabled():Boolean{
+        return PreferencesData.getBoolean(PreferencesKeys.ENABLE_EXTENSIONS,false)
+    }
+
     override fun onPluginLoaded() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
@@ -177,6 +190,10 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onAppCreated() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
@@ -187,6 +204,10 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onAppLaunched() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
@@ -198,6 +219,10 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onAppPaused() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
@@ -208,6 +233,10 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onAppResumed() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
@@ -218,6 +247,10 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onAppDestroyed() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
@@ -228,6 +261,10 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onLowMemory() {
+        if (isPluginEnabled().not()){
+            return
+        }
+
         postIO {
             extensions.forEach { (ext, instance) ->
                 runCatching {
