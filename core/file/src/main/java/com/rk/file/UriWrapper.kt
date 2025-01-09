@@ -5,33 +5,34 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
+import com.rk.libcommons.application
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.util.Locale
 
-class UriWrapper(val context: Application, val file: DocumentFile) : FileObject {
+class UriWrapper(val file: DocumentFile) : FileObject {
 
     @Throws(IllegalArgumentException::class)
-    constructor(context: Application, uri: Uri) : this(
-        context, when {
-            uri.toString().contains("tree/") -> DocumentFile.fromTreeUri(context, uri)
-            else -> DocumentFile.fromSingleUri(context, uri)
+    constructor(uri: Uri) : this(
+        when {
+            uri.toString().contains("tree/") -> DocumentFile.fromTreeUri(application!!, uri)
+            else -> DocumentFile.fromSingleUri(application!!, uri)
         } ?: throw IllegalArgumentException("Invalid Uri or missing permission: $uri")
     )
 
     override fun listFiles(): List<FileObject> = when {
         !file.isDirectory -> emptyList()
         !file.canRead() -> emptyList()
-        else -> file.listFiles().map { UriWrapper(context, it) }
+        else -> file.listFiles().map { UriWrapper(it) }
     }
 
     override fun isDirectory(): Boolean = file.isDirectory
     override fun isFile(): Boolean = file.isFile
     override fun getName(): String = file.name ?: ""
     override fun getParentFile(): FileObject? =
-        file.parentFile?.let { UriWrapper(context, it) }
+        file.parentFile?.let { UriWrapper(it) }
 
     override fun exists(): Boolean = file.exists()
 
@@ -65,7 +66,7 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
 
         val parent = file.parentFile ?: throw IOException("Cannot create parent directory")
         if (!parent.exists()) {
-            UriWrapper(context, parent).mkdirs()
+            UriWrapper(parent).mkdirs()
         }
         return mkdir()
     }
@@ -75,7 +76,7 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
             throw SecurityException("No write permission for file: ${file.uri}")
         }
 
-        context.contentResolver?.openOutputStream(file.uri)?.use { outputStream ->
+        application?.contentResolver?.openOutputStream(file.uri)?.use { outputStream ->
             try {
                 outputStream.write(text.toByteArray())
                 outputStream.flush()
@@ -91,7 +92,7 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
             throw SecurityException("No read permission for file: ${file.uri}")
         }
 
-        return context.contentResolver?.openInputStream(file.uri)
+        return application?.contentResolver?.openInputStream(file.uri)
             ?: throw FileNotFoundException("Could not open input stream for: ${file.uri}")
     }
 
@@ -100,7 +101,7 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
             throw SecurityException("No read permission for file: ${file.uri}")
         }
         val mode = if (append) "wa" else "w"
-        return context.contentResolver?.openOutputStream(file.uri, mode)
+        return application?.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw FileNotFoundException("Could not open input stream for: ${file.uri}")
 
     }
@@ -133,9 +134,9 @@ class UriWrapper(val context: Application, val file: DocumentFile) : FileObject 
 
     override fun createChild(createFile: Boolean, name: String):FileObject? {
         return if (createFile){
-            file.createFile("application/octet-stream",name)?.let { UriWrapper(context, it) }
+            file.createFile("application/octet-stream",name)?.let { UriWrapper(it) }
         }else{
-            file.createDirectory(name)?.let { UriWrapper(context,it) }
+            file.createDirectory(name)?.let { UriWrapper(it) }
         }
     }
 

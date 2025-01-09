@@ -205,7 +205,7 @@ object ProjectManager {
             return if (file.exists()) {
                 FileWrapper(file)
             } else {
-                UriWrapper(application!!, Uri.parse(it))
+                UriWrapper(Uri.parse(it))
             }
         }
         return null
@@ -263,7 +263,7 @@ object ProjectManager {
                             if (file.exists()) {
                                 addProject(activity, FileWrapper(file))
                             } else {
-                                addProject(activity, UriWrapper(application!!, Uri.parse(it)))
+                                addProject(activity, UriWrapper(Uri.parse(it)))
                             }
                         }
                     }

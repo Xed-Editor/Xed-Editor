@@ -35,9 +35,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     mainActivity.adapter!!.addFragment(FileWrapper(file))
                 } else {
                     mainActivity.adapter!!.addFragment(
-                        UriWrapper(
-                            application!!, it.data!!.data!!
-                        )
+                        UriWrapper(it.data!!.data!!)
                     )
                 }
 
@@ -109,7 +107,7 @@ class FileManager(private val mainActivity: MainActivity) {
                         )
                     }
                     ProjectManager.addProject(
-                        mainActivity, UriWrapper(application!!, it.data!!.data!!)
+                        mainActivity, UriWrapper(it.data!!.data!!)
                     )
                 } else {
                     ProjectManager.addProject(mainActivity, FileWrapper(file))
@@ -145,7 +143,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 val wrapper: FileObject = if (file.exists()) {
                     FileWrapper(file)
                 } else {
-                    UriWrapper(application!!, data!!.data!!)
+                    UriWrapper(data!!.data!!)
                 }
                 mainActivity.adapter?.addFragment(wrapper)
             }
