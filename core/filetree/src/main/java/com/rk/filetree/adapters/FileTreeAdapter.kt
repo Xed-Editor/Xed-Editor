@@ -228,9 +228,9 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             expandView.visibility = View.GONE
         }
 
-        holder.textView.text = node.value.getName().ifBlank {
+        holder.textView.text = (node.value.getName().ifBlank {
             "invalid"
-        }
+        })+"                                                    "
     }
 
     suspend fun expandNode(clickedNode: Node<FileObject>) {

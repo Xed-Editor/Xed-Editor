@@ -1,21 +1,16 @@
 package com.rk.xededitor.MainActivity.file
 
 import android.content.Context
-import android.content.res.Resources
-import android.util.DisplayMetrics
+import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
-import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
-import com.rk.xededitor.rkUtils
 import kotlin.properties.Delegates
 
 @Suppress("NOTHING_TO_INLINE")
 object FileTreeScrollViewManager {
-    
+
     private inline fun dpToPx(dp: Int, density: Float): Int {
         return (dp * density).toInt()
     }
@@ -34,22 +29,29 @@ object FileTreeScrollViewManager {
             )
 
         val scrollView = HorizontalScrollView(context).apply {
-                layoutParams = params
-                isHorizontalScrollBarEnabled = false
-            }
+            layoutParams = params
+            isHorizontalScrollBarEnabled = false
+        }
 
         fileTree?.let {
-            it.layoutParams = params
-            linearLayout.addView(fileTree)
+            val paramsX =
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                )
+
+
+            it.layoutParams = paramsX
+            scrollView.addView(fileTree)
         }
 
-        linearLayout.apply {
-            layoutParams = params
-            setPadding(0, 0, dpToPx(54, density), dpToPx(5, density))
-            scrollView.addView(this)
-        }
+//        linearLayout.apply {
+//            layoutParams = params
+//            setPadding(0, dpToPx(5, density), 0, dpToPx(5, density))
+//            scrollView.addView(this)
+//        }
 
-        scrollView.layoutParams = params
+
         return scrollView
     }
 }
