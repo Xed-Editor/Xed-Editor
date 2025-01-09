@@ -190,13 +190,10 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         val fileView = holder.fileView
 
         // Reset padding and margins to avoid accumulation
-        holder.itemView.setPadding(0, 0, 0, 0)
-        val layoutParams = fileView.layoutParams as ViewGroup.MarginLayoutParams
-        layoutParams.setMargins(0, 0, 0, 0)
-        fileView.layoutParams = layoutParams
+        holder.itemView.setPadding(0, dpToPx(5f), 0, 0)
 
         // Set padding based on node level
-        holder.itemView.setPadding(node.level * dpToPx(17f), dpToPx(5f), 0, 0)
+        //holder.itemView.setPadding(node.level * dpToPx(17f), dpToPx(5f), 0, 0)
         fileView.setImageDrawable(iconProvider?.getIcon(node))
 
         val icChevronRight = iconProvider?.getChevronRight()
@@ -219,12 +216,15 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
 
 
-
         if (isDir) {
             expandView.visibility = View.VISIBLE
+            val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.setMargins(node.level * dpToPx(17f), 0, 0, 0)
+            holder.itemView.layoutParams = layoutParams
         } else {
-            layoutParams.setMargins(icChevronRight!!.intrinsicWidth + dpToPx(10f), 0, 0, 0)
-            fileView.layoutParams = layoutParams
+            val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams.setMargins((node.level * dpToPx(17f))+icChevronRight!!.intrinsicWidth+dpToPx(10f), 0, 0, 0)
+            holder.itemView.layoutParams = layoutParams
             expandView.visibility = View.GONE
         }
 
