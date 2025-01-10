@@ -20,8 +20,8 @@ class UriWrapper : FileObject {
         get() {
             if (_file == null) {
                 _file = when {
-                    uri.toString().contains("tree/") -> DocumentFile.fromTreeUri(application!!, uri)
-                    else -> DocumentFile.fromSingleUri(application!!, uri)
+                    uri.contains("tree/") -> DocumentFile.fromTreeUri(application!!, Uri.parse(uri))
+                    else -> DocumentFile.fromSingleUri(application!!, Uri.parse(uri))
                 } ?: throw IllegalArgumentException("Invalid Uri or missing permission: $uri")
             }
             return _file!!
@@ -31,11 +31,11 @@ class UriWrapper : FileObject {
         }
 
 
-    private val uri:Uri
+    private val uri:String
 
     constructor(file:DocumentFile){
         this.file = file
-        this.uri = file.uri
+        this.uri = file.uri.toString()
     }
 
     @Throws(IllegalArgumentException::class)
