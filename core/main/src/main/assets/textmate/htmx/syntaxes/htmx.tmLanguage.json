@@ -1,0 +1,68 @@
+{
+  "scopeName": "text.html.htmx",
+  "name": "HTMX",
+  "patterns": [
+    {
+      "include": "#tags"
+    },
+    {
+      "include": "#htmxAttributes"
+    }
+  ],
+  "repository": {
+    "tags": {
+      "patterns": [
+        {
+          "name": "meta.tag.html",
+          "begin": "(<)([a-zA-Z][a-zA-Z0-9]*)",
+          "beginCaptures": {
+            "1": { "name": "punctuation.definition.tag.begin.html" },
+            "2": { "name": "entity.name.tag.html" }
+          },
+          "end": "(\\/?>)",
+          "endCaptures": {
+            "1": { "name": "punctuation.definition.tag.end.html" }
+          },
+          "patterns": [
+            {
+              "include": "#htmxAttributes"
+            },
+            {
+              "include": "#strings"
+            }
+          ]
+        }
+      ]
+    },
+    "htmxAttributes": {
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.html.htmx",
+          "match": "\\b(hx-(get|post|put|delete|trigger|target|swap|select|headers|params|confirm|indicator|boost|ws))\\b"
+        },
+        {
+          "name": "meta.attribute-with-value.html.htmx",
+          "match": "\\b(hx-(get|post|put|delete|trigger|target|swap|select|headers|params|confirm|indicator|boost|ws))\\b\\s*=\\s*(\"[^\"]*\"|'[^']*')",
+          "captures": {
+            "1": { "name": "entity.other.attribute-name.html.htmx" },
+            "3": { "name": "string.quoted.double.html" },
+            "4": { "name": "string.quoted.single.html" }
+          }
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.html",
+          "match": "\"[^\"]*\""
+        },
+        {
+          "name": "string.quoted.single.html",
+          "match": "'[^']*'"
+        }
+      ]
+    }
+  },
+  "scope": "text.html.basic"
+}

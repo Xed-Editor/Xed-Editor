@@ -46,7 +46,7 @@ object HandleMenuItemClick {
 
                 R.id.search -> {
 
-                    if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, false)) {
+                    if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, true)) {
                         soraSearch.visibility = View.VISIBLE
                         soraSearch.findViewById<EditText>(com.rk.libcommons.R.id.search_editor)
                             .requestFocus()

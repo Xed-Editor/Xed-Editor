@@ -15,12 +15,18 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val expandMore = ContextCompat.getDrawable(context, drawables.round_expand_more_24)
 
     // Lazy initialization for drawables to save memory
-    private val java by lazy { ContextCompat.getDrawable(context, drawables.ic_language_java) }
+    private val java by lazy { ContextCompat.getDrawable(context, drawables.java) }
     private val html by lazy { ContextCompat.getDrawable(context, drawables.ic_language_html) }
     private val kotlin by lazy { ContextCompat.getDrawable(context, drawables.ic_language_kotlin) }
     private val python by lazy { ContextCompat.getDrawable(context, drawables.ic_language_python) }
     private val xml by lazy { ContextCompat.getDrawable(context, drawables.ic_language_xml) }
     private val js by lazy { ContextCompat.getDrawable(context, drawables.ic_language_js) }
+
+    private val ts by lazy { ContextCompat.getDrawable(context, drawables.typescript) }
+    private val lua by lazy { ContextCompat.getDrawable(context, drawables.lua) }
+    private val plugin by lazy { ContextCompat.getDrawable(context, drawables.extension) }
+    private val prop by lazy { ContextCompat.getDrawable(context, drawables.settings) }
+
     private val c by lazy { ContextCompat.getDrawable(context, drawables.ic_language_c) }
     private val cpp by lazy { ContextCompat.getDrawable(context, drawables.ic_language_cpp) }
     private val json by lazy { ContextCompat.getDrawable(context, drawables.ic_language_json) }
@@ -53,12 +59,14 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                     when (node.value.getName().substringAfterLast('.', "")) {
                         "java",
                         "bsh" -> java
-                        "html" -> html
+                        "html","htm","htmx" -> html
                         "kt",
                         "kts" -> kotlin
                         "py" -> python
                         "xml" -> xml
                         "js" -> js
+                        "ts" -> ts
+                        "lua" -> lua
                         "c",
                         "h" -> c
                         "cpp",
@@ -100,6 +108,8 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                         "rs" -> rust
                         "jsx","tsx" -> react
                         "php" -> php
+                        "plugin" -> plugin
+                        "properties" -> prop
                         else -> file
                     }
             }

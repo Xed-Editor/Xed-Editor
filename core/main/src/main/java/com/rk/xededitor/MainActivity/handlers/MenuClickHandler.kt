@@ -138,7 +138,7 @@ object MenuClickHandler {
             Id.search -> {
                 // Handle search
 
-                if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, false)) {
+                if (PreferencesData.getBoolean(PreferencesKeys.USE_SORA_SEARCH, true)) {
                     val fragment =
                         MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
 

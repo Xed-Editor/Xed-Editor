@@ -230,7 +230,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 label = stringResource(strings.sora_s),
                 description = stringResource(strings.sora_s_desc),
                 key = PreferencesKeys.USE_SORA_SEARCH,
-                default = false,
+                default = true,
             )
 
             SettingsToggle(

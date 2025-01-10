@@ -52,6 +52,30 @@
       }
     },
     {
+      "grammar": "textmate/htmx/syntaxes/htmx.tmLanguage.json",
+      "name": "HTMX",
+      "scopeName": "text.html.htmx",
+      "languageConfiguration": "textmate/htmx/language-configuration.json",
+      "embeddedLanguages": {
+        "text.html.basic": "html"
+      }
+    },
+    {
+      "grammar": "textmate/typescript/syntaxes/typescript.tmLanguage.json",
+      "name": "typescript",
+      "scopeName": "source.ts",
+      "languageConfiguration": "textmate/typescript/typescript.language-configuration.json"
+    },
+    {
+      "grammar": "textmate/typescript/syntaxes/TypeScriptReact.tmLanguage.json",
+      "name": "TSX",
+      "scopeName": "source.tsx",
+      "languageConfiguration": "textmate/tsx/tsx.language-configuration.json",
+      "embeddedLanguages": {
+        "source.ts": "typescript"
+      }
+    },
+    {
       "grammar": "textmate/php/syntaxes/html.tmLanguage.json",
       "name": "PHP",
       "scopeName": "text.html.php",
@@ -67,6 +91,12 @@
       "grammar": "textmate/javascript/syntaxes/JavaScript.tmLanguage.json",
       "name": "javascript",
       "scopeName": "source.js",
+      "languageConfiguration": "textmate/javascript/language-configuration.json"
+    },
+    {
+      "grammar": "textmate/javascript/syntaxes/JavaScriptReact.tmLanguage.json",
+      "name": "JSX",
+      "scopeName": "source.js.jsx",
       "languageConfiguration": "textmate/javascript/language-configuration.json"
     },
     {
