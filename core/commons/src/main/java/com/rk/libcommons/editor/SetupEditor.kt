@@ -140,6 +140,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             "php" -> setLanguage("source.php")
             "smali" -> setLanguage("source.smali")
             "v", "coq" -> setLanguage("source.coq")
+            "properties" -> setLanguage("source.java-properties")
         }
     }
 

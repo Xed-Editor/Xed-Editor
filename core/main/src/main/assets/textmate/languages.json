@@ -67,6 +67,12 @@
       "languageConfiguration": "textmate/typescript/typescript.language-configuration.json"
     },
     {
+      "grammar": "textmate/prop/properties.tmLanguage.json",
+      "name": "Java Properties",
+      "scopeName": "source.java-properties",
+      "languageConfiguration": "textmate/prop/language-configuration.json"
+    },
+    {
       "grammar": "textmate/typescript/syntaxes/TypeScriptReact.tmLanguage.json",
       "name": "TSX",
       "scopeName": "source.tsx",
