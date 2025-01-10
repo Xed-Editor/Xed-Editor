@@ -73,6 +73,7 @@ class CrashActivity : AppCompatActivity() {
             editor.editable = false
 
             runCatching { SetupEditor(editor,this,lifecycleScope) }
+            editor.isWordwrap = false
         }.onFailure{
             it.printStackTrace()
             runCatching { finishAffinity() }
@@ -92,13 +93,13 @@ class CrashActivity : AppCompatActivity() {
 
         when (id) {
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
                 return true
             }
 
             R.id.copy_error -> {
                 copyToClipboard(this, editor.text.toString())
-                android.widget.Toast.makeText(this,"Copied",android.widget.Toast.LENGTH_SHORT).show()
+                Toast.makeText(this,"Copied",android.widget.Toast.LENGTH_SHORT).show()
             }
 
             R.id.report_issue -> {

@@ -182,6 +182,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         return (dpValue * scale + 0.5f).toInt()
     }
 
+
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val node = getItem(position)
@@ -228,9 +229,13 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             expandView.visibility = View.GONE
         }
 
+        //todo print its width and set max widht to the filetree
         holder.textView.text = (node.value.getName().ifBlank {
             "invalid"
         })+"                                                    "
+        
+
+
     }
 
     suspend fun expandNode(clickedNode: Node<FileObject>) {

@@ -45,13 +45,6 @@ object FileTreeScrollViewManager {
             scrollView.addView(fileTree)
         }
 
-//        linearLayout.apply {
-//            layoutParams = params
-//            setPadding(0, dpToPx(5, density), 0, dpToPx(5, density))
-//            scrollView.addView(this)
-//        }
-
-
         return scrollView
     }
 }
