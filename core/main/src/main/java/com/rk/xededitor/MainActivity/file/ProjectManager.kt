@@ -213,7 +213,7 @@ object ProjectManager {
 
     private fun getSelectedView(activity: MainActivity): FileTree {
         val view: ViewGroup = activity.binding!!.maindrawer.findViewById(currentProjectId)
-        return (view.getChildAt(0) as ViewGroup).getChildAt(0) as FileTree
+        return (view.getChildAt(0) as FileTree)
     }
 
     object currentProject {
