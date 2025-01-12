@@ -1,2 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="open_drawer">খুলুন</string>
+    <string name="close_drawer">বন্ধ করুন</string>
+    <string name="title_activity_batch_replacement">একসাথে পরিবর্তন</string>
+    <string name="ni">এই সুবিধাটি এখনও বাস্তবায়িত হয়নি</string>
+    <string name="unsupported_contnt">অসমর্থিত বিষয়বস্তু</string>
+    <string name="wait">অনুগ্রহ করে অপেক্ষা করুন…</string>
+    <string name="search">খুঁজুন</string>
+    <string name="go_next">পরবর্তীতে যান</string>
+    <string name="go_prev">পূর্বে যান</string>
+</resources>
