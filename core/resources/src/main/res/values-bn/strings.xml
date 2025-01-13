@@ -9,4 +9,17 @@
     <string name="search">খুঁজুন</string>
     <string name="go_next">পরবর্তীতে যান</string>
     <string name="go_prev">পূর্বে যান</string>
+    <string name="null_contnt">ত্রুটি: বিষয়বস্তু শূন্য</string>
+    <string name="restart_required">পুনরায় চালু করা প্রয়োজন</string>
+    <string name="save">ফাইল সংরক্ষিত হয়েছে</string>
+    <string name="saveAll">সব ফাইল সংরক্ষিত হয়েছে</string>
+    <string name="save_label">সংরক্ষন করুন</string>
+    <string name="ww_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
+    <string name="open_file_or_folder">ফাইল বা ফোল্ডার খুলুন</string>
+    <string name="open_file">একটি ফাইল খুলুন</string>
+    <string name="open_directory">একটি ডিরেক্টরি খুলুন</string>
+    <string name="new_file">নতুন ফাইল</string>
+    <string name="newFile_hint">নাম যেমন Test.txt</string>
+    <string name="mime">মাইম টাইপ যেমন text/plain</string>
+    <string name="rep">প্রতিস্থাপন</string>
 </resources>
