@@ -202,15 +202,15 @@ class UriWrapper : FileObject {
         if (other !is UriWrapper) {
             return false
         }
-        return other.file.uri.toString() == file.uri.toString()
+        return other.uri == uri
     }
 
     override fun hashCode(): Int {
-        return file.uri.hashCode()
+        return uri.hashCode()
     }
 
     override fun toString(): String {
-        return file.uri.toString()
+        return uri
     }
 
 }
