@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.webkit.WebChromeClient
+import android.webkit.WebView
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
@@ -32,6 +35,7 @@ import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
+import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
@@ -115,6 +119,7 @@ class MainActivity : BaseActivity() {
         }
 
         ExtensionManager.onAppCreated()
+
     }
 
     inline fun isMenuInitialized(): Boolean = menu != null

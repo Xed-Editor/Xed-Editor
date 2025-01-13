@@ -69,8 +69,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
-        val type = mainActivity.tabViewModel.fragmentTypes[position]
-        return TabFragment.newInstance(file, type).apply { tabFragments[Kee(file)] = WeakReference(this) }
+        return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
     
     override fun getItemId(position: Int): Long {
@@ -208,12 +207,12 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
     }
     
-    fun addFragment(file: FileObject, fragmentType: FragmentType? = null) {
+    fun addFragment(file: FileObject) {
         if (file.getName().isBlank()){
             rkUtils.toast("File Cannot be opened")
             return
         }
-        val type = fragmentType ?: file.getFragmentType()
+        val type = file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
             rkUtils.toast(rkUtils.getString(strings.file_too_large))
             return

@@ -78,7 +78,7 @@ object MenuClickHandler {
 
             Id.action_all -> {
                 activity.adapter!!.tabFragments.values.forEach { f ->
-                    if (f.get()?.type == FragmentType.EDITOR) {
+                    if (f.get()?.fragment is EditorFragment) {
                         (f.get()?.fragment as EditorFragment).save(false)
                     }
                 }
