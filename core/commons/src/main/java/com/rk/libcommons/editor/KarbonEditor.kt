@@ -10,12 +10,14 @@ import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
+
 
 @Suppress("NOTHING_TO_INLINE")
 class KarbonEditor : CodeEditor {

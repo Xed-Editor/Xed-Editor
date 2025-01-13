@@ -48,4 +48,5 @@ dependencies {
     implementation(libs.activity.compose)
     implementation(project(":core:commons"))
     implementation(project(":core:settings"))
+    implementation(project(":core:file"))
 }

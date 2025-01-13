@@ -23,6 +23,7 @@ import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
+import com.rk.xededitor.events.EditorEvents
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -33,6 +34,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.greenrobot.eventbus.EventBus
 import java.nio.charset.Charset
 
 
@@ -86,6 +88,8 @@ class EditorFragment(val context: Context) : CoreFragment {
             )
             setupEditor = SetupEditor(this, context, scope)
         }
+
+        EventBus().post(EditorEvents.onNewInstance(editor!!))
 
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
@@ -174,7 +178,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }.onFailure {
                     rkUtils.toast(it.message)
                 }
-
+                EventBus().post(EditorEvents.onRefresh(file!!,editor!!))
             }
         }
 
@@ -273,6 +277,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                         }
                     }
                 }
+                EventBus().post(EditorEvents.onFileLoaded(file,editor!!))
             }.onFailure {
                 rkUtils.toast(it.message)
             }
@@ -317,6 +322,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                     }
                 }
                 fileset.remove(file!!.getName())
+                EventBus().post(EditorEvents.onFileSaved(file!!,editor!!))
             } catch (e: Exception) {
                 e.printStackTrace()
                 withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
@@ -356,7 +362,9 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (fileset.contains(it.getName())) {
                 fileset.remove(it.getName())
             }
+            EventBus().post(EditorEvents.onEditorRemoved(file!!))
         }
+
 
     }
 
@@ -386,6 +394,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
             it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
         }
+        EventBus().post(EditorEvents.onEditorUndo(file!!,editor!!))
     }
 
     inline fun redo() {
@@ -394,6 +403,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
             it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
         }
+        EventBus().post(EditorEvents.onEditorRedo(file!!,editor!!))
     }
 
     private suspend inline fun updateUndoRedo() {
@@ -417,6 +427,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     private var t = 0
     private fun setChangeListener() {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
+
             scope.launch {
                 launch(Dispatchers.IO) {
                     FilesContent.setContent(file!!.getAbsolutePath(), editor!!.text.toString())

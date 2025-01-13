@@ -18,12 +18,14 @@ import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.R
+import com.rk.xededitor.events.ProjectEvents
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.LinkedList
@@ -100,6 +102,7 @@ object ProjectManager {
                 break
             }
         }
+        EventBus().post(ProjectEvents.onProjectAdd(file))
         saveProjects(activity)
         // }
 
@@ -167,6 +170,8 @@ object ProjectManager {
                     activity.binding!!.maindrawer.findViewById(file.getAbsolutePath().hashCode())
                 )
 
+                EventBus().post(ProjectEvents.onProjectRemoved(file))
+
                 break
             }
         }
@@ -184,6 +189,7 @@ object ProjectManager {
                 } else {
                     view.visibility = View.VISIBLE
                     currentProjectId = path.hashCode()
+                    EventBus().post(ProjectEvents.onProjectSelected(path))
                 }
             }
         }
@@ -277,6 +283,7 @@ object ProjectManager {
                     activity.binding?.maindrawer?.visibility = View.VISIBLE
                 }
             }
+            EventBus().post(ProjectEvents.onRestoreProjects())
         }
     }
 
@@ -287,6 +294,7 @@ object ProjectManager {
             val uniqueProjects = projects.values.toSet()
             val jsonString = gson.toJson(uniqueProjects.toList())
             PreferencesData.setString(PreferencesKeys.PROJECTS, jsonString)
+            EventBus().post(ProjectEvents.onSaveProjects())
         }
     }
 }
