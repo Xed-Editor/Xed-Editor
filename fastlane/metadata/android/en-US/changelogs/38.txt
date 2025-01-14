@@ -1,0 +1,12 @@
+v2.9.2 (38)
+
+- Fixed File Add
+- Uri Support
+- Async FileTree
+- Fixed Copy-Paste
+- Minor Improvements
+- Added Basic Plugin System
+- Improved FileTree Animation
+- Syntax highlighting for jsx,tsx,htmx and .properties files
+
+
