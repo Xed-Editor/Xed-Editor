@@ -38,7 +38,7 @@ object KeyEventHandler {
         }
 
         val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
-        val editor = if (currentFragment?.type == FragmentType.EDITOR) {
+        val editor = if (currentFragment?.fragment is EditorFragment) {
             (currentFragment.fragment as EditorFragment).editor
         } else {
             null

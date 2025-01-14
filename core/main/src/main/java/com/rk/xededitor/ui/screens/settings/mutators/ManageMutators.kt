@@ -83,7 +83,7 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                                 MainActivity.activityRef.get()?.adapter?.addFragment(
                                     FileWrapper(
                                         file
-                                    ), FragmentType.EDITOR
+                                    )
                                 )
                                 rkUtils.toast("Opened in Editor")
                             }
