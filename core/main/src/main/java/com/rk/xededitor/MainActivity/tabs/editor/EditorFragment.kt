@@ -279,7 +279,10 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }
                 EventBus().post(EditorEvents.onFileLoaded(file,editor!!))
             }.onFailure {
-                rkUtils.toast(it.message)
+                it.printStackTrace()
+                if (it.message?.contains("Job") != true){
+                    rkUtils.toast(it.message)
+                }
             }
 
 

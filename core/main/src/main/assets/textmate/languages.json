@@ -76,7 +76,7 @@
       "grammar": "textmate/typescript/syntaxes/TypeScriptReact.tmLanguage.json",
       "name": "TSX",
       "scopeName": "source.tsx",
-      "languageConfiguration": "textmate/tsx/tsx.language-configuration.json",
+      "languageConfiguration": "textmate/typescript/typescript.language-configuration.json",
       "embeddedLanguages": {
         "source.ts": "typescript"
       }
