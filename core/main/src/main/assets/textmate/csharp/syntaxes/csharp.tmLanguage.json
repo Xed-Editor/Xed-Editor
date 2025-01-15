@@ -5,7 +5,7 @@
 		"Once accepted there, we are happy to receive an update request."
 	],
 	"version": "https://github.com/dotnet/csharp-tmLanguage/commit/5e7dd90d2af9817b0dfb614b21c79a3e81882d9f",
-	"name": "C#",
+	"name": "csharp",
 	"scopeName": "source.cs",
 	"patterns": [
 		{

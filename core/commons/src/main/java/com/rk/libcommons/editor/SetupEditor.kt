@@ -153,8 +153,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         private val mutex = Mutex()
         private var job: Job? = null
 
-        @OptIn(DelicateCoroutinesApi::class)
-        suspend fun init(scope: CoroutineScope) {
+        fun init(scope: CoroutineScope) {
             job = scope.launch {
                 mutex.withLock {
                     if (!isInit) {
@@ -184,7 +183,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
                 activityInit = true
             }
-
         }
 
 
@@ -331,16 +329,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
 
 
     fun getInputView(): SymbolInputView {
