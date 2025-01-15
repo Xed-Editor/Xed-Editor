@@ -19,6 +19,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
     if (System.currentTimeMillis() - lastUpdate < 200){
         return@withContext
     }
+
     lastUpdate = System.currentTimeMillis()
     val menu = MainActivity.activityRef.get()?.menu
     if (menu != null) {
