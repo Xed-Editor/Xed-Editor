@@ -113,11 +113,17 @@ class MainActivity : BaseActivity() {
         }
 
         ExtensionManager.onAppCreated()
-
+        lifecycleScope.launch {
+            while (true) {
+                delay(2000)
+                updateMenu(adapter?.getCurrentFragment())
+            }
+        }
     }
 
 
     val toolItems = hashSetOf<Int>()
+
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -128,7 +134,6 @@ class MainActivity : BaseActivity() {
         }
 
         menu.findItem(R.id.action_add).isVisible = true
-
 
         val tool = ContextCompat.getDrawable(this, drawables.build_24px)
         var order = 0

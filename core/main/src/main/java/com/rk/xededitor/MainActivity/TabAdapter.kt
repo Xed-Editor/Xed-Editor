@@ -38,8 +38,11 @@ const val tabLimit = 20
 var currentTab: WeakReference<TabLayout.Tab?> = WeakReference(null)
 
 class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
-    
     val tabFragments = HashMap<Kee, WeakReference<TabFragment>>()
+
+    init {
+        mainActivity.lifecycleScope.launch { updateMenu(getCurrentFragment()) }
+    }
     
     // this is hell
     fun getCurrentFragment(): TabFragment? {
@@ -91,6 +94,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         // Remove the last item
         itemIds.remove(itemIds.size - 1)
         notifyItemRemoved(position)
+        mainActivity.lifecycleScope.launch { updateMenu(getCurrentFragment()) }
     }
     
     fun notifyItemInsertedX(position: Int) {
@@ -101,6 +105,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         // Add new item ID
         itemIds[position] = nextItemId++
         notifyItemInserted(position)
+        mainActivity.lifecycleScope.launch { updateMenu(getCurrentFragment()) }
     }
     
     @SuppressLint("NotifyDataSetChanged")

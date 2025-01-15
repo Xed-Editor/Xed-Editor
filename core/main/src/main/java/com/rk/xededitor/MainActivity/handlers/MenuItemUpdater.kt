@@ -12,7 +12,6 @@ import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-
 suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main){
     val menu = MainActivity.activityRef.get()?.menu
     if (menu != null) {
@@ -23,7 +22,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
     }
 }
 
-private suspend fun updateEditor(
+private fun updateEditor(
     fragment: EditorFragment?,
     menu: Menu,
     showItems: Boolean = MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty() ?: false
