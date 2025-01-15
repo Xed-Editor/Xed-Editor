@@ -284,8 +284,6 @@ class EditorFragment(val context: Context) : CoreFragment {
                     rkUtils.toast(it.message)
                 }
             }
-
-
         }
 
     }

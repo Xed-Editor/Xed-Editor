@@ -107,13 +107,12 @@ class App : Application() {
             }
         })
 
-
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
 
         GlobalScope.launch(Dispatchers.IO) {
             launch(Dispatchers.IO) {
-                SetupEditor.init()
+                SetupEditor.init(GlobalScope)
             }
 
             Mutators.loadMutators()

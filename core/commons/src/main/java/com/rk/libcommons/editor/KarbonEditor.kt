@@ -1,19 +1,20 @@
 package com.rk.libcommons.editor
 
 import android.content.Context
+import android.graphics.Color
 import android.text.InputType
 import android.util.AttributeSet
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.application
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.greenrobot.eventbus.EventBus
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
@@ -32,6 +33,24 @@ class KarbonEditor : CodeEditor {
     ) : super(context, attrs, defStyleAttr)
     
     val scope = CustomScope()
+
+    init{
+        val darkTheme: Boolean = when (PreferencesData.getString(
+            PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
+        ).toInt()) {
+            AppCompatDelegate.MODE_NIGHT_YES -> true
+            AppCompatDelegate.MODE_NIGHT_NO -> false
+            else -> PreferencesData.isDarkMode(context)
+        }
+
+        val color = if (darkTheme){Color.BLACK}else{
+            Color.WHITE
+        }
+
+        colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, color)
+        colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, color)
+        colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, color)
+    }
     
     
     suspend fun loadFile(inputStream: InputStream,encoding:Charset){

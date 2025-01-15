@@ -154,8 +154,8 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         private var job: Job? = null
 
         @OptIn(DelicateCoroutinesApi::class)
-        suspend fun init(activity: Activity? = null) {
-            job = GlobalScope.launch {
+        suspend fun init(scope: CoroutineScope) {
+            job = scope.launch {
                 mutex.withLock {
                     if (!isInit) {
                         withContext(Dispatchers.IO) {
@@ -306,7 +306,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
 
 
     private suspend fun ensureTextmateTheme(ctx: Context) {
-        waitForInit()
         val darkTheme: Boolean = when (PreferencesData.getString(
             PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
@@ -321,6 +320,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             else -> lightThemeRegistry
         }
 
+        waitForInit()
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
             if (PreferencesData.isDarkMode(ctx) && PreferencesData.isOled()) {
@@ -329,7 +329,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             withContext(Dispatchers.Main) {
                 editor.colorScheme = editorColorScheme
             }
-
         }
     }
 
