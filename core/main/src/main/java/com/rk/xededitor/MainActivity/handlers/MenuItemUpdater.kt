@@ -12,7 +12,12 @@ import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+private var lastUpdate = 0L
 suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main){
+    if (System.currentTimeMillis() - lastUpdate < 2000){
+        return@withContext
+    }
+    lastUpdate = System.currentTimeMillis()
     val menu = MainActivity.activityRef.get()?.menu
     if (menu != null) {
         val fragment = tabFragment?.fragment
