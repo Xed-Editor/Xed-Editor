@@ -10,11 +10,13 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private var lastUpdate = 0L
 suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main){
-    if (System.currentTimeMillis() - lastUpdate < 2000){
+    if (System.currentTimeMillis() - lastUpdate < 200){
         return@withContext
     }
     lastUpdate = System.currentTimeMillis()

@@ -115,7 +115,7 @@ class MainActivity : BaseActivity() {
         ExtensionManager.onAppCreated()
         lifecycleScope.launch {
             while (true) {
-                delay(2000)
+                delay(1000)
                 updateMenu(adapter?.getCurrentFragment())
             }
         }
