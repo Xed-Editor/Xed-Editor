@@ -24,7 +24,6 @@ import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.handlers.git.commit
 import com.rk.xededitor.MainActivity.handlers.git.pull
 import com.rk.xededitor.MainActivity.handlers.git.push
-import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
@@ -35,7 +34,6 @@ import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.widget.EditorSearcher
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -389,7 +387,8 @@ object MenuClickHandler {
         editorFragment?.editor?.searcher?.stopSearch()
         editorFragment?.editor!!.setSearching(false)
         editorFragment.editor?.invalidate()
-        MenuItemHandler.update(activity)
+        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+
         return true
     }
 
@@ -406,7 +405,8 @@ object MenuClickHandler {
             .setView(popupView).setNegativeButton(activity.getString(strings.cancel), null)
             .setPositiveButton(activity.getString(strings.search)) { _, _ ->
                 // search
-                MenuItemHandler.update(activity)
+                DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+
                 initiateSearch(activity, searchBox, popupView)
             }.show()
         return true
@@ -437,7 +437,8 @@ object MenuClickHandler {
                 ),
             )
             it.editor?.setSearching(true)
-            MenuItemHandler.update(activity)
+            DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+
         }
     }
 }

@@ -6,9 +6,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.menu.MenuBuilder
@@ -33,17 +30,14 @@ import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
-import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
+import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -122,11 +116,8 @@ class MainActivity : BaseActivity() {
 
     }
 
-    inline fun isMenuInitialized(): Boolean = menu != null
-
 
     val toolItems = hashSetOf<Int>()
-
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -172,7 +163,6 @@ class MainActivity : BaseActivity() {
 
     private fun saveAllFiles() {
         if (tabViewModel.fragmentFiles.isNotEmpty()) {
-
             adapter?.tabFragments?.values?.forEach { weakRef ->
                 weakRef.get()?.fragment?.let { fragment ->
                     if (fragment is EditorFragment) {

@@ -105,8 +105,4 @@ class KarbonEditor : CodeEditor {
     fun setSearching(s: Boolean) {
         isSearching = s
     }
-    
-    
-    
-    
 }

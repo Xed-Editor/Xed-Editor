@@ -2,18 +2,17 @@ package com.rk.xededitor.MainActivity.file
 
 import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileLongClickListener
-import com.rk.file.FileObject
 import com.rk.filetree.model.Node
 import com.rk.libcommons.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.MainActivity.file.ProjectManager.getSelectedProjectRootFile
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.updateMenu
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
 
 val fileClickListener =
     object : FileClickListener {
@@ -37,11 +36,8 @@ val fileClickListener =
                 ) {
                     it.binding!!.drawerLayout.close()
                 }
-                
-                DefaultScope.launch(Dispatchers.Main) {
-                    delay(2000)
-                    MenuItemHandler.update(it)
-                }
+
+                DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
             }
         }
     }

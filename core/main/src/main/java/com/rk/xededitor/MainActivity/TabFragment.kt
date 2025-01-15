@@ -6,14 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.rk.file.FileObject
+import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.file.getFragmentType
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.media.ImageFragment
 import com.rk.xededitor.MainActivity.tabs.media.WebFragment
 import com.rk.xededitor.MainActivity.tabs.media.VideoFragment
+import kotlinx.coroutines.launch
 
 class TabFragment : Fragment() {
     var fragment: CoreFragment? = null
@@ -68,7 +70,7 @@ class TabFragment : Fragment() {
 
 
 
-        MainActivity.withContext { MenuItemHandler.update(this) }
+        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
 
     }
     
@@ -83,7 +85,7 @@ class TabFragment : Fragment() {
     override fun onDestroy() {
         fragment?.onDestroy()
         super.onDestroy()
-        MainActivity.withContext { MenuItemHandler.update(this) }
+        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
     }
     
     companion object {

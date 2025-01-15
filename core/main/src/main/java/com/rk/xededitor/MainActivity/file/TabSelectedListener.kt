@@ -4,12 +4,14 @@ import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.libcommons.DefaultScope
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.currentTab
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.R
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 var smoothTabs = PreferencesData.getBoolean(PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL, false)
@@ -18,13 +20,13 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
     override fun onTabSelected(tab: Tab?) {
         currentTab = WeakReference(tab)
         if (smoothTabs.not()) { activity.viewPager!!.setCurrentItem(tab!!.position, false) }
-        MenuItemHandler.update(activity)
         tab?.text = tab?.text
-        MainActivity.withContext { MenuItemHandler.update(this) }
+        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
     }
     
     override fun onTabReselected(tab: Tab?) {
-        MainActivity.withContext { MenuItemHandler.update(this) }
+        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+
         val popupMenu = PopupMenu(activity, tab!!.view)
         popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item ->
@@ -50,13 +52,14 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
                 tab.text = activity.tabViewModel.fragmentTitles[position]
             }
                 .attach()
-            MenuItemHandler.update(activity)
-            
+            DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+
+
             true
         }
         popupMenu.show()
     }
     override fun onTabUnselected(tab: Tab?) {
-        MainActivity.withContext { MenuItemHandler.update(this) }
+
     }
 }

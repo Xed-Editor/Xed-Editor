@@ -1,20 +1,17 @@
 package com.rk.xededitor.MainActivity.handlers
 
-import android.content.Intent
 import android.view.KeyEvent
-import androidx.core.app.ActivityCompat.startActivityForResult
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.R
-import io.github.rosemoe.sora.event.EditorKeyEvent
-import io.github.rosemoe.sora.event.KeyBindingEvent
 import io.github.rosemoe.sora.interfaces.KeyEventHandler
-import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.EditorKeyEventHandler
+import kotlinx.coroutines.launch
+
 object KeyEventHandler {
 
     init {
@@ -67,8 +64,7 @@ object KeyEventHandler {
                         TabLayoutMediator(binding!!.tabs, viewPager!!) { tab, position ->
                             tab.text = tabViewModel.fragmentTitles[position]
                         }.attach()
-                        MenuItemHandler.update(this)
-                        
+                        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
                     }
                 }
                 

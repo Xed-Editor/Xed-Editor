@@ -1,7 +1,6 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
-import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -9,10 +8,11 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.rk.file.FileObject
+import com.rk.libcommons.DefaultScope
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
-import com.rk.xededitor.MainActivity.handlers.MenuItemHandler
+import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
@@ -116,7 +116,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             binding!!.tabs.visibility = View.GONE
             binding!!.mainView.visibility = View.GONE
             binding!!.openBtn.visibility = View.VISIBLE
-            MenuItemHandler.update(mainActivity)
+            DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
         }
     }
     
@@ -162,7 +162,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 }
                 
             }
-            MenuItemHandler.update(mainActivity)
+            DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
         }
     }
     
@@ -202,8 +202,8 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             } else {
                 close()
             }
-            
-            MenuItemHandler.update(mainActivity)
+
+            DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
         }
     }
     
@@ -266,7 +266,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             binding!!.mainView.visibility = View.VISIBLE
             binding!!.openBtn.visibility = View.GONE
         }
-        MenuItemHandler.update(mainActivity)
+        DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
     }
     
     
