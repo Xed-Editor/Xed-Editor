@@ -42,15 +42,10 @@ typealias Id = R.id
 object MenuClickHandler {
 
     private var searchText: String? = ""
-
+    private val editorFragment:EditorFragment? get() = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment as? EditorFragment
+    
     fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
-        val editorFragment =
-            if (activity.adapter!!.getCurrentFragment()?.fragment is EditorFragment) {
-                activity.adapter!!.getCurrentFragment()?.fragment as EditorFragment
-            } else {
-                null
-            }
 
         when (id) {
             Id.saveAs -> {
@@ -61,13 +56,15 @@ object MenuClickHandler {
             }
 
             Id.run -> {
-                editorFragment?.file?.let { fileObject ->
+                editorFragment!!.file.let { fileObject ->
                     if (fileObject is FileWrapper) {
                         DefaultScope.launch {
                             Runner.run(
                                 fileObject.file, activity
                             )
                         }
+                    }else{
+                        rkUtils.toast("Runners are not supported on non-native file types")
                     }
                 }
 
@@ -194,10 +191,10 @@ object MenuClickHandler {
                         FileProvider.getUriForFile(
                             activity,
                             "${activity.packageName}.fileprovider",
-                            (editorFragment.file!! as FileWrapper).file
+                            (editorFragment?.file!! as FileWrapper).file
                         )
                     } else {
-                        editorFragment.file!!.toUri()
+                        editorFragment?.file!!.toUri()
                     }
 
                     val intent = Intent(Intent.ACTION_SEND).apply {
