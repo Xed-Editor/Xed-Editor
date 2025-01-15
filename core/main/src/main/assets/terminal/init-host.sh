@@ -25,7 +25,20 @@ for f in dev proc; do
 	ARGS="$ARGS -b /$f:/$f"
 done
 
-ARGS="$ARGS  -b /dev/urandom:/dev/random -b /proc/self/fd:/dev/fd -b /proc/self/fd/0:/dev/stdin -b /proc/self/fd/1:/dev/stdout -b /proc/self/fd/2:/dev/stderr -b $PREFIX:$PREFIX"
+ARGS="$ARGS  -b /dev/urandom:/dev/random"
+ARGS="$ARGS -b /proc/self/fd:/dev/fd"
+ARGS="$ARGS -b /proc/self/fd/0:/dev/stdin"
+ARGS="$ARGS -b /proc/self/fd/1:/dev/stdout"
+ARGS="$ARGS -b /proc/self/fd/2:/dev/stderr"
+ARGS="$ARGS -b $PREFIX:$PREFIX"
+
+# Bind /tmp to /dev/shm.
+if [ ! -d "$PREFIX/local/alpine/tmp" ]; then
+	mkdir -p "$PREFIX/local/alpine/tmp"
+	chmod 1777 "$PREFIX/local/alpine/tmp"
+fi
+ARGS="$ARGS -b $PREFIX/local/alpine/tmp:/dev/shm" "$@"
+
 
 ARGS="$ARGS -r $PREFIX/local/alpine"
 ARGS="$ARGS -0"
