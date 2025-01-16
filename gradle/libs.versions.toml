@@ -101,7 +101,7 @@ terminal-emulator = { group = "com.github.termux.termux-app", name = "terminal-e
 gson = { module = "com.google.code.gson:gson", version = "2.11.0" }
 jcodings = { module = "org.jruby.jcodings:jcodings", version = "1.0.59" }
 joni = { module = "org.jruby.joni:joni", version = "2.2.1" }
-snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.8" }
+snakeyaml-engine = { module = "org.snakeyaml:snakeyaml-engine", version = "2.9" }
 jdt-annotation = { module = "org.eclipse.jdt:org.eclipse.jdt.annotation", version = "2.3.100" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
