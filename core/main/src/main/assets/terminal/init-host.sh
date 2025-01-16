@@ -1,47 +1,54 @@
 ARGS="--kill-on-exit"
 ARGS="$ARGS  -w $PWD"
-ARGS="$ARGS -b /system:/system"
-ARGS="$ARGS -b /vendor:/vendor"
-ARGS="$ARGS -b /data:/data"
 
-if [ -d /apex ]; then
-	ARGS="$ARGS -b /apex:/apex"
-fi
+for data_dir in /data/app /data/dalvik-cache \
+	/data/misc/apexdata/com.android.art/dalvik-cache; do
+	if [ -e "$data_dir" ]; then
+		ARGS="$ARGS -b ${data_dir}"
+	fi
+done
+unset data_dir
 
-if [ -e "/linkerconfig/ld.config.txt" ]; then
-	ARGS="$ARGS -b /linkerconfig/ld.config.txt:/linkerconfig/ld.config.txt"
-fi
+for system_mnt in /apex /odm /product /system /system_ext /vendor \
+	/linkerconfig/ld.config.txt \
+	/linkerconfig/com.android.art/ld.config.txt \
+	/plat_property_contexts /property_contexts; do
 
-if [ -f /property_contexts ]; then
-	ARGS="$ARGS -b /property_contexts:/property_contexts"
-fi
+	if [ -e "$system_mnt" ]; then
+		system_mnt=$(realpath "$system_mnt")
+		ARGS="$ARGS -b ${system_mnt}"
+	fi
+done
+unset system_mnt
+
 
 if [ -d /storage ]; then
 	ARGS="$ARGS -b /storage:/storage"
 fi
 ARGS="$ARGS -b /sdcard:/sdcard"
 
-for f in dev proc; do
-	ARGS="$ARGS -b /$f:/$f"
-done
+ARGS="$ARGS --kernel-release=6.6.30-Xed-Editor"
 
-ARGS="$ARGS  -b /dev/urandom:/dev/random"
+ARGS="$ARGS -b /dev"
+ARGS="$ARGS -b /dev/urandom:/dev/random"
+ARGS="$ARGS -b /proc"
 ARGS="$ARGS -b /proc/self/fd:/dev/fd"
 ARGS="$ARGS -b /proc/self/fd/0:/dev/stdin"
 ARGS="$ARGS -b /proc/self/fd/1:/dev/stdout"
 ARGS="$ARGS -b /proc/self/fd/2:/dev/stderr"
-ARGS="$ARGS -b $PREFIX:$PREFIX"
+ARGS="$ARGS -b $PREFIX"
+ARGS="$ARGS -b /sys"
 
 # Bind /tmp to /dev/shm.
 if [ ! -d "$PREFIX/local/alpine/tmp" ]; then
 	mkdir -p "$PREFIX/local/alpine/tmp"
 	chmod 1777 "$PREFIX/local/alpine/tmp"
 fi
-ARGS="$ARGS -b $PREFIX/local/alpine/tmp:/dev/shm" "$@"
-
+ARGS="$ARGS -b $PREFIX/local/alpine/tmp:/dev/shm"
 
 ARGS="$ARGS -r $PREFIX/local/alpine"
 ARGS="$ARGS -0"
 ARGS="$ARGS --link2symlink"
+ARGS="$ARGS -L"
 
 $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
