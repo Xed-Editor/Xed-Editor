@@ -49,64 +49,60 @@ fun SettingsTerminalScreen(navController: NavController) {
         val isInstalled = isTermuxInstalled() && isTermuxCompatible()
         val showDayBottomSheet = remember { mutableStateOf(false) }
 
-
         PreferenceGroup {
-            //val result = testExecPermission()
-//            SettingsToggle(label = stringResource(strings.termux_exec),
-//                description = if (result.first.not()) {
-//                    result.second?.message.toString()
-//                } else {
-//                    "Termux Exec"
-//                },
-//                default = result.first,
-//                isSwitchLocked = true,
-//                isEnabled = isInstalled,
-//                sideEffect = {
-//                    if (result.first.not()) {
-//                        val intent =
-//                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-//                                data = Uri.fromParts("package", context.packageName, null)
-//                            }
-//                        context.startActivity(intent)
-//                    }
-//                })
+            val result = testExecPermission()
+            SettingsToggle(label = stringResource(strings.termux_exec),
+                description = if (result.first.not()) {
+                    result.second?.message.toString()
+                } else {
+                    "Termux Exec"
+                },
+                default = result.first,
+                isSwitchLocked = true,
+                isEnabled = isInstalled,
+                sideEffect = {
+                    if (result.first.not()) {
+                        val intent =
+                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                        context.startActivity(intent)
+                    }
+                })
 
 
-//            SettingsToggle(label = stringResource(strings.termux_exec_guide),
-//                description = stringResource(strings.termux_exec_guide_desc),
-//                showSwitch = false,
-//                sideEffect = {
-//
-//                    val url = if (isTermuxInstalled()) {
-//                        if (isTermuxCompatible()) {
-//                            //good
-//                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
-//                        } else {
-//                            //google play
-//                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/GOOGLE_PLAY_TERMUX.md"
-//                        }
-//                    } else {
-//                        //not installed
-//                        "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/INSTALL_TERMUX.md"
-//                    }
-//
-//                    DefaultScope.launch {
-//                        delay(1000)
-//                        withContext(Dispatchers.Main) {
-//                            val intent = Intent(Intent.ACTION_VIEW)
-//                            intent.setData(Uri.parse(url))
-//                            intent.setPackage("com.github.android")
-//
-//                            if (intent.resolveActivity(context.packageManager) != null) {
-//                                context.startActivity(intent)
-//                            } else {
-//                                val builder = CustomTabsIntent.Builder()
-//                                builder.setShowTitle(true)
-//                                builder.build().launchUrl(context, Uri.parse(url))
-//                            }
-//                        }
-//                    }
-//                })
+            SettingsToggle(label = stringResource(strings.termux_exec_guide),
+                description = stringResource(strings.termux_exec_guide_desc),
+                showSwitch = false,
+                sideEffect = {
+
+                    val url = if (isTermuxInstalled()) {
+                        if (isTermuxCompatible()) {
+                            "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
+                        } else {
+                            "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/GOOGLE_PLAY_TERMUX.md"
+                        }
+                    } else {
+                        "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/INSTALL_TERMUX.md"
+                    }
+
+                    DefaultScope.launch {
+                        delay(1000)
+                        withContext(Dispatchers.Main) {
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setData(Uri.parse(url))
+                            intent.setPackage("com.github.android")
+
+                            if (intent.resolveActivity(context.packageManager) != null) {
+                                context.startActivity(intent)
+                            } else {
+                                val builder = CustomTabsIntent.Builder()
+                                builder.setShowTitle(true)
+                                builder.build().launchUrl(context, Uri.parse(url))
+                            }
+                        }
+                    }
+                })
 
             SettingsToggle(
                 label = "Terminal Runtime",

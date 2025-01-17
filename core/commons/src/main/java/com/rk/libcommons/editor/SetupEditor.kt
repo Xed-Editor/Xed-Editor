@@ -110,13 +110,11 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             })
 
         }
-
-
     }
 
 
     suspend fun setupLanguage(fileName: String) {
-        when (fileName.substringAfterLast('.', "")) {
+        when (fileName.substringAfterLast('.', "").trim()) {
             "java", "bsh" -> setLanguage("source.java")
             "html" -> setLanguage("text.html.basic")
             "htmx" -> setLanguage("text.html.htmx")

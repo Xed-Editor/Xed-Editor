@@ -92,7 +92,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/suggestions"
-        android:icon="@drawable/baseline_font_download_24"
+        android:icon="@drawable/font"
         android:title="@string/toggle_suggestion"
         android:visible="false"
         app:showAsAction="never" />

@@ -15,10 +15,14 @@ import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.application
 import com.rk.libcommons.isAppInBackground
 import com.rk.libcommons.pendingCommand
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -85,9 +89,6 @@ fun testExecPermission(): Pair<Boolean, Exception?> {
     }
 }
 
-fun isTermuxRunning(): Boolean {
-    return isAppInBackground
-}
 
 fun isExecPermissionGranted(): Boolean {
     return ContextCompat.checkSelfPermission(
@@ -95,6 +96,7 @@ fun isExecPermissionGranted(): Boolean {
     ) == PackageManager.PERMISSION_GRANTED
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun runCommandTermux(
     context: Context,
     exe: String,
@@ -102,27 +104,33 @@ fun runCommandTermux(
     background: Boolean = true,
     cwd: String? = null
 ) {
-    checkTermuxInstall()
-    val intent = Intent("$TERMUX_PKG.RUN_COMMAND").apply {
-        setClassName(TERMUX_PKG, "$TERMUX_PKG.app.RunCommandService")
-        putExtra("$TERMUX_PKG.RUN_COMMAND_PATH", exe)
-        putExtra("$TERMUX_PKG.RUN_COMMAND_ARGUMENTS", args)
-        putExtra("$TERMUX_PKG.RUN_COMMAND_BACKGROUND", background)
-        cwd?.let { cwd ->
-            putExtra("$TERMUX_PKG.RUN_COMMAND_SERVICE.EXTRA_WORKDIR", cwd)
+    runCatching { checkTermuxInstall() }.onFailure { toast(it.message) }.onSuccess {
+        GlobalScope.launch(Dispatchers.Main) {
+            runCatching { launchTermux() }
+            delay(200)
+            val intent = Intent("$TERMUX_PKG.RUN_COMMAND").apply {
+                setClassName(TERMUX_PKG, "$TERMUX_PKG.app.RunCommandService")
+                putExtra("$TERMUX_PKG.RUN_COMMAND_PATH", exe)
+                putExtra("$TERMUX_PKG.RUN_COMMAND_ARGUMENTS", args)
+                putExtra("$TERMUX_PKG.RUN_COMMAND_BACKGROUND", background)
+                cwd?.let { cwd ->
+                    putExtra("$TERMUX_PKG.RUN_COMMAND_SERVICE.EXTRA_WORKDIR", cwd)
+                }
+            }
+            context.startForegroundService(intent)
         }
     }
-    context.startForegroundService(intent)
 }
 
 
 
-fun runBashScript(context: Context, script: String, background: Boolean = true) {
+fun runBashScript(context: Context, script: String,workingDir:String? = null, background: Boolean = false) {
      runCommandTermux(
         context = context,
         exe = "$TERMUX_PREFIX/bin/bash",
         arrayOf("-c", script),
-        background = background
+        background = background,
+         cwd = workingDir
     )
 }
 
@@ -135,7 +143,6 @@ fun launchInternalTerminal(context: Context,terminalCommand: TerminalCommand){
         )
     )
 }
-
 
 fun launchTermux(): Boolean {
     if (isTermuxInstalled().not()) {

@@ -92,7 +92,7 @@ object Mutators {
         saveMutator(mutator)
 
         MainActivity.activityRef.get()?.apply {
-            val tool = ContextCompat.getDrawable(this, drawables.build_24px)
+            val tool = ContextCompat.getDrawable(this, drawables.build)
             menu?.findItem(R.id.tools)?.subMenu?.add(0, mutator.hashCode(), toolItems.size, mutator.name)?.icon = tool
         }
     }

@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.browser)
     implementation(project(":core:commons"))
+    implementation(project(":core:settings"))
     implementation(libs.nanohttpd)
     implementation(project(":core:resources"))
     implementation(project(":core:karbon-exec"))

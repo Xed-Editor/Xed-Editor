@@ -96,7 +96,6 @@ class TabFragment : Fragment() {
             tabs[id] = builder
         }
 
-
         private const val ARG_FILE_PATH = "file_path"
         
         fun newInstance(file: FileObject): TabFragment {

@@ -8,14 +8,18 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
 import com.rk.resources.strings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
-class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
+class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: CoroutineScope = DefaultScope) {
     private var dialog: AlertDialog? = null
     private lateinit var dialogView: View
 
     init {
-        // Create the dialog on the UI thread
         ctx.runOnUiThread {
             val inflater1: LayoutInflater = ctx.layoutInflater
             dialogView = inflater1.inflate(R.layout.progress_dialog, null)
@@ -25,7 +29,12 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?) {
 
             if (hideAfterMillis != null) {
                 show()
-                After(hideAfterMillis) { ctx.runOnUiThread { hide() } }
+                scope.launch {
+                    delay(hideAfterMillis)
+                    withContext(Dispatchers.Main){
+                        hide()
+                    }
+                }
             }
         }
     }
