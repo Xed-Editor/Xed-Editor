@@ -1,24 +1,19 @@
 package com.rk.karbon_exec
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.application
-import com.rk.libcommons.isAppInBackground
 import com.rk.libcommons.pendingCommand
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -51,7 +46,7 @@ private fun checkTermuxInstall() {
     }
 }
 
-fun askLaunchTermux(context: Context){
+fun askLaunchTermux(context: Context) {
     Handler(Looper.getMainLooper()).post {
         MaterialAlertDialogBuilder(context).apply {
             setTitle(strings.launch_termux.getString())
@@ -59,7 +54,9 @@ fun askLaunchTermux(context: Context){
             setPositiveButton(strings.launch.getString(), { dialog, which ->
                 launchTermux()
                 Handler(Looper.getMainLooper()).postDelayed({
-                    val returnIntent = Intent(context, Class.forName("com.rk.xededitor.MainActivity.MainActivity")).apply {
+                    val returnIntent = Intent(
+                        context, Class.forName("com.rk.xededitor.MainActivity.MainActivity")
+                    ).apply {
                         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     }
                     context.startActivity(returnIntent)
@@ -82,7 +79,7 @@ fun isTermuxCompatible(): Boolean {
 fun testExecPermission(): Pair<Boolean, Exception?> {
     try {
         checkTermuxInstall()
-        runCommandTermux(application!!, "$TERMUX_PREFIX/bin/echo", arrayOf(), background = true)
+        runCommandTermux(application!!, "$TERMUX_PREFIX/bin/echo", arrayOf(), background = true, isTesting = true)
         return Pair(true, null)
     } catch (e: Exception) {
         return Pair(false, e)
@@ -102,12 +99,15 @@ fun runCommandTermux(
     exe: String,
     args: Array<String>,
     background: Boolean = true,
-    cwd: String? = null
+    cwd: String? = null,
+    isTesting: Boolean = false
 ) {
     runCatching { checkTermuxInstall() }.onFailure { toast(it.message) }.onSuccess {
         GlobalScope.launch(Dispatchers.Main) {
-            runCatching { launchTermux() }
-            delay(200)
+            if (isTesting.not()) {
+                runCatching { launchTermux() }
+                delay(200)
+            }
             val intent = Intent("$TERMUX_PKG.RUN_COMMAND").apply {
                 setClassName(TERMUX_PKG, "$TERMUX_PKG.app.RunCommandService")
                 putExtra("$TERMUX_PKG.RUN_COMMAND_PATH", exe)
@@ -123,23 +123,23 @@ fun runCommandTermux(
 }
 
 
-
-fun runBashScript(context: Context, script: String,workingDir:String? = null, background: Boolean = false) {
-     runCommandTermux(
+fun runBashScript(
+    context: Context, script: String, workingDir: String? = null, background: Boolean = false
+) {
+    runCommandTermux(
         context = context,
         exe = "$TERMUX_PREFIX/bin/bash",
         arrayOf("-c", script),
         background = background,
-         cwd = workingDir
+        cwd = workingDir
     )
 }
 
-fun launchInternalTerminal(context: Context,terminalCommand: TerminalCommand){
+fun launchInternalTerminal(context: Context, terminalCommand: TerminalCommand) {
     pendingCommand = terminalCommand
     context.startActivity(
         Intent(
-            context,
-            Class.forName("com.rk.xededitor.ui.activities.terminal.Terminal")
+            context, Class.forName("com.rk.xededitor.ui.activities.terminal.Terminal")
         )
     )
 }

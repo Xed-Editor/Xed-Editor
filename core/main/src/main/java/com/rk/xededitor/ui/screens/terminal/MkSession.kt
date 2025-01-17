@@ -71,6 +71,7 @@ object MkSession {
                 "LANG=C.UTF-8",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
+                "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
             )
 
 
@@ -94,7 +95,8 @@ object MkSession {
                     .use { it.readText() })
             }
 
-            var args: Array<String>? = null
+            val args: Array<String>
+
             val shell = if (pendingCommand == null) {
                 args = if (PreferencesData.getString(
                         PreferencesKeys.TERMINAL_RUNTIME, "Alpine"

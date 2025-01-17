@@ -26,9 +26,6 @@ if [ -d /storage ]; then
 	ARGS="$ARGS -b /storage:/storage"
 fi
 ARGS="$ARGS -b /sdcard:/sdcard"
-
-ARGS="$ARGS --kernel-release=6.6.30-Xed-Editor"
-
 ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
@@ -39,7 +36,6 @@ ARGS="$ARGS -b /proc/self/fd/2:/dev/stderr"
 ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b /sys"
 
-# Bind /tmp to /dev/shm.
 if [ ! -d "$PREFIX/local/alpine/tmp" ]; then
 	mkdir -p "$PREFIX/local/alpine/tmp"
 	chmod 1777 "$PREFIX/local/alpine/tmp"
@@ -51,4 +47,4 @@ ARGS="$ARGS -0"
 ARGS="$ARGS --link2symlink"
 ARGS="$ARGS -L"
 
-$PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+$LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
