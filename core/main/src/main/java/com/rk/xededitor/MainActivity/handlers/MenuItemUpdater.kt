@@ -10,13 +10,11 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private var lastUpdate = 0L
-suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main){
-    if (System.currentTimeMillis() - lastUpdate < 200){
+suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main) {
+    if (System.currentTimeMillis() - lastUpdate < 200) {
         return@withContext
     }
 
@@ -30,15 +28,16 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
     }
 }
 
-private fun updateEditor(
+private suspend fun updateEditor(
     fragment: EditorFragment?,
     menu: Menu,
-    showItems: Boolean = MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty() ?: false
+    showItems: Boolean = MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty()
+        ?: false
 ) {
 
     var show = showItems
 
-    if (updateSearchMenu(menu,fragment)){
+    if (updateSearchMenu(menu, fragment)) {
         show = false
     }
 
@@ -57,12 +56,15 @@ private fun updateEditor(
     }
 
     val file = fragment?.file as? FileWrapper
-    menu.findItem(Id.run).isVisible = file?.file?.let { Runner.isRunnable(it) } == true
+    val isRunnable = withContext(Dispatchers.Default) {
+        file?.file?.let { Runner.isRunnable(it) }
+    }
+    menu.findItem(Id.run).isVisible = isRunnable == true
 }
 
 private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?): Boolean {
     val isSearching = editorFragment != null && (editorFragment.editor?.isSearching() == true)
-    rkUtils.runOnUiThread{
+    rkUtils.runOnUiThread {
         menu.apply {
             findItem(Id.search_next).isVisible = isSearching
             findItem(Id.search_previous).isVisible = isSearching

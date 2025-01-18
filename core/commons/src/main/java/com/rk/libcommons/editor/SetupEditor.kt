@@ -37,6 +37,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -50,7 +51,7 @@ import java.io.InputStreamReader
 
 private typealias onClick = OnClickListener
 
-class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: CoroutineScope) {
+class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope: CoroutineScope) {
 
     init {
         with(editor) {
@@ -130,7 +131,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
             "cpp", "h" -> setLanguage("source.cpp")
             "json" -> setLanguage("source.json")
             "css" -> setLanguage("source.css")
-            "cs" -> setLanguage("source.cs")
+            "cs","csx" -> setLanguage("source.cs")
             "yml", "yaml", "cff" -> setLanguage("source.yaml")
             "sh", "bash" -> setLanguage("source.shell")
             "rs" -> setLanguage("source.rust")
@@ -279,7 +280,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, scope: Cor
         }
     }
 
-    private suspend fun setLanguage(languageScopeName: String) {
+    private suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO){
         waitForInit()
         val language =
             TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)

@@ -254,6 +254,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                                 editor!!.text.toString()
                             )
                         }.onFailure {
+                            it.printStackTrace()
                             rkUtils.toast(it.message)
                         }
                     }
@@ -263,6 +264,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                     runCatching {
                         setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
                     }.onFailure {
+                        it.printStackTrace()
                         rkUtils.toast(it.message)
                     }
                 }

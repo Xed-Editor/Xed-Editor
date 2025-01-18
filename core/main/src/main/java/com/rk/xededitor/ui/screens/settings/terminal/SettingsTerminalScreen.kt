@@ -14,6 +14,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,19 +50,26 @@ fun SettingsTerminalScreen(navController: NavController) {
         val isInstalled = isTermuxInstalled() && isTermuxCompatible()
         val showDayBottomSheet = remember { mutableStateOf(false) }
 
+        val execAllowed = remember { mutableStateOf(false) }
+        val errorMessage = remember { mutableStateOf("") }
+
+        val result = testExecPermission()
+        execAllowed.value = result.first
+        errorMessage.value = result.second?.message.toString()
+
+
         PreferenceGroup {
-            val result = testExecPermission()
             SettingsToggle(label = stringResource(strings.termux_exec),
-                description = if (result.first.not()) {
-                    result.second?.message.toString()
+                description = if (execAllowed.value.not()) {
+                    errorMessage.value
                 } else {
-                    "Termux Exec"
+                    "Termux-Exec"
                 },
-                default = result.first,
+                default = execAllowed.value,
                 isSwitchLocked = true,
                 isEnabled = isInstalled,
                 sideEffect = {
-                    if (result.first.not()) {
+                    if (execAllowed.value.not()) {
                         val intent =
                             Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                 data = Uri.fromParts("package", context.packageName, null)
@@ -75,7 +83,6 @@ fun SettingsTerminalScreen(navController: NavController) {
                 description = stringResource(strings.termux_exec_guide_desc),
                 showSwitch = false,
                 sideEffect = {
-
                     val url = if (isTermuxInstalled()) {
                         if (isTermuxCompatible()) {
                             "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
@@ -87,19 +94,10 @@ fun SettingsTerminalScreen(navController: NavController) {
                     }
 
                     DefaultScope.launch {
-                        delay(1000)
+                        delay(100)
                         withContext(Dispatchers.Main) {
-                            val intent = Intent(Intent.ACTION_VIEW)
-                            intent.setData(Uri.parse(url))
-                            intent.setPackage("com.github.android")
-
-                            if (intent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(intent)
-                            } else {
-                                val builder = CustomTabsIntent.Builder()
-                                builder.setShowTitle(true)
-                                builder.build().launchUrl(context, Uri.parse(url))
-                            }
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                            context.startActivity(intent)
                         }
                     }
                 })

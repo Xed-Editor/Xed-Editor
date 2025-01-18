@@ -42,9 +42,6 @@ else
 		ARGS="$ARGS -b ${storage_path}:/storage/self/primary"
 	fi
 fi
-unset storage_path
-
-ARGS="$ARGS --kernel-release=6.6.30-Xed-Editor"
 
 ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
@@ -56,7 +53,6 @@ ARGS="$ARGS -b /proc/self/fd/2:/dev/stderr"
 ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b /sys"
 
-# Bind /tmp to /dev/shm.
 if [ ! -d "$PREFIX/local/alpine/tmp" ]; then
 	mkdir -p "$PREFIX/local/alpine/tmp"
 	chmod 1777 "$PREFIX/local/alpine/tmp"
@@ -69,4 +65,4 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-$PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+$LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"

@@ -12,7 +12,7 @@ import java.io.File
 
 class HtmlRunner : RunnerImpl {
     private var httpServer: HttpServer? = null
-    private val port = getAvailablePort()
+    private val port by lazy { getAvailablePort() }
     
     override fun run(file: File, context: Context) {
         stop()
