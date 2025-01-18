@@ -1,5 +1,5 @@
 ARGS="--kill-on-exit"
-ARGS="$ARGS  -w $PWD"
+ARGS="$ARGS -w $PWD"
 
 for data_dir in /data/app /data/dalvik-cache \
 	/data/misc/apexdata/com.android.art/dalvik-cache; do
@@ -22,10 +22,27 @@ done
 unset system_mnt
 
 
-if [ -d /storage ]; then
-	ARGS="$ARGS -b /storage:/storage"
+if ls -1U /storage > /dev/null 2>&1; then
+	ARGS="$ARGS -b /storage"
+	ARGS="$ARGS -b /storage/emulated/0:/sdcard"
+else
+	if ls -1U /storage/self/primary/ > /dev/null 2>&1; then
+		storage_path="/storage/self/primary"
+	elif ls -1U /storage/emulated/0/ > /dev/null 2>&1; then
+		storage_path="/storage/emulated/0"
+	elif ls -1U /sdcard/ > /dev/null 2>&1; then
+		storage_path="/sdcard"
+	else
+		storage_path=""
+	fi
+
+	if [ -n "$storage_path" ]; then
+		ARGS="$ARGS -b ${storage_path}:/sdcard"
+		ARGS="$ARGS -b ${storage_path}:/storage/emulated/0"
+		ARGS="$ARGS -b ${storage_path}:/storage/self/primary"
+	fi
 fi
-ARGS="$ARGS -b /sdcard:/sdcard"
+
 ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
@@ -45,6 +62,7 @@ ARGS="$ARGS -b $PREFIX/local/alpine/tmp:/dev/shm"
 ARGS="$ARGS -r $PREFIX/local/alpine"
 ARGS="$ARGS -0"
 ARGS="$ARGS --link2symlink"
+ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
 $LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
