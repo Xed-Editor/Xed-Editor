@@ -5,13 +5,15 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.os.StrictMode
 import androidx.appcompat.view.ContextThemeWrapper
+import com.github.anrwatchdog.ANRWatchDog
 import com.google.android.material.color.MaterialColors
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
-import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.application
 import com.rk.libcommons.currentActivity
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.Res
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -26,6 +28,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
 import java.lang.ref.WeakReference
+
 
 class App : Application() {
 
@@ -43,6 +46,16 @@ class App : Application() {
     override fun onCreate() {
         application = this
         Res.context = this
+
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build()
+        )
+
+        ANRWatchDog().start()
+
         super.onCreate()
 
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {

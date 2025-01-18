@@ -2,6 +2,7 @@
 accompanistSwiperefresh = "0.36.0"
 agp = "8.6.0"
 annotation = "1.9.1"
+anrwatchdog = "1.4.0"
 appcompat = "1.7.0"
 browser = "1.8.0"
 bsh = "3.0.0-SNAPSHOT"
@@ -59,6 +60,7 @@ runtimeAndroid = "1.7.6"
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 browser = { module = "androidx.browser:browser", version.ref = "browser" }
 bsh = { module = "org.beanshell:bsh", version.ref = "bsh" }
