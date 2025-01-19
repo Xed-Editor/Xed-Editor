@@ -41,11 +41,7 @@ class TabFragment : Fragment() {
             when (file.getFragmentType()) {
                 FragmentType.EDITOR -> {
 
-                    if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
-                        rkUtils.toast(rkUtils.getString(strings.file_too_large))
-                       
-                    }
-
+                   
                     val editorFragment = EditorFragment(requireContext())
                     editorFragment.onCreate()
                     fragment = editorFragment
