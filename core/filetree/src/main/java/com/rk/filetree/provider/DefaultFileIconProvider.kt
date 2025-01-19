@@ -11,8 +11,7 @@ import com.rk.resources.drawables
 class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val file = ContextCompat.getDrawable(context, drawables.file)
     private val folder = ContextCompat.getDrawable(context, drawables.folder)
-    private val chevronRight = ContextCompat.getDrawable(context, drawables.ic_chevron_right)
-    private val expandMore = ContextCompat.getDrawable(context, drawables.round_expand_more_24)
+    private val chevronRight = ContextCompat.getDrawable(context, drawables.chevron_right)
 
     // Lazy initialization for drawables to save memory
     private val java by lazy { ContextCompat.getDrawable(context, drawables.java) }
@@ -34,9 +33,8 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val csharp by lazy { ContextCompat.getDrawable(context, drawables.ic_language_csharp) }
     private val unknown by lazy { ContextCompat.getDrawable(context, drawables.question_mark) }
     private val bash by lazy { ContextCompat.getDrawable(context, drawables.bash) }
-    private val apk by lazy { ContextCompat.getDrawable(context, drawables.apkfile) }
+    private val apk by lazy { ContextCompat.getDrawable(context, drawables.apk_document) }
     private val archive by lazy { ContextCompat.getDrawable(context, drawables.archive) }
-    private val contract by lazy { ContextCompat.getDrawable(context, drawables.contract) }
     private val text by lazy { ContextCompat.getDrawable(context, drawables.text) }
     private val video by lazy { ContextCompat.getDrawable(context, drawables.video) }
     private val audio by lazy { ContextCompat.getDrawable(context, drawables.music) }
@@ -51,8 +49,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
             when (node.value.getName()) {
                 "contract.sol",
                 "LICENSE",
-                "NOTICE",
-                "NOTICE.txt" -> contract
+                "NOTICE", -> text
                 "gradlew" -> bash
 
                 else ->
@@ -122,9 +119,5 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
 
     override fun getChevronRight(): Drawable? {
         return chevronRight
-    }
-
-    override fun getExpandMore(): Drawable? {
-        return expandMore
     }
 }

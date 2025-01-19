@@ -54,7 +54,7 @@ class FileAction(
                 addItem(
                     getString(strings.refresh),
                     getString(strings.reload_file_tree),
-                    getDrawable(drawables.sync),
+                    getDrawable(drawables.refresh),
                 ) {
                     mainActivity.lifecycleScope.launch {
                         ProjectManager.currentProject.refresh(mainActivity)

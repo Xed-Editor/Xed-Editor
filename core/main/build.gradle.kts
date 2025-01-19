@@ -129,6 +129,7 @@ dependencies {
     api(libs.browser)
     api(libs.eventbus)
     api(libs.quickjs.android)
+    api(libs.anrwatchdog)
 
 
     api(project(":core:runner"))

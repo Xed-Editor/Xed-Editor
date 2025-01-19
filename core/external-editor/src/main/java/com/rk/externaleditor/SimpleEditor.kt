@@ -17,7 +17,6 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.constraintlayout.widget.*
 import androidx.lifecycle.lifecycleScope
 import com.rk.externaleditor.databinding.ActivitySimpleEditorBinding
-import com.rk.libcommons.After
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.runner.Runner
 import io.github.rosemoe.sora.event.ContentChangeEvent
@@ -139,27 +138,23 @@ class SimpleEditor : AppCompatActivity() {
         undo = menu.findItem(R.id.undo)
         redo = menu.findItem(R.id.redo)
 
-        After(200) {
-            runOnUiThread {
-                undo?.apply {
-                    isVisible = true
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                }
-
-                redo?.apply {
-                    isVisible = true
-                    setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                }
-
-                menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
-                menu.findItem(R.id.action_save).isVisible = true
-                menu.findItem(R.id.action_print).isVisible = true
-                menu.findItem(R.id.share).isVisible = true
-                menu.findItem(R.id.search).isVisible = true
-                menu.findItem(R.id.share).isVisible = true
-                menu.findItem(R.id.suggestions).isVisible = true
-            }
+        undo?.apply {
+            isVisible = true
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
         }
+
+        redo?.apply {
+            isVisible = true
+            setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        }
+
+        menu.findItem(R.id.action_settings).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        menu.findItem(R.id.action_save).isVisible = true
+        menu.findItem(R.id.action_print).isVisible = true
+        menu.findItem(R.id.share).isVisible = true
+        menu.findItem(R.id.search).isVisible = true
+        menu.findItem(R.id.share).isVisible = true
+        menu.findItem(R.id.suggestions).isVisible = true
 
         return true
     }

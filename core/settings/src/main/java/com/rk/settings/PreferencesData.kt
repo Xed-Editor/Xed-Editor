@@ -10,7 +10,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@Suppress("NOTHING_TO_")
 object PreferencesData {
     private const val PREF_NAME = "Settings"
 

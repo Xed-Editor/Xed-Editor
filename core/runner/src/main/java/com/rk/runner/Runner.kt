@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.annotation.Keep
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -21,27 +20,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-@Keep
+
 interface RunnerImpl {
-    @Keep
     fun run(file: File, context: Context)
-
-    @Keep
     fun getName(): String
-
-    @Keep
     fun getDescription(): String
-
-    @Keep
     fun getIcon(context: Context): Drawable?
     fun isRunning(): Boolean
     fun stop()
 }
 
-@Keep
+
 object Runner {
-    @Keep
-    val registry = HashMap<String, MutableList<RunnerImpl>>()
+    private val registry = HashMap<String, MutableList<RunnerImpl>>()
 
     init {
         registry["html"] = mutableListOf(HtmlRunner())
@@ -53,7 +44,7 @@ object Runner {
             registry["js"] = it
         }
 
-        mutableListOf<RunnerImpl>(ShellRunner(true), ShellRunner(false)).let {
+        mutableListOf<RunnerImpl>(ShellRunner()).let {
             registry["sh"] = it
             registry["bash"] = it
         }
@@ -64,10 +55,8 @@ object Runner {
         return registry.keys.any { it == ext }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun run(file: File, context: Context) {
         withContext(Dispatchers.Default) {
-
             if (isRunnable(file)) {
                 val ext = file.name.substringAfterLast('.', "")
                 val runners = registry[ext]

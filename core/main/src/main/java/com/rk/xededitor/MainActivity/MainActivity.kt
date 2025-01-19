@@ -135,7 +135,7 @@ class MainActivity : BaseActivity() {
 
         menu.findItem(R.id.action_add).isVisible = true
 
-        val tool = ContextCompat.getDrawable(this, drawables.build_24px)
+        val tool = ContextCompat.getDrawable(this, drawables.build)
         var order = 0
         Mutators.getMutators().forEach {
             menu.findItem(R.id.tools).subMenu?.add(
