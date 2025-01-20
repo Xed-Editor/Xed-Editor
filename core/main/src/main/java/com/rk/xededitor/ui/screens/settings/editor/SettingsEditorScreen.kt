@@ -61,6 +61,13 @@ fun SettingsEditorScreen(navController: NavController) {
                     navController.navigate(SettingsRoutes.ManageMutators.route)
                 })
 
+            SettingsToggle(
+                label = "Restore Sessions",
+                description = "Restore previous tabs",
+                default = false,
+                key = PreferencesKeys.RESTORE_SESSIONS
+            )
+
 
             SettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
@@ -273,8 +280,9 @@ fun SettingsEditorScreen(navController: NavController) {
                             lineSpacingValue,
                         )
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
-                            if (it.get()?.fragment is EditorFragment){
-                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingExtra = lineSpacingValue.toFloat()
+                            if (it.get()?.fragment is EditorFragment) {
+                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingExtra =
+                                    lineSpacingValue.toFloat()
                             }
                         }
 
@@ -308,8 +316,9 @@ fun SettingsEditorScreen(navController: NavController) {
                             lineSpacingMultiplierValue,
                         )
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
-                            if (it.get()?.fragment is EditorFragment){
-                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingMultiplier = lineSpacingMultiplierValue.toFloat()
+                            if (it.get()?.fragment is EditorFragment) {
+                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingMultiplier =
+                                    lineSpacingMultiplierValue.toFloat()
                             }
                         }
                     }

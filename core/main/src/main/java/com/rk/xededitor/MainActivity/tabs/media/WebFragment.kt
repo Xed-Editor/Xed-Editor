@@ -38,7 +38,6 @@ class WebFragment(val context: Context) : CoreFragment {
     override fun onClosed() {
         onDestroy()
     }
-    
     override fun onCreate() {
         webView.setWebChromeClient(WebChromeClient())
         webView.settings.setSupportZoom(true)

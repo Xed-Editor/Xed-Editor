@@ -34,7 +34,7 @@ class Kee(val file: FileObject) {
 }
 
 private var nextItemId = 0L
-const val tabLimit = 20
+const val tabLimit:Int = 20
 var currentTab: WeakReference<TabLayout.Tab?> = WeakReference(null)
 
 class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
@@ -266,7 +266,10 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             (viewPager?.adapter as? TabAdapter)?.notifyItemInsertedX(
                 tabViewModel.fragmentFiles.size - 1
             )
-            if (tabViewModel.fragmentFiles.size > 1) viewPager?.setCurrentItem(tabViewModel.fragmentFiles.size - 1, false)
+            if (tabViewModel.fragmentFiles.size > 1)
+                if (tabViewModel.isRestoring.not()){
+                    viewPager?.setCurrentItem(tabViewModel.fragmentFiles.size - 1, false)
+                }
             binding!!.tabs.visibility = View.VISIBLE
             binding!!.mainView.visibility = View.VISIBLE
             binding!!.openBtn.visibility = View.GONE

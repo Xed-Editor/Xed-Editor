@@ -1,6 +1,6 @@
 package com.rk.xededitor.MainActivity.tabs.core
 
-enum class FragmentType {
+enum class FragmentType{
     EDITOR,
     VIDEO,
     AUDIO,

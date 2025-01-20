@@ -23,7 +23,8 @@ class VideoFragment(val context: Context) : CoreFragment {
         player.stop()
         player.release()
     }
-    
+
+
     override fun onCreate() {
     
     }

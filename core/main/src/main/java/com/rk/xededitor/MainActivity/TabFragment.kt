@@ -20,53 +20,42 @@ import kotlinx.coroutines.launch
 
 class TabFragment : Fragment() {
     var fragment: CoreFragment? = null
+    private var file:FileObject? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val file = arguments?.getSerializable(ARG_FILE_PATH) as FileObject
+        file = arguments?.getSerializable(ARG_FILE_PATH) as FileObject
 
         if (tabs.isNotEmpty()){
             for (builder in tabs.values){
-                val builtFragment = builder.invoke(file,this)
+                val builtFragment = builder.invoke(file!!,this)
                 if (builtFragment != null){
                     fragment = builtFragment
-                    builtFragment.onCreate()
-                    builtFragment.loadFile(file)
                     break
                 }
             }
         }
 
         if (fragment == null){
-            when (file.getFragmentType()) {
+            when (file!!.getFragmentType()) {
                 FragmentType.EDITOR -> {
-
-                   
                     val editorFragment = EditorFragment(requireContext())
-                    editorFragment.onCreate()
                     fragment = editorFragment
-                    editorFragment.loadFile(file)
                 }
 
                 FragmentType.AUDIO -> {
                     val mediaFragment = WebFragment(requireContext())
-                    mediaFragment.onCreate()
                     fragment = mediaFragment
-                    mediaFragment.loadFile(file)
                 }
 
                 FragmentType.IMAGE -> {
                     val imageFragment = ImageFragment(requireContext())
-                    imageFragment.onCreate()
                     fragment = imageFragment
-                    imageFragment.loadFile(file)
                 }
 
                 FragmentType.VIDEO -> {
                     val videoFragment = VideoFragment(requireContext())
-                    videoFragment.onCreate()
                     fragment = videoFragment
-                    videoFragment.loadFile(file)
                 }
             }
         }
@@ -82,6 +71,8 @@ class TabFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
+        fragment!!.onCreate()
+        fragment!!.loadFile(file = file!!)
         return fragment?.getView().also { it?.isFocusableInTouchMode = true;it?.requestFocus();it?.requestFocusFromTouch() }
     }
     

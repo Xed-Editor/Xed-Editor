@@ -6,7 +6,7 @@
 
 <div align="center">
 
-  
+
   <img src="https://img.shields.io/github/downloads/Xed-Editor/Xed-Editor/total?label=Downloads" alt="Download Count">
   <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI">
 </div>

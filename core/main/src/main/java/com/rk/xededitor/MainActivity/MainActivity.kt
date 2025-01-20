@@ -14,13 +14,17 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
 import com.rk.file.FileObject
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
+import com.rk.libcommons.toast
+import com.rk.libcommons.toastIt
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
@@ -37,11 +41,21 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.io.Serializable
 import java.lang.ref.WeakReference
 
 
@@ -63,12 +77,91 @@ class MainActivity : BaseActivity() {
     var adapter: TabAdapter? = null
     val tabViewModel: TabViewModel by viewModels()
 
+    class TabViewModelState(
+        val fragmentFiles: MutableList<FileObject>,
+        val fragmentTypes:  MutableList<FragmentType>,
+        val fragmentTitles:  MutableList<String>,
+        val fileSet: HashSet<String>
+    ) : Serializable
 
     class TabViewModel : ViewModel() {
-        val fragmentFiles = mutableListOf<FileObject>()
-        val fragmentTypes = mutableListOf<FragmentType>()
-        val fragmentTitles = mutableListOf<String>()
-        val fileSet = HashSet<String>()
+        var fragmentFiles = mutableListOf<FileObject>()
+        var fragmentTypes = mutableListOf<FragmentType>()
+        var fragmentTitles = mutableListOf<String>()
+        var fileSet = HashSet<String>()
+        private var _isRestoring = false
+        val isRestoring:Boolean
+            get() = _isRestoring
+
+        @OptIn(DelicateCoroutinesApi::class)
+        fun save(){
+            val state = toState()
+            GlobalScope.launch(Dispatchers.IO) {
+                FileOutputStream(File(application!!.cacheDir,"state").also { if (it.exists()){it.delete()} }).use { fileOutputStream ->
+                    ObjectOutputStream(fileOutputStream).use {
+                        it.writeObject(state)
+                    }
+                }
+            }
+        }
+
+        fun restore(){
+            viewModelScope.launch(Dispatchers.IO) {
+                if (PreferencesData.getBoolean(PreferencesKeys.RESTORE_SESSIONS,false).not()){
+                    return@launch
+                }
+                _isRestoring = true
+                val stateFile = File(application!!.cacheDir, "state")
+                runCatching {
+                    if (stateFile.exists()) {
+                        FileInputStream(stateFile).use { fileInputStream ->
+                            ObjectInputStream(fileInputStream).use {
+                                restoreState(it.readObject() as TabViewModelState)
+                            }
+                        }
+                    }
+                }.onFailure {
+                    it.printStackTrace()
+                    stateFile.delete()
+                    toast("State lost")
+                }.onSuccess {
+                    withContext(Dispatchers.Main) {
+                        delay(1000)
+                        withContext {
+                            if (fragmentFiles.isNotEmpty()) {
+                                binding!!.tabs.visibility = View.VISIBLE
+                                binding!!.mainView.visibility = View.VISIBLE
+                                binding!!.openBtn.visibility = View.GONE
+                            }
+
+                            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
+                                tab.text = tabViewModel.fragmentTitles[position]
+                            }.attach()
+
+                            binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
+                        }
+                    }
+                }
+                _isRestoring = false
+            }
+        }
+
+        private fun toState(): TabViewModelState {
+            return TabViewModelState(
+                fragmentFiles = fragmentFiles,
+                fragmentTypes = fragmentTypes,
+                fragmentTitles = fragmentTitles,
+                fileSet = fileSet
+            )
+        }
+
+        private fun restoreState(state: TabViewModelState) {
+            fragmentFiles = state.fragmentFiles
+            fragmentTypes = state.fragmentTypes
+            fragmentTitles = state.fragmentTitles
+            fileSet = state.fileSet
+        }
+
     }
 
     override fun onStart() {
@@ -91,6 +184,8 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         binding = ActivityTabBinding.inflate(layoutInflater)
+
+        tabViewModel.restore()
 
         setContentView(binding!!.root)
         setSupportActionBar(binding!!.toolbar)
@@ -158,6 +253,7 @@ class MainActivity : BaseActivity() {
     var isPaused = true
     override fun onPause() {
         isPaused = true
+        tabViewModel.save()
 
         if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
@@ -210,8 +306,7 @@ class MainActivity : BaseActivity() {
 
     private fun setupViewPager() {
         viewPager = binding!!.viewpager2.apply {
-            // do not remove .toInt
-            offscreenPageLimit = tabLimit.toInt()
+            offscreenPageLimit = 1
             isUserInputEnabled = false
         }
     }

@@ -7,7 +7,7 @@ interface CoreFragment {
     fun getView(): View?
     fun onDestroy()
     fun onCreate()
-    fun loadFile(file: com.rk.file.FileObject)
-    fun getFile(): com.rk.file.FileObject?
+    fun loadFile(file: FileObject)
+    fun getFile(): FileObject?
     fun onClosed()
 }
