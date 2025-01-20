@@ -16,7 +16,6 @@ import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.libcommons.PathUtils.toPath
-import com.rk.libcommons.application
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
@@ -89,7 +88,7 @@ class FileManager(private val mainActivity: MainActivity) {
 
                 parentFile?.let {
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.currentProject.updateFileAdded(
+                        ProjectManager.CurrentProject.updateFileAdded(
                             mainActivity, it
                         )
                     }

@@ -38,6 +38,30 @@
         android:title=""
         android:visible="false"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder7"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder8"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder9"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/folder10"
+        android:icon="@drawable/outline_folder_24"
+        android:title=""
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/add_new"

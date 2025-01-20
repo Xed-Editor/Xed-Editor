@@ -40,7 +40,7 @@ object MkSession {
                     intent.getStringExtra("cwd").toString()
                 } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
                     val fileObject =
-                        ProjectManager.currentProject.get(MainActivity.activityRef.get()!!)
+                        ProjectManager.CurrentProject.get(MainActivity.activityRef.get()!!)
                     var path = Environment.getExternalStorageDirectory().path
                     if (fileObject is FileWrapper) {
                         path = fileObject.getAbsolutePath()

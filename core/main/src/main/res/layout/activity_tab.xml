@@ -95,7 +95,7 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <com.google.android.material.navigationrail.NavigationRailView
+            <com.rk.xededitor.MainActivity.file.ProjectView
                 android:id="@+id/navigation_rail"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"

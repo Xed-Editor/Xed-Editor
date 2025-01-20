@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
@@ -57,7 +56,7 @@ class FileAction(
                     getDrawable(drawables.refresh),
                 ) {
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.currentProject.refresh(mainActivity)
+                        ProjectManager.CurrentProject.refresh(mainActivity)
                     }
                 }
                 addItem(
@@ -94,7 +93,7 @@ class FileAction(
                         .setNegativeButton(getString(strings.cancel), null)
                         .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
                             val loading = LoadingPopup(mainActivity, null).show()
-                            ProjectManager.currentProject.updateFileDeleted(
+                            ProjectManager.CurrentProject.updateFileDeleted(
                                 mainActivity, file
                             )
                             mainActivity.lifecycleScope.launch(Dispatchers.IO) {
@@ -281,7 +280,7 @@ class FileAction(
                     }.onSuccess {
                         withContext(Dispatchers.Main) {
                             loading.hide()
-                            ProjectManager.currentProject.updateFileAdded(mainActivity, file)
+                            ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
                         }
                     }.onFailure {
                         it.printStackTrace()
@@ -333,7 +332,7 @@ class FileAction(
                         }
 
                         withContext(Dispatchers.Main) {
-                            ProjectManager.currentProject.updateFileRenamed(
+                            ProjectManager.CurrentProject.updateFileRenamed(
                                 mainActivity, file, file
                             )
                         }
@@ -428,7 +427,7 @@ class FileAction(
                         runOnUiThread {
                             if (it == null) {
                                 mainActivity.lifecycleScope.launch {
-                                    ProjectManager.currentProject.updateFileAdded(mainActivity, file)
+                                    ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
                                 }
                             }
                             loading.hide()

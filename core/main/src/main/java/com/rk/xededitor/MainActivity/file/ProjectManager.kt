@@ -12,7 +12,6 @@ import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.libcommons.application
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.MainActivity.MainActivity
@@ -33,14 +32,10 @@ import java.util.Queue
 
 
 object ProjectManager {
-
     val projects = HashMap<Int, String>()
     private val queue: Queue<FileObject> = LinkedList()
 
     fun processQueue(activity: MainActivity) {
-        if (activityRef.get() == null) {
-            activityRef = WeakReference(activity)
-        }
         activity.lifecycleScope.launch(Dispatchers.Default) {
             while (queue.isNotEmpty()) {
                 delay(100)
@@ -49,12 +44,10 @@ object ProjectManager {
         }
     }
 
-    suspend fun addProject(activity: MainActivity, file: FileObject) {
+    private val limit = activityRef.get()?.binding?.navigationRail?.maxItemCount ?: 11
 
-        if (activityRef.get() == null) {
-            activityRef = WeakReference(activity)
-        }
-        if (projects.size >= 6) {
+    suspend fun addProject(activity: MainActivity, file: FileObject) {
+        if (projects.size >= limit-1) {
             return
         }
 
@@ -68,14 +61,13 @@ object ProjectManager {
             return
         }
         val rail = activity.binding!!.navigationRail
-        for (i in 0 until rail.menu.size()) {
+        for (i in 0 until limit) {
+
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
             if (menuItemId != R.id.add_new && !projects.contains(menuItemId)) {
-                item.title = if (file.getName().isBlank()){
+                item.title = file.getName().ifBlank {
                     "no_name"
-                }else{
-                    file.getName()
                 }
                 item.isVisible = true
                 item.isChecked = true
@@ -94,24 +86,23 @@ object ProjectManager {
 
                 changeProject(file.getAbsolutePath(), activity)
 
-                // hide + button if 6 projects are added
-                if (activity.binding!!.navigationRail.menu.getItem(5).isVisible) {
-                    activity.binding!!.navigationRail.menu.getItem(6).isVisible = false
+                // hide + button if 10 projects are added
+                if (activity.binding!!.navigationRail.menu.getItem(limit-2).isVisible) {
+                    activity.binding!!.navigationRail.menu.getItem(limit-1).isVisible = false
                 }
 
                 break
             }
         }
         EventBus().post(ProjectEvents.onProjectAdd(file))
-        saveProjects(activity)
-        // }
-
+        saveProjects()
     }
 
     fun removeProject(activity: MainActivity, file: FileObject, saveState: Boolean = true) {
 
         val rail = activity.binding!!.navigationRail
-        for (i in 0 until rail.menu.size()) {
+        for (i in 0 until limit) {
+
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
             if (projects[menuItemId] == file.getAbsolutePath()) {
@@ -128,8 +119,8 @@ object ProjectManager {
                 }
                 projects.remove(menuItemId)
 
-                if (!rail.menu.getItem(6).isVisible) {
-                    rail.menu.getItem(6).isVisible = true
+                if (!rail.menu.getItem(limit-1).isVisible) {
+                    rail.menu.getItem(limit-1).isVisible = true
                 }
 
                 fun selectItem(itemx: MenuItem) {
@@ -156,15 +147,8 @@ object ProjectManager {
                         }
                     }
 
-                    saveProjects(activity)
+                    saveProjects()
                 }
-
-                //                for (ix in 0 until activity.binding!!.maindrawer.childCount) {
-                //                    val view = activity.binding!!.maindrawer.getChildAt(ix)
-                //                    if (view is ViewGroup) {
-                //                        activity.binding!!.maindrawer.removeView(view)
-                //                    }
-                //                }
 
                 activity.binding!!.maindrawer.removeView(
                     activity.binding!!.maindrawer.findViewById(file.getAbsolutePath().hashCode())
@@ -175,7 +159,6 @@ object ProjectManager {
                 break
             }
         }
-        // }
     }
 
     private var currentProjectId: Int = -1
@@ -195,7 +178,7 @@ object ProjectManager {
         }
     }
 
-    fun clear(activity: MainActivity) {
+    private fun clear(activity: MainActivity) {
         projects.clear()
         for (i in 0 until activity.binding!!.maindrawer.childCount) {
             val view = activity.binding!!.maindrawer.getChildAt(i)
@@ -222,7 +205,7 @@ object ProjectManager {
         return (view.getChildAt(0) as FileTree)
     }
 
-    object currentProject {
+    object CurrentProject {
         fun get(activity: MainActivity): FileObject {
             return getSelectedView(activity).getRootFileObject()
         }
@@ -288,7 +271,7 @@ object ProjectManager {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private fun saveProjects(activity: MainActivity) {
+    private fun saveProjects() {
         GlobalScope.launch(Dispatchers.IO) {
             val gson = Gson()
             val uniqueProjects = projects.values.toSet()
