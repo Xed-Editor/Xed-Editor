@@ -175,7 +175,7 @@
     <string name="editor">محرر</string>
     <string name="smooth_tabs">علامات التبويب السلسة</string>
     <string name="smooth_tab_desc">التبديل بين علامات التبويب بسلاسة</string>
-    <string name="ww_desc">تمكين الوردوراب في كافة المحررين</string>
+    <string name="ww_desc">تمكين ألتفاف النص في كافة المحررين</string>
     <string name="drawer_lock_desc">بقاء الدرج مغلقًا عند فتح الملف</string>
     <string name="diagonal_scroll">التمرير القطري</string>
     <string name="diagonal_scroll_desc">تمكين التمرير القطري في شجرة الملفات</string>
@@ -275,8 +275,8 @@
     <string name="sora_s">البحث عن النص بواسطة سورا</string>
     <string name="sora_s_desc">استخدم البحث عن النص بواسطة سورا</string>
     <string name="manage_editor_font">تعديل خطوط المحرر</string>
-    <string name="default_encoding">الترميز المفترض</string>
-    <string name="default_encoding_desc">الترميز المفترض عند فتح و انشاء ملفات</string>
+    <string name="default_encoding">الترميز الافتراضي</string>
+    <string name="default_encoding_desc">الترميز الافتراضي عند فتح وإنشاء ملفات</string>
     <string name="other">أشياء أخرى</string>
     <string name="add_font_desc">اختيار ملف ttf من وحدة التخزين</string>
     <string name="install_termux">حمل تيرمكس من اف-درويد</string>
@@ -295,7 +295,7 @@
     <string name="add_font">اضافة خط جديد</string>
     <string name="content">المحتوى</string>
     <string name="fonts">الخطوط</string>
-    <string name="font_added">لقد تمت اضافة الخط بنجاح</string>
+    <string name="font_added">لقد تمت إضافة الخط بنجاح</string>
     <string name="tools">الأدوات</string>
     <string name="line_spacing">بعد الخطوط</string>
     <string name="line_spacing_multiplier">مضعف بعد الخطوط</string>
