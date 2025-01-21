@@ -100,7 +100,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ConstraintLayout.LayoutParams.WRAP_CONTENT
             )
             isHorizontalScrollBarEnabled = false
-            //addView(setupEditor.getInputView())
+            addView(setupEditor.getInputView())
         }
 
 
@@ -227,7 +227,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun loadFile(file: FileObject) {
         this.file = file
         scope.launch(Dispatchers.Default) {
-
             runCatching {
                 if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                     withContext(Dispatchers.Main) {
@@ -243,7 +242,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                                         Charset.defaultCharset().name()
                                     )
                                 )
-                            );
+                            )
+
                             FilesContent.setContent(
                                 this@EditorFragment.file!!.getAbsolutePath(),
                                 editor!!.text.toString()
@@ -269,9 +269,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
                 launch {
                     runCatching {
-                        scope.launch{
-                            setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
-                        }
+                        setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
                     }.onFailure {
                         it.printStackTrace()
                         rkUtils.toast(it.message)
@@ -289,7 +287,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     override fun getFile(): FileObject? = file
-
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
         if (file!!.exists().not()) {

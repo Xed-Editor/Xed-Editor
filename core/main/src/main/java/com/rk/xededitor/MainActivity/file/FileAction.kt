@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -19,6 +20,7 @@ import com.rk.file.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
@@ -117,7 +119,7 @@ class FileAction(
                 if (file is FileWrapper) {
                     addItem(title = "Clone Repo",
                         description = "Clone a git repo here",
-                        icon = getDrawable(drawables.github),
+                        icon = getDrawable(drawables.git),
                         listener = {
                             cloneRepo()
                         })
@@ -427,7 +429,10 @@ class FileAction(
                         runOnUiThread {
                             if (it == null) {
                                 mainActivity.lifecycleScope.launch {
-                                    ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
+                                    ProjectManager.CurrentProject.updateFileAdded(
+                                        mainActivity,
+                                        file
+                                    )
                                 }
                             }
                             loading.hide()

@@ -7,6 +7,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.file.FileWrapper
 import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.alpineDir
+import com.rk.libcommons.child
+import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -71,10 +74,31 @@ object ProjectBar {
                     addItem(
                         getString(strings.private_files),
                         getString(strings.private_files_desc),
-                        ContextCompat.getDrawable(this@with, drawables.android),
+                        ContextCompat.getDrawable(this@with, drawables.build),
                         privateFilesId,
                         listener,
                     )
+
+                    addItem(
+                        "Terminal Home",
+                        "Default home directory of terminal",
+                        ContextCompat.getDrawable(this@with, drawables.terminal),
+                        listener = {
+                            lifecycleScope.launch {
+                                val file = application!!.alpineDir().child("root")
+                                if (file.exists()){
+                                    ProjectManager.addProject(this@with,
+                                        FileWrapper(file)
+                                    )
+                                }else{
+                                    toast("Please setup terminal first")
+                                }
+                            }
+                            dialog?.dismiss()
+                            dialog = null
+                        }
+                    )
+
 
                     setTitle(getString(strings.add))
                     getDialogBuilder().setNegativeButton(getString(strings.cancel), null)
