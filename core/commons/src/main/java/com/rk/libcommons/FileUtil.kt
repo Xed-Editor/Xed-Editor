@@ -35,6 +35,16 @@ fun Context.alpineDir(): File {
     }
 }
 
+fun Context.alpineHomeDir(): File {
+    return alpineDir().child("root").also {
+        if (!it.exists()) {
+            it.mkdirs()
+        }
+    }
+}
+
+
+
 fun File.child(fileName:String):File {
     return File(this,fileName)
 }

@@ -244,6 +244,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                                 )
                             )
 
+
+
                             FilesContent.setContent(
                                 this@EditorFragment.file!!.getAbsolutePath(),
                                 editor!!.text.toString()

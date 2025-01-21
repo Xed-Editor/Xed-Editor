@@ -2,6 +2,7 @@ package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
 import com.rk.file.FileWrapper
+import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
@@ -57,15 +58,14 @@ object MkSession {
 
             if (tmpDir.exists()) {
                 tmpDir.deleteRecursively()
-                tmpDir.mkdirs()
-            } else {
-                tmpDir.mkdirs()
             }
+
+            tmpDir.mkdirs()
 
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "HOME=" + filesDir.absolutePath,
-                "PUBLIC_HOME=" + getExternalFilesDir(null)?.absolutePath,
+                "HOME=${activity.alpineHomeDir()}",
+                "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
@@ -73,6 +73,7 @@ object MkSession {
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
             )
+
 
 
 
