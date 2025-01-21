@@ -22,4 +22,5 @@
     <string name="newFile_hint">নাম যেমন Test.txt</string>
     <string name="mime">মাইম টাইপ যেমন text/plain</string>
     <string name="rep">প্রতিস্থাপন</string>
+    <string name="force_char_desc">Forza Char in base all\'input nel terminale</string>
 </resources>
