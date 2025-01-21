@@ -73,7 +73,7 @@ class TabFragment : Fragment() {
     ): View? {
         fragment!!.onCreate()
         fragment!!.loadFile(file = file!!)
-        return fragment?.getView().also { it?.isFocusableInTouchMode = true;it?.requestFocus();it?.requestFocusFromTouch() }
+        return fragment?.getView()?.also { it?.isFocusableInTouchMode = true;it.requestFocus();it.requestFocusFromTouch(); }
     }
     
     override fun onDestroy() {

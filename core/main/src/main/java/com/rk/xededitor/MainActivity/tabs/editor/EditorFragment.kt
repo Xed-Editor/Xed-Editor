@@ -1,13 +1,17 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
+import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.libcommons.CustomScope
@@ -96,7 +100,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ConstraintLayout.LayoutParams.WRAP_CONTENT
             )
             isHorizontalScrollBarEnabled = false
-            addView(setupEditor.getInputView())
+            //addView(setupEditor.getInputView())
         }
 
 
@@ -137,7 +141,6 @@ class EditorFragment(val context: Context) : CoreFragment {
         fun refresh() {
             scope.launch(Dispatchers.IO) {
                 kotlin.runCatching {
-
                     file?.let {
                         editor?.loadFile(
                             it.getInputStream(), Charset.forName(
@@ -252,14 +255,6 @@ class EditorFragment(val context: Context) : CoreFragment {
                     }
                 }
 
-                launch {
-                    runCatching {
-                        setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
-                    }.onFailure {
-                        it.printStackTrace()
-                        rkUtils.toast(it.message)
-                    }
-                }
                 withContext(Dispatchers.Main) {
                     setChangeListener()
                     this@EditorFragment.file?.let {
@@ -271,6 +266,18 @@ class EditorFragment(val context: Context) : CoreFragment {
                         }
                     }
                 }
+
+                launch {
+                    runCatching {
+                        scope.launch{
+                            setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
+                        }
+                    }.onFailure {
+                        it.printStackTrace()
+                        rkUtils.toast(it.message)
+                    }
+                }
+
             }.onFailure {
                 it.printStackTrace()
                 if (it.message?.contains("Job") != true){

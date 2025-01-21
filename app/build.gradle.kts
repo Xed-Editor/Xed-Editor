@@ -54,7 +54,7 @@ android {
     
     
     buildTypes {
-        getByName("release") {
+        release{
             isMinifyEnabled = false
             isCrunchPngs = false
             isShrinkResources = false
@@ -62,6 +62,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+        }
+        debug{
+            applicationIdSuffix = ".debug"
         }
     }
     

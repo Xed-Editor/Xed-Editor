@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -16,6 +17,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
@@ -23,6 +25,7 @@ import com.rk.file.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
+import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastIt
 import com.rk.resources.drawables
@@ -191,6 +194,38 @@ class MainActivity : BaseActivity() {
         setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(false)
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            SetupEditor.initActivity(this@MainActivity, calculateColors = {
+                val lightThemeContext = ContextThemeWrapper(
+                    this@MainActivity,
+                    com.google.android.material.R.style.Theme_Material3_DynamicColors_Light
+                )
+                val darkThemeContext = ContextThemeWrapper(
+                    this@MainActivity,
+                    com.google.android.material.R.style.Theme_Material3_DynamicColors_Dark
+                )
+
+                val lightSurfaceColor = MaterialColors.getColor(
+                    lightThemeContext,
+                    com.google.android.material.R.attr.colorSurface,
+                    Color.WHITE
+                )
+
+                val darkSurfaceColor = MaterialColors.getColor(
+                    darkThemeContext,
+                    com.google.android.material.R.attr.colorSurface,
+                    Color.BLACK
+                )
+
+                val lightsurfaceColorHex =
+                    String.format("#%06X", 0xFFFFFF and lightSurfaceColor)
+                val darksurfaceColorHex =
+                    String.format("#%06X", 0xFFFFFF and darkSurfaceColor)
+
+                Pair(darksurfaceColorHex, lightsurfaceColorHex)
+            })
+        }
 
         setupDrawer()
 

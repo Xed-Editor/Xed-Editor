@@ -58,68 +58,6 @@ class App : Application() {
 
         super.onCreate()
 
-        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
-            override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-                currentActivity = WeakReference(activity)
-                GlobalScope.launch(Dispatchers.IO) {
-
-                    SetupEditor.initActivity(activity, calculateColors = {
-                        val lightThemeContext = ContextThemeWrapper(
-                            activity,
-                            com.google.android.material.R.style.Theme_Material3_DynamicColors_Light
-                        )
-                        val darkThemeContext = ContextThemeWrapper(
-                            activity,
-                            com.google.android.material.R.style.Theme_Material3_DynamicColors_Dark
-                        )
-
-                        val lightSurfaceColor = MaterialColors.getColor(
-                            lightThemeContext,
-                            com.google.android.material.R.attr.colorSurface,
-                            Color.WHITE
-                        )
-
-                        val darkSurfaceColor = MaterialColors.getColor(
-                            darkThemeContext,
-                            com.google.android.material.R.attr.colorSurface,
-                            Color.BLACK
-                        )
-
-                        val lightsurfaceColorHex =
-                            String.format("#%06X", 0xFFFFFF and lightSurfaceColor)
-                        val darksurfaceColorHex =
-                            String.format("#%06X", 0xFFFFFF and darkSurfaceColor)
-
-                        Pair(darksurfaceColorHex, lightsurfaceColorHex)
-                    })
-                }
-            }
-
-            override fun onActivityStarted(activity: Activity) {
-
-            }
-
-            override fun onActivityResumed(activity: Activity) {
-
-            }
-
-            override fun onActivityPaused(activity: Activity) {
-
-            }
-
-            override fun onActivityStopped(activity: Activity) {
-
-            }
-
-            override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
-
-            }
-
-            override fun onActivityDestroyed(activity: Activity) {
-
-            }
-        })
-
         CrashHandler.INSTANCE.init(this)
         PreferencesData.initPref(this)
 

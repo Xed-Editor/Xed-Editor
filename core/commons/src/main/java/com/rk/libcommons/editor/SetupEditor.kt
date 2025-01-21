@@ -38,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -53,16 +54,12 @@ private typealias onClick = OnClickListener
 
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope: CoroutineScope) {
 
+    private var syntaxJob: Job? = null
     init {
         with(editor) {
-            setBackgroundColor(Color.TRANSPARENT)
-
-            scope.launch {
-                runCatching {
-                    ensureTextmateTheme(ctx)
-                }
+            syntaxJob = scope.launch(Dispatchers.Main){
+                ensureTextmateTheme(ctx)
             }
-
             val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
             props.deleteMultiSpaces = tabSize
             tabWidth = tabSize
@@ -282,12 +279,15 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
     private suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO){
         waitForInit()
-        val language =
-            TextMateLanguage.create(languageScopeName, true /* true for enabling auto-completion */)
+
+        syntaxJob?.let { if (it.isCompleted.not()) { it.join() } }
+
+        val language = TextMateLanguage.create(languageScopeName, true)
         val kw = ctx.assets.open("textmate/keywords.json")
         val reader = InputStreamReader(kw)
         val jsonElement = JsonParser.parseReader(reader)
         val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
+
         if (keywordsArray != null) {
             val keywords = Array(keywordsArray.size()) { "" }
             for (i in keywords.indices) {
@@ -299,10 +299,12 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         withContext(Dispatchers.Main) {
             editor.setEditorLanguage(language as Language)
         }
+
     }
 
 
     private suspend fun ensureTextmateTheme(ctx: Context) {
+        waitForInit()
         val darkTheme: Boolean = when (PreferencesData.getString(
             PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
@@ -317,7 +319,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             else -> lightThemeRegistry
         }
 
-        waitForInit()
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
             if (PreferencesData.isDarkMode(ctx) && PreferencesData.isOled()) {
