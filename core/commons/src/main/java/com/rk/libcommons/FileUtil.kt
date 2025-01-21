@@ -3,46 +3,45 @@ package com.rk.libcommons
 import android.content.Context
 import java.io.File
 
-fun Context.localDir(): File {
-    return File(filesDir.parentFile, "local").also {
+fun localDir(): File {
+    return File(application!!.filesDir.parentFile, "local").also {
         if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
 
-fun Context.localBinDir(): File {
-    return File(filesDir.parentFile, "local/bin").also {
+fun localBinDir(): File {
+    return localDir().child("bin").also {
         if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
 
-fun Context.localLibDir(): File {
-    return File(filesDir.parentFile, "local/lib").also {
+fun localLibDir(): File {
+    return localDir().child("lib").also {
         if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
 
-fun Context.alpineDir(): File {
-    return File(localDir(),"alpine").also {
+fun alpineDir(): File {
+    return localDir().child("alpine").also {
         if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
 
-fun Context.alpineHomeDir(): File {
+fun alpineHomeDir(): File {
     return alpineDir().child("root").also {
         if (!it.exists()) {
             it.mkdirs()
         }
     }
 }
-
 
 
 fun File.child(fileName:String):File {

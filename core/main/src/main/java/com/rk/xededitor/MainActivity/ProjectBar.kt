@@ -8,6 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.file.FileWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.alpineDir
+import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
@@ -85,14 +86,9 @@ object ProjectBar {
                         ContextCompat.getDrawable(this@with, drawables.terminal),
                         listener = {
                             lifecycleScope.launch {
-                                val file = application!!.alpineDir().child("root")
-                                if (file.exists()){
-                                    ProjectManager.addProject(this@with,
-                                        FileWrapper(file)
-                                    )
-                                }else{
-                                    toast("Please setup terminal first")
-                                }
+                                ProjectManager.addProject(this@with,
+                                    FileWrapper(alpineHomeDir())
+                                )
                             }
                             dialog?.dismiss()
                             dialog = null

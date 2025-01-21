@@ -64,7 +64,7 @@ object MkSession {
 
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "HOME=${activity.alpineHomeDir()}",
+                "HOME=${application!!.filesDir.path}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
@@ -73,8 +73,6 @@ object MkSession {
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
             )
-
-
 
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })

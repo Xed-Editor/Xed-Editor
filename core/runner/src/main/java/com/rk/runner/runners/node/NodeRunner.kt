@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import com.rk.karbon_exec.launchInternalTerminal
 import com.rk.karbon_exec.runBashScript
 import com.rk.libcommons.TerminalCommand
+import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
@@ -16,7 +17,7 @@ import java.io.File
 
 class NodeRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
-        val node = File(context.localBinDir(), "node")
+        val node = localBinDir().child("node")
         if (node.exists().not()) {
             node.writeText(context.assets.open("terminal/nodejs.sh").bufferedReader()
                 .use { it.readText() })

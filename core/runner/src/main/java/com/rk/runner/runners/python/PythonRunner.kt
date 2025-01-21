@@ -6,6 +6,7 @@ import androidx.core.content.ContextCompat
 import com.rk.karbon_exec.launchInternalTerminal
 import com.rk.karbon_exec.runBashScript
 import com.rk.libcommons.TerminalCommand
+import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
@@ -15,7 +16,7 @@ import java.io.File
 
 class PythonRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
-        val py = File(context.localBinDir(), "python")
+        val py = localBinDir().child("python")
         if (py.exists().not()) {
             py.writeText(context.assets.open("terminal/python.sh").bufferedReader()
                 .use { it.readText() })

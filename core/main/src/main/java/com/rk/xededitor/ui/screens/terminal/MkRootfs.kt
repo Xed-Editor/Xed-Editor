@@ -14,7 +14,7 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
     private val alpine = File(context.getTempDir(),"alpine.tar.gz")
 
     init {
-        if (alpine.exists().not() || context.alpineDir().listFiles().isNullOrEmpty().not()){
+        if (alpine.exists().not() || alpineDir().listFiles().isNullOrEmpty().not()){
             onComplete.invoke()
         }else{
             initializeInternal()
@@ -22,9 +22,12 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
     }
 
     private fun initializeInternal(){
-        getRuntime().exec("tar -xf ${alpine.absolutePath} -C ${context.alpineDir()}").waitFor()
+        if (Thread.currentThread().name == "main"){
+            throw RuntimeException("IO operation on the main thread")
+        }
+        getRuntime().exec("tar -xf ${alpine.absolutePath} -C ${alpineDir()}").waitFor()
         alpine.delete()
-        with(context.alpineDir()){
+        with(alpineDir()){
             child("etc/hostname").writeText(strings.app_name.getString())
             child("etc/resolv.conf").also { it.createFileIfNot();it.writeText(nameserver) }
             child("etc/hosts").writeText(hosts)

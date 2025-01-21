@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Patterns
 import android.view.WindowManager
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -33,7 +34,7 @@ import org.robok.engine.core.components.compose.preferences.base.PreferenceLayou
 @Composable
 fun SettingsGitScreen() {
     val context = LocalContext.current
-    val activity = LocalContext.current as? Activity
+    val activity = LocalActivity.current
 
     var username by remember { mutableStateOf("root") }
     var email by remember { mutableStateOf("example@mail.com") }
@@ -191,7 +192,7 @@ fun SettingsGitScreen() {
 
 suspend fun loadGitConfig(context: Context): Pair<String, String> {
     return withContext(Dispatchers.IO) {
-        val config = context.alpineHomeDir().child(".gitconfig")
+        val config = alpineHomeDir().child(".gitconfig")
         if (config.exists()) {
             runCatching {
                 val text = config.readText()
@@ -210,7 +211,7 @@ suspend fun loadGitConfig(context: Context): Pair<String, String> {
 }
 
 private fun updateConfig(context: Context, username: String, email: String) {
-    val config = context.alpineHomeDir().child(".gitconfig").createFileIfNot()
+    val config = alpineHomeDir().child(".gitconfig").createFileIfNot()
     config.writeText(
         """[user]
  name = $username
@@ -228,7 +229,7 @@ private fun updateConfig(context: Context, username: String, email: String) {
 }
 
 private fun updateToken(context: Context, username: String, token: String) {
-    val cred = context.alpineHomeDir().child(".git-credentials").createFileIfNot()
+    val cred = alpineHomeDir().child(".git-credentials").createFileIfNot()
     cred.writeText("https://$username:$token@github.com")
 }
 
@@ -238,7 +239,7 @@ private inline fun isValidEmail(email: String): Boolean {
 
 suspend fun getToken(context: Context): String {
     return withContext(Dispatchers.IO) {
-        val cred = context.alpineHomeDir().child(".git-credentials")
+        val cred = alpineHomeDir().child(".git-credentials")
         if (cred.exists()) {
             val regex = """https://([^:]+):([^@]+)@github.com""".toRegex()
             val matchResult = regex.find(cred.readText())
