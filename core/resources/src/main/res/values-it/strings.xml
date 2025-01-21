@@ -213,4 +213,22 @@
     <string name="v_large">Valore troppo grande</string>
     <string name="text_size">Dimensione del Testo</string>
     <string name="terminal_text_size">Dimensione testo del terminale</string>
+    <string name="sim_hard_links">Simula collegamento fisico</string>
+    <string name="sim_hard_links_desc">Crea un collegamento simulato dove dovrebbe essere creato un collegamento fisico</string>
+    <string name="sim_ashmem">Simula Ashmemfd su Android</string>
+    <string name="kill_on_exit">Termina all\'uscita</string>
+    <string name="kill_on_exit_desc">Termina tutti i processi uscendo dal terminale</string>
+    <string name="u_err">Errore sconosciuto</string>
+    <string name="saved">Salvato</string>
+    <string name="is_null">InputStream è nullo</string>
+    <string name="press_again_exit">Premi nuovamente indietro per uscire</string>
+    <string name="wait_pkg">Attendere mentre i pacchetti vengono scaricati.</string>
+    <string name="pkg_download_failed">Impossibile scaricare il pacchetto</string>
+    <string name="copy_failed">Impossibile copiare il file</string>
+    <string name="invalid_file_type">Tipo di file non valido, file zip previsto</string>
+    <string name="install_failed">Impossibile installare</string>
+    <string name="choose_zip">Scegli il file zip del plugin dalla memoria interna per installarlo.</string>
+    <string name="choose_file">Scegli file</string>
+    <string name="force_char">Forza Char</string>
+    <string name="install_done">Installato con successo</string>
 </resources>
