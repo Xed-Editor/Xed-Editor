@@ -264,7 +264,7 @@
     <string name="click_open">Clicca qui per aprire il file</string>
     <string name="no">No</string>
     <string name="file_too_large">Il file è troppo grande per essere aperto</string>
-    <string name="git_commit">Git Commit Hash</string>
+    <string name="git_commit">Hash commit del Git</string>
     <string name="toggle_suggestion">Abilita/disabilita suggerimenti</string>
     <string name="run">Esegui</string>
     <string name="add_font">Aggiungi nuovo font</string>
