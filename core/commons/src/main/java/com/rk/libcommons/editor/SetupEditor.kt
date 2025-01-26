@@ -118,6 +118,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             "htmx" -> setLanguage("text.html.htmx")
             "kt", "kts" -> setLanguage("source.kotlin")
             "py" -> setLanguage("source.python")
+            "nim" -> setLanguage("source.nim")
             "xml" -> setLanguage("text.xml")
             "js" -> setLanguage("source.js")
             "ts" -> setLanguage("source.ts")
