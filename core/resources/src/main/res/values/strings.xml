@@ -384,6 +384,8 @@
     <string name="custom_git_url">Custom Git Url</string>
     <string name="http_git_url">Http git url</string>
 
+    <string name="scroll_to_bottom">Scroll to Bottom</string>
+    <string name="scroll_to_bottom_desc">Scroll to Bottom when opening a file</string>
 
 
 </resources>

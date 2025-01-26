@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -67,6 +68,20 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = true,
                 key = PreferencesKeys.RESTORE_SESSIONS
             )
+
+            SettingsToggle(
+                label = stringResource(strings.scroll_to_bottom),
+                description = stringResource(strings.scroll_to_bottom_desc),
+                default = false,
+                key = PreferencesKeys.SCROLL_TO_BOTTOM,
+                sideEffect = {
+                    if(it){
+                        rkUtils.toast(strings.ni.getString())
+                    }
+                }
+            )
+
+
 
 
             SettingsToggle(label = stringResource(id = strings.ww),

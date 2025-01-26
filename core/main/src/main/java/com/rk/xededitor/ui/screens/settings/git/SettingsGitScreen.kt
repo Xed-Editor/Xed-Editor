@@ -24,6 +24,7 @@ import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.toastIt
@@ -63,7 +64,7 @@ fun SettingsGitScreen() {
         val gitConfig = loadGitConfig(context)
         username = gitConfig.first
         email = gitConfig.second
-        token = getToken(context,gitUrl)
+        token = getToken(context)
 
         inputEmail = gitConfig.second
         inputUserName = gitConfig.first
@@ -86,7 +87,7 @@ fun SettingsGitScreen() {
                     default = true,
                     key = PreferencesKeys.NOTGITHUB,
                     sideEffect = {
-                        isNotGithub = it
+                        isNotGithub = it.not()
                     }
                 )
 
@@ -139,6 +140,7 @@ fun SettingsGitScreen() {
                         runCatching {
                             updateConfig(context, username,inputGitUrl)
                             gitUrl = inputGitUrl
+                            PreferencesData.setString(PreferencesKeys.GIT_URL,gitUrl)
                         }.onFailure { rkUtils.toast(it.message) }
                         showGithubUrlDialog = false
                     },
@@ -287,8 +289,9 @@ private inline fun isValidEmail(email: String): Boolean {
     return Patterns.EMAIL_ADDRESS.matcher(email).matches()
 }
 
-suspend fun getToken(context: Context,gitUrl: String): String {
+suspend fun getToken(context: Context): String {
     return withContext(Dispatchers.IO) {
+        val gitUrl = PreferencesData.getString(PreferencesKeys.GIT_URL,"github.com")
         val cred = alpineHomeDir().child(".git-credentials")
         if (cred.exists()) {
             val regex = """https://([^:]+):([^@]+)@$gitUrl""".toRegex()
