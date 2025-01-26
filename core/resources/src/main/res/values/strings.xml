@@ -374,6 +374,16 @@
     <string name="downloading">Downloading…</string>
     <string name="network_err">Network Error</string>
 
+    <string name="user">User</string>
+    <string name="email">Email</string>
+    <string name="git_auth">Github Token</string>
+    <string name="invalid_email">Invalid Email</string>
+    <string name="invalid_user">Invalid Username</string>
+
+    <string name="use_github_url">Use default github url</string>
+    <string name="custom_git_url">Custom Git Url</string>
+    <string name="http_git_url">Http git url</string>
+
 
 
 </resources>

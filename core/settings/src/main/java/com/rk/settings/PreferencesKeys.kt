@@ -35,4 +35,5 @@ object PreferencesKeys {
     // todo encrypt git keys
     const val VIEWPAGER_SMOOTH_SCROLL = "viewpager_smooth_scroll"
     const val RESTORE_SESSIONS="restore_Sessions"
+    const val NOTGITHUB="github"
 }
