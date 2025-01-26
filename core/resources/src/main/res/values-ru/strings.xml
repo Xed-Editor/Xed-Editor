@@ -344,4 +344,14 @@
     <string name="script_showing_dialog">Показывает диалог</string>
     <string name="no_ext">Нет установленных расширений.</string>
     <string name="downloading">Скачивание…</string>
+    <string name="invalid_email">Недействительная почта</string>
+    <string name="email">Почта</string>
+    <string name="scroll_to_bottom">Прокрутить вниз</string>
+    <string name="scroll_to_bottom_desc">Прокрутить вниз при открытии файла</string>
+    <string name="invalid_user">Недействительное имя пользователя</string>
+    <string name="use_github_url">Использовать GitHub ссылку по умолчанию</string>
+    <string name="custom_git_url">Пользовательская git ссылка</string>
+    <string name="http_git_url">Http git ссылка</string>
+    <string name="user">Пользователь</string>
+    <string name="git_auth">GitHub токен</string>
 </resources>
