@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
+import com.rk.libcommons.toastIt
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
 import io.github.rosemoe.sora.lang.Language
@@ -244,17 +245,14 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
 
             } catch (e: Exception) {
-                throw RuntimeException(e)
+                e.printStackTrace()
+                e.message.toastIt()
             } finally {
-                try {
-                    withContext(Dispatchers.IO) {
-                        darcula.close()
-                        darcula_oled.close()
-                        quietlight.close()
-                    }
-                } catch (e: Exception) {
-                    throw RuntimeException(e)
-                }
+                Thread{
+                    darcula.close()
+                    darcula_oled.close()
+                    quietlight.close()
+                }.start()
             }
         }
 

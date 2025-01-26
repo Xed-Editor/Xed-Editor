@@ -291,6 +291,17 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun getFile(): FileObject? = file
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
+
+        if (file == null){
+            rkUtils.toast("File cannot be saved, try closing and reopening the file")
+            return
+        }
+
+        if (file!!.canWrite().not()){
+            rkUtils.toast(strings.permission_denied.getString())
+            return
+        }
+
         if (file!!.exists().not()) {
             rkUtils.toast("File No longer exists")
             return
