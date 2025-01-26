@@ -29,9 +29,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.libcommons.alpineDir
 import com.rk.libcommons.localDir
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.service.SessionService
 import com.rk.xededitor.ui.screens.terminal.MkRootfs
@@ -42,6 +45,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.net.UnknownHostException
 
 class Terminal : ComponentActivity() {
     var sessionBinder:SessionService.SessionBinder? = null
@@ -92,7 +96,7 @@ class Terminal : ComponentActivity() {
     @Composable
     fun TerminalScreenHost(context: Context) {
         var progress by remember { mutableFloatStateOf(0f) }
-        var progressText by remember { mutableStateOf("Initializing...") }
+        var progressText by remember { mutableStateOf(strings.installing.getString()) }
         var isSetupComplete by remember { mutableStateOf(false) }
         var needsDownload by remember { mutableStateOf(false) }
 
@@ -156,18 +160,30 @@ class Terminal : ComponentActivity() {
                             progress = combinedProgress.coerceIn(
                                 0f, 1f
                             )
-                            progressText = "Downloading... ${(progress * 100).toInt()}%"
+                            progressText = "${strings.downloading.getString()} ${(progress * 100).toInt()}%"
                         }
                     },
                     onComplete = {
                         isSetupComplete = true
                     },
                     onError = { error ->
-                        rkUtils.toast("Setup Failed: ${error.message}")
+                        if (error is UnknownHostException){
+                            rkUtils.toast(strings.network_err.getString())
+                        }else{
+                            error.printStackTrace()
+                            rkUtils.toast("Setup Failed: ${error.message}")
+                        }
                         finish()
+
+
                     })
             } catch (e: Exception) {
-                rkUtils.toast("Setup Failed: ${e.message}")
+                if (e is UnknownHostException){
+                    rkUtils.toast(strings.network_err.getString())
+                }else{
+                    e.printStackTrace()
+                    rkUtils.toast("Setup Failed: ${e.message}")
+                }
                 finish()
             }
         }
@@ -314,12 +330,6 @@ private const val proot_aarch64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
 private const val proot_x86_64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
-private const val loader_arm =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/loader"
-private const val loader_aarch64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/loader"
-private const val loader_x86_64 =
-    "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/loader"
 private const val alpine_arm = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz"
 private const val alpine_aarch64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz"
 private const val alpine_x86_64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"

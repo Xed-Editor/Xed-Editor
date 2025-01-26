@@ -57,8 +57,8 @@ private fun Categories(navController: NavController) {
 
     if (showExtensions.value){
         PreferenceCategory(
-            label = "Extensions",
-            description = "Manage Extensions",
+            label = stringResource(strings.ext),
+            description = stringResource(strings.ext_desc),
             iconResource = drawables.extension,
             onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
         )

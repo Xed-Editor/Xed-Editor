@@ -12,6 +12,7 @@ import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
@@ -81,8 +82,8 @@ object ProjectBar {
                     )
 
                     addItem(
-                        "Terminal Home",
-                        "Default home directory of terminal",
+                        strings.terminal_home.getString(),
+                        strings.terminal_home_desc.getString(),
                         ContextCompat.getDrawable(this@with, drawables.terminal),
                         listener = {
                             lifecycleScope.launch {

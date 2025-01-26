@@ -334,4 +334,46 @@
     <string name="launch_termux_explanation">Termux is stopped so karbon is unable to run command in it. do you like to start it?</string>
     <string name="launch">Launch</string>
 
+    <string name="mutator_desc">Create micro tools</string>
+    <string name="restore_sessions">Restore Sessions</string>
+    <string name="restore_sessions_desc">"Restore previous tabs</string>
+    <string name="terminal_home">Terminal Home</string>
+    <string name="terminal_home_desc">Default home directory of terminal</string>
+    <string name="sessions">Sessions</string>
+    <string name="add_session">Add Session</string>
+    <string name="terminal_runtime">Terminal Runtime</string>
+    <string name="terminal_runtime_desc">Select Terminal Runtime</string>
+    <string name="enable_ext">Enable Extensions</string>
+    <string name="enable_ext_desc">Load third party Extensions</string>
+    <string name="ext">Extensions</string>
+    <string name="ext_desc">Manage Extensions</string>
+
+    <string name="info_mutators">Mutators are small scripts that are used to modify the editor text. Create a mutator and click on it to open it in the editor.</string>
+    <string name="no_mutators">No mutators</string>
+    <string name="tab_opened">Tab Opened</string>
+    <string name="mutator_name">Mutator Name</string>
+    <string name="name_empty_err">Name cannot be empty</string>
+    <string name="name_used">Name already used</string>
+
+    <string name="script_get_text">get text</string>
+    <string name="script_show_toast">show toast</string>
+    <string name="script_network">network</string>
+    <string name="script_showing_dialog">Showing a dialog</string>
+    <string name="script_set_text">set text</string>
+    <string name="script_text">this text will be written in the editor</string>
+    <string name="script_api_info">check the ImplApi class in xed-editors source code at PROJECT/core/main/ui/screens/mutators/ImplApi for more information</string>
+
+    <string name="installing">Installing…</string>
+    <string name="not_plugin_err">Selected file is not a .plugin file</string>
+    <string name="install_from_storage">Install from storage</string>
+    <string name="no_ext">No Extension Installed.</string>
+    <string name="loading">Loading…</string>
+    <string name="info_ext">Extensions can be used to modify the behavior and features of xed-editor. To learn how to build a plugin, click here</string>
+
+    <string name="initializing">Initializing…</string>
+    <string name="downloading">Downloading…</string>
+    <string name="network_err">Network Error</string>
+
+
+
 </resources>

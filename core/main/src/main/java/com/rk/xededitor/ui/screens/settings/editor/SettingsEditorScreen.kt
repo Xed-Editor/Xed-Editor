@@ -54,17 +54,17 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.content)) {
 
-            SettingsToggle(label = "Mutators",
-                description = "Create micro tools",
+            SettingsToggle(label = stringResource(strings.mutators),
+                description = stringResource(strings.mutator_desc),
                 showSwitch = false,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.ManageMutators.route)
                 })
 
             SettingsToggle(
-                label = "Restore Sessions",
-                description = "Restore previous tabs",
-                default = false,
+                label = stringResource(strings.restore_sessions),
+                description = stringResource(strings.restore_sessions_desc),
+                default = true,
                 key = PreferencesKeys.RESTORE_SESSIONS
             )
 
