@@ -1,24 +1,20 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
-import android.graphics.Color
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.libcommons.CustomScope
+import com.rk.libcommons.application
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
-import com.rk.libcommons.application
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
@@ -33,7 +29,6 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -123,7 +118,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
             // Position the editor below the LinearLayout
             connect(editor!!.id, ConstraintSet.TOP, searchLayout.id, ConstraintSet.BOTTOM)
-            connect(editor!!.id, ConstraintSet.BOTTOM, horizontalScrollView!!.id, ConstraintSet.TOP)
+            connect(editor!!.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
 
             // Position the HorizontalScrollView at the bottom
             connect(
@@ -141,6 +136,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     fun refreshEditorContent() {
         fun refresh() {
             scope.launch(Dispatchers.IO) {
+                isFileLoaded = false
                 kotlin.runCatching {
                     file?.let {
                         editor?.loadFile(
@@ -171,7 +167,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                     withContext(Dispatchers.IO) {
                         FilesContent.remove(file!!.getAbsolutePath())
                     }
-
+                    isFileLoaded = true
                 }.onFailure {
                     rkUtils.toast(it.message)
                 }
@@ -298,7 +294,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
             }.onFailure {
                 it.printStackTrace()
-                if (it.message?.contains("Job") != true){
+                if (it.message?.contains("Job") != true) {
                     rkUtils.toast(it.message)
                 }
             }
@@ -309,39 +305,54 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun getFile(): FileObject? = file
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
-        if (isAutoSaver){ if (isReadyToSave().not()){ return } }
 
-        if (file == null){
-            if (isAutoSaver){ return }
+        if (isAutoSaver) {
+            println("attempt")
+            if (isReadyToSave().not()) {
+                println("skipped")
+                return
+            }
+        }
+
+        if (file == null) {
+            if (isAutoSaver) {
+                return
+            }
             rkUtils.toast("File cannot be saved, try closing and reopening the file")
             return
         }
 
-        if (file!!.canWrite().not()){
-            if (isAutoSaver){ return }
+        if (file!!.canWrite().not()) {
+            if (isAutoSaver) {
+                return
+            }
             rkUtils.toast(strings.permission_denied.getString())
             return
         }
 
-        if (isFileLoaded.not()){
-            if (isAutoSaver){ return }
+        if (isFileLoaded.not()) {
+            if (isAutoSaver) {
+                return
+            }
             rkUtils.toast("File isn't loaded yet.")
             return
         }
 
         if (file!!.exists().not()) {
-            if (isAutoSaver){ return }
+            if (isAutoSaver) {
+                return
+            }
             rkUtils.toast("File No longer exists")
             return
         }
         if (editor == null) {
-            if (isAutoSaver){ return }
+            if (isAutoSaver) {
+                return
+            }
             throw RuntimeException("editor is null")
         }
-        if (isAutoSaver and (editor?.text?.isEmpty() == true)) {
-            return
-        }
-        scope.launch(Dispatchers.IO) {
+
+        GlobalScope.launch(Dispatchers.IO) {
             editor?.saveToFile(
                 file!!.getOutPutStream(false), Charset.forName(
                     PreferencesData.getString(
@@ -411,7 +422,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         GlobalScope.launch(Dispatchers.IO) {
             runCatching {
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
-                if (file?.getParentFile()?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName()
+                if (file?.getParentFile()
+                        ?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName()
                         .endsWith("&mut.js")
                 ) {
                     file?.delete()
@@ -462,7 +474,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     private var t = 0
     private val mutex = Mutex()
-    private fun isReadyToSave():Boolean{
+    private fun isReadyToSave(): Boolean {
         return 2 >= t && isFileLoaded
     }
 
@@ -472,8 +484,8 @@ class EditorFragment(val context: Context) : CoreFragment {
 
             scope.launch {
                 GlobalScope.launch(Dispatchers.IO) {
-                    val text = withContext(Dispatchers.Main){ editor?.text.toString() }
-                    if (text.isBlank().not()){
+                    val text = withContext(Dispatchers.Main) { editor?.text.toString() }
+                    if (text.isBlank().not()) {
                         mutex.withLock {
                             FilesContent.setContent(file!!.getAbsolutePath(), text)
                         }
