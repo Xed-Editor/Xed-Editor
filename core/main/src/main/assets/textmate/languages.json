@@ -13,7 +13,7 @@
       "languageConfiguration": "textmate/kotlin/language-configuration.json"
     },
     {
-      "grammar": "textmate/nim/syntaxes/Nim.tmLanguage.json",
+      "grammar": "textmate/nim/syntaxes/Nim.tmLanguage",
       "name": "nim",
       "scopeName": "source.nim",
       "languageConfiguration": "textmate/nim/language-configuration.json"
