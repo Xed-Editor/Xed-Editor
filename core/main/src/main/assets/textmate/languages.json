@@ -137,7 +137,7 @@
     },
     {
       "grammar": "textmate/csharp/syntaxes/csharp.tmLanguage.json",
-      "name": "C#",
+      "name": "csharp",
       "scopeName": "source.cs",
       "languageConfiguration": "textmate/csharp/language-configuration.json"
     },

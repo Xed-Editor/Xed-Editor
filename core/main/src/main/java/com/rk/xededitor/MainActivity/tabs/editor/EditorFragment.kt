@@ -225,15 +225,16 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     }
 
+    private var isFileLoaded = false
     override fun loadFile(file: FileObject) {
         this.file = file
         scope.launch(Dispatchers.Default) {
             runCatching {
-
                 if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                     mutex.withLock {
                         withContext(Dispatchers.Main) {
                             editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
+                            isFileLoaded = true
                         }
                     }
                 } else {
@@ -251,6 +252,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                                 this@EditorFragment.file!!.getAbsolutePath(),
                                 editor!!.text.toString()
                             )
+                            isFileLoaded = true
                             /*
                             launch {
                                 delay(5000)
@@ -307,22 +309,33 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun getFile(): FileObject? = file
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
+        if (isAutoSaver){ if (isReadyToSave().not()){ return } }
 
         if (file == null){
+            if (isAutoSaver){ return }
             rkUtils.toast("File cannot be saved, try closing and reopening the file")
             return
         }
 
         if (file!!.canWrite().not()){
+            if (isAutoSaver){ return }
             rkUtils.toast(strings.permission_denied.getString())
             return
         }
 
+        if (isFileLoaded.not()){
+            if (isAutoSaver){ return }
+            rkUtils.toast("File isn't loaded yet.")
+            return
+        }
+
         if (file!!.exists().not()) {
+            if (isAutoSaver){ return }
             rkUtils.toast("File No longer exists")
             return
         }
         if (editor == null) {
+            if (isAutoSaver){ return }
             throw RuntimeException("editor is null")
         }
         if (isAutoSaver and (editor?.text?.isEmpty() == true)) {
@@ -449,6 +462,9 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     private var t = 0
     private val mutex = Mutex()
+    private fun isReadyToSave():Boolean{
+        return 2 >= t && isFileLoaded
+    }
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun setChangeListener() {

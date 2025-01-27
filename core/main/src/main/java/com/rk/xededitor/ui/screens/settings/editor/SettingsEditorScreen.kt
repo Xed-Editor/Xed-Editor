@@ -300,9 +300,10 @@ fun SettingsEditorScreen(navController: NavController) {
                                     lineSpacingValue.toFloat()
                             }
                         }
+                        showLineSpacingDialog = false
 
                     }
-                    showLineSpacingDialog = false
+
                 },
                 onDismiss = { showLineSpacingDialog = false },
             )
@@ -336,8 +337,9 @@ fun SettingsEditorScreen(navController: NavController) {
                                     lineSpacingMultiplierValue.toFloat()
                             }
                         }
+                        showLineSpacingMultiplierDialog = false
                     }
-                    showLineSpacingMultiplierDialog = false
+
                 },
                 onDismiss = { showLineSpacingMultiplierDialog = false },
             )
@@ -363,8 +365,9 @@ fun SettingsEditorScreen(navController: NavController) {
                             PreferencesKeys.AUTO_SAVE_TIME_VALUE,
                             autoSaveTimeValue,
                         )
+                        showAutoSaveDialog = false
                     }
-                    showAutoSaveDialog = false
+
                 },
                 onDismiss = { showAutoSaveDialog = false },
             )
@@ -396,8 +399,9 @@ fun SettingsEditorScreen(navController: NavController) {
                             }
 
                         }
+                        showTextSizeDialog = false
                     }
-                    showTextSizeDialog = false
+
                 },
                 onDismiss = { showTextSizeDialog = false },
             )
@@ -409,21 +413,29 @@ fun SettingsEditorScreen(navController: NavController) {
                 inputValue = tabSizeValue,
                 onInputValueChange = { tabSizeValue = it },
                 onConfirm = {
+
+
                     if (tabSizeValue.any { !it.isDigit() }) {
                         rkUtils.toast(context.getString(strings.inavalid_v))
+                        tabSizeValue = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4")
                     } else if (tabSizeValue.toInt() > 16) {
                         rkUtils.toast(context.getString(strings.v_large))
-                    }
-                    PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
+                        tabSizeValue = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4")
+                    } else if (tabSizeValue.toInt() < 1) {
+                        rkUtils.toast(context.getString(strings.v_small))
+                        tabSizeValue = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4")
+                    } else {
+                        PreferencesData.setString(PreferencesKeys.TAB_SIZE, tabSizeValue)
 
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.tabWidth =
-                                tabSizeValue.toInt()
+                        MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
+                            if (f.value.get()?.fragment is EditorFragment) {
+                                (f.value.get()?.fragment as EditorFragment).editor?.tabWidth =
+                                    tabSizeValue.toInt()
+                            }
+
                         }
-
+                        showTabSizeDialog = false
                     }
-                    showTabSizeDialog = false
                 },
                 onDismiss = { showTabSizeDialog = false },
             )

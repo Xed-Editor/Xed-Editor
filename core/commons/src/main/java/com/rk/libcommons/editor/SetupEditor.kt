@@ -184,6 +184,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         }
 
 
+        @OptIn(DelicateCoroutinesApi::class)
         private suspend fun initTextMateTheme(
             ctx: Context, darkSurfaceColor: String?, lightSurfaceColor: String?
         ) {
@@ -249,11 +250,11 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
                 e.printStackTrace()
                 e.message.toastIt()
             } finally {
-                Thread{
+                GlobalScope.launch(Dispatchers.IO) {
                     darcula.close()
                     darcula_oled.close()
                     quietlight.close()
-                }.start()
+                }
             }
         }
 

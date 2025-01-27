@@ -17,7 +17,7 @@ object AutoSaver {
     /**
      * Starts the auto-save process. Runs in a background coroutine, periodically checking
      * if auto-save is enabled and saving the open editor fragments.
-     * Auto-Saver survives activity lifecycles so not put context here
+     * Auto-Saver survives activity lifecycles so do not put context here
      */
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
