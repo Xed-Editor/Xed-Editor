@@ -229,9 +229,12 @@ class EditorFragment(val context: Context) : CoreFragment {
         this.file = file
         scope.launch(Dispatchers.Default) {
             runCatching {
+
                 if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
-                    withContext(Dispatchers.Main) {
-                        editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
+                    mutex.withLock {
+                        withContext(Dispatchers.Main) {
+                            editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
+                        }
                     }
                 } else {
                     launch {
@@ -445,12 +448,20 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     private var t = 0
+    private val mutex = Mutex()
+
+    @OptIn(DelicateCoroutinesApi::class)
     private fun setChangeListener() {
         editor!!.subscribeAlways(ContentChangeEvent::class.java) {
 
             scope.launch {
-                launch(Dispatchers.IO) {
-                    FilesContent.setContent(file!!.getAbsolutePath(), editor!!.text.toString())
+                GlobalScope.launch(Dispatchers.IO) {
+                    val text = withContext(Dispatchers.Main){ editor?.text.toString() }
+                    if (text.isBlank().not()){
+                        mutex.withLock {
+                            FilesContent.setContent(file!!.getAbsolutePath(), text)
+                        }
+                    }
                 }
                 updateUndoRedo()
 
@@ -459,7 +470,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                     return@launch
                 }
 
-                try {
+                runCatching {
                     val fileName = file!!.getName()
                     fun addStar() {
                         val index =
@@ -484,13 +495,10 @@ class EditorFragment(val context: Context) : CoreFragment {
                         fileset.add(fileName)
                         addStar()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                }.onFailure {
+                    it.printStackTrace()
                 }
-
             }
-
-
         }
     }
 
