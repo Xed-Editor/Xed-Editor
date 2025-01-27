@@ -141,6 +141,7 @@ fun SettingsGitScreen() {
                             updateConfig(context, username,inputGitUrl)
                             gitUrl = inputGitUrl
                             PreferencesData.setString(PreferencesKeys.GIT_URL,gitUrl)
+                            updateCredentials(context,username,token,inputGitUrl)
                         }.onFailure { rkUtils.toast(it.message) }
                         showGithubUrlDialog = false
                     },
