@@ -94,7 +94,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Sessions",
+                                text = stringResource(strings.sessions),
                                 style = MaterialTheme.typography.titleLarge
                             )
                             IconButton(onClick = {
@@ -122,7 +122,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Add, // Material Design "Add" icon
-                                    contentDescription = "Add Session"
+                                    contentDescription = stringResource(strings.add_session)
                                 )
                             }
                         }
@@ -207,7 +207,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                         )
                                         keepScreenOn = true
                                         requestFocus()
-                                        setFocusableInTouchMode(true)
+                                        isFocusableInTouchMode = true
 
                                         mEmulator?.mColors?.mCurrentColors?.apply {
                                             set(256, typedValue.data)

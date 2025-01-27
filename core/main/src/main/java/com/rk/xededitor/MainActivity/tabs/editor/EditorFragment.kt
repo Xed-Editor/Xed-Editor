@@ -33,6 +33,7 @@ import io.github.rosemoe.sora.event.ContentChangeEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -243,13 +244,24 @@ class EditorFragment(val context: Context) : CoreFragment {
                                     )
                                 )
                             )
-
-
-
                             FilesContent.setContent(
                                 this@EditorFragment.file!!.getAbsolutePath(),
                                 editor!!.text.toString()
                             )
+                            /*
+                            launch {
+                                delay(5000)
+                                if (PreferencesData.getBoolean(PreferencesKeys.SCROLL_TO_BOTTOM,false)){
+                                    withContext(Dispatchers.Main){
+                                        println("scrolled")
+                                        editor!!.apply {
+                                            val dx = 0
+                                            val dy = scrollMaxY - scroller.currY
+                                            scroller.startScroll(scroller.startX,scroller.startY,dx,dy,0)
+                                        }
+                                    }
+                                }
+                            } */
                         }.onFailure {
                             it.printStackTrace()
                             rkUtils.toast(it.message)
@@ -278,6 +290,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                     }
                 }
 
+
             }.onFailure {
                 it.printStackTrace()
                 if (it.message?.contains("Job") != true){
@@ -291,6 +304,17 @@ class EditorFragment(val context: Context) : CoreFragment {
     override fun getFile(): FileObject? = file
 
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
+
+        if (file == null){
+            rkUtils.toast("File cannot be saved, try closing and reopening the file")
+            return
+        }
+
+        if (file!!.canWrite().not()){
+            rkUtils.toast(strings.permission_denied.getString())
+            return
+        }
+
         if (file!!.exists().not()) {
             rkUtils.toast("File No longer exists")
             return

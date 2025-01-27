@@ -10,6 +10,6 @@ object Res{
     var context:Application? = null
 }
 
-fun Int.getString():String{
-    return ContextCompat.getString(Res.context!!, this)
+inline fun Int.getString():String{
+    return  ContextCompat.getString(Res.context!!, this)
 }

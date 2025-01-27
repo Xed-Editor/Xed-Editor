@@ -26,12 +26,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent
@@ -62,7 +65,7 @@ fun Extensions(modifier: Modifier = Modifier) {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
             if (fileExtension == "plugin") {
                 loading = LoadingPopup(context as Activity, null).show()
-                loading?.setMessage("Installing...")
+                loading?.setMessage(strings.installing.getString())
                 DefaultScope.launch {
                     val pluginFile = File(application!!.getTempDir(), "installPlugin.plugin")
                     application!!.contentResolver.openInputStream(uri!!).use {
@@ -78,7 +81,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                     }
                 }
             } else {
-                rkUtils.toast("Selected file is not a .plugin file")
+                rkUtils.toast(strings.not_plugin_err.getString())
             }
         }.onFailure {
             loading?.hide()
@@ -88,7 +91,7 @@ fun Extensions(modifier: Modifier = Modifier) {
 
     }
 
-    PreferenceLayout(label = "Extensions", backArrowVisible = true, fab = {
+    PreferenceLayout(label = stringResource(strings.ext), backArrowVisible = true, fab = {
         ExtendedFloatingActionButton(
             onClick = { filePickerLauncher.launch(arrayOf("*/*")) },
             icon = {
@@ -96,7 +99,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                     imageVector = Icons.Outlined.Add, contentDescription = null
                 )
             },
-            text = { Text("Install from storage") },
+            text = { Text(stringResource(strings.install_from_storage)) },
         )
     }) {
         val extensions = ExtensionManager.extensions
@@ -120,14 +123,14 @@ fun Extensions(modifier: Modifier = Modifier) {
                     imageVector = Icons.Outlined.Info, contentDescription = null
                 )
             },
-            text = "Extensions can be used to modify the behavior and features of xed-editor. To learn how to build a plugin, click here",
+            text = stringResource(strings.info_ext),
         )
 
         PreferenceGroup {
             if (isLoaded.value) {
                 if (extensions.isEmpty()) {
                     Text(
-                        text = "No Extension Installed.", modifier = Modifier.padding(16.dp)
+                        text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)
                     )
                 } else {
                     extensions.keys.forEach { plugin ->
@@ -144,7 +147,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                 }
             } else {
                 Text(
-                    text = "Loading...", modifier = Modifier.padding(16.dp)
+                    text = stringResource(strings.loading), modifier = Modifier.padding(16.dp)
                 )
             }
         }
@@ -176,13 +179,13 @@ fun Extensions(modifier: Modifier = Modifier) {
                                 }
                             },
                             contentModifier = Modifier.fillMaxHeight(),
-                            title = { Text(text = "Delete") },
+                            title = { Text(text = stringResource(strings.delete)) },
                             enabled = true,
                             applyPaddings = true,
                             startWidget = {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = "Delete Extensions"
+                                    contentDescription = stringResource(strings.delete)
                                 )
                             },
                         )

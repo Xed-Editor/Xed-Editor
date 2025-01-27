@@ -88,8 +88,8 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             )
 
             SettingsToggle(
-                label = "Enable Extensions",
-                description = "Load third party Extensions",
+                label = stringResource(strings.enable_ext),
+                description = stringResource(strings.enable_ext_desc),
                 key = PreferencesKeys.ENABLE_EXTENSIONS,
                 sideEffect = {
                     showExtensions.value = it

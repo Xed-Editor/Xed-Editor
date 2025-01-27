@@ -63,7 +63,7 @@ fun SettingsTerminalScreen(navController: NavController) {
                 description = if (execAllowed.value.not()) {
                     errorMessage.value
                 } else {
-                    "Termux-Exec"
+                    stringResource(strings.termux_exec)
                 },
                 default = execAllowed.value,
                 isSwitchLocked = true,
@@ -103,8 +103,8 @@ fun SettingsTerminalScreen(navController: NavController) {
                 })
 
             SettingsToggle(
-                label = "Terminal Runtime",
-                description = "Select Terminal Runtime",
+                label = stringResource(strings.terminal_runtime),
+                description = stringResource(strings.terminal_runtime_desc),
                 showSwitch = false,
                 sideEffect = {
                     showDayBottomSheet.value = !showDayBottomSheet.value
@@ -147,7 +147,7 @@ fun TerminalRuntime(
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState
         ) {
-            BottomSheetContent(title = { Text(text = "Terminal Runtime") },
+            BottomSheetContent(title = { Text(text = stringResource(strings.terminal_runtime)) },
                 buttons = {
                     OutlinedButton(onClick = {
                         coroutineScope.launch {

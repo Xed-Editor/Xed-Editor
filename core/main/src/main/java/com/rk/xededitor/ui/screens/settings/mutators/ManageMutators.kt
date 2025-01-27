@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.file.FileWrapper
 import com.rk.libcommons.DefaultScope
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
@@ -63,13 +64,13 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                     imageVector = Icons.Outlined.Info, contentDescription = null
                 )
             },
-            text = "Mutators are small scripts that are used to modify the editor text. Create a mutator and click on it to open it in the editor.",
+            text = stringResource(strings.info_mutators),
         )
 
         PreferenceGroup {
             if (mutators.isEmpty()) {
                 Text(
-                    text = "No mutators", modifier = Modifier.padding(16.dp)
+                    text = stringResource(strings.no_mutators), modifier = Modifier.padding(16.dp)
                 )
             } else {
                 mutators.toList().forEach { mut ->
@@ -85,7 +86,7 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                                         file
                                     )
                                 )
-                                rkUtils.toast("Opened in Editor")
+                                rkUtils.toast(strings.tab_opened.getString())
                             }
 
                         }
@@ -109,8 +110,8 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
     if (showDialog) {
         InputDialog(
-            title = "Name",
-            inputLabel = "Mutator Name",
+            title = stringResource(strings.create),
+            inputLabel = stringResource(strings.mutator_name),
             inputValue = inputText,
             onInputValueChange = { text ->
                 inputText = text
@@ -131,32 +132,34 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
 private fun onDone(name: String): Boolean {
     if (name.isBlank()) {
-        rkUtils.toast("Name cant be empty")
+        rkUtils.toast(strings.name_empty_err.getString())
         return false
     } else {
         if (Mutators.getMutators().map { it.name }.contains(name)) {
-            rkUtils.toast("Name already used")
+            rkUtils.toast(strings.name_used.getString())
             return false
         }
         Mutators.createMutator(
             Mutators.Mutator(
                 name = name, script = """
 
-            //get text
+            //${strings.script_get_text.getString()}
             //let text = getEditorText()
             
-            //show toast
+            //${strings.script_show_toast.getString()}
             //showToast(text)
 
 
-            //network
+            //${strings.script_network.getString()}
             //let response = http(url, jsonString)
-            //dialog
+            
+            //${strings.script_showing_dialog.getString()}
             //showDialog(title,msg)
 
-            //set text
-            //setEditorText("this text will be written in the editor")
+            //${strings.script_set_text.getString()}
+            //setEditorText("${strings.script_text.getString()}")
             
+            //${strings.script_api_info.getString()}
             
 
         """.trimIndent()

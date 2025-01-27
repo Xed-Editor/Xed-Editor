@@ -13,6 +13,8 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -52,9 +54,16 @@ class CrashActivity : AppCompatActivity() {
             editor = findViewById(R.id.error_editor)
             editor.setTextSize(10f)
 
+            val packageInfo = packageManager.getPackageInfo(packageName, 0)
+            val versionName = packageInfo.versionName
+            val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
+
+
             val sb = StringBuilder()
 
             sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("\n\n")
+            sb.append("App Version : ").append(versionName)
+            sb.append("Version Code : ").append(versionCode)
             sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
             sb.append("Unix Time : ").append(System.currentTimeMillis()).append("\n")

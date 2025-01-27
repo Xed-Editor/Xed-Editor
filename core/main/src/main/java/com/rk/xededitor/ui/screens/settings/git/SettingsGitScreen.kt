@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.screens.settings.git
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.util.Patterns
@@ -21,7 +22,10 @@ import androidx.compose.ui.res.stringResource
 import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
+import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.PreferencesData
+import com.rk.settings.PreferencesKeys
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.toastIt
 import com.rk.xededitor.ui.components.InputDialog
@@ -31,23 +35,30 @@ import kotlinx.coroutines.withContext
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 
+@SuppressLint("AuthLeak")
 @Composable
 fun SettingsGitScreen() {
     val context = LocalContext.current
     val activity = LocalActivity.current
 
+    var isNotGithub by remember { mutableStateOf(true) }
+
     var username by remember { mutableStateOf("root") }
     var email by remember { mutableStateOf("example@mail.com") }
     var token by remember { mutableStateOf("") }
+    var gitUrl by remember { mutableStateOf("github.com") }
     var isLoading by remember { mutableStateOf(true) }
+
 
     var showEmailDialog by remember { mutableStateOf(false) }
     var showUserNameDialog by remember { mutableStateOf(false) }
     var showTokenDialog by remember { mutableStateOf(false) }
+    var showGithubUrlDialog by remember { mutableStateOf(false) }
 
     var inputEmail by remember { mutableStateOf("") }
     var inputUserName by remember { mutableStateOf("") }
     var inputToken by remember { mutableStateOf("") }
+    var inputGitUrl by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         val gitConfig = loadGitConfig(context)
@@ -68,36 +79,81 @@ fun SettingsGitScreen() {
                 CircularProgressIndicator()
             }
         } else {
+
             PreferenceGroup {
+                SettingsToggle(
+                    label = stringResource(strings.github),
+                    description = stringResource(strings.use_github_url),
+                    default = true,
+                    key = PreferencesKeys.NOTGITHUB,
+                    sideEffect = {
+                        isNotGithub = it.not()
+                    }
+                )
 
-
-                SettingsToggle(label = "User Name",
+                SettingsToggle(label = stringResource(strings.user),
                     description = username,
                     showSwitch = false,
                     sideEffect = {
                         showUserNameDialog = true
                     })
 
-                SettingsToggle(label = "Email",
+                SettingsToggle(label = stringResource(strings.email),
                     description = email,
                     showSwitch = false,
                     sideEffect = {
                         showEmailDialog = true
                     })
 
-                SettingsToggle(label = "Github Token",
-                    description = "Github Token",
+                SettingsToggle(label = stringResource(strings.git_auth),
+                    description = stringResource(strings.git_auth),
                     showSwitch = false,
                     sideEffect = {
                         showTokenDialog = true
                     })
 
+                if (isNotGithub){
+                    SettingsToggle(
+                        label = stringResource(strings.custom_git_url),
+                        description = gitUrl,
+                        showSwitch = false,
+                        sideEffect = {
+                            showGithubUrlDialog = true
+                        }
+                    )
+                }
+            }
 
+
+
+
+
+            if (showGithubUrlDialog){
+                InputDialog(
+                    title = stringResource(strings.custom_git_url),
+                    inputLabel = "github.com",
+                    inputValue = inputGitUrl,
+                    onInputValueChange = { text ->
+                        inputGitUrl = text
+                    },
+                    onConfirm = {
+                        runCatching {
+                            updateConfig(context, username,inputGitUrl)
+                            gitUrl = inputGitUrl
+                            PreferencesData.setString(PreferencesKeys.GIT_URL,gitUrl)
+                        }.onFailure { rkUtils.toast(it.message) }
+                        showGithubUrlDialog = false
+                    },
+                    onDismiss = {
+                        showGithubUrlDialog = false
+                        inputGitUrl = gitUrl
+                    },
+                )
             }
 
             if (showEmailDialog) {
                 InputDialog(
-                    title = "Email",
+                    title = stringResource(strings.email),
                     inputLabel = "example@email.com",
                     inputValue = inputEmail,
                     onInputValueChange = { text ->
@@ -110,7 +166,7 @@ fun SettingsGitScreen() {
                                 email = inputEmail
                             } else {
                                 inputEmail = email
-                                rkUtils.toast("Invalid Email")
+                                rkUtils.toast(strings.invalid_email.getString())
                             }
                         }.onFailure { rkUtils.toast(it.message) }
                         showEmailDialog = false
@@ -124,8 +180,8 @@ fun SettingsGitScreen() {
 
             if (showUserNameDialog) {
                 InputDialog(
-                    title = "UserName",
-                    inputLabel = "UserName",
+                    title = stringResource(strings.user),
+                    inputLabel = stringResource(strings.user),
                     inputValue = inputUserName,
                     onInputValueChange = { text ->
                         inputUserName = text
@@ -137,7 +193,7 @@ fun SettingsGitScreen() {
                                 username = inputUserName
                             } else {
                                 inputUserName = username
-                                rkUtils.toast("Invalid Username")
+                                rkUtils.toast(strings.invalid_user.getString())
                             }
 
                         }.onFailure { rkUtils.toast(it.message) }
@@ -158,22 +214,18 @@ fun SettingsGitScreen() {
 
 
                 InputDialog(
-                    title = "Github Token",
-                    inputLabel = "Github Token",
+                    title = stringResource(strings.git_auth),
+                    inputLabel = stringResource(strings.git_auth),
                     inputValue = inputToken,
                     onInputValueChange = { text ->
                         inputToken = text
                     },
                     onConfirm = {
                         runCatching {
-                            if (inputToken.contains("ghp")) {
-                                updateToken(context, username, inputToken)
+                            if (inputToken.isBlank().not()){
+                                updateCredentials(context, username, inputToken,gitUrl)
                                 token = inputToken
-                            } else {
-                                "Invalid Github Token".toastIt()
-                                inputToken = token
                             }
-
                         }.onFailure { it.message.toastIt() }
                         showTokenDialog = false
                         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -228,9 +280,9 @@ private fun updateConfig(context: Context, username: String, email: String) {
     )
 }
 
-private fun updateToken(context: Context, username: String, token: String) {
+private fun updateCredentials(context: Context, username: String, token: String,gitUrl:String) {
     val cred = alpineHomeDir().child(".git-credentials").createFileIfNot()
-    cred.writeText("https://$username:$token@github.com")
+    cred.writeText("https://$username:$token@$gitUrl")
 }
 
 private inline fun isValidEmail(email: String): Boolean {
@@ -239,9 +291,10 @@ private inline fun isValidEmail(email: String): Boolean {
 
 suspend fun getToken(context: Context): String {
     return withContext(Dispatchers.IO) {
+        val gitUrl = PreferencesData.getString(PreferencesKeys.GIT_URL,"github.com")
         val cred = alpineHomeDir().child(".git-credentials")
         if (cred.exists()) {
-            val regex = """https://([^:]+):([^@]+)@github.com""".toRegex()
+            val regex = """https://([^:]+):([^@]+)@$gitUrl""".toRegex()
             val matchResult = regex.find(cred.readText())
             return@withContext matchResult?.groupValues?.get(2) ?: ""
         }
