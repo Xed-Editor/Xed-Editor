@@ -1,2 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="title_activity_batch_replacement">Remplacement en masse</string>
+    <string name="open_drawer">ouvrir</string>
+    <string name="restart_required">Redémarrage requis</string>
+    <string name="close_drawer">fermer</string>
+    <string name="ni">Cette fonctionnalité n\'est pas implémentée</string>
+    <string name="unsupported_contnt">Contenu non supporté</string>
+    <string name="null_contnt">Erreur: le contenu est null</string>
+</resources>
