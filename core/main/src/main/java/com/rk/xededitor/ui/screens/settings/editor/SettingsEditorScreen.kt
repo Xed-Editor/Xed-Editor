@@ -356,7 +356,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         rkUtils.toast(context.getString(strings.inavalid_v))
                         autoSaveTimeValue =
                             PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")
-                    } else if (autoSaveTimeValue.toInt() < 1000) {
+                    } else if (autoSaveTimeValue.toInt() < 3000) {
                         rkUtils.toast(context.getString(strings.v_small))
                         autoSaveTimeValue =
                             PreferencesData.getString(PreferencesKeys.AUTO_SAVE_TIME_VALUE, "10000")

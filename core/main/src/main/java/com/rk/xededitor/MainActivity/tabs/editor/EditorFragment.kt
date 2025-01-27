@@ -307,9 +307,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
 
         if (isAutoSaver) {
-            println("attempt")
             if (isReadyToSave().not()) {
-                println("skipped")
                 return
             }
         }

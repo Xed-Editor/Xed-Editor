@@ -22,7 +22,7 @@ object AutoSaver {
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
         GlobalScope.launch(Dispatchers.Default) {
-            while (isActive) {
+            while (isActive && MainActivity.activityRef.get()?.isPaused != true) {
                 try {
                     // Get the auto-save delay from preferences or use the default
                     val delayTime = PreferencesData.getString(
@@ -47,7 +47,7 @@ object AutoSaver {
      */
     private suspend fun saveAllEditorFragments() {
         MainActivity.activityRef.get()?.let { activity ->
-            if (activity.isDestroyed) {
+            if (activity.isDestroyed || activity.isFinishing) {
                 return
             }
 
