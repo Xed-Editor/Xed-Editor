@@ -22,7 +22,11 @@ object AutoSaver {
     @OptIn(DelicateCoroutinesApi::class)
     fun start() {
         GlobalScope.launch(Dispatchers.Default) {
-            while (isActive && MainActivity.activityRef.get()?.isPaused != true) {
+            while (isActive) {
+                if (MainActivity.activityRef.get()?.isPaused == true){
+                    delay(100)
+                    continue
+                }
                 try {
                     // Get the auto-save delay from preferences or use the default
                     val delayTime = PreferencesData.getString(
