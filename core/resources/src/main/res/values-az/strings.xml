@@ -1,2 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="null_contnt">Xəta: Məznun etibarsızdır</string>
+    <string name="open_file_or_folder">Fayl və ya Qovluğu aç</string>
+    <string name="restart_required">Yenidən başlatmaq lazımdır</string>
+    <string name="open_file">Faylı aç</string>
+    <string name="ni">Bu xüsusiyyət tətbiq edilmir</string>
+    <string name="unsupported_contnt">Dəstəklənməyən məznun</string>
+    <string name="saveAll">bütün fayllar yadda saxlanıldı</string>
+    <string name="save_label">Yadda saxla</string>
+    <string name="open_drawer">aç</string>
+    <string name="close_drawer">bağla</string>
+    <string name="save">Fayl yadda saxlanıldı</string>
+</resources>
