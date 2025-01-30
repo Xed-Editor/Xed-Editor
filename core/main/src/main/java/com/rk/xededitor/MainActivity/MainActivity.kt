@@ -334,7 +334,9 @@ class MainActivity : BaseActivity() {
             if (drawerToggle!!.onOptionsItemSelected(item)) {
                 return true
             }
-            MenuClickHandler.handle(this, item)
+            lifecycleScope.launch {
+                MenuClickHandler.handle(this@MainActivity, item)
+            }
             return false
         }
     }

@@ -44,7 +44,7 @@ object MenuClickHandler {
     private var searchText: String? = ""
     private val editorFragment:EditorFragment? get() = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment as? EditorFragment
     
-    fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
+    suspend fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
 
         when (id) {
@@ -75,7 +75,7 @@ object MenuClickHandler {
                         (f.get()?.fragment as EditorFragment).save(false)
                     }
                 }
-                rkUtils.toast("Saved all files")
+                rkUtils.toast(strings.save_all.getString())
                 return true
             }
 

@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity.handlers
 
 import android.view.KeyEvent
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
@@ -124,7 +125,9 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_F -> {
                     MainActivity.activityRef.get()?.let {
-                        MenuClickHandler.handle(it, it.menu!!.findItem(R.id.search))
+                        it.lifecycleScope.launch {
+                            MenuClickHandler.handle(it, it.menu!!.findItem(R.id.search))
+                        }
                     }
                 }
                 
