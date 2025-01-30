@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
+import com.rk.libcommons.localDir
 import com.rk.resources.drawables
 import com.rk.scriptingengine.Engine
 import com.rk.xededitor.MainActivity.MainActivity
@@ -32,7 +33,7 @@ object Mutators {
     private val mutators = mutableStateListOf<Mutator>()
 
     private fun getMutatorDirectory(): File {
-        val dir = File(application!!.filesDir, DIRECTORY_NAME)
+        val dir = File(localDir(), DIRECTORY_NAME)
         if (!dir.exists()) {
             dir.mkdirs()
         }

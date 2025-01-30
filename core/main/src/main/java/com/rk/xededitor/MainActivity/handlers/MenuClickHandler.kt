@@ -59,9 +59,7 @@ object MenuClickHandler {
                 editorFragment!!.file.let { fileObject ->
                     if (fileObject is FileWrapper) {
                         DefaultScope.launch {
-                            Runner.run(
-                                fileObject.file, activity
-                            )
+                            Runner.run(fileObject.file, activity)
                         }
                     }else{
                         rkUtils.toast("Runners are not supported on non-native file types")

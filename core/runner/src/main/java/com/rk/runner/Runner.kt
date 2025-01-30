@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.application
+import com.rk.libcommons.runOnUiThread
+import com.rk.libcommons.toast
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
@@ -32,61 +34,54 @@ interface RunnerImpl {
 
 
 object Runner {
-    private val registry = HashMap<String, MutableList<RunnerImpl>>()
+    private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash")
 
-    init {
-        registry["html"] = mutableListOf(HtmlRunner())
-        registry["md"] = mutableListOf(MarkDownRunner())
-        registry["py"] = mutableListOf(PythonRunner())
-
-        mutableListOf<RunnerImpl>(NodeRunner()).let {
-            registry["mjs"] = it
-            registry["js"] = it
-        }
-
-        mutableListOf<RunnerImpl>(ShellRunner()).let {
-            registry["sh"] = it
-            registry["bash"] = it
+    private fun getRunnerInstance(ext:String):List<RunnerImpl>{
+        return when(ext){
+            "html" -> listOf(HtmlRunner())
+            "md" -> listOf(MarkDownRunner())
+            "py" -> listOf(PythonRunner())
+            "mjs","js" -> listOf(NodeRunner())
+            "sh","bash" -> listOf(ShellRunner())
+            else -> emptyList()
         }
     }
 
     fun isRunnable(file: File): Boolean {
-        val ext = file.name.substringAfterLast('.', "")
-        return registry.keys.any { it == ext }
+        val ext = file.name.substringAfterLast('.', "").trim()
+        return runnable_ext.contains(ext)
     }
 
     suspend fun run(file: File, context: Context) {
         withContext(Dispatchers.Default) {
             if (isRunnable(file)) {
                 val ext = file.name.substringAfterLast('.', "")
-                val runners = registry[ext]
-                if (runners?.size!! == 0) {
+
+
+                val runners = getRunnerInstance(ext)
+                if (runners.isEmpty()) {
+                    toast("No runners are available for this file")
                     return@withContext
                 }
                 if (runners.size == 1) {
-                    Thread {
+                    withContext(Dispatchers.IO){
                         runCatching { runners[0].run(file, context) }.onFailure {
-                            Handler(Looper.getMainLooper()).post {
-                                Toast.makeText(application!!, it.message, Toast.LENGTH_LONG)
-                                    .show()
-                            }
+                           toast(it.message)
                         }
-                    }.start()
+                    }
                 } else {
                     withContext(Dispatchers.Main) {
                         showRunnerSelectionDialog(context, runners) { selectedRunner ->
                             Thread {
                                 runCatching { selectedRunner.run(file, context) }.onFailure {
-                                    Handler(Looper.getMainLooper()).post {
-                                        Toast.makeText(
-                                            application!!, it.message, Toast.LENGTH_LONG
-                                        ).show()
-                                    }
+                                    toast(it.message)
                                 }
                             }.start()
                         }
                     }
                 }
+            }else{
+                toast("This file is not runnable")
             }
 
         }

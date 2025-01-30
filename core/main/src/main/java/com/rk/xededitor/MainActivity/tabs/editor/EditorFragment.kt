@@ -36,7 +36,6 @@ import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 
 
-@Suppress("NOTHING_TO_INLINE")
 class EditorFragment(val context: Context) : CoreFragment {
 
     @JvmField
@@ -99,28 +98,17 @@ class EditorFragment(val context: Context) : CoreFragment {
             addView(setupEditor.getInputView())
         }
 
-
-        // Define the new LinearLayout
         searchLayout = SearchPanel(constraintLayout!!, editor!!).view
 
-
-        // Add the views to the constraint layout
         constraintLayout!!.addView(searchLayout)
         constraintLayout!!.addView(editor)
         constraintLayout!!.addView(horizontalScrollView)
 
-        // Set up constraints for the layout
         ConstraintSet().apply {
             clone(constraintLayout)
-
-            // Position the LinearLayout at the top of the screen
             connect(searchLayout.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-
-            // Position the editor below the LinearLayout
             connect(editor!!.id, ConstraintSet.TOP, searchLayout.id, ConstraintSet.BOTTOM)
             connect(editor!!.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
-
-            // Position the HorizontalScrollView at the bottom
             connect(
                 horizontalScrollView.id,
                 ConstraintSet.BOTTOM,
@@ -128,7 +116,6 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ConstraintSet.BOTTOM
             )
             connect(horizontalScrollView.id, ConstraintSet.TOP, editor!!.id, ConstraintSet.BOTTOM)
-
             applyTo(constraintLayout)
         }
     }
@@ -193,7 +180,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     object FilesContent {
         private val sharedPreferences =
-            application!!.getSharedPreferences("files", Context.MODE_PRIVATE)
+            application!!.getSharedPreferences("fileState", Context.MODE_PRIVATE)
         private val mutex = Mutex()
         suspend fun containsKey(key: String): Boolean {
             mutex.withLock {
@@ -304,6 +291,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     override fun getFile(): FileObject? = file
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
 
         if (isAutoSaver) {
@@ -316,7 +304,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast("File cannot be saved, try closing and reopening the file")
+            rkUtils.toast(strings.file_err.getString())
             return
         }
 
@@ -332,7 +320,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast("File isn't loaded yet.")
+            rkUtils.toast(strings.file_not_loaded.getString())
             return
         }
 
@@ -340,14 +328,8 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast("File No longer exists")
+            rkUtils.toast(strings.file_exist_not.getString())
             return
-        }
-        if (editor == null) {
-            if (isAutoSaver) {
-                return
-            }
-            throw RuntimeException("editor is null")
         }
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -436,20 +418,14 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
 
-    inline fun undo() {
+    suspend fun undo() {
         editor?.undo()
-        MainActivity.activityRef.get()?.let {
-            it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
-            it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
-        }
+        updateUndoRedo()
     }
 
-    inline fun redo() {
+    suspend fun redo() {
         editor?.redo()
-        MainActivity.activityRef.get()?.let {
-            it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
-            it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
-        }
+        updateUndoRedo()
     }
 
     private suspend inline fun updateUndoRedo() {

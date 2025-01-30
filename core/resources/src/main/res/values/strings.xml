@@ -387,5 +387,8 @@
     <string name="scroll_to_bottom">Scroll to Bottom</string>
     <string name="scroll_to_bottom_desc">Scroll to Bottom when opening a file</string>
 
+    <string name="file_err">File cannot be saved, try closing and reopening the file</string>
+    <string name="file_not_loaded">File isn\'t loaded yet.</string>
+    <string name="file_not_exist">File No longer exists</string>
 
 </resources>
