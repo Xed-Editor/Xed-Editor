@@ -354,4 +354,7 @@
     <string name="http_git_url">Http git ссылка</string>
     <string name="user">Пользователь</string>
     <string name="git_auth">GitHub токен</string>
+    <string name="file_err">Файл не может быть сохранен, попробуйте закрыть и снова открыть файл</string>
+    <string name="file_not_loaded">Файл ещё не загружен.</string>
+    <string name="file_not_exist">Файл больше не существует</string>
 </resources>
