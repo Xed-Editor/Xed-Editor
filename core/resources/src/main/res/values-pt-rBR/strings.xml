@@ -356,4 +356,7 @@
     <string name="script_network">rede</string>
     <string name="info_ext">As extensões podem ser usadas para modificar o comportamento e os recursos do xed-editor. Para saber como criar um plug-in, clique aqui</string>
     <string name="scroll_to_bottom">Rolar para o Final</string>
+    <string name="file_err">O arquivo não pode ser salvo, tente fechar e reabrir o arquivo</string>
+    <string name="file_not_loaded">O arquivo ainda não foi carregado.</string>
+    <string name="file_not_exist">O arquivo não existe mais</string>
 </resources>
