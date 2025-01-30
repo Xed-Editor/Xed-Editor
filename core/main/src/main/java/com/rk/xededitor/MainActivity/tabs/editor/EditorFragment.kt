@@ -455,8 +455,8 @@ class EditorFragment(val context: Context) : CoreFragment {
     private suspend inline fun updateUndoRedo() {
         withContext(Dispatchers.Main) {
             MainActivity.activityRef.get()?.let {
-                it.menu!!.findItem(R.id.redo).isEnabled = editor?.canRedo() == true
-                it.menu!!.findItem(R.id.undo).isEnabled = editor?.canUndo() == true
+                it.menu?.findItem(R.id.redo)?.isEnabled = editor?.canRedo() == true
+                it.menu?.findItem(R.id.undo)?.isEnabled = editor?.canUndo() == true
             }
         }
     }

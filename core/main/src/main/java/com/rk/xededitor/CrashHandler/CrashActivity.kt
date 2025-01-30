@@ -62,8 +62,8 @@ class CrashActivity : AppCompatActivity() {
             val sb = StringBuilder()
 
             sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("\n\n")
-            sb.append("App Version : ").append(versionName)
-            sb.append("Version Code : ").append(versionCode)
+            sb.append("App Version : ").append(versionName).append("\n")
+            sb.append("Version Code : ").append(versionCode).append("\n")
             sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
             sb.append("Unix Time : ").append(System.currentTimeMillis()).append("\n")
