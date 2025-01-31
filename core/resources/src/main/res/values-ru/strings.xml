@@ -357,4 +357,6 @@
     <string name="file_err">Файл не может быть сохранен, попробуйте закрыть и снова открыть файл</string>
     <string name="file_not_loaded">Файл ещё не загружен.</string>
     <string name="file_not_exist">Файл больше не существует</string>
+    <string name="soft_keyboard_always">Всегда показывать клавиатуру</string>
+    <string name="soft_keyboard_always_desc">Всегда показывать виртуальную клавиатуру, даже если подключена физическая клавиатура</string>
 </resources>
