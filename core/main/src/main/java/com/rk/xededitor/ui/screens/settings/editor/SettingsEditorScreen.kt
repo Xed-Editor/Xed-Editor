@@ -1,13 +1,18 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
+import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.editor.applySettings
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.PreferencesData
@@ -19,9 +24,55 @@ import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
+import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 
+private fun updateEditorSettings() {
+    MainActivity.withContext {
+        adapter?.tabFragments?.values?.forEach {
+            lifecycleScope.launch { (it.get()?.fragment as? EditorFragment)?.editor?.applySettings() }
+        }
+    }
+}
+
+@Composable
+private fun EditorSettingsToggle(
+    modifier: Modifier = Modifier,
+    label: String,
+    description: String? = null,
+    @DrawableRes iconRes: Int? = null,
+    key: String? = null,
+    default: Boolean = false,
+    ReactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
+    sideEffect: ((checked: Boolean) -> Unit)? = null,
+    showSwitch: Boolean = true,
+    onLongClick: (() -> Unit)? = null,
+    isEnabled: Boolean = true,
+    isSwitchLocked: Boolean = false
+) {
+    SettingsToggle(
+        modifier = modifier,
+        label = label,
+        description = description,
+        iconRes = iconRes,
+        key = key,
+        default = default,
+        ReactiveSideEffect = ReactiveSideEffect,
+        showSwitch = showSwitch,
+        onLongClick = onLongClick,
+        isEnabled = isEnabled,
+        isSwitchLocked = isSwitchLocked,
+        sideEffect = {
+            DefaultScope.launch {
+                if (showSwitch && key != null){
+                    updateEditorSettings()
+                }
+            }
+            sideEffect?.invoke(it)
+        },
+    )
+}
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -55,47 +106,39 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.content)) {
 
-            SettingsToggle(label = stringResource(strings.mutators),
+            EditorSettingsToggle(label = stringResource(strings.mutators),
                 description = stringResource(strings.mutator_desc),
                 showSwitch = false,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.ManageMutators.route)
                 })
 
-            SettingsToggle(
+            EditorSettingsToggle(
                 label = stringResource(strings.restore_sessions),
                 description = stringResource(strings.restore_sessions_desc),
                 default = true,
                 key = PreferencesKeys.RESTORE_SESSIONS
             )
 
-            SettingsToggle(
-                label = stringResource(strings.scroll_to_bottom),
+            EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
                 description = stringResource(strings.scroll_to_bottom_desc),
                 default = false,
                 key = PreferencesKeys.SCROLL_TO_BOTTOM,
                 sideEffect = {
-                    if(it){
+                    if (it) {
                         rkUtils.toast(strings.ni.getString())
                     }
-                }
-            )
+                })
 
 
 
 
-            SettingsToggle(label = stringResource(id = strings.ww),
+            EditorSettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
                 key = PreferencesKeys.WORD_WRAP_ENABLED,
-                default = false,
-                sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.isWordwrap = it
-                        }
-                    }
-                })
-            SettingsToggle(label = stringResource(strings.txt_ww),
+                default = false)
+
+            EditorSettingsToggle(label = stringResource(strings.txt_ww),
                 description = stringResource(strings.txt_ww_desc),
                 key = PreferencesKeys.WORD_WRAP_TXT,
                 default = true,
@@ -104,14 +147,13 @@ fun SettingsEditorScreen(navController: NavController) {
                         if (f.value.get()?.fragment is EditorFragment) {
                             (f.value.get()?.fragment as EditorFragment).apply {
                                 if (file?.getName()?.endsWith(".txt") == true) {
-                                    if (editor?.isWordwrap!!.not()) {
-                                        editor?.isWordwrap = it
-                                    }
+                                    editor?.isWordwrap = it
                                 }
                             }
                         }
                     }
-                })
+                }
+            )
         }
 
 
@@ -119,8 +161,14 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
 
+            EditorSettingsToggle(
+                label = stringResource(strings.soft_keyboard_always),
+                description = stringResource(strings.soft_keyboard_always_desc),
+                default = false,
+                key = PreferencesKeys.ALWAYS_SHOW_SOFT_KEYBOARD
+            )
 
-            SettingsToggle(label = stringResource(id = strings.line_spacing),
+            EditorSettingsToggle(label = stringResource(id = strings.line_spacing),
                 description = stringResource(id = strings.line_spacing),
                 showSwitch = false,
                 sideEffect = {
@@ -128,7 +176,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 })
 
 
-            SettingsToggle(label = stringResource(id = strings.line_spacing_multiplier),
+            EditorSettingsToggle(label = stringResource(id = strings.line_spacing_multiplier),
                 description = stringResource(id = strings.line_spacing_multiplier),
                 showSwitch = false,
                 sideEffect = {
@@ -136,54 +184,24 @@ fun SettingsEditorScreen(navController: NavController) {
                 })
 
 
-            SettingsToggle(label = stringResource(id = strings.cursor_anim),
+            EditorSettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
                 key = PreferencesKeys.CURSOR_ANIMATION_ENABLED,
-                default = false,
-                sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.isCursorAnimationEnabled =
-                                it
-                        }
-                    }
-                })
-            SettingsToggle(label = stringResource(id = strings.show_line_number),
+                default = false)
+            EditorSettingsToggle(label = stringResource(id = strings.show_line_number),
                 description = stringResource(id = strings.show_line_number),
                 key = PreferencesKeys.SHOW_LINE_NUMBERS,
-                default = true,
-                sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.isLineNumberEnabled =
-                                it
-                        }
-                    }
-                })
-            SettingsToggle(label = stringResource(id = strings.show_suggestions),
+                default = true)
+            EditorSettingsToggle(label = stringResource(id = strings.show_suggestions),
                 description = stringResource(id = strings.show_suggestions),
                 key = PreferencesKeys.SHOW_SUGGESTIONS,
-                default = false,
-                sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
-                        if (f.get() != null && f.get()?.fragment is EditorFragment) {
-                            (f.get()?.fragment as EditorFragment).editor?.showSuggestions(it)
-                        }
-                    }
-                })
-            SettingsToggle(label = stringResource(id = strings.pin_line_number),
+                default = false)
+            EditorSettingsToggle(label = stringResource(id = strings.pin_line_number),
                 description = stringResource(id = strings.pin_line_number),
                 key = PreferencesKeys.PIN_LINE_NUMBER,
-                default = false,
-                sideEffect = {
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).editor?.setPinLineNumber(it)
-                        }
-                    }
-                })
+                default = false)
 
-            SettingsToggle(label = stringResource(strings.manage_editor_font),
+            EditorSettingsToggle(label = stringResource(strings.manage_editor_font),
                 description = stringResource(strings.manage_editor_font),
                 showSwitch = false,
                 default = false,
@@ -191,7 +209,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     navController.navigate(SettingsRoutes.EditorFontScreen.route)
                 })
 
-            SettingsToggle(label = stringResource(id = strings.text_size),
+            EditorSettingsToggle(label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
                 showSwitch = false,
                 sideEffect = {
@@ -203,7 +221,7 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
         PreferenceGroup(heading = stringResource(strings.other)) {
-            SettingsToggle(label = stringResource(id = strings.extra_keys),
+            EditorSettingsToggle(label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 key = PreferencesKeys.SHOW_ARROW_KEYS,
                 default = true,
@@ -221,41 +239,41 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 })
 
-            SettingsToggle(label = stringResource(strings.default_encoding),
+            EditorSettingsToggle(label = stringResource(strings.default_encoding),
                 description = stringResource(strings.default_encoding_desc),
                 showSwitch = false,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.DefaultEncoding.route)
                 })
 
-            SettingsToggle(label = stringResource(id = strings.smooth_tabs),
+            EditorSettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
                 key = PreferencesKeys.VIEWPAGER_SMOOTH_SCROLL,
                 default = false,
                 sideEffect = {
                     smoothTabs = it
                 })
-            SettingsToggle(
+            EditorSettingsToggle(
                 label = stringResource(id = strings.keepdl),
                 description = stringResource(id = strings.drawer_lock_desc),
                 key = PreferencesKeys.KEEP_DRAWER_LOCKED,
                 default = false,
             )
-            SettingsToggle(
+            EditorSettingsToggle(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
                 key = PreferencesKeys.AUTO_SAVE,
                 default = false,
             )
 
-            SettingsToggle(
+            EditorSettingsToggle(
                 label = stringResource(strings.sora_s),
                 description = stringResource(strings.sora_s_desc),
                 key = PreferencesKeys.USE_SORA_SEARCH,
                 default = true,
             )
 
-            SettingsToggle(
+            EditorSettingsToggle(
                 label = stringResource(id = strings.auto_save_time),
                 description = stringResource(id = strings.auto_save_time_desc),
                 sideEffect = {
@@ -264,7 +282,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 showSwitch = false,
             )
 
-            SettingsToggle(label = stringResource(id = strings.tab_size),
+            EditorSettingsToggle(label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,
                 sideEffect = {
@@ -296,7 +314,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         )
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
                             if (it.get()?.fragment is EditorFragment) {
-                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingExtra =
+                                (it.get()?.fragment as EditorFragment).editor?.lineSpacingExtra =
                                     lineSpacingValue.toFloat()
                             }
                         }
@@ -333,7 +351,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         )
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
                             if (it.get()?.fragment is EditorFragment) {
-                                (it.get()?.fragment as EditorFragment)?.editor?.lineSpacingMultiplier =
+                                (it.get()?.fragment as EditorFragment).editor?.lineSpacingMultiplier =
                                     lineSpacingMultiplierValue.toFloat()
                             }
                         }

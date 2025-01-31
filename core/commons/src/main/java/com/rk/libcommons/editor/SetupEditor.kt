@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
+import com.rk.libcommons.editor.SetupEditor.Companion.applyFont
+import com.rk.libcommons.toast
 import com.rk.libcommons.toastIt
 import com.rk.settings.PreferencesData
 import com.rk.settings.PreferencesKeys
@@ -53,6 +55,44 @@ import java.io.InputStreamReader
 
 private typealias onClick = OnClickListener
 
+suspend fun KarbonEditor.applySettings(){
+    withContext(Dispatchers.IO){
+        val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
+        val pinLineNumber = PreferencesData.getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false)
+        val showLineNumber = PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
+        val cursorAnimation = PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, false)
+        val textSize = PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat()
+        val wordWrap = PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
+        val keyboardSuggestion = PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false)
+        val always_show_soft_keyboard = PreferencesData.getBoolean(PreferencesKeys.ALWAYS_SHOW_SOFT_KEYBOARD,false)
+        val lineSpacing = PreferencesData.getString(
+            PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()
+        ).toFloat()
+        val lineMultiplier = PreferencesData.getString(
+            PreferencesKeys.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
+        ).toFloat()
+
+        withContext(Dispatchers.Main){
+            props.deleteMultiSpaces = tabSize
+            tabWidth = tabSize
+            props.deleteEmptyLineFast = false
+            props.useICULibToSelectWords = true
+            setPinLineNumber(pinLineNumber)
+            isLineNumberEnabled = showLineNumber
+            isCursorAnimationEnabled = cursorAnimation
+            setTextSize(textSize)
+            isWordwrap = wordWrap
+            showSuggestions(keyboardSuggestion)
+            lineSpacingExtra = lineSpacing
+            lineSpacingMultiplier = lineMultiplier
+            isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
+        }
+    }
+
+
+
+}
+
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope: CoroutineScope) {
 
     private var syntaxJob: Job? = null
@@ -61,53 +101,26 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             syntaxJob = scope.launch(Dispatchers.Main){
                 ensureTextmateTheme(ctx)
             }
-            val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
-            props.deleteMultiSpaces = tabSize
-            tabWidth = tabSize
-            props.deleteEmptyLineFast = false
-            props.useICULibToSelectWords = true
-            setPinLineNumber(PreferencesData.getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false))
-            isLineNumberEnabled =
-                PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
-            isCursorAnimationEnabled =
-                PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, false)
-            setTextSize(PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat())
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
-            setWordwrap(
-                PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false),
-                PreferencesData.getBoolean(PreferencesKeys.ANTI_WORD_BREAKING, true)
-            )
-            showSuggestions(PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false))
-            lineSpacingExtra = PreferencesData.getString(
-                PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()
-            ).toFloat()
-            lineSpacingMultiplier = PreferencesData.getString(
-                PreferencesKeys.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
-            ).toFloat()
-            kotlin.runCatching { applyFont(this) }.onFailure {
-                scope.launch(Dispatchers.Main) {
-                    Toast.makeText(
-                        ctx, "${it.message} \n falling back to the default font", Toast.LENGTH_LONG
-                    ).show()
-                    kotlin.runCatching {
-                        editor.typefaceText =
-                            Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
-                    }
-                }
+            scope.launch { applySettings() }
+
+            runCatching { applyFont(this) }.onFailure {
+                it.printStackTrace()
+                toast(it.message)
+                runCatching { typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf") }
             }
 
             getComponent(EditorAutoCompletion::class.java).setLayout(object :
                 DefaultCompletionLayout() {
                 override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
                     val typedValue = TypedValue()
-                    ctx.theme.resolveAttribute(
+                    context.theme.resolveAttribute(
                         com.google.android.material.R.attr.colorSurface, typedValue, true
                     )
                     val colorSurface = typedValue.data
                     (completionList.parent as? ViewGroup)?.background = ColorDrawable(colorSurface)
                 }
             })
-
         }
     }
 

@@ -391,4 +391,7 @@
     <string name="file_not_loaded">File isn\'t loaded yet.</string>
     <string name="file_not_exist">File No longer exists</string>
 
+    <string name="soft_keyboard_always">Always show keyboard</string>
+    <string name="soft_keyboard_always_desc">Always show soft keyboard even if hardware keyboard is connected</string>
+
 </resources>
