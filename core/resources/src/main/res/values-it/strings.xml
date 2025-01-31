@@ -338,4 +338,25 @@
     <string name="mutator_desc">Crea strumenti micro</string>
     <string name="restore_sessions">Ripristina sessioni</string>
     <string name="sessions">Sessioni</string>
+    <string name="no_ext">Nessuna estensione installata.</string>
+    <string name="downloading">Scaricamento…</string>
+    <string name="initializing">Inizializzazione…</string>
+    <string name="network_err">Errore di rete</string>
+    <string name="user">Utente</string>
+    <string name="email">Email</string>
+    <string name="git_auth">Token GitHub</string>
+    <string name="invalid_email">Email non valida</string>
+    <string name="invalid_user">Nome utente non valido</string>
+    <string name="use_github_url">Utilizza l\'url predefinito di GitHub</string>
+    <string name="custom_git_url">Url Git personalizzato</string>
+    <string name="http_git_url">Http girl url</string>
+    <string name="file_err">Il file non può essere salvato, prova a chiuderlo e riaprirlo</string>
+    <string name="file_not_loaded">Il file non è ancora caricato.</string>
+    <string name="file_not_exist">Il file non esiste più</string>
+    <string name="soft_keyboard_always">Mostra sempre la tastiera</string>
+    <string name="soft_keyboard_always_desc">Mostra sempre la tastiera virtuale anche quando una tastiera fisica è connessa</string>
+    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di xed-editor. Per imparare come costruire un plugin, clicca qui</string>
+    <string name="scroll_to_bottom">Scorri in basso</string>
+    <string name="loading">Caricamento…</string>
+    <string name="scroll_to_bottom_desc">Scorri in basso all\'apertura di un file</string>
 </resources>
