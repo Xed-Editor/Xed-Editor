@@ -198,6 +198,18 @@ class UriWrapper : FileObject {
         return file.canRead()
     }
 
+    override fun getChildForName(name: String): FileObject {
+        if (!file.isDirectory) {
+            throw IllegalStateException("Cannot get child for a non-directory file")
+        }
+
+        val child = file.listFiles().find { it.name == name }
+            ?: throw FileNotFoundException("Child with name $name not found")
+
+        return UriWrapper(child)
+    }
+
+
     override fun equals(other: Any?): Boolean {
         if (other !is UriWrapper) {
             return false

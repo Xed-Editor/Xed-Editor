@@ -128,6 +128,10 @@ class FileWrapper(var file: File) : FileObject {
         return file.canRead()
     }
 
+    override fun getChildForName(name: String): FileObject {
+        return FileWrapper(File(file,name))
+    }
+
     override fun hashCode(): Int {
         return getAbsolutePath().hashCode()
     }

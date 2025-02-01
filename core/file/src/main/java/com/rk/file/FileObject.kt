@@ -29,4 +29,5 @@ interface FileObject : Serializable {
     fun createChild(createFile:Boolean,name: String):FileObject?
     fun canWrite():Boolean
     fun canRead():Boolean
+    fun getChildForName(name: String):FileObject
 }

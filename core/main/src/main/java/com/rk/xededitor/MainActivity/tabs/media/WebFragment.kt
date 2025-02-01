@@ -18,7 +18,7 @@ import java.net.URLEncoder
 
 class WebFragment(val context: Context) : CoreFragment {
     val scope = CustomScope()
-    private var file: File? = null
+    private var file: FileObject? = null
     private val webView:WebView = WebView(context)
     private var httpServer:HttpServer? = null
     private val port = getAvailablePort()
@@ -45,11 +45,10 @@ class WebFragment(val context: Context) : CoreFragment {
         webView.settings.displayZoomControls = false
     }
     
-    override fun loadFile(file: com.rk.file.FileObject) {
-        file as com.rk.file.FileWrapper
-        this.file = file.file
+    override fun loadFile(file: FileObject) {
+        this.file = file
         scope.launch(Dispatchers.IO) {
-            httpServer = HttpServer(port, file.file.parentFile)
+            httpServer = HttpServer(port, file.getParentFile()!!)
             withContext(Dispatchers.Main){
                 webView.loadUrl("http://localhost:$port/${
                     withContext(Dispatchers.IO) {
@@ -60,7 +59,7 @@ class WebFragment(val context: Context) : CoreFragment {
         }
     }
     
-    override fun getFile(): com.rk.file.FileObject? {
-        return file?.let { com.rk.file.FileWrapper(it) }
+    override fun getFile(): FileObject? {
+        return file
     }
 }

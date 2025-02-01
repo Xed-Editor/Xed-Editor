@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
+import com.rk.file.FileWrapper
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
 import fi.iki.elonen.NanoHTTPD
@@ -30,21 +31,21 @@ class MDViewer : WebActivity() {
         val isDarkMode: Boolean =
             (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
         
-        httpServer = HttpServer(PORT, file.parentFile!!) { md,session ->
+        httpServer = HttpServer(PORT, FileWrapper(file.parentFile!!)) { md,session ->
             val parameters = session.parameters
             val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
             if (parameters.containsKey("textmd")){
                 return@HttpServer null
             }
             
-            if (md.exists() && md.isFile && md.name.endsWith(".md")) {
+            if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
                 try {
                     val htmlString = """
         <!DOCTYPE html>
         <html>
         <head>
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${md.name.removeSuffix(".md")}</title>
+            <title>${md.getName().removeSuffix(".md")}</title>
             <script type="module" src="https://cdn.jsdelivr.net/npm/zero-md@3?register"></script>
         </head>
         <body style="background-color: ${if (isDarkMode){"#0D1117"}else{"#FFFFFF"}};">

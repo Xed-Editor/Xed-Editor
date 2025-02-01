@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
+import com.rk.file.FileWrapper
 import com.rk.runner.RunnerImpl
 import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
@@ -16,7 +17,7 @@ class HtmlRunner : RunnerImpl {
     
     override fun run(file: File, context: Context) {
         stop()
-        httpServer = HttpServer(port,file.parentFile!!)
+        httpServer = HttpServer(port,FileWrapper(file.parentFile!!))
         val url = "http://localhost:$port/${file.name}"
         val builder = CustomTabsIntent.Builder()
         builder.setShowTitle(true)
