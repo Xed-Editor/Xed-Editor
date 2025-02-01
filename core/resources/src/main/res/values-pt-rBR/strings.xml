@@ -359,4 +359,6 @@
     <string name="file_err">O arquivo não pode ser salvo, tente fechar e reabrir o arquivo</string>
     <string name="file_not_loaded">O arquivo ainda não foi carregado.</string>
     <string name="file_not_exist">O arquivo não existe mais</string>
+    <string name="soft_keyboard_always">Sempre mostrar o teclado</string>
+    <string name="soft_keyboard_always_desc">Sempre mostrar o teclado virtual, mesmo que um teclado físico esteja conectado</string>
 </resources>
