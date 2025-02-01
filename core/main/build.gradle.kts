@@ -139,7 +139,7 @@ dependencies {
     api(project(":core:commons"))
     api(project(":core:components"))
     //api(project(":core:editor"))
-    api(project(":core:external-editor"))
+    //api(project(":core:external-editor"))
     //api(project(":core:language-textmate"))
     api(project(":core:resources"))
     api(project(":core:karbon-exec"))

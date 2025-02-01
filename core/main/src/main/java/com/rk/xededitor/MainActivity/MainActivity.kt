@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
@@ -22,7 +23,10 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
 import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
@@ -43,6 +47,7 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -274,6 +279,28 @@ class MainActivity : BaseActivity() {
         }
 
         return true
+    }
+
+    private fun openTabForIntent(intent: Intent){
+        if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
+            val uri = intent.data
+            val file = File(uri!!.toPath())
+            val fileObject = if (file.exists() && file.canRead()){
+                FileWrapper(file)
+            }else{
+                UriWrapper(uri)
+            }
+            if (fileObject.isFile().not()){
+                rkUtils.toast(strings.unsupported_contnt.toString())
+                return
+            }
+            adapter?.addFragment(fileObject)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openTabForIntent(intent)
     }
 
     override fun onRequestPermissionsResult(
