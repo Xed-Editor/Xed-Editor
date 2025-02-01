@@ -50,9 +50,6 @@ class KarbonEditor : CodeEditor {
         colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, color)
-        colorScheme.setColor(EditorColorScheme.COMPLETION_WND_BACKGROUND,color)
-        colorScheme.setColor(EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,color)
-        colorScheme.setColor(EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,color)
     }
     
     
