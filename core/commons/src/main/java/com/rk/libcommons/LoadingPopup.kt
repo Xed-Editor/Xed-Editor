@@ -1,8 +1,13 @@
 package com.rk.libcommons
 
 import android.app.Activity
+import android.content.Context
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -12,20 +17,61 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 
-class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: CoroutineScope = DefaultScope) {
+class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long? = null,val scope: CoroutineScope = DefaultScope) {
     private var dialog: AlertDialog? = null
     private lateinit var dialogView: View
+    private lateinit var progressBar:ProgressBar
+    private lateinit var textView: TextView
+    private val mutex = Mutex(locked = true)
+
+    private fun createProgressView(context: Activity): LinearLayout {
+        val linearLayout = LinearLayout(context).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(5, 5, 5, 5)
+        }
+
+        progressBar = ProgressBar(context).apply {
+            id = View.generateViewId()
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                setMargins(5, 5, 5, 5)
+            }
+        }
+
+        textView = TextView(context).apply {
+            id = View.generateViewId()
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            ).apply {
+                gravity = Gravity.CENTER_VERTICAL
+            }
+            gravity = Gravity.CENTER_VERTICAL
+            text = strings.wait.getString()
+        }
+
+        linearLayout.addView(progressBar)
+        linearLayout.addView(textView)
+
+        return linearLayout
+    }
+
 
     init {
-        ctx.runOnUiThread {
-            val inflater1: LayoutInflater = ctx.layoutInflater
-            dialogView = inflater1.inflate(R.layout.progress_dialog, null)
-            dialogView.findViewById<TextView>(R.id.progress_message).text = strings.wait.getString()
-            dialog =
-                MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
+        scope.launch(Dispatchers.Main){
+            dialogView = createProgressView(ctx)
+            dialog = MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
 
             if (hideAfterMillis != null) {
                 show()
@@ -36,32 +82,40 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: Coro
                     }
                 }
             }
+            mutex.unlock()
         }
     }
 
     fun setMessage(message: String): LoadingPopup {
-        dialogView.findViewById<TextView>(R.id.progress_message).text = message
-        return this
+        scope.launch(Dispatchers.Main) {
+            mutex.withLock {
+                textView.text = message
+            }
+        }
+       return this
     }
 
     fun show(): LoadingPopup {
-        ctx.runOnUiThread {
-            if (dialog?.isShowing?.not() == true) {
-                dialog?.show()
+        scope.launch(Dispatchers.Main) {
+            mutex.withLock {
+                if (dialog?.isShowing?.not() == true) {
+                    dialog?.show()
+                }
             }
+
         }
+
         return this
     }
 
     fun hide() {
-        ctx.runOnUiThread {
-            if (dialog != null && dialog?.isShowing == true) {
-                dialog?.dismiss()
+        scope.launch(Dispatchers.Main){
+            mutex.withLock {
+                if (dialog != null && dialog?.isShowing == true) {
+                    dialog?.dismiss()
+                }
             }
-        }
-    }
 
-    fun getDialog(): AlertDialog? {
-        return dialog
+        }
     }
 }

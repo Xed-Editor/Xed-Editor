@@ -7,8 +7,7 @@ import android.provider.DocumentsContract
 
 
 object PathUtils {
-    
-    
+
     fun Uri.toPath():String{
         val path = internalConvertUriToPath(application!!, this)
         return path.replace("/document", "/storage").replace(":", "/")
@@ -24,16 +23,13 @@ object PathUtils {
         uri?.let {
             when {
                 DocumentsContract.isTreeUri(it) -> {
-                    // Handle tree URI
                     val docId = DocumentsContract.getTreeDocumentId(it)
                     return when {
                         docId.startsWith("primary:") -> {
-                            // Internal storage
                             "${Environment.getExternalStorageDirectory()}/${docId.substringAfter("primary:")}"
                         }
 
                         else -> {
-                            // External storage (SD card)
                             val split = docId.split(":")
                             "/storage/${split[0]}/${split.getOrElse(1) { "" }}"
                         }
@@ -41,7 +37,6 @@ object PathUtils {
                 }
 
                 DocumentsContract.isDocumentUri(context, it) -> {
-                    // Handle document URI
                     val docId = DocumentsContract.getDocumentId(it)
                     when {
                         isExternalStorageDocument(it) -> {
@@ -54,7 +49,6 @@ object PathUtils {
                                     ) { "" }
                                 }"
                             } else {
-                                // Handle SD card
                                 return "/storage/$type/${split.getOrElse(1) { "" }}"
                             }
                         }
@@ -64,7 +58,6 @@ object PathUtils {
                             if (fileName != null) {
                                 return "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/$fileName"
                             }
-                            // If unable to get the file name, fall back to a default path
                             return "${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)}/"
                         }
 
@@ -95,12 +88,10 @@ object PathUtils {
                 }
 
                 "content".equals(it.scheme, ignoreCase = true) -> {
-                    // Handle content URI
                     return getDataColumn(context, it, null, null) ?: "/storage/emulated/0/"
                 }
 
                 "file".equals(it.scheme, ignoreCase = true) -> {
-                    // Handle file URI
                     return it.path ?: "/storage/emulated/0/"
                 }
 
@@ -127,7 +118,7 @@ object PathUtils {
                 }
             }
         } catch (e: Exception) {
-            // Log the exception or handle it as needed
+            e.printStackTrace()
         }
         return null
     }
@@ -155,7 +146,7 @@ object PathUtils {
                 }
             }
         } catch (e: Exception) {
-            // Log the exception or handle it as needed
+            e.printStackTrace()
         }
         return null
     }

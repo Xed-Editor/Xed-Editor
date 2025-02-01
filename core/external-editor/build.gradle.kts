@@ -41,7 +41,11 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation(project(":core:editor"))
+    //implementation(project(":core:editor"))
+
+    implementation(libs.editor)
+    implementation(libs.language.textmate)
+
     implementation(project(":core:commons"))
     implementation(project(":core:runner"))
     implementation(project(":core:resources"))

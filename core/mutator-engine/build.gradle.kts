@@ -37,7 +37,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation("app.cash.quickjs:quickjs-android:0.9.2")
+    implementation(libs.quickjs.android)
     implementation(project(":core:commons"))
 
 }

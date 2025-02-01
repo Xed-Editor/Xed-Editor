@@ -23,9 +23,7 @@ import java.nio.charset.Charset
 @Suppress("NOTHING_TO_INLINE")
 class KarbonEditor : CodeEditor {
     constructor(context: Context) : super(context)
-    
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    
     constructor(
         context: Context,
         attrs: AttributeSet,
@@ -43,13 +41,18 @@ class KarbonEditor : CodeEditor {
             else -> PreferencesData.isDarkMode(context)
         }
 
-        val color = if (darkTheme){Color.BLACK}else{
+        val color = if(darkTheme){
+            Color.BLACK
+        }else{
             Color.WHITE
         }
 
         colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, color)
+        colorScheme.setColor(EditorColorScheme.COMPLETION_WND_BACKGROUND,color)
+        colorScheme.setColor(EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,color)
+        colorScheme.setColor(EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,color)
     }
     
     

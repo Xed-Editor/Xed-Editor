@@ -63,8 +63,9 @@ class SimpleEditor : AppCompatActivity() {
         supportActionBar!!.setDisplayShowTitleEnabled(false)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        
-        editor!!.subscribeAlways(ContentChangeEvent::class.java) {
+
+
+        editor!!.subscribeEvent(ContentChangeEvent::class.java) { _,_ ->
             if (redo != null) {
                 redo!!.setEnabled(editor!!.canRedo())
                 undo!!.setEnabled(editor!!.canUndo())

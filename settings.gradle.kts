@@ -10,6 +10,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven { url = uri("https://jitpack.io")}
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
@@ -23,6 +24,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io")}
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
@@ -31,10 +33,6 @@ dependencyResolutionManagement {
 rootProject.name = "Xed-Editor"
 include(":app")
 include(":core:main")
-
-include(":core:editor")
-include(":core:editor-lsp")
-include(":core:language-textmate")
 include(":core:runner")
 include(":core:filetree")
 include(":core:settings")

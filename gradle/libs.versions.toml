@@ -69,11 +69,13 @@ commons-net = { module = "commons-net:commons-net", version.ref = "commonsNet" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+editor = { module = "io.github.Rosemoe.sora-editor:editor",version = "0.23.5-59a882e-SNAPSHOT" }
 eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
 foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 ktsh = { module = "com.jaredrummler:ktsh", version.ref = "ktsh" }
+language-textmate = { module = "io.github.Rosemoe.sora-editor:language-textmate",version = "0.23.5-3685286-SNAPSHOT" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Ui" }

@@ -40,7 +40,8 @@ class SearchPanel(val root: ViewGroup, editor: KarbonEditor) {
 
         view.findViewById<Button>(R.id.btn_replace).setOnClickListener {
             if (isSearching) {
-                searcher.replaceCurrentMatch(replaceEditText.text.toString())
+                searcher.replaceThis(replaceEditText.text.toString())
+               // searcher.replaceCurrentMatch(replaceEditText.text.toString())
             }
             
         }

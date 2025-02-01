@@ -9,21 +9,10 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.R
-import io.github.rosemoe.sora.interfaces.KeyEventHandler
 import io.github.rosemoe.sora.widget.EditorKeyEventHandler
 import kotlinx.coroutines.launch
 
 object KeyEventHandler {
-
-    init {
-        EditorKeyEventHandler.userKeyEventHandler =
-            KeyEventHandler { isProcessedByEditor, editor, event, editorKeyEvent, keybindingEvent, keyCode, isShiftPressed, isAltPressed, isCtrlPressed ->
-                if (event != null) {
-                    onAppKeyEvent(event)
-                }
-                isProcessedByEditor
-            }
-    }
 
     private var lastCallTime = 0L
     fun onAppKeyEvent(keyEvent: KeyEvent) {
