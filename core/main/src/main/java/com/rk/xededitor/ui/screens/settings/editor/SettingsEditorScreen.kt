@@ -116,7 +116,7 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(strings.restore_sessions),
                 description = stringResource(strings.restore_sessions_desc),
-                default = false,
+                default = true,
                 key = PreferencesKeys.RESTORE_SESSIONS
             )
 

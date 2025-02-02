@@ -11,6 +11,6 @@ class CustomScope : CoroutineScope {
     override val coroutineContext: CoroutineContext get() = Dispatchers.Default + job + CoroutineName("CustomScope")
     
     fun cancel() {
-        runCatching { job.cancel() }.onFailure { it.printStackTrace() }
+        job.cancel()
     }
 }

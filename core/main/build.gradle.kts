@@ -138,14 +138,12 @@ dependencies {
     api(project(":core:settings"))
     api(project(":core:commons"))
     api(project(":core:components"))
-    //api(project(":core:editor"))
-    //api(project(":core:external-editor"))
-    //api(project(":core:language-textmate"))
+    api(project(":core:editor"))
+//    api(project(":core:external-editor"))
+    api(project(":core:language-textmate"))
     api(project(":core:resources"))
     api(project(":core:karbon-exec"))
     api(project(":core:mutator-engine"))
     api(project(":core:extension"))
-    api(libs.editor)
-    api(libs.language.textmate)
 
 }

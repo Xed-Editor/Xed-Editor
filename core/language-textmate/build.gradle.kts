@@ -64,7 +64,7 @@ android {
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-    //compileOnly(project(":core:editor"))
+    compileOnly(project(":core:editor"))
     implementation(libs.gson)
     implementation(libs.jcodings)
     implementation(libs.joni)

@@ -115,6 +115,7 @@ class Printer(private val context: Context, private val content: String) : Print
     }
 
     companion object {
+        @JvmStatic
         fun print(context: Context, text: String) {
             val printManager = context.getSystemService(Context.PRINT_SERVICE) as? PrintManager
             val jobName = "PrintJob"

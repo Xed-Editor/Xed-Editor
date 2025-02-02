@@ -17,6 +17,18 @@ fun postIO(block: suspend CoroutineScope.() -> Unit) {
     GlobalScope.launch(Dispatchers.IO, block = block)
 }
 
+suspend fun IO(block: suspend CoroutineScope.() -> Unit){
+    withContext(Dispatchers.IO,block)
+}
+
+suspend fun Default(block: suspend CoroutineScope.() -> Unit){
+    withContext(Dispatchers.Default,block)
+}
+
+suspend fun UI(block: suspend CoroutineScope.() -> Unit){
+    withContext(Dispatchers.Main,block)
+}
+
 inline fun runOnUiThread(runnable: Runnable) {
     Handler(Looper.getMainLooper()).post(runnable)
 }

@@ -454,7 +454,8 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun setChangeListener() {
-        editor!!.subscribeEvent(ContentChangeEvent::class.java) { _,_ ->
+        editor!!.subscribeAlways(ContentChangeEvent::class.java) {
+
             scope.launch {
                 GlobalScope.launch(Dispatchers.IO) {
                     val text = withContext(Dispatchers.Main) { editor?.text.toString() }
