@@ -26,6 +26,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -179,31 +180,20 @@ class EditorFragment(val context: Context) : CoreFragment {
 
 
     object FilesContent {
-        private val sharedPreferences =
-            application!!.getSharedPreferences("fileState", Context.MODE_PRIVATE)
-        private val mutex = Mutex()
         suspend fun containsKey(key: String): Boolean {
-            mutex.withLock {
-                return sharedPreferences.contains(key)
-            }
+            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key) ?: false
         }
 
-        suspend fun getContent(key: String): String {
-            mutex.withLock {
-                return sharedPreferences.getString(key, "").toString()
-            }
+        suspend fun getContent(key: String): Content? {
+            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.get(key)
         }
 
-        suspend fun setContent(key: String, content: String) {
-            mutex.withLock {
-                sharedPreferences.edit().putString(key, content).commit()
-            }
+        suspend fun setContent(key: String, content: Content) {
+            MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.put(key,content)
         }
 
         suspend fun remove(key: String) {
-            mutex.withLock {
-                sharedPreferences.edit().remove(key).commit()
-            }
+            MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.remove(key)
         }
 
     }
@@ -233,7 +223,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                             )
                             FilesContent.setContent(
                                 this@EditorFragment.file!!.getAbsolutePath(),
-                                editor!!.text.toString()
+                                editor!!.text
                             )
                             isFileLoaded = true
                             /*
@@ -452,19 +442,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         return 2 >= t && isFileLoaded
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun setChangeListener() {
-        editor!!.subscribeAlways(ContentChangeEvent::class.java) {
-
+    private fun setChangeListener() = editor!!.subscribeAlways(ContentChangeEvent::class.java) {
             scope.launch {
-                GlobalScope.launch(Dispatchers.IO) {
-                    val text = withContext(Dispatchers.Main) { editor?.text.toString() }
-                    if (text.isBlank().not()) {
-                        mutex.withLock {
-                            FilesContent.setContent(file!!.getAbsolutePath(), text)
-                        }
-                    }
-                }
                 updateUndoRedo()
 
                 if (t < 2) {
@@ -502,7 +481,7 @@ class EditorFragment(val context: Context) : CoreFragment {
                 }
             }
         }
-    }
+
 
 
 }

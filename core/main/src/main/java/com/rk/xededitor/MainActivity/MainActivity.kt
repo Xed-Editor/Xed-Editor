@@ -49,6 +49,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
+import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -97,6 +98,8 @@ class MainActivity : BaseActivity() {
         var fragmentTypes = mutableListOf<FragmentType>()
         var fragmentTitles = mutableListOf<String>()
         var fileSet = HashSet<String>()
+        var fragmentContent = hashMapOf<String,Content?>()
+
         private var _isRestoring = false
         val isRestoring:Boolean
             get() = _isRestoring
