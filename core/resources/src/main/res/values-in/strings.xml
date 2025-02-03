@@ -124,7 +124,7 @@
     <string name="permission_denied">Izin Ditolak</string>
     <string name="done">Berhasil</string>
     <string name="git_branch">Cabang. Contoh: main</string>
-    <string name="git_commit_msg">Komit pesan</string>
+    <string name="git_commit_msg">Pesan Komit</string>
     <string name="push">Dorong</string>
     <string name="pull">Tarik</string>
     <string name="pull_desc">Menyinkronkan repositori lokal dengan repositori jarak jauh</string>
@@ -148,10 +148,10 @@
     <string name="open_path">Penyimpanan Internal</string>
     <string name="open_path_desc">Membuka penyimpanan internal</string>
     <string name="clone_repo_desc">Repositori kloning menggunakan Git</string>
-    <string name="add">tambahkan</string>
+    <string name="add">Tambahkan</string>
     <string name="already_opened">File sudah dibuka</string>
     <string name="open_cant">Tidak dapat membuka lebih dari</string>
-    <string name="files">file</string>
+    <string name="files">File</string>
     <string name="manage_plugins">Mengelola Plugin</string>
     <string name="installed">Terpasang</string>
     <string name="already_installed">Sudah Terinstal</string>
@@ -276,7 +276,7 @@
     <string name="encoding_warning">Mengubah pengodean default sangat tidak disarankan, karena dapat menyebabkan kerusakan file. Sangat disarankan untuk menggunakan UTF-8 kecuali jika Anda benar-benar memahami implikasinya dan telah membuat cadangan yang tepat.</string>
     <string name="line_spacing">Jarak Baris</string>
     <string name="line_spacing_multiplier">Pengganda Jarak Baris</string>
-    <string name="available">tersedia</string>
+    <string name="available">Tersedia</string>
     <string name="editor_font">Font editor</string>
     <string name="drawer_lock_desc">Jaga agar laci tetap terkunci saat membuka file</string>
     <string name="wait_download">Harap tunggu sementara file sedang diunduh.</string>
