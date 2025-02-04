@@ -18,7 +18,7 @@
     <string name="open_file_desc">Scegli un file per modificarlo direttamente</string>
     <string name="download_sure">Sei sicuro di voler scaricare</string>
     <string name="themes">Temi</string>
-    <string name="open_directory">Apri una cartella</string>
+    <string name="open_directory">Apri una Cartella</string>
     <string name="cred">Credenziali</string>
     <string name="save_label">Salva</string>
     <string name="copy">Copia</string>
@@ -42,8 +42,8 @@
     <string name="save">File salvato</string>
     <string name="saveAll">tutti i file sono stati salvati</string>
     <string name="ww_wait">Per favore attendi che il testo sia mandato a capo automaticamente</string>
-    <string name="open_file_or_folder">Apri file o cartella</string>
-    <string name="open_file">Apri un file</string>
+    <string name="open_file_or_folder">Apri File o Cartella</string>
+    <string name="open_file">Apri un File</string>
     <string name="new_file">Nuovo file</string>
     <string name="newFile_hint">Nome es. Test.txt</string>
     <string name="mime">Mime type es. text/plain</string>
@@ -359,4 +359,7 @@
     <string name="scroll_to_bottom">Scorri in basso</string>
     <string name="loading">Caricamento…</string>
     <string name="scroll_to_bottom_desc">Scorri in basso all\'apertura di un file</string>
+    <string name="experimental_feature">Funzioni Sperimentali</string>
+    <string name="experimental_session_restore_warning">Questa Funzionalità è sperimentale e si è a conoscenza che potrebbe causare perdita di dati</string>
+    <string name="highlighting">Evidenziazione Sintassi</string>
 </resources>
