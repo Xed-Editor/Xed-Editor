@@ -41,7 +41,7 @@ fun SettingsGitScreen() {
     val context = LocalContext.current
     val activity = LocalActivity.current
 
-    var isNotGithub by remember { mutableStateOf(true) }
+    var isGithub by remember { mutableStateOf(true) }
 
     var username by remember { mutableStateOf("root") }
     var email by remember { mutableStateOf("example@mail.com") }
@@ -69,6 +69,7 @@ fun SettingsGitScreen() {
         inputEmail = gitConfig.second
         inputUserName = gitConfig.first
         inputToken = token
+        isGithub = PreferencesData.getBoolean(PreferencesKeys.GITHUB, true)
 
         isLoading = false
     }
@@ -85,9 +86,9 @@ fun SettingsGitScreen() {
                     label = stringResource(strings.github),
                     description = stringResource(strings.use_github_url),
                     default = true,
-                    key = PreferencesKeys.NOTGITHUB,
+                    key = PreferencesKeys.GITHUB,
                     sideEffect = {
-                        isNotGithub = it.not()
+                        isGithub = it
                     }
                 )
 
@@ -112,7 +113,7 @@ fun SettingsGitScreen() {
                         showTokenDialog = true
                     })
 
-                if (isNotGithub){
+                if (!isGithub){
                     SettingsToggle(
                         label = stringResource(strings.custom_git_url),
                         description = gitUrl,
@@ -122,6 +123,7 @@ fun SettingsGitScreen() {
                         }
                     )
                 }
+
             }
 
 

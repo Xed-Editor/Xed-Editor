@@ -125,22 +125,22 @@
                 <menu>
                     <item
                         android:id="@+id/action_push"
-                        android:icon="@drawable/github"
+                        android:icon="@drawable/git"
                         android:title="Push"
                         app:showAsAction="never" />
                     <item
                         android:id="@+id/action_pull"
-                        android:icon="@drawable/github"
+                        android:icon="@drawable/git"
                         android:title="Pull"
                         app:showAsAction="never" />
                     <item
                         android:id="@+id/action_commit"
-                        android:icon="@drawable/github"
+                        android:icon="@drawable/git"
                         android:title="Commit"
                         app:showAsAction="never" />
                     <item
                         android:id="@+id/action_branch"
-                        android:icon="@drawable/github"
+                        android:icon="@drawable/git"
                         android:title="Branch : "
                         app:showAsAction="never" />
 
