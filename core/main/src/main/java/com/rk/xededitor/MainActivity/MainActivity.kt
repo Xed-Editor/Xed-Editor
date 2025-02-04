@@ -289,18 +289,23 @@ class MainActivity : BaseActivity() {
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
         var order = 0
-        Mutators.getMutators().forEach {
+        Mutators.getMutators().forEach { mut ->
             menu.findItem(R.id.tools).subMenu?.add(
-                1, it.hashCode(), order, it.name
-            )?.apply { icon = tool;order++;toolItems.add(it.hashCode())
-                DefaultScope.launch {
-                    Engine(it.script, DefaultScope).start(onResult = { engine, result ->
-                        println(result)
-                    }, onError = { t ->
-                        t.printStackTrace()
-                        rkUtils.toast(t.message)
-                    }, api = ImplAPI::class.java)
+                1, mut.hashCode(), order, mut.name
+            )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
+                println(mut.name + "called")
+                setOnMenuItemClickListener {
+                    DefaultScope.launch {
+                        Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
+                            println(result)
+                        }, onError = { t ->
+                            t.printStackTrace()
+                            rkUtils.toast(t.message)
+                        }, api = ImplAPI::class.java)
+                    }
+                    false
                 }
+
 
             }
         }
