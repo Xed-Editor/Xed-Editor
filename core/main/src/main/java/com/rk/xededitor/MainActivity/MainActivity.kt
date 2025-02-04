@@ -30,9 +30,11 @@ import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.scriptingengine.Engine
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import com.rk.xededitor.BaseActivity
@@ -47,6 +49,7 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.rkUtils
+import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -270,6 +273,18 @@ class MainActivity : BaseActivity() {
             menu.setOptionalIconsVisible(true)
         }
 
+        menu.findItem(R.id.select_highlighting).subMenu?.apply {
+            var order = 0
+            textmateSources.forEach { (ext, sourceName) ->
+                add(1,sourceName.hashCode(),order,ext).setOnMenuItemClickListener {
+                    (adapter?.getCurrentFragment()?.fragment as? EditorFragment)?.apply {
+                        scope.launch { setupEditor?.setLanguage(sourceName) }
+                    }
+                    false }
+                order++
+            }
+        }
+
         menu.findItem(R.id.action_add).isVisible = true
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
@@ -277,7 +292,17 @@ class MainActivity : BaseActivity() {
         Mutators.getMutators().forEach {
             menu.findItem(R.id.tools).subMenu?.add(
                 1, it.hashCode(), order, it.name
-            )?.icon = tool;order++;toolItems.add(it.hashCode())
+            )?.apply { icon = tool;order++;toolItems.add(it.hashCode())
+                DefaultScope.launch {
+                    Engine(it.script, DefaultScope).start(onResult = { engine, result ->
+                        println(result)
+                    }, onError = { t ->
+                        t.printStackTrace()
+                        rkUtils.toast(t.message)
+                    }, api = ImplAPI::class.java)
+                }
+
+            }
         }
 
         return true

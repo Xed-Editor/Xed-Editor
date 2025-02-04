@@ -45,7 +45,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     private var constraintLayout: ConstraintLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout: LinearLayout
-    private lateinit var setupEditor: SetupEditor
+    var setupEditor: SetupEditor? = null
 
 
     fun showArrowKeys(yes: Boolean) {
@@ -95,7 +95,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                 ConstraintLayout.LayoutParams.WRAP_CONTENT
             )
             isHorizontalScrollBarEnabled = false
-            addView(setupEditor.getInputView())
+
+            addView(setupEditor!!.getInputView())
         }
 
         searchLayout = SearchPanel(constraintLayout!!, editor!!).view
@@ -260,7 +261,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
                 launch {
                     runCatching {
-                        setupEditor.setupLanguage(this@EditorFragment.file!!.getName())
+                        setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
                     }.onFailure {
                         it.printStackTrace()
                         rkUtils.toast(it.message)

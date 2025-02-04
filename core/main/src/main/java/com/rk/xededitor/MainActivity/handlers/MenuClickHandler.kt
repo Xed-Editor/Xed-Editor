@@ -128,6 +128,8 @@ object MenuClickHandler {
                 return true
             }
 
+            //garbage code
+
             Id.search -> {
                 // Handle search
 
@@ -331,13 +333,6 @@ object MenuClickHandler {
                 }
 
 
-            }
-
-            else -> return if (activity.toolItems.contains(menuItem.itemId)) {
-                Mutators.run(menuItem.itemId)
-                true
-            } else {
-                false
             }
 
         }

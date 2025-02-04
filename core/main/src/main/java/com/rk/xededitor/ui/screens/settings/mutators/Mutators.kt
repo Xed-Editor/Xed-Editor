@@ -107,19 +107,4 @@ object Mutators {
         }
     }
 
-    fun run(id: Int) {
-        DefaultScope.launch {
-            mutators.forEach { mut ->
-                if (mut.hashCode() == id) {
-                    Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
-                        println(result)
-                    }, onError = { t ->
-                        t.printStackTrace()
-                        rkUtils.toast(t.message)
-                    }, api = ImplAPI::class.java)
-                    return@launch
-                }
-            }
-        }
-    }
 }

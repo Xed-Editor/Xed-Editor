@@ -53,6 +53,7 @@ private suspend fun updateEditor(
         findItem(Id.saveAs).isVisible = show
         findItem(Id.refreshEditor).isVisible = show
         findItem(Id.tools).isVisible = show
+        findItem(Id.select_highlighting).isVisible = show
     }
 
     val file = fragment?.file as? FileWrapper

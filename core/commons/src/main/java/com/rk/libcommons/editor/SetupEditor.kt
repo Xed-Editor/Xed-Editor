@@ -49,6 +49,43 @@ import java.io.InputStreamReader
 
 private typealias onClick = OnClickListener
 
+val textmateSources = hashMapOf(
+    "java" to "source.java",
+    "bsh" to "source.java",
+    "html" to "text.html.basic",
+    "htmx" to "text.html.htmx",
+    "kt" to "source.kotlin",
+    "kts" to "source.kotlin",
+    "py" to "source.python",
+    "nim" to "source.nim",
+    "xml" to "text.xml",
+    "js" to "source.js",
+    "ts" to "source.ts",
+    "tsx" to "source.tsx",
+    "jsx" to "source.js.jsx",
+    "md" to "text.html.markdown",
+    "c" to "source.c",
+    "cpp" to "source.cpp",
+    "h" to "source.cpp",
+    "json" to "source.json",
+    "css" to "source.css",
+    "cs" to "source.cs",
+    "csx" to "source.cs",
+    "yml" to "source.yaml",
+    "yaml" to "source.yaml",
+    "cff" to "source.yaml",
+    "sh" to "source.shell",
+    "bash" to "source.shell",
+    "rs" to "source.rust",
+    "lua" to "source.lua",
+    "php" to "source.php",
+    "smali" to "source.smali",
+    "v" to "source.coq",
+    "coq" to "source.coq",
+    "properties" to "source.java-properties"
+)
+
+
 suspend fun KarbonEditor.applySettings(){
     withContext(Dispatchers.IO){
         val tabSize = Settings.getString(SettingsKey.TAB_SIZE, "4").toInt()
@@ -120,33 +157,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
 
     suspend fun setupLanguage(fileName: String) {
-        when (fileName.substringAfterLast('.', "").trim()) {
-            "java", "bsh" -> setLanguage("source.java")
-            "html" -> setLanguage("text.html.basic")
-            "htmx" -> setLanguage("text.html.htmx")
-            "kt", "kts" -> setLanguage("source.kotlin")
-            "py" -> setLanguage("source.python")
-            "nim" -> setLanguage("source.nim")
-            "xml" -> setLanguage("text.xml")
-            "js" -> setLanguage("source.js")
-            "ts" -> setLanguage("source.ts")
-            "tsx" -> setLanguage("source.tsx")
-            "jsx" -> setLanguage("source.js.jsx")
-            "md" -> setLanguage("text.html.markdown")
-            "c" -> setLanguage("source.c")
-            "cpp", "h" -> setLanguage("source.cpp")
-            "json" -> setLanguage("source.json")
-            "css" -> setLanguage("source.css")
-            "cs","csx" -> setLanguage("source.cs")
-            "yml", "yaml", "cff" -> setLanguage("source.yaml")
-            "sh", "bash" -> setLanguage("source.shell")
-            "rs" -> setLanguage("source.rust")
-            "lua" -> setLanguage("source.lua")
-            "php" -> setLanguage("source.php")
-            "smali" -> setLanguage("source.smali")
-            "v", "coq" -> setLanguage("source.coq")
-            "properties" -> setLanguage("source.java-properties")
-        }
+        textmateSources[fileName.substringAfterLast('.', "").trim()]?.let { setLanguage(it) }
     }
 
     companion object {
@@ -284,7 +295,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         }
     }
 
-    private suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO){
+     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO){
         waitForInit()
 
         syntaxJob?.let { if (it.isCompleted.not()) { it.join() } }

@@ -397,4 +397,6 @@
     <string name="experimental_feature">Experimental Feature</string>
     <string name="experimental_session_restore_warning">This Feature is experimental and known to sometimes cause loss of data</string>
 
+    <string name="highlighting">Syntax Highlighting</string>
+
 </resources>

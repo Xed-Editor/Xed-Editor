@@ -110,6 +110,16 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/select_highlighting"
+        android:icon="@drawable/edit"
+        android:title="@string/highlighting"
+        android:visible="false"
+        app:showAsAction="never">
+        <menu />
+    </item>
+
+
+    <item
         android:id="@+id/tools"
         android:icon="@drawable/extension"
         android:title="@string/tools"
