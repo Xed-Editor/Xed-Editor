@@ -2,14 +2,13 @@ package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
 import com.rk.file.FileWrapper
-import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -97,8 +96,8 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = if (PreferencesData.getString(
-                        PreferencesKeys.TERMINAL_RUNTIME, "Alpine"
+                args = if (Settings.getString(
+                        SettingsKey.TERMINAL_RUNTIME, "Alpine"
                     ) == "Android"
                 ) {
                     arrayOf()

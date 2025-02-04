@@ -5,8 +5,8 @@ import android.content.Context
 import android.content.res.Resources
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.R
 
 /**
@@ -23,8 +23,8 @@ object ThemeManager {
      */
     fun apply(activity: Activity) {
         val nightMode =
-            PreferencesData.getString(
-                    PreferencesKeys.DEFAULT_NIGHT_MODE,
+            Settings.getString(
+                    SettingsKey.DEFAULT_NIGHT_MODE,
                     AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString(),
                 )
                 .toInt()
@@ -35,15 +35,15 @@ object ThemeManager {
         }
 
         // apply OLED theme if dark mode and OLED setting is enable
-        if (PreferencesData.isDarkMode(activity) && PreferencesData.isOled()) {
-            if (PreferencesData.isMonet()) {
+        if (Settings.isDarkMode(activity) && Settings.isOled()) {
+            if (Settings.isMonet()) {
                 activity.setTheme(R.style.Theme_Karbon_Oled_Monet)
                 return
             }
             activity.setTheme(R.style.Theme_Karbon_Oled)
             return
         }
-        if (PreferencesData.isMonet()) DynamicColors.applyToActivityIfAvailable(activity)
+        if (Settings.isMonet()) DynamicColors.applyToActivityIfAvailable(activity)
     }
 
     /**

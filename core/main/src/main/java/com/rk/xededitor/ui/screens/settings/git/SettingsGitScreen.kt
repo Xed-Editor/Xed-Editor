@@ -1,7 +1,6 @@
 package com.rk.xededitor.ui.screens.settings.git
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.util.Patterns
 import android.view.WindowManager
@@ -24,8 +23,8 @@ import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.rkUtils.toastIt
 import com.rk.xededitor.ui.components.InputDialog
@@ -69,7 +68,7 @@ fun SettingsGitScreen() {
         inputEmail = gitConfig.second
         inputUserName = gitConfig.first
         inputToken = token
-        isGithub = PreferencesData.getBoolean(PreferencesKeys.GITHUB, true)
+        isGithub = Settings.getBoolean(SettingsKey.GITHUB, true)
 
         isLoading = false
     }
@@ -86,7 +85,7 @@ fun SettingsGitScreen() {
                     label = stringResource(strings.github),
                     description = stringResource(strings.use_github_url),
                     default = true,
-                    key = PreferencesKeys.GITHUB,
+                    key = SettingsKey.GITHUB,
                     sideEffect = {
                         isGithub = it
                     }
@@ -142,7 +141,7 @@ fun SettingsGitScreen() {
                         runCatching {
                             updateConfig(context, username,inputGitUrl)
                             gitUrl = inputGitUrl
-                            PreferencesData.setString(PreferencesKeys.GIT_URL,gitUrl)
+                            Settings.setString(SettingsKey.GIT_URL,gitUrl)
                             updateCredentials(context,username,token,inputGitUrl)
                         }.onFailure { rkUtils.toast(it.message) }
                         showGithubUrlDialog = false
@@ -294,7 +293,7 @@ private inline fun isValidEmail(email: String): Boolean {
 
 suspend fun getToken(context: Context): String {
     return withContext(Dispatchers.IO) {
-        val gitUrl = PreferencesData.getString(PreferencesKeys.GIT_URL,"github.com")
+        val gitUrl = Settings.getString(SettingsKey.GIT_URL,"github.com")
         val cred = alpineHomeDir().child(".git-credentials")
         if (cred.exists()) {
             val regex = """https://([^:]+):([^@]+)@$gitUrl""".toRegex()

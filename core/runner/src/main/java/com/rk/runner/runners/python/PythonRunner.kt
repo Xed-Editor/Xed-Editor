@@ -10,8 +10,8 @@ import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import java.io.File
 
 class PythonRunner : RunnerImpl {
@@ -21,7 +21,7 @@ class PythonRunner : RunnerImpl {
             py.writeText(context.assets.open("terminal/python.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME,"Alpine")
+        val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
         when(runtime){
             "Alpine","Android" -> {
                 launchInternalTerminal(

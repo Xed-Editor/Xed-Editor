@@ -1,7 +1,7 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -29,14 +29,14 @@ object AutoSaver {
                 }
                 try {
                     // Get the auto-save delay from preferences or use the default
-                    val delayTime = PreferencesData.getString(
-                        PreferencesKeys.AUTO_SAVE_TIME_VALUE,
+                    val delayTime = Settings.getString(
+                        SettingsKey.AUTO_SAVE_TIME_VALUE,
                         DEFAULT_DELAY_MS.toString()
                     ).toLongOrNull() ?: DEFAULT_DELAY_MS
 
                     delay(delayTime)
 
-                    if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
+                    if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
                         saveAllEditorFragments()
                     }
                 } catch (e: Exception) {

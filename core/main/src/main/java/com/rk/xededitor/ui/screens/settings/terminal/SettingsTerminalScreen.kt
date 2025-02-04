@@ -3,7 +3,6 @@ package com.rk.xededitor.ui.screens.settings.terminal
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -14,7 +13,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,8 +28,8 @@ import com.rk.karbon_exec.isTermuxInstalled
 import com.rk.karbon_exec.testExecPermission
 import com.rk.libcommons.DefaultScope
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
@@ -135,7 +133,7 @@ fun TerminalRuntime(
 
     var selectedType by remember {
         mutableStateOf(
-            PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME, RuntimeType.ALPINE.type)
+            Settings.getString(SettingsKey.TERMINAL_RUNTIME, RuntimeType.ALPINE.type)
         )
     }
 
@@ -162,8 +160,8 @@ fun TerminalRuntime(
                         PreferenceTemplate(title = { Text(text = mode) },
                             modifier = Modifier.clickable {
                                 selectedType = mode
-                                PreferencesData.setString(
-                                    PreferencesKeys.TERMINAL_RUNTIME, selectedType
+                                Settings.setString(
+                                    SettingsKey.TERMINAL_RUNTIME, selectedType
                                 )
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;

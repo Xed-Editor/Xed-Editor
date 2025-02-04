@@ -25,8 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.rkUtils
@@ -40,7 +40,7 @@ import java.io.FileOutputStream
 fun EditorFontScreen(modifier: Modifier = Modifier) {
     PreferenceLayout(label = stringResource(strings.fonts), backArrowVisible = true) {
         PreferenceGroup {
-            val selectedFontP = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
+            val selectedFontP = Settings.getString(SettingsKey.SELECTED_FONT_PATH, "")
             val selectedFontCompose = remember {
                 mutableStateOf(
                     if (selectedFontP.isEmpty()) {
@@ -95,8 +95,8 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                         interactionSource = interactionSource,
                     ) {
                         //onCLick
-                        PreferencesData.setString(PreferencesKeys.SELECTED_FONT_PATH, font.pathOrAsset)
-                        PreferencesData.setBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, font.isAsset)
+                        Settings.setString(SettingsKey.SELECTED_FONT_PATH, font.pathOrAsset)
+                        Settings.setBoolean(SettingsKey.IS_SELECTED_FONT_ASSEST, font.isAsset)
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
                             f.get()?.let { ff ->
                                 if (ff.fragment is EditorFragment) {

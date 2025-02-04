@@ -8,14 +8,14 @@ import com.rk.karbon_exec.runBashScript
 import com.rk.libcommons.TerminalCommand
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import java.io.File
 
 class ShellRunner : RunnerImpl {
     override fun run(file: File, context: Context) {
 
-        val runtime = PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME,"Alpine")
+        val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
         when(runtime){
             "Android" -> {
                 launchInternalTerminal(
@@ -52,11 +52,11 @@ class ShellRunner : RunnerImpl {
     }
 
     override fun getName(): String {
-        return PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME,"Alpine")
+        return Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
     }
 
     override fun getDescription(): String {
-        return PreferencesData.getString(PreferencesKeys.TERMINAL_RUNTIME,"Alpine")
+        return Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
     }
 
     override fun getIcon(context: Context): Drawable? {

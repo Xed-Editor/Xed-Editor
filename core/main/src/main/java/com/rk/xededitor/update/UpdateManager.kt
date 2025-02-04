@@ -5,8 +5,8 @@ import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.rkUtils
@@ -27,11 +27,11 @@ object UpdateManager {
     fun fetch(branch: String) {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                if (PreferencesData.getBoolean(PreferencesKeys.CHECK_UPDATE, false).not()) {
+                if (Settings.getBoolean(SettingsKey.CHECK_UPDATE, false).not()) {
                     return@launch
                 }
                 
-                val lastUpdate = PreferencesData.getString(PreferencesKeys.LAST_UPDATE_CHECK, "0").toLong()
+                val lastUpdate = Settings.getString(SettingsKey.LAST_UPDATE_CHECK, "0").toLong()
                 val timeDifferenceInMillis = if (lastUpdate > 0) {
                     (lastUpdate - System.currentTimeMillis()) * 1000
                 } else {
@@ -57,7 +57,7 @@ object UpdateManager {
                         parseJson(jsonResponse)
                     }
                 }
-                PreferencesData.setString(PreferencesKeys.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
+                Settings.setString(SettingsKey.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
             } catch (e: Exception) {
                 e.printStackTrace()
                 rkUtils.toast(e.message)
@@ -102,7 +102,7 @@ object UpdateManager {
                             context.startActivity(intent)
                         }
                         setNegativeButton(strings.ignore.getString()){ _,_ ->
-                            PreferencesData.setBoolean(PreferencesKeys.CHECK_UPDATE, false)
+                            Settings.setBoolean(SettingsKey.CHECK_UPDATE, false)
                             rkUtils.toast(strings.update_disable.getString())
                         }
                         setCancelable(false)

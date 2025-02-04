@@ -8,8 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.application
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
@@ -35,12 +35,12 @@ class KarbonEditor : CodeEditor {
     val scope = CustomScope()
 
     init{
-        val darkTheme: Boolean = when (PreferencesData.getString(
-            PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
+        val darkTheme: Boolean = when (Settings.getString(
+            SettingsKey.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> PreferencesData.isDarkMode(context)
+            else -> Settings.isDarkMode(context)
         }
 
         val color = if (darkTheme){Color.BLACK}else{

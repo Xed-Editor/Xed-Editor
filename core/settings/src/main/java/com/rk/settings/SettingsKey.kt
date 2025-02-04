@@ -1,6 +1,6 @@
 package com.rk.settings
 
-object PreferencesKeys {
+object SettingsKey {
     const val PIN_LINE_NUMBER = "pinline"
     const val WORD_WRAP_ENABLED = "wordwrap"
     const val TAB_SIZE = "tabsize"

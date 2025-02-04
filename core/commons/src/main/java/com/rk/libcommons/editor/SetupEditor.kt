@@ -12,16 +12,13 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
-import com.rk.libcommons.editor.SetupEditor.Companion.applyFont
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastIt
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -40,10 +37,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -57,19 +51,19 @@ private typealias onClick = OnClickListener
 
 suspend fun KarbonEditor.applySettings(){
     withContext(Dispatchers.IO){
-        val tabSize = PreferencesData.getString(PreferencesKeys.TAB_SIZE, "4").toInt()
-        val pinLineNumber = PreferencesData.getBoolean(PreferencesKeys.PIN_LINE_NUMBER, false)
-        val showLineNumber = PreferencesData.getBoolean(PreferencesKeys.SHOW_LINE_NUMBERS, true)
-        val cursorAnimation = PreferencesData.getBoolean(PreferencesKeys.CURSOR_ANIMATION_ENABLED, false)
-        val textSize = PreferencesData.getString(PreferencesKeys.TEXT_SIZE, "14").toFloat()
-        val wordWrap = PreferencesData.getBoolean(PreferencesKeys.WORD_WRAP_ENABLED, false)
-        val keyboardSuggestion = PreferencesData.getBoolean(PreferencesKeys.SHOW_SUGGESTIONS, false)
-        val always_show_soft_keyboard = PreferencesData.getBoolean(PreferencesKeys.ALWAYS_SHOW_SOFT_KEYBOARD,false)
-        val lineSpacing = PreferencesData.getString(
-            PreferencesKeys.LINE_SPACING, lineSpacingExtra.toString()
+        val tabSize = Settings.getString(SettingsKey.TAB_SIZE, "4").toInt()
+        val pinLineNumber = Settings.getBoolean(SettingsKey.PIN_LINE_NUMBER, false)
+        val showLineNumber = Settings.getBoolean(SettingsKey.SHOW_LINE_NUMBERS, true)
+        val cursorAnimation = Settings.getBoolean(SettingsKey.CURSOR_ANIMATION_ENABLED, false)
+        val textSize = Settings.getString(SettingsKey.TEXT_SIZE, "14").toFloat()
+        val wordWrap = Settings.getBoolean(SettingsKey.WORD_WRAP_ENABLED, false)
+        val keyboardSuggestion = Settings.getBoolean(SettingsKey.SHOW_SUGGESTIONS, false)
+        val always_show_soft_keyboard = Settings.getBoolean(SettingsKey.ALWAYS_SHOW_SOFT_KEYBOARD,false)
+        val lineSpacing = Settings.getString(
+            SettingsKey.LINE_SPACING, lineSpacingExtra.toString()
         ).toFloat()
-        val lineMultiplier = PreferencesData.getString(
-            PreferencesKeys.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
+        val lineMultiplier = Settings.getString(
+            SettingsKey.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
         ).toFloat()
 
         withContext(Dispatchers.Main){
@@ -272,10 +266,10 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         }
 
         fun applyFont(editor: CodeEditor) {
-            val fontPath = PreferencesData.getString(PreferencesKeys.SELECTED_FONT_PATH, "")
+            val fontPath = Settings.getString(SettingsKey.SELECTED_FONT_PATH, "")
             if (fontPath.isNotEmpty()) {
                 val isAsset =
-                    PreferencesData.getBoolean(PreferencesKeys.IS_SELECTED_FONT_ASSEST, false)
+                    Settings.getBoolean(SettingsKey.IS_SELECTED_FONT_ASSEST, false)
                 if (isAsset) {
                     editor.typefaceText = Typeface.createFromAsset(editor.context.assets, fontPath)
                 } else {
@@ -318,23 +312,23 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
     private suspend fun ensureTextmateTheme(ctx: Context) {
         waitForInit()
-        val darkTheme: Boolean = when (PreferencesData.getString(
-            PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
+        val darkTheme: Boolean = when (Settings.getString(
+            SettingsKey.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> PreferencesData.isDarkMode(ctx)
+            else -> Settings.isDarkMode(ctx)
         }
 
         val themeRegistry = when {
-            darkTheme && PreferencesData.isOled() -> oledThemeRegistry
+            darkTheme && Settings.isOled() -> oledThemeRegistry
             darkTheme -> darkThemeRegistry
             else -> lightThemeRegistry
         }
 
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
-            if (PreferencesData.isDarkMode(ctx) && PreferencesData.isOled()) {
+            if (Settings.isDarkMode(ctx) && Settings.isOled()) {
                 editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
             withContext(Dispatchers.Main) {
@@ -345,12 +339,12 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
 
     fun getInputView(): SymbolInputView {
-        val darkTheme: Boolean = when (PreferencesData.getString(
-            PreferencesKeys.DEFAULT_NIGHT_MODE, "-1"
+        val darkTheme: Boolean = when (Settings.getString(
+            SettingsKey.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> PreferencesData.isDarkMode(ctx)
+            else -> Settings.isDarkMode(ctx)
         }
 
         return SymbolInputView(ctx).apply {

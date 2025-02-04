@@ -1,5 +1,5 @@
 package com.rk.settings
 
-object PreferenceDefaults {
+object DefaultSettings {
     //todo
 }

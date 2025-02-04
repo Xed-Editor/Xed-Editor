@@ -4,14 +4,12 @@ import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.model.Node
 import com.rk.libcommons.DefaultScope
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.MainActivity.file.ProjectManager.getSelectedProjectRootFile
 import com.rk.xededitor.MainActivity.handlers.updateMenu
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 val fileClickListener =
@@ -29,8 +27,8 @@ val fileClickListener =
 
                 it.adapter!!.addFragment(file)
                 if (
-                    !PreferencesData.getBoolean(
-                        PreferencesKeys.KEEP_DRAWER_LOCKED,
+                    !Settings.getBoolean(
+                        SettingsKey.KEEP_DRAWER_LOCKED,
                         false,
                     )
                 ) {

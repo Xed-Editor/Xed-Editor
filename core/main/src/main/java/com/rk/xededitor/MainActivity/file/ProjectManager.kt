@@ -12,8 +12,8 @@ import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.R
@@ -23,9 +23,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.greenrobot.eventbus.EventBus
 import java.io.File
-import java.lang.ref.WeakReference
 import java.util.LinkedList
 import java.util.Queue
 
@@ -230,7 +228,7 @@ object ProjectManager {
     fun restoreProjects(activity: MainActivity) {
         clear(activity)
         activity.lifecycleScope.launch(Dispatchers.IO){
-            val jsonString = PreferencesData.getString(PreferencesKeys.PROJECTS, "")
+            val jsonString = Settings.getString(SettingsKey.PROJECTS, "")
             if (jsonString.isNotEmpty()) {
                 val gson = Gson()
                 val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
@@ -271,7 +269,7 @@ object ProjectManager {
             val gson = Gson()
             val uniqueProjects = projects.values.toSet()
             val jsonString = gson.toJson(uniqueProjects.toList())
-            PreferencesData.setString(PreferencesKeys.PROJECTS, jsonString)
+            Settings.setString(SettingsKey.PROJECTS, jsonString)
         }
     }
 }

@@ -24,28 +24,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
-import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.time.delay
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
-import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
-import java.time.Duration
 
 
 val showExtensions = mutableStateOf(
-    PreferencesData.getBoolean(
-        PreferencesKeys.ENABLE_EXTENSIONS, false
+    Settings.getBoolean(
+        SettingsKey.ENABLE_EXTENSIONS, false
     )
 )
 
@@ -65,7 +60,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
             SettingsToggle(label = stringResource(id = strings.oled),
                 description = stringResource(id = strings.oled_desc),
-                key = PreferencesKeys.OLED,
+                key = SettingsKey.OLED,
                 default = false,
                 sideEffect = {
                     rkUtils.toast(rkUtils.getString(strings.restart_required))
@@ -75,14 +70,14 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             SettingsToggle(
                 label = stringResource(strings.check_for_updates),
                 description = stringResource(strings.check_for_updates_desc),
-                key = PreferencesKeys.CHECK_UPDATE,
+                key = SettingsKey.CHECK_UPDATE,
                 default = false,
             )
 
             SettingsToggle(
                 label = stringResource(id = strings.monet),
                 description = stringResource(id = strings.monet_desc),
-                key = PreferencesKeys.MONET,
+                key = SettingsKey.MONET,
                 default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
                 isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             )
@@ -90,7 +85,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             SettingsToggle(
                 label = stringResource(strings.enable_ext),
                 description = stringResource(strings.enable_ext_desc),
-                key = PreferencesKeys.ENABLE_EXTENSIONS,
+                key = SettingsKey.ENABLE_EXTENSIONS,
                 sideEffect = {
                     showExtensions.value = it
                 }
@@ -121,8 +116,8 @@ fun DayNightDialog(
     val coroutineScope = rememberCoroutineScope()
     var selectedMode by remember {
         mutableIntStateOf(
-            PreferencesData.getString(
-                PreferencesKeys.DEFAULT_NIGHT_MODE,
+            Settings.getString(
+                SettingsKey.DEFAULT_NIGHT_MODE,
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
             ).toInt()
         )
@@ -158,8 +153,8 @@ fun DayNightDialog(
                         PreferenceTemplate(title = { Text(text = modeLabels[index]) },
                             modifier = Modifier.clickable {
                                 selectedMode = mode
-                                PreferencesData.setString(
-                                    PreferencesKeys.DEFAULT_NIGHT_MODE, selectedMode.toString()
+                                Settings.setString(
+                                    SettingsKey.DEFAULT_NIGHT_MODE, selectedMode.toString()
                                 )
                                 //AppCompatDelegate.setDefaultNightMode(selectedMode)
                                 coroutineScope.launch {

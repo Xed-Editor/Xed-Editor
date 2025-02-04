@@ -1,22 +1,16 @@
 package com.rk.xededitor
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.graphics.Color
-import android.os.Bundle
 import android.os.StrictMode
-import androidx.appcompat.view.ContextThemeWrapper
 import com.github.anrwatchdog.ANRWatchDog
-import com.google.android.material.color.MaterialColors
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
 import com.rk.libcommons.application
-import com.rk.libcommons.currentActivity
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.Res
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.CrashHandler.CrashHandler
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
@@ -27,7 +21,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
-import java.lang.ref.WeakReference
 
 
 class App : Application() {
@@ -59,7 +52,7 @@ class App : Application() {
         super.onCreate()
 
         CrashHandler.INSTANCE.init(this)
-        PreferencesData.initPref(this)
+        Settings.initPref(this)
 
         GlobalScope.launch(Dispatchers.IO) {
             launch(Dispatchers.IO) {
@@ -82,7 +75,7 @@ class App : Application() {
             }
 
             delay(500)
-            if (PreferencesData.getBoolean(PreferencesKeys.ENABLE_EXTENSIONS,false)){
+            if (Settings.getBoolean(SettingsKey.ENABLE_EXTENSIONS,false)){
                 Extension.executeExtensions(this@App,GlobalScope)
                 ExtensionManager.onAppLaunched()
             }

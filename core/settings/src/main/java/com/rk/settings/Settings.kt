@@ -4,13 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Build
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-object PreferencesData {
+object Settings {
     private const val PREF_NAME = "Settings"
 
     private val stringCache = hashMapOf<String, String?>()
@@ -21,11 +16,11 @@ object PreferencesData {
     }
 
     fun isOled(): Boolean {
-        return getBoolean(PreferencesKeys.OLED, false)
+        return getBoolean(SettingsKey.OLED, false)
     }
 
     fun isMonet(): Boolean {
-        return getBoolean(PreferencesKeys.MONET, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+        return getBoolean(SettingsKey.MONET, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
     }
 
 
@@ -33,7 +28,9 @@ object PreferencesData {
         runCatching {
             return boolCache[key] ?: sharedPreferences!!.getBoolean(key, default)
                 .also { boolCache[key] = it }
-
+        }.onFailure {
+            it.printStackTrace()
+            setBoolean(key, default)
         }
         return default
     }
@@ -46,30 +43,40 @@ object PreferencesData {
 
     fun setBoolean(key: String, value: Boolean) {
         boolCache[key] = value
-        val editor = sharedPreferences!!.edit()
-        editor.putBoolean(key, value)
-        editor.apply()
+        runCatching {
+            val editor = sharedPreferences!!.edit()
+            editor.putBoolean(key, value)
+            editor.apply()
+        }.onFailure { it.printStackTrace() }
     }
 
     fun initPref(ctx: Context) {
-        sharedPreferences =
-            ctx.applicationContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        sharedPreferences = ctx.applicationContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
     }
 
     private var sharedPreferences: SharedPreferences? = null
 
     fun getString(key: String, default: String): String {
         runCatching {
-            return stringCache[key] ?: sharedPreferences!!.getString(key, default)!!.also { stringCache[key] = it }
+            return stringCache[key] ?: sharedPreferences!!.getString(key, default)!!
+                .also { stringCache[key] = it }
+        }.onFailure {
+            it.printStackTrace()
+            setString(key, default)
         }
         return default
     }
 
     fun setString(key: String, value: String?) {
         stringCache[key] = value
-        val editor = sharedPreferences!!.edit()
-        editor.putString(key, value)
-        editor.apply()
+        runCatching {
+            val editor = sharedPreferences!!.edit()
+            editor.putString(key, value)
+            editor.apply()
+        }.onFailure {
+            it.printStackTrace()
+        }
+
     }
 
 }

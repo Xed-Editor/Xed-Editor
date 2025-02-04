@@ -1,7 +1,7 @@
 package com.rk.extension
 
 import android.app.Application
-import com.rk.settings.PreferencesData
+import com.rk.settings.Settings
 import dalvik.system.DexClassLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,7 +64,7 @@ class Extension(
         suspend fun executeExtensions(application: Application, scope: CoroutineScope) {
             ExtensionManager.loadExistingPlugins(application)
             ExtensionManager.extensions.keys.forEach { extension ->
-                if (PreferencesData.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
+                if (Settings.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
                     delay(Random(492).nextLong(10,300))
                     scope.launch(Dispatchers.IO) {
                         extension.execute()

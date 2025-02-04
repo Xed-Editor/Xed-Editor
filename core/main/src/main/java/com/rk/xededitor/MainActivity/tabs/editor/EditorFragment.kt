@@ -11,14 +11,13 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.libcommons.CustomScope
-import com.rk.libcommons.application
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
@@ -86,7 +85,7 @@ class EditorFragment(val context: Context) : CoreFragment {
 
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
-            visibility = if (PreferencesData.getBoolean(PreferencesKeys.SHOW_ARROW_KEYS, true)) {
+            visibility = if (Settings.getBoolean(SettingsKey.SHOW_ARROW_KEYS, true)) {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -129,8 +128,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                     file?.let {
                         editor?.loadFile(
                             it.getInputStream(), Charset.forName(
-                                PreferencesData.getString(
-                                    PreferencesKeys.SELECTED_ENCODING,
+                                Settings.getString(
+                                    SettingsKey.SELECTED_ENCODING,
                                     Charset.defaultCharset().name()
                                 )
                             )
@@ -215,8 +214,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                         runCatching {
                             editor!!.loadFile(
                                 file.getInputStream(), Charset.forName(
-                                    PreferencesData.getString(
-                                        PreferencesKeys.SELECTED_ENCODING,
+                                    Settings.getString(
+                                        SettingsKey.SELECTED_ENCODING,
                                         Charset.defaultCharset().name()
                                     )
                                 )
@@ -250,8 +249,8 @@ class EditorFragment(val context: Context) : CoreFragment {
                 withContext(Dispatchers.Main) {
                     setChangeListener()
                     this@EditorFragment.file?.let {
-                        if (it.getName().endsWith(".txt") && PreferencesData.getBoolean(
-                                PreferencesKeys.WORD_WRAP_TXT, true
+                        if (it.getName().endsWith(".txt") && Settings.getBoolean(
+                                SettingsKey.WORD_WRAP_TXT, true
                             )
                         ) {
                             editor?.isWordwrap = true
@@ -325,8 +324,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         GlobalScope.launch(Dispatchers.IO) {
             editor?.saveToFile(
                 file!!.getOutPutStream(false), Charset.forName(
-                    PreferencesData.getString(
-                        PreferencesKeys.SELECTED_ENCODING, Charset.defaultCharset().name()
+                    Settings.getString(
+                        SettingsKey.SELECTED_ENCODING, Charset.defaultCharset().name()
                     )
                 )
             )

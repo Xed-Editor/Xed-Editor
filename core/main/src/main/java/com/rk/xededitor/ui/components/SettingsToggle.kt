@@ -2,7 +2,6 @@ package com.rk.xededitor.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,9 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesData.getBoolean
-import com.rk.xededitor.rkUtils
+import com.rk.settings.Settings
+import com.rk.settings.Settings.getBoolean
 import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 import org.robok.engine.core.components.compose.preferences.switch.PreferenceSwitch
 
@@ -57,7 +54,7 @@ fun SettingsToggle(
             if (isSwitchLocked.not()) {
                 state = !state
                 if (key != null) {
-                    PreferencesData.setBoolean(key, state)
+                    Settings.setBoolean(key, state)
                 }
                 
             }
@@ -71,7 +68,7 @@ fun SettingsToggle(
             if (isSwitchLocked.not()) {
                 state = !state
                 if (key != null) {
-                    PreferencesData.setBoolean(key, state)
+                    Settings.setBoolean(key, state)
                 }
             }
             if (ReactiveSideEffect != null){

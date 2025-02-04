@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.rk.libcommons.application
 import com.rk.libcommons.postIO
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -90,7 +90,7 @@ object ExtensionManager : ExtensionAPI() {
         extension.manifest.parentFile!!.deleteRecursively()
         extensions.remove(extension)
         runCatching {
-            PreferencesData.removeKey("ext_" + extension.packageName)
+            Settings.removeKey("ext_" + extension.packageName)
         }
     }
 
@@ -171,7 +171,7 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     private fun isPluginEnabled():Boolean{
-        return PreferencesData.getBoolean(PreferencesKeys.ENABLE_EXTENSIONS,false)
+        return Settings.getBoolean(SettingsKey.ENABLE_EXTENSIONS,false)
     }
 
     override fun onPluginLoaded() {

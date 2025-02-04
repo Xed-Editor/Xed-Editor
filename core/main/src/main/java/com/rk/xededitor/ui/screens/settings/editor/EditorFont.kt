@@ -1,30 +1,11 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import android.net.Uri
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Modifier
 import com.google.gson.GsonBuilder
 import com.rk.libcommons.application
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.rkUtils
-import com.rk.xededitor.ui.components.BottomSheetContent
-import kotlinx.coroutines.launch
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
 
 
 object EditorFont {
@@ -48,7 +29,7 @@ object EditorFont {
     }
 
     fun restoreFonts() {
-        val f = PreferencesData.getString(PreferencesKeys.FONT_GSON, "")
+        val f = Settings.getString(SettingsKey.FONT_GSON, "")
         val gson = GsonBuilder().create()
 
         try {
@@ -68,6 +49,6 @@ object EditorFont {
     fun saveFonts() {
         val gson = GsonBuilder().create()
         val json = gson.toJson(fonts)
-        PreferencesData.setString(PreferencesKeys.FONT_GSON, json)
+        Settings.setString(SettingsKey.FONT_GSON, json)
     }
 }

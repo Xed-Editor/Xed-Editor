@@ -31,11 +31,10 @@ import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.toast
-import com.rk.libcommons.toastIt
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import com.rk.settings.PreferencesData
-import com.rk.settings.PreferencesKeys
+import com.rk.settings.Settings
+import com.rk.settings.SettingsKey
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -118,7 +117,7 @@ class MainActivity : BaseActivity() {
 
         fun restore(){
             viewModelScope.launch(Dispatchers.IO) {
-                if (PreferencesData.getBoolean(PreferencesKeys.RESTORE_SESSIONS,false).not()){
+                if (Settings.getBoolean(SettingsKey.RESTORE_SESSIONS,false).not()){
                     return@launch
                 }
                 _isRestoring = true
@@ -320,7 +319,7 @@ class MainActivity : BaseActivity() {
         isPaused = true
         tabViewModel.save()
 
-        if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
+        if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
         }
 
@@ -430,7 +429,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        if (PreferencesData.getBoolean(PreferencesKeys.AUTO_SAVE, false)) {
+        if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
             kotlin.runCatching { saveAllFiles() }
         }
         ExtensionManager.onAppDestroyed()
