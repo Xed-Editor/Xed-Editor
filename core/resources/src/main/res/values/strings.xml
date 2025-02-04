@@ -394,4 +394,7 @@
     <string name="soft_keyboard_always">Always show keyboard</string>
     <string name="soft_keyboard_always_desc">Always show soft keyboard even if hardware keyboard is connected</string>
 
+    <string name="experimental_feature">Experimental Feature</string>
+    <string name="experimental_session_restore_warning">This Feature is experimental and known to sometimes cause loss of data</string>
+
 </resources>

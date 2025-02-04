@@ -118,7 +118,7 @@ class MainActivity : BaseActivity() {
 
         fun restore(){
             viewModelScope.launch(Dispatchers.IO) {
-                if (PreferencesData.getBoolean(PreferencesKeys.RESTORE_SESSIONS,true).not()){
+                if (PreferencesData.getBoolean(PreferencesKeys.RESTORE_SESSIONS,false).not()){
                     return@launch
                 }
                 _isRestoring = true

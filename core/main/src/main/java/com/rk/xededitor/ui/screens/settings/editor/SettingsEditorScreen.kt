@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.editor.applySettings
 import com.rk.resources.getString
@@ -24,6 +25,8 @@ import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
 import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
@@ -116,11 +119,25 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(strings.restore_sessions),
                 description = stringResource(strings.restore_sessions_desc),
-                default = true,
-                key = PreferencesKeys.RESTORE_SESSIONS
+                default = false,
+                key = PreferencesKeys.RESTORE_SESSIONS,
+                sideEffect = {
+                    DefaultScope.launch(Dispatchers.Main) {
+                        delay(300)
+                        if (it){
+                            MaterialAlertDialogBuilder(context).apply {
+                                setTitle(strings.experimental_feature.getString())
+                                setMessage(strings.experimental_session_restore_warning.getString())
+                                setPositiveButton(strings.ok,null)
+                                show()
+                            }
+                        }
+                    }
+
+                }
             )
 
-            EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
+           /* EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
                 description = stringResource(strings.scroll_to_bottom_desc),
                 default = false,
                 key = PreferencesKeys.SCROLL_TO_BOTTOM,
@@ -128,9 +145,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     if (it) {
                         rkUtils.toast(strings.ni.getString())
                     }
-                })
-
-
+                }) */
 
 
             EditorSettingsToggle(label = stringResource(id = strings.ww),
