@@ -359,4 +359,7 @@
     <string name="file_not_loaded">File belum dimuat.</string>
     <string name="file_not_exist">File sudah tidak ada lagi</string>
     <string name="info_ext">Ekstensi dapat digunakan untuk memodifikasi perilaku dan fitur-fitur xed-editor. Untuk mempelajari cara membuat plugin, klik di sini</string>
+    <string name="experimental_feature">Fitur Eksperimental</string>
+    <string name="experimental_session_restore_warning">Fitur ini bersifat eksperimental dan diketahui terkadang menyebabkan kehilangan data</string>
+    <string name="highlighting">Penyorotan Sintaks</string>
 </resources>
