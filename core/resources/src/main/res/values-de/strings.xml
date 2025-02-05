@@ -74,4 +74,8 @@
     <string name="attention">Achtung</string>
     <string name="open_drawer">öffnen</string>
     <string name="add_file">Datei hinzufügen</string>
+    <string name="ni">Diese Funktion ist nicht implementiert</string>
+    <string name="experimental_feature">Experimentelle Funktion</string>
+    <string name="experimental_session_restore_warning">Diese Funktion ist experimentell und kann zu Datenverlust führen</string>
+    <string name="highlighting">Syntaxhervorhebung</string>
 </resources>
