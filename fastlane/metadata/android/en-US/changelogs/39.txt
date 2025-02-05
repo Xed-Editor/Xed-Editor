@@ -6,3 +6,7 @@ Xed-Editor v2.9.4 (39)
 - added complete termux support
 - added support for non-github git
 - added syntax highlighting for nim
+- added toggle for forcing soft keyboard
+- fixed audio player crash on Uri
+- added manually selecting syntax highlighting
+
