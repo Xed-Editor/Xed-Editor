@@ -55,25 +55,17 @@ class App : Application() {
         Settings.initPref(this)
 
         GlobalScope.launch(Dispatchers.IO) {
-            launch(Dispatchers.IO) {
-                SetupEditor.init(GlobalScope)
-            }
-
-            Mutators.loadMutators()
-
-            //delete useless file cache
-            File(filesDir.parentFile, "shared_prefs/files.xml").apply {
-                if (exists()) {
-                    delete()
+            getTempDir().apply {
+                if (exists() && listFiles().isNullOrEmpty().not()){
+                    deleteRecursively()
                 }
             }
 
+            launch(Dispatchers.IO) { SetupEditor.init(GlobalScope) }
+            Mutators.loadMutators()
             AutoSaver.start()
 
-            runCatching {
-                UpdateManager.fetch("dev")
-            }
-
+            runCatching { UpdateManager.fetch("dev") }
             delay(500)
             if (Settings.getBoolean(SettingsKey.ENABLE_EXTENSIONS,false)){
                 Extension.executeExtensions(this@App,GlobalScope)

@@ -1,0 +1,8 @@
+Xed-Editor v2.9.4 (39)
+
+- fixed white flash when opening tab in dark mode
+- fixed c# syntax highlighting
+- improved terminal
+- added complete termux support
+- added support for non-github git
+- added syntax highlighting for nim
