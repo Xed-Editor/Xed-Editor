@@ -4,9 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.ContextThemeWrapper
@@ -253,6 +256,17 @@ class MainActivity : BaseActivity() {
         }
 
         ExtensionManager.onAppCreated()
+        onBackPressedDispatcher.addCallback(this,object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if(binding != null && binding!!.drawerLayout.isDrawerOpen(GravityCompat.START)){
+                    binding?.drawerLayout?.close()
+                }else{
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+
+        })
+
         lifecycleScope.launch {
             while (true) {
                 delay(1000)
