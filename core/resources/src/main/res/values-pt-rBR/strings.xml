@@ -364,4 +364,6 @@
     <string name="experimental_feature">Recurso Experimental</string>
     <string name="experimental_session_restore_warning">Esse recurso é experimental e sabe-se que, às vezes, pode causar perda de dados</string>
     <string name="highlighting">Destaque de Sintaxe</string>
+    <string name="err_no_termux">O Termux não está instalado</string>
+    <string name="err_termux_incompatible">O Termux não é compatível</string>
 </resources>
