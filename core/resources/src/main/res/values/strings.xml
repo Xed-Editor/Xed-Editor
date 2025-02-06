@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Xed-Editor</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
-    <string name="title_activity_batch_replacement">BatchReplacement</string>
     <string name="ni">This feature is not implemented</string>
     <string name="unsupported_contnt">Unsupported content</string>
     <string name="null_contnt">Error: Content is null</string>
@@ -398,5 +396,9 @@
     <string name="experimental_session_restore_warning">This Feature is experimental and known to sometimes cause loss of data</string>
 
     <string name="highlighting">Syntax Highlighting</string>
+
+    <string name="err_no_termux">Termux is not installed</string>
+    <string name="err_termux_incompatible">Termux is not compatible</string>
+
 
 </resources>

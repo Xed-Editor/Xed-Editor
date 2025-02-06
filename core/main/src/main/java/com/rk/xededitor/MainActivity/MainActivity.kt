@@ -256,16 +256,19 @@ class MainActivity : BaseActivity() {
         }
 
         ExtensionManager.onAppCreated()
-        onBackPressedDispatcher.addCallback(this,object : OnBackPressedCallback(true) {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if(binding != null && binding!!.drawerLayout.isDrawerOpen(GravityCompat.START)){
+                if (binding != null && binding!!.drawerLayout.isDrawerOpen(GravityCompat.START)) {
                     binding?.drawerLayout?.close()
-                }else{
+                } else {
+                    // Disable the callback and call super back press behavior
+                    this.isEnabled = false
                     onBackPressedDispatcher.onBackPressed()
+                    this.isEnabled = true
                 }
             }
-
         })
+
 
         lifecycleScope.launch {
             while (true) {

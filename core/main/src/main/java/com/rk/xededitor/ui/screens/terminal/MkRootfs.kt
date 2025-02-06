@@ -28,7 +28,7 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
         getRuntime().exec("tar -xf ${alpine.absolutePath} -C ${alpineDir()}").waitFor()
         alpine.delete()
         with(alpineDir()){
-            child("etc/hostname").writeText(strings.app_name.getString())
+            child("etc/hostname").writeText("Xed-Editor")
             child("etc/resolv.conf").also { it.createFileIfNot();it.writeText(nameserver) }
             child("etc/hosts").writeText(hosts)
         }
