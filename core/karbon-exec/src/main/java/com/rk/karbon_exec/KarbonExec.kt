@@ -26,7 +26,6 @@ const val TERMUX_PKG = "com.termux"
 @SuppressLint("SdCardPath")
 const val TERMUX_PREFIX = "/data/data/$TERMUX_PKG/files/usr"
 
-
 fun isTermuxInstalled(): Boolean {
     val packageManager: PackageManager = application!!.packageManager
     val intent = packageManager.getLaunchIntentForPackage(TERMUX_PKG) ?: return false
@@ -36,35 +35,13 @@ fun isTermuxInstalled(): Boolean {
 
 private fun checkTermuxInstall() {
     if (isTermuxInstalled().not()) {
-        throw RuntimeException("Termux is not installed")
+        throw RuntimeException(strings.err_no_termux.getString())
     }
     if (isTermuxCompatible().not()) {
-        throw RuntimeException("Termux is not compatible")
+        throw RuntimeException(strings.err_termux_incompatible.getString())
     }
     if (isExecPermissionGranted().not()) {
-        throw RuntimeException("Termux-Exec Permission Denied")
-    }
-}
-
-fun askLaunchTermux(context: Context) {
-    Handler(Looper.getMainLooper()).post {
-        MaterialAlertDialogBuilder(context).apply {
-            setTitle(strings.launch_termux.getString())
-            setMessage(strings.launch_termux_explanation.getString())
-            setPositiveButton(strings.launch.getString(), { dialog, which ->
-                launchTermux()
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val returnIntent = Intent(
-                        context, Class.forName("com.rk.xededitor.MainActivity.MainActivity")
-                    ).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    }
-                    context.startActivity(returnIntent)
-                }, 300)
-            })
-            setNegativeButton(strings.cancel.getString(), { dialog, which -> })
-            show()
-        }
+        throw RuntimeException("${strings.termux_exec.getString()} ${strings.permission_denied.getString()}")
     }
 }
 

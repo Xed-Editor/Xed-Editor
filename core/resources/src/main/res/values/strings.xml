@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name" translatable="false">Xed-Editor</string>
     <string name="open_drawer">open</string>
     <string name="close_drawer">close</string>
     <string name="ni">This feature is not implemented</string>

@@ -4,6 +4,7 @@ import android.content.Context
 import com.rk.libcommons.alpineDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.isMainThread
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
@@ -22,7 +23,7 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
     }
 
     private fun initializeInternal(){
-        if (Thread.currentThread().name == "main"){
+        if (isMainThread()){
             throw RuntimeException("IO operation on the main thread")
         }
         getRuntime().exec("tar -xf ${alpine.absolutePath} -C ${alpineDir()}").waitFor()

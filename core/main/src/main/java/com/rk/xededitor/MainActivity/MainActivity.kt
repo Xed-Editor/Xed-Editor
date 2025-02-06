@@ -331,6 +331,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun openTabForIntent(intent: Intent){
+        println("called")
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
             val file = File(uri!!.toPath())
