@@ -269,7 +269,6 @@ class MainActivity : BaseActivity() {
             }
         })
 
-
         lifecycleScope.launch {
             while (true) {
                 delay(1000)
@@ -331,7 +330,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun openTabForIntent(intent: Intent){
-        println("called")
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
             val file = File(uri!!.toPath())
@@ -346,11 +344,13 @@ class MainActivity : BaseActivity() {
             }
             adapter?.addFragment(fileObject)
         }
+        setIntent(Intent())
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        openTabForIntent(intent)
+        setIntent(intent);
+        //openTabForIntent(intent)
     }
 
     override fun onRequestPermissionsResult(
@@ -392,6 +392,7 @@ class MainActivity : BaseActivity() {
         super.onResume()
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
+        openTabForIntent(intent)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
