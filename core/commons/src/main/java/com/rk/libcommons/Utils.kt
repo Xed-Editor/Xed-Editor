@@ -45,3 +45,7 @@ inline fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density
     return Math.round(dp * density)
 }
+
+inline fun isMainThread():Boolean{
+    return Thread.currentThread().name == "main"
+}

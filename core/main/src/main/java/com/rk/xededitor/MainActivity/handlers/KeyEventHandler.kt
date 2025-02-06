@@ -133,7 +133,10 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_P -> {
                     MainActivity.activityRef.get()?.let {
-                        Printer.print(it, editor?.text.toString())
+                        if (currentFragment?.fragment is EditorFragment){
+                            val printer = Printer(it)
+                            printer.setCodeText(editor?.text.toString(), language = (currentFragment.fragment as EditorFragment).file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                        }
                     }
                 }
                 

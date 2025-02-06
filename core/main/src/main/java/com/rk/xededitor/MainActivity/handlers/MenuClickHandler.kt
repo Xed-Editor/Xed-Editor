@@ -32,7 +32,6 @@ import com.rk.xededitor.rkUtils.getString
 import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
-import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -121,10 +120,8 @@ object MenuClickHandler {
             }
 
             Id.action_print -> {
-                Printer.print(
-                    activity,
-                    editorFragment?.editor?.text.toString(),
-                )
+                val printer = Printer(activity)
+                printer.setCodeText(editorFragment?.editor?.text.toString(), language = editorFragment?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
                 return true
             }
 
