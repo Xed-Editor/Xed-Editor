@@ -36,6 +36,7 @@ import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.scriptingengine.Engine
 import com.rk.settings.Settings
@@ -330,6 +331,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun openTabForIntent(intent: Intent){
+        println("working")
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
             val file = File(uri!!.toPath())
@@ -339,7 +341,7 @@ class MainActivity : BaseActivity() {
                 UriWrapper(uri)
             }
             if (fileObject.isFile().not()){
-                rkUtils.toast(strings.unsupported_contnt.toString())
+                rkUtils.toast(strings.unsupported_contnt.getString())
                 return
             }
             adapter?.addFragment(fileObject)
