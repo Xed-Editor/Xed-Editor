@@ -100,34 +100,26 @@ class UriWrapper : FileObject {
             throw SecurityException("No write permission for file: ${file.uri}")
         }
 
-        application?.contentResolver?.openOutputStream(file.uri)?.use { outputStream ->
+        getOutPutStream(false).use { outputStream ->
             try {
                 outputStream.write(text.toByteArray())
                 outputStream.flush()
             } catch (e: IOException) {
                 throw IOException("Failed to write to file: ${file.uri}", e)
             }
-        } ?: throw IOException("Could not open output stream for: ${file.uri}")
+        }
     }
 
     @Throws(FileNotFoundException::class, SecurityException::class)
     override fun getInputStream(): InputStream {
-        if (!file.canRead()) {
-            throw SecurityException("No read permission for file: ${file.uri}")
-        }
-
         return application?.contentResolver?.openInputStream(file.uri)
-            ?: throw FileNotFoundException("Could not open input stream for: ${file.uri}")
+            ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
-        if (!file.canRead()) {
-            throw SecurityException("No read permission for file: ${file.uri}")
-        }
         val mode = if (append) "wa" else "w"
         return application?.contentResolver?.openOutputStream(file.uri, mode)
-            ?: throw FileNotFoundException("Could not open input stream for: ${file.uri}")
-
+            ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
     override fun getMimeType(context: Context): String? {

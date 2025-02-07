@@ -3,6 +3,7 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Gravity
 import android.view.Menu
@@ -15,6 +16,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
+import androidx.core.net.toFile
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
@@ -331,19 +333,13 @@ class MainActivity : BaseActivity() {
     }
 
     private fun openTabForIntent(intent: Intent){
-        println("working")
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
-            val file = File(uri!!.toPath())
-            val fileObject = if (file.exists() && file.canRead()){
-                FileWrapper(file)
-            }else{
-                UriWrapper(uri)
-            }
-            if (fileObject.isFile().not()){
-                rkUtils.toast(strings.unsupported_contnt.getString())
+            if (uri == null){
+                toast("No data provided")
                 return
             }
+            val fileObject = UriWrapper(uri)
             adapter?.addFragment(fileObject)
         }
         setIntent(Intent())
@@ -352,7 +348,6 @@ class MainActivity : BaseActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent);
-        //openTabForIntent(intent)
     }
 
     override fun onRequestPermissionsResult(

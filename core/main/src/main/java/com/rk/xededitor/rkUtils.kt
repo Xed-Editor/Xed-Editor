@@ -47,6 +47,11 @@ object rkUtils {
         runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
     }
 
+    inline fun toast(e:Exception){
+        e.printStackTrace()
+        toast(e.message)
+    }
+
     inline fun String?.toastIt(){
         toast(this)
     }
