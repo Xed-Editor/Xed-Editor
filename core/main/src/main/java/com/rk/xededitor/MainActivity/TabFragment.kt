@@ -15,7 +15,6 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.media.ImageFragment
 import com.rk.xededitor.MainActivity.tabs.media.WebFragment
 import com.rk.xededitor.MainActivity.tabs.media.VideoFragment
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.launch
 
 class TabFragment : Fragment() {

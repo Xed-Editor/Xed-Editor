@@ -47,3 +47,4 @@ include(":core:mutator-engine")
 include(":core:file")
 include(":core:extension")
 
+include(":core:crash-handler")

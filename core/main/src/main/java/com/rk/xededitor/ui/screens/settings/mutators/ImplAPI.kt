@@ -4,12 +4,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.rk.file.FileWrapper
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.toast
 import com.rk.scriptingengine.Engine
 import com.rk.scriptingengine.EngineAPI
 import com.rk.xededitor.MainActivity.Kee
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -32,7 +32,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
      * @param text The message to display in the toast.
      */
     override fun showToast(text: String?) {
-        rkUtils.toast(text)
+        toast(text)
     }
 
     /**
@@ -69,7 +69,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
                             (fragment as EditorFragment).editor?.setText(text)
                         }
                     }
-                }.onFailure { rkUtils.toast(it.message);it.printStackTrace() }
+                }.onFailure { toast(it.message);it.printStackTrace() }
 
             }
         }

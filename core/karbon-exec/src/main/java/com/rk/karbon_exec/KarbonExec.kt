@@ -20,7 +20,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 const val TERMUX_PKG = "com.termux"
 
 @SuppressLint("SdCardPath")

@@ -1,4 +1,4 @@
-package com.rk.xededitor.MainActivity.handlers.git
+package com.rk.xededitor.git
 
 import android.app.Activity
 import android.content.DialogInterface
@@ -8,27 +8,29 @@ import android.widget.EditText
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.askInput
+import com.rk.libcommons.runOnUiThread
+import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.askInput
-import com.rk.xededitor.rkUtils.runOnUiThread
-import com.rk.xededitor.rkUtils.toastIt
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+
+
+
 fun commit(mainActivity: Activity, file: File){
 
     mainActivity.askInput(
         title = "Commit",
-        message = "Commit Message",
+        hint = "Commit Message",
         onResult = {
             DefaultScope.launch(Dispatchers.IO) {
-                var loading:LoadingPopup? = null
+                var loading:LoadingPopup?
 
                 withContext(Dispatchers.Main){
                     loading = LoadingPopup(mainActivity,null).show()
@@ -39,10 +41,10 @@ fun commit(mainActivity: Activity, file: File){
                         runOnUiThread{
                             loading!!.hide()
                         }
-                        it?.message?.toastIt()
+                        toast(it)
                     })
                 }else{
-                    rkUtils.toast("Unable to find git root")
+                    toast("Unable to find git root")
                 }
             }
         },

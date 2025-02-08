@@ -1,4 +1,4 @@
-package com.rk.xededitor.CrashHandler
+package com.rk.crashhandler
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -9,31 +9,29 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SetupEditor
-import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.R
-import io.github.rosemoe.sora.widget.CodeEditor
 import java.lang.System
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
+import com.rk.libcommons.BuildConfig
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.toast
 
-@Suppress("NOTHING_TO_INLINE")
 class CrashActivity : AppCompatActivity() {
     private lateinit var editor: KarbonEditor
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,21 +59,24 @@ class CrashActivity : AppCompatActivity() {
 
             val sb = StringBuilder()
 
-            sb.append("Fatal Crash occurred on Thread named '").append(intent.getStringExtra("thread")).append("\n\n")
-            sb.append("App Version : ").append(versionName).append("\n")
-            sb.append("Version Code : ").append(versionCode).append("\n")
-            sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).append("\n")
-            sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).append("\n")
-            sb.append("Unix Time : ").append(System.currentTimeMillis()).append("\n")
-            sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).append("\n")
-            sb.append("Android Version : ").append(Build.VERSION.RELEASE).append("\n")
-            sb.append("SDK Version : ").append(Build.VERSION.SDK_INT).append("\n")
-            sb.append("Brand : ").append(Build.BRAND).append("\n")
-            sb.append("Manufacturer : ").append(Build.MANUFACTURER).append("\n\n")
+            sb.append("Unexpected Crash occurred").appendLine().appendLine()
 
-            sb.append("Error Message : ").append(intent.getStringExtra("msg")).append("\n")
-            sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).append("\n")
-            sb.append("Error StackTrace : \n").append(intent.getStringExtra("stacktrace"))
+            sb.append("Thread : ").append(intent.getStringExtra("thread")).appendLine()
+            sb.append("App Version : ").append(versionName).appendLine()
+            sb.append("Version Code : ").append(versionCode).appendLine()
+            sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).appendLine()
+            sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
+            sb.append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
+            sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).appendLine()
+            sb.append("Android Version : ").append(Build.VERSION.RELEASE).appendLine()
+            sb.append("SDK Version : ").append(Build.VERSION.SDK_INT).appendLine()
+            sb.append("Brand : ").append(Build.BRAND).appendLine()
+            sb.append("Manufacturer : ").append(Build.MANUFACTURER).appendLine().appendLine()
+            sb.append("Model : ").append(Build.MODEL).appendLine()
+
+            sb.append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
+            sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
+            sb.append("Error StackTrace : ").appendLine().append(intent.getStringExtra("stacktrace"))
 
 
             editor.setText(sb.toString())
@@ -84,11 +85,18 @@ class CrashActivity : AppCompatActivity() {
             runCatching { SetupEditor(editor,this,lifecycleScope) }
             editor.isWordwrap = false
         }.onFailure{
+            logErrorOrExit(it)
             it.printStackTrace()
             runCatching { finishAffinity() }
             exitProcess(1)
         }
 
+    }
+
+    private fun logErrorOrExit(throwable: Throwable){
+        runCatching {
+            application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString())
+        }.onFailure { it.printStackTrace();exitProcess(-1) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -97,7 +105,6 @@ class CrashActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here
         val id = item.itemId
 
         when (id) {
@@ -107,32 +114,41 @@ class CrashActivity : AppCompatActivity() {
             }
 
             R.id.copy_error -> {
-                copyToClipboard(this, editor.text.toString())
-                Toast.makeText(this,"Copied",android.widget.Toast.LENGTH_SHORT).show()
+                runCatching {
+                    copyToClipboard(this, editor.text.toString())
+                    toast("Copied")
+                }.onFailure {
+                    logErrorOrExit(it)
+                }
             }
 
             R.id.report_issue -> {
-                val browserIntent =
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse(
-                            "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
-                                URLEncoder.encode(
-                                    "``` \n${editor.text}\n ```",
-                                    StandardCharsets.UTF_8.toString(),
-                                )
-                        ),
-                    )
-                startActivity(browserIntent)
+                runCatching {
+                    val browserIntent =
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(
+                                "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                                        URLEncoder.encode(
+                                            "``` \n${editor.text}\n ```",
+                                            StandardCharsets.UTF_8.toString(),
+                                        )
+                            ),
+                        )
+                    startActivity(browserIntent)
+                }.onFailure {
+                    logErrorOrExit(it)
+                }
+
             }
         }
 
         return super.onOptionsItemSelected(item)
     }
 
-    private inline fun copyToClipboard(context: Context, text: String) {
+    private fun copyToClipboard(context: Context, text: String) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        val clip = ClipData.newPlainText("label", text)
+        val clip = ClipData.newPlainText("crashInfo", text)
         clipboard.setPrimaryClip(clip)
     }
 }

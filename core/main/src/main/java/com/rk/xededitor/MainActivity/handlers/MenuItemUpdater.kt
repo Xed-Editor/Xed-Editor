@@ -2,13 +2,13 @@ package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
 import com.rk.file.FileWrapper
+import com.rk.libcommons.runOnUiThread
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.git.GitClient
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -65,7 +65,7 @@ private suspend fun updateEditor(
 
 private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?): Boolean {
     val isSearching = editorFragment != null && (editorFragment.editor?.isSearching() == true)
-    rkUtils.runOnUiThread {
+    runOnUiThread {
         menu.apply {
             findItem(Id.search_next).isVisible = isSearching
             findItem(Id.search_previous).isVisible = isSearching
@@ -91,7 +91,7 @@ private suspend fun updateGitMenuVisibility(
             if (gitRoot != null) {
                 MainActivity.activityRef.get()?.let {
                     GitClient.getCurrentBranch(it, gitRoot, onResult = { branch, err ->
-                        rkUtils.runOnUiThread {
+                        runOnUiThread {
                             menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)
                                 ?.apply {
                                     title = "Branch : ${branch ?: "error"}"

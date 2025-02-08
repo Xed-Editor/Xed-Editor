@@ -1,16 +1,25 @@
 package com.rk.libcommons
 
+import android.app.Activity
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.getString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.random.Random
+import com.rk.resources.strings
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 @OptIn(DelicateCoroutinesApi::class)
 fun postIO(block: suspend CoroutineScope.() -> Unit) {
@@ -29,22 +38,57 @@ suspend fun UI(block: suspend CoroutineScope.() -> Unit){
     withContext(Dispatchers.Main,block)
 }
 
-inline fun runOnUiThread(runnable: Runnable) {
-    Handler(Looper.getMainLooper()).post(runnable)
+inline fun CoroutineScope.safeLaunch(context: CoroutineContext = EmptyCoroutineContext, crossinline block: suspend CoroutineScope.() -> Unit){
+    launch(context = context) { withCatching{block()} }
 }
 
-inline fun toast(message: String?) {
+@OptIn(DelicateCoroutinesApi::class)
+inline fun runOnUiThread(runnable: Runnable) {
+    GlobalScope.launch(Dispatchers.Main){ runnable.run() }
+}
+
+inline fun toast(@StringRes resId:Int){ toast(resId.getString()) }
+
+fun toast(message: String?) {
+    if (message.isNullOrBlank()){
+        Log.w("UTILS","Toast with null or empty message")
+        return
+    }
+    if (message == "Job was cancelled"){
+        Log.w("TOAST",message)
+        return
+    }
     runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
 }
 
-inline fun toast(e:Exception){
-    e.printStackTrace()
-    toast(e.message)
+inline fun toast(e:Exception? = null){
+    e?.printStackTrace()
+    if (e != null) { toast(e.message) }
+}
+
+inline fun toast(t:Throwable? = null){
+    t?.printStackTrace()
+    toast(t?.message)
 }
 
 inline fun String?.toastIt(){
     toast(this)
 }
+
+inline fun withCatching(block:()->Unit):Exception?{
+    try {
+        block()
+        return null
+    }catch (e:Exception){
+        e.printStackTrace()
+        toast(e.message)
+        if (BuildConfig.DEBUG){
+            throw e
+        }
+        return e
+    }
+}
+
 
 inline fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density
@@ -53,4 +97,25 @@ inline fun dpToPx(dp: Float, ctx: Context): Int {
 
 inline fun isMainThread():Boolean{
     return Thread.currentThread().name == "main"
+}
+
+data class PopupButton(val label:String, val listener:(()->Unit)? = null)
+fun Activity.askInput(title: String? = null,input:String? = null, hint: String, onResult:(String)->Unit){
+    val popupView: View = LayoutInflater.from(this).inflate(R.layout.popup_new, null)
+    val editText = popupView.findViewById<EditText>(R.id.name)
+    editText.hint = hint
+
+    MaterialAlertDialogBuilder(this).apply {
+        title?.let { setTitle(it) }
+        input?.let { editText.setText(it) }
+        setView(popupView)
+        var dialog: AlertDialog? = null
+        setNegativeButton(strings.cancel,null)
+        setPositiveButton(strings.ok) { _, _ ->
+            dialog?.dismiss()
+            onResult.invoke(editText.text.toString())
+        }
+        dialog = show()
+    }
+
 }

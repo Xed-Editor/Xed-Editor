@@ -23,8 +23,8 @@ object AutoSaver {
     fun start() {
         GlobalScope.launch(Dispatchers.Default) {
             while (isActive) {
-                if (MainActivity.activityRef.get()?.isPaused == true){
-                    delay(100)
+                if (MainActivity.activityRef.get() == null || MainActivity.activityRef.get()?.isPaused == true) {
+                    delay(1000)
                     continue
                 }
                 try {
@@ -49,23 +49,22 @@ object AutoSaver {
     /**
      * Saves all editor fragments if conditions are met.
      */
-    private suspend fun saveAllEditorFragments() {
-        MainActivity.activityRef.get()?.let { activity ->
-            if (activity.isDestroyed || activity.isFinishing) {
-                return
-            }
+    private suspend fun saveAllEditorFragments() = MainActivity.activityRef.get()?.apply {
+        if (isDestroyed || isFinishing) {
+            return@apply
+        }
 
-            if (activity.tabViewModel.fragmentFiles.isNotEmpty()) {
-                withContext(Dispatchers.Main) {
-                    activity.adapter?.tabFragments?.values?.forEach { weakRef ->
-                        weakRef.get()?.fragment?.let { fragment ->
-                            if (fragment is EditorFragment) {
-                                fragment.save(showToast = false, isAutoSaver = true)
-                            }
+        if (tabViewModel.fragmentFiles.isNotEmpty()) {
+            withContext(Dispatchers.Main) {
+                adapter?.tabFragments?.values?.forEach { weakRef ->
+                    weakRef.get()?.fragment?.let { fragment ->
+                        if (fragment is EditorFragment) {
+                            fragment.save(showToast = false, isAutoSaver = true)
                         }
                     }
                 }
             }
         }
     }
+
 }

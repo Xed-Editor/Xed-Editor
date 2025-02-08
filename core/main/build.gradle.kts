@@ -6,62 +6,24 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-fun getGitCommitHash(): String {
-    val stdout = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "--short=8", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
-
-fun getGitCommitDate(): String {
-    val stdout = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "show", "-s", "--format=%cI", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
-
-fun getFullGitCommitHash(): String {
-    val stdout = ByteArrayOutputStream()
-    exec {
-        commandLine("git", "rev-parse", "HEAD")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
-
-
-
 android {
     namespace = "com.rk.xededitor"
-    android.buildFeatures.buildConfig = true
+
     compileSdk = 35
 
     defaultConfig {
         minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
-        getByName("release") {
-            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
-            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
-            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
+        release {
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-        }
-        getByName("debug") {
-            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
-            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
-            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
         }
     }
 
@@ -131,7 +93,6 @@ dependencies {
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
 
-
     api(project(":core:runner"))
     api(project(":core:file"))
     api(project(":core:filetree"))
@@ -139,11 +100,10 @@ dependencies {
     api(project(":core:commons"))
     api(project(":core:components"))
     api(project(":core:editor"))
-//    api(project(":core:external-editor"))
+    api(project(":core:crash-handler"))
     api(project(":core:language-textmate"))
     api(project(":core:resources"))
     api(project(":core:karbon-exec"))
     api(project(":core:mutator-engine"))
     api(project(":core:extension"))
-
 }

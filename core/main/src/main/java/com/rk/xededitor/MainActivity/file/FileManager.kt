@@ -1,32 +1,45 @@
 package com.rk.xededitor.MainActivity.file
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
+import com.rk.libcommons.application
+import com.rk.libcommons.askInput
+import com.rk.libcommons.toast
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.getString
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 import java.io.File
 
 class FileManager(private val mainActivity: MainActivity) {
+
+    private fun getString(@StringRes id:Int):String{
+        return id.getString()
+    }
 
     private var requestOpenFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -125,6 +138,9 @@ class FileManager(private val mainActivity: MainActivity) {
         }
 
 
+
+
+
     private var requestToSaveFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK && to_save_file != null) {
@@ -158,6 +174,50 @@ class FileManager(private val mainActivity: MainActivity) {
         }
 
 
+    private var selectDirCallBack:((ActivityResult?)->Unit)? = null
+    private var selectDirInternal =
+        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == Activity.RESULT_OK) {
+                selectDirCallBack?.invoke(it)
+                selectDirCallBack = null
+            }
+        }
+
+
+    fun selectDirForNewFileLaunch(fileName:String){
+        selectDirCallBack = {
+            val file = File(it?.data!!.data!!.toPath())
+            val fileObject = if (file.exists().not()) {
+                runCatching {
+                    val takeFlags: Int =
+                        (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+                    mainActivity.contentResolver.takePersistableUriPermission(
+                        it.data!!.data!!, takeFlags
+                    )
+                }
+                UriWrapper(it.data!!.data!!)
+            } else {
+                FileWrapper(file)
+            }
+
+            if (fileObject.hasChild(fileName).not()){
+                toast("File with name $fileName already exists")
+            }else{
+                val newFile = fileObject.createChild(true,fileName)
+                DefaultScope.launch(Dispatchers.Main) {
+                    if (newFile != null) {
+                        mainActivity.adapter?.addFragment(newFile)
+                    }else{
+                        toast("Unable to create file")
+                    }
+                }
+            }
+
+        }
+        selectDirInternal.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+    }
+
+
     private var toSaveAsFile: FileObject? = null
 
     private val directoryPickerLauncher =
@@ -176,7 +236,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     }
                 }
             }.onFailure {
-                rkUtils.toast(it.message)
+                toast(it.message)
             }
         }
 
@@ -199,36 +259,48 @@ class FileManager(private val mainActivity: MainActivity) {
     }
 
     fun requestOpenDirectoryToSaveFile() {
-        requestToSaveFile.launch(Intent(Intent.ACTION_CREATE_DOCUMENT))
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        val activities = application!!.packageManager.queryIntentActivities(intent, PackageManager.MATCH_ALL)
+        if (activities.isNotEmpty()){
+            requestToSaveFile.launch(intent)
+        }else{
+            selectDirCallBack = {
+                val sourceUri = to_save_file!!.toUri()
+
+                mainActivity.contentResolver.openInputStream(sourceUri)
+                    .use { inputStream ->
+                        mainActivity.contentResolver.openOutputStream(
+                            it?.data!!.data!!
+                        )?.use { outputStream ->
+                            copyStream(inputStream, outputStream)
+                        }
+                    }
+            }
+            selectDirInternal.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+        }
+
     }
 
+    @SuppressLint("SdCardPath")
     fun requestOpenFromPath() {
-        val popupView = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
-        val editText = popupView.findViewById<View>(R.id.name) as EditText
-
-        editText.setText("/sdcard")
-        editText.hint = getString(strings.ff_path)
-
-        MaterialAlertDialogBuilder(mainActivity).setView(popupView)
-            .setTitle(getString(strings.path))
-            .setNegativeButton(mainActivity.getString(strings.cancel), null)
-            .setPositiveButton(getString(strings.open)) { _, _ ->
-                val path = editText.text.toString()
-                val file = File(path)
-
-                if (path.isEmpty()) {
-                    rkUtils.toast(getString(strings.enter_path))
-                    return@setPositiveButton
+        mainActivity.askInput(
+            input = "/sdcard",
+            hint = strings.ff_path.getString(),
+            onResult = { input ->
+                val file = File(input)
+                if (input.isEmpty()) {
+                    toast(getString(strings.enter_path))
+                    return@askInput
                 }
 
                 if (!file.exists()) {
-                    rkUtils.toast(getString(strings.invalid_path))
-                    return@setPositiveButton
+                    toast(getString(strings.invalid_path))
+                    return@askInput
                 }
 
                 if (!file.canRead() || !file.canWrite()) {
-                    rkUtils.toast(getString(strings.permission_denied))
-                    return@setPositiveButton
+                    toast(getString(strings.permission_denied))
+                    return@askInput
                 }
 
                 if (file.isDirectory) {
@@ -238,27 +310,30 @@ class FileManager(private val mainActivity: MainActivity) {
                 } else {
                     mainActivity.adapter!!.addFragment(FileWrapper(file))
                 }
-            }.show()
+            }
+        )
     }
 
     companion object {
         private val gits = mutableSetOf<String>()
-
         suspend fun findGitRoot(file: File): File? {
-            gits.forEach { root ->
-                if (file.absolutePath.contains(root)) {
-                    return File(root)
+            return withContext(Dispatchers.IO){
+                gits.forEach { root ->
+                    if (file.absolutePath.contains(root)) {
+                        return@withContext File(root)
+                    }
                 }
-            }
-            var currentFile = file
-            while (currentFile.parentFile != null) {
-                if (File(currentFile.parentFile, ".git").exists()) {
-                    currentFile.parentFile?.let { gits.add(it.absolutePath) }
-                    return currentFile.parentFile
+                var currentFile = file
+                while (currentFile.parentFile != null) {
+                    if (File(currentFile.parentFile, ".git").exists()) {
+                        currentFile.parentFile?.let { gits.add(it.absolutePath) }
+                        return@withContext currentFile.parentFile
+                    }
+                    currentFile = currentFile.parentFile!!
                 }
-                currentFile = currentFile.parentFile!!
+                return@withContext null
             }
-            return null
+
         }
     }
 }

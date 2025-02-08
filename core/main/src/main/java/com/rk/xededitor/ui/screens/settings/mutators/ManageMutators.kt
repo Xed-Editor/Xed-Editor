@@ -24,12 +24,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.file.FileWrapper
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.InputDialog
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +76,7 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                 mutators.toList().forEach { mut ->
                     PreferenceTemplate(modifier = modifier.clickable {
                         DefaultScope.launch {
-                            val file = File(context.getTempDir(), mut.name + "&mut.js")
+                            val file = File(getTempDir(), mut.name + "&mut.js")
                             withContext(Dispatchers.IO) {
                                 file.writeText(mut.script)
                             }
@@ -86,7 +86,7 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                                         file
                                     )
                                 )
-                                rkUtils.toast(strings.tab_opened.getString())
+                                toast(strings.tab_opened.getString())
                             }
 
                         }
@@ -132,11 +132,11 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
 private fun onDone(name: String): Boolean {
     if (name.isBlank()) {
-        rkUtils.toast(strings.name_empty_err.getString())
+        toast(strings.name_empty_err.getString())
         return false
     } else {
         if (Mutators.getMutators().map { it.name }.contains(name)) {
-            rkUtils.toast(strings.name_used.getString())
+            toast(strings.name_used.getString())
             return false
         }
         Mutators.createMutator(

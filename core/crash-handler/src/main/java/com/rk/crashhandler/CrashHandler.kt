@@ -1,29 +1,19 @@
-package com.rk.xededitor.CrashHandler
+package com.rk.crashhandler
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Looper
-import android.util.Log
+import com.rk.libcommons.application
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
 
-@Suppress("NOTHING_TO_INLINE")
-class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
-    var applicationContext: Context? = null
-    private val info: MutableMap<String, String> = HashMap()
-
-    inline fun init(context: Context) {
-        this.applicationContext = context.applicationContext
-        Thread.setDefaultUncaughtExceptionHandler(this)
-    }
+object CrashHandler : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
-            val intent = Intent(applicationContext, CrashActivity::class.java)
+            val intent = Intent(application!!, CrashActivity::class.java)
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
             var cause = ex.cause.toString()
@@ -43,9 +33,7 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
             intent.putExtra("stacktrace", stackTraceString)
             intent.putExtra("thread", thread.name)
 
-            applicationContext!!.startActivity(intent)
-
-
+            application!!.startActivity(intent)
         }.onFailure {
             it.printStackTrace()
             exitProcess(1)
@@ -57,15 +45,14 @@ class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {
                     Looper.loop()
                     return
                 } catch (t: Throwable) {
-                    //exitProcess(1)
+                    Thread{
+                        t.printStackTrace()
+                        runCatching {
+                            application!!.filesDir.child("crash.log").createFileIfNot().appendText(t.toString())
+                        }.onFailure { it.printStackTrace() }
+                    }.start()
                 }
             }
         }
-    }
-
-    companion object {
-        const val LOG_TAG = "CrashHandler"
-
-        @SuppressLint("StaticFieldLeak") val INSTANCE = CrashHandler()
     }
 }

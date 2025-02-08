@@ -5,11 +5,8 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Environment
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
@@ -19,16 +16,14 @@ import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.askInput
+import com.rk.libcommons.runOnUiThread
+import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.rkUtils.runOnUiThread
-import com.rk.xededitor.rkUtils.toastIt
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,17 +39,22 @@ class FileAction(
     companion object {
         var to_save_file: FileObject? = null
     }
+    
+    private fun getString(@StringRes id:Int):String{
+        return id.getString()
+    }
 
     init {
         fun getDrawable(id: Int): Drawable? {
             return ContextCompat.getDrawable(mainActivity, id)
         }
+        
 
         ActionPopup(mainActivity, true).apply {
             if (file == rootFolder) {
                 addItem(
-                    getString(strings.refresh),
-                    getString(strings.reload_file_tree),
+                    strings.refresh.getString(),
+                    strings.reload_file_tree.getString(),
                     getDrawable(drawables.refresh),
                 ) {
                     mainActivity.lifecycleScope.launch {
@@ -62,7 +62,7 @@ class FileAction(
                     }
                 }
                 addItem(
-                    getString(strings.close),
+                    strings.close.getString(),
                     getString(strings.close_current_project),
                     getDrawable(drawables.close),
                 ) {
@@ -104,7 +104,7 @@ class FileAction(
                                     withContext(Dispatchers.Main) {
                                         loading.hide()
                                         if (success.not()) {
-                                            rkUtils.toast("Failed to delete file")
+                                            toast("Failed to delete file")
                                         }
                                     }
                                 }
@@ -169,7 +169,7 @@ class FileAction(
                     fileDrawable,
                 ) {
                     if (FileClipboard.isEmpty()) {
-                        rkUtils.toast(getString(strings.clipboardempty))
+                        toast(getString(strings.clipboardempty))
                     } else {
                         val loading = LoadingPopup(mainActivity, null).show()
 
@@ -210,7 +210,7 @@ class FileAction(
                                     }.onFailure {
                                         it.printStackTrace()
                                         withContext(Dispatchers.Main) {
-                                            rkUtils.toast(it.message)
+                                            toast(it.message)
                                             loading.hide()
                                         }
                                     }
@@ -245,40 +245,36 @@ class FileAction(
     }
 
     private fun new(createFile: Boolean) {
-        val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
-        val editText = popupView.findViewById<EditText>(R.id.name)
-
-        var title = mainActivity.getString(strings.new_folder)
-        if (createFile) {
-            editText.hint = mainActivity.getString(strings.newFile_hint)
-            title = mainActivity.getString(strings.new_file)
-        } else {
-            editText.hint = mainActivity.getString(strings.dir_example)
-        }
-
-        MaterialAlertDialogBuilder(mainActivity).setTitle(title).setView(popupView)
-            .setNegativeButton(mainActivity.getString(strings.cancel), null)
-            .setPositiveButton(mainActivity.getString(strings.create)) { _: DialogInterface?, _: Int ->
-                if (editText.text.toString().isEmpty()) {
-                    rkUtils.toast(mainActivity.getString(strings.ask_enter_name))
-                    return@setPositiveButton
+        mainActivity.askInput(
+            title = if (createFile){
+                mainActivity.getString(strings.new_file)
+            }else{
+                mainActivity.getString(strings.new_folder)
+            },
+            hint = if (createFile){
+                mainActivity.getString(strings.newFile_hint)
+            }else{
+                mainActivity.getString(strings.dir_example)
+            },
+            onResult = { input ->
+                if (input.isEmpty()) {
+                    toast(mainActivity.getString(strings.ask_enter_name))
+                    return@askInput
                 }
 
                 val loading = LoadingPopup(mainActivity, null)
                 loading.show()
 
-                val fileName = editText.text.toString()
-
                 mainActivity.lifecycleScope.launch(Dispatchers.Default) {
                     runCatching {
-                        if (file.hasChild(fileName)) {
+                        if (file.hasChild(input)) {
                             withContext(Dispatchers.Main) {
-                                rkUtils.toast(mainActivity.getString(strings.already_exists))
+                                toast(mainActivity.getString(strings.already_exists))
                                 loading.hide()
                             }
                         }
 
-                        file.createChild(createFile, fileName)
+                        file.createChild(createFile, input)
                     }.onSuccess {
                         withContext(Dispatchers.Main) {
                             loading.hide()
@@ -288,29 +284,24 @@ class FileAction(
                         it.printStackTrace()
                         withContext(Dispatchers.Main) {
                             loading.hide()
-                            rkUtils.toast(it.message)
+                            toast(it.message)
                         }
                     }
                 }
+            }
+        )
 
-            }.show()
     }
 
     private fun rename() {
-        val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
-        val editText = popupView.findViewById<EditText>(R.id.name)
 
-        editText.setText(file.getName())
-        editText.hint = getString(strings.file_name)
-
-        MaterialAlertDialogBuilder(mainActivity).setTitle(mainActivity.getString(strings.rename))
-            .setView(popupView).setNegativeButton(mainActivity.getString(strings.cancel), null)
-            .setPositiveButton(mainActivity.getString(strings.rename)) { _: DialogInterface?, _: Int ->
-                val newFileName = editText.text.toString()
-
-                if (newFileName.isEmpty()) {
-                    rkUtils.toast(mainActivity.getString(strings.ask_enter_name))
-                    return@setPositiveButton
+        mainActivity.askInput(
+            input = file.getName(),
+            hint = strings.file_name.getString(),
+            onResult = { input ->
+                if (input.isEmpty()) {
+                    toast(mainActivity.getString(strings.ask_enter_name))
+                    return@askInput
                 }
 
                 val loading = LoadingPopup(mainActivity, null)
@@ -319,15 +310,15 @@ class FileAction(
                 mainActivity.lifecycleScope.launch(Dispatchers.Default) {
 
                     runCatching {
-                        if (file.hasChild(newFileName)) {
+                        if (file.hasChild(input)) {
                             withContext(Dispatchers.Main) {
-                                rkUtils.toast(mainActivity.getString(strings.already_exists))
+                                toast(mainActivity.getString(strings.already_exists))
                                 loading.hide()
                             }
                             return@launch
                         }
 
-                        val success = file.renameTo(newFileName)
+                        val success = file.renameTo(input)
 
                         if (success.not()) {
                             throw IllegalStateException("Unable to rename file")
@@ -342,7 +333,7 @@ class FileAction(
                         it.printStackTrace()
                         withContext(Dispatchers.Main) {
                             loading.hide()
-                            rkUtils.toast(it.message.toString())
+                            toast(it.message.toString())
                         }
 
                     }.onSuccess {
@@ -353,9 +344,8 @@ class FileAction(
 
 
                 }
-
-
-            }.show()
+            }
+        )
     }
 
     private fun openWith(context: Context, file: FileObject) {
@@ -396,51 +386,47 @@ class FileAction(
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            rkUtils.toast(getString(strings.file_open_denied))
+            toast(getString(strings.file_open_denied))
         }
     }
 
 
     private fun cloneRepo() {
+        if (file is FileWrapper){
+            mainActivity.askInput(
+                title = "Clone",
+                hint = "repository url",
+                onResult = { input ->
+                    if (input.isEmpty()) {
+                        toast("Invalid url")
+                        return@askInput
+                    }
 
-        file as FileWrapper
+                    val loading = LoadingPopup(mainActivity, null)
+                    loading.show()
 
-        val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
-        val editText = popupView.findViewById<EditText>(R.id.name)
-
-        var title = "Clone"
-        editText.hint = "repo url"
-
-        MaterialAlertDialogBuilder(mainActivity).setTitle(title).setView(popupView)
-            .setNegativeButton(mainActivity.getString(strings.cancel), null)
-            .setPositiveButton("clone") { _: DialogInterface?, _: Int ->
-                if (editText.text.toString().isEmpty()) {
-                    "Invalid url".toastIt()
-                    return@setPositiveButton
-                }
-
-                val loading = LoadingPopup(mainActivity, null)
-                loading.show()
-
-                val url = editText.text.toString()
-
-                mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                    GitClient.clone(mainActivity, url, file.file, onResult = {
-                        runOnUiThread {
-                            if (it == null) {
-                                mainActivity.lifecycleScope.launch {
-                                    ProjectManager.CurrentProject.updateFileAdded(
-                                        mainActivity,
-                                        file
-                                    )
+                    mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                        GitClient.clone(mainActivity, input, file.file, onResult = {
+                            runOnUiThread {
+                                if (it == null) {
+                                    mainActivity.lifecycleScope.launch {
+                                        ProjectManager.CurrentProject.updateFileAdded(
+                                            mainActivity,
+                                            file
+                                        )
+                                    }
                                 }
+                                loading.hide()
+                                toast(it?.message)
                             }
-                            loading.hide()
-                            it?.message?.toastIt()
-                        }
-                    })
+                        })
 
+                    }
                 }
-            }.show()
+            )
+        }else{
+            toast("Unsupported file type")
+        }
+
     }
 }

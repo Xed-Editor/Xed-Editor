@@ -22,63 +22,36 @@ object ProjectBar {
     @SuppressLint("SetTextI18n")
     fun setupNavigationRail(activity: MainActivity) {
         with(activity) {
-            val openFileId = View.generateViewId()
-            val openDirId = View.generateViewId()
-            val openPathId = View.generateViewId()
-            val privateFilesId = View.generateViewId()
-
-            var dialog: AlertDialog? = null
-
-            val listener =
-                View.OnClickListener { v ->
-                    when (v.id) {
-                        openFileId -> {
-                            fileManager?.requestOpenFile()
-                        }
-
-                        openDirId -> {
-                            fileManager?.requestOpenDirectory()
-                        }
-
-                        openPathId -> {
-                            fileManager?.requestOpenFromPath()
-                        }
-
-                        privateFilesId -> {
-                            lifecycleScope.launch {
-                                ProjectManager.addProject(this@with,
-                                    FileWrapper(filesDir.parentFile!!)
-                                )
-                            }
-                        }
-                    }
-                    dialog?.dismiss()
-                    dialog = null
-                }
-
             fun handleAddNew() {
-                ActionPopup(this).apply {
+                ActionPopup(this,true).apply {
                     addItem(
                         getString(strings.open_directory),
                         getString(strings.open_dir_desc),
                         ContextCompat.getDrawable(this@with, drawables.outline_folder_24),
-                        openDirId,
-                        listener,
+                        listener = {
+                            fileManager?.requestOpenDirectory()
+                        }
                     )
                     addItem(
                         getString(strings.open_path),
                         getString(strings.open_path_desc),
                         ContextCompat.getDrawable(this@with, drawables.android),
-                        openPathId,
-                        listener,
+                        listener = {
+                            fileManager?.requestOpenFromPath()
+                        }
                     )
                     
                     addItem(
                         getString(strings.private_files),
                         getString(strings.private_files_desc),
                         ContextCompat.getDrawable(this@with, drawables.build),
-                        privateFilesId,
-                        listener,
+                        listener = {
+                            lifecycleScope.launch {
+                                ProjectManager.addProject(this@with,
+                                    FileWrapper(filesDir.parentFile!!)
+                                )
+                            }
+                        }
                     )
 
                     addItem(
@@ -91,15 +64,13 @@ object ProjectBar {
                                     FileWrapper(alpineHomeDir())
                                 )
                             }
-                            dialog?.dismiss()
-                            dialog = null
                         }
                     )
 
 
                     setTitle(getString(strings.add))
                     getDialogBuilder().setNegativeButton(getString(strings.cancel), null)
-                    dialog = show()
+                    show()
                 }
             }
 

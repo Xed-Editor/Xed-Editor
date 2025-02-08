@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -9,13 +10,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.rk.file.FileObject
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -214,12 +215,12 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     
     fun addFragment(file: FileObject) {
         if (file.getName().isBlank()){
-            rkUtils.toast("File Cannot be opened")
+            toast("File Cannot be opened")
             return
         }
         val type = file.getFragmentType()
         if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
-            rkUtils.toast(rkUtils.getString(strings.file_too_large))
+            toast(strings.file_too_large)
             return
         }
 
@@ -241,13 +242,13 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                         }
                     }
                 }.onFailure {
-                    rkUtils.toast(getString(strings.already_opened))
+                    toast(getString(strings.already_opened))
                 }
 
                 return
             }
             if (tabViewModel.fragmentFiles.size >= tabLimit) {
-                rkUtils.toast(
+                toast(
                     "${getString(strings.open_cant)} $tabLimit ${getString(strings.files)}"
                 )
                 return

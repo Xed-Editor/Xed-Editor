@@ -24,11 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
@@ -63,7 +63,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 key = SettingsKey.OLED,
                 default = false,
                 sideEffect = {
-                    rkUtils.toast(rkUtils.getString(strings.restart_required))
+                    toast(strings.restart_required)
                 })
 
 
@@ -160,7 +160,7 @@ fun DayNightDialog(
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;
                                 }
-                                rkUtils.toast(strings.restart_required.getString())
+                                toast(strings.restart_required.getString())
                             },
                             startWidget = {
                                 RadioButton(

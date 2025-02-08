@@ -1,17 +1,19 @@
 package com.rk.xededitor
 
 import android.app.Application
-import android.content.Context
 import android.os.StrictMode
+import android.util.Log
 import com.github.anrwatchdog.ANRWatchDog
+import com.rk.crashhandler.CrashHandler
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.withCatching
 import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
-import com.rk.xededitor.CrashHandler.CrashHandler
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.update.UpdateManager
@@ -26,8 +28,8 @@ import java.io.File
 class App : Application() {
 
     companion object {
-        fun Context.getTempDir(): File {
-            val tmp = File(filesDir.parentFile, "tmp")
+        fun getTempDir(): File {
+            val tmp = File(application!!.filesDir.parentFile, "tmp")
             if (!tmp.exists()) {
                 tmp.mkdir()
             }
@@ -37,8 +39,12 @@ class App : Application() {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
+        super.onCreate()
         application = this
-        Res.context = this
+        Res.application = this
+
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
+        ANRWatchDog().start()
 
         StrictMode.setVmPolicy(
             StrictMode.VmPolicy.Builder()
@@ -47,18 +53,12 @@ class App : Application() {
                 .build()
         )
 
-        ANRWatchDog().start()
 
-        super.onCreate()
-
-        CrashHandler.INSTANCE.init(this)
         Settings.initPref(this)
 
         GlobalScope.launch(Dispatchers.IO) {
             getTempDir().apply {
-                if (exists() && listFiles().isNullOrEmpty().not()){
-                    deleteRecursively()
-                }
+                if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
             }
 
             launch(Dispatchers.IO) { SetupEditor.init(GlobalScope) }
@@ -66,27 +66,20 @@ class App : Application() {
             AutoSaver.start()
 
             runCatching { UpdateManager.fetch("dev") }
-            delay(500)
+
             if (Settings.getBoolean(SettingsKey.ENABLE_EXTENSIONS,false)){
                 Extension.executeExtensions(this@App,GlobalScope)
                 ExtensionManager.onAppLaunched()
             }
-
         }
 
     }
 
-    override fun onTerminate() {
-        getTempDir().deleteRecursively()
-        super.onTerminate()
-    }
-
-    override fun onLowMemory() {
-        ExtensionManager.onLowMemory()
-        super.onLowMemory()
-    }
-
     override fun onTrimMemory(level: Int) {
+        MainActivity.withContext {
+            binding?.viewpager2?.offscreenPageLimit = 1
+            Log.w("APP","Low Memory")
+        }
         ExtensionManager.onLowMemory()
         super.onTrimMemory(level)
     }

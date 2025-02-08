@@ -33,10 +33,10 @@ import com.rk.extension.ExtensionManager
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.SettingsToggle
@@ -67,7 +67,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                 loading = LoadingPopup(context as Activity, null).show()
                 loading?.setMessage(strings.installing.getString())
                 DefaultScope.launch {
-                    val pluginFile = File(application!!.getTempDir(), "installPlugin.plugin")
+                    val pluginFile = File(getTempDir(), "installPlugin.plugin")
                     application!!.contentResolver.openInputStream(uri!!).use {
                         FileOutputStream(pluginFile).use { outputStream ->
                             it!!.copyTo(outputStream)
@@ -81,13 +81,12 @@ fun Extensions(modifier: Modifier = Modifier) {
                     }
                 }
             } else {
-                rkUtils.toast(strings.not_plugin_err.getString())
+                toast(strings.not_plugin_err.getString())
             }
         }.onFailure {
             loading?.hide()
-            rkUtils.toast(it.message)
+            toast(it.message)
         }
-
 
     }
 

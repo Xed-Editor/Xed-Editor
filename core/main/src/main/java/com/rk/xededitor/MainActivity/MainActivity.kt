@@ -3,20 +3,16 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
-import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
@@ -28,17 +24,14 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
 import com.rk.file.FileObject
-import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.scriptingengine.Engine
 import com.rk.settings.Settings
@@ -54,7 +47,6 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.text.Content
@@ -74,7 +66,6 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
-
 
 class MainActivity : BaseActivity() {
 
@@ -319,7 +310,7 @@ class MainActivity : BaseActivity() {
                             println(result)
                         }, onError = { t ->
                             t.printStackTrace()
-                            rkUtils.toast(t.message)
+                            toast(t.message)
                         }, api = ImplAPI::class.java)
                     }
                     false
@@ -390,6 +381,7 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
         openTabForIntent(intent)
+        binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -476,7 +468,7 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
-            kotlin.runCatching { saveAllFiles() }
+            runCatching { saveAllFiles() }
         }
         ExtensionManager.onAppDestroyed()
         DefaultScope.cancel()

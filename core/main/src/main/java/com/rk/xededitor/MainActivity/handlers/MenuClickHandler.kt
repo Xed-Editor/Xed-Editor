@@ -2,6 +2,7 @@ package com.rk.xededitor.MainActivity.handlers
 
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -14,6 +15,10 @@ import com.rk.file.FileWrapper
 import com.rk.karbon_exec.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
+import com.rk.libcommons.application
+import com.rk.libcommons.askInput
+import com.rk.libcommons.runOnUiThread
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
@@ -21,15 +26,12 @@ import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
-import com.rk.xededitor.MainActivity.handlers.git.commit
-import com.rk.xededitor.MainActivity.handlers.git.pull
-import com.rk.xededitor.MainActivity.handlers.git.push
+import com.rk.xededitor.git.commit
+import com.rk.xededitor.git.pull
+import com.rk.xededitor.git.push
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.getString
-import com.rk.xededitor.rkUtils.runOnUiThread
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -61,7 +63,7 @@ object MenuClickHandler {
                             Runner.run(fileObject.file, activity)
                         }
                     }else{
-                        rkUtils.toast("Runners are not supported on non-native file types")
+                        toast("Runners are not supported on non-native file types")
                     }
                 }
 
@@ -74,7 +76,7 @@ object MenuClickHandler {
                         (f.get()?.fragment as EditorFragment).save(false)
                     }
                 }
-                rkUtils.toast(strings.save_all.getString())
+                toast(strings.save_all.getString())
                 return true
             }
 
@@ -141,10 +143,6 @@ object MenuClickHandler {
                     handleSearch(activity)
                 }
 
-
-
-
-
                 return true
             }
 
@@ -180,7 +178,7 @@ object MenuClickHandler {
                     if (editorFragment!!.file!!.getAbsolutePath()
                             .contains(activity.filesDir!!.parentFile!!.absolutePath)
                     ) {
-                        rkUtils.toast(strings.permission_denied.getString())
+                        toast(strings.permission_denied.getString())
                         return true
                     }
 
@@ -204,7 +202,7 @@ object MenuClickHandler {
                     activity.startActivity(Intent.createChooser(intent, "Share file"))
                     return true
                 }.onFailure {
-                    rkUtils.toast(it.message)
+                    toast(it.message)
                 }
                 return true
             }
@@ -224,12 +222,20 @@ object MenuClickHandler {
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.setType("application/octet-stream")
                 intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
-                activity.fileManager!!.createFileLauncher.launch(intent)
+
+                val activities = application!!.packageManager.queryIntentActivities(intent,PackageManager.MATCH_ALL)
+                if (activities.isNotEmpty()){
+                    activity.fileManager!!.createFileLauncher.launch(intent)
+                }else{
+                    activity.askInput(title = "Create File", hint = "newfile.txt", onResult = { input ->
+                        activity.fileManager?.selectDirForNewFileLaunch(input)
+                    })
+                }
                 return true
             }
 
             Id.action_pull -> {
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                activity.adapter!!.getCurrentFragment()?.fragment?.let {
                     if (it is EditorFragment && it.file is FileWrapper) {
                         it.file?.let { it1 -> pull(activity, (it1 as FileWrapper).file) }
                     } else {
@@ -239,7 +245,7 @@ object MenuClickHandler {
             }
 
             Id.action_push -> {
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                activity.adapter!!.getCurrentFragment()?.fragment?.let {
                     if (it is EditorFragment && it.file is FileWrapper) {
                         it.file?.let { it1 -> push(activity, (it1 as FileWrapper).file) }
                     } else {
@@ -249,7 +255,7 @@ object MenuClickHandler {
             }
 
             Id.action_commit -> {
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                activity.adapter!!.getCurrentFragment()?.fragment?.let {
                     if (it is EditorFragment && it.file is FileWrapper) {
                         it.file?.let { it1 -> commit(activity, (it1 as FileWrapper).file) }
                     } else {
@@ -281,7 +287,7 @@ object MenuClickHandler {
                 }
 
 
-                activity!!.adapter!!.getCurrentFragment()?.fragment?.let {
+                activity.adapter!!.getCurrentFragment()?.fragment?.let {
                     if (it is EditorFragment && it.file is FileWrapper) {
                         DefaultScope.launch(Dispatchers.IO) {
 
@@ -342,7 +348,7 @@ object MenuClickHandler {
             LayoutInflater.from(activity).inflate(com.rk.libcommons.R.layout.popup_replace, null)
         MaterialAlertDialogBuilder(activity).setTitle(activity.getString(strings.replace))
             .setView(popupView).setNegativeButton(activity.getString(strings.cancel), null)
-            .setPositiveButton(getString(strings.replaceall)) { _, _ ->
+            .setPositiveButton(strings.replaceall) { _, _ ->
                 replaceAll(popupView, activity)
             }.show()
         return true

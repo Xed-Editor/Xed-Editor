@@ -11,9 +11,13 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.libcommons.CustomScope
+import com.rk.libcommons.UI
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.safeLaunch
+import com.rk.libcommons.toast
+import com.rk.libcommons.withCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -22,7 +26,6 @@ import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
@@ -123,42 +126,35 @@ class EditorFragment(val context: Context) : CoreFragment {
 
     fun refreshEditorContent() {
         fun refresh() {
-            scope.launch(Dispatchers.IO) {
+            scope.safeLaunch(Dispatchers.IO) {
                 isFileLoaded = false
-                kotlin.runCatching {
-                    file?.let {
-                        editor?.loadFile(
-                            it.getInputStream(), Charset.forName(
-                                Settings.getString(
-                                    SettingsKey.SELECTED_ENCODING,
-                                    Charset.defaultCharset().name()
-                                )
-                            )
+                editor?.loadFile(
+                    file!!.getInputStream(), Charset.forName(
+                        Settings.getString(
+                            SettingsKey.SELECTED_ENCODING,
+                            Charset.defaultCharset().name()
                         )
-                    }
-                    MainActivity.activityRef.get()?.let { activity ->
-                        val index = activity.tabViewModel.fragmentFiles.indexOf(file)
-                        activity.tabViewModel.fragmentTitles.let {
+                    )
+                )
+                UI {
+                    MainActivity.withContext {
+                        val index = tabViewModel.fragmentFiles.indexOf(file)
+                        tabViewModel.fragmentTitles.let {
                             if (file!!.getName() != it[index]) {
                                 it[index] = file!!.getName()
-                                withContext(Dispatchers.Main) {
-                                    activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
-                                }
+                                tabLayout!!.getTabAt(index)?.text = file!!.getName()
                             }
                         }
                     }
-                    file?.let {
-                        if (fileset.contains(it.getName())) {
-                            fileset.remove(it.getName())
-                        }
-                    }
-                    withContext(Dispatchers.IO) {
-                        FilesContent.remove(file!!.getAbsolutePath())
-                    }
-                    isFileLoaded = true
-                }.onFailure {
-                    rkUtils.toast(it.message)
                 }
+                file?.let {
+                    if (fileset.contains(it.getName())) {
+                        fileset.remove(it.getName())
+                    }
+                }
+                FilesContent.remove(file!!.getAbsolutePath())
+                isFileLoaded = true
+
             }
         }
 
@@ -166,9 +162,8 @@ class EditorFragment(val context: Context) : CoreFragment {
         if (isModified()) {
             MaterialAlertDialogBuilder(context).setTitle(strings.unsaved.getString())
                 .setMessage(strings.ask_unsaved.getString())
-                .setNegativeButton(strings.keep_editing.getString()) { _, _ ->
-
-                }.setPositiveButton(strings.refresh.getString()) { _, _ ->
+                .setNegativeButton(strings.keep_editing.getString(), null)
+                .setPositiveButton(strings.refresh.getString()) { _, _ ->
                     refresh()
                 }.show()
         } else {
@@ -180,19 +175,20 @@ class EditorFragment(val context: Context) : CoreFragment {
 
 
     object FilesContent {
-        suspend fun containsKey(key: String): Boolean {
-            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key) ?: false
+        fun containsKey(key: String): Boolean {
+            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key)
+                ?: false
         }
 
-        suspend fun getContent(key: String): Content? {
+        fun getContent(key: String): Content? {
             return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.get(key)
         }
 
-        suspend fun setContent(key: String, content: Content) {
-            MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.put(key,content)
+        fun setContent(key: String, content: Content) {
+            MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.put(key, content)
         }
 
-        suspend fun remove(key: String) {
+        fun remove(key: String) {
             MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.remove(key)
         }
 
@@ -201,100 +197,60 @@ class EditorFragment(val context: Context) : CoreFragment {
     private var isFileLoaded = false
     override fun loadFile(file: FileObject) {
         this.file = file
-        scope.launch(Dispatchers.Default) {
-            runCatching {
-                if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
-                    mutex.withLock {
-                        withContext(Dispatchers.Main) {
-                            editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
-                            isFileLoaded = true
-                        }
+        scope.safeLaunch {
+            UI {
+                setChangeListener()
+                file.let {
+                    if (it.getName().endsWith(".txt") && Settings.getBoolean(
+                            SettingsKey.WORD_WRAP_TXT,
+                            true
+                        )
+                    ) {
+                        editor?.isWordwrap = true
                     }
-                } else {
-                    launch {
-                        runCatching {
-                            editor!!.loadFile(
-                                file.getInputStream(), Charset.forName(
-                                    Settings.getString(
-                                        SettingsKey.SELECTED_ENCODING,
-                                        Charset.defaultCharset().name()
-                                    )
-                                )
-                            )
-                            FilesContent.setContent(
-                                this@EditorFragment.file!!.getAbsolutePath(),
-                                editor!!.text
-                            )
-                            isFileLoaded = true
-                            /*
-                            launch {
-                                delay(5000)
-                                if (PreferencesData.getBoolean(PreferencesKeys.SCROLL_TO_BOTTOM,false)){
-                                    withContext(Dispatchers.Main){
-                                        println("scrolled")
-                                        editor!!.apply {
-                                            val dx = 0
-                                            val dy = scrollMaxY - scroller.currY
-                                            scroller.startScroll(scroller.startX,scroller.startY,dx,dy,0)
-                                        }
-                                    }
-                                }
-                            } */
-                        }.onFailure {
-                            it.printStackTrace()
-                            rkUtils.toast(it.message)
-                        }
-                    }
-                }
-
-                withContext(Dispatchers.Main) {
-                    setChangeListener()
-                    this@EditorFragment.file?.let {
-                        if (it.getName().endsWith(".txt") && Settings.getBoolean(
-                                SettingsKey.WORD_WRAP_TXT, true
-                            )
-                        ) {
-                            editor?.isWordwrap = true
-                        }
-                    }
-                }
-
-                launch {
-                    runCatching {
-                        setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
-                    }.onFailure {
-                        it.printStackTrace()
-                        rkUtils.toast(it.message)
-                    }
-                }
-
-
-            }.onFailure {
-                it.printStackTrace()
-                if (it.message?.contains("Job") != true) {
-                    rkUtils.toast(it.message)
                 }
             }
+            safeLaunch {
+                setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+            }
+            if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
+                mutex.withLock {
+                    withContext(Dispatchers.Main) {
+                        editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
+                        isFileLoaded = true
+                    }
+                }
+            } else {
+                editor!!.loadFile(
+                    file.getInputStream(), Charset.forName(
+                        Settings.getString(
+                            SettingsKey.SELECTED_ENCODING,
+                            Charset.defaultCharset().name()
+                        )
+                    )
+                )
+                FilesContent.setContent(
+                    this@EditorFragment.file!!.getAbsolutePath(),
+                    editor!!.text
+                )
+                isFileLoaded = true
+            }
         }
-
     }
 
     override fun getFile(): FileObject? = file
 
     @OptIn(DelicateCoroutinesApi::class)
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
-
-        if (isAutoSaver) {
-            if (isReadyToSave().not()) {
-                return
-            }
+        if (isAutoSaver && isReadyToSave().not()) {
+            return
         }
 
         if (file == null) {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast(strings.file_err.getString())
+            toast(strings.file_err)
             return
         }
 
@@ -302,7 +258,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast(strings.permission_denied.getString())
+            toast(strings.permission_denied)
             return
         }
 
@@ -310,7 +266,7 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast(strings.file_not_loaded.getString())
+            toast(strings.file_not_loaded)
             return
         }
 
@@ -318,56 +274,46 @@ class EditorFragment(val context: Context) : CoreFragment {
             if (isAutoSaver) {
                 return
             }
-            rkUtils.toast(strings.file_exist_not.getString())
+            toast(strings.file_exist_not)
             return
         }
 
-        GlobalScope.launch(Dispatchers.IO) {
-            editor?.saveToFile(
-                file!!.getOutPutStream(false), Charset.forName(
-                    Settings.getString(
-                        SettingsKey.SELECTED_ENCODING, Charset.defaultCharset().name()
-                    )
-                )
+        GlobalScope.safeLaunch(Dispatchers.IO) {
+            val charset = Settings.getString(
+                SettingsKey.SELECTED_ENCODING, Charset.defaultCharset().name()
             )
-            try {
-                MainActivity.activityRef.get()?.let { activity ->
-                    val index = activity.tabViewModel.fragmentFiles.indexOf(file)
-                    activity.tabViewModel.fragmentTitles.let {
-                        if (file!!.getName() != it[index]) {
-                            it[index] = file!!.getName()
-                            withContext(Dispatchers.Main) {
-                                activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
-                            }
+            editor?.saveToFile(file!!.getOutPutStream(false), Charset.forName(charset))
+
+            val isMutatorFile = file!!.getParentFile()
+                ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
+                .endsWith("&mut.js")
+
+            if (isMutatorFile) {
+                Mutators.getMutators().forEach { mut ->
+                    if (mut.name + "&mut.js" == file!!.getName()) {
+                        mut.script = editor?.text.toString()
+                        Mutators.saveMutator(mut)
+                    }
+                }
+            }
+
+            MainActivity.activityRef.get()?.let { activity ->
+                val index = activity.tabViewModel.fragmentFiles.indexOf(file)
+                activity.tabViewModel.fragmentTitles.let {
+                    if (file!!.getName() != it[index]) {
+                        it[index] = file!!.getName()
+                        withContext(Dispatchers.Main) {
+                            activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
                         }
                     }
                 }
-                fileset.remove(file!!.getName())
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main) { rkUtils.toast(e.message) }
             }
+            fileset.remove(file!!.getName())
+
             if (showToast) {
-                withContext(Dispatchers.Main) { rkUtils.toast(rkUtils.getString(strings.saved)) }
-            }
-
-
-            if (file!!.getParentFile()
-                    ?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName()
-                    .endsWith("&mut.js")
-            ) {
-                withContext(Dispatchers.IO) {
-                    Mutators.getMutators().forEach { mut ->
-                        if (mut.name + "&mut.js" == file!!.getName()) {
-                            mut.script = editor?.text.toString()
-                            Mutators.saveMutator(mut)
-                        }
-                    }
-                }
+                withContext(Dispatchers.Main) { toast(strings.saved.getString()) }
             }
         }
-
-
     }
 
     override fun getView(): View? {
@@ -390,23 +336,19 @@ class EditorFragment(val context: Context) : CoreFragment {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
-            runCatching {
+            withCatching {
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
                 if (file?.getParentFile()
-                        ?.getAbsolutePath() == context.getTempDir().absolutePath && file!!.getName()
+                        ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
                         .endsWith("&mut.js")
                 ) {
                     file?.delete()
                 }
-
-            }.onFailure {
-                rkUtils.toast(it.message)
             }
         }
         onDestroy()
 
     }
-
 
     suspend fun undo() {
         editor?.undo()
@@ -443,45 +385,28 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     private fun setChangeListener() = editor!!.subscribeAlways(ContentChangeEvent::class.java) {
-            scope.launch {
-                updateUndoRedo()
+        scope.safeLaunch {
+            updateUndoRedo()
 
-                if (t < 2) {
-                    t++
-                    return@launch
-                }
+            //return if the file is being loaded
+            if (t < 2) {
+                t++;return@safeLaunch
+            }
 
-                runCatching {
-                    val fileName = file!!.getName()
-                    fun addStar() {
-                        val index =
-                            MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles.indexOf(file)
-                        val currentTitle =
-                            MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index]
-                        // Check if the title doesn't already contain a '*'
-                        if (!currentTitle.endsWith("*")) {
-                            MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index] =
-                                "$currentTitle*"
+            fileset.add(file!!.getName())
 
-                            scope.launch(Dispatchers.Main) {
-                                MainActivity.activityRef.get()!!.tabLayout!!.getTabAt(index)?.text =
-                                    MainActivity.activityRef.get()!!.tabViewModel.fragmentTitles[index]
-                            }
-                        }
+            MainActivity.activityRef.get()?.tabViewModel?.apply {
+                val index = fragmentFiles.indexOf(file)
+                val currentTitle = fragmentTitles[index]
+
+                if (currentTitle.endsWith("*").not()) {
+                    fragmentTitles[index] = "$currentTitle*"
+
+                    MainActivity.withContext {
+                        tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
                     }
-
-                    if (fileset.contains(fileName)) {
-                        addStar()
-                    } else {
-                        fileset.add(fileName)
-                        addStar()
-                    }
-                }.onFailure {
-                    it.printStackTrace()
                 }
             }
         }
-
-
-
+    }
 }

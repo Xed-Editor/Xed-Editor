@@ -3,9 +3,9 @@ package com.rk.xededitor.ui.screens.settings.editor
 import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.GsonBuilder
 import com.rk.libcommons.application
+import com.rk.libcommons.toast
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
-import com.rk.xededitor.rkUtils
 
 
 object EditorFont {
@@ -28,7 +28,7 @@ object EditorFont {
         restoreFonts()
     }
 
-    fun restoreFonts() {
+    private fun restoreFonts() {
         val f = Settings.getString(SettingsKey.FONT_GSON, "")
         val gson = GsonBuilder().create()
 
@@ -42,7 +42,7 @@ object EditorFont {
             }
 
         } catch (e: Exception) {
-            rkUtils.toast(e.message + "\n clear data reccomeneded")
+            toast(e.message + "\n clear data recommended")
         }
     }
 

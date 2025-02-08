@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.editor.applySettings
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -21,7 +22,6 @@ import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
@@ -143,7 +143,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 key = PreferencesKeys.SCROLL_TO_BOTTOM,
                 sideEffect = {
                     if (it) {
-                        rkUtils.toast(strings.ni.getString())
+                        toast(strings.ni.getString())
                     }
                 }) */
 
@@ -315,11 +315,11 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     if (lineSpacingValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        toast(context.getString(strings.inavalid_v))
                         lineSpacingValue =
                             Settings.getString(SettingsKey.LINE_SPACING, "0")
                     } else if (lineSpacingValue.toInt() < 0) {
-                        rkUtils.toast(context.getString(strings.v_small))
+                        toast(context.getString(strings.v_small))
                         lineSpacingValue =
                             Settings.getString(SettingsKey.LINE_SPACING, "0")
                     } else {
@@ -352,11 +352,11 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     if (lineSpacingMultiplierValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        toast(context.getString(strings.inavalid_v))
                         lineSpacingMultiplierValue =
                             Settings.getString(SettingsKey.LINE_SPACING_MULTIPLAYER, "1")
                     } else if (lineSpacingValue.toInt() < 0) {
-                        rkUtils.toast(context.getString(strings.v_small))
+                        toast(context.getString(strings.v_small))
                         lineSpacingMultiplierValue =
                             Settings.getString(SettingsKey.LINE_SPACING_MULTIPLAYER, "1")
                     } else {
@@ -386,11 +386,11 @@ fun SettingsEditorScreen(navController: NavController) {
                 onInputValueChange = { autoSaveTimeValue = it },
                 onConfirm = {
                     if (autoSaveTimeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        toast(context.getString(strings.inavalid_v))
                         autoSaveTimeValue =
                             Settings.getString(SettingsKey.AUTO_SAVE_TIME_VALUE, "10000")
                     } else if (autoSaveTimeValue.toInt() < 3000) {
-                        rkUtils.toast(context.getString(strings.v_small))
+                        toast(context.getString(strings.v_small))
                         autoSaveTimeValue =
                             Settings.getString(SettingsKey.AUTO_SAVE_TIME_VALUE, "10000")
                     } else {
@@ -414,13 +414,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 onInputValueChange = { textSizeValue = it },
                 onConfirm = {
                     if (textSizeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        toast(context.getString(strings.inavalid_v))
                         textSizeValue = Settings.getString(SettingsKey.TEXT_SIZE, "14")
                     } else if (textSizeValue.toInt() > 32) {
-                        rkUtils.toast(context.getString(strings.v_large))
+                        toast(context.getString(strings.v_large))
                         textSizeValue = Settings.getString(SettingsKey.TEXT_SIZE, "14")
                     } else if (textSizeValue.toInt() < 8) {
-                        rkUtils.toast(context.getString(strings.v_small))
+                        toast(context.getString(strings.v_small))
                         textSizeValue = Settings.getString(SettingsKey.TEXT_SIZE, "14")
                     } else {
                         Settings.setString(SettingsKey.TEXT_SIZE, textSizeValue)
@@ -449,13 +449,13 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
                     if (tabSizeValue.any { !it.isDigit() }) {
-                        rkUtils.toast(context.getString(strings.inavalid_v))
+                        toast(context.getString(strings.inavalid_v))
                         tabSizeValue = Settings.getString(SettingsKey.TAB_SIZE, "4")
                     } else if (tabSizeValue.toInt() > 16) {
-                        rkUtils.toast(context.getString(strings.v_large))
+                        toast(context.getString(strings.v_large))
                         tabSizeValue = Settings.getString(SettingsKey.TAB_SIZE, "4")
                     } else if (tabSizeValue.toInt() < 1) {
-                        rkUtils.toast(context.getString(strings.v_small))
+                        toast(context.getString(strings.v_small))
                         tabSizeValue = Settings.getString(SettingsKey.TAB_SIZE, "4")
                     } else {
                         Settings.setString(SettingsKey.TAB_SIZE, tabSizeValue)

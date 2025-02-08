@@ -15,7 +15,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils.getString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,9 +64,9 @@ object PermissionHandler {
             
             withContext(Dispatchers.Main) {
                 if (shouldAsk) {
-                    MaterialAlertDialogBuilder(activity).setTitle(getString(strings.manage_storage))
-                        .setMessage(getString(strings.manage_storage_reason))
-                        .setPositiveButton(getString(strings.ok)) { dialog: DialogInterface?, which: Int ->
+                    MaterialAlertDialogBuilder(activity).setTitle(strings.manage_storage)
+                        .setMessage(strings.manage_storage_reason)
+                        .setPositiveButton(strings.ok) { dialog: DialogInterface?, which: Int ->
                             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                                 val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                                 intent.setData(Uri.parse("package:${activity.packageName}"))

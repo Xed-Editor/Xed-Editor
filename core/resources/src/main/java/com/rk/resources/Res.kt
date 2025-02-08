@@ -7,9 +7,10 @@ typealias drawables = R.drawable
 typealias strings = R.string
 
 object Res{
-    var context:Application? = null
+    @JvmField
+    var application:Application? = null
 }
 
 inline fun Int.getString():String{
-    return  ContextCompat.getString(Res.context!!, this)
+    return ContextCompat.getString(Res.application!!, this)
 }

@@ -1,19 +1,14 @@
 package com.rk.xededitor.ui.screens.settings.mutators
 
-import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
-import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
 import com.rk.libcommons.localDir
 import com.rk.resources.drawables
-import com.rk.scriptingengine.Engine
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.rkUtils
-import kotlinx.coroutines.launch
 import java.io.File
 
 object Mutators {
