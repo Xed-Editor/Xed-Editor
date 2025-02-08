@@ -284,6 +284,7 @@ class FileManager(private val mainActivity: MainActivity) {
     @SuppressLint("SdCardPath")
     fun requestOpenFromPath() {
         mainActivity.askInput(
+            title = strings.path.getString(),
             input = "/sdcard",
             hint = strings.ff_path.getString(),
             onResult = { input ->

@@ -31,6 +31,7 @@ import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
+import com.rk.libcommons.withCatching
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.scriptingengine.Engine
@@ -122,7 +123,7 @@ class MainActivity : BaseActivity() {
                 }
                 _isRestoring = true
                 val stateFile = File(application!!.cacheDir, "state")
-                runCatching {
+                withCatching {
                     if (stateFile.exists()) {
                         FileInputStream(stateFile).use { fileInputStream ->
                             ObjectInputStream(fileInputStream).use {
@@ -130,26 +131,24 @@ class MainActivity : BaseActivity() {
                             }
                         }
                     }
-                }.onFailure {
+                }?.let {
                     it.printStackTrace()
                     stateFile.delete()
                     toast("State lost")
-                }.onSuccess {
-                    withContext(Dispatchers.Main) {
-                        delay(1000)
-                        withContext {
-                            if (fragmentFiles.isNotEmpty()) {
-                                binding!!.tabs.visibility = View.VISIBLE
-                                binding!!.mainView.visibility = View.VISIBLE
-                                binding!!.openBtn.visibility = View.GONE
-                            }
-
-                            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                                tab.text = tabViewModel.fragmentTitles[position]
-                            }.attach()
-
-                            binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
+                } ?: withContext(Dispatchers.Main) {
+                    delay(1000)
+                    withContext {
+                        if (fragmentFiles.isNotEmpty()) {
+                            binding!!.tabs.visibility = View.VISIBLE
+                            binding!!.mainView.visibility = View.VISIBLE
+                            binding!!.openBtn.visibility = View.GONE
                         }
+
+                        TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
+                            tab.text = tabViewModel.fragmentTitles[position]
+                        }.attach()
+
+                        binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
                     }
                 }
                 _isRestoring = false
@@ -359,7 +358,7 @@ class MainActivity : BaseActivity() {
         tabViewModel.save()
 
         if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
-            kotlin.runCatching { saveAllFiles() }
+            withCatching { saveAllFiles() }
         }
 
         super.onPause()
@@ -471,7 +470,7 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
-            runCatching { saveAllFiles() }
+            withCatching { saveAllFiles() }
         }
         ExtensionManager.onAppDestroyed()
         DefaultScope.cancel()

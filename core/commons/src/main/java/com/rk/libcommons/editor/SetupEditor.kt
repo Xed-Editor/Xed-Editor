@@ -50,37 +50,53 @@ import java.io.InputStreamReader
 private typealias onClick = OnClickListener
 
 val textmateSources = hashMapOf(
+    "pro" to "source.shell",
     "java" to "source.java",
     "bsh" to "source.java",
     "html" to "text.html.basic",
     "htmx" to "text.html.htmx",
+    "gsh" to "source.groovy",
     "kt" to "source.kotlin",
     "kts" to "source.kotlin",
     "py" to "source.python",
+    "groovy" to "source.groovy",
     "nim" to "source.nim",
     "xml" to "text.xml",
+    "go" to "source.go",
     "js" to "source.js",
     "ts" to "source.ts",
+    "gradle" to "source.groovy",
     "tsx" to "source.tsx",
     "jsx" to "source.js.jsx",
+    "gitattributes" to "source.ini",
     "md" to "text.html.markdown",
     "c" to "source.c",
+    "bat" to "source.batchfile",
     "cpp" to "source.cpp",
     "h" to "source.cpp",
+    "xhtml" to "text.html.basic",
     "json" to "source.json",
     "css" to "source.css",
+    "gvy" to "source.groovy",
     "cs" to "source.cs",
     "csx" to "source.cs",
+    "xht" to "text.html.basic",
     "yml" to "source.yaml",
     "yaml" to "source.yaml",
+    "gy" to "source.groovy",
     "cff" to "source.yaml",
+    "cmd" to "source.batchfile",
     "sh" to "source.shell",
     "bash" to "source.shell",
+    "htm" to "text.html.basic",
     "rs" to "source.rust",
     "lua" to "source.lua",
+    "gitmodules" to "source.ini",
     "php" to "source.php",
+    "ini" to "source.ini",
     "smali" to "source.smali",
     "v" to "source.coq",
+    "gitconfig" to "source.ini",
     "coq" to "source.coq",
     "properties" to "source.java-properties"
 )
@@ -157,7 +173,14 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
 
     suspend fun setupLanguage(fileName: String) {
-        textmateSources[fileName.substringAfterLast('.', "").trim()]?.let { setLanguage(it) }
+        val source = when(fileName){
+            "gradlew" -> textmateSources["sh"]
+            else -> {
+                textmateSources[fileName.substringAfterLast('.', "").trim()]
+            }
+        }
+
+        source?.let { setLanguage(it) }
     }
 
     companion object {
