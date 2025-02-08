@@ -12,6 +12,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.application
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
+import com.rk.libcommons.withCatching
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
@@ -57,31 +58,28 @@ object Runner {
             if (isRunnable(file)) {
                 val ext = file.name.substringAfterLast('.', "")
 
-
                 val runners = getRunnerInstance(ext)
                 if (runners.isEmpty()) {
-                    toast("No runners are available for this file")
-                    return@withContext
+                    throw RuntimeException("No runners are available for this file")
                 }
+
                 if (runners.size == 1) {
                     withContext(Dispatchers.IO){
-                        runCatching { runners[0].run(file, context) }.onFailure {
-                           toast(it.message)
-                        }
+                        withCatching { runners[0].run(file, context) }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         showRunnerSelectionDialog(context, runners) { selectedRunner ->
                             Thread {
-                                runCatching { selectedRunner.run(file, context) }.onFailure {
-                                    toast(it.message)
+                                withCatching {
+                                    selectedRunner.run(file, context)
                                 }
                             }.start()
                         }
                     }
                 }
             }else{
-                toast("This file is not runnable")
+                throw RuntimeException("This file is not runnable")
             }
 
         }

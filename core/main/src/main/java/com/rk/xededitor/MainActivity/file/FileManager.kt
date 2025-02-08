@@ -7,15 +7,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
@@ -28,7 +24,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
-import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

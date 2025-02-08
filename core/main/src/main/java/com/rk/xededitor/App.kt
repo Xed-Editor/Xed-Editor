@@ -1,12 +1,14 @@
 package com.rk.xededitor
 
 import android.app.Application
+import android.net.TrafficStats
 import android.os.StrictMode
 import android.util.Log
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
+import com.rk.libcommons.BuildConfig
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.withCatching
@@ -46,12 +48,15 @@ class App : Application() {
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
         ANRWatchDog().start()
 
-        StrictMode.setVmPolicy(
-            StrictMode.VmPolicy.Builder()
-                .detectAll()
-                .penaltyLog()
-                .build()
-        )
+        if (BuildConfig.DEBUG){
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder()
+                    .detectAll()
+                    .penaltyLog()
+                    .build()
+            )
+        }
+
 
 
         Settings.initPref(this)
