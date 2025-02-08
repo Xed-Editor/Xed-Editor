@@ -285,12 +285,16 @@ class MainActivity : BaseActivity() {
 
         menu.findItem(R.id.select_highlighting).subMenu?.apply {
             var order = 0
-            textmateSources.forEach { (ext, sourceName) ->
+            textmateSources.values.toSet().forEach { sourceName ->
+                var ext = sourceName.substringAfterLast(".")
+                if (sourceName == "text.html.basic"){
+                    ext = "html"
+                }
+
                 add(1,sourceName.hashCode(),order,ext).setOnMenuItemClickListener {
-                    (adapter?.getCurrentFragment()?.fragment as? EditorFragment)?.apply {
-                        scope.launch { setupEditor?.setLanguage(sourceName) }
-                    }
+                    (adapter?.getCurrentFragment()?.fragment as? EditorFragment)?.apply { scope.launch { setupEditor?.setLanguage(sourceName) } }
                     false }
+
                 order++
             }
         }
@@ -303,7 +307,6 @@ class MainActivity : BaseActivity() {
             menu.findItem(R.id.tools).subMenu?.add(
                 1, mut.hashCode(), order, mut.name
             )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
-                println(mut.name + "called")
                 setOnMenuItemClickListener {
                     DefaultScope.launch {
                         Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
