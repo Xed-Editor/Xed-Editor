@@ -6,9 +6,37 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+fun getGitCommitHash(): String {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short=8", "HEAD")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+fun getGitCommitDate(): String {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "show", "-s", "--format=%cI", "HEAD")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+fun getFullGitCommitHash(): String {
+    val stdout = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "HEAD")
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+
 android {
     namespace = "com.rk.xededitor"
-
+    android.buildFeatures.buildConfig = true
     compileSdk = 35
 
     defaultConfig {
@@ -19,11 +47,19 @@ android {
 
     buildTypes {
         release {
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
+            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
+            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
+        }
+        debug{
+            buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
+            buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
+            buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
         }
     }
 
@@ -92,18 +128,11 @@ dependencies {
     api(libs.eventbus)
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
+    api(libs.word.wrap)
 
-    api(project(":core:runner"))
-    api(project(":core:file"))
-    api(project(":core:filetree"))
-    api(project(":core:settings"))
-    api(project(":core:commons"))
+
     api(project(":core:components"))
     api(project(":core:editor"))
-    api(project(":core:crash-handler"))
     api(project(":core:language-textmate"))
     api(project(":core:resources"))
-    api(project(":core:karbon-exec"))
-    api(project(":core:mutator-engine"))
-    api(project(":core:extension"))
 }

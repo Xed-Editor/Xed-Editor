@@ -8,7 +8,7 @@ import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
-import com.rk.libcommons.BuildConfig
+import com.rk.xededitor.BuildConfig
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.Res

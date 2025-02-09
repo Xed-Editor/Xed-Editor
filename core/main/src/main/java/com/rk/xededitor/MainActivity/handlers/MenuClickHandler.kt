@@ -345,7 +345,7 @@ object MenuClickHandler {
 
     private fun handleReplace(activity: MainActivity): Boolean {
         val popupView =
-            LayoutInflater.from(activity).inflate(com.rk.libcommons.R.layout.popup_replace, null)
+            LayoutInflater.from(activity).inflate(R.layout.popup_replace, null)
         MaterialAlertDialogBuilder(activity).setTitle(activity.getString(strings.replace))
             .setView(popupView).setNegativeButton(activity.getString(strings.cancel), null)
             .setPositiveButton(strings.replaceall) { _, _ ->
@@ -387,8 +387,8 @@ object MenuClickHandler {
 
     private fun handleSearch(activity: MainActivity): Boolean {
         val popupView =
-            LayoutInflater.from(activity).inflate(com.rk.libcommons.R.layout.popup_search, null)
-        val searchBox = popupView.findViewById<EditText>(com.rk.libcommons.R.id.searchbox)
+            LayoutInflater.from(activity).inflate(R.layout.popup_search, null)
+        val searchBox = popupView.findViewById<EditText>(R.id.searchbox)
 
         if (!searchText.isNullOrEmpty()) {
             searchBox.setText(searchText)
@@ -419,7 +419,7 @@ object MenuClickHandler {
                 null
             }
         // search
-        val checkBox = popupView.findViewById<CheckBox>(com.rk.libcommons.R.id.case_senstive)
+        val checkBox = popupView.findViewById<CheckBox>(R.id.case_senstive)
             .also { it.text = strings.cs.getString() }
         editorFragment?.let {
             it.editor?.searcher?.search(

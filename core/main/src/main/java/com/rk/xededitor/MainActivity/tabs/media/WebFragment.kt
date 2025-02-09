@@ -7,13 +7,13 @@ import android.webkit.WebView
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.libcommons.CustomScope
-import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.net.ServerSocket
 import java.net.URLEncoder
 
 class WebFragment(val context: Context) : CoreFragment {
@@ -21,8 +21,8 @@ class WebFragment(val context: Context) : CoreFragment {
     private var file: FileObject? = null
     private val webView:WebView = WebView(context)
     private var httpServer:HttpServer? = null
-    private val port = getAvailablePort()
-    
+    private val port by lazy { ServerSocket(0).use { socket -> socket.localPort } }
+
     override fun getView(): View {
         return webView
     }

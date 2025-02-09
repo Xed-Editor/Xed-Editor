@@ -67,7 +67,7 @@ class EditorFragment(val context: Context) : CoreFragment {
         }
 
         if (yes) {
-            searchLayout.findViewById<EditText>(com.rk.libcommons.R.id.search_editor).requestFocus()
+            searchLayout.findViewById<EditText>(R.id.search_editor).requestFocus()
         }
     }
 
