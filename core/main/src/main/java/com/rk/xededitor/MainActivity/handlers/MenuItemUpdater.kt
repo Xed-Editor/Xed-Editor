@@ -1,7 +1,7 @@
 package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.runOnUiThread
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
@@ -56,9 +56,9 @@ private suspend fun updateEditor(
         findItem(Id.select_highlighting).isVisible = show
     }
 
-    val file = fragment?.file as? FileWrapper
+
     val isRunnable = withContext(Dispatchers.Default) {
-        file?.file?.let { Runner.isRunnable(it) }
+        fragment?.file?.let { Runner.isRunnable(it) } == true
     }
     menu.findItem(Id.run).isVisible = isRunnable == true
 }

@@ -1,7 +1,7 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir

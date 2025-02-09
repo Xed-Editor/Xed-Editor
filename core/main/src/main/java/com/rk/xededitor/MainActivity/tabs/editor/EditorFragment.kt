@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.UI
 import com.rk.libcommons.editor.KarbonEditor

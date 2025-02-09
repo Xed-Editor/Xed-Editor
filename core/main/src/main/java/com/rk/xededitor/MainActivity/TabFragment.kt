@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu

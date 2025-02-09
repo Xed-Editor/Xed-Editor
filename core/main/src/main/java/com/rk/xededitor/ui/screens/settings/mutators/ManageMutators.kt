@@ -22,14 +22,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.InputDialog
 import kotlinx.coroutines.Dispatchers

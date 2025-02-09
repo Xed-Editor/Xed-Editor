@@ -12,9 +12,8 @@ import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import java.io.File
 
-class ShellRunner : RunnerImpl {
-    override fun run(file: File, context: Context) {
-
+class ShellRunner(val file: File) : RunnerImpl() {
+    override fun run(context: Context) {
         val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
         when(runtime){
             "Android" -> {

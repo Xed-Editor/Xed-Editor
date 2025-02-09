@@ -1,14 +1,13 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString

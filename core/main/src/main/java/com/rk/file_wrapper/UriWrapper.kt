@@ -1,6 +1,5 @@
-package com.rk.file
+package com.rk.file_wrapper
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap

@@ -4,14 +4,20 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import com.rk.file_wrapper.FileObject
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.R
 import java.io.File
+import java.lang.ref.WeakReference
 
-class MarkDownRunner : RunnerImpl {
-    override fun run(file: File, context: Context) {
+var mdViewerRef = WeakReference<MDViewer?>(null)
+
+class MarkDownRunner(val file: FileObject) : RunnerImpl() {
+
+    override fun run(context: Context) {
         val intent = Intent(context, MDViewer::class.java)
-        intent.putExtra("filepath", file.absolutePath)
+        TODO()
+        intent.putExtra("filepath", file.getAbsolutePath())
         context.startActivity(intent)
     }
 
@@ -20,16 +26,17 @@ class MarkDownRunner : RunnerImpl {
     }
 
     override fun getDescription(): String {
-        return "preview markdown"
+        return "Preview markdown"
     }
 
     override fun getIcon(context: Context): Drawable? {
         return ContextCompat.getDrawable(context, R.drawable.markdown)
     }
     override fun isRunning(): Boolean {
-        return false
+        return mdViewerRef.get() != null
     }
     override fun stop() {
-        TODO("Not yet implemented")
+        mdViewerRef.get()?.finish()
+        mdViewerRef = WeakReference(null)
     }
 }

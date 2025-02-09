@@ -1,19 +1,20 @@
 package com.rk.runner.runners.web.markdown
 
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
+import com.rk.runner.runners.web.html.HtmlRunner
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -25,12 +26,19 @@ class MDViewer : WebActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mdViewerRef = WeakReference(this)
         file = File(intent.getStringExtra("filepath").toString())
         
         supportActionBar!!.title = file.name
         val isDarkMode: Boolean =
             (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        
+
+        HtmlRunner.httpServer?.let {
+            if(it.isAlive){
+                it.stop()
+            }
+        }
+
         httpServer = HttpServer(PORT, FileWrapper(file.parentFile!!)) { md,session ->
             val parameters = session.parameters
             val pathAfterSlash = session.uri?.substringAfter("/") ?: ""

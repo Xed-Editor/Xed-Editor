@@ -1,4 +1,4 @@
-package com.rk.scriptingengine;
+package com.rk.mutator_engine;
 
 public interface EngineAPI {
     void showToast(String text);

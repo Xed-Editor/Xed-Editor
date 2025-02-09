@@ -11,7 +11,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.karbon_exec.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
@@ -57,13 +57,9 @@ object MenuClickHandler {
             }
 
             Id.run -> {
-                editorFragment!!.file.let { fileObject ->
-                    if (fileObject is FileWrapper) {
-                        DefaultScope.launch {
-                            Runner.run(fileObject.file, activity)
-                        }
-                    }else{
-                        toast("Runners are not supported on non-native file types")
+                editorFragment!!.file!!.let { fileObject ->
+                    DefaultScope.launch {
+                        Runner.run(fileObject, activity)
                     }
                 }
 

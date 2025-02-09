@@ -1,16 +1,11 @@
 package com.rk.xededitor.MainActivity
 
 import android.annotation.SuppressLint
-import android.view.View
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.ActionPopup
-import com.rk.libcommons.alpineDir
 import com.rk.libcommons.alpineHomeDir
-import com.rk.libcommons.child
-import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings

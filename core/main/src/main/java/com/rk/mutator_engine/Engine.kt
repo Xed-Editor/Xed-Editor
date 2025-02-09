@@ -1,4 +1,4 @@
-package com.rk.scriptingengine
+package com.rk.mutator_engine
 
 import app.cash.quickjs.QuickJs
 import kotlinx.coroutines.CoroutineScope

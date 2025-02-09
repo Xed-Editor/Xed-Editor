@@ -3,6 +3,8 @@ package com.rk.runner.runners.node
 import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.karbon_exec.launchInternalTerminal
 import com.rk.karbon_exec.runBashScript
 import com.rk.libcommons.TerminalCommand
@@ -14,8 +16,8 @@ import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import java.io.File
 
-class NodeRunner : RunnerImpl {
-    override fun run(file: File, context: Context) {
+class NodeRunner(val file:File) : RunnerImpl() {
+    override fun run(context: Context) {
         val node = localBinDir().child("node")
         if (node.exists().not()) {
             node.writeText(context.assets.open("terminal/nodejs.sh").bufferedReader()

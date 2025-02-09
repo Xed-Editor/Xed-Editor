@@ -6,65 +6,123 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.toastCatching
+import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-interface RunnerImpl {
-    fun run(file: File, context: Context)
-    fun getName(): String
-    fun getDescription(): String
-    fun getIcon(context: Context): Drawable?
-    fun isRunning(): Boolean
-    fun stop()
+
+abstract class RunnerImpl{
+    abstract fun run(context: Context)
+    abstract fun getName(): String
+    abstract fun getDescription(): String
+    abstract fun getIcon(context: Context): Drawable?
+    abstract fun isRunning(): Boolean
+    abstract fun stop()
 }
 
 object Runner {
     private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash")
 
-    private fun getRunnerInstance(ext:String):List<RunnerImpl>{
-        return when(ext){
-            "html" -> listOf(HtmlRunner())
-            "md" -> listOf(MarkDownRunner())
-            "py" -> listOf(PythonRunner())
-            "mjs","js" -> listOf(NodeRunner())
-            "sh","bash" -> listOf(ShellRunner())
-            else -> emptyList()
+    private suspend fun getRunnerInstance(fileObject: FileObject):List<RunnerImpl>{
+        val runners = mutableListOf<RunnerImpl>()
+
+        val ext = fileObject.getName().substringAfterLast(".").trim()
+
+        val openedTabs = MainActivity.activityRef.get()?.adapter?.tabFragments?.keys?.map {
+            it.file
         }
+
+        if (openedTabs != null){
+            for (i in openedTabs.indices){
+                val tab = openedTabs[i]
+                if (tab.getName() == "index.html"){
+                    runners.add(HtmlRunner(tab))
+                    return runners
+                    break;
+                }
+            }
+        }
+
+
+        if (fileObject is FileWrapper){
+            runners.addAll(
+                when(ext){
+                    "py" -> listOf(PythonRunner(fileObject.file))
+                    "mjs","js" ->  listOf(NodeRunner(fileObject.file))
+                    "sh","bash" ->  listOf(ShellRunner(fileObject.file))
+                    else -> emptyList()
+                }
+            )
+        }else{
+            runners.addAll(when(ext){
+                "html" -> listOf(HtmlRunner(fileObject))
+                "md" -> listOf(MarkDownRunner(fileObject))
+                else -> emptyList()
+            })
+
+            runners.addAll(when(ext){
+                "html" -> listOf(HtmlRunner(fileObject))
+                "md" -> listOf(MarkDownRunner(fileObject))
+                else -> emptyList()
+            })
+        }
+
+        return runners
     }
 
-    fun isRunnable(file: File): Boolean {
-        val ext = file.name.substringAfterLast('.', "").trim()
+    fun isRunnable(ext:String): Boolean {
+        val openedTabs = MainActivity.activityRef.get()?.adapter?.tabFragments?.keys?.map {
+            it.file
+        }
+
+        if (openedTabs != null){
+            for (i in openedTabs.indices){
+                val tab = openedTabs[i]
+                if (tab.getName() == "index.html"){
+                    return true
+                }
+            }
+        }
+
         return runnable_ext.contains(ext)
     }
 
-    suspend fun run(file: File, context: Context) {
-        withContext(Dispatchers.Default) {
-            if (isRunnable(file)) {
-                val ext = file.name.substringAfterLast('.', "")
+    fun isRunnable(file: FileObject):Boolean{
+        val ext = file.getName().substringAfterLast('.', "")
+        return isRunnable(ext)
+    }
 
-                val runners = getRunnerInstance(ext)
+    suspend fun run(file: FileObject, context: Context) {
+        withContext(Dispatchers.Default) {
+            val ext = file.getName().substringAfterLast('.', "")
+            if (isRunnable(ext)) {
+                val runners = getRunnerInstance(file)
                 if (runners.isEmpty()) {
                     throw RuntimeException("No runners are available for this file")
                 }
 
                 if (runners.size == 1) {
                     withContext(Dispatchers.IO){
-                        toastCatching { runners[0].run(file, context) }
+                        toastCatching { runners[0].run(context) }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         showRunnerSelectionDialog(context, runners) { selectedRunner ->
                             Thread {
                                 toastCatching {
-                                    selectedRunner.run(file, context)
+                                    selectedRunner.run(context)
                                 }
                             }.start()
                         }

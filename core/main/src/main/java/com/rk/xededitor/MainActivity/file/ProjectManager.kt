@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
+import com.rk.file_wrapper.UriWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.settings.Settings

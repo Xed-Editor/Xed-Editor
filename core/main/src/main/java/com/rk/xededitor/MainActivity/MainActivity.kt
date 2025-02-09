@@ -23,8 +23,8 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
-import com.rk.file.FileObject
-import com.rk.file.UriWrapper
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
@@ -34,7 +34,7 @@ import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import com.rk.scriptingengine.Engine
+import com.rk.mutator_engine.Engine
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import com.rk.xededitor.BaseActivity

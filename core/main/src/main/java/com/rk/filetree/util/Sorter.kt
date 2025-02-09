@@ -1,6 +1,6 @@
 package com.rk.filetree.util
 
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import com.rk.filetree.model.Node
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

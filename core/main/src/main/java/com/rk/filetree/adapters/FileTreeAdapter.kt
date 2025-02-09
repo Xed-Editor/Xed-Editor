@@ -9,14 +9,13 @@ import android.view.ViewGroup
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileIconProvider
 import com.rk.filetree.interfaces.FileLongClickListener
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.model.TreeViewModel
 import androidx.lifecycle.findViewTreeLifecycleOwner

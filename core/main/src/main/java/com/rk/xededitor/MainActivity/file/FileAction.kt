@@ -11,9 +11,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
+import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.askInput

@@ -12,9 +12,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
-import com.rk.file.FileObject
-import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
+import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application

@@ -1,14 +1,12 @@
 package com.rk.runner.runners.web
 
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
-import java.io.File
-import java.io.FileInputStream
 import java.net.URLConnection
 import java.util.Date
 
-class HttpServer(port: Int, val rootDir: FileObject, val serveHook:((FileObject, IHTTPSession)->NanoHTTPD.Response?)? = null) : NanoHTTPD(port) {
+class HttpServer(port: Int, val rootDir: FileObject, val serveHook:((FileObject, IHTTPSession)->Response?)? = null) : NanoHTTPD(port) {
     init {
         if (rootDir.isDirectory().not()) {
             throw RuntimeException("Expected a directory but got file")

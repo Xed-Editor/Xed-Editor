@@ -9,7 +9,7 @@ import com.rk.filetree.adapters.FileTreeAdapter
 import com.rk.filetree.interfaces.FileClickListener
 import com.rk.filetree.interfaces.FileIconProvider
 import com.rk.filetree.interfaces.FileLongClickListener
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
 import com.rk.filetree.util.sort

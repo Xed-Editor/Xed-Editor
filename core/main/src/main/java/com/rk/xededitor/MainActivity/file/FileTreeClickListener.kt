@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 val fileClickListener =
     object : FileClickListener {
-        override fun onClick(node: Node<com.rk.file.FileObject>) {
+        override fun onClick(node: Node<com.rk.file_wrapper.FileObject>) {
             if (node.value.isDirectory()) {
                 return
             }
@@ -42,7 +42,7 @@ val fileClickListener =
 
 val fileLongClickListener =
     object : FileLongClickListener {
-        override fun onLongClick(node: Node<com.rk.file.FileObject>) {
+        override fun onLongClick(node: Node<com.rk.file_wrapper.FileObject>) {
             activityRef.get()?.apply {
                 getSelectedProjectRootFile(this)?.let {
                     FileAction(this, it, node.value)

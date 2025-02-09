@@ -1,48 +1,76 @@
 package com.rk.runner.runners.web.html
 
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
+import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.IBinder
 import androidx.browser.customtabs.CustomTabsIntent
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
 import java.io.File
-import java.net.ServerSocket
 
-class HtmlRunner : RunnerImpl {
-    private var httpServer: HttpServer? = null
-    private val port by lazy { ServerSocket(0).use { socket -> socket.localPort } }
-    
-    override fun run(file: File, context: Context) {
+
+class HtmlRunner(val file:FileObject) : RunnerImpl() {
+    companion object{
+        var httpServer: HttpServer? = null
+        private const val PORT = 8357
+    }
+
+    //a broadcasts should be used instead of this hack
+//    class DevTools : Service(){
+//        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//            httpServer?.let {
+//                if (it.isAlive.not()){
+//                    stopSelf()
+//                }
+//
+//                //how do you even refresh?? only if chrome custom tab had a simple api
+//            }
+//            stopSelf()
+//            return super.onStartCommand(intent, flags, startId)
+//        }
+//        override fun onBind(p0: Intent?): IBinder? {
+//            return null
+//        }
+//    }
+
+    override fun run(context: Context) {
         stop()
-        httpServer = HttpServer(port,FileWrapper(file.parentFile!!))
-        val url = "http://localhost:$port/${file.name}"
-        val builder = CustomTabsIntent.Builder()
-        builder.setShowTitle(true)
-        builder.setShareState(CustomTabsIntent.SHARE_STATE_OFF)
-        val intent = builder.build()
-        intent.launchUrl(context, Uri.parse(url))
+        httpServer = HttpServer(PORT,file.getParentFile()!!)
+        val url = "http://localhost:$PORT/${file.getName()}"
+        CustomTabsIntent.Builder().apply {
+            setShowTitle(true)
+            setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+
+//            val pendingIntent = PendingIntent.getService(
+//                context, 0, Intent(context,DevTools::class.java), PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+//            )
+//
+//            addMenuItem("Dev Tools",pendingIntent)
+        }.build().launchUrl(context, Uri.parse(url))
     }
 
     override fun getName(): String {
-        return "WebRunner"
+        return "Html"
     }
 
     override fun getDescription(): String {
-        return "preview html"
+        return "Preview html"
     }
 
     override fun getIcon(context: Context): Drawable? = drawables.ic_language_html.getDrawable()
     
-    override fun isRunning(): Boolean {
-        return httpServer?.isAlive == true
-    }
+    override fun isRunning(): Boolean = httpServer?.isAlive == true
     
     override fun stop() {
-        if (httpServer?.isAlive == true){
+        if (isRunning()){
             httpServer?.stop()
         }
     }
