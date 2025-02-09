@@ -15,7 +15,9 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
+import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
+import com.rk.libcommons.toastCatching
 import com.rk.libcommons.toastIt
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
@@ -37,7 +39,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -145,16 +146,14 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
     private var syntaxJob: Job? = null
     init {
         with(editor) {
-            syntaxJob = scope.launch(Dispatchers.Main){
+            syntaxJob = scope.safeLaunch(Dispatchers.Main){
                 ensureTextmateTheme(ctx)
             }
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
-            scope.launch { applySettings() }
+            scope.safeLaunch { applySettings() }
 
-            runCatching { applyFont(this) }.onFailure {
-                it.printStackTrace()
-                toast(it.message)
-                runCatching { typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf") }
+            toastCatching { applyFont(this) }?.let{
+                toastCatching { typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf") }
             }
 
             getComponent(EditorAutoCompletion::class.java).setLayout(object :
@@ -193,7 +192,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         private var job: Job? = null
 
         fun init(scope: CoroutineScope) {
-            job = scope.launch {
+            job = scope.safeLaunch {
                 mutex.withLock {
                     if (!isInit) {
                         withContext(Dispatchers.IO) {
@@ -291,7 +290,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
                 e.printStackTrace()
                 e.message.toastIt()
             } finally {
-                GlobalScope.launch(Dispatchers.IO) {
+                GlobalScope.safeLaunch(Dispatchers.IO) {
                     darcula.close()
                     darcula_oled.close()
                     quietlight.close()

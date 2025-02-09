@@ -17,7 +17,7 @@ import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
-import com.rk.libcommons.withCatching
+import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -336,7 +336,7 @@ class EditorFragment(val context: Context) : CoreFragment {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
-            withCatching {
+            toastCatching {
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
                 if (file?.getParentFile()
                         ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()

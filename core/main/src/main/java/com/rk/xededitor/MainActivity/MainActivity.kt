@@ -31,7 +31,7 @@ import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
-import com.rk.libcommons.withCatching
+import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.scriptingengine.Engine
@@ -123,7 +123,7 @@ class MainActivity : BaseActivity() {
                 }
                 _isRestoring = true
                 val stateFile = File(application!!.cacheDir, "state")
-                withCatching {
+                toastCatching {
                     if (stateFile.exists()) {
                         FileInputStream(stateFile).use { fileInputStream ->
                             ObjectInputStream(fileInputStream).use {
@@ -132,7 +132,6 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }?.let {
-                    it.printStackTrace()
                     stateFile.delete()
                     toast("State lost")
                 } ?: withContext(Dispatchers.Main) {
@@ -358,7 +357,7 @@ class MainActivity : BaseActivity() {
         tabViewModel.save()
 
         if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
-            withCatching { saveAllFiles() }
+            toastCatching { saveAllFiles() }
         }
 
         super.onPause()
@@ -470,7 +469,7 @@ class MainActivity : BaseActivity() {
 
     override fun onDestroy() {
         if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
-            withCatching { saveAllFiles() }
+            toastCatching { saveAllFiles() }
         }
         ExtensionManager.onAppDestroyed()
         DefaultScope.cancel()

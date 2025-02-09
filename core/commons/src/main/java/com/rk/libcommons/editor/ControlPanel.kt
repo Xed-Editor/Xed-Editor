@@ -1,4 +1,3 @@
 package com.rk.libcommons.editor
 
-class ControlPanel {
-}
+class ControlPanel {}

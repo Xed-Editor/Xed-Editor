@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.CustomScope
 import com.rk.libcommons.application
+import com.rk.libcommons.toastCatching
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import io.github.rosemoe.sora.text.ContentIO
@@ -55,16 +56,10 @@ class KarbonEditor : CodeEditor {
     
     suspend fun loadFile(inputStream: InputStream,encoding:Charset){
         withContext(Dispatchers.IO) {
-            try {
+            toastCatching {
                 val content = ContentIO.createFrom(inputStream,encoding)
                 inputStream.close()
                 withContext(Dispatchers.Main) { setText(content) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                withContext(Dispatchers.Main){
-                    Toast.makeText(context,e.message,Toast.LENGTH_LONG).show()
-                }
-               
             }
         }
     }

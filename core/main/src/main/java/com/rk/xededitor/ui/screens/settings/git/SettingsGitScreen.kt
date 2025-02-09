@@ -22,7 +22,7 @@ import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.toast
-import com.rk.libcommons.withCatching
+import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -223,7 +223,7 @@ fun SettingsGitScreen() {
                         inputToken = text
                     },
                     onConfirm = {
-                        withCatching {
+                        toastCatching {
                             if (inputToken.isBlank().not()){
                                 updateCredentials(context, username, inputToken,gitUrl)
                                 token = inputToken

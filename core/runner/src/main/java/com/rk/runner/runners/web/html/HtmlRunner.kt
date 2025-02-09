@@ -5,15 +5,16 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import com.rk.file.FileWrapper
+import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.runner.RunnerImpl
-import com.rk.runner.commonUtils.getAvailablePort
 import com.rk.runner.runners.web.HttpServer
 import java.io.File
-
+import java.net.ServerSocket
 
 class HtmlRunner : RunnerImpl {
     private var httpServer: HttpServer? = null
-    private val port by lazy { getAvailablePort() }
+    private val port by lazy { ServerSocket(0).use { socket -> socket.localPort } }
     
     override fun run(file: File, context: Context) {
         stop()
@@ -34,9 +35,7 @@ class HtmlRunner : RunnerImpl {
         return "preview html"
     }
 
-    override fun getIcon(context: Context): Drawable? {
-        return null
-    }
+    override fun getIcon(context: Context): Drawable? = drawables.ic_language_html.getDrawable()
     
     override fun isRunning(): Boolean {
         return httpServer?.isAlive == true

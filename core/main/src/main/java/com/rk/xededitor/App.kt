@@ -11,7 +11,6 @@ import com.rk.extension.ExtensionManager
 import com.rk.libcommons.BuildConfig
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
-import com.rk.libcommons.withCatching
 import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey

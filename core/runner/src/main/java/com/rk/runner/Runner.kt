@@ -2,27 +2,19 @@ package com.rk.runner
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libcommons.application
-import com.rk.libcommons.runOnUiThread
-import com.rk.libcommons.toast
-import com.rk.libcommons.withCatching
+import com.rk.libcommons.toastCatching
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-
 
 interface RunnerImpl {
     fun run(file: File, context: Context)
@@ -32,7 +24,6 @@ interface RunnerImpl {
     fun isRunning(): Boolean
     fun stop()
 }
-
 
 object Runner {
     private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash")
@@ -65,13 +56,13 @@ object Runner {
 
                 if (runners.size == 1) {
                     withContext(Dispatchers.IO){
-                        withCatching { runners[0].run(file, context) }
+                        toastCatching { runners[0].run(file, context) }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
                         showRunnerSelectionDialog(context, runners) { selectedRunner ->
                             Thread {
-                                withCatching {
+                                toastCatching {
                                     selectedRunner.run(file, context)
                                 }
                             }.start()
