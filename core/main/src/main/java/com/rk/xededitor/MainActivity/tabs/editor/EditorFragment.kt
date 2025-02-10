@@ -11,6 +11,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.CustomScope
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.UI
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
@@ -317,6 +318,10 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     override fun getView(): View? {
+        DefaultScope.safeLaunch {
+            println("called")
+            setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+        }
         return constraintLayout
     }
 

@@ -178,7 +178,6 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
                 textmateSources[fileName.substringAfterLast('.', "").trim()]
             }
         }
-
         source?.let { setLanguage(it) }
     }
 
@@ -317,10 +316,12 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         }
     }
 
+    private val languageMutex = Mutex()
      suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO){
         waitForInit()
 
-        syntaxJob?.let { if (it.isCompleted.not()) { it.join() } }
+        syntaxJob!!.let { if (it.isCompleted.not()) { it.join() } }
+         languageMutex.lock()
 
         val language = TextMateLanguage.create(languageScopeName, true)
         val kw = ctx.assets.open("textmate/keywords.json")
@@ -339,7 +340,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         withContext(Dispatchers.Main) {
             editor.setEditorLanguage(language as Language)
         }
-
+         languageMutex.unlock()
     }
 
 
