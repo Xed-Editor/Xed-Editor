@@ -318,9 +318,10 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     override fun getView(): View? {
-        DefaultScope.safeLaunch {
-            println("called")
-            setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+        scope.launch {
+            file?.let{ file ->
+                setupEditor?.setupLanguage(file.getName())
+            }
         }
         return constraintLayout
     }
