@@ -10,8 +10,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file_wrapper.FileObject
-import com.rk.libcommons.CustomScope
-import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.UI
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
@@ -30,6 +28,7 @@ import com.rk.xededitor.R
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.text.Content
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -40,12 +39,11 @@ import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 
 
-class EditorFragment(val context: Context) : CoreFragment {
+class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragment {
 
     @JvmField
     var file: FileObject? = null
     var editor: KarbonEditor? = null
-    val scope = CustomScope()
     private var constraintLayout: ConstraintLayout? = null
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout: LinearLayout
@@ -327,8 +325,6 @@ class EditorFragment(val context: Context) : CoreFragment {
     }
 
     override fun onDestroy() {
-        scope.cancel()
-        editor?.scope?.cancel()
         editor?.release()
         file?.let {
             if (fileset.contains(it.getName())) {

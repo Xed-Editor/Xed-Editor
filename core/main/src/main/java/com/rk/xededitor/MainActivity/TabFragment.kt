@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.file.getFragmentType
@@ -38,12 +39,12 @@ class TabFragment : Fragment() {
         if (fragment == null){
             when (file!!.getFragmentType()) {
                 FragmentType.EDITOR -> {
-                    val editorFragment = EditorFragment(requireContext())
+                    val editorFragment = EditorFragment(requireContext(),lifecycleScope)
                     fragment = editorFragment
                 }
 
                 FragmentType.AUDIO -> {
-                    val mediaFragment = WebFragment(requireContext())
+                    val mediaFragment = WebFragment(requireContext(),lifecycleScope)
                     fragment = mediaFragment
                 }
 
@@ -72,7 +73,7 @@ class TabFragment : Fragment() {
     ): View? {
         fragment!!.onCreate()
         fragment!!.loadFile(file = file!!)
-        return fragment?.getView()?.also { it?.isFocusableInTouchMode = true;it.requestFocus();it.requestFocusFromTouch(); }
+        return fragment?.getView()?.also { it.isFocusableInTouchMode = true;it.requestFocus();it.requestFocusFromTouch(); }
     }
     
     override fun onDestroy() {

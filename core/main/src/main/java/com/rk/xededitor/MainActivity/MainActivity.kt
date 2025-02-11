@@ -25,8 +25,8 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.UriWrapper
-import com.rk.libcommons.CustomScope
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.UI
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
@@ -124,7 +124,7 @@ class MainActivity : BaseActivity() {
                 }
                 _isRestoring = true
                 val stateFile = File(application!!.cacheDir, "state")
-                toastCatching {
+                runCatching {
                     if (stateFile.exists()) {
                         FileInputStream(stateFile).use { fileInputStream ->
                             ObjectInputStream(fileInputStream).use {
@@ -132,23 +132,24 @@ class MainActivity : BaseActivity() {
                             }
                         }
                     }
-                }?.let {
-                    stateFile.delete()
+                }.onFailure {
                     toast("State lost")
-                } ?: withContext(Dispatchers.Main) {
+                }.onSuccess {
                     delay(1000)
-                    withContext {
-                        if (fragmentFiles.isNotEmpty()) {
-                            binding!!.tabs.visibility = View.VISIBLE
-                            binding!!.mainView.visibility = View.VISIBLE
-                            binding!!.openBtn.visibility = View.GONE
+                    UI {
+                        withContext {
+                            if (fragmentFiles.isNotEmpty()) {
+                                binding!!.tabs.visibility = View.VISIBLE
+                                binding!!.mainView.visibility = View.VISIBLE
+                                binding!!.openBtn.visibility = View.GONE
+                            }
+
+                            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
+                                tab.text = tabViewModel.fragmentTitles[position]
+                            }.attach()
+
+                            binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
                         }
-
-                        TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                            tab.text = tabViewModel.fragmentTitles[position]
-                        }.attach()
-
-                        binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
                     }
                 }
                 _isRestoring = false
@@ -383,7 +384,7 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
         openTabForIntent(intent)
-        binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
+        binding?.viewpager2?.offscreenPageLimit = 1
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

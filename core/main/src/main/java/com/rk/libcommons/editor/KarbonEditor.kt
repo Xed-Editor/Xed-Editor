@@ -6,7 +6,6 @@ import android.text.InputType
 import android.util.AttributeSet
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import com.rk.libcommons.CustomScope
 import com.rk.libcommons.application
 import com.rk.libcommons.toastCatching
 import com.rk.settings.Settings
@@ -33,7 +32,6 @@ class KarbonEditor : CodeEditor {
         defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
     
-    val scope = CustomScope()
 
     init{
         val darkTheme: Boolean = when (Settings.getString(
