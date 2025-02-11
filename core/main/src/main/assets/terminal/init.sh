@@ -32,5 +32,5 @@ if [ "$#" -eq 0 ]; then
     $START_SHELL
 else
     # shellcheck disable=SC2068
-    $@
+    exec "$@"
 fi
