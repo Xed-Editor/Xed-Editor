@@ -18,7 +18,9 @@ import com.rk.libcommons.Printer
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.runOnUiThread
+import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
+import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
@@ -43,26 +45,28 @@ typealias Id = R.id
 object MenuClickHandler {
 
     private var searchText: String? = ""
-    private val editorFragment:EditorFragment? get() = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment as? EditorFragment
+
+    fun getEditorFragment():EditorFragment?{
+       return MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment as? EditorFragment
+    }
     
     suspend fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
 
         when (id) {
             Id.saveAs -> {
-                editorFragment?.file?.let {
+                getEditorFragment()?.file?.let {
                     activity.fileManager?.saveAsFile(it)
                 }
                 return true
             }
 
             Id.run -> {
-                editorFragment!!.file!!.let { fileObject ->
-                    DefaultScope.launch {
-                        Runner.run(fileObject, activity)
+                getEditorFragment()?.file?.let {
+                    DefaultScope.safeLaunch {
+                        Runner.run(it, activity)
                     }
-                }
-
+                } ?: toast("Illegal state")
                 return true
             }
 
@@ -77,17 +81,17 @@ object MenuClickHandler {
             }
 
             Id.action_save -> {
-                editorFragment?.save(true)
+                getEditorFragment()?.save(true)
                 return true
             }
 
             Id.undo -> {
-                editorFragment?.undo()
+                getEditorFragment()?.undo()
                 return true
             }
 
             Id.redo -> {
-                editorFragment?.redo()
+                getEditorFragment()?.redo()
                 return true
             }
 
@@ -119,7 +123,7 @@ object MenuClickHandler {
 
             Id.action_print -> {
                 val printer = Printer(activity)
-                printer.setCodeText(editorFragment?.editor?.text.toString(), language = editorFragment?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                printer.setCodeText(getEditorFragment()?.editor?.text.toString(), language = getEditorFragment()?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
                 return true
             }
 
@@ -143,12 +147,12 @@ object MenuClickHandler {
             }
 
             Id.search_next -> {
-                editorFragment?.editor?.searcher?.gotoNext()
+                getEditorFragment()?.editor?.searcher?.gotoNext()
                 return true
             }
 
             Id.search_previous -> {
-                editorFragment?.editor?.searcher?.gotoPrevious()
+                getEditorFragment()?.editor?.searcher?.gotoPrevious()
                 return true
             }
 
@@ -165,27 +169,35 @@ object MenuClickHandler {
             }
 
             Id.refreshEditor -> {
-                editorFragment?.refreshEditorContent()
+                getEditorFragment()?.refreshEditorContent()
                 return true
             }
 
             Id.share -> {
-                runCatching {
-                    if (editorFragment!!.file!!.getAbsolutePath()
-                            .contains(activity.filesDir!!.parentFile!!.absolutePath)
-                    ) {
-                        toast(strings.permission_denied.getString())
+                toastCatching {
+
+                    val file = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
+                    if (file == null){
+                        toast(strings.unsupported_contnt)
                         return true
                     }
 
-                    val fileUri = if (editorFragment!!.file!! is FileWrapper) {
+                    if (file is FileWrapper){
+                        if (file.getAbsolutePath().contains(application!!.filesDir.parentFile!!.absolutePath)){
+                            //files in private directory cannot be shared
+                            toast(strings.permission_denied)
+                            return true
+                        }
+                    }
+
+                    val fileUri = if (file is FileWrapper) {
                         FileProvider.getUriForFile(
                             activity,
                             "${activity.packageName}.fileprovider",
-                            (editorFragment?.file!! as FileWrapper).file
+                            file.file
                         )
                     } else {
-                        editorFragment?.file!!.toUri()
+                        file.toUri()
                     }
 
                     val intent = Intent(Intent.ACTION_SEND).apply {
@@ -196,9 +208,6 @@ object MenuClickHandler {
                     }
 
                     activity.startActivity(Intent.createChooser(intent, "Share file"))
-                    return true
-                }.onFailure {
-                    toast(it.message)
                 }
                 return true
             }
