@@ -408,8 +408,10 @@ class EditorFragment(val context: Context) : CoreFragment {
                 if (currentTitle.endsWith("*").not()) {
                     fragmentTitles[index] = "$currentTitle*"
 
-                    MainActivity.withContext {
-                        tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
+                    scope.launch(Dispatchers.Main){
+                        MainActivity.withContext {
+                            tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
+                        }
                     }
                 }
             }
