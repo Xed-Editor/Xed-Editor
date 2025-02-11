@@ -175,7 +175,6 @@ class MainActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
-        DefaultScope = CustomScope()
         EventBus.getDefault().register(this);
     }
 
@@ -474,7 +473,6 @@ class MainActivity : BaseActivity() {
             toastCatching { saveAllFiles() }
         }
         ExtensionManager.onAppDestroyed()
-        DefaultScope.cancel()
         super.onDestroy()
         binding = null
         adapter = null
