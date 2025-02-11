@@ -331,8 +331,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 fileset.remove(it.getName())
             }
         }
-
-
     }
 
     @OptIn(DelicateCoroutinesApi::class)

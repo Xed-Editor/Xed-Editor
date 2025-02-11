@@ -15,6 +15,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
+import androidx.asynclayoutinflater.view.AsyncLayoutInflater
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.EditorSearcher
 import java.util.regex.PatternSyntaxException

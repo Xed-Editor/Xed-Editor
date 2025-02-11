@@ -69,7 +69,6 @@ val textmateSources = hashMapOf(
     "gradle" to "source.groovy",
     "tsx" to "source.tsx",
     "jsx" to "source.js.jsx",
-    "gitattributes" to "source.ini",
     "md" to "text.html.markdown",
     "c" to "source.c",
     "bat" to "source.batchfile",
@@ -92,12 +91,10 @@ val textmateSources = hashMapOf(
     "htm" to "text.html.basic",
     "rs" to "source.rust",
     "lua" to "source.lua",
-    "gitmodules" to "source.ini",
     "php" to "source.php",
     "ini" to "source.ini",
     "smali" to "source.smali",
     "v" to "source.coq",
-    "gitconfig" to "source.ini",
     "coq" to "source.coq",
     "properties" to "source.java-properties"
 )
@@ -221,9 +218,9 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             }
         }
 
+        @OptIn(DelicateCoroutinesApi::class)
         suspend fun initActivity(
-            activity: Activity, calculateColors: () -> kotlin.Pair<String, String>
-        ) {
+            activity: Activity, calculateColors: () -> kotlin.Pair<String, String>) {
             if (!activityInit) {
                 activityjob = GlobalScope.launch {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -251,23 +248,22 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             lightThemeRegistry = ThemeRegistry()
 
             val darcula = ctx.assets.open("textmate/darcula.json")
-            val darcula_oled = ctx.assets.open("textmate/black/darcula.json")
+            val darculaOled = ctx.assets.open("textmate/black/darcula.json")
             val quietlight = ctx.assets.open("textmate/quietlight.json")
 
             try {
                 oledThemeRegistry?.loadTheme(
-                    ThemeModel(IThemeSource.fromInputStream(darcula_oled, "darcula.json", null))
+                    ThemeModel(IThemeSource.fromInputStream(darculaOled, "darcula.json", null))
                 )
 
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
                     fun read(inputStream: InputStream, replacements: Map<String, String>): String {
                         val content = inputStream.bufferedReader().use { it.readText() }
                         var modifiedContent = content
                         for ((oldValue, newValue) in replacements) {
                             modifiedContent = modifiedContent.replace(oldValue, newValue)
                         }
-
                         return modifiedContent
                     }
 
@@ -309,7 +305,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             } finally {
                 GlobalScope.safeLaunch(Dispatchers.IO) {
                     darcula.close()
-                    darcula_oled.close()
+                    darculaOled.close()
                     quietlight.close()
                 }
             }
@@ -337,14 +333,15 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
     private val languageMutex = Mutex()
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
         waitForInit()
+        waitForActivityInit()
 
         syntaxJob!!.let {
             if (it.isCompleted.not()) {
                 it.join()
             }
         }
-        languageMutex.lock()
 
+        languageMutex.lock()
         val language = TextMateLanguage.create(languageScopeName, true)
         val kw = ctx.assets.open("textmate/keywords.json")
         val reader = InputStreamReader(kw)
@@ -369,6 +366,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
     private suspend fun ensureTextmateTheme(ctx: Context) {
         waitForInit()
         waitForActivityInit()
+
         val darkTheme: Boolean = when (Settings.getString(
             SettingsKey.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
