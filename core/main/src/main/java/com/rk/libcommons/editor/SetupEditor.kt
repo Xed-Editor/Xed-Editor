@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
 import com.rk.libcommons.safeLaunch
-import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.libcommons.toastIt
 import com.rk.settings.Settings
@@ -39,6 +38,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -103,8 +103,8 @@ val textmateSources = hashMapOf(
 )
 
 
-suspend fun KarbonEditor.applySettings(){
-    withContext(Dispatchers.IO){
+suspend fun KarbonEditor.applySettings() {
+    withContext(Dispatchers.IO) {
         val tabSize = Settings.getString(SettingsKey.TAB_SIZE, "4").toInt()
         val pinLineNumber = Settings.getBoolean(SettingsKey.PIN_LINE_NUMBER, false)
         val showLineNumber = Settings.getBoolean(SettingsKey.SHOW_LINE_NUMBERS, true)
@@ -112,7 +112,8 @@ suspend fun KarbonEditor.applySettings(){
         val textSize = Settings.getString(SettingsKey.TEXT_SIZE, "14").toFloat()
         val wordWrap = Settings.getBoolean(SettingsKey.WORD_WRAP_ENABLED, false)
         val keyboardSuggestion = Settings.getBoolean(SettingsKey.SHOW_SUGGESTIONS, false)
-        val always_show_soft_keyboard = Settings.getBoolean(SettingsKey.ALWAYS_SHOW_SOFT_KEYBOARD,false)
+        val always_show_soft_keyboard =
+            Settings.getBoolean(SettingsKey.ALWAYS_SHOW_SOFT_KEYBOARD, false)
         val lineSpacing = Settings.getString(
             SettingsKey.LINE_SPACING, lineSpacingExtra.toString()
         ).toFloat()
@@ -120,7 +121,7 @@ suspend fun KarbonEditor.applySettings(){
             SettingsKey.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
         ).toFloat()
 
-        withContext(Dispatchers.Main){
+        withContext(Dispatchers.Main) {
             props.deleteMultiSpaces = tabSize
             tabWidth = tabSize
             props.deleteEmptyLineFast = false
@@ -138,22 +139,24 @@ suspend fun KarbonEditor.applySettings(){
     }
 
 
-
 }
 
 class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope: CoroutineScope) {
 
     private var syntaxJob: Job? = null
+
     init {
         with(editor) {
-            syntaxJob = scope.safeLaunch(Dispatchers.Main){
+            syntaxJob = scope.safeLaunch(Dispatchers.Main) {
                 ensureTextmateTheme(ctx)
             }
             getComponent(EditorAutoCompletion::class.java).isEnabled = true
             scope.safeLaunch { applySettings() }
 
-            toastCatching { applyFont(this) }?.let{
-                toastCatching { typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf") }
+            toastCatching { applyFont(this) }?.let {
+                toastCatching {
+                    typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
+                }
             }
 
             getComponent(EditorAutoCompletion::class.java).setLayout(object :
@@ -172,7 +175,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
 
 
     suspend fun setupLanguage(fileName: String) {
-        val source = when(fileName){
+        val source = when (fileName) {
             "gradlew" -> textmateSources["sh"]
             else -> {
                 textmateSources[fileName.substringAfterLast('.', "").trim()]
@@ -189,6 +192,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         private var lightThemeRegistry: ThemeRegistry? = null
         private val mutex = Mutex()
         private var job: Job? = null
+        private var activityjob: Job? = null
 
         fun init(scope: CoroutineScope) {
             job = scope.safeLaunch {
@@ -205,21 +209,35 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
             }
         }
 
-        suspend fun waitForInit() = job?.let { if (it.isCompleted.not()) { it.join() } }
+        suspend fun waitForInit() = job?.let {
+            if (it.isCompleted.not()) {
+                it.join()
+            }
+        }
+
+        suspend fun waitForActivityInit() = activityjob?.let {
+            if (it.isCompleted.not()) {
+                it.join()
+            }
+        }
 
         suspend fun initActivity(
             activity: Activity, calculateColors: () -> kotlin.Pair<String, String>
         ) {
             if (!activityInit) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val colors = calculateColors.invoke()
-                    initTextMateTheme(activity, colors.first, colors.second)
-                } else {
-                    initTextMateTheme(activity, null, null)
+                activityjob = GlobalScope.launch {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        val colors = calculateColors.invoke()
+                        initTextMateTheme(activity, colors.first, colors.second)
+                    } else {
+                        initTextMateTheme(activity, null, null)
+                    }
                 }
-
+                activityjob?.join()
                 activityInit = true
             }
+
+
         }
 
 
@@ -317,11 +335,15 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
     }
 
     private val languageMutex = Mutex()
-     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO){
+    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
         waitForInit()
 
-        syntaxJob!!.let { if (it.isCompleted.not()) { it.join() } }
-         languageMutex.lock()
+        syntaxJob!!.let {
+            if (it.isCompleted.not()) {
+                it.join()
+            }
+        }
+        languageMutex.lock()
 
         val language = TextMateLanguage.create(languageScopeName, true)
         val kw = ctx.assets.open("textmate/keywords.json")
@@ -340,12 +362,13 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
         withContext(Dispatchers.Main) {
             editor.setEditorLanguage(language as Language)
         }
-         languageMutex.unlock()
+        languageMutex.unlock()
     }
 
 
     private suspend fun ensureTextmateTheme(ctx: Context) {
         waitForInit()
+        waitForActivityInit()
         val darkTheme: Boolean = when (Settings.getString(
             SettingsKey.DEFAULT_NIGHT_MODE, "-1"
         ).toInt()) {
@@ -388,7 +411,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
                 Color.BLACK
             }
 
-            val keys = mutableListOf<Pair<String, View.OnClickListener>>().apply {
+            val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
                 add(Pair("->", onClick {
                     editor.onKeyDown(
                         KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)

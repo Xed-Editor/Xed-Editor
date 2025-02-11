@@ -148,7 +148,7 @@ class MainActivity : BaseActivity() {
                                 tab.text = tabViewModel.fragmentTitles[position]
                             }.attach()
 
-                            binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
+
                         }
                     }
                 }
@@ -384,7 +384,7 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
         ProjectManager.processQueue(this)
         openTabForIntent(intent)
-        binding?.viewpager2?.offscreenPageLimit = 1
+        binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
