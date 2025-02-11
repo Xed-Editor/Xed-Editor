@@ -62,11 +62,14 @@ object MenuClickHandler {
             }
 
             Id.run -> {
-                getEditorFragment()?.file?.let {
-                    DefaultScope.safeLaunch {
-                        Runner.run(it, activity)
-                    }
-                } ?: toast("Illegal state")
+                val file = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
+                if (file == null){
+                    toast("Illegal state")
+                    return true
+                }
+                DefaultScope.safeLaunch {
+                    Runner.run(file, activity)
+                }
                 return true
             }
 

@@ -25,6 +25,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.UriWrapper
+import com.rk.libcommons.CustomScope
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.ControlPanel
@@ -174,6 +175,7 @@ class MainActivity : BaseActivity() {
 
     override fun onStart() {
         super.onStart()
+        DefaultScope = CustomScope()
         EventBus.getDefault().register(this);
     }
 
