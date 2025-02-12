@@ -1,5 +1,6 @@
 package com.rk.libcommons.editor
 
+import EventBus
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
@@ -43,7 +44,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
-import org.greenrobot.eventbus.EventBus
 import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -100,7 +100,7 @@ val textmateSources = hashMapOf(
 )
 
 
-suspend fun KarbonEditor.applySettings() {
+suspend fun CodeEditor.applySettings() {
     withContext(Dispatchers.IO) {
         val tabSize = Settings.getString(SettingsKey.TAB_SIZE, "4").toInt()
         val pinLineNumber = Settings.getBoolean(SettingsKey.PIN_LINE_NUMBER, false)
@@ -128,7 +128,9 @@ suspend fun KarbonEditor.applySettings() {
             isCursorAnimationEnabled = cursorAnimation
             setTextSize(textSize)
             isWordwrap = wordWrap
-            showSuggestions(keyboardSuggestion)
+            if (this@applySettings is KarbonEditor){
+                showSuggestions(keyboardSuggestion)
+            }
             lineSpacingExtra = lineSpacing
             lineSpacingMultiplier = lineMultiplier
             isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
@@ -138,7 +140,7 @@ suspend fun KarbonEditor.applySettings() {
 
 }
 
-class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope: CoroutineScope) {
+class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: CoroutineScope) {
 
     private var syntaxJob: Job? = null
 
@@ -417,7 +419,7 @@ class SetupEditor(val editor: KarbonEditor, private val ctx: Context, val scope:
                 }))
 
                 add(Pair("⌘", onClick {
-                    EventBus.getDefault().post(ControlPanel())
+                    EventBus.showControlPanel()
                 }))
 
                 add(Pair("←", onClick {

@@ -109,23 +109,23 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                if (file.exists().not()) {
-                    kotlin.runCatching {
+                if (file.exists() && file.canRead()) {
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.addProject(mainActivity, FileWrapper(file))
+                    }
+                } else {
+                    runCatching {
                         val takeFlags: Int =
                             (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
                         mainActivity.contentResolver.takePersistableUriPermission(
                             it.data!!.data!!, takeFlags
                         )
-                    }
+                    }.onFailure { it.printStackTrace() }
+
                     mainActivity.lifecycleScope.launch {
                         ProjectManager.addProject(
                             mainActivity, UriWrapper(it.data!!.data!!)
                         )
-                    }
-
-                } else {
-                    mainActivity.lifecycleScope.launch {
-                        ProjectManager.addProject(mainActivity, FileWrapper(file))
                     }
                 }
 

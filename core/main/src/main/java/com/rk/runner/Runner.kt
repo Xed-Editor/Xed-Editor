@@ -50,7 +50,6 @@ object Runner {
                 if (tab.getName() == "index.html"){
                     runners.add(HtmlRunner(tab))
                     return runners
-                    break;
                 }
             }
         }
@@ -65,19 +64,13 @@ object Runner {
                     else -> emptyList()
                 }
             )
-        }else{
-            runners.addAll(when(ext){
-                "html" -> listOf(HtmlRunner(fileObject))
-                "md" -> listOf(MarkDownRunner(fileObject))
-                else -> emptyList()
-            })
-
-            runners.addAll(when(ext){
-                "html" -> listOf(HtmlRunner(fileObject))
-                "md" -> listOf(MarkDownRunner(fileObject))
-                else -> emptyList()
-            })
         }
+
+        runners.addAll(when(ext){
+            "html" -> listOf(HtmlRunner(fileObject))
+            "md" -> listOf(MarkDownRunner(fileObject))
+            else -> emptyList()
+        })
 
         return runners
     }

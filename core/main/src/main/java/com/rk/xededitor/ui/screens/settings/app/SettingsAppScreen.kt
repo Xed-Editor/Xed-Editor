@@ -1,6 +1,8 @@
 package com.rk.xededitor.ui.screens.settings.app
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
@@ -91,6 +93,19 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 }
             )
 
+            SettingsToggle(
+                label = stringResource(strings.manage_storage),
+                description = stringResource(strings.manage_storage),
+                isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                showSwitch = false,
+                sideEffect = {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
+                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        intent.setData(Uri.parse("package:${activity.packageName}"))
+                        activity.startActivity(intent)
+                    }
+                }
+            )
 
         }
 

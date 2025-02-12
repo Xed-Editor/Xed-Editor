@@ -39,5 +39,6 @@ object SettingsKey {
     const val SCROLL_TO_BOTTOM="scroll_to_bottom"
     const val GIT_URL="git_url"
     const val ALWAYS_SHOW_SOFT_KEYBOARD="always_show_keyboard"
+    const val IGNORE_STORAGE_PERMISSION="storage_permission"
 
 }

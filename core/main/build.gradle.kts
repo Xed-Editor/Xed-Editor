@@ -85,6 +85,7 @@ android {
 }
 
 dependencies {
+
     api(libs.swiperefreshlayout)
     api(libs.appcompat)
     api(libs.material)
@@ -125,14 +126,12 @@ dependencies {
     api(libs.media3.exoplayer.dash)
     api(libs.media3.ui)
     api(libs.browser)
-    api(libs.eventbus)
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
     api(libs.word.wrap)
-
-
-    api(project(":core:components"))
+    
     api(project(":core:editor"))
     api(project(":core:language-textmate"))
     api(project(":core:resources"))
+    api(project(":core:components"))
 }

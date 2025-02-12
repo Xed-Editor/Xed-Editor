@@ -29,9 +29,10 @@ import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.toast
 import com.rk.xededitor.R
+import io.github.rosemoe.sora.widget.CodeEditor
 
 class CrashActivity : AppCompatActivity() {
-    private lateinit var editor: KarbonEditor
+    private lateinit var editor: CodeEditor
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -28,7 +28,6 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.UI
 import com.rk.libcommons.application
-import com.rk.libcommons.editor.ControlPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
@@ -57,10 +56,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -172,22 +167,6 @@ class MainActivity : BaseActivity() {
             fileSet = state.fileSet
         }
 
-    }
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this);
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this);
-    }
-
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun showControlPanel(c: ControlPanel) {
-        showControlPanel(this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -381,7 +360,7 @@ class MainActivity : BaseActivity() {
         isPaused = false
         ExtensionManager.onAppResumed()
         super.onResume()
-        lifecycleScope.launch { PermissionHandler.verifyStoragePermission(this@MainActivity) }
+        PermissionHandler.verifyStoragePermission(this)
         ProjectManager.processQueue(this)
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
