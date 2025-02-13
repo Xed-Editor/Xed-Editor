@@ -14,7 +14,7 @@ pluginManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
     plugins {
-        kotlin("jvm") version "2.1.0"
+        kotlin("jvm") version "2.1.10"
     }
 }
 dependencyResolutionManagement {
