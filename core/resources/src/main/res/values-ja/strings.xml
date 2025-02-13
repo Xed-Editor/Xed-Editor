@@ -6,7 +6,7 @@
     <string name="unsupported_contnt">非対応の内容です</string>
     <string name="mp">プラグインを管理</string>
     <string name="new_file_1">新規ファイル</string>
-    <string name="open_with">次で開く:</string>
+    <string name="open_with">他で開く</string>
     <string name="inavalid_git_cred">認証情報が有効ではありません。設定で変更してください</string>
     <string name="file_saved">ファイルを保存しました</string>
     <string name="create_new_file_desc">選択されたフォルダ内に新規ファイルを作成</string>
@@ -52,7 +52,7 @@
     <string name="rr">再起動が必要です</string>
     <string name="ww">ワードラップ</string>
     <string name="keepdl">引き出しをロックしたままにする</string>
-    <string name="nip">インストールされているプログラムはありません</string>
+    <string name="nip">インストールされているプラグインはありません</string>
     <string name="refresh">更新</string>
     <string name="dir_example">名前 例: Test</string>
     <string name="create">作成</string>
@@ -117,7 +117,7 @@
     <string name="already_installed">既にインストールされています</string>
     <string name="yes">はい</string>
     <string name="app">アプリケーション</string>
-    <string name="oled_desc">有機ELディスプレイ向けの純粋に黒いテーマ</string>
+    <string name="oled_desc">有機ELディスプレイ向けの、純粋な黒色のテーマ</string>
     <string name="change_theme">テーマを変更</string>
     <string name="editor">エディター</string>
     <string name="smooth_tabs">滑らかなタブ</string>
@@ -281,8 +281,8 @@
     <string name="update">アップデート</string>
     <string name="ignore">無視</string>
     <string name="launch">起動</string>
-    <string name="mutator_desc">マイクロツールを作成</string>
-    <string name="restore_sessions">セッションを復原</string>
+    <string name="mutator_desc">ちょっとしたツールを作成</string>
+    <string name="restore_sessions">セッションの復元</string>
     <string name="restore_sessions_desc">前回のタブを復元</string>
     <string name="sessions">セッション</string>
     <string name="terminal_runtime_desc">ターミナルのランタイムを選択</string>
@@ -292,7 +292,7 @@
     <string name="ext">拡張機能</string>
     <string name="ext_desc">拡張機能の管理</string>
     <string name="no_mutators">ミューテーターはありません</string>
-    <string name="tab_opened">開いているタブ</string>
+    <string name="tab_opened">タブを開きました</string>
     <string name="mutator_name">ミューテーターの名前</string>
     <string name="name_used">名前は既に使用されています</string>
     <string name="script_show_toast">トーストを表示</string>
@@ -327,7 +327,7 @@
     <string name="no_ext">インストールされている拡張機能はありません。</string>
     <string name="about_desc">Karbonについて</string>
     <string name="version">バージョン</string>
-    <string name="click_open">ファイルを開くにはここをクリックしてください</string>
+    <string name="click_open">ここをクリックしてファイルを開く</string>
     <string name="add_font_desc">ストレージからttfフォントを選択する</string>
     <string name="use_github_url">デフォルトのGithubのurlを使用</string>
     <string name="txt_ww">テキストファイルのワードラップ</string>
@@ -344,7 +344,7 @@
     <string name="content">内容</string>
     <string name="fonts">フォント</string>
     <string name="termux_exec_guide_desc">Termux Execを有効化するためのドキュメント</string>
-    <string name="info_mutators">ミューテーターはエディターのテキストを変更するための小さなスクリプトです。ミューテーターを作成し、それをクリックしてエディターで開いてください。</string>
+    <string name="info_mutators">ミューテーターはエディターのテキストを変更するためのちょっとしたスクリプトです。ミューテーターを作成し、それをクリックするとエディターに開かれます。</string>
     <string name="script_get_text">テキストを取得</string>
     <string name="sora_s_desc">Soraテキスト検索を利用する</string>
     <string name="terminal_home_desc">ターミナルにおけるデフォルトのホームディレクトリ</string>
