@@ -327,7 +327,7 @@
     <string name="no_ext">インストールされている拡張機能はありません。</string>
     <string name="about_desc">Karbonについて</string>
     <string name="version">バージョン</string>
-    <string name="click_open">ここをクリックしてファイルを開く</string>
+    <string name="click_open">ファイルを開くにはここをクリック</string>
     <string name="add_font_desc">ストレージからttfフォントを選択する</string>
     <string name="use_github_url">デフォルトのGithubのurlを使用</string>
     <string name="txt_ww">テキストファイルのワードラップ</string>
