@@ -7,6 +7,12 @@
       "languageConfiguration": "textmate/java/language-configuration.json"
     },
     {
+      "grammar": "textmate/text/syntaxes/text.tmLanguage.json",
+      "name": "text",
+      "scopeName": "text.plain",
+      "languageConfiguration": "textmate/text/language-configuration.json"
+    },
+    {
       "grammar": "textmate/kotlin/syntaxes/Kotlin.tmLanguage",
       "name": "kotlin",
       "scopeName": "source.kotlin",

@@ -10,7 +10,6 @@ import android.os.Build
 import android.util.Pair
 import android.util.TypedValue
 import android.view.KeyEvent
-import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
@@ -44,6 +43,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
+import org.json.JSONObject
 import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
@@ -128,7 +128,7 @@ suspend fun CodeEditor.applySettings() {
             isCursorAnimationEnabled = cursorAnimation
             setTextSize(textSize)
             isWordwrap = wordWrap
-            if (this@applySettings is KarbonEditor){
+            if (this@applySettings is KarbonEditor) {
                 showSuggestions(keyboardSuggestion)
             }
             lineSpacingExtra = lineSpacing
@@ -177,7 +177,7 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
         val source = when (fileName) {
             "gradlew" -> textmateSources["sh"]
             else -> {
-                textmateSources[fileName.substringAfterLast('.', "").trim()]
+                textmateSources[fileName.substringAfterLast('.', "").trim()] // ?: "text.plain"
             }
         }
         source?.let { setLanguage(it) }
@@ -222,7 +222,8 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
 
         @OptIn(DelicateCoroutinesApi::class)
         suspend fun initActivity(
-            activity: Activity, calculateColors: () -> kotlin.Pair<String, String>) {
+            activity: Activity, calculateColors: () -> kotlin.Pair<String, String>
+        ) {
             if (!activityInit) {
                 activityjob = GlobalScope.launch {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -344,19 +345,38 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
         }
 
         languageMutex.lock()
-        val language = TextMateLanguage.create(languageScopeName, true)
-        val kw = ctx.assets.open("textmate/keywords.json")
-        val reader = InputStreamReader(kw)
-        val jsonElement = JsonParser.parseReader(reader)
-        val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(languageScopeName)
 
-        if (keywordsArray != null) {
-            val keywords = Array(keywordsArray.size()) { "" }
-            for (i in keywords.indices) {
-                keywords[i] = keywordsArray[i].asString
+        val language = if (languageScopeName != "text.plain"){
+            val lang = TextMateLanguage.create(languageScopeName, true)
+            ctx.assets.open("textmate/keywords.json").use {
+                val commonSources = hashMapOf(
+                    "source.groovy" to "source.java",
+                    "text.html.htmx" to "text.html.basic"
+                )
+                val correctSource = commonSources.getOrDefault(languageScopeName, languageScopeName)
+                val reader = InputStreamReader(it)
+                val jsonElement = JsonParser.parseReader(reader)
+                val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(correctSource)
+                if (keywordsArray != null) {
+                    val keywords = Array(keywordsArray.size()) { "" }
+                    for (i in keywords.indices) {
+                        keywords[i] = keywordsArray[i].asString
+                    }
+                    lang.setCompleterKeywords(keywords)
+                }
+
             }
-            language.setCompleterKeywords(keywords)
+            lang
+        }else{
+            PlainTextLanguage()
         }
+
+
+
+
+
+
+
 
         withContext(Dispatchers.Main) {
             editor.setEditorLanguage(language as Language)

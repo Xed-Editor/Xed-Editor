@@ -240,10 +240,12 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
     }
 
-    suspend fun expandNode(clickedNode: Node<FileObject>) = withContext(Dispatchers.IO) {
+    suspend fun expandNode(clickedNode: Node<FileObject>){
         val tempData = currentList.toMutableList()
         val index = tempData.indexOf(clickedNode)
-        val children = sort(clickedNode.value)
+        val children = withContext(Dispatchers.IO){
+            sort(clickedNode.value)
+        }
         tempData.addAll(index + 1, children)
         TreeViewModel.add(clickedNode, children)
         clickedNode.isExpand = true
