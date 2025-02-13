@@ -6,7 +6,7 @@ We follow the GitHub Flow. To submit a pull request:
    - Clone your fork to your local machine.
    - Create a new branch from dev branch for your feature or fix.
    - Commit your changes and push the branch to your fork.
-   - Open a pull request from your branch to the main branch of this repository.
+   - Open a pull request from your branch to the dev branch of this repository.
 
 Ensure your pull request includes:
 
