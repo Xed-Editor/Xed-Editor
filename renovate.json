@@ -4,6 +4,6 @@
     "config:recommended"
   ],
   "automerge": false,
-  "forkProcessing": "enabled"
+  "forkProcessing": "enabled",
   "baseBranches": ["dev"]
 }
