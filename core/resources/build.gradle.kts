@@ -6,11 +6,8 @@ plugins {
 android {
     namespace = "com.rk.resources"
     compileSdk = 34
-    
-    //todo remove this before release
-    lintOptions {
-        disable("MissingTranslation")
-    }
+
+    lint.disable += "MissingTranslation"
     
     defaultConfig {
         minSdk = 26
@@ -26,20 +23,16 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
-    
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
 }

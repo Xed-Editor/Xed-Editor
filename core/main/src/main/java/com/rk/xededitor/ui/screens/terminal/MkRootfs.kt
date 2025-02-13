@@ -12,7 +12,7 @@ import java.io.File
 import java.lang.Runtime.getRuntime
 
 class MkRootfs(val context: Context, private val onComplete:()->Unit) {
-    private val alpine = File(context.getTempDir(),"alpine.tar.gz")
+    private val alpine = File(getTempDir(),"alpine.tar.gz")
 
     init {
         if (alpine.exists().not() || alpineDir().listFiles().isNullOrEmpty().not()){

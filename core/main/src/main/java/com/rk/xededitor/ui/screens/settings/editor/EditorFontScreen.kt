@@ -23,16 +23,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.rkUtils
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import java.io.File
 import java.io.FileOutputStream
 
@@ -82,8 +82,8 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                         )
                     )
                     EditorFont.saveFonts()
-                    rkUtils.toast(strings.font_added.getString())
-                }.onFailure { if (it.message?.isNotBlank() == true){rkUtils.toast(it.message)} }
+                    toast(strings.font_added.getString())
+                }.onFailure { if (it.message?.isNotBlank() == true){toast(it.message)} }
             })
 
 
@@ -101,7 +101,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                             f.get()?.let { ff ->
                                 if (ff.fragment is EditorFragment) {
                                     (ff.fragment as EditorFragment).editor?.let { editor ->
-                                        kotlin.runCatching { SetupEditor.applyFont(editor) }.onFailure { rkUtils.toast(it.message) }
+                                        runCatching { SetupEditor.applyFont(editor) }.onFailure { toast(it.message) }
                                     }
                                 }
                             }

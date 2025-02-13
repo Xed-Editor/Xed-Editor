@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<network-security-config>
-    <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">localhost</domain>
-        <!-- You can add other domains or use <domain includeSubdomains="true">*<domain> to allow all -->
-    </domain-config>
-</network-security-config>

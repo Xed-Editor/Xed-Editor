@@ -5,7 +5,7 @@ import android.view.View
 import com.github.chrisbanes.photoview.PhotoView
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.bumptech.glide.Glide
-import com.rk.file.FileObject
+import com.rk.file_wrapper.FileObject
 
 class ImageFragment(val context:Context) : CoreFragment {
     private val photoView = PhotoView(context)
@@ -20,12 +20,12 @@ class ImageFragment(val context:Context) : CoreFragment {
 
     override fun onCreate() {}
     
-    override fun loadFile(file: com.rk.file.FileObject) {
+    override fun loadFile(file: com.rk.file_wrapper.FileObject) {
         this.file = file
         Glide.with(context).load(file.toUri()).into(photoView)
     }
     
-    override fun getFile(): com.rk.file.FileObject? {
+    override fun getFile(): com.rk.file_wrapper.FileObject? {
         return file
     }
     

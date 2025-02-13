@@ -21,18 +21,18 @@ import androidx.compose.ui.res.stringResource
 import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.toast
+import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
-import com.rk.xededitor.rkUtils
-import com.rk.xededitor.rkUtils.toastIt
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
 
 @SuppressLint("AuthLeak")
 @Composable
@@ -143,7 +143,7 @@ fun SettingsGitScreen() {
                             gitUrl = inputGitUrl
                             Settings.setString(SettingsKey.GIT_URL,gitUrl)
                             updateCredentials(context,username,token,inputGitUrl)
-                        }.onFailure { rkUtils.toast(it.message) }
+                        }.onFailure { toast(it.message) }
                         showGithubUrlDialog = false
                     },
                     onDismiss = {
@@ -168,9 +168,9 @@ fun SettingsGitScreen() {
                                 email = inputEmail
                             } else {
                                 inputEmail = email
-                                rkUtils.toast(strings.invalid_email.getString())
+                                toast(strings.invalid_email.getString())
                             }
-                        }.onFailure { rkUtils.toast(it.message) }
+                        }.onFailure { toast(it.message) }
                         showEmailDialog = false
                     },
                     onDismiss = {
@@ -195,10 +195,10 @@ fun SettingsGitScreen() {
                                 username = inputUserName
                             } else {
                                 inputUserName = username
-                                rkUtils.toast(strings.invalid_user.getString())
+                                toast(strings.invalid_user.getString())
                             }
 
-                        }.onFailure { rkUtils.toast(it.message) }
+                        }.onFailure { toast(it.message) }
 
                         showUserNameDialog = false
                     },
@@ -223,12 +223,12 @@ fun SettingsGitScreen() {
                         inputToken = text
                     },
                     onConfirm = {
-                        runCatching {
+                        toastCatching {
                             if (inputToken.isBlank().not()){
                                 updateCredentials(context, username, inputToken,gitUrl)
                                 token = inputToken
                             }
-                        }.onFailure { it.message.toastIt() }
+                        }
                         showTokenDialog = false
                         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
                     },

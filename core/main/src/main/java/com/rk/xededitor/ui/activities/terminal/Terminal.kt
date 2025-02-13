@@ -33,9 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.libcommons.alpineDir
 import com.rk.libcommons.localDir
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.service.SessionService
 import com.rk.xededitor.ui.screens.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
@@ -168,10 +168,10 @@ class Terminal : ComponentActivity() {
                     },
                     onError = { error ->
                         if (error is UnknownHostException){
-                            rkUtils.toast(strings.network_err.getString())
+                            toast(strings.network_err.getString())
                         }else{
                             error.printStackTrace()
-                            rkUtils.toast("Setup Failed: ${error.message}")
+                            toast("Setup Failed: ${error.message}")
                         }
                         finish()
 
@@ -179,10 +179,10 @@ class Terminal : ComponentActivity() {
                     })
             } catch (e: Exception) {
                 if (e is UnknownHostException){
-                    rkUtils.toast(strings.network_err.getString())
+                    toast(strings.network_err.getString())
                 }else{
                     e.printStackTrace()
-                    rkUtils.toast("Setup Failed: ${e.message}")
+                    toast("Setup Failed: ${e.message}")
                 }
                 finish()
             }

@@ -6,11 +6,10 @@ import androidx.navigation.NavController
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.screens.settings.app.showExtensions
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.category.PreferenceCategory
+import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.category.PreferenceCategory
 
 @Composable
 fun SettingsScreen(navController: NavController) {

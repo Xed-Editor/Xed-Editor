@@ -34,7 +34,6 @@ fun getFullGitCommitHash(): String {
 }
 
 
-
 android {
     namespace = "com.rk.xededitor"
     android.buildFeatures.buildConfig = true
@@ -42,13 +41,12 @@ android {
 
     defaultConfig {
         minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
-        getByName("release") {
+        release {
             buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
             buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
             buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
@@ -58,7 +56,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
-        getByName("debug") {
+        debug{
             buildConfigField("String", "GIT_COMMIT_HASH", "\"${getFullGitCommitHash()}\"")
             buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${getGitCommitHash()}\"")
             buildConfigField("String", "GIT_COMMIT_DATE", "\"${getGitCommitDate()}\"")
@@ -87,6 +85,7 @@ android {
 }
 
 dependencies {
+
     api(libs.swiperefreshlayout)
     api(libs.appcompat)
     api(libs.material)
@@ -127,23 +126,12 @@ dependencies {
     api(libs.media3.exoplayer.dash)
     api(libs.media3.ui)
     api(libs.browser)
-    api(libs.eventbus)
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
-
-
-    api(project(":core:runner"))
-    api(project(":core:file"))
-    api(project(":core:filetree"))
-    api(project(":core:settings"))
-    api(project(":core:commons"))
-    api(project(":core:components"))
+    api(libs.word.wrap)
+    
     api(project(":core:editor"))
-//    api(project(":core:external-editor"))
     api(project(":core:language-textmate"))
     api(project(":core:resources"))
-    api(project(":core:karbon-exec"))
-    api(project(":core:mutator-engine"))
-    api(project(":core:extension"))
-
+    api(project(":core:components"))
 }

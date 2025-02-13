@@ -7,6 +7,12 @@
       "languageConfiguration": "textmate/java/language-configuration.json"
     },
     {
+      "grammar": "textmate/text/syntaxes/text.tmLanguage.json",
+      "name": "text",
+      "scopeName": "text.plain",
+      "languageConfiguration": "textmate/text/language-configuration.json"
+    },
+    {
       "grammar": "textmate/kotlin/syntaxes/Kotlin.tmLanguage",
       "name": "kotlin",
       "scopeName": "source.kotlin",
@@ -130,6 +136,12 @@
       "languageConfiguration": "textmate/json/language-configuration.json"
     },
     {
+      "name": "ini",
+      "scopeName": "source.ini",
+      "grammar": "textmate/ini/syntaxes/ini.tmLanguage.json",
+      "languageConfiguration": "textmate/ini/ini.language-configuration.json"
+    },
+    {
       "grammar": "textmate/css/syntaxes/css.tmLanguage.json",
       "name": "css",
       "scopeName": "source.css",
@@ -140,6 +152,12 @@
       "name": "C#",
       "scopeName": "source.cs",
       "languageConfiguration": "textmate/csharp/language-configuration.json"
+    },
+    {
+      "name": "go",
+      "scopeName": "source.go",
+      "grammar": "textmate/go/syntaxes/go.tmLanguage.json",
+      "languageConfiguration": "textmate/go/language-configuration.json"
     },
     {
       "grammar": "textmate/yaml/syntaxes/yaml.tmLanguage.json",
@@ -160,6 +178,12 @@
       "languageConfiguration": "textmate/rust/language-configuration.json"
     },
     {
+      "name": "groovy",
+      "scopeName": "source.groovy",
+      "grammar": "textmate/groovy/syntaxes/groovy.tmLanguage.json",
+      "languageConfiguration": "textmate/groovy/language-configuration.json"
+    },
+    {
       "name": "markdown",
       "scopeName": "text.html.markdown",
       "grammar": "textmate/markdown/syntaxes/markdown.tmLanguage.json",
@@ -171,6 +195,12 @@
         "meta.embedded.block.xml": "xml",
         "meta.embedded.block.python": "python"
       }
+    },
+    {
+      "name": "bat",
+      "scopeName": "source.batchfile",
+      "grammar": "textmate/bat/syntaxes/batchfile.tmLanguage.json",
+      "languageConfiguration": "textmate/bat/language-configuration.json"
     }
   ]
 }

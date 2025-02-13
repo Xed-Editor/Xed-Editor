@@ -2,16 +2,14 @@ package com.rk.xededitor.MainActivity.tabs.media
 
 import android.content.Context
 import android.view.View
-import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
-import com.rk.file.FileObject
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 
 class VideoFragment(val context: Context) : CoreFragment {
     private val player = ExoPlayer.Builder(context).build()
-    private var file: com.rk.file.FileObject? = null
+    private var file: com.rk.file_wrapper.FileObject? = null
     
     override fun getView(): View? {
         return PlayerView(context).apply {
@@ -29,7 +27,7 @@ class VideoFragment(val context: Context) : CoreFragment {
     
     }
     
-    override fun loadFile(file: com.rk.file.FileObject) {
+    override fun loadFile(file: com.rk.file_wrapper.FileObject) {
         this.file = file
         val mediaItem = MediaItem.fromUri(file.toUri())
         player.setMediaItem(mediaItem)
@@ -37,7 +35,7 @@ class VideoFragment(val context: Context) : CoreFragment {
         player.play()
     }
     
-    override fun getFile(): com.rk.file.FileObject? {
+    override fun getFile(): com.rk.file_wrapper.FileObject? {
         return file
     }
     

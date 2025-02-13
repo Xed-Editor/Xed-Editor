@@ -362,4 +362,6 @@
     <string name="experimental_feature">Funzioni Sperimentali</string>
     <string name="experimental_session_restore_warning">Questa Funzionalità è sperimentale e si è a conoscenza che potrebbe causare perdita di dati</string>
     <string name="highlighting">Evidenziazione Sintassi</string>
+    <string name="err_no_termux">Termux non è installato</string>
+    <string name="err_termux_incompatible">Termux non è compatibile</string>
 </resources>

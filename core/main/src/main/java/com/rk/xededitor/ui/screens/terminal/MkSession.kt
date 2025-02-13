@@ -1,10 +1,11 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
-import com.rk.file.FileWrapper
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
+import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
@@ -80,18 +81,9 @@ object MkSession {
                 env.addAll(it)
             }
 
+            setupTerminalFiles()
+
             val initHost = localBinDir().child("init-host")
-            if (initHost.exists().not()) {
-                initHost.createFileIfNot()
-                initHost.writeText(assets.open("terminal/init-host.sh").bufferedReader()
-                    .use { it.readText() })
-            }
-            val init = localBinDir().child("init")
-            if (init.exists().not()) {
-                init.createFileIfNot()
-                init.writeText(assets.open("terminal/init.sh").bufferedReader()
-                    .use { it.readText() })
-            }
 
             val args: Array<String>
 

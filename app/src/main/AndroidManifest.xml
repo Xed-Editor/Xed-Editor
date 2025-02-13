@@ -67,7 +67,7 @@
         </provider>
 
         <activity
-            android:name="com.rk.xededitor.CrashHandler.CrashActivity"
+            android:name="com.rk.crashhandler.CrashActivity"
             android:exported="false" />
 
         <activity

@@ -14,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rk.file.FileObject
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -82,7 +81,7 @@ class MainViewModel : ViewModel() {
 }
 
 @Composable
-fun TabContent(modifier: Modifier = Modifier, file: com.rk.file.FileObject, type: FragmentType, viewModel: MainViewModel = viewModel()) {
+fun TabContent(modifier: Modifier = Modifier, file: com.rk.file_wrapper.FileObject, type: FragmentType, viewModel: MainViewModel = viewModel()) {
     when(type){
         FragmentType.EDITOR -> {
             CodeEditor(

@@ -31,7 +31,7 @@
     <string name="print">cetak</string>
     <string name="search">cari</string>
     <string name="go_next">Selanjutnya</string>
-    <string name="go_prev">Sebelumnya</string>
+    <string name="go_prev">Pg Sblm.</string>
     <string name="close_search">Tutup Pencarian</string>
     <string name="replace">Ganti</string>
     <string name="share">Bagikan</string>
@@ -81,7 +81,7 @@
     <string name="add_new_replacement_batch">Menambahkan batch pengganti baru</string>
     <string name="remove_a_search_batch">menghapus batch pencarian</string>
     <string name="replacement">penggantian</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">AktivitasUtama</string>
     <string name="tab_text_1">tab 1</string>
     <string name="tab_text_2">tab 2</string>
     <string name="title">Judul</string>
@@ -362,4 +362,6 @@
     <string name="experimental_feature">Fitur Eksperimental</string>
     <string name="experimental_session_restore_warning">Fitur ini bersifat eksperimental dan diketahui terkadang menyebabkan kehilangan data</string>
     <string name="highlighting">Penyorotan Sintaks</string>
+    <string name="err_termux_incompatible">Termux tidak kompatibel</string>
+    <string name="err_no_termux">Termux tidak terinstal</string>
 </resources>

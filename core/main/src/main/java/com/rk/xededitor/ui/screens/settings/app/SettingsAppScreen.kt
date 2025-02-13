@@ -1,6 +1,8 @@
 package com.rk.xededitor.ui.screens.settings.app
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
@@ -24,18 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
-import com.rk.xededitor.rkUtils
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 
 
 val showExtensions = mutableStateOf(
@@ -63,7 +65,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 key = SettingsKey.OLED,
                 default = false,
                 sideEffect = {
-                    rkUtils.toast(rkUtils.getString(strings.restart_required))
+                    toast(strings.restart_required)
                 })
 
 
@@ -91,6 +93,19 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 }
             )
 
+            SettingsToggle(
+                label = stringResource(strings.manage_storage),
+                description = stringResource(strings.manage_storage),
+                isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                showSwitch = false,
+                sideEffect = {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
+                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        intent.setData(Uri.parse("package:${activity.packageName}"))
+                        activity.startActivity(intent)
+                    }
+                }
+            )
 
         }
 
@@ -160,7 +175,7 @@ fun DayNightDialog(
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;
                                 }
-                                rkUtils.toast(strings.restart_required.getString())
+                                toast(strings.restart_required.getString())
                             },
                             startWidget = {
                                 RadioButton(

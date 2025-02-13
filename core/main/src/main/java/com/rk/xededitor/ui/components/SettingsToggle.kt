@@ -18,8 +18,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.settings.Settings
 import com.rk.settings.Settings.getBoolean
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
-import org.robok.engine.core.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -5,7 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.rk.file.FileObject
+import androidx.lifecycle.lifecycleScope
+import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
@@ -15,7 +16,6 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.media.ImageFragment
 import com.rk.xededitor.MainActivity.tabs.media.WebFragment
 import com.rk.xededitor.MainActivity.tabs.media.VideoFragment
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.launch
 
 class TabFragment : Fragment() {
@@ -39,12 +39,12 @@ class TabFragment : Fragment() {
         if (fragment == null){
             when (file!!.getFragmentType()) {
                 FragmentType.EDITOR -> {
-                    val editorFragment = EditorFragment(requireContext())
+                    val editorFragment = EditorFragment(requireContext(),lifecycleScope)
                     fragment = editorFragment
                 }
 
                 FragmentType.AUDIO -> {
-                    val mediaFragment = WebFragment(requireContext())
+                    val mediaFragment = WebFragment(requireContext(),lifecycleScope)
                     fragment = mediaFragment
                 }
 
@@ -73,7 +73,7 @@ class TabFragment : Fragment() {
     ): View? {
         fragment!!.onCreate()
         fragment!!.loadFile(file = file!!)
-        return fragment?.getView()?.also { it?.isFocusableInTouchMode = true;it.requestFocus();it.requestFocusFromTouch(); }
+        return fragment?.getView()?.also { it.isFocusableInTouchMode = true;it.requestFocus();it.requestFocusFromTouch(); }
     }
     
     override fun onDestroy() {

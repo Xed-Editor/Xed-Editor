@@ -362,4 +362,6 @@
     <string name="experimental_feature">Экспериментальная функция</string>
     <string name="experimental_session_restore_warning">Эта функция является экспериментальной и иногда может приводить к потере данных</string>
     <string name="highlighting">Подсветка синтаксиса</string>
+    <string name="err_no_termux">Termux не установлен</string>
+    <string name="err_termux_incompatible">Termux несовместим</string>
 </resources>

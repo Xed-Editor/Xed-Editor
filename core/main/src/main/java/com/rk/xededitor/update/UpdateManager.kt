@@ -3,13 +3,13 @@ package com.rk.xededitor.update
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.rkUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -60,7 +60,7 @@ object UpdateManager {
                 Settings.setString(SettingsKey.LAST_UPDATE_CHECK, System.currentTimeMillis().toString())
             } catch (e: Exception) {
                 e.printStackTrace()
-                rkUtils.toast(e.message)
+                toast(e.message)
             }
         }
     }
@@ -103,7 +103,7 @@ object UpdateManager {
                         }
                         setNegativeButton(strings.ignore.getString()){ _,_ ->
                             Settings.setBoolean(SettingsKey.CHECK_UPDATE, false)
-                            rkUtils.toast(strings.update_disable.getString())
+                           toast(strings.update_disable.getString())
                         }
                         setCancelable(false)
                         show()
