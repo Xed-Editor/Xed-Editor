@@ -54,7 +54,7 @@ navigationCompose = "2.8.7"
 lifecycleViewmodelAndroid = "2.8.7"
 wordWrap = "0.1.13"
 coreAnimation = "1.0.0"
-runtimeAndroid = "1.7.6"
+runtimeAndroid = "1.7.8"
 
 [libraries]
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
