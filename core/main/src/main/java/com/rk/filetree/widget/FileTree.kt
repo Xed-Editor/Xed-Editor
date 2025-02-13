@@ -14,6 +14,8 @@ import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
 import com.rk.filetree.util.sort
 import com.rk.xededitor.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 class FileTree : RecyclerView {
@@ -61,7 +63,7 @@ class FileTree : RecyclerView {
         return showRootNode
     }
 
-    suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) {
+    suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) = withContext(Dispatchers.IO) {
         rootFileObject = file
 
         showRootNodeX?.let { showRootNode = it }
@@ -86,7 +88,7 @@ class FileTree : RecyclerView {
         }
     }
 
-    suspend fun reloadFileTree() {
+    suspend fun reloadFileTree() = withContext(Dispatchers.IO){
         val nodes: List<Node<FileObject>> =
             if (showRootNode) {
                 mutableListOf<Node<FileObject>>().apply { add(Node(rootFileObject)) }

@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceGroup
 
 
 @Composable

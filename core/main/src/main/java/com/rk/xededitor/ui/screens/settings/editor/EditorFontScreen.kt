@@ -30,9 +30,9 @@ import com.rk.settings.Settings
 import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import java.io.File
 import java.io.FileOutputStream
 
@@ -101,7 +101,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                             f.get()?.let { ff ->
                                 if (ff.fragment is EditorFragment) {
                                     (ff.fragment as EditorFragment).editor?.let { editor ->
-                                        kotlin.runCatching { SetupEditor.applyFont(editor) }.onFailure { toast(it.message) }
+                                        runCatching { SetupEditor.applyFont(editor) }.onFailure { toast(it.message) }
                                     }
                                 }
                             }

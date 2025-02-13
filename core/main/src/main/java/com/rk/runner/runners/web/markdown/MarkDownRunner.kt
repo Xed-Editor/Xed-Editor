@@ -16,7 +16,6 @@ class MarkDownRunner(val file: FileObject) : RunnerImpl() {
 
     override fun run(context: Context) {
         val intent = Intent(context, MDViewer::class.java)
-        TODO()
         intent.putExtra("filepath", file.getAbsolutePath())
         context.startActivity(intent)
     }

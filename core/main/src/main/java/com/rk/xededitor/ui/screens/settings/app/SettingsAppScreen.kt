@@ -35,9 +35,9 @@ import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 
 
 val showExtensions = mutableStateOf(

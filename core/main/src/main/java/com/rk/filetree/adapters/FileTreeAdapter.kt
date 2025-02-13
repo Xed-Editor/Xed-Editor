@@ -22,8 +22,11 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.rk.filetree.util.sort
 import com.rk.filetree.widget.FileTree
+import com.rk.libcommons.LoadingPopup
 import com.rk.xededitor.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ViewHolder(v: View) : RecyclerView.ViewHolder(v) {
     val expandView: ImageView = v.findViewById(R.id.expand)
@@ -237,7 +240,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
     }
 
-    suspend fun expandNode(clickedNode: Node<FileObject>) {
+    suspend fun expandNode(clickedNode: Node<FileObject>) = withContext(Dispatchers.IO) {
         val tempData = currentList.toMutableList()
         val index = tempData.indexOf(clickedNode)
         val children = sort(clickedNode.value)

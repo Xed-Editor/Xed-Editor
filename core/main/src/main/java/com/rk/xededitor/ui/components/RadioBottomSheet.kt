@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import org.robok.engine.core.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 
 data class RadioOption<T>(
     val id: T,

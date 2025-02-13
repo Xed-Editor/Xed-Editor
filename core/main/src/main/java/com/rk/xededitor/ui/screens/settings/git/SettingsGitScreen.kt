@@ -31,8 +31,8 @@ import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.robok.engine.core.components.compose.preferences.base.PreferenceGroup
-import org.robok.engine.core.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
 
 @SuppressLint("AuthLeak")
 @Composable
