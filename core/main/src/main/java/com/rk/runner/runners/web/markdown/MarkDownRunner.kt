@@ -7,7 +7,6 @@ import androidx.core.content.ContextCompat
 import com.rk.file_wrapper.FileObject
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.R
-import java.io.File
 import java.lang.ref.WeakReference
 
 var mdViewerRef = WeakReference<MDViewer?>(null)
