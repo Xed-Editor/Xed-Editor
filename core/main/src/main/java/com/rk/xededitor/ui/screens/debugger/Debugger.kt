@@ -52,9 +52,11 @@ private fun runCode(code: String): CompletableFuture<Result> {
 
     return CompletableFuture.supplyAsync {
         try {
-            val interpreter = Class.forName("bsh.Interpreter",true, application!!.classLoader)
-            interpreter.getDeclaredMethod("setClassLoader",ClassLoader::class.java)(application!!.classLoader)
-            val result = interpreter.getDeclaredMethod("eval",String::class.java)(code)
+            val interpreterClazz = Class.forName("bsh.Interpreter")
+            val interpreterInstance = interpreterClazz.getDeclaredConstructor().newInstance()
+
+            interpreterClazz.getDeclaredMethod("setClassLoader",ClassLoader::class.java)(interpreterInstance,application!!.classLoader)
+            val result = interpreterClazz.getDeclaredMethod("eval",String::class.java)(interpreterInstance,code)
 
             Result(
                 error = null,
