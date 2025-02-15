@@ -69,7 +69,7 @@ class App : Application() {
                 if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
             }
 
-            launch(Dispatchers.IO) { SetupEditor.init(GlobalScope) }
+            SetupEditor.init()
             Mutators.loadMutators()
             AutoSaver.start()
 

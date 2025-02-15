@@ -2,19 +2,29 @@ package com.rk.libcommons.editor
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
+import android.graphics.drawable.ColorDrawable
 import android.text.InputType
 import android.util.AttributeSet
+import android.util.TypedValue
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.application
 import com.rk.libcommons.isDarkMode
+import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toastCatching
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
+import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
+import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
@@ -34,6 +44,9 @@ class KarbonEditor : CodeEditor {
     
 
     init{
+        applyFont()
+        //getComponent(EditorAutoCompletion::class.java).isEnabled = true
+
         val darkTheme: Boolean = when (Settings.default_night_mode) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
@@ -47,8 +60,73 @@ class KarbonEditor : CodeEditor {
         colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, color)
+
+        CoroutineScope(Dispatchers.Default).launch {
+            applySettings()
+        }
     }
-    
+
+    suspend fun applySettings(){
+        getComponent(EditorAutoCompletion::class.java).setLayout(object :
+            DefaultCompletionLayout() {
+            override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
+                val typedValue = TypedValue()
+                context.theme.resolveAttribute(
+                    com.google.android.material.R.attr.colorSurface, typedValue, true
+                )
+                val colorSurface = typedValue.data
+                (completionList.parent as? ViewGroup)?.background = ColorDrawable(colorSurface)
+            }
+        })
+
+        withContext(Dispatchers.IO) {
+            val tabSize = Settings.tab_size
+            val pinLineNumber = Settings.pin_line_number
+            val showLineNumber = Settings.show_line_numbers
+            val cursorAnimation = Settings.cursor_animation
+            val textSize = Settings.editor_text_size
+            val wordWrap = Settings.wordwrap
+            val keyboardSuggestion = Settings.show_suggestions
+            val always_show_soft_keyboard = Settings.always_show_soft_keyboard
+            val lineSpacing = Settings.line_spacing
+
+            withContext(Dispatchers.Main) {
+                props.deleteMultiSpaces = tabSize
+                tabWidth = tabSize
+                props.deleteEmptyLineFast = false
+                props.useICULibToSelectWords = true
+                setPinLineNumber(pinLineNumber)
+                isLineNumberEnabled = showLineNumber
+                isCursorAnimationEnabled = cursorAnimation
+                setTextSize(textSize.toFloat())
+                isWordwrap = wordWrap
+                lineSpacingExtra = lineSpacing
+                isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
+                showSuggestions(keyboardSuggestion)
+            }
+        }
+    }
+
+    fun applyFont() {
+        toastCatching {
+            val fontPath = Settings.selected_font_path
+            if (fontPath.isNotEmpty()) {
+                val isAsset = Settings.is_selected_font_assest
+                if (isAsset) {
+                    typefaceText = Typeface.createFromAsset(context.assets, fontPath)
+                } else {
+                    typefaceText = Typeface.createFromFile(File(fontPath))
+                }
+            } else {
+                println("fallback: font Path is empty")
+                typefaceText =
+                    Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
+            }
+        }?.let {
+            toastCatching { typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf") }
+        }
+
+    }
     
     suspend fun loadFile(inputStream: InputStream,encoding:Charset){
         withContext(Dispatchers.IO) {

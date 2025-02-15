@@ -15,7 +15,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.editor.applySettings
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
