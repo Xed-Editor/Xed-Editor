@@ -111,13 +111,13 @@ class UriWrapper : FileObject {
 
     @Throws(FileNotFoundException::class, SecurityException::class)
     override fun getInputStream(): InputStream {
-        return application?.contentResolver?.openInputStream(file.uri)
+        return application!!.contentResolver?.openInputStream(file.uri)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
         val mode = if (append) "wa" else "w"
-        return application?.contentResolver?.openOutputStream(file.uri, mode)
+        return application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 

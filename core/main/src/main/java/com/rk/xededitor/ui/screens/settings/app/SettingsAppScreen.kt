@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 
 
 val showExtensions = mutableStateOf(Settings.enable_extensions)
@@ -106,6 +107,16 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                         intent.setData(Uri.parse("package:${activity.packageName}"))
                         activity.startActivity(intent)
                     }
+                }
+            )
+
+            SettingsToggle(
+                label = "Developer Options",
+                description = "Debugging options for ${strings.app_name.getString()}",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    navController.navigate(SettingsRoutes.DeveloperOptions.route)
                 }
             )
 

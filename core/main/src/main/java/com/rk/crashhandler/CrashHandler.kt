@@ -47,12 +47,16 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                 } catch (t: Throwable) {
                     Thread{
                         t.printStackTrace()
-                        runCatching {
-                            application!!.filesDir.child("crash.log").createFileIfNot().appendText(t.toString())
-                        }.onFailure { it.printStackTrace() }
+                        logErrorOrExit(t)
                     }.start()
                 }
             }
         }
     }
+}
+
+fun logErrorOrExit(throwable: Throwable){
+    runCatching {
+        application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString())
+    }.onFailure { it.printStackTrace();exitProcess(-1) }
 }
