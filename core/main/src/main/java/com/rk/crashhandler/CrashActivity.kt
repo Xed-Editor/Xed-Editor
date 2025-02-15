@@ -95,12 +95,6 @@ class CrashActivity : AppCompatActivity() {
 
     }
 
-    private fun logErrorOrExit(throwable: Throwable){
-        runCatching {
-            application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString())
-        }.onFailure { it.printStackTrace();exitProcess(-1) }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.crash_menu, menu)
         return true

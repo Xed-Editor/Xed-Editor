@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.rk.libcommons.application
 import com.rk.libcommons.postIO
+import com.rk.libcommons.toastCatching
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -181,9 +182,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onPluginLoaded()
-                }.onFailure { PluginException(ext,"Failed to call method onPluginLoaded() on plugin ${ext.name}",it) }
+                toastCatching { instance?.onPluginLoaded() }
             }
         }
 
@@ -196,9 +195,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onAppCreated()
-                }.onFailure { PluginException(ext,"Failed to call method onAppCreated() on plugin ${ext.name}",it) }
+                toastCatching { instance?.onAppCreated() }
             }
         }
     }
@@ -210,9 +207,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onAppLaunched()
-                }.onFailure { PluginException(ext,"Failed to call method onAppLaunched() on plugin ${ext.name}",it) }
+                toastCatching { instance?.onAppLaunched() }
             }
         }
 
@@ -225,9 +220,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onAppPaused()
-                }.onFailure { PluginException(ext,"Failed to call method onAppPaused() on plugin ${ext.name}",it) }
+                toastCatching { instance?.onAppPaused() }
             }
         }
     }
@@ -239,9 +232,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onAppResumed()
-                }.onFailure { PluginException(ext,"Failed to call method onAppResumed() on plugin ${ext.name}",it) }
+                toastCatching { instance?.onAppResumed() }
             }
         }
     }
@@ -253,9 +244,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onAppDestroyed()
-                }.onFailure { PluginException(ext,"Failed to call method onAppDestroyed() on plugin ${ext.name}",it) }
+                toastCatching { instance?.onAppDestroyed() }
             }
         }
     }
@@ -267,9 +256,7 @@ object ExtensionManager : ExtensionAPI() {
 
         postIO {
             extensions.forEach { (ext, instance) ->
-                runCatching {
-                    instance?.onLowMemory()
-                }.onFailure { PluginException(ext,"Failed to call method onLowMemory() on plugin ${ext.name}",it) }
+               toastCatching { instance?.onLowMemory() }
             }
         }
     }

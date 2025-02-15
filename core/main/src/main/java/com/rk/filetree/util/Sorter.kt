@@ -6,8 +6,5 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 suspend fun sort(root: FileObject): List<Node<FileObject>> = withContext(Dispatchers.IO) {
-    root.listFiles()
-        .sortedWith(compareBy<FileObject> { file -> if (file.isFile()) 1 else 0 }.thenBy {
-            it.getName().lowercase()
-        }).map { Node(it) }
+    Cache.getFiles(root) ?: root.listFiles().sortedWith(compareBy<FileObject> { file -> if (file.isFile()) 1 else 0 }.thenBy { it.getName().lowercase() }).map { Node(it) }.also { Cache.setFiles(root,it) }
 }

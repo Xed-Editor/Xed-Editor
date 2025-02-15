@@ -11,4 +11,6 @@ sealed class SettingsRoutes(val route: String) {
     data object DefaultEncoding : SettingsRoutes("defaultEncoding")
     data object ManageMutators : SettingsRoutes("manageMutators")
     data object Extensions : SettingsRoutes("extensions")
+    data object DeveloperOptions : SettingsRoutes("developer_options")
+    data object BeanshellREPL : SettingsRoutes("bsh_repl")
 }
