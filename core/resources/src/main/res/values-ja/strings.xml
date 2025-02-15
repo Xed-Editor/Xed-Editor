@@ -363,4 +363,8 @@
     <string name="http_git_url">Http git url</string>
     <string name="scroll_to_bottom">下までスクロール</string>
     <string name="experimental_session_restore_warning">この機能は試験的なもので、データが失われる可能性があります</string>
+    <string name="update_files_cleared">アプリがアップデートされました : データがクリアされました</string>
+    <string name="unrestricted_file">サイズによらずファイルを開く</string>
+    <string name="suggest_clear_app_data">アプリのデータをクリアすることを推奨します</string>
+    <string name="unrestricted_file_desc">どのようなサイズのファイルでも開けるようにする(クラッシュの可能性あり)</string>
 </resources>
