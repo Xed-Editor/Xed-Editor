@@ -364,4 +364,8 @@
     <string name="highlighting">Подсветка синтаксиса</string>
     <string name="err_no_termux">Termux не установлен</string>
     <string name="err_termux_incompatible">Termux несовместим</string>
+    <string name="suggest_clear_app_data">Рекомендуется очистить данные приложения</string>
+    <string name="update_files_cleared">Приложение обновлено: данные очищены</string>
+    <string name="unrestricted_file">Открывать файлы любого размера</string>
+    <string name="unrestricted_file_desc">Разрешить открытие файлов любого размера. Может привести к крашам</string>
 </resources>
