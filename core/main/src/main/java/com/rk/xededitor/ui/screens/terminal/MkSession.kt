@@ -2,6 +2,7 @@ package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
 import com.rk.file_wrapper.FileWrapper
+import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
@@ -70,6 +71,7 @@ object MkSession {
                 "LANG=C.UTF-8",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
+                "HOME=${alpineHomeDir()}",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
             )
 
