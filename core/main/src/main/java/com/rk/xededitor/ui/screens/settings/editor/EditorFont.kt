@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder
 import com.rk.libcommons.application
 import com.rk.libcommons.toast
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 
 
 object EditorFont {
@@ -29,7 +28,7 @@ object EditorFont {
     }
 
     private fun restoreFonts() {
-        val f = Settings.getString(SettingsKey.FONT_GSON, "")
+        val f = Settings.font_gson
         val gson = GsonBuilder().create()
 
         try {
@@ -49,6 +48,6 @@ object EditorFont {
     fun saveFonts() {
         val gson = GsonBuilder().create()
         val json = gson.toJson(fonts)
-        Settings.setString(SettingsKey.FONT_GSON, json)
+        Settings.font_gson = json
     }
 }

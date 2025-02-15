@@ -15,8 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.rk.libcommons.isDarkMode
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 
 /*
  * More Themes
@@ -99,13 +99,13 @@ private val DarkColorScheme =
  */
 @Composable
 fun KarbonTheme(
-    darkTheme: Boolean = when (Settings.getString(SettingsKey.DEFAULT_NIGHT_MODE, "-1").toInt()) {
+    darkTheme: Boolean = when (Settings.default_night_mode) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
         AppCompatDelegate.MODE_NIGHT_NO -> false
-        else -> Settings.isDarkMode(LocalContext.current)
+        else -> isDarkMode(LocalContext.current)
     },
-    highContrastDarkTheme: Boolean = Settings.isOled(),
-    dynamicColor: Boolean = Settings.isMonet(),
+    highContrastDarkTheme: Boolean = Settings.amoled,
+    dynamicColor: Boolean = Settings.monet,
     content: @Composable () -> Unit,
 ) {
     val colorScheme =

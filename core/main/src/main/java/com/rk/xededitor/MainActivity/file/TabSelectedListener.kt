@@ -6,7 +6,6 @@ import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.currentTab
 import com.rk.xededitor.MainActivity.handlers.updateMenu
@@ -14,7 +13,7 @@ import com.rk.xededitor.R
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-var smoothTabs = Settings.getBoolean(SettingsKey.VIEWPAGER_SMOOTH_SCROLL, false)
+var smoothTabs = Settings.smooth_tabs
 
 class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedListener {
     override fun onTabSelected(tab: Tab?) {

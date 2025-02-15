@@ -27,7 +27,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -40,7 +39,7 @@ import java.io.FileOutputStream
 fun EditorFontScreen(modifier: Modifier = Modifier) {
     PreferenceLayout(label = stringResource(strings.fonts), backArrowVisible = true) {
         PreferenceGroup {
-            val selectedFontP = Settings.getString(SettingsKey.SELECTED_FONT_PATH, "")
+            val selectedFontP = Settings.selected_font_path
             val selectedFontCompose = remember {
                 mutableStateOf(
                     if (selectedFontP.isEmpty()) {
@@ -71,7 +70,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                     if (destinationFile.exists().not()) {
                         destinationFile.createNewFile()
                     }
-                    context.contentResolver.openInputStream(uri!!).use { inputStream ->
+                    context.contentResolver.openInputStream(uri).use { inputStream ->
                         FileOutputStream(destinationFile).use { outputStream ->
                             inputStream?.copyTo(outputStream)
                         }
@@ -95,8 +94,9 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                         interactionSource = interactionSource,
                     ) {
                         //onCLick
-                        Settings.setString(SettingsKey.SELECTED_FONT_PATH, font.pathOrAsset)
-                        Settings.setBoolean(SettingsKey.IS_SELECTED_FONT_ASSEST, font.isAsset)
+                        Settings.selected_font_path = font.pathOrAsset
+                        Settings.is_selected_font_assest = font.isAsset
+
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
                             f.get()?.let { ff ->
                                 if (ff.fragment is EditorFragment) {

@@ -26,7 +26,6 @@ import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
@@ -68,7 +67,7 @@ fun SettingsGitScreen() {
         inputEmail = gitConfig.second
         inputUserName = gitConfig.first
         inputToken = token
-        isGithub = Settings.getBoolean(SettingsKey.GITHUB, true)
+        isGithub = Settings.github
 
         isLoading = false
     }
@@ -84,9 +83,9 @@ fun SettingsGitScreen() {
                 SettingsToggle(
                     label = stringResource(strings.github),
                     description = stringResource(strings.use_github_url),
-                    default = true,
-                    key = SettingsKey.GITHUB,
+                    default = Settings.github,
                     sideEffect = {
+                        Settings.github = it
                         isGithub = it
                     }
                 )
@@ -94,6 +93,7 @@ fun SettingsGitScreen() {
                 SettingsToggle(label = stringResource(strings.user),
                     description = username,
                     showSwitch = false,
+                    default = false,
                     sideEffect = {
                         showUserNameDialog = true
                     })
@@ -101,6 +101,7 @@ fun SettingsGitScreen() {
                 SettingsToggle(label = stringResource(strings.email),
                     description = email,
                     showSwitch = false,
+                    default = false,
                     sideEffect = {
                         showEmailDialog = true
                     })
@@ -108,6 +109,7 @@ fun SettingsGitScreen() {
                 SettingsToggle(label = stringResource(strings.git_auth),
                     description = stringResource(strings.git_auth),
                     showSwitch = false,
+                    default = false,
                     sideEffect = {
                         showTokenDialog = true
                     })
@@ -117,6 +119,7 @@ fun SettingsGitScreen() {
                         label = stringResource(strings.custom_git_url),
                         description = gitUrl,
                         showSwitch = false,
+                        default = false,
                         sideEffect = {
                             showGithubUrlDialog = true
                         }
@@ -141,7 +144,7 @@ fun SettingsGitScreen() {
                         runCatching {
                             updateConfig(context, username,inputGitUrl)
                             gitUrl = inputGitUrl
-                            Settings.setString(SettingsKey.GIT_URL,gitUrl)
+                            Settings.git_url = gitUrl
                             updateCredentials(context,username,token,inputGitUrl)
                         }.onFailure { toast(it.message) }
                         showGithubUrlDialog = false
@@ -293,7 +296,7 @@ private inline fun isValidEmail(email: String): Boolean {
 
 suspend fun getToken(context: Context): String {
     return withContext(Dispatchers.IO) {
-        val gitUrl = Settings.getString(SettingsKey.GIT_URL,"github.com")
+        val gitUrl = Settings.git_url
         val cred = alpineHomeDir().child(".git-credentials")
         if (cred.exists()) {
             val regex = """https://([^:]+):([^@]+)@$gitUrl""".toRegex()

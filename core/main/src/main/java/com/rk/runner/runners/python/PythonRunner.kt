@@ -11,7 +11,6 @@ import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import java.io.File
 
 class PythonRunner(val file: File) : RunnerImpl() {
@@ -21,15 +20,15 @@ class PythonRunner(val file: File) : RunnerImpl() {
             py.writeText(context.assets.open("terminal/python.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
+        val runtime = Settings.terminal_runtime
         when(runtime){
             "Alpine","Android" -> {
                 launchInternalTerminal(
                     context = context, TerminalCommand(
                         shell = "/bin/sh",
                         args = arrayOf(py.absolutePath,file.absolutePath),
-                        id = "pyhton",
-                        workingDir = file.parentFile.absolutePath
+                        id = "python",
+                        workingDir = file.parentFile!!.absolutePath
                     )
                 )
             }

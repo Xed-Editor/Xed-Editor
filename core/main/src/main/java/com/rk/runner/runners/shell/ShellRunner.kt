@@ -9,12 +9,11 @@ import com.rk.libcommons.TerminalCommand
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import java.io.File
 
 class ShellRunner(val file: File) : RunnerImpl() {
     override fun run(context: Context) {
-        val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
+        val runtime = Settings.terminal_runtime
         when(runtime){
             "Android" -> {
                 launchInternalTerminal(
@@ -51,11 +50,11 @@ class ShellRunner(val file: File) : RunnerImpl() {
     }
 
     override fun getName(): String {
-        return Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
+        return Settings.terminal_runtime
     }
 
     override fun getDescription(): String {
-        return Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
+        return Settings.terminal_runtime
     }
 
     override fun getIcon(context: Context): Drawable? {

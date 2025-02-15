@@ -5,7 +5,6 @@ import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.filetree.model.Node
 import com.rk.libcommons.DefaultScope
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.MainActivity.file.ProjectManager.getSelectedProjectRootFile
@@ -26,12 +25,7 @@ val fileClickListener =
                 val file = node.value
 
                 it.adapter!!.addFragment(file)
-                if (
-                    !Settings.getBoolean(
-                        SettingsKey.KEEP_DRAWER_LOCKED,
-                        false,
-                    )
-                ) {
+                if (!Settings.keep_drawer_locked) {
                     it.binding!!.drawerLayout.close()
                 }
 
