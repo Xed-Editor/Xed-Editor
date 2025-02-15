@@ -20,7 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import bsh.Interpreter
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.libcommons.application
@@ -53,11 +52,9 @@ private fun runCode(code: String): CompletableFuture<Result> {
 
     return CompletableFuture.supplyAsync {
         try {
-            val interpreter = Interpreter()
-            interpreter.setClassLoader(application!!.classLoader)
-
-            // Execute code
-            val result = interpreter.eval(code)
+            val interpreter = Class.forName("bsh.Interpreter",true, application!!.classLoader)
+            interpreter.getDeclaredMethod("setClassLoader",ClassLoader::class.java)(application!!.classLoader)
+            val result = interpreter.getDeclaredMethod("eval",String::class.java)(code)
 
             Result(
                 error = null,
@@ -108,12 +105,11 @@ fun Debugger(modifier: Modifier = Modifier.fillMaxSize()) {
 
             Button(
                 onClick = {
-
                     if (code.value == "clear"){
                         output.clear()
                         code.value = ""
                     }else{
-                        if (BuildConfig.DEBUG.not()){
+                        if (BuildConfig.DEBUG){
                             scope.launch(Dispatchers.IO) {
                                 val result = runCode(code.value).get()
                                 output.add(result)
@@ -123,6 +119,7 @@ fun Debugger(modifier: Modifier = Modifier.fillMaxSize()) {
                                 }
 
                             }
+
                         }else{
                             toast("Debugger is not allowed on release builds for user safety reasons")
                         }
@@ -140,8 +137,6 @@ fun Debugger(modifier: Modifier = Modifier.fillMaxSize()) {
 
         PreferenceGroup {
             SelectionContainer {
-
-
                 Column(Modifier.weight(1f)) {
                     output.reversed().forEach {
                         if (it != null) {

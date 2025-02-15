@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.screens.settings.developer_options
 
+import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
 import androidx.compose.runtime.Composable
@@ -10,10 +11,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
-import bsh.Interpreter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.libcommons.toast
+import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
@@ -48,10 +50,19 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    scope.launch {
-                        delay(100)
-                        throw RuntimeException("Force Crash")
+                    MaterialAlertDialogBuilder(context).apply {
+                        setTitle("Force Crash")
+                        setMessage("Force Crashing the app?")
+                        setNegativeButton(strings.cancel,null)
+                        setPositiveButton(strings.ok){ _,_ ->
+                            scope.launch {
+                                delay(100)
+                                throw RuntimeException("Force Crash")
+                            }
+                        }
+                        show()
                     }
+
                 }
             )
             SettingsToggle(
