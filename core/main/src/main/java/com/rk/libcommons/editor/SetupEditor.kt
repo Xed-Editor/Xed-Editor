@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
-import android.util.Pair
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.View.OnClickListener
@@ -99,128 +98,50 @@ val textmateSources = hashMapOf(
     "properties" to "source.java-properties"
 )
 
-
-suspend fun CodeEditor.applySettings() {
-    withContext(Dispatchers.IO) {
-        val tabSize = Settings.tab_size
-        val pinLineNumber = Settings.pin_line_number
-        val showLineNumber = Settings.show_line_numbers
-        val cursorAnimation = Settings.cursor_animation
-        val textSize = Settings.editor_text_size
-        val wordWrap = Settings.wordwrap
-        val keyboardSuggestion = Settings.show_suggestions
-        val always_show_soft_keyboard = Settings.always_show_soft_keyboard
-        val lineSpacing = Settings.line_spacing
-
-        withContext(Dispatchers.Main) {
-            props.deleteMultiSpaces = tabSize
-            tabWidth = tabSize
-            props.deleteEmptyLineFast = false
-            props.useICULibToSelectWords = true
-            setPinLineNumber(pinLineNumber)
-            isLineNumberEnabled = showLineNumber
-            isCursorAnimationEnabled = cursorAnimation
-            setTextSize(textSize.toFloat())
-            isWordwrap = wordWrap
-            lineSpacingExtra = lineSpacing
-            isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
-
-            if (this@applySettings is KarbonEditor) {
-                showSuggestions(keyboardSuggestion)
-            }
-
-        }
-    }
-
-
-}
-
-class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: CoroutineScope) {
-
-    private var syntaxJob: Job? = null
-
+class SetupEditor(
+    val editor: KarbonEditor,
+    private val ctx: Context,
+    val scope: CoroutineScope
+) {
     init {
-        with(editor) {
-            syntaxJob = scope.safeLaunch(Dispatchers.Main) {
-                ensureTextmateTheme(ctx)
-            }
-            getComponent(EditorAutoCompletion::class.java).isEnabled = true
-            scope.safeLaunch { applySettings() }
-
-            toastCatching { applyFont(this) }?.let {
-                toastCatching {
-                    typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
-                }
-            }
-
-            getComponent(EditorAutoCompletion::class.java).setLayout(object :
-                DefaultCompletionLayout() {
-                override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
-                    val typedValue = TypedValue()
-                    context.theme.resolveAttribute(
-                        com.google.android.material.R.attr.colorSurface, typedValue, true
-                    )
-                    val colorSurface = typedValue.data
-                    (completionList.parent as? ViewGroup)?.background = ColorDrawable(colorSurface)
-                }
-            })
+        scope.launch(Dispatchers.IO) {
+            ensureTextmateTheme(ctx)
         }
     }
-
 
     suspend fun setupLanguage(fileName: String) {
-        val source = when (fileName) {
-            "gradlew" -> textmateSources["sh"]
-            else -> {
-                textmateSources[fileName.substringAfterLast('.', "").trim()] // ?: "text.plain"
-            }
+        mutex.withLock {
+            val source = textmateSources[fileName.substringAfterLast('.', "").trim()]
+                ?: if (fileName == "gradlew") textmateSources["sh"] else null
+            source?.let { setLanguage(it) }
         }
-        source?.let { setLanguage(it) }
     }
 
     companion object {
+        private val mutex = Mutex()
         private var isInit = false
         private var activityInit = false
+
         private var darkThemeRegistry: ThemeRegistry? = null
         private var oledThemeRegistry: ThemeRegistry? = null
         private var lightThemeRegistry: ThemeRegistry? = null
-        private val mutex = Mutex()
-        private var job: Job? = null
-        private var activityjob: Job? = null
 
-        fun init(scope: CoroutineScope) {
-            job = scope.safeLaunch {
-                mutex.withLock {
-                    if (!isInit) {
-                        withContext(Dispatchers.IO) {
-                            FileProviderRegistry.getInstance()
-                                .addFileProvider(AssetsFileResolver(application!!.assets))
-                            GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-                        }
-                        isInit = true
-                    }
+        @OptIn(DelicateCoroutinesApi::class)
+        fun init() {
+            GlobalScope.launch(Dispatchers.IO) {
+                if (!isInit) {
+                    FileProviderRegistry.getInstance()
+                        .addFileProvider(AssetsFileResolver(application!!.assets))
+                    GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
+                    isInit = true
                 }
-            }
-        }
-
-        suspend fun waitForInit() = job?.let {
-            if (it.isCompleted.not()) {
-                it.join()
-            }
-        }
-
-        suspend fun waitForActivityInit() = activityjob?.let {
-            if (it.isCompleted.not()) {
-                it.join()
             }
         }
 
         @OptIn(DelicateCoroutinesApi::class)
-        suspend fun initActivity(
-            activity: Activity, calculateColors: () -> kotlin.Pair<String, String>
-        ) {
+        fun initActivity(activity: Activity, calculateColors: () -> Pair<String, String>) {
             if (!activityInit) {
-                activityjob = GlobalScope.launch {
+                GlobalScope.launch(Dispatchers.IO) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         val colors = calculateColors.invoke()
                         initTextMateTheme(activity, colors.first, colors.second)
@@ -228,49 +149,34 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
                         initTextMateTheme(activity, null, null)
                     }
                 }
-                activityjob?.join()
                 activityInit = true
             }
-
-
         }
 
-
-        @OptIn(DelicateCoroutinesApi::class)
-        private suspend fun initTextMateTheme(
-            ctx: Context, darkSurfaceColor: String?, lightSurfaceColor: String?
-        ) {
-            waitForInit()
+        private fun initTextMateTheme(ctx: Context, darkSurfaceColor: String?, lightSurfaceColor: String?) {
             darkThemeRegistry = ThemeRegistry()
             oledThemeRegistry = ThemeRegistry()
             lightThemeRegistry = ThemeRegistry()
 
-            val darcula = ctx.assets.open("textmate/darcula.json")
-            val darculaOled = ctx.assets.open("textmate/black/darcula.json")
-            val quietlight = ctx.assets.open("textmate/quietlight.json")
-
             try {
-                oledThemeRegistry?.loadTheme(
-                    ThemeModel(IThemeSource.fromInputStream(darculaOled, "darcula.json", null))
-                )
+                darkThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromInputStream(ctx.assets.open("textmate/darcula.json"), "darcula.json", null)))
+                oledThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromInputStream(ctx.assets.open("textmate/black/darcula.json"), "darcula.json", null)))
+                lightThemeRegistry?.loadTheme(ThemeModel(IThemeSource.fromInputStream(ctx.assets.open("textmate/quietlight.json"), "quietlight.json", null)))
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    assert(darkSurfaceColor != null)
+                    assert(lightSurfaceColor != null)
 
-                    fun read(inputStream: InputStream, replacements: Map<String, String>): String {
-                        val content = inputStream.bufferedReader().use { it.readText() }
-                        var modifiedContent = content
-                        for ((oldValue, newValue) in replacements) {
-                            modifiedContent = modifiedContent.replace(oldValue, newValue)
+                    fun read(inputStream: InputStream, replacements: Map<String, String>) =
+                        inputStream.bufferedReader().use { it.readText() }.let { content ->
+                            replacements.entries.fold(content) { acc, (old, new) -> acc.replace(old, new) }
                         }
-                        return modifiedContent
-                    }
-
 
                     lightThemeRegistry?.loadTheme(
                         ThemeModel(
                             IThemeSource.fromString(
                                 IThemeSource.ContentType.JSON,
-                                read(quietlight, mapOf("#FAF9FF" to lightSurfaceColor!!))
+                                read(ctx.assets.open("textmate/quietlight.json"), mapOf("#FAF9FF" to lightSurfaceColor!!))
                             )
                         )
                     )
@@ -279,111 +185,36 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
                         ThemeModel(
                             IThemeSource.fromString(
                                 IThemeSource.ContentType.JSON,
-                                read(darcula, mapOf("#1C1B20" to darkSurfaceColor!!))
-                            )
-                        )
-                    )
-                } else {
-                    darkThemeRegistry?.loadTheme(
-                        ThemeModel(IThemeSource.fromInputStream(darcula, "darcula.json", null))
-                    )
-                    lightThemeRegistry?.loadTheme(
-                        ThemeModel(
-                            IThemeSource.fromInputStream(
-                                quietlight, "quietlight.json", null
+                                read(ctx.assets.open("textmate/darcula.json"), mapOf("#1C1B20" to darkSurfaceColor!!))
                             )
                         )
                     )
                 }
-
-
             } catch (e: Exception) {
                 e.printStackTrace()
                 e.message.toastIt()
-            } finally {
-                GlobalScope.safeLaunch(Dispatchers.IO) {
-                    darcula.close()
-                    darculaOled.close()
-                    quietlight.close()
-                }
             }
-        }
-
-        fun applyFont(editor: CodeEditor) {
-            val fontPath = Settings.selected_font_path
-            if (fontPath.isNotEmpty()) {
-                val isAsset = Settings.is_selected_font_assest
-                if (isAsset) {
-                    editor.typefaceText = Typeface.createFromAsset(editor.context.assets, fontPath)
-                } else {
-                    editor.typefaceText = Typeface.createFromFile(File(fontPath))
-                }
-            } else {
-                println("fallback: font Path is empty")
-                editor.typefaceText =
-                    Typeface.createFromAsset(editor.context.assets, "fonts/Default.ttf")
-            }
-            editor.invalidate()
         }
     }
 
-    private val languageMutex = Mutex()
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
-        waitForInit()
-        waitForActivityInit()
-
-        syntaxJob!!.let {
-            if (it.isCompleted.not()) {
-                it.join()
-            }
-        }
-
-        languageMutex.lock()
-
-        val language = if (languageScopeName != "text.plain"){
-            val lang = TextMateLanguage.create(languageScopeName, true)
-            ctx.assets.open("textmate/keywords.json").use {
-                val commonSources = hashMapOf(
-                    "source.groovy" to "source.java",
-                    "text.html.htmx" to "text.html.basic"
-                )
-                val correctSource = commonSources.getOrDefault(languageScopeName, languageScopeName)
-                val reader = InputStreamReader(it)
-                val jsonElement = JsonParser.parseReader(reader)
-                val keywordsArray = jsonElement.asJsonObject.getAsJsonArray(correctSource)
-                if (keywordsArray != null) {
-                    val keywords = Array(keywordsArray.size()) { "" }
-                    for (i in keywords.indices) {
-                        keywords[i] = keywordsArray[i].asString
-                    }
-                    lang.setCompleterKeywords(keywords)
+        val language = if (languageScopeName != "text.plain") {
+            TextMateLanguage.create(languageScopeName, true).apply {
+                ctx.assets.open("textmate/keywords.json").use { inputStream ->
+                    JsonParser.parseReader(InputStreamReader(inputStream)).asJsonObject
+                        .getAsJsonArray(languageScopeName)?.map { it.asString }?.toTypedArray()
+                        ?.let { setCompleterKeywords(it) }
                 }
-
             }
-            lang
-        }else{
+        } else {
             PlainTextLanguage()
         }
 
-
-
-
-
-
-
-
-        withContext(Dispatchers.Main) {
-            editor.setEditorLanguage(language as Language)
-        }
-        languageMutex.unlock()
+        withContext(Dispatchers.Main) { editor.setEditorLanguage(language as Language) }
     }
 
-
-    private suspend fun ensureTextmateTheme(ctx: Context) {
-        waitForInit()
-        waitForActivityInit()
-
-        val darkTheme: Boolean = when (Settings.default_night_mode) {
+    private fun ensureTextmateTheme(ctx: Context) {
+        val darkTheme = when (Settings.default_night_mode) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
             else -> isDarkMode(ctx)
@@ -396,96 +227,13 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
         }
 
         themeRegistry?.let {
-            val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
-            if (isDarkMode(ctx) && Settings.amoled) {
-                editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
+            val editorColorScheme = TextMateColorScheme.create(it).apply {
+                if (darkTheme && Settings.amoled) setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
-            withContext(Dispatchers.Main) {
+
+            scope.launch(Dispatchers.Main) {
                 editor.colorScheme = editorColorScheme
             }
-        }
-    }
-
-
-    fun getInputView(): SymbolInputView {
-        val darkTheme: Boolean = when (Settings.default_night_mode) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(ctx)
-        }
-
-        return SymbolInputView(ctx).apply {
-            textColor = if (darkTheme) {
-                Color.WHITE
-            } else {
-                Color.BLACK
-            }
-
-            val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
-                add(Pair("->", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
-                    )
-                }))
-
-                add(Pair("⌘", onClick {
-                    EventBus.showControlPanel()
-                }))
-
-                add(Pair("←", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_DPAD_LEFT,
-                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT)
-                    )
-                }))
-
-                add(Pair("↑", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_DPAD_UP,
-                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_UP)
-                    )
-
-                }))
-
-                add(Pair("→", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_DPAD_RIGHT,
-                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT)
-                    )
-
-                }))
-
-                add(Pair("↓", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_DPAD_DOWN,
-                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_DOWN)
-                    )
-
-                }))
-
-                add(Pair("⇇", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_MOVE_HOME,
-                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_HOME)
-                    )
-                }))
-
-                add(Pair("⇉", onClick {
-                    editor.onKeyDown(
-                        KeyEvent.KEYCODE_MOVE_END,
-                        KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MOVE_END)
-                    )
-                }))
-            }
-
-            addSymbols(keys.toTypedArray())
-
-            addSymbols(
-                arrayOf("(", ")", "\"", "{", "}", "[", "]", ";"),
-                arrayOf("(", ")", "\"", "{", "}", "[", "]", ";")
-            )
-
-            bindEditor(editor)
         }
     }
 }

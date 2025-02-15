@@ -101,7 +101,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                             f.get()?.let { ff ->
                                 if (ff.fragment is EditorFragment) {
                                     (ff.fragment as EditorFragment).editor?.let { editor ->
-                                        runCatching { SetupEditor.applyFont(editor) }.onFailure { toast(it.message) }
+                                        editor.applyFont()
                                     }
                                 }
                             }

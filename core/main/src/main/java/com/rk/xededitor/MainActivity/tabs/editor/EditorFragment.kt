@@ -14,6 +14,7 @@ import com.rk.libcommons.UI
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
@@ -97,7 +98,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             )
             isHorizontalScrollBarEnabled = false
 
-            addView(setupEditor!!.getInputView())
+            addView(getInputView(editor!!))
         }
 
         searchLayout = SearchPanel(constraintLayout!!, editor!!).view
@@ -295,11 +296,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     }
 
     override fun getView(): View? {
-        scope.launch {
-            file?.let{ file ->
-                setupEditor?.setupLanguage(file.getName())
-            }
-        }
         return constraintLayout
     }
 

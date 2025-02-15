@@ -32,7 +32,7 @@ import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.CodeEditor
 
 class CrashActivity : AppCompatActivity() {
-    private lateinit var editor: CodeEditor
+    private lateinit var editor: KarbonEditor
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
