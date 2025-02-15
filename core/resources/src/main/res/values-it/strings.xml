@@ -364,4 +364,8 @@
     <string name="highlighting">Evidenziazione Sintassi</string>
     <string name="err_no_termux">Termux non è installato</string>
     <string name="err_termux_incompatible">Termux non è compatibile</string>
+    <string name="suggest_clear_app_data">Si consiglia la cancellazione dei dati dell\'app</string>
+    <string name="update_files_cleared">App aggiornata : Dati Cancellati</string>
+    <string name="unrestricted_file_desc">Consenti l\'apertura di file di qualsiasi dimensione. Può causare crash</string>
+    <string name="unrestricted_file">Apri file di qualsiasi dimensione</string>
 </resources>
