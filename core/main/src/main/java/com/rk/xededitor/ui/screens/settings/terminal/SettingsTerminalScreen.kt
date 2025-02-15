@@ -29,7 +29,6 @@ import com.rk.karbon_exec.testExecPermission
 import com.rk.libcommons.DefaultScope
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +79,7 @@ fun SettingsTerminalScreen(navController: NavController) {
             SettingsToggle(label = stringResource(strings.termux_exec_guide),
                 description = stringResource(strings.termux_exec_guide_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     val url = if (isTermuxInstalled()) {
                         if (isTermuxCompatible()) {
@@ -104,6 +104,7 @@ fun SettingsTerminalScreen(navController: NavController) {
                 label = stringResource(strings.terminal_runtime),
                 description = stringResource(strings.terminal_runtime_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     showDayBottomSheet.value = !showDayBottomSheet.value
                 }
@@ -132,9 +133,7 @@ fun TerminalRuntime(
     val coroutineScope = rememberCoroutineScope()
 
     var selectedType by remember {
-        mutableStateOf(
-            Settings.getString(SettingsKey.TERMINAL_RUNTIME, RuntimeType.ALPINE.type)
-        )
+        mutableStateOf(Settings.terminal_runtime)
     }
 
     val types = listOf(
@@ -160,9 +159,7 @@ fun TerminalRuntime(
                         PreferenceTemplate(title = { Text(text = mode) },
                             modifier = Modifier.clickable {
                                 selectedType = mode
-                                Settings.setString(
-                                    SettingsKey.TERMINAL_RUNTIME, selectedType
-                                )
+                                Settings.terminal_runtime = selectedType
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;
                                 }

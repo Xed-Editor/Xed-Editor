@@ -1,29 +1,27 @@
 package com.rk.xededitor
 
 import android.app.Application
-import android.net.TrafficStats
+import android.os.Build
 import android.os.StrictMode
-import android.util.Log
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
-import com.rk.xededitor.BuildConfig
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.Res
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
+import com.rk.xededitor.update.UpdateChecker
 import com.rk.xededitor.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import java.util.concurrent.Executors
 
 
 class App : Application() {
@@ -49,16 +47,22 @@ class App : Application() {
 
         if (BuildConfig.DEBUG){
             StrictMode.setVmPolicy(
-                StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .build()
+                StrictMode.VmPolicy.Builder().apply {
+                    detectAll()
+                    penaltyLog()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+                        penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
+                            println(violation.message)
+                            violation.printStackTrace()
+                            violation.cause?.let { throw it }
+                        }
+                    }
+                }.build()
             )
         }
 
-
-
-        Settings.initPref(this)
+        //wait until UpdateManager is done, it should only take few milliseconds
+        UpdateManager.inspect()
 
         GlobalScope.launch(Dispatchers.IO) {
             getTempDir().apply {
@@ -69,9 +73,9 @@ class App : Application() {
             Mutators.loadMutators()
             AutoSaver.start()
 
-            runCatching { UpdateManager.fetch("dev") }
+            runCatching { UpdateChecker.checkForUpdates("dev") }
 
-            if (Settings.getBoolean(SettingsKey.ENABLE_EXTENSIONS,false)){
+            if (Settings.enable_extensions){
                 Extension.executeExtensions(this@App,GlobalScope)
                 ExtensionManager.onAppLaunched()
             }
@@ -82,7 +86,6 @@ class App : Application() {
     override fun onTrimMemory(level: Int) {
         MainActivity.withContext {
             binding?.viewpager2?.offscreenPageLimit = 1
-            Log.w("APP","Low Memory")
         }
         ExtensionManager.onLowMemory()
         super.onTrimMemory(level)

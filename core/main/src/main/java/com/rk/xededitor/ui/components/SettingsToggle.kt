@@ -16,8 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rk.settings.Settings
-import com.rk.settings.Settings.getBoolean
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
 
@@ -28,9 +26,8 @@ fun SettingsToggle(
     label: String,
     description: String? = null,
     @DrawableRes iconRes: Int? = null,
-    key: String? = null,
-    default: Boolean = false,
-    ReactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
+    default: Boolean,
+    reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -38,13 +35,7 @@ fun SettingsToggle(
     isSwitchLocked: Boolean = false
 ) {
     var state by remember {
-        mutableStateOf(
-            if (key == null) {
-                default
-            } else {
-                getBoolean(key, default)
-            }
-        )
+        mutableStateOf(default)
     }
     
     if (showSwitch) {
@@ -53,13 +44,9 @@ fun SettingsToggle(
             onCheckedChange = {
             if (isSwitchLocked.not()) {
                 state = !state
-                if (key != null) {
-                    Settings.setBoolean(key, state)
-                }
-                
             }
-            if (ReactiveSideEffect != null){
-                state = ReactiveSideEffect.invoke(state) == true
+            if (reactiveSideEffect != null){
+                state = reactiveSideEffect.invoke(state) == true
             }else{
                 sideEffect?.invoke(state)
             }
@@ -67,12 +54,9 @@ fun SettingsToggle(
         }, label = label, modifier = modifier, description = description, enabled = isEnabled, onClick = {
             if (isSwitchLocked.not()) {
                 state = !state
-                if (key != null) {
-                    Settings.setBoolean(key, state)
-                }
             }
-            if (ReactiveSideEffect != null){
-                state = ReactiveSideEffect.invoke(state) == true
+            if (reactiveSideEffect != null){
+                state = reactiveSideEffect.invoke(state) == true
             }else{
                 sideEffect?.invoke(state)
             }

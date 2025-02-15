@@ -2,6 +2,7 @@ package com.rk.libcommons
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -114,6 +115,9 @@ inline fun toastCatching(block: () -> Unit): Exception? {
     }
 }
 
+fun isDarkMode(ctx: Context): Boolean {
+    return ((ctx.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
+}
 
 inline fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density

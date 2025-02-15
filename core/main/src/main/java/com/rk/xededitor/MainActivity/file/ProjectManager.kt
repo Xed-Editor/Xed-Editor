@@ -13,7 +13,6 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
 import com.rk.xededitor.R
@@ -228,7 +227,7 @@ object ProjectManager {
     fun restoreProjects(activity: MainActivity) {
         clear(activity)
         activity.lifecycleScope.launch(Dispatchers.IO){
-            val jsonString = Settings.getString(SettingsKey.PROJECTS, "")
+            val jsonString = Settings.projects
             if (jsonString.isNotEmpty()) {
                 val gson = Gson()
                 val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
@@ -269,7 +268,7 @@ object ProjectManager {
             val gson = Gson()
             val uniqueProjects = projects.values.toSet()
             val jsonString = gson.toJson(uniqueProjects.toList())
-            Settings.setString(SettingsKey.PROJECTS, jsonString)
+            Settings.projects = jsonString
         }
     }
 }

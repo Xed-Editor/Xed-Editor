@@ -13,7 +13,6 @@ import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import java.io.File
 
 class NodeRunner(val file:File) : RunnerImpl() {
@@ -23,7 +22,7 @@ class NodeRunner(val file:File) : RunnerImpl() {
             node.writeText(context.assets.open("terminal/nodejs.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME,"Alpine")
+        val runtime = Settings.terminal_runtime
         when(runtime){
             "Alpine","Android" -> {
                 launchInternalTerminal(
@@ -31,7 +30,7 @@ class NodeRunner(val file:File) : RunnerImpl() {
                         shell = "/bin/sh",
                         args = arrayOf(node.absolutePath,file.absolutePath),
                         id = "node",
-                        workingDir = file.parentFile.absolutePath
+                        workingDir = file.parentFile!!.absolutePath
                     )
                 )
             }

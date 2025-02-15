@@ -3,6 +3,8 @@ package com.rk.xededitor.ui.screens.settings.editor
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,7 +20,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.smoothTabs
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -45,9 +46,8 @@ private fun EditorSettingsToggle(
     label: String,
     description: String? = null,
     @DrawableRes iconRes: Int? = null,
-    key: String? = null,
-    default: Boolean = false,
-    ReactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
+    default: Boolean,
+    reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -59,16 +59,15 @@ private fun EditorSettingsToggle(
         label = label,
         description = description,
         iconRes = iconRes,
-        key = key,
         default = default,
-        ReactiveSideEffect = ReactiveSideEffect,
+        reactiveSideEffect = reactiveSideEffect,
         showSwitch = showSwitch,
         onLongClick = onLongClick,
         isEnabled = isEnabled,
         isSwitchLocked = isSwitchLocked,
         sideEffect = {
             DefaultScope.launch {
-                if (showSwitch && key != null){
+                if (showSwitch){
                     updateEditorSettings()
                 }
             }
@@ -85,26 +84,13 @@ fun SettingsEditorScreen(navController: NavController) {
         var showAutoSaveDialog by remember { mutableStateOf(false) }
         var showTextSizeDialog by remember { mutableStateOf(false) }
         var showTabSizeDialog by remember { mutableStateOf(false) }
-        var autoSaveTimeValue by remember {
-            mutableStateOf(Settings.getString(SettingsKey.AUTO_SAVE_TIME_VALUE, "10000"))
-        }
-        var textSizeValue by remember {
-            mutableStateOf(Settings.getString(SettingsKey.TEXT_SIZE, "14"))
-        }
-        var tabSizeValue by remember {
-            mutableStateOf(Settings.getString(SettingsKey.TAB_SIZE, "4"))
-        }
-
+        var autoSaveTimeValue by remember { mutableIntStateOf(Settings.auto_save_interval) }
+        var textSizeValue by remember { mutableIntStateOf(Settings.editor_text_size) }
+        var tabSizeValue by remember { mutableIntStateOf(Settings.tab_size) }
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var showLineSpacingMultiplierDialog by remember { mutableStateOf(false) }
+        var lineSpacingValue by remember { mutableFloatStateOf(Settings.line_spacing) }
 
-        var lineSpacingValue by remember {
-            mutableStateOf(Settings.getString(SettingsKey.LINE_SPACING, "0"))
-        }
-
-        var lineSpacingMultiplierValue by remember {
-            mutableStateOf(Settings.getString(SettingsKey.LINE_SPACING_MULTIPLAYER, "1"))
-        }
 
 
         PreferenceGroup(heading = stringResource(strings.content)) {
@@ -112,16 +98,26 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(label = stringResource(strings.mutators),
                 description = stringResource(strings.mutator_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.ManageMutators.route)
                 })
 
+            EditorSettingsToggle(label = stringResource(strings.unrestricted_file),
+                description = stringResource(strings.unrestricted_file_desc),
+                default = Settings.unrestricted_files,
+                sideEffect = {
+                    Settings.unrestricted_files = it
+                }
+            )
+
             EditorSettingsToggle(
                 label = stringResource(strings.restore_sessions),
                 description = stringResource(strings.restore_sessions_desc),
-                default = false,
-                key = SettingsKey.RESTORE_SESSIONS,
+                default = Settings.restore_session,
                 sideEffect = {
+                    Settings.restore_session = it
+
                     DefaultScope.launch(Dispatchers.Main) {
                         delay(300)
                         if (it){
@@ -150,14 +146,18 @@ fun SettingsEditorScreen(navController: NavController) {
 
             EditorSettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
-                key = SettingsKey.WORD_WRAP_ENABLED,
-                default = false)
+                default = Settings.wordwrap,
+                sideEffect = {
+                    Settings.wordwrap = it
+                }
+            )
 
             EditorSettingsToggle(label = stringResource(strings.txt_ww),
                 description = stringResource(strings.txt_ww_desc),
-                key = SettingsKey.WORD_WRAP_TXT,
-                default = true,
+                default =  Settings.word_wrap_for_text,
                 sideEffect = {
+                    Settings.word_wrap_for_text = it
+
                     MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                         if (f.value.get()?.fragment is EditorFragment) {
                             (f.value.get()?.fragment as EditorFragment).apply {
@@ -179,42 +179,48 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(strings.soft_keyboard_always),
                 description = stringResource(strings.soft_keyboard_always_desc),
-                default = false,
-                key = SettingsKey.ALWAYS_SHOW_SOFT_KEYBOARD
+                default = Settings.always_show_soft_keyboard,
+                sideEffect = {
+                    Settings.always_show_soft_keyboard = it
+                }
             )
 
             EditorSettingsToggle(label = stringResource(id = strings.line_spacing),
                 description = stringResource(id = strings.line_spacing),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     showLineSpacingDialog = true
                 })
 
 
-            EditorSettingsToggle(label = stringResource(id = strings.line_spacing_multiplier),
-                description = stringResource(id = strings.line_spacing_multiplier),
-                showSwitch = false,
-                sideEffect = {
-                    showLineSpacingMultiplierDialog = true
-                })
-
-
             EditorSettingsToggle(label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
-                key = SettingsKey.CURSOR_ANIMATION_ENABLED,
-                default = false)
+                default = Settings.cursor_animation,
+                sideEffect = {
+                    Settings.cursor_animation = it
+                }
+            )
             EditorSettingsToggle(label = stringResource(id = strings.show_line_number),
                 description = stringResource(id = strings.show_line_number),
-                key = SettingsKey.SHOW_LINE_NUMBERS,
-                default = true)
+                default = Settings.show_line_numbers,
+                sideEffect = {
+                    Settings.show_line_numbers = it
+                }
+            )
             EditorSettingsToggle(label = stringResource(id = strings.show_suggestions),
                 description = stringResource(id = strings.show_suggestions),
-                key = SettingsKey.SHOW_SUGGESTIONS,
-                default = false)
+                default = Settings.show_suggestions,
+                sideEffect = {
+                    Settings.show_suggestions = it
+                })
             EditorSettingsToggle(label = stringResource(id = strings.pin_line_number),
                 description = stringResource(id = strings.pin_line_number),
-                key = SettingsKey.PIN_LINE_NUMBER,
-                default = false)
+                default = Settings.pin_line_number,
+                sideEffect = {
+                    Settings.pin_line_number = it
+                }
+            )
 
             EditorSettingsToggle(label = stringResource(strings.manage_editor_font),
                 description = stringResource(strings.manage_editor_font),
@@ -227,6 +233,7 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     showTextSizeDialog = true
                 })
@@ -238,9 +245,10 @@ fun SettingsEditorScreen(navController: NavController) {
         PreferenceGroup(heading = stringResource(strings.other)) {
             EditorSettingsToggle(label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
-                key = SettingsKey.SHOW_ARROW_KEYS,
-                default = true,
+                default = Settings.show_arrow_keys,
                 sideEffect = {
+                    Settings.show_arrow_keys = it
+
                     MainActivity.activityRef.get()?.let { activity ->
                         if (activity.tabViewModel.fragmentFiles.isEmpty()) {
                             return@let
@@ -257,35 +265,42 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(label = stringResource(strings.default_encoding),
                 description = stringResource(strings.default_encoding_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.DefaultEncoding.route)
                 })
 
             EditorSettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
-                key = SettingsKey.VIEWPAGER_SMOOTH_SCROLL,
-                default = false,
+                default = Settings.smooth_tabs,
                 sideEffect = {
+                    Settings.smooth_tabs = it
                     smoothTabs = it
                 })
             EditorSettingsToggle(
                 label = stringResource(id = strings.keepdl),
                 description = stringResource(id = strings.drawer_lock_desc),
-                key = SettingsKey.KEEP_DRAWER_LOCKED,
-                default = false,
+                default = Settings.keep_drawer_locked,
+                sideEffect = {
+                    Settings.keep_drawer_locked = it
+                }
             )
             EditorSettingsToggle(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
-                key = SettingsKey.AUTO_SAVE,
-                default = false,
+                default = Settings.auto_save,
+                sideEffect = {
+                    Settings.auto_save = it
+                }
             )
 
             EditorSettingsToggle(
                 label = stringResource(strings.sora_s),
                 description = stringResource(strings.sora_s_desc),
-                key = SettingsKey.USE_SORA_SEARCH,
-                default = true,
+                default = Settings.use_sora_search,
+                sideEffect = {
+                    Settings.use_sora_search = it
+                }
             )
 
             EditorSettingsToggle(
@@ -294,12 +309,14 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     showAutoSaveDialog = true
                 },
+                default = false,
                 showSwitch = false,
             )
 
             EditorSettingsToggle(label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     showTabSizeDialog = true
                 })
@@ -309,24 +326,19 @@ fun SettingsEditorScreen(navController: NavController) {
             InputDialog(
                 title = stringResource(id = strings.line_spacing),
                 inputLabel = stringResource(id = strings.line_spacing),
-                inputValue = lineSpacingValue,
+                inputValue = lineSpacingValue.toString(),
                 onInputValueChange = {
-                    lineSpacingValue = it
+                    it.toFloatOrNull()?.let { float -> lineSpacingValue = float } ?: run {
+                        lineSpacingValue = Settings.line_spacing
+                    }
                 },
                 onConfirm = {
-                    if (lineSpacingValue.any { !it.isDigit() }) {
-                        toast(context.getString(strings.inavalid_v))
-                        lineSpacingValue =
-                            Settings.getString(SettingsKey.LINE_SPACING, "0")
-                    } else if (lineSpacingValue.toInt() < 0) {
+                    if (lineSpacingValue.toInt() < 0) {
                         toast(context.getString(strings.v_small))
-                        lineSpacingValue =
-                            Settings.getString(SettingsKey.LINE_SPACING, "0")
+                        lineSpacingValue = Settings.line_spacing
                     } else {
-                        Settings.setString(
-                            SettingsKey.LINE_SPACING,
-                            lineSpacingValue,
-                        )
+                        Settings.line_spacing = lineSpacingValue
+
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
                             if (it.get()?.fragment is EditorFragment) {
                                 (it.get()?.fragment as EditorFragment).editor?.lineSpacingExtra =
@@ -334,7 +346,6 @@ fun SettingsEditorScreen(navController: NavController) {
                             }
                         }
                         showLineSpacingDialog = false
-
                     }
 
                 },
@@ -342,62 +353,20 @@ fun SettingsEditorScreen(navController: NavController) {
             )
         }
 
-        if (showLineSpacingMultiplierDialog) {
-            InputDialog(
-                title = stringResource(id = strings.line_spacing_multiplier),
-                inputLabel = stringResource(id = strings.line_spacing_multiplier),
-                inputValue = lineSpacingMultiplierValue,
-                onInputValueChange = {
-                    lineSpacingMultiplierValue = it
-                },
-                onConfirm = {
-                    if (lineSpacingMultiplierValue.any { !it.isDigit() }) {
-                        toast(context.getString(strings.inavalid_v))
-                        lineSpacingMultiplierValue =
-                            Settings.getString(SettingsKey.LINE_SPACING_MULTIPLAYER, "1")
-                    } else if (lineSpacingValue.toInt() < 0) {
-                        toast(context.getString(strings.v_small))
-                        lineSpacingMultiplierValue =
-                            Settings.getString(SettingsKey.LINE_SPACING_MULTIPLAYER, "1")
-                    } else {
-                        Settings.setString(
-                            SettingsKey.LINE_SPACING_MULTIPLAYER,
-                            lineSpacingMultiplierValue,
-                        )
-                        MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
-                            if (it.get()?.fragment is EditorFragment) {
-                                (it.get()?.fragment as EditorFragment).editor?.lineSpacingMultiplier =
-                                    lineSpacingMultiplierValue.toFloat()
-                            }
-                        }
-                        showLineSpacingMultiplierDialog = false
-                    }
-
-                },
-                onDismiss = { showLineSpacingMultiplierDialog = false },
-            )
-        }
-
         if (showAutoSaveDialog) {
             InputDialog(
                 title = stringResource(id = strings.auto_save_time),
                 inputLabel = stringResource(id = strings.intervalinMs),
-                inputValue = autoSaveTimeValue,
-                onInputValueChange = { autoSaveTimeValue = it },
+                inputValue = autoSaveTimeValue.toString(),
+                onInputValueChange = { it.toIntOrNull()?.let { int -> autoSaveTimeValue = int } ?: run{
+                    autoSaveTimeValue = Settings.auto_save_interval
+                } },
                 onConfirm = {
-                    if (autoSaveTimeValue.any { !it.isDigit() }) {
-                        toast(context.getString(strings.inavalid_v))
-                        autoSaveTimeValue =
-                            Settings.getString(SettingsKey.AUTO_SAVE_TIME_VALUE, "10000")
-                    } else if (autoSaveTimeValue.toInt() < 3000) {
+                    if (autoSaveTimeValue.toInt() < 3000) {
                         toast(context.getString(strings.v_small))
-                        autoSaveTimeValue =
-                            Settings.getString(SettingsKey.AUTO_SAVE_TIME_VALUE, "10000")
+                        autoSaveTimeValue = Settings.auto_save_interval
                     } else {
-                        Settings.setString(
-                            SettingsKey.AUTO_SAVE_TIME_VALUE,
-                            autoSaveTimeValue,
-                        )
+                        Settings.auto_save_interval = autoSaveTimeValue
                         showAutoSaveDialog = false
                     }
 
@@ -410,20 +379,20 @@ fun SettingsEditorScreen(navController: NavController) {
             InputDialog(
                 title = stringResource(id = strings.text_size),
                 inputLabel = stringResource(id = strings.text_size),
-                inputValue = textSizeValue,
-                onInputValueChange = { textSizeValue = it },
+                inputValue = textSizeValue.toString(),
+                onInputValueChange = { it.toIntOrNull()?.let { int -> textSizeValue = int }  ?: run{
+                    textSizeValue = Settings.editor_text_size
+                }},
                 onConfirm = {
-                    if (textSizeValue.any { !it.isDigit() }) {
-                        toast(context.getString(strings.inavalid_v))
-                        textSizeValue = Settings.getString(SettingsKey.TEXT_SIZE, "14")
-                    } else if (textSizeValue.toInt() > 32) {
+                   if (textSizeValue.toInt() > 32) {
                         toast(context.getString(strings.v_large))
-                        textSizeValue = Settings.getString(SettingsKey.TEXT_SIZE, "14")
+                        textSizeValue = Settings.editor_text_size
                     } else if (textSizeValue.toInt() < 8) {
                         toast(context.getString(strings.v_small))
-                        textSizeValue = Settings.getString(SettingsKey.TEXT_SIZE, "14")
+                        textSizeValue = Settings.editor_text_size
                     } else {
-                        Settings.setString(SettingsKey.TEXT_SIZE, textSizeValue)
+                        Settings.editor_text_size = textSizeValue
+
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                             if (f.value.get()?.fragment is EditorFragment) {
                                 (f.value.get()?.fragment as EditorFragment).editor?.setTextSize(
@@ -443,22 +412,19 @@ fun SettingsEditorScreen(navController: NavController) {
             InputDialog(
                 title = stringResource(id = strings.tab_size),
                 inputLabel = stringResource(id = strings.tab_size),
-                inputValue = tabSizeValue,
-                onInputValueChange = { tabSizeValue = it },
+                inputValue = tabSizeValue.toString(),
+                onInputValueChange = { it.toIntOrNull()?.let { int -> tabSizeValue = int } ?: run{
+                    tabSizeValue = Settings.tab_size
+                } },
                 onConfirm = {
-
-
-                    if (tabSizeValue.any { !it.isDigit() }) {
-                        toast(context.getString(strings.inavalid_v))
-                        tabSizeValue = Settings.getString(SettingsKey.TAB_SIZE, "4")
-                    } else if (tabSizeValue.toInt() > 16) {
+                    if (tabSizeValue.toInt() > 16) {
                         toast(context.getString(strings.v_large))
-                        tabSizeValue = Settings.getString(SettingsKey.TAB_SIZE, "4")
+                        tabSizeValue = Settings.tab_size
                     } else if (tabSizeValue.toInt() < 1) {
                         toast(context.getString(strings.v_small))
-                        tabSizeValue = Settings.getString(SettingsKey.TAB_SIZE, "4")
+                        tabSizeValue = Settings.tab_size
                     } else {
-                        Settings.setString(SettingsKey.TAB_SIZE, tabSizeValue)
+                        Settings.tab_size = tabSizeValue
 
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                             if (f.value.get()?.fragment is EditorFragment) {

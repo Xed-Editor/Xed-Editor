@@ -39,7 +39,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.mutator_engine.Engine
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -117,7 +116,7 @@ class MainActivity : BaseActivity() {
 
         fun restore(){
             viewModelScope.launch(Dispatchers.IO) {
-                if (Settings.getBoolean(SettingsKey.RESTORE_SESSIONS,false).not()){
+                if (Settings.restore_session.not()){
                     return@launch
                 }
                 _isRestoring = true
@@ -340,7 +339,7 @@ class MainActivity : BaseActivity() {
         isPaused = true
         tabViewModel.save()
 
-        if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
+        if (Settings.auto_save) {
             toastCatching { saveAllFiles() }
         }
 
@@ -452,7 +451,7 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onDestroy() {
-        if (Settings.getBoolean(SettingsKey.AUTO_SAVE, false)) {
+        if (Settings.auto_save) {
             toastCatching { saveAllFiles() }
         }
         ExtensionManager.onAppDestroyed()

@@ -401,6 +401,11 @@
     <string name="err_no_termux">Termux is not installed</string>
     <string name="err_termux_incompatible">Termux is not compatible</string>
 
+    <string name="unrestricted_file">Open files of any size</string>
+    <string name="unrestricted_file_desc">Allow Opening files of any size. may lead to crashes</string>
+
+    <string name="suggest_clear_app_data">Clearing app data is recommended</string>
+    <string name="update_files_cleared">App updated : Data Cleared</string>
 
 
 </resources>

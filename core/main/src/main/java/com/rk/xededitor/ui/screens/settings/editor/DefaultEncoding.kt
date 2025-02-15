@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
@@ -37,11 +36,8 @@ object DefaultEncoding{
 @Composable
 fun DefaultEncoding(modifier: Modifier = Modifier) {
     PreferenceLayout(label = stringResource(strings.default_encoding), backArrowVisible = true) {
-        var selectedEncoding by remember {
-            mutableStateOf(Settings.getString(SettingsKey.SELECTED_ENCODING, Charset.defaultCharset().name()))
-        }
+        var selectedEncoding by remember { mutableStateOf(Settings.encoding) }
         val intraction = remember { MutableInteractionSource() }
-
 
         InfoBlock(
             icon = {
@@ -61,7 +57,7 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                 ) {
                     MainActivity.activityRef.get()?.adapter?.clearAllFragments()
                     selectedEncoding = Charset.defaultCharset().name()
-                    Settings.setString(SettingsKey.SELECTED_ENCODING, Charset.defaultCharset().name())
+                    Settings.encoding = selectedEncoding
                 },
                 contentModifier = Modifier.fillMaxHeight(),
                 title = { Text(fontWeight = FontWeight.Bold, text = Charset.defaultCharset().name()+" (Default)") },
@@ -84,7 +80,7 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                         ) {
                             MainActivity.activityRef.get()?.adapter?.clearAllFragments()
                             selectedEncoding = charset.name()
-                            Settings.setString(SettingsKey.SELECTED_ENCODING,charset.name())
+                            Settings.encoding = charset.name()
                         },
                         contentModifier = Modifier.fillMaxHeight(),
                         title = { Text(fontWeight = FontWeight.Bold, text = charset.name()) },

@@ -30,7 +30,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
@@ -40,11 +39,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 
 
-val showExtensions = mutableStateOf(
-    Settings.getBoolean(
-        SettingsKey.ENABLE_EXTENSIONS, false
-    )
-)
+val showExtensions = mutableStateOf(Settings.enable_extensions)
 
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
@@ -55,6 +50,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             SettingsToggle(label = stringResource(id = strings.theme_mode),
                 description = stringResource(id = strings.theme_mode_desc),
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     showDayNightBottomSheet.value = true
                 })
@@ -62,9 +58,9 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
             SettingsToggle(label = stringResource(id = strings.oled),
                 description = stringResource(id = strings.oled_desc),
-                key = SettingsKey.OLED,
-                default = false,
+                default = Settings.amoled,
                 sideEffect = {
+                    Settings.amoled = it
                     toast(strings.restart_required)
                 })
 
@@ -72,23 +68,28 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             SettingsToggle(
                 label = stringResource(strings.check_for_updates),
                 description = stringResource(strings.check_for_updates_desc),
-                key = SettingsKey.CHECK_UPDATE,
-                default = false,
-            )
+                default = Settings.check_for_update,
+                sideEffect = {
+                    Settings.check_for_update = it
+                })
 
             SettingsToggle(
                 label = stringResource(id = strings.monet),
                 description = stringResource(id = strings.monet_desc),
-                key = SettingsKey.MONET,
-                default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-                isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet,
+                isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                sideEffect = {
+                    Settings.monet = it
+                }
+
             )
 
             SettingsToggle(
                 label = stringResource(strings.enable_ext),
                 description = stringResource(strings.enable_ext_desc),
-                key = SettingsKey.ENABLE_EXTENSIONS,
+                default = Settings.enable_extensions,
                 sideEffect = {
+                    Settings.enable_extensions = it
                     showExtensions.value = it
                 }
             )
@@ -98,6 +99,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 description = stringResource(strings.manage_storage),
                 isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
                 showSwitch = false,
+                default = false,
                 sideEffect = {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
                         val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
@@ -130,12 +132,7 @@ fun DayNightDialog(
     val bottomSheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
     var selectedMode by remember {
-        mutableIntStateOf(
-            Settings.getString(
-                SettingsKey.DEFAULT_NIGHT_MODE,
-                AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM.toString()
-            ).toInt()
-        )
+        mutableIntStateOf(Settings.default_night_mode)
     }
 
     val modes = listOf(
@@ -168,9 +165,7 @@ fun DayNightDialog(
                         PreferenceTemplate(title = { Text(text = modeLabels[index]) },
                             modifier = Modifier.clickable {
                                 selectedMode = mode
-                                Settings.setString(
-                                    SettingsKey.DEFAULT_NIGHT_MODE, selectedMode.toString()
-                                )
+                                Settings.default_night_mode
                                 //AppCompatDelegate.setDefaultNightMode(selectedMode)
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;

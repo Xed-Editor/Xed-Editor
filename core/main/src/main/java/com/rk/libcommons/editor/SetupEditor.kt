@@ -15,11 +15,11 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
+import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toastCatching
 import com.rk.libcommons.toastIt
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
@@ -102,21 +102,15 @@ val textmateSources = hashMapOf(
 
 suspend fun CodeEditor.applySettings() {
     withContext(Dispatchers.IO) {
-        val tabSize = Settings.getString(SettingsKey.TAB_SIZE, "4").toInt()
-        val pinLineNumber = Settings.getBoolean(SettingsKey.PIN_LINE_NUMBER, false)
-        val showLineNumber = Settings.getBoolean(SettingsKey.SHOW_LINE_NUMBERS, true)
-        val cursorAnimation = Settings.getBoolean(SettingsKey.CURSOR_ANIMATION_ENABLED, false)
-        val textSize = Settings.getString(SettingsKey.TEXT_SIZE, "14").toFloat()
-        val wordWrap = Settings.getBoolean(SettingsKey.WORD_WRAP_ENABLED, false)
-        val keyboardSuggestion = Settings.getBoolean(SettingsKey.SHOW_SUGGESTIONS, false)
-        val always_show_soft_keyboard =
-            Settings.getBoolean(SettingsKey.ALWAYS_SHOW_SOFT_KEYBOARD, false)
-        val lineSpacing = Settings.getString(
-            SettingsKey.LINE_SPACING, lineSpacingExtra.toString()
-        ).toFloat()
-        val lineMultiplier = Settings.getString(
-            SettingsKey.LINE_SPACING_MULTIPLAYER, lineSpacingMultiplier.toString()
-        ).toFloat()
+        val tabSize = Settings.tab_size
+        val pinLineNumber = Settings.pin_line_number
+        val showLineNumber = Settings.show_line_numbers
+        val cursorAnimation = Settings.cursor_animation
+        val textSize = Settings.editor_text_size
+        val wordWrap = Settings.wordwrap
+        val keyboardSuggestion = Settings.show_suggestions
+        val always_show_soft_keyboard = Settings.always_show_soft_keyboard
+        val lineSpacing = Settings.line_spacing
 
         withContext(Dispatchers.Main) {
             props.deleteMultiSpaces = tabSize
@@ -126,14 +120,15 @@ suspend fun CodeEditor.applySettings() {
             setPinLineNumber(pinLineNumber)
             isLineNumberEnabled = showLineNumber
             isCursorAnimationEnabled = cursorAnimation
-            setTextSize(textSize)
+            setTextSize(textSize.toFloat())
             isWordwrap = wordWrap
+            lineSpacingExtra = lineSpacing
+            isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
+
             if (this@applySettings is KarbonEditor) {
                 showSuggestions(keyboardSuggestion)
             }
-            lineSpacingExtra = lineSpacing
-            lineSpacingMultiplier = lineMultiplier
-            isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
+
         }
     }
 
@@ -315,10 +310,9 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
         }
 
         fun applyFont(editor: CodeEditor) {
-            val fontPath = Settings.getString(SettingsKey.SELECTED_FONT_PATH, "")
+            val fontPath = Settings.selected_font_path
             if (fontPath.isNotEmpty()) {
-                val isAsset =
-                    Settings.getBoolean(SettingsKey.IS_SELECTED_FONT_ASSEST, false)
+                val isAsset = Settings.is_selected_font_assest
                 if (isAsset) {
                     editor.typefaceText = Typeface.createFromAsset(editor.context.assets, fontPath)
                 } else {
@@ -389,23 +383,21 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
         waitForInit()
         waitForActivityInit()
 
-        val darkTheme: Boolean = when (Settings.getString(
-            SettingsKey.DEFAULT_NIGHT_MODE, "-1"
-        ).toInt()) {
+        val darkTheme: Boolean = when (Settings.default_night_mode) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> Settings.isDarkMode(ctx)
+            else -> isDarkMode(ctx)
         }
 
         val themeRegistry = when {
-            darkTheme && Settings.isOled() -> oledThemeRegistry
+            darkTheme && Settings.amoled -> oledThemeRegistry
             darkTheme -> darkThemeRegistry
             else -> lightThemeRegistry
         }
 
         themeRegistry?.let {
             val editorColorScheme: EditorColorScheme = TextMateColorScheme.create(it)
-            if (Settings.isDarkMode(ctx) && Settings.isOled()) {
+            if (isDarkMode(ctx) && Settings.amoled) {
                 editorColorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, Color.BLACK)
             }
             withContext(Dispatchers.Main) {
@@ -416,12 +408,10 @@ class SetupEditor(val editor: CodeEditor, private val ctx: Context, val scope: C
 
 
     fun getInputView(): SymbolInputView {
-        val darkTheme: Boolean = when (Settings.getString(
-            SettingsKey.DEFAULT_NIGHT_MODE, "-1"
-        ).toInt()) {
+        val darkTheme: Boolean = when (Settings.default_night_mode) {
             AppCompatDelegate.MODE_NIGHT_YES -> true
             AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> Settings.isDarkMode(ctx)
+            else -> isDarkMode(ctx)
         }
 
         return SymbolInputView(ctx).apply {

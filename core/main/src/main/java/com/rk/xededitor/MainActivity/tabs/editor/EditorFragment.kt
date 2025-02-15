@@ -20,7 +20,6 @@ import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
@@ -87,7 +86,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
         horizontalScrollView = HorizontalScrollView(context).apply {
             id = View.generateViewId()
-            visibility = if (Settings.getBoolean(SettingsKey.SHOW_ARROW_KEYS, true)) {
+            visibility = if (Settings.show_arrow_keys) {
                 View.VISIBLE
             } else {
                 View.GONE
@@ -127,14 +126,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         fun refresh() {
             scope.safeLaunch(Dispatchers.IO) {
                 isFileLoaded = false
-                editor?.loadFile(
-                    file!!.getInputStream(), Charset.forName(
-                        Settings.getString(
-                            SettingsKey.SELECTED_ENCODING,
-                            Charset.defaultCharset().name()
-                        )
-                    )
-                )
+                editor?.loadFile(file!!.getInputStream(), Charset.forName(Settings.encoding))
                 UI {
                     MainActivity.withContext {
                         val index = tabViewModel.fragmentFiles.indexOf(file)
@@ -200,11 +192,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             UI {
                 setChangeListener()
                 file.let {
-                    if (it.getName().endsWith(".txt") && Settings.getBoolean(
-                            SettingsKey.WORD_WRAP_TXT,
-                            true
-                        )
-                    ) {
+                    if (it.getName().endsWith(".txt") && Settings.word_wrap_for_text) {
                         editor?.isWordwrap = true
                     }
                 }
@@ -220,14 +208,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     }
                 }
             } else {
-                editor!!.loadFile(
-                    file.getInputStream(), Charset.forName(
-                        Settings.getString(
-                            SettingsKey.SELECTED_ENCODING,
-                            Charset.defaultCharset().name()
-                        )
-                    )
-                )
+                editor!!.loadFile(file.getInputStream(), Charset.forName(Settings.encoding))
                 FilesContent.setContent(
                     this@EditorFragment.file!!.getAbsolutePath(),
                     editor!!.text
@@ -278,9 +259,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
 
         GlobalScope.safeLaunch(Dispatchers.IO) {
-            val charset = Settings.getString(
-                SettingsKey.SELECTED_ENCODING, Charset.defaultCharset().name()
-            )
+            val charset = Settings.encoding
             editor?.saveToFile(file!!.getOutPutStream(false), Charset.forName(charset))
 
             val isMutatorFile = file!!.getParentFile()

@@ -47,6 +47,7 @@ import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.settings.Preference
 import java.io.File
 import java.io.FileOutputStream
 
@@ -139,8 +140,10 @@ fun Extensions(modifier: Modifier = Modifier) {
                                 showPluginOptionSheet.value = true
                             },
                             label = plugin.name,
-                            sideEffect = {},
-                            key = "ext_" + plugin.packageName,
+                            default = Preference.getBoolean(key = "ext_" + plugin.packageName,false),
+                            sideEffect = {
+                                Preference.setBoolean(key = "ext_" + plugin.packageName,it)
+                            },
                         )
                     }
                 }

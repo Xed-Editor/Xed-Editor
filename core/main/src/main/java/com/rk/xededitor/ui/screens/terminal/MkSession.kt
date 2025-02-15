@@ -9,7 +9,6 @@ import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -88,9 +87,7 @@ object MkSession {
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = if (Settings.getString(
-                        SettingsKey.TERMINAL_RUNTIME, "Alpine"
-                    ) == "Android"
+                args = if (Settings.terminal_runtime == "Android"
                 ) {
                     arrayOf()
                 } else {

@@ -25,7 +25,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.Settings
-import com.rk.settings.SettingsKey
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.git.commit
@@ -104,7 +103,7 @@ object MenuClickHandler {
             }
 
             Id.terminal -> {
-                val runtime = Settings.getString(SettingsKey.TERMINAL_RUNTIME, "Alpine")
+                val runtime = Settings.terminal_runtime
                 if (runtime == "Termux") {
                     kotlin.runCatching {
                         launchTermux()
@@ -135,7 +134,7 @@ object MenuClickHandler {
             Id.search -> {
                 // Handle search
 
-                if (Settings.getBoolean(SettingsKey.USE_SORA_SEARCH, true)) {
+                if (Settings.use_sora_search) {
                     val fragment =
                         MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
 

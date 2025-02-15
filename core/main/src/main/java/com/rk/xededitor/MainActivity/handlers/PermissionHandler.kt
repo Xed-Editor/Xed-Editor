@@ -7,13 +7,13 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.provider.Settings
+import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.strings
-import com.rk.settings.SettingsKey
+import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
@@ -40,7 +40,7 @@ object PermissionHandler {
     }
 
     fun verifyStoragePermission(activity: MainActivity) {
-        if (com.rk.settings.Settings.getBoolean(SettingsKey.IGNORE_STORAGE_PERMISSION,false)){
+        if (Settings.ignore_storage_permission){
             return
         }
         var shouldAsk = false
@@ -67,13 +67,13 @@ object PermissionHandler {
 
                 if (BuildConfig.DEBUG){
                     setNegativeButton(strings.ignore){ _,_ ->
-                        com.rk.settings.Settings.setBoolean(SettingsKey.IGNORE_STORAGE_PERMISSION,true)
+                        Settings.ignore_storage_permission = true
                     }
                 }
 
                 setPositiveButton(strings.ok) { _, _ ->
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.setData(Uri.parse("package:${activity.packageName}"))
                         activity.startActivity(intent)
                     } else {

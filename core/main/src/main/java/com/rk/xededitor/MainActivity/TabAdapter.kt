@@ -12,6 +12,7 @@ import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
@@ -213,14 +214,12 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
     }
     
     fun addFragment(file: FileObject) {
-        if (file.getName().isBlank()){
-            toast("File Cannot be opened")
-            return
-        }
         val type = file.getFragmentType()
-        if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
-            toast(strings.file_too_large)
-            return
+        if (Settings.unrestricted_files.not()){
+            if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
+                toast(strings.file_too_large)
+                return
+            }
         }
 
         with(mainActivity) {
