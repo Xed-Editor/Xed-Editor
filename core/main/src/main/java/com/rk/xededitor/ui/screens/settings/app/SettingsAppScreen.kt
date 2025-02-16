@@ -176,7 +176,7 @@ fun DayNightDialog(
                         PreferenceTemplate(title = { Text(text = modeLabels[index]) },
                             modifier = Modifier.clickable {
                                 selectedMode = mode
-                                Settings.default_night_mode
+                                Settings.default_night_mode = selectedMode
                                 //AppCompatDelegate.setDefaultNightMode(selectedMode)
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;

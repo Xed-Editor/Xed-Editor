@@ -83,12 +83,11 @@ fun SettingsEditorScreen(navController: NavController) {
         var showAutoSaveDialog by remember { mutableStateOf(false) }
         var showTextSizeDialog by remember { mutableStateOf(false) }
         var showTabSizeDialog by remember { mutableStateOf(false) }
-        var autoSaveTimeValue by remember { mutableIntStateOf(Settings.auto_save_interval) }
-        var textSizeValue by remember { mutableIntStateOf(Settings.editor_text_size) }
-        var tabSizeValue by remember { mutableIntStateOf(Settings.tab_size) }
+        var autoSaveTimeValue by remember { mutableStateOf(Settings.auto_save_interval.toString()) }
+        var textSizeValue by remember { mutableStateOf(Settings.editor_text_size.toString()) }
+        var tabSizeValue by remember { mutableStateOf(Settings.tab_size.toString()) }
         var showLineSpacingDialog by remember { mutableStateOf(false) }
-        var showLineSpacingMultiplierDialog by remember { mutableStateOf(false) }
-        var lineSpacingValue by remember { mutableFloatStateOf(Settings.line_spacing) }
+        var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
 
 
 
@@ -319,6 +318,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     showTabSizeDialog = true
                 })
+
         }
 
         if (showLineSpacingDialog) {
@@ -327,16 +327,17 @@ fun SettingsEditorScreen(navController: NavController) {
                 inputLabel = stringResource(id = strings.line_spacing),
                 inputValue = lineSpacingValue.toString(),
                 onInputValueChange = {
-                    it.toFloatOrNull()?.let { float -> lineSpacingValue = float } ?: run {
-                        lineSpacingValue = Settings.line_spacing
-                    }
+                    lineSpacingValue = it
                 },
                 onConfirm = {
-                    if (lineSpacingValue.toInt() < 0) {
+                    if (lineSpacingValue.toFloatOrNull() == null){
+                        toast(strings.inavalid_v)
+                        lineSpacingValue = Settings.line_spacing.toString()
+                    }else if (lineSpacingValue.toFloat() < 0) {
                         toast(context.getString(strings.v_small))
-                        lineSpacingValue = Settings.line_spacing
+                        lineSpacingValue = Settings.line_spacing.toString()
                     } else {
-                        Settings.line_spacing = lineSpacingValue
+                        Settings.line_spacing = lineSpacingValue.toFloat()
 
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
                             if (it.get()?.fragment is EditorFragment) {
@@ -357,15 +358,18 @@ fun SettingsEditorScreen(navController: NavController) {
                 title = stringResource(id = strings.auto_save_time),
                 inputLabel = stringResource(id = strings.intervalinMs),
                 inputValue = autoSaveTimeValue.toString(),
-                onInputValueChange = { it.toIntOrNull()?.let { int -> autoSaveTimeValue = int } ?: run{
-                    autoSaveTimeValue = Settings.auto_save_interval
-                } },
+                onInputValueChange = {
+                    autoSaveTimeValue = it
+                },
                 onConfirm = {
-                    if (autoSaveTimeValue.toInt() < 3000) {
+                    if (autoSaveTimeValue.toIntOrNull() == null){
+                        toast(strings.inavalid_v)
+                        autoSaveTimeValue = Settings.auto_save_interval.toString()
+                    }else if (autoSaveTimeValue.toInt() < 3000) {
                         toast(context.getString(strings.v_small))
-                        autoSaveTimeValue = Settings.auto_save_interval
+                        autoSaveTimeValue = Settings.auto_save_interval.toString()
                     } else {
-                        Settings.auto_save_interval = autoSaveTimeValue
+                        Settings.auto_save_interval = autoSaveTimeValue.toInt()
                         showAutoSaveDialog = false
                     }
 
@@ -379,18 +383,21 @@ fun SettingsEditorScreen(navController: NavController) {
                 title = stringResource(id = strings.text_size),
                 inputLabel = stringResource(id = strings.text_size),
                 inputValue = textSizeValue.toString(),
-                onInputValueChange = { it.toIntOrNull()?.let { int -> textSizeValue = int }  ?: run{
-                    textSizeValue = Settings.editor_text_size
-                }},
+                onInputValueChange = {
+                    textSizeValue = it
+                },
                 onConfirm = {
-                   if (textSizeValue.toInt() > 32) {
+                    if (textSizeValue.toIntOrNull() == null){
+                        toast(strings.inavalid_v)
+                        textSizeValue = Settings.editor_text_size.toString()
+                    }else if (textSizeValue.toInt() > 32) {
                         toast(context.getString(strings.v_large))
-                        textSizeValue = Settings.editor_text_size
+                        textSizeValue = Settings.editor_text_size.toString()
                     } else if (textSizeValue.toInt() < 8) {
                         toast(context.getString(strings.v_small))
-                        textSizeValue = Settings.editor_text_size
+                        textSizeValue = Settings.editor_text_size.toString()
                     } else {
-                        Settings.editor_text_size = textSizeValue
+                        Settings.editor_text_size = textSizeValue.toInt()
 
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                             if (f.value.get()?.fragment is EditorFragment) {
@@ -412,18 +419,21 @@ fun SettingsEditorScreen(navController: NavController) {
                 title = stringResource(id = strings.tab_size),
                 inputLabel = stringResource(id = strings.tab_size),
                 inputValue = tabSizeValue.toString(),
-                onInputValueChange = { it.toIntOrNull()?.let { int -> tabSizeValue = int } ?: run{
-                    tabSizeValue = Settings.tab_size
-                } },
+                onInputValueChange = {
+                    tabSizeValue = it
+                },
                 onConfirm = {
-                    if (tabSizeValue.toInt() > 16) {
+                    if (tabSizeValue.toIntOrNull() == null){
+                        toast(strings.inavalid_v)
+                        tabSizeValue = Settings.tab_size.toString()
+                    }else if (tabSizeValue.toInt() > 16) {
                         toast(context.getString(strings.v_large))
-                        tabSizeValue = Settings.tab_size
+                        tabSizeValue = Settings.tab_size.toString()
                     } else if (tabSizeValue.toInt() < 1) {
                         toast(context.getString(strings.v_small))
-                        tabSizeValue = Settings.tab_size
+                        tabSizeValue = Settings.tab_size.toString()
                     } else {
-                        Settings.tab_size = tabSizeValue
+                        Settings.tab_size = tabSizeValue.toInt()
 
                         MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
                             if (f.value.get()?.fragment is EditorFragment) {
