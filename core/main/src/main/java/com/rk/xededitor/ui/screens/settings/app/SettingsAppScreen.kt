@@ -6,9 +6,13 @@ import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -25,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -38,6 +43,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.components.NextScreenCard
 
 
 val showExtensions = mutableStateOf(Settings.enable_extensions)
@@ -95,12 +101,19 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 }
             )
 
+
             SettingsToggle(
                 label = stringResource(strings.manage_storage),
                 description = stringResource(strings.manage_storage),
                 isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
                 showSwitch = false,
                 default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null)
+                },
                 sideEffect = {
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
                         val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
@@ -110,14 +123,10 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 }
             )
 
-            SettingsToggle(
+            NextScreenCard(
                 label = "Developer Options",
                 description = "Debugging options for ${strings.app_name.getString()}",
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    navController.navigate(SettingsRoutes.DeveloperOptions.route)
-                }
+                route = SettingsRoutes.DeveloperOptions
             )
 
         }

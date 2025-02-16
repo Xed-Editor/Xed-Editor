@@ -30,50 +30,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-
-private fun updateEditorSettings() {
-    MainActivity.withContext {
-        adapter?.tabFragments?.values?.forEach {
-            lifecycleScope.launch { (it.get()?.fragment as? EditorFragment)?.editor?.applySettings() }
-        }
-    }
-}
-
-@Composable
-private fun EditorSettingsToggle(
-    modifier: Modifier = Modifier,
-    label: String,
-    description: String? = null,
-    @DrawableRes iconRes: Int? = null,
-    default: Boolean,
-    reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
-    sideEffect: ((checked: Boolean) -> Unit)? = null,
-    showSwitch: Boolean = true,
-    onLongClick: (() -> Unit)? = null,
-    isEnabled: Boolean = true,
-    isSwitchLocked: Boolean = false
-) {
-    SettingsToggle(
-        modifier = modifier,
-        label = label,
-        description = description,
-        iconRes = iconRes,
-        default = default,
-        reactiveSideEffect = reactiveSideEffect,
-        showSwitch = showSwitch,
-        onLongClick = onLongClick,
-        isEnabled = isEnabled,
-        isSwitchLocked = isSwitchLocked,
-        sideEffect = {
-            DefaultScope.launch {
-                if (showSwitch){
-                    updateEditorSettings()
-                }
-            }
-            sideEffect?.invoke(it)
-        },
-    )
-}
+import com.rk.xededitor.ui.components.EditorSettingsToggle
+import com.rk.xededitor.ui.components.NextScreenCard
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -93,13 +51,12 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.content)) {
 
-            EditorSettingsToggle(label = stringResource(strings.mutators),
+
+            NextScreenCard(
+                label = stringResource(strings.mutators),
                 description = stringResource(strings.mutator_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    navController.navigate(SettingsRoutes.ManageMutators.route)
-                })
+                route = SettingsRoutes.ManageMutators
+            )
 
             EditorSettingsToggle(label = stringResource(strings.unrestricted_file),
                 description = stringResource(strings.unrestricted_file_desc),
@@ -220,13 +177,11 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(strings.manage_editor_font),
+            NextScreenCard(
+                label = stringResource(strings.manage_editor_font),
                 description = stringResource(strings.manage_editor_font),
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    navController.navigate(SettingsRoutes.EditorFontScreen.route)
-                })
+                route = SettingsRoutes.EditorFontScreen
+            )
 
             EditorSettingsToggle(label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
@@ -260,13 +215,11 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
                 })
 
-            EditorSettingsToggle(label = stringResource(strings.default_encoding),
+            NextScreenCard(
+                label = stringResource(strings.default_encoding),
                 description = stringResource(strings.default_encoding_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    navController.navigate(SettingsRoutes.DefaultEncoding.route)
-                })
+                route = SettingsRoutes.DefaultEncoding
+            )
 
             EditorSettingsToggle(label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
