@@ -32,35 +32,45 @@ fun SettingsToggle(
     showSwitch: Boolean = true,
     onLongClick: (() -> Unit)? = null,
     isEnabled: Boolean = true,
-    isSwitchLocked: Boolean = false
+    isSwitchLocked: Boolean = false,
+    endWidget: (@Composable () -> Unit)? = null,
 ) {
     var state by remember {
         mutableStateOf(default)
     }
-    
+
+    if (showSwitch && endWidget != null){
+        throw IllegalStateException("endWidget with show switch")
+    }
+
     if (showSwitch) {
         PreferenceSwitch(checked = state,
             onLongClick = onLongClick,
             onCheckedChange = {
-            if (isSwitchLocked.not()) {
-                state = !state
-            }
-            if (reactiveSideEffect != null){
-                state = reactiveSideEffect.invoke(state) == true
-            }else{
-                sideEffect?.invoke(state)
-            }
-            
-        }, label = label, modifier = modifier, description = description, enabled = isEnabled, onClick = {
-            if (isSwitchLocked.not()) {
-                state = !state
-            }
-            if (reactiveSideEffect != null){
-                state = reactiveSideEffect.invoke(state) == true
-            }else{
-                sideEffect?.invoke(state)
-            }
-        })
+                if (isSwitchLocked.not()) {
+                    state = !state
+                }
+                if (reactiveSideEffect != null) {
+                    state = reactiveSideEffect.invoke(state) == true
+                } else {
+                    sideEffect?.invoke(state)
+                }
+
+            },
+            label = label,
+            modifier = modifier,
+            description = description,
+            enabled = isEnabled,
+            onClick = {
+                if (isSwitchLocked.not()) {
+                    state = !state
+                }
+                if (reactiveSideEffect != null) {
+                    state = reactiveSideEffect.invoke(state) == true
+                } else {
+                    sideEffect?.invoke(state)
+                }
+            })
     } else {
         val interactionSource = remember { MutableInteractionSource() }
         PreferenceTemplate(
@@ -69,7 +79,7 @@ fun SettingsToggle(
                 indication = ripple(),
                 interactionSource = interactionSource,
                 onLongClick = onLongClick,
-                onClick = {sideEffect?.invoke(false)}
+                onClick = { sideEffect?.invoke(false) }
             ),
             contentModifier = Modifier
                 .fillMaxHeight()
@@ -79,8 +89,9 @@ fun SettingsToggle(
             description = { description?.let { Text(text = it) } },
             enabled = true,
             applyPaddings = false,
+            endWidget = endWidget
         )
     }
-    
-    
+
+
 }

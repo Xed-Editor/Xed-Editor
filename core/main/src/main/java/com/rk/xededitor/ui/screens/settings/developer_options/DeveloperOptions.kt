@@ -26,7 +26,6 @@ import kotlinx.coroutines.launch
 private fun getMemoryUsage(context: Context):Int{
     val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
     val memoryInfo = activityManager.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()))
-
     //total memory in mb
     return memoryInfo[0].totalPss / 1024
 }
@@ -52,7 +51,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
                 sideEffect = {
                     MaterialAlertDialogBuilder(context).apply {
                         setTitle("Force Crash")
-                        setMessage("Force Crashing the app?")
+                        setMessage("Force Crash the app? app may freeze")
                         setNegativeButton(strings.cancel,null)
                         setPositiveButton(strings.ok){ _,_ ->
                             scope.launch {
@@ -77,9 +76,10 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
 
             SettingsToggle(
                 label = "Debugger",
-                description = "Execute Beanshell",
+                description = "Beanshell",
                 showSwitch = false,
                 default = false,
+                isEnabled = BuildConfig.DEBUG,
                 sideEffect = {
                     navController.navigate(SettingsRoutes.BeanshellREPL.route)
                 }
