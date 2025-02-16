@@ -62,8 +62,13 @@ class FileWrapper(var file: File) : FileObject {
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
-        return FileOutputStream(file, append)
+        return if (append) {
+            FileOutputStream(file, true)
+        } else {
+            FileOutputStream(file, false).also { it.channel.truncate(0) }
+        }
     }
+
 
     override fun getAbsolutePath(): String {
         return file.absolutePath
