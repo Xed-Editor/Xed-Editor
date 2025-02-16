@@ -79,9 +79,13 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
                 description = "Beanshell",
                 showSwitch = false,
                 default = false,
-                isEnabled = BuildConfig.DEBUG,
                 sideEffect = {
-                    navController.navigate(SettingsRoutes.BeanshellREPL.route)
+                    if (BuildConfig.DEBUG){
+                        navController.navigate(SettingsRoutes.BeanshellREPL.route)
+                    }else{
+                        toast("Debugger is not allowed on release builds for user safety reasons")
+                    }
+
                 }
             )
         }
