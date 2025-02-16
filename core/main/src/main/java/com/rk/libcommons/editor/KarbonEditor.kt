@@ -28,6 +28,7 @@ import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
+import com.rk.libcommons.toast
 
 
 @Suppress("NOTHING_TO_INLINE")
@@ -151,19 +152,18 @@ class KarbonEditor : CodeEditor {
     inline fun isShowSuggestion(): Boolean {
         return inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
-    
-    suspend fun saveToFile(outputStream:OutputStream,encoding:Charset){
+
+    suspend fun saveToFile(outputStream:OutputStream,encoding:Charset) = withContext(Dispatchers.Main){
         try {
-            withContext(Dispatchers.IO){
-                val content = withContext(Dispatchers.Main) { text }
-                ContentIO.writeTo(content, outputStream,encoding, true)
+            val content = withContext(Dispatchers.Main){
+                text
             }
+           withContext(Dispatchers.IO){
+               ContentIO.writeTo(content, outputStream,encoding, true)
+           }
         }catch (e:Exception){
-            withContext(Dispatchers.Main){
-                Toast.makeText(application!!,e.message,Toast.LENGTH_SHORT).show()
-            }
+            toast(e)
         }
-        
     }
     private var isSearching: Boolean = false
     

@@ -55,6 +55,7 @@ class App : Application() {
                             println(violation.message)
                             violation.printStackTrace()
                             violation.cause?.let { throw it }
+                            println("vm policy error")
                         }
                     }
                 }.build()

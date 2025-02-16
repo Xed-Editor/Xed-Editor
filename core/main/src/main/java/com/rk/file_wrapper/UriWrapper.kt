@@ -116,7 +116,7 @@ class UriWrapper : FileObject {
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
-        val mode = if (append) "wa" else "w"
+        val mode = if (append) "wa" else "wt"
         return application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
