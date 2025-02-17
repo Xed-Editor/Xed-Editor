@@ -2,6 +2,7 @@ package com.rk.xededitor.ui.screens.terminal
 
 import android.content.Context
 import com.rk.libcommons.alpineDir
+import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.isMainThread
@@ -15,7 +16,9 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
     private val alpine = File(getTempDir(),"alpine.tar.gz")
 
     init {
-        if (alpine.exists().not() || alpineDir().listFiles().isNullOrEmpty().not()){
+        val rootfsFiles = alpineDir().listFiles()?.filter { it.absolutePath != alpineHomeDir().absolutePath } ?: emptyList()
+
+        if (alpine.exists().not() || rootfsFiles.isEmpty().not()){
             onComplete.invoke()
         }else{
             initializeInternal()
