@@ -407,5 +407,7 @@
     <string name="suggest_clear_app_data">Clearing app data is recommended</string>
     <string name="update_files_cleared">App updated : Data Cleared</string>
 
+    <string name="toggle_ww">Toggle Word Wrap</string>
+
 
 </resources>

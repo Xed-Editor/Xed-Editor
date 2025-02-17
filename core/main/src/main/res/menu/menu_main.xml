@@ -103,12 +103,17 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/toggle_word_wrap"
+        android:icon="@drawable/edit"
+        android:title="@string/toggle_ww"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/refreshEditor"
         android:icon="@drawable/refresh"
         android:title="@string/refresh"
         android:visible="false"
         app:showAsAction="never" />
-
     <item
         android:id="@+id/select_highlighting"
         android:icon="@drawable/edit"
@@ -121,7 +126,7 @@
 
     <item
         android:id="@+id/tools"
-        android:icon="@drawable/extension"
+        android:icon="@drawable/build"
         android:title="@string/tools"
         android:visible="false"
         app:showAsAction="never">
