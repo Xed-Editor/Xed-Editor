@@ -345,6 +345,12 @@ object MenuClickHandler {
 
             }
 
+            Id.toggle_word_wrap -> {
+                (activity.adapter?.getCurrentFragment()?.fragment as? EditorFragment)?.editor?.let {
+                    it.isWordwrap = it.isWordwrap.not()
+                }
+            }
+
         }
 
         return false

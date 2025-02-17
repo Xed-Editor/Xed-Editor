@@ -10,6 +10,8 @@ import com.rk.settings.Settings
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolInputView
 
+
+private typealias onClick = OnClickListener
 fun getInputView(editor: CodeEditor): SymbolInputView {
     val darkTheme: Boolean = when (Settings.default_night_mode) {
         AppCompatDelegate.MODE_NIGHT_YES -> true

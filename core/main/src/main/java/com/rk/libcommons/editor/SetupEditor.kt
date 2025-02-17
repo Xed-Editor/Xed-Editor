@@ -47,8 +47,6 @@ import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
 
-private typealias onClick = OnClickListener
-
 val textmateSources = hashMapOf(
     "pro" to "source.shell",
     "java" to "source.java",
@@ -95,7 +93,8 @@ val textmateSources = hashMapOf(
     "smali" to "source.smali",
     "v" to "source.coq",
     "coq" to "source.coq",
-    "properties" to "source.java-properties"
+    "properties" to "source.java-properties",
+    "log" to "source.js"
 )
 
 class SetupEditor(
@@ -109,10 +108,20 @@ class SetupEditor(
         }
     }
 
+    private fun getSourceForSpacialFileName(fileName: String):String?{
+        return when(fileName){
+            "gradlew" -> textmateSources["sh"]
+            "logcat.txt" -> {
+                editor.isWordwrap = Settings.wordwrap
+                textmateSources["log"]
+            }
+            else -> null
+        }
+    }
+
     suspend fun setupLanguage(fileName: String) {
         mutex.withLock {
-            val source = textmateSources[fileName.substringAfterLast('.', "").trim()]
-                ?: if (fileName == "gradlew") textmateSources["sh"] else null
+            val source = getSourceForSpacialFileName(fileName) ?: textmateSources[fileName.substringAfterLast('.', "").trim()]
             source?.let { setLanguage(it) }
         }
     }
