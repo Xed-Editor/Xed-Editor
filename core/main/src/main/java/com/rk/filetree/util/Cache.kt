@@ -18,4 +18,8 @@ object Cache {
             map[parent] = files
         }
     }
+
+    fun clear(parent: FileObject){
+        map.remove(parent)
+    }
 }

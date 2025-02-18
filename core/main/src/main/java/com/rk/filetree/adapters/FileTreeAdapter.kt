@@ -20,6 +20,7 @@ import com.rk.filetree.model.Node
 import com.rk.filetree.model.TreeViewModel
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.rk.filetree.util.Cache
 import com.rk.filetree.util.sort
 import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.LoadingPopup
@@ -98,6 +99,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
 
     //parent file
     suspend fun newFile(file: FileObject) {
+        Cache.clear(file)
         isBusy = true
         val tempData = currentList.toMutableList()
 
@@ -127,6 +129,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
     fun removeFile(file: FileObject) {
+        Cache.clear(file)
         val tempData = currentList.toMutableList()
         var nodetoremove: Node<FileObject>? = null
 
@@ -162,6 +165,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
     }
 
     fun renameFile(child: FileObject, newFile: FileObject) {
+        Cache.clear(child.getParentFile()!!)
         isBusy = true
         val tempData = currentList.toMutableList()
         for (node in tempData) {
