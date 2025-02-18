@@ -20,6 +20,14 @@ object Cache {
     }
 
     fun clear(parent: FileObject){
-        map.remove(parent)
+       synchronized(map){
+           map.remove(parent)
+       }
+    }
+
+    fun clearAll(){
+        synchronized(map){
+            map.clear()
+        }
     }
 }

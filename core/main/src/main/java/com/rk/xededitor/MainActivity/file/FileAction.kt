@@ -53,15 +53,6 @@ class FileAction(
         ActionPopup(mainActivity, true).apply {
             if (file == rootFolder) {
                 addItem(
-                    strings.refresh.getString(),
-                    strings.reload_file_tree.getString(),
-                    getDrawable(drawables.refresh),
-                ) {
-                    mainActivity.lifecycleScope.launch {
-                        ProjectManager.CurrentProject.refresh(mainActivity)
-                    }
-                }
-                addItem(
                     strings.close.getString(),
                     getString(strings.close_current_project),
                     getDrawable(drawables.close),
@@ -115,7 +106,15 @@ class FileAction(
 
             val fileDrawable = getDrawable(drawables.outline_insert_drive_file_24)
             if (file.isDirectory()) {
-
+                addItem(
+                    strings.refresh.getString(),
+                    strings.reload_file_tree.getString(),
+                    getDrawable(drawables.refresh),
+                ) {
+                    mainActivity.lifecycleScope.launch {
+                        ProjectManager.CurrentProject.refresh(mainActivity, parent = file)
+                    }
+                }
                 if (file is FileWrapper) {
                     addItem(title = "Clone Repo",
                         description = "Clone a git repo here",
