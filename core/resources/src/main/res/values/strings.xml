@@ -409,5 +409,6 @@
 
     <string name="toggle_ww">Toggle Word Wrap</string>
 
+    <string name="warning_private_dir">Content of this directory will get deleted if you clear data or delete Xed-Editor</string>
 
 </resources>

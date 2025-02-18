@@ -83,6 +83,13 @@ object Settings {
     var github
         get() = Preference.getBoolean(key = "github", default = true)
         set(value) = Preference.setBoolean(key = "github",value)
+    var has_shown_private_data_dir_warning
+        get() = Preference.getBoolean(key = "has_shown_private_data_dir_warning", default = false)
+        set(value) = Preference.setBoolean(key = "has_shown_private_data_dir_warning", value)
+    var has_shown_terminal_dir_warning
+        get() = Preference.getBoolean(key = "has_shown_terminal_dir_warning", default = false)
+        set(value) = Preference.setBoolean(key = "has_shown_terminal_dir_warning", value)
+
 
 
     //Int
@@ -98,8 +105,6 @@ object Settings {
     var default_night_mode
         get() = Preference.getInt(key = "default_night_mode", default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         set(value) = Preference.setInt(key = "default_night_mode",value)
-
-
 
     //String
     var projects
