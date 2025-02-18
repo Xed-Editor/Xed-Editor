@@ -9,6 +9,7 @@ import com.rk.libcommons.alpineHomeDir
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.R
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ object ProjectBar {
                             fileManager?.requestOpenDirectory()
                         }
                     )
+
                     addItem(
                         getString(strings.open_path),
                         getString(strings.open_path_desc),
@@ -35,19 +37,22 @@ object ProjectBar {
                             fileManager?.requestOpenFromPath()
                         }
                     )
-                    
-                    addItem(
-                        getString(strings.private_files),
-                        getString(strings.private_files_desc),
-                        ContextCompat.getDrawable(this@with, drawables.build),
-                        listener = {
-                            lifecycleScope.launch {
-                                ProjectManager.addProject(this@with,
-                                    FileWrapper(filesDir.parentFile!!)
-                                )
+
+                    if (BuildConfig.DEBUG){
+                        addItem(
+                            getString(strings.private_files),
+                            getString(strings.private_files_desc),
+                            ContextCompat.getDrawable(this@with, drawables.build),
+                            listener = {
+                                lifecycleScope.launch {
+                                    ProjectManager.addProject(this@with,
+                                        FileWrapper(filesDir.parentFile!!)
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
+
 
                     addItem(
                         strings.terminal_home.getString(),

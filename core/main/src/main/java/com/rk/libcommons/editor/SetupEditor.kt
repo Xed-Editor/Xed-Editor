@@ -1,22 +1,13 @@
 package com.rk.libcommons.editor
 
-import EventBus
 import android.app.Activity
 import android.content.Context
 import android.graphics.Color
-import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
-import android.util.TypedValue
-import android.view.KeyEvent
-import android.view.View.OnClickListener
-import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
 import com.rk.libcommons.isDarkMode
-import com.rk.libcommons.safeLaunch
-import com.rk.libcommons.toastCatching
 import com.rk.libcommons.toastIt
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.lang.Language
@@ -27,23 +18,16 @@ import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
-import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.SymbolInputView
-import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
-import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
-import org.json.JSONObject
-import java.io.File
 import java.io.InputStream
 import java.io.InputStreamReader
 

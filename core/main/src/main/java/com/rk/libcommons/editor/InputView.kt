@@ -34,7 +34,7 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
             }))
 
             add(Pair("⌘", onClick {
-                EventBus.showControlPanel()
+                CheapEventBus.showControlPanel()
             }))
 
             add(Pair("←", onClick {
