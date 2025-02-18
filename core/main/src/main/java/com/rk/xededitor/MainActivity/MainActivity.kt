@@ -169,10 +169,15 @@ class MainActivity : BaseActivity() {
         }
 
         private fun restoreState(state: TabViewModelState) {
-            fragmentFiles = state.fragmentFiles
-            fragmentTypes = state.fragmentTypes
-            fragmentTitles = state.fragmentTitles
-            fileSet = state.fileSet
+            val files = state.fragmentFiles.filter { it.exists() && it.canRead() }.toMutableList()
+            val types = files.map { it.getFragmentType() }.toMutableList()
+            val titles = files.map { it.getName() }.toMutableList()
+            val fileSet = files.map { it.getAbsolutePath() }.toHashSet()
+
+            fragmentFiles = files
+            fragmentTypes = types
+            fragmentTitles = titles
+            this.fileSet = fileSet
         }
 
     }

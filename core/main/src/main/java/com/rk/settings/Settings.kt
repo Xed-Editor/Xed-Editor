@@ -66,7 +66,7 @@ object Settings {
         get() = Preference.getBoolean(key = "smooth_tab",default = false)
         set(value) = Preference.setBoolean(key = "smooth_tab",value)
     var restore_session
-        get() = Preference.getBoolean(key = "restore_sessions", default = false)
+        get() = Preference.getBoolean(key = "restore_sessions", default = true)
         set(value) = Preference.setBoolean(key = "restore_sessions",value)
     var scroll_to_bottom
         get() = Preference.getBoolean(key = "scroll_to_bottom", default = false)
