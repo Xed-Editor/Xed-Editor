@@ -368,4 +368,6 @@
     <string name="update_files_cleared">App aggiornata : Dati Cancellati</string>
     <string name="unrestricted_file_desc">Consenti l\'apertura di file di qualsiasi dimensione. Può causare crash</string>
     <string name="unrestricted_file">Apri file di qualsiasi dimensione</string>
+    <string name="toggle_ww">Attiva/Disattiva Parola a Capo</string>
+    <string name="warning_private_dir">Il contenuto di questa directory verrà eliminato se si cancellano i dati o si elimina Xed-Editor</string>
 </resources>
