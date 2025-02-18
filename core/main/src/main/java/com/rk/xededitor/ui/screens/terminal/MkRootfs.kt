@@ -20,8 +20,10 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
     it.absolutePath != alpineHomeDir().absolutePath && it.absolutePath != alpineDir().child("tmp").absolutePath 
 } ?: emptyList()
 
+
         if (alpine.exists().not() || rootfsFiles.isEmpty().not()){
             onComplete.invoke()
+            println("completed")
         }else{
             initializeInternal()
         }
