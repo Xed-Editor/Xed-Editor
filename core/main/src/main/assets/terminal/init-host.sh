@@ -3,10 +3,15 @@ ARGS="$ARGS -w $PWD"
 
 for data_dir in /data/app /data/dalvik-cache \
  /data/misc/apexdata/com.android.art/dalvik-cache; do
- if [ -e "$data_dir" ]; then
-  ARGS="$ARGS -b ${data_dir}"
- fi
+  if [ "$data_dir" = "$PREFIX" ] && [ "$DEBUG" != "true" ]; then
+      continue
+    fi
+
+  if [ -e "$data_dir" ]; then
+    ARGS="$ARGS -b ${data_dir}"
+  fi
 done
+
 unset data_dir
 
 for system_mnt in /apex /odm /product /system /system_ext /vendor \
