@@ -5,6 +5,7 @@ import android.net.Uri
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.Serializable
+import java.nio.charset.Charset
 
 interface FileObject : Serializable {
     fun listFiles(): List<FileObject>
@@ -30,4 +31,7 @@ interface FileObject : Serializable {
     fun canWrite():Boolean
     fun canRead():Boolean
     fun getChildForName(name: String):FileObject
+    fun readText():String?
+    fun readText(charset:Charset):String?
+    fun isSymlink():Boolean
 }

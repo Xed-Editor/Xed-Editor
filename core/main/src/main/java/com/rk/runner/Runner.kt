@@ -11,6 +11,7 @@ import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
+import com.rk.runner.runners.c.C_Runner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
@@ -35,7 +36,7 @@ abstract class RunnerImpl{
 object Runner {
     private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash")
 
-    private suspend fun getRunnerInstance(fileObject: FileObject):List<RunnerImpl>{
+    private fun getRunnerInstance(fileObject: FileObject):List<RunnerImpl>{
         val runners = mutableListOf<RunnerImpl>()
 
         val ext = fileObject.getName().substringAfterLast(".").trim()
@@ -55,17 +56,20 @@ object Runner {
         }
 
 
+        //runner that only support native files because uri files connot be represented as absolute paths
         if (fileObject is FileWrapper){
             runners.addAll(
                 when(ext){
                     "py" -> listOf(PythonRunner(fileObject.file))
                     "mjs","js" ->  listOf(NodeRunner(fileObject.file))
                     "sh","bash" ->  listOf(ShellRunner(fileObject.file))
+                   // "c","cpp" -> listOf(C_Runner(fileObject.file))
                     else -> emptyList()
                 }
             )
         }
 
+        //runners that support uri and native files
         runners.addAll(when(ext){
             "html" -> listOf(HtmlRunner(fileObject))
             "md" -> listOf(MarkDownRunner(fileObject))

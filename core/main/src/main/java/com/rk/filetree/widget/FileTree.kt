@@ -93,7 +93,7 @@ class FileTree : RecyclerView {
             if (showRootNode) {
                 mutableListOf<Node<FileObject>>().apply { add(Node(rootFileObject)) }
             } else {
-                sort(rootFileObject)
+                sort(rootFileObject,updateCache=true)
             }
         fileTreeAdapter.submitList(nodes)
     }

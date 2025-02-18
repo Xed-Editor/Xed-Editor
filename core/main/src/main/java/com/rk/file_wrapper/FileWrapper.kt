@@ -9,6 +9,8 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.charset.Charset
+import java.nio.file.Files
 import java.util.Locale
 
 
@@ -134,6 +136,18 @@ class FileWrapper(var file: File) : FileObject {
 
     override fun getChildForName(name: String): FileObject {
         return FileWrapper(File(file,name))
+    }
+
+    override fun readText(): String? {
+        return file.readText()
+    }
+
+    override fun readText(charset: Charset): String? {
+        return file.readText(charset = charset)
+    }
+
+    override fun isSymlink(): Boolean {
+        return Files.isSymbolicLink(file.toPath())
     }
 
     override fun hashCode(): Int {

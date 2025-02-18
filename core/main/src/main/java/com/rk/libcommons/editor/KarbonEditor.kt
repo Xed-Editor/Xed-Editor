@@ -8,11 +8,11 @@ import android.text.InputType
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import com.rk.libcommons.application
+import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.isDarkMode
-import com.rk.libcommons.safeLaunch
+import com.rk.libcommons.isMainThread
+import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.ContentIO
@@ -22,29 +22,28 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.InputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
-import com.rk.libcommons.toast
 
 
 @Suppress("NOTHING_TO_INLINE")
 class KarbonEditor : CodeEditor {
     constructor(context: Context) : super(context)
-    
+
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    
+
     constructor(
         context: Context,
         attrs: AttributeSet,
         defStyleAttr: Int,
     ) : super(context, attrs, defStyleAttr)
-    
 
-    init{
+
+    init {
         applyFont()
         //getComponent(EditorAutoCompletion::class.java).isEnabled = true
 
@@ -54,7 +53,9 @@ class KarbonEditor : CodeEditor {
             else -> isDarkMode(context)
         }
 
-        val color = if (darkTheme){Color.BLACK}else{
+        val color = if (darkTheme) {
+            Color.BLACK
+        } else {
             Color.WHITE
         }
 
@@ -67,7 +68,7 @@ class KarbonEditor : CodeEditor {
         }
     }
 
-    suspend fun applySettings(){
+    suspend fun applySettings() {
         getComponent(EditorAutoCompletion::class.java).setLayout(object :
             DefaultCompletionLayout() {
             override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
@@ -124,23 +125,29 @@ class KarbonEditor : CodeEditor {
                     Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
             }
         }?.let {
-            toastCatching { typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf") }
+            toastCatching {
+                typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
+            }
         }
 
     }
-    
-    suspend fun loadFile(inputStream: InputStream,encoding:Charset){
+
+    suspend fun loadFile(fileObject: FileObject, encoding: Charset) {
         withContext(Dispatchers.IO) {
             toastCatching {
-                val content = ContentIO.createFrom(inputStream,encoding)
-                inputStream.close()
-                withContext(Dispatchers.Main) { setText(content) }
+                withContext(Dispatchers.Main) {
+                    setText(withContext(Dispatchers.IO) {
+                            assert(isMainThread().not())
+                            fileObject.getInputStream().use {
+                                ContentIO.createFrom(it, encoding)
+                            }
+                    })
+                }
             }
         }
     }
-    
-    
-    
+
+
     fun showSuggestions(yes: Boolean) {
         inputType = if (yes) {
             InputType.TYPE_TEXT_VARIATION_NORMAL
@@ -148,29 +155,31 @@ class KarbonEditor : CodeEditor {
             InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
         }
     }
-    
+
     inline fun isShowSuggestion(): Boolean {
         return inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
 
-    suspend fun saveToFile(outputStream:OutputStream,encoding:Charset) = withContext(Dispatchers.Main){
-        try {
-            val content = withContext(Dispatchers.Main){
-                text
+    suspend fun saveToFile(outputStream: OutputStream, encoding: Charset) =
+        withContext(Dispatchers.Main) {
+            try {
+                val content = withContext(Dispatchers.Main) {
+                    text
+                }
+                withContext(Dispatchers.IO) {
+                    ContentIO.writeTo(content, outputStream, encoding, true)
+                }
+            } catch (e: Exception) {
+                toast(e)
             }
-           withContext(Dispatchers.IO){
-               ContentIO.writeTo(content, outputStream,encoding, true)
-           }
-        }catch (e:Exception){
-            toast(e)
         }
-    }
+
     private var isSearching: Boolean = false
-    
+
     fun isSearching(): Boolean {
         return isSearching
     }
-    
+
     fun setSearching(s: Boolean) {
         isSearching = s
     }
