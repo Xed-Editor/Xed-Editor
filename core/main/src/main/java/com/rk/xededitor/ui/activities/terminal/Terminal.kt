@@ -46,6 +46,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.net.UnknownHostException
+import com.rk.libcommons.*
 
 class Terminal : ComponentActivity() {
     var sessionBinder:SessionService.SessionBinder? = null
@@ -130,7 +131,11 @@ class Terminal : ComponentActivity() {
                     ),
                 ).toMutableList()
 
-                if (alpineDir().listFiles().isNullOrEmpty()){
+
+                val rootfsFiles = alpineDir().listFiles()?.filter {
+                    it.absolutePath != alpineHomeDir().absolutePath && it.absolutePath != alpineDir().child("tmp").absolutePath
+                } ?: emptyList()
+                if (rootfsFiles.isEmpty()){
                     filesToDownload.add(
                         DownloadFile(
                             url = if (abi.contains("x86_64")) {
