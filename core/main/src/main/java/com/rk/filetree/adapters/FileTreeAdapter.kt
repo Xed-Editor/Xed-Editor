@@ -97,6 +97,36 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         return holder
     }
 
+
+    suspend fun reloadFile(parent:FileObject){
+        Cache.clear(parent)
+        isBusy = true
+        val tempData = currentList.toMutableList()
+
+        var xnode: Node<FileObject>? = null
+        for (node in tempData) {
+            if (node.value == parent) {
+                xnode = node
+                break
+            }
+        }
+
+        val cache = sort(parent)
+        val children1 = TreeViewModel.getChildren(xnode!!)
+
+        tempData.removeAll(children1.toSet())
+        xnode.isExpand = false
+
+        val index = tempData.indexOf(xnode)
+
+        tempData.addAll(index + 1, cache)
+        TreeViewModel.add(xnode, cache)
+        xnode.isExpand = true
+
+        submitList(tempData)
+        isBusy = false
+    }
+
     //parent file
     suspend fun newFile(file: FileObject) {
         Cache.clear(file)

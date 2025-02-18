@@ -199,12 +199,12 @@ object ProjectManager {
     }
 
     object CurrentProject {
-        fun get(activity: MainActivity): FileObject {
+        fun getRoot(activity: MainActivity): FileObject {
             return getSelectedView(activity).getRootFileObject()
         }
 
-        suspend fun refresh(activity: MainActivity) {
-            getSelectedView(activity).reloadFileTree()
+        suspend fun refresh(activity: MainActivity,parent:FileObject) {
+            getSelectedView(activity).reloadFileChildren(parent)
         }
 
         fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: FileObject) {

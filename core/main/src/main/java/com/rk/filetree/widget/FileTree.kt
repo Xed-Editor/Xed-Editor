@@ -12,6 +12,7 @@ import com.rk.filetree.interfaces.FileLongClickListener
 import com.rk.file_wrapper.FileObject
 import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
+import com.rk.filetree.util.Cache
 import com.rk.filetree.util.sort
 import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
@@ -88,14 +89,8 @@ class FileTree : RecyclerView {
         }
     }
 
-    suspend fun reloadFileTree() = withContext(Dispatchers.IO){
-        val nodes: List<Node<FileObject>> =
-            if (showRootNode) {
-                mutableListOf<Node<FileObject>>().apply { add(Node(rootFileObject)) }
-            } else {
-                sort(rootFileObject,updateCache=true)
-            }
-        fileTreeAdapter.submitList(nodes)
+    suspend fun reloadFileChildren(parent: FileObject){
+        fileTreeAdapter.reloadFile(parent)
     }
 
     suspend fun onFileAdded(file: FileObject) {
