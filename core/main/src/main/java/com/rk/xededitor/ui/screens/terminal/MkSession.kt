@@ -11,6 +11,7 @@ import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
 import com.rk.xededitor.App.Companion.getTempDir
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.terminal.Terminal
@@ -69,6 +70,7 @@ object MkSession {
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
                 "LANG=C.UTF-8",
+                "DEBUG=${BuildConfig.DEBUG}",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "HOME=${alpineHomeDir()}",
