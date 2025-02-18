@@ -16,7 +16,9 @@ class MkRootfs(val context: Context, private val onComplete:()->Unit) {
     private val alpine = File(getTempDir(),"alpine.tar.gz")
 
     init {
-        val rootfsFiles = alpineDir().listFiles()?.filter { it.absolutePath != alpineHomeDir().absolutePath || it.absolutePath != alpineDir().child("tmp").absolutePath } ?: emptyList()
+        val rootfsFiles = alpineDir().listFiles()?.filter { 
+    it.absolutePath != alpineHomeDir().absolutePath && it.absolutePath != alpineDir().child("tmp").absolutePath 
+} ?: emptyList()
 
         if (alpine.exists().not() || rootfsFiles.isEmpty().not()){
             onComplete.invoke()
