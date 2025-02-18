@@ -127,7 +127,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         fun refresh() {
             scope.safeLaunch(Dispatchers.IO) {
                 isFileLoaded = false
-                editor?.loadFile(file!!.getInputStream(), Charset.forName(Settings.encoding))
+                editor?.loadFile(file!!, Charset.forName(Settings.encoding))
                 UI {
                     MainActivity.withContext {
                         val index = tabViewModel.fragmentFiles.indexOf(file)
@@ -209,7 +209,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     }
                 }
             } else {
-                editor!!.loadFile(file.getInputStream(), Charset.forName(Settings.encoding))
+                editor!!.loadFile(file, Charset.forName(Settings.encoding))
                 FilesContent.setContent(
                     this@EditorFragment.file!!.getAbsolutePath(),
                     editor!!.text

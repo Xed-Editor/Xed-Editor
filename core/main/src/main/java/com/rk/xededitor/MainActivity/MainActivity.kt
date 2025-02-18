@@ -43,6 +43,7 @@ import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
+import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.handlers.updateMenu
@@ -154,10 +155,15 @@ class MainActivity : BaseActivity() {
         }
 
         private fun toState(): TabViewModelState {
+            val files = fragmentFiles.filter { it !is UriWrapper }.toMutableList()
+            val types = files.map { it.getFragmentType() }.toMutableList()
+            val titles = files.map { it.getName() }.toMutableList()
+            val fileSet = files.map { it.getAbsolutePath() }.toHashSet()
+
             return TabViewModelState(
-                fragmentFiles = fragmentFiles,
-                fragmentTypes = fragmentTypes,
-                fragmentTitles = fragmentTitles,
+                fragmentFiles = files,
+                fragmentTypes = types,
+                fragmentTitles = titles,
                 fileSet = fileSet
             )
         }

@@ -5,10 +5,13 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.libcommons.application
+import java.io.BufferedReader
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.io.InputStreamReader
 import java.io.OutputStream
+import java.nio.charset.Charset
 import java.util.Locale
 
 class UriWrapper : FileObject {
@@ -200,6 +203,27 @@ class UriWrapper : FileObject {
         return UriWrapper(child)
     }
 
+    override fun readText(): String? {
+        val uri: Uri = file.uri
+        return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BufferedReader(InputStreamReader(inputStream)).use { reader ->
+                reader.readText()
+            }
+        }
+    }
+
+    override fun readText(charset: Charset): String? {
+        val uri: Uri = file.uri
+        return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
+            BufferedReader(InputStreamReader(inputStream,charset)).use { reader ->
+                reader.readText()
+            }
+        }
+    }
+
+    override fun isSymlink(): Boolean {
+        return false
+    }
 
     override fun equals(other: Any?): Boolean {
         if (other !is UriWrapper) {
