@@ -2,12 +2,14 @@ package com.rk.runner
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
+import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
@@ -34,7 +36,7 @@ abstract class RunnerImpl{
 }
 
 object Runner {
-    private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash")
+    private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash","c","cpp")
 
     private fun getRunnerInstance(fileObject: FileObject):List<RunnerImpl>{
         val runners = mutableListOf<RunnerImpl>()
@@ -55,15 +57,26 @@ object Runner {
             }
         }
 
+        var isTermuxFile = false
+        val file = if (fileObject is UriWrapper && fileObject.isTermuxUri()){
+            isTermuxFile = true
+            fileObject.convertToTermuxFile()
+        }else if(fileObject is FileWrapper){
+            isTermuxFile = false
+            fileObject.file
+        }else{
+            isTermuxFile = false
+            null
+        }
 
-        //runner that only support native files because uri files connot be represented as absolute paths
-        if (fileObject is FileWrapper){
+        //runner that only support native files because uri files cannot be represented as absolute paths
+        if (file != null){
             runners.addAll(
                 when(ext){
-                    "py" -> listOf(PythonRunner(fileObject.file))
-                    "mjs","js" ->  listOf(NodeRunner(fileObject.file))
-                    "sh","bash" ->  listOf(ShellRunner(fileObject.file))
-                   // "c","cpp" -> listOf(C_Runner(fileObject.file))
+                    "py" -> listOf(PythonRunner(file, isTermuxFile = isTermuxFile))
+                    "mjs","js" ->  listOf(NodeRunner(file,isTermuxFile = isTermuxFile))
+                    "sh","bash" ->  listOf(ShellRunner(file,isTermuxFile = isTermuxFile))
+                    "c","cpp" -> listOf(C_Runner(file,isTermuxFile = isTermuxFile))
                     else -> emptyList()
                 }
             )

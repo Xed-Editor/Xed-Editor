@@ -11,9 +11,12 @@ import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class ShellRunner(val file: File) : RunnerImpl() {
+class ShellRunner(val file: File,val isTermuxFile: Boolean = false) : RunnerImpl() {
     override fun run(context: Context) {
-        val runtime = Settings.terminal_runtime
+        val runtime = if (isTermuxFile){"Termux"}else{
+            Settings.terminal_runtime
+        }
+
         when(runtime){
             "Android" -> {
                 launchInternalTerminal(

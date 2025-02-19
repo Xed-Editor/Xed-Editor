@@ -13,14 +13,16 @@ import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class PythonRunner(val file: File) : RunnerImpl() {
+class PythonRunner(val file: File,val isTermuxFile: Boolean = false) : RunnerImpl() {
     override fun run(context: Context) {
         val py = localBinDir().child("python")
         if (py.exists().not()) {
             py.writeText(context.assets.open("terminal/python.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = Settings.terminal_runtime
+        val runtime = if (isTermuxFile){"Termux"}else{
+            Settings.terminal_runtime
+        }
         when(runtime){
             "Alpine","Android" -> {
                 launchInternalTerminal(

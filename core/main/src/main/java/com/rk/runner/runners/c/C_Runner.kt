@@ -14,7 +14,7 @@ import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class C_Runner(val file:File) : RunnerImpl() {
+class C_Runner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
 
     override fun run(context: Context) {
         val cc = localBinDir().child("cc")
@@ -23,7 +23,11 @@ class C_Runner(val file:File) : RunnerImpl() {
                 .use { it.readText() })
         }
 
-        val runtime = Settings.terminal_runtime
+        val runtime = if (isTermuxFile){"Termux"}else{
+            Settings.terminal_runtime
+        }
+
+
         when(runtime){
             "Alpine","Android" -> {
                 launchInternalTerminal(
@@ -43,87 +47,99 @@ class C_Runner(val file:File) : RunnerImpl() {
 # Required packages for Termux
 required_packages="clang make cmake"
 missing_packages=""
+set -e
 
 # Check for missing packages
-for pkg in ${'$'}required_packages; do
-    if ! dpkg -s "${'$'}pkg" >/dev/null 2>&1; then
-        missing_packages="${'$'}missing_packages ${'$'}pkg"
+for pkg in ${"$"}required_packages; do
+    if ! dpkg -s "${"$"}pkg" >/dev/null 2>&1; then
+        missing_packages="${"$"}missing_packages ${"$"}pkg"
     fi
 done
 
 # Install missing packages
-if [ -n "${'$'}missing_packages" ]; then
-    echo -e "\e[34;1m[*]\e[37m Installing missing packages: ${'$'}missing_packages\e[0m"
-    pkg install -y ${'$'}missing_packages
+if [ -n "${"$"}missing_packages" ]; then
+    echo -e "\e[34;1m[*]\e[37m Installing missing packages: ${"$"}missing_packages\e[0m"
+    pkg install -y ${"$"}missing_packages
 fi
 
-TARGET_FILE=${'$'}1
+TARGET_FILE=${file.absolutePath}
 
-if [ -z "${'$'}TARGET_FILE" ]; then
-    echo "Usage: ${'$'}0 <file.c> or a project directory"
-    exit 1
+# Determine linker
+if [ -f "/system/bin/linker64" ]; then
+    LINKER="/system/bin/linker64"
+else
+    LINKER="/system/bin/linker"
 fi
 
-# Check if the target is a file
-if [ -f "${'$'}TARGET_FILE" ]; then
-    if echo "${'$'}TARGET_FILE" | grep -qE '\.c${'$'}'; then
-        OUTPUT_FILE="${'$'}{TARGET_FILE % . c}"
-        echo -e "\e[34;1m[*]\e[37m Compiling C file: ${'$'}TARGET_FILE\e[0m"
-        if clang -o "${'$'}OUTPUT_FILE" "${'$'}TARGET_FILE"; then
-            echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
-            "./${'$'}OUTPUT_FILE"
-        else
-            echo -e "\e[31;1m[✗]\e[37m Compilation failed!\e[0m"
-            exit 1
-        fi
+run_code() {
+    echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
+    chmod +x "${"$"}OUTPUT_FILE"
+    if [ -x "$file" ]; then
+        "${"$"}OUTPUT_FILE"
     else
-        echo "Unknown file type. Provide a .c file."
+        case "${"$"}OUTPUT_FILE" in
+            /sdcard/*|/storage/*)
+                mv "${"$"}OUTPUT_FILE" ~/xed-tmp-file
+                chmod +x ~/xed-tmp-file
+                ~/xed-tmp-file
+                ;;
+            *)
+                ${"$"}LINKER ${"$"}OUTPUT_FILE
+                ;;
+        esac
+    fi
+}
+
+# Process file or directory
+if [ -f "${"$"}TARGET_FILE" ]; then
+    EXT="${"$"}{TARGET_FILE##*.}"
+    OUTPUT_FILE="${"$"}{TARGET_FILE%.*}"
+    COMPILER="clang"
+    
+    if [[ "${"$"}EXT" == "cpp" || "${"$"}EXT" == "cc" ]]; then
+        COMPILER="clang++"
+    fi
+    
+    echo -e "\e[34;1m[*]\e[37m Compiling ${"$"}EXT file: ${"$"}TARGET_FILE\e[0m"
+    if ${"$"}COMPILER -o "${"$"}OUTPUT_FILE" "${"$"}TARGET_FILE"; then
+        run_code
+    else
+        echo -e "\e[31;1m[✗]\e[37m Compilation failed!\e[0m"
         exit 1
     fi
 
-# Check if the target is a directory (Make or CMake project)
-elif [ -d "${'$'}TARGET_FILE" ]; then
-    if [ -f "${'$'}TARGET_FILE/Makefile" ]; then
+elif [ -d "${"$"}TARGET_FILE" ]; then
+    if [ -f "${"$"}TARGET_FILE/Makefile" ]; then
         echo -e "\e[34;1m[*]\e[37m Building with Makefile\e[0m"
-        if make -C "${'$'}TARGET_FILE"; then
-            EXECUTABLE=${'$'}(find "${'$'}TARGET_FILE" -maxdepth 1 -type f -executable | head -n 1)
-            if [ -n "${'$'}EXECUTABLE" ]; then
-                echo -e "\e[32;1m[✓]\e[37m Build successful! Running ${'$'}EXECUTABLE...\e[0m"
-                "${'$'}EXECUTABLE"
-            else
-                echo -e "\e[31;1m[✗]\e[37m No executable found after make.\e[0m"
-            fi
+        if make -C "${"$"}TARGET_FILE"; then
+            OUTPUT_FILE=${"$"}(find "${"$"}TARGET_FILE" -maxdepth 1 -type f -executable | head -n 1)
+            [ -n "${"$"}OUTPUT_FILE" ] && run_code || echo -e "\e[31;1m[✗]\e[37m No executable found after make.\e[0m"
         else
             echo -e "\e[31;1m[✗]\e[37m Build failed!\e[0m"
             exit 1
         fi
-    elif [ -f "${'$'}TARGET_FILE/CMakeLists.txt" ]; then
+    elif [ -f "${"$"}TARGET_FILE/CMakeLists.txt" ]; then
         echo -e "\e[34;1m[*]\e[37m Building with CMake\e[0m"
-        mkdir -p "${'$'}TARGET_FILE/build"
-        cd "${'$'}TARGET_FILE/build"
+        mkdir -p "${"$"}TARGET_FILE/build"
+        cd "${"$"}TARGET_FILE/build"
         if cmake .. && make; then
-            EXECUTABLE=${'$'}(find . -maxdepth 1 -type f -executable | head -n 1)
-            if [ -n "${'$'}EXECUTABLE" ]; then
-                echo -e "\e[32;1m[✓]\e[37m Build successful! Running ${'$'}EXECUTABLE...\e[0m"
-                "${'$'}EXECUTABLE"
-            else
-                echo -e "\e[31;1m[✗]\e[37m No executable found after cmake build.\e[0m"
-            fi
+            OUTPUT_FILE=${"$"}(find . -maxdepth 1 -type f -executable | head -n 1)
+            [ -n "${"$"}OUTPUT_FILE" ] && run_code || echo -e "\e[31;1m[✗]\e[37m No executable found after cmake build.\e[0m"
         else
             echo -e "\e[31;1m[✗]\e[37m Build failed!\e[0m"
             exit 1
         fi
     else
-        echo "No Makefile or CMakeLists.txt found in ${'$'}TARGET_FILE"
+        echo "No Makefile or CMakeLists.txt found in ${"$"}TARGET_FILE"
         exit 1
     fi
 else
-    echo "File or directory not found: ${'$'}TARGET_FILE"
+    echo "File or directory not found: ${"$"}TARGET_FILE"
     exit 1
 fi
 
-
-    echo -e "\n\nProcess completed. Press Enter to go back to Xed-Editor."
+    #todo : throw a intent or something to go back
+    echo -e "\n\nProcess completed. Press Enter to go back"
     read
 """.trimIndent()
                 )

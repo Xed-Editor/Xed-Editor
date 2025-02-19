@@ -6,11 +6,13 @@ import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.libcommons.application
 import java.io.BufferedReader
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
+import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.util.Locale
 
@@ -40,6 +42,7 @@ class UriWrapper : FileObject {
         this.uri = file.uri.toString()
     }
 
+
     @Throws(IllegalArgumentException::class)
     constructor(uri: Uri) : this(
         when {
@@ -61,6 +64,18 @@ class UriWrapper : FileObject {
         file.parentFile?.let { UriWrapper(it) }
 
     override fun exists(): Boolean = file.exists()
+
+    fun isTermuxUri(): Boolean{
+        return getAbsolutePath().startsWith("content://com.termux.documents")
+    }
+
+    fun convertToTermuxFile(): File{
+        if (isTermuxUri().not()){
+            throw IllegalStateException("this uri is not a termux uri")
+        }
+        val prefix = "content://com.termux.documents/tree//data/data/com.termux/files/home/document/"
+        return File(URLDecoder.decode(toUri().toString(), "UTF-8").removePrefix(prefix))
+    }
 
     override fun createNewFile(): Boolean {
         if (exists()) return false

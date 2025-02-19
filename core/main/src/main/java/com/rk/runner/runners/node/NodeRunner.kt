@@ -15,14 +15,16 @@ import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class NodeRunner(val file:File) : RunnerImpl() {
+class NodeRunner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
     override fun run(context: Context) {
         val node = localBinDir().child("node")
         if (node.exists().not()) {
             node.writeText(context.assets.open("terminal/nodejs.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = Settings.terminal_runtime
+        val runtime = if (isTermuxFile){"Termux"}else{
+            Settings.terminal_runtime
+        }
         when(runtime){
             "Alpine","Android" -> {
                 launchInternalTerminal(
