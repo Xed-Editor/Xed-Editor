@@ -103,3 +103,6 @@ Translate Karbon! Visit [Weblate](https://hosted.weblate.org/engage/xed-editor/)
 ## Find this app useful? :heart:
 Support it by giving a star :star: <br>
 Also, **__[follow](https://github.com/Rohitkushvaha01)__** me for my next creations!
+
+## Support the Development
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/rohitkushvaha01)
