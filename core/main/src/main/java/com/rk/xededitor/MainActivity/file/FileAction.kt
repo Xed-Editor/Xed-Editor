@@ -295,6 +295,7 @@ class FileAction(
     private fun rename() {
 
         mainActivity.askInput(
+            title = strings.rename.getString(),
             input = file.getName(),
             hint = strings.file_name.getString(),
             onResult = { input ->

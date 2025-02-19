@@ -86,10 +86,7 @@ class MainActivity : BaseActivity() {
     val tabViewModel: TabViewModel by viewModels()
 
     class TabViewModelState(
-        val fragmentFiles: MutableList<FileObject>,
-        val fragmentTypes:  MutableList<FragmentType>,
-        val fragmentTitles:  MutableList<String>,
-        val fileSet: HashSet<String>
+        val fragmentFiles: MutableList<FileObject>
     ) : Serializable
 
     class TabViewModel : ViewModel() {
@@ -133,7 +130,12 @@ class MainActivity : BaseActivity() {
                 }.onFailure {
                     toast("State lost")
                 }.onSuccess {
-                    delay(1000)
+                    activityRef.get()?.let {
+                        if (it.binding == null || it.tabLayout == null){
+                            delay(100)
+                        }
+                    }
+
                     UI {
                         withContext {
                             if (fragmentFiles.isNotEmpty()) {
@@ -156,15 +158,9 @@ class MainActivity : BaseActivity() {
 
         private fun toState(): TabViewModelState {
             val files = fragmentFiles.filter { it !is UriWrapper }.toMutableList()
-            val types = files.map { it.getFragmentType() }.toMutableList()
-            val titles = files.map { it.getName() }.toMutableList()
-            val fileSet = files.map { it.getAbsolutePath() }.toHashSet()
 
             return TabViewModelState(
                 fragmentFiles = files,
-                fragmentTypes = types,
-                fragmentTitles = titles,
-                fileSet = fileSet
             )
         }
 
@@ -185,9 +181,8 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
-        binding = ActivityTabBinding.inflate(layoutInflater)
-
         tabViewModel.restore()
+        binding = ActivityTabBinding.inflate(layoutInflater)
 
         setContentView(binding!!.root)
         setSupportActionBar(binding!!.toolbar)
