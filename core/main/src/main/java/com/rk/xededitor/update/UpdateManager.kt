@@ -29,8 +29,6 @@ object UpdateManager {
                 deleteRecursively()
             }
         }
-
-        toast(strings.update_files_cleared)
     }
 
     fun inspect() = with(application!!){
@@ -40,11 +38,14 @@ object UpdateManager {
         if (lastVersionCode != currentVersionCode){
             //app is updated
             when(lastVersionCode){
-                40L -> {
+                -1L -> {
                     deleteCommonFiles()
                 }
+                40L -> {
+                    deleteCommonFiles()
+                    toast(strings.update_files_cleared)
+                }
                 else -> {
-                    toast(strings.suggest_clear_app_data)
                     deleteCommonFiles()
                 }
             }
