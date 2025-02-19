@@ -1,12 +1,12 @@
-### Setting Up **Karbon** with Termux
+### Setting Up **Xed-Editor** with Termux
 
-To enable **Karbon** to execute commands in the Termux environment, follow these steps carefully:
+To enable **Xed-Editor** to execute commands in the Termux environment, follow these steps carefully:
 
 ---
 
-#### Step 1: Grant Execute Permissions to **Karbon**
+#### Step 1: Grant Execute Permissions to **Xed-Editor**
 
-1. After installing Termux, you must grant **Karbon** the necessary permission to run commands in the Termux environment.  
+1. After installing Termux, you must grant **Xed-Editor** the necessary permission to run commands in the Termux environment.  
    To do this:  
 
    - Follow the instructions in the images below:
@@ -40,10 +40,10 @@ To enable **Karbon** to execute commands in the Termux environment, follow these
 
 ---
 
-#### Step 3: Configure Karbon Terminal
+#### Step 3: Configure Xed-Editor Terminal
 
-1. Open **Karbon** and navigate to:  
-   **Settings → Terminal** And disable **FAIL_SAFE** to use termux
+1. Open **Xed-Editor** and navigate to:  
+   **Settings → Terminal → Terminal Runtime** and select Termux to use termux
    
 3. If everything is set up correctly, the **Termux-Exec Switch** should now be active.
 
@@ -52,4 +52,4 @@ To enable **Karbon** to execute commands in the Termux environment, follow these
 #### Step 4: Grant "Display Over Other Apps" Permission
 
 Lastly, ensure that **Termux** has the **Display Over Other Apps** permission enabled.  
-This is essential for smooth integration with **Karbon**.
+This is essential for smooth integration with **Xed-Editor**.
