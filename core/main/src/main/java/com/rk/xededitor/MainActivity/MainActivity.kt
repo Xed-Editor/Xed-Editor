@@ -131,8 +131,8 @@ class MainActivity : BaseActivity() {
                     toast("State lost")
                 }.onSuccess {
                     activityRef.get()?.let {
-                        if (it.binding == null || it.tabLayout == null){
-                            delay(100)
+                        while(it.binding == null || it.tabLayout == null){
+                            delay(50)
                         }
                     }
 
@@ -148,6 +148,7 @@ class MainActivity : BaseActivity() {
                                 tab.text = tabViewModel.fragmentTitles[position]
                             }.attach()
 
+                            binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
 
                         }
                     }
