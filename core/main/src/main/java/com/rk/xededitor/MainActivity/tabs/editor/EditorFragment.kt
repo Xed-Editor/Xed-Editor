@@ -265,11 +265,11 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
             val isMutatorFile = file!!.getParentFile()
                 ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
-                .endsWith("&mut.js")
+                .endsWith(".mut")
 
             if (isMutatorFile) {
                 Mutators.getMutators().forEach { mut ->
-                    if (mut.name + "&mut.js" == file!!.getName()) {
+                    if (mut.name + ".mut" == file!!.getName()) {
                         mut.script = editor?.text.toString()
                         Mutators.saveMutator(mut)
                     }
@@ -315,7 +315,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
                 if (file?.getParentFile()
                         ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
-                        .endsWith("&mut.js")
+                        .endsWith(".mut")
                 ) {
                     file?.delete()
                 }
