@@ -354,4 +354,20 @@
     <string name="email">Courriel</string>
     <string name="info_mutators">Les mutateurs sont de petits scripts utilisés pour modifier l’éditeur de texte. Créez un mutateur et cliquez dessus pour l’ouvrir dans l’éditeur.</string>
     <string name="mutator_name">Nom du mutateur</string>
+    <string name="update_files_cleared">App mise à jour : données vidées</string>
+    <string name="file_err">Le fichier ne peut pas être enregistré, essayez de le fermer puis le rouvrir</string>
+    <string name="file_not_loaded">Le fichier n\'est pas encore chargé.</string>
+    <string name="file_not_exist">Le fichier n\'existe plus</string>
+    <string name="soft_keyboard_always">Toujours afficher le clavier</string>
+    <string name="soft_keyboard_always_desc">Affiche le clavier virtuel même si un clavier matériel est connecté</string>
+    <string name="experimental_feature">Fonctionnalité expérimentale</string>
+    <string name="experimental_session_restore_warning">Cettz fonctionnalité est expérimentale et susceptible de provoquer des pertes de données</string>
+    <string name="err_no_termux">Termux n\'est pas installé</string>
+    <string name="err_termux_incompatible">Termux n\'est pas compatible</string>
+    <string name="warning_private_dir">Le contenu de ce dossier sera supprimé si vous videz mes données ou désinstallez Xed-editor</string>
+    <string name="highlighting">Coloration syntaxique</string>
+    <string name="unrestricted_file">Ouvrir des fichiers de toute taille</string>
+    <string name="unrestricted_file_desc">Autorise l\'ouverture de fichiers de toute taille. Peut provoquer des plantges</string>
+    <string name="suggest_clear_app_data">Il est recommandé de vider le cache</string>
+    <string name="toggle_ww">Retour automatique à la ligne</string>
 </resources>
