@@ -144,14 +144,13 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                     
                     (viewPager?.adapter as? TabAdapter)?.apply { notifyItemRemovedX(position) }
                     if (tabViewModel.fragmentFiles.isEmpty()) {
-                        binding!!.tabs.visibility = View.GONE
-                        binding!!.mainView.visibility = View.GONE
-                        binding!!.openBtn.visibility = View.VISIBLE
+                        binding?.tabs?.visibility = View.GONE
+                        binding?.mainView?.visibility = View.GONE
+                        binding?.openBtn?.visibility = View.VISIBLE
                     }
                 }
-                
-                
-                tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]!!.get()?.fragment?.let {
+
+                tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[position])]?.get()?.fragment?.let {
                     if (askUser && it is EditorFragment && it.isModified()) {
                         askClose(
                             title = strings.unsaved.getString(),
