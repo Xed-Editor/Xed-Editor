@@ -1,0 +1,17 @@
+Xed-Editor v2.9.6 (41)
+
+- improved uri support
+- code refactored
+- fixed syntax highlighting issue
+- fixed runners and mutators not working issue
+- fixed file sharing
+- improved auto completion for some lauages
+- fixed terminal home issue
+- added developer options (only accessable in debug mode)
+- fixed minor bugs report in version 2.9.5
+- fixed uri file saving glitch where lines getting dublicated in uri
+- enable session restore by default
+- restriced private files directory to debug mode only
+- added warning message for terminal home
+- fixed apk not found error
+- added runner for c/c++ files
