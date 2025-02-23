@@ -23,10 +23,11 @@ class UriWrapper : FileObject {
     var file: DocumentFile
         get() {
             if (_file == null) {
-                _file = when {
-                    uri.contains("tree/") -> DocumentFile.fromTreeUri(application!!, Uri.parse(uri))
-                    else -> DocumentFile.fromSingleUri(application!!, Uri.parse(uri))
-                } ?: throw IllegalArgumentException("Invalid Uri or missing permission: $uri")
+                _file = if (DocumentFile.isDocumentUri(application!!, Uri.parse(uri))){
+                    DocumentFile.fromSingleUri(application!!, Uri.parse(uri))
+                }else{
+                    DocumentFile.fromTreeUri(application!!, Uri.parse(uri))
+                }
             }
             return _file!!
         }
