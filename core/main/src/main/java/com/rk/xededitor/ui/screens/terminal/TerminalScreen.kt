@@ -10,17 +10,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -132,16 +135,42 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                 items(it){ session_id ->
                                     SelectableCard(
                                         selected = session_id == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
-                                        onSelect = { changeSession(terminalActivity,session_id) },
+                                        onSelect = { changeSession(terminalActivity, session_id) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
                                     ) {
-                                        Text(
-                                            text = session_id,
-                                            style = MaterialTheme.typography.bodyLarge
-                                        )
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = session_id,
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+
+                                            if (session_id != terminalActivity.sessionBinder?.getService()?.currentSession?.value){
+                                                Spacer(modifier = Modifier.weight(1f))
+
+                                                IconButton(
+                                                    onClick = {
+                                                        println(session_id)
+                                                        terminalActivity.sessionBinder?.terminateSession(session_id)
+                                                    },
+                                                    modifier = Modifier.size(24.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Outlined.Delete,
+                                                        contentDescription = null,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+
+                                        }
                                     }
+
+
                                 }
                             }
                         }
