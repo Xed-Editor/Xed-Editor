@@ -64,29 +64,15 @@ fi
 
 TARGET_FILE=${file.absolutePath}
 
-# Determine linker
-if [ -f "/system/bin/linker64" ]; then
-    LINKER="/system/bin/linker64"
-else
-    LINKER="/system/bin/linker"
-fi
-
 run_code() {
     echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
     chmod +x "${"$"}OUTPUT_FILE"
     if [ -x "$file" ]; then
         "${"$"}OUTPUT_FILE"
     else
-        case "${"$"}OUTPUT_FILE" in
-            /sdcard/*|/storage/*)
-                mv "${"$"}OUTPUT_FILE" ~/xed-tmp-file
-                chmod +x ~/xed-tmp-file
-                ~/xed-tmp-file
-                ;;
-            *)
-                ${"$"}LINKER ${"$"}OUTPUT_FILE
-                ;;
-        esac
+        mv "${"$"}OUTPUT_FILE" ${"$"}PREFIX/tmp/a.out
+        chmod +x ${"$"}PREFIX/tmp/a.out
+        ${"$"}PREFIX/tmp/a.out
     fi
 }
 

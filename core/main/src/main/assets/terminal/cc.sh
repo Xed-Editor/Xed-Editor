@@ -26,16 +26,9 @@ run_code(){
         if [ -x "$TARGET_FILE" ]; then
             "$OUTPUT_FILE"
         else
-            case "$OUTPUT_FILE" in
-                /sdcard/*|/storage/*)
-                    mv "$OUTPUT_FILE" ~/xed-tmp-file
-                    chmod +x ~/xed-tmp-file
-                    ~/xed-tmp-file
-                    ;;
-                *)
-                    $LINKER $OUTPUT_FILE
-                    ;;
-            esac
+            mv "$OUTPUT_FILE" /tmp/a.out
+            chmod +x /tmp/a.out
+            /tmp/a.out
         fi
 }
 
