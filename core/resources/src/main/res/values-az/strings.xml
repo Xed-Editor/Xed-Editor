@@ -55,4 +55,21 @@
     <string name="inavalid_userdata">İstifadəçi məlumatları doğru deyil. Onları parametrlərdən dəyişdirin</string>
     <string name="userdatagit">Git üçün istifadəçi məlumatları</string>
     <string name="cred">Şəxsiyyəti təsdiq edən məlumatlar</string>
+    <string name="ok">OLDU</string>
+    <string name="data_clear">Tətbiq məlumatları silindi</string>
+    <string name="err">Xəta</string>
+    <string name="done">Uğurlu</string>
+    <string name="permission_denied">Icazə rədd edildi</string>
+    <string name="wait_download">Zəhmət olmasa, fayllar yüklənərkən gözləyin.</string>
+    <string name="fill_both">Zəhmət olmasa, hər iki boşluğu doldurun</string>
+    <string name="nogit">Xəta: .git qovluğu tapılmadı</string>
+    <string name="manage_storage">Yaddaşı İdarə Et</string>
+    <string name="manage_storage_reason">Karbon-un yaddaşdakı fayllara düzəliş etməsi üçün icazə lazımdır. Zəhmət olmasa, bir sonrakı sistem parametrində girişə icazə verin.</string>
+    <string name="action_done">Proses Tamamlandı</string>
+    <string name="exists">artıq mövcuddur!</string>
+    <string name="private_files">Şəxsi Fayllar</string>
+    <string name="private_files_desc">Karbon-un Şəxsi Faylları</string>
+    <string name="open_path">Daxili Yaddaş</string>
+    <string name="open_path_desc">Daxili yaddaşı aç</string>
+    <string name="open_file_desc">Birbaşa düzəliş etmək üçün faylı seçin</string>
 </resources>
