@@ -160,20 +160,6 @@ class KarbonEditor : CodeEditor {
         return inputType != InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
     }
 
-    suspend fun saveToFile(outputStream: OutputStream, encoding: Charset) =
-        withContext(Dispatchers.Main) {
-            try {
-                val content = withContext(Dispatchers.Main) {
-                    text
-                }
-                withContext(Dispatchers.IO) {
-                    ContentIO.writeTo(content, outputStream, encoding, true)
-                }
-            } catch (e: Exception) {
-                toast(e)
-            }
-        }
-
     private var isSearching: Boolean = false
 
     fun isSearching(): Boolean {

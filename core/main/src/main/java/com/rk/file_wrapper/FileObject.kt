@@ -33,5 +33,6 @@ interface FileObject : Serializable {
     fun getChildForName(name: String):FileObject
     fun readText():String?
     fun readText(charset:Charset):String?
+    suspend fun writeText(content:String,charset:Charset): Boolean
     fun isSymlink():Boolean
 }
