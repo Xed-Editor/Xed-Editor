@@ -3,6 +3,13 @@ package com.rk.xededitor.ui.screens.settings.developer_options
 import android.app.Activity
 import android.app.ActivityManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
@@ -10,13 +17,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.toast
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.delay
@@ -54,10 +68,9 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
                         setMessage("Force Crash the app? app may freeze")
                         setNegativeButton(strings.cancel,null)
                         setPositiveButton(strings.ok){ _,_ ->
-                            scope.launch {
-                                delay(100)
+                            Thread{
                                 throw RuntimeException("Force Crash")
-                            }
+                            }.start()
                         }
                         show()
                     }
@@ -75,6 +88,27 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
             )
 
             SettingsToggle(
+                label = stringResource(strings.manage_storage),
+                description = stringResource(strings.manage_storage),
+                isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null)
+                },
+                sideEffect = {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
+                        val intent = Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        intent.data = Uri.parse("package:${context.packageName}")
+                        context.startActivity(intent)
+                    }
+                }
+            )
+
+            SettingsToggle(
                 label = "Debugger",
                 description = "Beanshell",
                 showSwitch = false,
@@ -83,11 +117,12 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
                     if (BuildConfig.DEBUG){
                         navController.navigate(SettingsRoutes.BeanshellREPL.route)
                     }else{
-                        toast("Debugger is not allowed on release builds for user safety reasons")
+                        toast("Debugger is not allowed on release builds for safety reasons")
                     }
-
                 }
             )
+
+
         }
     }
 

@@ -1,19 +1,6 @@
 ARGS="--kill-on-exit"
 ARGS="$ARGS -w $PWD"
 
-for data_dir in /data/app /data/dalvik-cache \
- /data/misc/apexdata/com.android.art/dalvik-cache; do
-  if [ "$data_dir" = "$PREFIX" ] && [ "$DEBUG" != "true" ]; then
-      continue
-    fi
-
-  if [ -e "$data_dir" ]; then
-    ARGS="$ARGS -b ${data_dir}"
-  fi
-done
-
-unset data_dir
-
 for system_mnt in /apex /odm /product /system /system_ext /vendor \
  /linkerconfig/ld.config.txt \
  /linkerconfig/com.android.art/ld.config.txt \
@@ -29,8 +16,10 @@ unset system_mnt
 ARGS="$ARGS -b /sdcard"
 ARGS="$ARGS -b /storage"
 ARGS="$ARGS -b /dev"
+ARGS="$ARGS -B /data"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
+ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b $PREFIX/local/stat:/proc/stat"
 ARGS="$ARGS -b $PREFIX/local/vmstat:/proc/vmstat"
 
