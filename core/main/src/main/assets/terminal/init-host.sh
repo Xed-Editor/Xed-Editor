@@ -55,4 +55,4 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-$LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+$PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
