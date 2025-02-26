@@ -325,13 +325,9 @@ class MainActivity : BaseActivity() {
             }else{
                 UriWrapper(uri)
             }
-            if (fileObject.isFile().not()){
-                fileObject = UriWrapper(uri)
-                return
-            }
             adapter?.addFragment(fileObject)
+             setIntent(Intent())
         }
-        setIntent(Intent())
     }
 
     override fun onNewIntent(intent: Intent) {
