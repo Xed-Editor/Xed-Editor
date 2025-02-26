@@ -320,13 +320,13 @@ class MainActivity : BaseActivity() {
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
             val file = File(uri!!.toPath())
-            var fileObject = if (file.exists() && file.canRead()){
+            var fileObject = if (file.exists() && file.canRead() && file.isFile){
                 FileWrapper(file)
             }else{
                 UriWrapper(uri)
             }
             adapter?.addFragment(fileObject)
-             setIntent(Intent())
+            setIntent(Intent())
         }
     }
 
