@@ -126,15 +126,12 @@ class UriWrapper : FileObject {
 
     @Throws(FileNotFoundException::class, SecurityException::class)
     override fun getInputStream(): InputStream {
-        runCatching { application!!.grantUriPermission(application!!.packageName, file.uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
         return application!!.contentResolver?.openInputStream(file.uri)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
-        runCatching { application!!.contentResolver.takePersistableUriPermission(file.uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }.onFailure { toast(it) }
-        runCatching { application!!.grantUriPermission(application!!.packageName, file.uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }.onFailure { toast(it) }
-        val mode = if (append) "wa" else "wt"
+         val mode = if (append) "wa" else "wt"
         return application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
