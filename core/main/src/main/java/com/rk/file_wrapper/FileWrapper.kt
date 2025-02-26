@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -25,6 +27,19 @@ class FileWrapper(var file: File) : FileObject {
 
     override fun isDirectory(): Boolean {
         return file.isDirectory
+    }
+
+    override suspend fun writeText(
+        content: String,
+        charset: Charset
+    ): Boolean {
+        withContext(Dispatchers.IO){
+            getOutPutStream(false).use {
+                it.write(content.toByteArray(charset))
+            }
+        }
+
+        return true
     }
 
     override fun isFile(): Boolean {

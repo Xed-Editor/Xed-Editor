@@ -1,10 +1,15 @@
 package com.rk.file_wrapper
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.libcommons.application
+import com.rk.libcommons.toast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileNotFoundException
@@ -23,10 +28,11 @@ class UriWrapper : FileObject {
     var file: DocumentFile
         get() {
             if (_file == null) {
-                _file = if (DocumentFile.isDocumentUri(application!!, Uri.parse(uri))){
-                    DocumentFile.fromSingleUri(application!!, Uri.parse(uri))
-                }else{
+
+                _file = if (DocumentsContract.isTreeUri(Uri.parse(uri))){
                     DocumentFile.fromTreeUri(application!!, Uri.parse(uri))
+                }else{
+                    DocumentFile.fromSingleUri(application!!, Uri.parse(uri))
                 }
             }
             return _file!!
@@ -82,9 +88,6 @@ class UriWrapper : FileObject {
         if (exists()) return false
 
         val parent = file.parentFile ?: throw IOException("Parent directory doesn't exist")
-        if (!parent.canWrite()) {
-            throw SecurityException("No write permission for parent directory: ${parent.uri}")
-        }
 
         return parent.createFile(
             file.type ?: "application/octet-stream", file.name ?: "unnamed"
@@ -96,9 +99,6 @@ class UriWrapper : FileObject {
         if (exists()) return false
 
         val parent = file.parentFile ?: throw IOException("Parent directory doesn't exist")
-        if (!parent.canWrite()) {
-            throw SecurityException("No write permission for parent directory: ${parent.uri}")
-        }
 
         return parent.createDirectory(file.name ?: "unnamed") != null
     }
@@ -114,10 +114,6 @@ class UriWrapper : FileObject {
     }
 
     override fun writeText(text: String) {
-        if (!file.canWrite()) {
-            throw SecurityException("No write permission for file: ${file.uri}")
-        }
-
         getOutPutStream(false).use { outputStream ->
             try {
                 outputStream.write(text.toByteArray())
@@ -130,11 +126,14 @@ class UriWrapper : FileObject {
 
     @Throws(FileNotFoundException::class, SecurityException::class)
     override fun getInputStream(): InputStream {
+        runCatching { application!!.grantUriPermission(application!!.packageName, file.uri, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
         return application!!.contentResolver?.openInputStream(file.uri)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
+        runCatching { application!!.contentResolver.takePersistableUriPermission(file.uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }.onFailure { toast(it) }
+        runCatching { application!!.grantUriPermission(application!!.packageName, file.uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }.onFailure { toast(it) }
         val mode = if (append) "wa" else "wt"
         return application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
@@ -235,6 +234,19 @@ class UriWrapper : FileObject {
                 reader.readText()
             }
         }
+    }
+
+    override suspend fun writeText(
+        content: String,
+        charset: Charset
+    ): Boolean {
+        withContext(Dispatchers.IO){
+            getOutPutStream(false).use {
+                it.write(content.toByteArray(charset))
+                it.flush()
+            }
+        }
+        return true
     }
 
     override fun isSymlink(): Boolean {

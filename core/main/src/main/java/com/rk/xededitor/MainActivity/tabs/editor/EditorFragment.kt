@@ -235,14 +235,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             return
         }
 
-        if (file!!.canWrite().not()) {
-            if (isAutoSaver) {
-                return
-            }
-            toast(strings.permission_denied)
-            return
-        }
-
         if (isFileLoaded.not()) {
             if (isAutoSaver) {
                 return
@@ -260,8 +252,19 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
 
         GlobalScope.safeLaunch(Dispatchers.IO) {
-            val charset = Settings.encoding
-            editor?.saveToFile(file!!.getOutPutStream(false), Charset.forName(charset))
+
+            toastCatching {
+                val charset = Settings.encoding
+                file!!.writeText(editor?.text.toString(),charset = Charset.forName(charset))
+            }?.let{
+                if (it is SecurityException){
+                    toast(strings.read_only_file)
+                    return@safeLaunch
+                }else{
+                    it.printStackTrace()
+                }
+            }
+
 
             val isMutatorFile = file!!.getParentFile()
                 ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()

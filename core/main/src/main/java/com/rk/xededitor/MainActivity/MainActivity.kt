@@ -26,8 +26,10 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.UI
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
@@ -317,11 +319,16 @@ class MainActivity : BaseActivity() {
     private fun openTabForIntent(intent: Intent){
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
-            if (uri == null){
-                toast("No data provided")
+            val file = File(uri!!.toPath())
+            var fileObject = if (file.exists() && file.canRead()){
+                FileWrapper(file)
+            }else{
+                UriWrapper(uri)
+            }
+            if (fileObject.isFile().not()){
+                fileObject = UriWrapper(uri)
                 return
             }
-            val fileObject = UriWrapper(uri)
             adapter?.addFragment(fileObject)
         }
         setIntent(Intent())
