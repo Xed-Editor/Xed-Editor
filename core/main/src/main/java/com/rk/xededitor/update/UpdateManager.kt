@@ -11,8 +11,6 @@ import com.rk.settings.Settings
 
 object UpdateManager {
     private fun deleteCommonFiles() = with(application!!){
-        Preference.clearData()
-
         cacheDir.apply {
             if(exists()){
                 deleteRecursively()
@@ -42,6 +40,7 @@ object UpdateManager {
                     deleteCommonFiles()
                 }
                 40L -> {
+                    Preference.clearData()
                     deleteCommonFiles()
                     toast(strings.update_files_cleared)
                 }
