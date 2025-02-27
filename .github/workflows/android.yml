@@ -1,4 +1,5 @@
 name: Android CI
+
 on:
   push:
     branches:
@@ -78,7 +79,6 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
             https://api.github.com/repos/Xed-Editor/Xed-Editor-Sdk/dispatches
-      
 
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
@@ -91,3 +91,25 @@ jobs:
           -F message_thread_id="582" \
           -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
           -F document=@"app/karbon-${{ env.COMMIT_HASH }}.apk"
+
+      - name: Check Commit Message and Create Pre-Release
+        if: startsWith(github.event.head_commit.message, 'release')
+        run: |
+          TAG_NAME="v$(date +'%Y.%m.%d')-${{ env.COMMIT_HASH }}"
+          RELEASE_NAME="Pre-Release $TAG_NAME"
+          UPLOAD_URL=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"Automated pre-release for commit: ${{ github.event.head_commit.message }}\",\"draft\":false,\"prerelease\":true}" \
+            https://api.github.com/repos/${{ github.repository }}/releases | jq -r .upload_url | sed 's/{?name,label}//')
+
+          if [[ -z "$UPLOAD_URL" || "$UPLOAD_URL" == "null" ]]; then
+            echo "Error: Failed to create release."
+            exit 1
+          fi
+
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/vnd.android.package-archive" \
+            --data-binary @app/karbon-${{ env.COMMIT_HASH }}.apk \
+            "$UPLOAD_URL?name=karbon-${{ env.COMMIT_HASH }}.apk"

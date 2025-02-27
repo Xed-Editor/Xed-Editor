@@ -20,6 +20,7 @@ ARGS="$ARGS -B /data"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
 ARGS="$ARGS -b $PREFIX"
+ARGS="$ARGS -b /data/data/com.rk.xededitor:$PREFIX"
 ARGS="$ARGS -b $PREFIX/local/stat:/proc/stat"
 ARGS="$ARGS -b $PREFIX/local/vmstat:/proc/vmstat"
 
