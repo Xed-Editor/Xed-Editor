@@ -73,6 +73,8 @@ android {
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
+
+        //needed for running proot
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
 
