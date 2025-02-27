@@ -73,5 +73,6 @@ class HtmlRunner(val file:FileObject) : RunnerImpl() {
         if (isRunning()){
             httpServer?.stop()
         }
+        println("closed")
     }
 }

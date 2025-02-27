@@ -72,6 +72,6 @@ class ShellRunner(val file: File,val isTermuxFile: Boolean = false) : RunnerImpl
     }
 
     override fun stop() {
-        TODO("Not yet implemented")
+
     }
 }

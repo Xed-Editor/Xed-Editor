@@ -1,6 +1,7 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
 import androidx.annotation.DrawableRes
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -30,8 +31,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.libcommons.dpToPx
 import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.NextScreenCard
+import com.rk.xededitor.ui.components.ValueSlider
+import com.rk.xededitor.ui.screens.terminal.terminalView
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {

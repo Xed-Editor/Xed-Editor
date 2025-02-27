@@ -40,6 +40,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.mutator_engine.Engine
+import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
@@ -376,6 +377,7 @@ class MainActivity : BaseActivity() {
         ProjectManager.processQueue(this)
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
+        lifecycleScope.launch{ Runner.onMainActivityResumed() }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

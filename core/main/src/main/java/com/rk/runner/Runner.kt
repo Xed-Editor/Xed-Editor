@@ -24,6 +24,7 @@ import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.lang.ref.WeakReference
 
 
 abstract class RunnerImpl{
@@ -34,6 +35,8 @@ abstract class RunnerImpl{
     abstract fun isRunning(): Boolean
     abstract fun stop()
 }
+
+var currentRunner = WeakReference<RunnerImpl?>(null)
 
 object Runner {
     private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash","c","cpp")
@@ -125,6 +128,7 @@ object Runner {
 
                 if (runners.size == 1) {
                     withContext(Dispatchers.IO){
+                        currentRunner = WeakReference(runners[0])
                         toastCatching { runners[0].run(context) }
                     }
                 } else {
@@ -132,7 +136,9 @@ object Runner {
                         showRunnerSelectionDialog(context, runners) { selectedRunner ->
                             Thread {
                                 toastCatching {
+                                    currentRunner = WeakReference(selectedRunner)
                                     selectedRunner.run(context)
+
                                 }
                             }.start()
                         }
@@ -162,5 +168,9 @@ object Runner {
                 .show()
 
         recyclerView.adapter = RunnerAdapter(runners, dialog, onRunnerSelected)
+    }
+
+    suspend fun onMainActivityResumed(){
+        currentRunner.get()?.stop()
     }
 }

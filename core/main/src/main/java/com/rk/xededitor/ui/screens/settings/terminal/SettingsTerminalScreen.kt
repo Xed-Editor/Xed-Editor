@@ -46,6 +46,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.libcommons.dpToPx
+import com.rk.xededitor.ui.components.ValueSlider
 import com.rk.xededitor.ui.screens.terminal.terminalView
 
 private const val min_text_size = 10f
@@ -131,24 +132,19 @@ fun SettingsTerminalScreen(navController: NavController) {
                 TerminalRuntime(modifier = Modifier,showDayBottomSheet, LocalContext.current)
             }
         }
-        var sliderPosition by remember { mutableFloatStateOf(Settings.terminal_font_size.toFloat()) }
-        PreferenceGroup {
-            PreferenceTemplate(title = {Text("Text Size")}){
-                Text(sliderPosition.toInt().toString())
+
+        ValueSlider(
+            label = {
+                Text(stringResource(strings.text_size))
+            },
+            min = 10,
+            max = 20,
+            onValueChanged = {
+                Settings.terminal_font_size = it
+                terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
             }
-            PreferenceTemplate(title = {}){
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = {
-                        sliderPosition = it
-                        Settings.terminal_font_size = it.toInt()
-                        terminalView.get()?.setTextSize(dpToPx(it.toFloat(),context))
-                    },
-                    steps = (max_text_size-min_text_size).toInt() -1 ,
-                    valueRange = min_text_size..max_text_size,
-                )
-            }
-        }
+        )
+
     }
 }
 
