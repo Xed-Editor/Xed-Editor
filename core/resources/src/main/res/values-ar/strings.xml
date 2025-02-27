@@ -370,4 +370,5 @@
     <string name="unrestricted_file_desc">السماح بفتح الملفات بأي حجم. قد يؤدي ذلك إلى حدوث أعطال</string>
     <string name="suggest_clear_app_data">يوصى بمسح بيانات التطبيق</string>
     <string name="toggle_ww">تبديل التفاف الكلمات</string>
+    <string name="read_only_file">يتم قراءة الملف فقط</string>
 </resources>
