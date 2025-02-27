@@ -16,6 +16,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Fetch last commit to compare versionCode
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -36,6 +38,25 @@ jobs:
       - name: Set Commit Hash
         id: commit_hash
         run: echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Extract Current versionCode
+        id: version_code
+        run: echo "VERSION_CODE=$(grep -oP 'versionCode\s*=\s*\K\d+' app/build.gradle.kts)" >> $GITHUB_ENV
+
+      - name: Extract Previous versionCode
+        id: prev_version_code
+        run: echo "PREV_VERSION_CODE=$(git show HEAD~1:app/build.gradle.kts | grep -oP 'versionCode\s*=\s*\K\d+' || echo 0)" >> $GITHUB_ENV
+
+      - name: Compare Version Codes
+        id: check_version_change
+        run: |
+          echo "Current versionCode: $VERSION_CODE"
+          echo "Previous versionCode: $PREV_VERSION_CODE"
+          if [ "$VERSION_CODE" -gt "$PREV_VERSION_CODE" ]; then
+            echo "VERSION_CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "VERSION_CHANGED=false" >> $GITHUB_ENV
+          fi
 
       - name: Build with Gradle
         run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/karbon-${{ env.COMMIT_HASH }}.apk
@@ -93,7 +114,7 @@ jobs:
           -F document=@"app/karbon-${{ env.COMMIT_HASH }}.apk"
 
       - name: Check Commit Message and Create Pre-Release
-        if: startsWith(github.event.head_commit.message, 'release')
+        if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
         run: |
           TAG_NAME="v$(date +'%Y.%m.%d')-${{ env.COMMIT_HASH }}"
           RELEASE_NAME="Pre-Release $TAG_NAME"
