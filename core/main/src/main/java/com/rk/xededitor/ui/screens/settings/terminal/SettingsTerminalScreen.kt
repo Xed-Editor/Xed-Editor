@@ -14,11 +14,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,7 +45,11 @@ import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.libcommons.dpToPx
+import com.rk.xededitor.ui.screens.terminal.terminalView
 
+private const val min_text_size = 10f
+private const val max_text_size = 20f
 
 @Composable
 fun SettingsTerminalScreen(navController: NavController) {
@@ -123,6 +129,24 @@ fun SettingsTerminalScreen(navController: NavController) {
 
             if (showDayBottomSheet.value){
                 TerminalRuntime(modifier = Modifier,showDayBottomSheet, LocalContext.current)
+            }
+        }
+        var sliderPosition by remember { mutableFloatStateOf(Settings.terminal_font_size.toFloat()) }
+        PreferenceGroup {
+            PreferenceTemplate(title = {Text("Text Size")}){
+                Text(sliderPosition.toInt().toString())
+            }
+            PreferenceTemplate(title = {}){
+                Slider(
+                    value = sliderPosition,
+                    onValueChange = {
+                        sliderPosition = it
+                        Settings.terminal_font_size = it.toInt()
+                        terminalView.get()?.setTextSize(dpToPx(it.toFloat(),context))
+                    },
+                    steps = (max_text_size-min_text_size).toInt() -1 ,
+                    valueRange = min_text_size..max_text_size,
+                )
             }
         }
     }

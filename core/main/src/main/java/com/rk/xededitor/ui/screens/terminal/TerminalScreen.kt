@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.View
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,6 +52,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.service.SessionService
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysConstants
@@ -79,6 +81,12 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         val configuration = LocalConfiguration.current
         val screenWidthDp = configuration.screenWidthDp
         val drawerWidth = (screenWidthDp * 0.84).dp
+
+        BackHandler(enabled = drawerState.isOpen) {
+            scope.launch{
+                drawerState.close()
+            }
+        }
 
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -196,7 +204,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             factory = { context ->
                                 TerminalView(context, null).apply {
                                     terminalView = WeakReference(this)
-                                    setTextSize(dpToPx(14f, context))
+                                    setTextSize(dpToPx(Settings.terminal_font_size.toFloat(), context))
                                     val client = TerminalBackEnd(this, terminalActivity)
 
                                     val session = if (pendingCommand != null){

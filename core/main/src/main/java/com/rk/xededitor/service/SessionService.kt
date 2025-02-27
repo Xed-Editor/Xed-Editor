@@ -33,7 +33,11 @@ class SessionService : Service() {
             return sessions[id]
         }
         fun terminateSession(id: String) {
-            sessions[id]?.finishIfRunning()
+            sessions[id]?.apply {
+                if (emulator != null){
+                    sessions[id]?.finishIfRunning()
+                }
+            }
             sessions.remove(id)
             sessionList.remove(id)
             if (sessions.isEmpty()) {
