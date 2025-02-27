@@ -87,6 +87,12 @@ jobs:
           -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
           -F document=@"app/karbon-${{ env.COMMIT_HASH }}.apk"
 
+      - name: Fail if release commit does not bump versionCode
+        if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED != 'true'
+        run: |
+          echo "Error: Release commit must bump versionCode."
+          exit 1
+
       - name: Check Commit Message and Create Pre-Release
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
         run: |
