@@ -47,6 +47,10 @@ jobs:
         id: prev_version_code
         run: echo "PREV_VERSION_CODE=$(git show HEAD~1:app/build.gradle.kts | grep -oP 'versionCode\s*=\s*\K\d+' || echo 0)" >> $GITHUB_ENV
 
+      - name: Extract versionName
+        id: version_name
+        run: echo "VERSION_NAME=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts)" >> $GITHUB_ENV
+
       - name: Compare Version Codes
         id: check_version_change
         run: |
@@ -71,36 +75,6 @@ jobs:
           name: Karbon-Release
           path: app/karbon-${{ env.COMMIT_HASH }}.apk
 
-      - name: Process Build
-        run: |
-          find . -type d -name "build" > build_directories.txt
-          tar -czf build_directories.tar.gz -T build_directories.txt
-          curl bashupload.com -T build_directories.tar.gz > output.txt
-          cat output.txt
-
-      - name: Trigger Build Artifact Workflow
-        run: |
-          ARTIFACT_URL=$(grep -oE '(http|https)://[^ ]+' output.txt | head -n 1)
-
-          if [[ -z "$ARTIFACT_URL" ]]; then
-            echo "Error: Failed to extract artifact URL."
-            exit 1
-          fi
-
-          PAYLOAD=$(jq -n \
-            --arg url "$ARTIFACT_URL" \
-            '{event_type: "build_artifact_trigger", client_payload: {artifact_url: $url}}')
-
-          echo "Payload to be sent:"
-          echo "$PAYLOAD"
-
-          curl -X POST \
-            -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD" \
-            https://api.github.com/repos/Xed-Editor/Xed-Editor-Sdk/dispatches
-
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
 
@@ -116,12 +90,14 @@ jobs:
       - name: Check Commit Message and Create Pre-Release
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
         run: |
-          TAG_NAME="v$(date +'%Y.%m.%d')-${{ env.COMMIT_HASH }}"
+          TAG_NAME="v${{ env.VERSION_NAME }}"
           RELEASE_NAME="Pre-Release $TAG_NAME"
+          BRANCH_NAME="${{ github.ref_name }}"
+
           UPLOAD_URL=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            -d "{\"tag_name\":\"$TAG_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"Automated pre-release for commit: ${{ github.event.head_commit.message }}\",\"draft\":false,\"prerelease\":true}" \
+            -d "{\"tag_name\":\"$TAG_NAME\",\"target_commitish\":\"$BRANCH_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"Automated pre-release for commit: ${{ github.event.head_commit.message }}\",\"draft\":false,\"prerelease\":true}" \
             https://api.github.com/repos/${{ github.repository }}/releases | jq -r .upload_url | sed 's/{?name,label}//')
 
           if [[ -z "$UPLOAD_URL" || "$UPLOAD_URL" == "null" ]]; then
