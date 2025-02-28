@@ -74,7 +74,7 @@
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
     <string name="terminal">Terminal</string>
-    <string name="add_file">Add File</string>
+    <string name="add_file">Add External File</string>
     <string name="keyword_regex">keyword (Regex)</string>
     <string name="replaceall">ReplaceAll</string>
     <string name="add_new_replacement_batch">Add new replacement batch</string>
@@ -109,15 +109,15 @@
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
     <string name="reload_file_tree">Reload File File</string>
     <string name="close_current_project">Close current project</string>
-    <string name="rename_descript">Rename the selected file/folder</string>
+    <string name="rename_descript">Rename the document</string>
     <string name="open_with_other">Open selected file in other apps</string>
-    <string name="delete_descript">Delete selected file/folder</string>
+    <string name="delete_descript">Delete document</string>
     <string name="add_file_desc">Select a new file to be added here</string>
     <string name="create_new_file_desc">Create a new file under selected folder</string>
-    <string name="paste_desc">Paste selected file/folder</string>
+    <string name="paste_desc">Paste document</string>
     <string name="clipboard_empty">File Clipboard is empty</string>
     <string name="save_desc">Save the selected file somewhere else</string>
-    <string name="copy_desc">Copy selected file/folder</string>
+    <string name="copy_desc">Copy document</string>
     <string name="failed_move">Failed to move file</string>
     <string name="file_name">File name</string>
     <string name="ff_path">File or folder path</string>
@@ -139,7 +139,7 @@
     <string name="pushing">Pushing to remote repository…</string>
     <string name="nogit">Error: .git folder not found</string>
     <string name="manage_storage">Manage Storage</string>
-    <string name="manage_storage_reason">Karbon needs access to edit files in your storage. Please allow the access in the upcoming system setting.</string>
+    <string name="manage_storage_reason">Xed-Editor needs access to edit files in your storage. Please allow the access in the upcoming system setting.</string>
     <string name="ok">OK</string>
     <string name="data_clear">App data is cleared</string>
     <string name="action_done">Action Completed</string>
@@ -147,11 +147,11 @@
     <string name="exists">already exists!</string>
     <string name="plugin_dir">Plugins Directory</string>
     <string name="private_files">Private Files</string>
-    <string name="private_files_desc">Private Files of Karbon</string>
+    <string name="private_files_desc">Private Files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>
     <string name="clone_err">Repository is private. or Check your credentials</string>
     <string name="err">Error</string>
-    <string name="open_dir_desc">Choose a directory as a project</string>
+    <string name="open_dir_desc">Open a directory using SAF</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
     <string name="open_path">Internal Storage</string>
     <string name="open_path_desc">Open internal storage</string>
@@ -262,7 +262,7 @@
     <string name="show_suggestions">Show Suggestions</string>
     
     <string name="about">About</string>
-    <string name="about_desc">About Karbon</string>
+    <string name="about_desc">About Xed-Editor</string>
     <string name="version">Version</string>
     <string name="version_code">Version Code</string>
     <string name="github">GitHub</string>
@@ -330,7 +330,7 @@
     <string name="update_disable">Update check disabled</string>
 
     <string name="launch_termux">Launch Termux?</string>
-    <string name="launch_termux_explanation">Termux is stopped so karbon is unable to run command in it. do you like to start it?</string>
+    <string name="launch_termux_explanation">Termux is stopped so xed-editor is unable to run command in it. do you like to start it?</string>
     <string name="launch">Launch</string>
 
     <string name="mutator_desc">Create micro tools</string>
@@ -411,5 +411,11 @@
 
     <string name="warning_private_dir">Content of this directory will get deleted if you clear data or delete Xed-Editor</string>
     <string name="read_only_file">File is read only</string>
+
+    <string name="new_document">New Document</string>
+    <string name="new_document_desc">New file or folder</string>
+    <string name="file">File</string>
+    <string name="folder">Folder</string>
+
 
 </resources>

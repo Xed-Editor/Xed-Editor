@@ -5,6 +5,9 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -20,9 +23,11 @@ import com.rk.libcommons.askInput
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
@@ -51,61 +56,19 @@ class FileAction(
         
 
         ActionPopup(mainActivity, true).apply {
-            if (file == rootFolder) {
-                addItem(
-                    strings.close.getString(),
-                    getString(strings.close_current_project),
-                    getDrawable(drawables.close),
-                ) {
-                    ProjectManager.removeProject(
-                        mainActivity, rootFolder
-                    )
+            if (file.isDirectory()){
+                if (file == rootFolder) {
+                    addItem(
+                        strings.close.getString(),
+                        getString(strings.close_current_project),
+                        getDrawable(drawables.close),
+                    ) {
+                        ProjectManager.removeProject(
+                            mainActivity, rootFolder
+                        )
+                    }
                 }
-            } else {
-                addItem(
-                    getString(strings.rename),
-                    getString(strings.rename_descript),
-                    getDrawable(drawables.edit),
-                ) {
-                    rename()
-                }
-                addItem(
-                    getString(strings.open_with),
-                    getString(strings.open_with_other),
-                    getDrawable(drawables.android),
-                ) {
-                    openWith(mainActivity, file)
-                }
-                addItem(
-                    getString(strings.delete),
-                    getString(strings.delete_descript),
-                    getDrawable(drawables.delete),
-                ) {
-                    MaterialAlertDialogBuilder(context).setTitle(getString(strings.delete))
-                        .setMessage(getString(strings.ask_del) + " ${file.getName()} ")
-                        .setNegativeButton(getString(strings.cancel), null)
-                        .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
-                            val loading = LoadingPopup(mainActivity, null).show()
-                            ProjectManager.CurrentProject.updateFileDeleted(
-                                mainActivity, file
-                            )
-                            mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                                runCatching {
-                                    val success = file.delete()
-                                    withContext(Dispatchers.Main) {
-                                        loading.hide()
-                                        if (success.not()) {
-                                            toast("Failed to delete file")
-                                        }
-                                    }
-                                }
-                            }
-                        }.show()
-                }
-            }
 
-            val fileDrawable = getDrawable(drawables.outline_insert_drive_file_24)
-            if (file.isDirectory()) {
                 addItem(
                     strings.refresh.getString(),
                     strings.reload_file_tree.getString(),
@@ -115,57 +78,103 @@ class FileAction(
                         ProjectManager.CurrentProject.refresh(mainActivity, parent = file)
                     }
                 }
-                if (file is FileWrapper) {
-                    addItem(title = "Clone Repo",
-                        description = "Clone a git repo here",
-                        icon = getDrawable(drawables.git),
-                        listener = {
-                            cloneRepo()
-                        })
 
-                    addItem(
-                        getString(strings.open_in_terminal),
-                        getString(strings.open_dir_in_terminal),
-                        getDrawable(drawables.terminal),
-                    ) {
-                        val intent = Intent(context, Terminal::class.java)
-                        intent.putExtra("cwd", file.getAbsolutePath())
-                        context.startActivity(intent)
-                    }
+                addItem(strings.new_document.getString(),
+                    strings.new_document_desc.getString(),
+                    getDrawable(drawables.add),
+                ) { new() }
 
-                }
+            }
 
+            addItem(
+                getString(strings.rename),
+                getString(strings.rename_descript),
+                getDrawable(drawables.edit),
+            ) {
+                rename()
+            }
+            addItem(
+                getString(strings.open_with),
+                getString(strings.open_with_other),
+                getDrawable(drawables.android),
+            ) {
+                openWith(mainActivity, file)
+            }
 
+            addItem(
+                getString(strings.add_file),
+                getString(strings.add_file_desc),
+                getDrawable(drawables.outline_insert_drive_file_24),
+            ) {
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.type = "*/*"
+                mainActivity.fileManager?.parentFile = file
+                mainActivity.fileManager?.requestAddFile?.launch(intent)
+            }
 
+            if (file is FileWrapper && file.isDirectory()){
                 addItem(
-                    getString(strings.add_file),
-                    getString(strings.add_file_desc),
-                    fileDrawable,
+                    getString(strings.open_in_terminal),
+                    getString(strings.open_dir_in_terminal),
+                    getDrawable(drawables.terminal),
                 ) {
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                    intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    intent.type = "*/*"
-                    mainActivity.fileManager?.parentFile = file
-                    mainActivity.fileManager?.requestAddFile?.launch(intent)
+                    val intent = Intent(context, Terminal::class.java)
+                    intent.putExtra("cwd", file.getAbsolutePath())
+                    context.startActivity(intent)
                 }
-                addItem(
-                    getString(strings.new_file),
-                    getString(strings.create_new_file_desc),
-                    fileDrawable,
-                ) {
-                    new(createFile = true)
-                }
-                addItem(
-                    getString(strings.new_folder),
-                    getString(strings.create_new_file_desc),
-                    getDrawable(drawables.outline_folder_24),
-                ) {
-                    new(createFile = false)
-                }
+            }
+
+            addItem(
+                getString(strings.delete),
+                getString(strings.delete_descript),
+                getDrawable(drawables.delete),
+            ) {
+                MaterialAlertDialogBuilder(context).setTitle(getString(strings.delete))
+                    .setMessage(getString(strings.ask_del) + " ${file.getName()} ")
+                    .setNegativeButton(getString(strings.cancel), null)
+                    .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
+                        val loading = LoadingPopup(mainActivity, null).show()
+                        ProjectManager.CurrentProject.updateFileDeleted(
+                            mainActivity, file
+                        )
+                        mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                            runCatching {
+                                val success = file.delete()
+                                withContext(Dispatchers.Main) {
+                                    loading.hide()
+                                    if (success.not()) {
+                                        toast("Failed to delete file")
+                                    }
+                                }
+                            }
+                        }
+                    }.show()
+            }
+
+            if (file is FileWrapper && file.isDirectory()) {
+                addItem(title = strings.clone_repo.getString(),
+                    description = strings.clone_repo_desc.getString(),
+                    icon = getDrawable(drawables.github),
+                    listener = {
+                        cloneRepo()
+                    })
+
+            }
+
+            addItem(getString(strings.copy), getString(strings.copy_desc), if (file.isDirectory()){
+                drawables.folder_copy_24px.getDrawable()
+            }else{
+                drawables.content_copy_24px.getDrawable()
+            }) {
+                FileClipboard.setFile(file)
+            }
+
+            if (file.isDirectory()){
                 addItem(
                     getString(strings.paste),
                     getString(strings.paste_desc),
-                    fileDrawable,
+                    drawables.content_paste_24px.getDrawable(),
                 ) {
                     if (FileClipboard.isEmpty()) {
                         toast(getString(strings.clipboardempty))
@@ -226,7 +235,7 @@ class FileAction(
                 }
             }
 
-            if (file.isFile()) {
+            if (file.isFile()){
                 addItem(
                     getString(strings.save_as),
                     getString(strings.save_desc),
@@ -237,63 +246,65 @@ class FileAction(
                 }
             }
 
-            addItem(getString(strings.copy), getString(strings.copy_desc), fileDrawable) {
-                FileClipboard.setFile(file)
-            }
         }.show()
     }
 
-    private fun new(createFile: Boolean) {
-        mainActivity.askInput(
-            title = if (createFile){
-                mainActivity.getString(strings.new_file)
-            }else{
-                mainActivity.getString(strings.new_folder)
-            },
-            hint = if (createFile){
-                mainActivity.getString(strings.newFile_hint)
-            }else{
-                mainActivity.getString(strings.dir_example)
-            },
-            onResult = { input ->
-                if (input.isEmpty()) {
-                    toast(mainActivity.getString(strings.ask_enter_name))
-                    return@askInput
-                }
+    private fun new() {
 
-                val loading = LoadingPopup(mainActivity, null)
-                loading.show()
+        fun create(createFile: Boolean,name: String){
+            if (name.isEmpty()) {
+                toast(mainActivity.getString(strings.ask_enter_name))
+                return
+            }
 
-                mainActivity.lifecycleScope.launch(Dispatchers.Default) {
-                    runCatching {
-                        if (file.hasChild(input)) {
-                            withContext(Dispatchers.Main) {
-                                toast(mainActivity.getString(strings.already_exists))
-                                loading.hide()
-                            }
-                        }
+            val loading = LoadingPopup(mainActivity, null)
+            loading.show()
 
-                        file.createChild(createFile, input)
-                    }.onSuccess {
+
+            mainActivity.lifecycleScope.launch(Dispatchers.Default) {
+                runCatching {
+                    if (file.hasChild(name)) {
                         withContext(Dispatchers.Main) {
+                            toast(mainActivity.getString(strings.already_exists))
                             loading.hide()
-                            ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
                         }
-                    }.onFailure {
-                        it.printStackTrace()
-                        withContext(Dispatchers.Main) {
-                            loading.hide()
-                            toast(it.message)
-                        }
+                    }
+
+                    file.createChild(createFile, name)
+                }.onSuccess {
+                    withContext(Dispatchers.Main) {
+                        loading.hide()
+                        ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
+                    }
+                }.onFailure {
+                    it.printStackTrace()
+                    withContext(Dispatchers.Main) {
+                        loading.hide()
+                        toast(it.message)
                     }
                 }
             }
-        )
+        }
 
+
+        MaterialAlertDialogBuilder(mainActivity).apply {
+            setTitle(strings.new_document)
+            val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
+            val editText = popupView.findViewById<EditText>(R.id.name)
+            editText.hint = mainActivity.getString(strings.newFile_hint)
+            setView(popupView)
+            setNeutralButton(strings.cancel, null)
+            setNegativeButton(strings.file){ _, _ ->
+                create(true,editText.text.toString())
+            }
+            setPositiveButton(strings.folder){ _, _ ->
+                create(false,editText.text.toString())
+            }
+            show()
+        }
     }
 
     private fun rename() {
-
         mainActivity.askInput(
             title = strings.rename.getString(),
             input = file.getName(),
@@ -374,7 +385,6 @@ class FileAction(
             val intent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, mimeType)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
                 addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
             }

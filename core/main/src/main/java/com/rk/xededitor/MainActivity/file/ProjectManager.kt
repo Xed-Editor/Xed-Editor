@@ -12,6 +12,9 @@ import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
 import com.rk.filetree.widget.DiagonalScrollView
 import com.rk.filetree.widget.FileTree
+import com.rk.libcommons.alpineHomeDir
+import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
@@ -63,10 +66,22 @@ object ProjectManager {
             val menuItemId = item.itemId
             if (menuItemId != R.id.add_new && !projects.contains(menuItemId)) {
                 item.title = file.getName().ifBlank {
-                    "no_name"
+                    "Invalid"
                 }
                 item.isVisible = true
                 item.isChecked = true
+
+                if (file is UriWrapper){
+                    if (file.isTermuxUri()){
+                        item.icon = drawables.terminal.getDrawable()
+                        if (file.getName() == "home"){
+                            item.title = "Termux"
+                        }
+                    }
+                }else if (file.getAbsolutePath() == alpineHomeDir().absolutePath){
+                    item.icon = drawables.terminal.getDrawable()
+                    item.title = "Home"
+                }
 
                 synchronized(projects) { projects[menuItemId] = file.getAbsolutePath() }
 
@@ -94,7 +109,6 @@ object ProjectManager {
     }
 
     fun removeProject(activity: MainActivity, file: FileObject, saveState: Boolean = true) {
-
         val rail = activity.binding!!.navigationRail
         for (i in 0 until limit) {
 
