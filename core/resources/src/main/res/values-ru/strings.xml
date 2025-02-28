@@ -105,17 +105,17 @@
     <string name="open_in_terminal">Открыть в терминале</string>
     <string name="open_dir_in_terminal">Открыть папку в терминале</string>
     <string name="file_open_denied">Открытие этого файла другими программами запрещено</string>
-    <string name="reload_file_tree">Перезагрузить файл</string>
+    <string name="reload_file_tree">Перезагрузить файлы</string>
     <string name="close_current_project">Закрыть текущий проект</string>
-    <string name="rename_descript">Переименовать выбранный файл/папку</string>
+    <string name="rename_descript">Переименовать документ</string>
     <string name="open_with_other">Открыть выбранный файл в других приложениях</string>
-    <string name="delete_descript">Удалить выбранный файл/папку</string>
+    <string name="delete_descript">Удалить документ</string>
     <string name="add_file_desc">Выберите новый файл, который будет добавлен сюда</string>
     <string name="create_new_file_desc">Создать новый файл в выбранной папке</string>
-    <string name="paste_desc">Вставить выбранный файл/папку</string>
+    <string name="paste_desc">Вставить документ</string>
     <string name="clipboard_empty">Буфер обмена файлов пуст</string>
     <string name="save_desc">Сохраните выбранный файл в другом месте</string>
-    <string name="copy_desc">Копировать выбранный файл/папку</string>
+    <string name="copy_desc">Копировать документ</string>
     <string name="failed_move">Не удалось переместить файл</string>
     <string name="file_name">Имя файла</string>
     <string name="ff_path">Путь к файлу или папке</string>
@@ -137,7 +137,7 @@
     <string name="pushing">Отправка в удалённый репозиторий…</string>
     <string name="nogit">Ошибка: папка .git не найдена</string>
     <string name="manage_storage">Управление хранилищем</string>
-    <string name="manage_storage_reason">Карбону нужен доступ для редактирования файлов в вашем хранилище. Пожалуйста, разрешите доступ в следующем окне настроек.</string>
+    <string name="manage_storage_reason">Xed-Editor требуется доступ для редактирования файлов в вашем хранилище. Пожалуйста, разрешите доступ в следующем окне настроек.</string>
     <string name="ok">ОК</string>
     <string name="data_clear">Данные приложения удалены</string>
     <string name="action_done">Действие завершено</string>
@@ -145,11 +145,11 @@
     <string name="exists">Уже существует!</string>
     <string name="plugin_dir">Каталог плагинов</string>
     <string name="private_files">Приватные файлы</string>
-    <string name="private_files_desc">Приватные файлы Karbon</string>
+    <string name="private_files_desc">Приватные файлы Xed-Editor</string>
     <string name="cloning">Клонирование репозитория…</string>
     <string name="clone_err">Репозиторий приватный. Проверьте ваши данные для входа</string>
     <string name="err">Ошибка</string>
-    <string name="open_dir_desc">Выберите каталог в качестве проекта</string>
+    <string name="open_dir_desc">Открыть каталог с помощью SAF</string>
     <string name="open_file_desc">Выберите файл, чтобы редактировать его напрямую</string>
     <string name="open_path">Внутреннее хранилище</string>
     <string name="open_path_desc">Открыть внутреннее хранилище</string>
@@ -252,7 +252,7 @@
     <string name="no_plugins_available">Нет доступных плагинов</string>
     <string name="show_suggestions">Показывать предложения</string>
     <string name="about">О приложении</string>
-    <string name="about_desc">О Karbon</string>
+    <string name="about_desc">О Xed-Editor</string>
     <string name="version">Версия</string>
     <string name="version_code">Код версии</string>
     <string name="github">GitHub</string>
@@ -307,7 +307,7 @@
     <string name="update_disable">Проверка обновлений отключена</string>
     <string name="ignore">Игнорировать</string>
     <string name="launch_termux">Запустить Termux?</string>
-    <string name="launch_termux_explanation">Termux остановлен, поэтому karbon не может выполнять в нем команды. Хотите его запустить?</string>
+    <string name="launch_termux_explanation">Termux остановлен, поэтому Xed-Editor не может выполнить в нём команду. Хотите запустить его?</string>
     <string name="launch">Запустить</string>
     <string name="script_api_info">Подробнее можно посмотреть в классе ImplApi в исходном коде Xed-Editor по пути: PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="no_mutators">Нет мутаторов</string>
@@ -368,4 +368,11 @@
     <string name="update_files_cleared">Приложение обновлено: данные очищены</string>
     <string name="unrestricted_file">Открывать файлы любого размера</string>
     <string name="unrestricted_file_desc">Разрешить открытие файлов любого размера. Может привести к крашам</string>
+    <string name="new_document">Новый документ</string>
+    <string name="new_document_desc">Новый файл или папка</string>
+    <string name="file">Файл</string>
+    <string name="folder">Папка</string>
+    <string name="read_only_file">Файл доступен только для чтения</string>
+    <string name="toggle_ww">Переключить перенос слов</string>
+    <string name="warning_private_dir">Содержимое этого каталога будет удалено, если вы очистите данные или удалите Xed-Editor</string>
 </resources>
