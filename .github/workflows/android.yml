@@ -104,7 +104,7 @@ jobs:
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
         run: |
           TAG_NAME="v${{ env.VERSION_NAME }}"
-          RELEASE_NAME="Pre-Release $TAG_NAME"
+          RELEASE_NAME="Xed-Editor $TAG_NAME"
           BRANCH_NAME="${{ github.ref_name }}"
           COMPARE_URL="https://github.com/${{ github.repository }}/compare/${{ env.PREV_TAG }}...${{ github.sha }}"
 
