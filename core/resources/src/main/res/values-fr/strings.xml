@@ -303,7 +303,7 @@
     <string name="mutators">Mutateurs</string>
     <string name="update_disable">Vérification des mises-à-jour désactivée</string>
     <string name="launch_termux">Lancer Termux ?</string>
-    <string name="launch_termux_explanation">Termux est arrêté, donc karbon ne peut pas y exécuter de commande. Voulez-vous le démarrer ?</string>
+    <string name="launch_termux_explanation">Termux est arrêté, donc karbon ne peut pas y exécuter de commande. Voulez-vous le démarrer ?</string>
     <string name="mutator_desc">Créer des micro-outils</string>
     <string name="restore_sessions">Restaurer sessions</string>
     <string name="restore_sessions_desc">Restaurer les onglets antérieurs</string>
