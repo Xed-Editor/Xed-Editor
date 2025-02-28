@@ -6,7 +6,7 @@ on:
       - main
       - dev
     paths-ignore:
-      - '**/*.md'
+      - "**/*.md"
   workflow_dispatch:
 
 jobs:
@@ -17,13 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Fetch last commit to compare versionCode
+          fetch-depth: 0 # Fetch all tags for comparison
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
           cache: gradle
 
       - name: Decode and create xed.keystore
@@ -49,7 +49,14 @@ jobs:
 
       - name: Extract versionName
         id: version_name
-        run: echo "VERSION_NAME=$(grep -oP 'versionName\s*=\s*"\K[^"]+' app/build.gradle.kts)" >> $GITHUB_ENV
+        run: echo "VERSION_NAME=$(grep -oP 'versionName\s*=\s*\"\K[^\"]+' app/build.gradle.kts)" >> $GITHUB_ENV
+
+      - name: Get Previous Tag
+        id: prev_tag
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 || git rev-list --max-parents=0 HEAD)
+          echo "Previous tag: $PREV_TAG"
+          echo "PREV_TAG=$PREV_TAG" >> $GITHUB_ENV
 
       - name: Compare Version Codes
         id: check_version_change
@@ -63,7 +70,7 @@ jobs:
           fi
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/karbon-${{ env.COMMIT_HASH }}.apk
+        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.VERSION_NAME }}.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
@@ -72,8 +79,8 @@ jobs:
       - name: Archive APK
         uses: actions/upload-artifact@v4
         with:
-          name: Karbon-Release
-          path: app/karbon-${{ env.COMMIT_HASH }}.apk
+          name: Xed-Editor-Release
+          path: app/xed-editor-${{ env.VERSION_NAME }}.apk
 
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
@@ -85,7 +92,7 @@ jobs:
           -F chat_id="-1002408175863" \
           -F message_thread_id="582" \
           -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
-          -F document=@"app/karbon-${{ env.COMMIT_HASH }}.apk"
+          -F document=@"app/xed-editor-${{ env.VERSION_NAME }}.apk"
 
       - name: Fail if release commit does not bump versionCode
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED != 'true'
@@ -99,11 +106,12 @@ jobs:
           TAG_NAME="v${{ env.VERSION_NAME }}"
           RELEASE_NAME="Pre-Release $TAG_NAME"
           BRANCH_NAME="${{ github.ref_name }}"
+          COMPARE_URL="https://github.com/${{ github.repository }}/compare/${{ env.PREV_TAG }}...${{ github.sha }}"
 
           UPLOAD_URL=$(curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            -d "{\"tag_name\":\"$TAG_NAME\",\"target_commitish\":\"$BRANCH_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"Automated pre-release for commit: ${{ github.event.head_commit.message }}\",\"draft\":false,\"prerelease\":true}" \
+            -d "{\"tag_name\":\"$TAG_NAME\",\"target_commitish\":\"$BRANCH_NAME\",\"name\":\"$RELEASE_NAME\",\"body\":\"Automated pre-release for commit: ${{ github.event.head_commit.message }}\n\n[Compare Changes]($COMPARE_URL)\",\"draft\":false,\"prerelease\":true}" \
             https://api.github.com/repos/${{ github.repository }}/releases | jq -r .upload_url | sed 's/{?name,label}//')
 
           if [[ -z "$UPLOAD_URL" || "$UPLOAD_URL" == "null" ]]; then
@@ -114,5 +122,5 @@ jobs:
           curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/vnd.android.package-archive" \
-            --data-binary @app/karbon-${{ env.COMMIT_HASH }}.apk \
-            "$UPLOAD_URL?name=karbon-${{ env.COMMIT_HASH }}.apk"
+            --data-binary @app/xed-editor-${{ env.VERSION_NAME }}.apk \
+            "$UPLOAD_URL?name=xed-editor-${{ env.VERSION_NAME }}.apk"
