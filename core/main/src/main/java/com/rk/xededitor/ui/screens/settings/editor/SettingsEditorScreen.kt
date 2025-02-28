@@ -76,19 +76,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.restore_session,
                 sideEffect = {
                     Settings.restore_session = it
-
-                    DefaultScope.launch(Dispatchers.Main) {
-                        delay(300)
-                        if (it){
-                            MaterialAlertDialogBuilder(context).apply {
-                                setTitle(strings.experimental_feature.getString())
-                                setMessage(strings.experimental_session_restore_warning.getString())
-                                setPositiveButton(strings.ok,null)
-                                show()
-                            }
-                        }
-                    }
-
                 }
             )
 
@@ -246,6 +233,17 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.auto_save,
                 sideEffect = {
                     Settings.auto_save = it
+                    DefaultScope.launch(Dispatchers.Main) {
+                        delay(200)
+                        if (it){
+                            MaterialAlertDialogBuilder(context).apply {
+                                setTitle(strings.experimental_feature.getString())
+                                setMessage(strings.experimental_session_restore_warning.getString())
+                                setPositiveButton(strings.ok,null)
+                                show()
+                            }
+                        }
+                    }
                 }
             )
 

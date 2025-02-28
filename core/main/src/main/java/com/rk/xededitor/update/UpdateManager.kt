@@ -11,11 +11,6 @@ import com.rk.settings.Settings
 
 object UpdateManager {
     private fun deleteCommonFiles() = with(application!!){
-        cacheDir.apply {
-            if(exists()){
-                deleteRecursively()
-            }
-        }
         codeCacheDir.apply {
             if (exists()){
                 deleteRecursively()

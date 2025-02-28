@@ -17,9 +17,8 @@ nameserver 8.8.8.8
 nameserver 8.8.4.4
 """
 
-
-const val stat ="""
-cpu  1957 0 2877 93280 262 342 254 87 0 0
+//provide fake cpu stats
+const val stat ="""cpu  1957 0 2877 93280 262 342 254 87 0 0
 cpu0 31 0 226 12027 82 10 4 9 0 0
 cpu1 45 0 664 11144 21 263 233 12 0 0
 cpu2 494 0 537 11283 27 10 3 8 0 0
@@ -36,9 +35,8 @@ procs_running 2
 procs_blocked 0
 softirq 75663 0 5903 6 25375 10774 0 243 11685 0 21677
 """
-
-val vmstat = """
-        nr_free_pages 1743136
+//provide fake cpu stats
+val vmstat = """nr_free_pages 1743136
 		nr_zone_inactive_anon 179281
 		nr_zone_active_anon 7183
 		nr_zone_inactive_file 22858
