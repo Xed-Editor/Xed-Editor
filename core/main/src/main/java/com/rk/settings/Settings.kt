@@ -13,6 +13,19 @@ import java.nio.charset.Charset
 
 object Settings {
     //Boolean
+    var feature_terminal
+        get() = Preference.getBoolean(key = "feature_terminal", default = true)
+        set(value) = Preference.setBoolean(key = "feature_terminal",value)
+    var feature_git
+        get() = Preference.getBoolean(key = "feature_git", default = true)
+        set(value) = Preference.setBoolean(key = "feature_git",value)
+    var feature_mutators
+        get() = Preference.getBoolean(key = "feature_mutators", default = true)
+        set(value) = Preference.setBoolean(key = "feature_mutators",value)
+    var feature_extensions
+        get() = Preference.getBoolean(key = "enable_extension",default = false)
+        set(value) = Preference.setBoolean(key = "enable_extension",value)
+
 
     var amoled
         get() = Preference.getBoolean(key = "oled", default = false)
@@ -59,9 +72,6 @@ object Settings {
     var is_selected_font_assest
         get() = Preference.getBoolean(key = "is_font_asset", default = false)
         set(value) = Preference.setBoolean(key = "is_font_asset",value)
-    var enable_extensions
-        get() = Preference.getBoolean(key = "enable_extension",default = false)
-        set(value) = Preference.setBoolean(key = "enable_extension",value)
     var smooth_tabs
         get() = Preference.getBoolean(key = "smooth_tab",default = false)
         set(value) = Preference.setBoolean(key = "smooth_tab",value)

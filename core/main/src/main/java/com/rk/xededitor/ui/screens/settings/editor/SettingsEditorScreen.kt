@@ -35,6 +35,7 @@ import com.rk.libcommons.dpToPx
 import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.ValueSlider
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import com.rk.xededitor.ui.screens.terminal.terminalView
 
 @Composable
@@ -56,11 +57,13 @@ fun SettingsEditorScreen(navController: NavController) {
         PreferenceGroup(heading = stringResource(strings.content)) {
 
 
-            NextScreenCard(
-                label = stringResource(strings.mutators),
-                description = stringResource(strings.mutator_desc),
-                route = SettingsRoutes.ManageMutators
-            )
+            if (Features.mutators.value){
+                NextScreenCard(
+                    label = stringResource(strings.mutators),
+                    description = stringResource(strings.mutator_desc),
+                    route = SettingsRoutes.ManageMutators
+                )
+            }
 
             EditorSettingsToggle(label = stringResource(strings.unrestricted_file),
                 description = stringResource(strings.unrestricted_file_desc),

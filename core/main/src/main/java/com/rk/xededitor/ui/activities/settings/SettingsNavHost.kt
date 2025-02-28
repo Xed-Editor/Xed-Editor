@@ -16,6 +16,7 @@ import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
 import com.rk.xededitor.ui.screens.settings.editor.EditorFontScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.extensions.Extensions
+import com.rk.xededitor.ui.screens.settings.feature_toggles.FeatureToggles
 import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
 import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
@@ -42,5 +43,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.DeveloperOptions.route){ DeveloperOptions(navController = navController) }
         composable(SettingsRoutes.BeanshellREPL.route){ Debugger() }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
+        composable(SettingsRoutes.FeatureToggles.route) { FeatureToggles() }
     }
 }

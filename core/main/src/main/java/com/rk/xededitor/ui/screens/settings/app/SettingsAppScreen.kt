@@ -46,8 +46,6 @@ import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.NextScreenCard
 
 
-val showExtensions = mutableStateOf(Settings.enable_extensions)
-
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
@@ -89,16 +87,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     Settings.monet = it
                 }
 
-            )
-
-            SettingsToggle(
-                label = stringResource(strings.enable_ext),
-                description = stringResource(strings.enable_ext_desc),
-                default = Settings.enable_extensions,
-                sideEffect = {
-                    Settings.enable_extensions = it
-                    showExtensions.value = it
-                }
             )
 
             NextScreenCard(

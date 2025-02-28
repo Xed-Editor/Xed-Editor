@@ -59,10 +59,6 @@
     <string name="ww">Word Wrap</string>
     <string name="keepdl">Keep Drawer Locked</string>
     <string name="restart">Restart</string>
-    <string name="plugin">Plugins</string>
-    <string name="mp">Manage Plugins</string>
-    <string name="ap">Available Plugins</string>
-    <string name="nip">No Installed Plugins</string>
     <string name="refresh">Refresh</string>
     <string name="dir_example">Name eg. Test</string>
     <string name="create">Create</string>
@@ -85,7 +81,6 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
-    <string name="plugin_icon">Plugin Icon</string>
     <string name="download">Download</string>
     
 
@@ -145,7 +140,6 @@
     <string name="action_done">Action Completed</string>
     <string name="clone_repo">Clone repository</string>
     <string name="exists">already exists!</string>
-    <string name="plugin_dir">Plugins Directory</string>
     <string name="private_files">Private Files</string>
     <string name="private_files_desc">Private Files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>
@@ -160,15 +154,11 @@
     <string name="already_opened">File already opened</string>
     <string name="open_cant">Cannot open more than</string>
     <string name="files">Files</string>
-    <string name="manage_plugins">Manage Plugins</string>
     <string name="installed">Installed</string>
     <string name="available">Available</string>
     <string name="already_installed">Already Installed</string>
     <string name="download_sure">Are you sure you want to download</string>
     <string name="yes">Yes</string>
-    <string name="downloading_plugin">Downloading plugin</string>
-    <string name="download_done">Successfully Downloaded.</string>
-    <string name="plugin_download_failed">Unable to downloaded plugin</string>
     <string name="fetch_failed">fetch request returned null</string>
     <string name="app">Application</string>
     <string name="oled_desc">Pure Black theme for amoled devices</string>
@@ -206,10 +196,8 @@
     <string name="old_android">Unsupported Android version</string>
     <string name="app_desc">General settings for the application</string>
     <string name="editor_desc">General settings for the editor</string>
-    <string name="plugin_desc">General settings for plugins</string>
     <string name="terminal_desc">General settings for terminal</string>
     <string name="git_desc">General settings for git</string>
-    <string name="enable_plugins">Enable Plugins</string>
     <string name="fail_safe">Fail Safe</string>
     <string name="failsafe_desc">Use android shell instead of termux</string>
     <string name="Lshell">Launch Shell</string>
@@ -234,7 +222,6 @@
     <string name="install_done">Installed Successfully</string>
     <string name="invalid_file_type">Invalid file type, zip file expected</string>
     <string name="install_failed">Failed to install</string>
-    <string name="choose_zip">Choose the plugin zip file from storage to install it.</string>
     <string name="choose_file">Choose file</string>
 
     <string name="force_char">Force Char</string>
@@ -257,8 +244,7 @@
     
     <string name="theme_mode">Theme Mode</string>
     <string name="theme_mode_desc">Change theme mode to auto, light or dark.</string>
-    
-    <string name="no_plugins_available">No Plugins Available</string>
+
     <string name="show_suggestions">Show Suggestions</string>
     
     <string name="about">About</string>
@@ -342,7 +328,7 @@
     <string name="add_session">Add Session</string>
     <string name="terminal_runtime">Terminal Runtime</string>
     <string name="terminal_runtime_desc">Select Terminal Runtime</string>
-    <string name="enable_ext">Enable Extensions</string>
+    <string name="enable_ext">Extensions</string>
     <string name="enable_ext_desc">Load third party Extensions</string>
     <string name="ext">Extensions</string>
     <string name="ext_desc">Manage Extensions</string>
@@ -416,6 +402,11 @@
     <string name="new_document_desc">New file or folder</string>
     <string name="file">File</string>
     <string name="folder">Folder</string>
+
+    <string name="sponsor">Sponsor</string>
+    <string name="sponsor_desc">Support Development</string>
+    <string name="feature_toggles">Feature Toggles</string>
+    <string name="feature_toggles_desc">Enable or disable specific features</string>
 
 
 </resources>

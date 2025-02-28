@@ -54,6 +54,7 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.text.Content
@@ -291,28 +292,33 @@ class MainActivity : BaseActivity() {
         }
 
         menu.findItem(R.id.action_add).isVisible = true
+        menu.findItem(R.id.terminal).isVisible = Features.terminal.value
+        menu.findItem(R.id.tools).isVisible = Features.mutators.value || Features.git.value
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
-        var order = 0
-        Mutators.getMutators().forEach { mut ->
-            menu.findItem(R.id.tools).subMenu?.add(
-                1, mut.hashCode(), order, mut.name
-            )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
-                setOnMenuItemClickListener {
-                    DefaultScope.launch {
-                        Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
-                            println(result)
-                        }, onError = { t ->
-                            t.printStackTrace()
-                            toast(t.message)
-                        }, api = ImplAPI::class.java)
+        if (Features.mutators.value){
+            var order = 0
+            Mutators.getMutators().forEach { mut ->
+                menu.findItem(R.id.tools).subMenu?.add(
+                    1, mut.hashCode(), order, mut.name
+                )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
+                    setOnMenuItemClickListener {
+                        DefaultScope.launch {
+                            Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
+                                println(result)
+                            }, onError = { t ->
+                                t.printStackTrace()
+                                toast(t.message)
+                            }, api = ImplAPI::class.java)
+                        }
+                        false
                     }
-                    false
+
+
                 }
-
-
             }
         }
+
 
         return true
     }
