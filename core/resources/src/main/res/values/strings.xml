@@ -107,7 +107,7 @@
     <string name="open_in_terminal">Open In Terminal</string>
     <string name="open_dir_in_terminal">Open Directory in Terminal</string>
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
-    <string name="reload_file_tree">Reload File File</string>
+    <string name="reload_file_tree">Reload Files</string>
     <string name="close_current_project">Close current project</string>
     <string name="rename_descript">Rename the document</string>
     <string name="open_with_other">Open selected file in other apps</string>

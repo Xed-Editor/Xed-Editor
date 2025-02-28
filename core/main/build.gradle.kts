@@ -78,15 +78,13 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.15"
+        kotlinCompilerExtensionVersion = "2.1.10"
     }
 
 
 }
 
 dependencies {
-
-    api(libs.swiperefreshlayout)
     api(libs.appcompat)
     api(libs.material)
     api(libs.constraintlayout)
@@ -96,7 +94,6 @@ dependencies {
     api(libs.navigation.fragment.ktx)
     api(libs.navigation.ui.ktx)
     api(libs.activity)
-    api(libs.lifecycle.livedata.ktx)
     api(libs.lifecycle.viewmodel.ktx)
     api(libs.lifecycle.runtime.ktx)
     api(libs.activity.compose)
@@ -112,11 +109,10 @@ dependencies {
     api(libs.org.eclipse.jgit)
     api(libs.gson)
     api(libs.commons.net)
-    api(libs.jcodings)
-    api(libs.joni)
-    api(libs.snakeyaml.engine)
-    api(libs.jdt.annotation)
-    api(libs.ktsh)
+   // api(libs.jcodings)
+   // api(libs.joni)
+   // api(libs.snakeyaml.engine)
+    //api(libs.jdt.annotation)
     api(libs.okhttp)
     api(libs.material.motion.compose.core)
     api(libs.nanohttpd)
@@ -130,7 +126,7 @@ dependencies {
     api(libs.anrwatchdog)
     api(libs.word.wrap)
 
-    //debug libs
+    //debug libs these libs doesnt get added when creating release builds
     debugApi(libs.bsh)
     debugApi(libs.leakcanary.android)
     
