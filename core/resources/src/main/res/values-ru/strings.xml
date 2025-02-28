@@ -74,7 +74,7 @@
     <string name="canthandle">Не найдено приложение для обработки файла</string>
     <string name="clipboardempty">Буфер обмена пуст</string>
     <string name="terminal">Терминал</string>
-    <string name="add_file">Добавить файл</string>
+    <string name="add_file">Добавить внешний файл</string>
     <string name="keyword_regex">Ключевое слово (регулярное выражение)</string>
     <string name="replaceall">Заменить все</string>
     <string name="add_new_replacement_batch">Добавить новую партию замены</string>
