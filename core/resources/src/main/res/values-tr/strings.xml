@@ -137,7 +137,7 @@
     <string name="pushing">Şu anda uzak depoya yazdırılıyor…</string>
     <string name="nogit">Hata: .git klasörü bulunamadı</string>
     <string name="manage_storage">Depolamayı yönet</string>
-    <string name="manage_storage_reason">Karbon"un depolama alanınızdaki dosyaları düzenlemek için erişime ihtiyacı var. Lütfen gelecek sistem ayarında erişime izin verin.</string>
+    <string name="manage_storage_reason">Karbon\"un depolama alanınızdaki dosyaları düzenlemek için erişime ihtiyacı var. Lütfen gelecek sistem ayarında erişime izin verin.</string>
     <string name="ok">TAMAM</string>
     <string name="data_clear">Program verileri silindi</string>
     <string name="action_done">İşlem tamamlandı</string>
@@ -145,7 +145,7 @@
     <string name="exists">zaten var!</string>
     <string name="plugin_dir">Eklenti kılavuzu</string>
     <string name="private_files">Özel dosyalar</string>
-    <string name="private_files_desc">Karbon"dan özel dosyalar</string>
+    <string name="private_files_desc">Karbon\"dan özel dosyalar</string>
     <string name="cloning">Klon Deposu…</string>
     <string name="clone_err">Depolama özeldir. veya Kimlik bilgilerinizi kontrol edin</string>
     <string name="err">Yanlış</string>
