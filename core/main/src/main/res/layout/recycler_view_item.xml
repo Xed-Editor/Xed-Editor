@@ -22,6 +22,8 @@
         android:layout_width="match_parent"
         android:maxLines="1"
         android:minWidth="50dp"
+        android:paddingStart="5dp"
+        android:paddingTop="3dp"
         android:layout_height="wrap_content" />
 
 </LinearLayout>
