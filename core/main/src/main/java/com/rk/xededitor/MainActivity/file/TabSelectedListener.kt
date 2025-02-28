@@ -16,11 +16,17 @@ import java.lang.ref.WeakReference
 var smoothTabs = Settings.smooth_tabs
 
 class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedListener {
+
     override fun onTabSelected(tab: Tab?) {
         currentTab = WeakReference(tab)
         if (smoothTabs.not()) { activity.viewPager!!.setCurrentItem(tab!!.position, false) }
         tab?.text = tab?.text
         DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+
+        tab?.view?.setOnLongClickListener{ view ->
+            onTabReselected(tab)
+            true
+        }
     }
     
     override fun onTabReselected(tab: Tab?) {

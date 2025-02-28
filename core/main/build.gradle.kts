@@ -129,7 +129,10 @@ dependencies {
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
     api(libs.word.wrap)
+
+    //debug libs
     debugApi(libs.bsh)
+    debugApi(libs.leakcanary.android)
     
     api(project(":core:editor"))
     api(project(":core:language-textmate"))
