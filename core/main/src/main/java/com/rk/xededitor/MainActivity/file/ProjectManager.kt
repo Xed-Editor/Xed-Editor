@@ -74,7 +74,7 @@ object ProjectManager {
                 if (file is UriWrapper){
                     if (file.isTermuxUri()){
                         item.icon = drawables.terminal.getDrawable()
-                        if (file.getName() == "home"){
+                        if (file.getName() == "home" || file.getName() == "Invalid"){
                             item.title = "Termux"
                         }
                     }

@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -28,6 +29,7 @@ import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
+import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.UI
@@ -384,6 +386,18 @@ class MainActivity : BaseActivity() {
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
+        lifecycleScope.launch(Dispatchers.IO){
+            for (project in ProjectManager.projects){
+                UI {
+                    toastCatching {
+                        if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
+                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode())
+                            (view.getChildAt(0) as FileTree).reloadFileChildren(UriWrapper(Uri.parse(project.value)))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

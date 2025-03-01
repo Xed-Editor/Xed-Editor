@@ -23,7 +23,7 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
     PreferenceLayout(label = stringResource(strings.feature_toggles)) {
         PreferenceGroup {
             SettingsToggle(
-                label = stringResource(strings.terminal),
+                label = stringResource(strings.terminal)+" + Runners",
                 default = Features.terminal.value,
                 sideEffect = {
                     Settings.feature_terminal = it

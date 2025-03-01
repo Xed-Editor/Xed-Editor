@@ -21,6 +21,7 @@ import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -96,6 +97,9 @@ object Runner {
     }
 
     fun isRunnable(ext:String): Boolean {
+        if (Features.terminal.value.not()){
+            return false
+        }
         val openedTabs = MainActivity.activityRef.get()?.adapter?.tabFragments?.keys?.map {
             it.file
         }
