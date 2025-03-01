@@ -8,6 +8,7 @@ import com.rk.libcommons.postIO
 import com.rk.libcommons.toastCatching
 import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -172,7 +173,7 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     private fun isPluginEnabled():Boolean{
-        return Settings.enable_extensions
+        return Features.extensions.value
     }
 
     override fun onPluginLoaded() {

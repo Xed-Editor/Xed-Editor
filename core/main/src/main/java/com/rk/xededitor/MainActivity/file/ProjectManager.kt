@@ -65,16 +65,14 @@ object ProjectManager {
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
             if (menuItemId != R.id.add_new && !projects.contains(menuItemId)) {
-                item.title = file.getName().ifBlank {
-                    "Invalid"
-                }
+                item.title = file.getName()
                 item.isVisible = true
                 item.isChecked = true
 
                 if (file is UriWrapper){
                     if (file.isTermuxUri()){
                         item.icon = drawables.terminal.getDrawable()
-                        if (file.getName() == "home"){
+                        if (file.getName() == "home" || file.getName() == "Invalid"){
                             item.title = "Termux"
                         }
                     }

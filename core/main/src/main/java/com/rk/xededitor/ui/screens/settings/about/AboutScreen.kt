@@ -69,7 +69,7 @@ fun AboutScreen() {
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
                         },
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(id = strings.github))
                     }
@@ -93,12 +93,38 @@ fun AboutScreen() {
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
                         },
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(stringResource(id = strings.join))
                     }
                 },
             )
+
+
+            PreferenceTemplate(
+                title = {
+                    Text(text = stringResource(id = strings.sponsor), style = MaterialTheme.typography.titleMedium)
+                },
+                description = {
+                    Text(
+                        text = stringResource(id = strings.sponsor_desc),
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                },
+                endWidget = {
+                    Button(
+                        onClick = {
+                            val url = "https://github.com/sponsors/RohitKushvaha01"
+                            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                            context.startActivity(intent)
+                        },
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(stringResource(id = strings.sponsor))
+                    }
+                },
+            )
+
         }
     }
 }

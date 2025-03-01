@@ -30,6 +30,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -113,7 +114,7 @@ class FileAction(
                 mainActivity.fileManager?.requestAddFile?.launch(intent)
             }
 
-            if (file is FileWrapper && file.isDirectory()){
+            if (file is FileWrapper && file.isDirectory() && Features.terminal.value){
                 addItem(
                     getString(strings.open_in_terminal),
                     getString(strings.open_dir_in_terminal),

@@ -66,7 +66,7 @@ class UriWrapper : FileObject {
 
     override fun isDirectory(): Boolean = file.isDirectory
     override fun isFile(): Boolean = file.isFile
-    override fun getName(): String = file.name ?: ""
+    override fun getName(): String = file.name ?: "Invalid"
     override fun getParentFile(): FileObject? =
         file.parentFile?.let { UriWrapper(it) }
 

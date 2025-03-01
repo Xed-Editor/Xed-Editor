@@ -10,19 +10,15 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(DelicateCoroutinesApi::class)
 object AutoSaver {
-    private const val DEFAULT_DELAY_MS = 10000L
-
-    /**
-     * Starts the auto-save process. Runs in a background coroutine, periodically checking
-     * if auto-save is enabled and saving the open editor fragments.
-     * Auto-Saver survives activity lifecycles so do not put context here
-     */
-    @OptIn(DelicateCoroutinesApi::class)
-    fun start() {
+    init {
         GlobalScope.launch(Dispatchers.Default) {
             while (isActive) {
-                if (MainActivity.activityRef.get() == null || MainActivity.activityRef.get()!!.isPaused == true || MainActivity.activityRef.get()!!.isFinishing || MainActivity.activityRef.get()!!.isDestroyed) {
+                if (MainActivity.activityRef.get() == null ||
+                    MainActivity.activityRef.get()!!.isPaused == true ||
+                    MainActivity.activityRef.get()!!.isFinishing ||
+                    MainActivity.activityRef.get()!!.isDestroyed) {
                     if (Settings.auto_save) {
                         delay(1000)
                     }else{
@@ -43,13 +39,22 @@ object AutoSaver {
             }
         }
     }
+    /**
+     * Starts the auto-save process. Runs in a background coroutine, periodically checking
+     * if auto-save is enabled and saving the open editor fragments.
+     * Auto-Saver survives activity lifecycles so do not put context here
+     */
+
+    fun start() {
+        //intentionally empty
+    }
 
     /**
      * Saves all editor fragments if conditions are met.
      */
     private suspend fun saveAllEditorFragments() = MainActivity.activityRef.get()?.apply {
         if (tabViewModel.fragmentFiles.isNotEmpty()) {
-            withContext(Dispatchers.Main) {
+            withContext(Dispatchers.IO) {
                 adapter?.tabFragments?.values?.forEach { weakRef ->
                     weakRef.get()?.fragment?.let { fragment ->
                         if (fragment is EditorFragment) {

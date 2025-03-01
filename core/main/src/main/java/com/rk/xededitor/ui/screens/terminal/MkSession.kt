@@ -74,6 +74,7 @@ object MkSession {
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "HOME=${alpineHomeDir()}",
+                "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
             )
 

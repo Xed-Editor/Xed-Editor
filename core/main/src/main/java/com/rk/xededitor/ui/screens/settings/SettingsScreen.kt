@@ -1,20 +1,14 @@
 package com.rk.xededitor.ui.screens.settings
 
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.resources.drawables
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.screens.settings.app.showExtensions
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.category.PreferenceCategory
-import com.rk.xededitor.ui.components.NextScreenCard
+import com.rk.resources.drawables
+import com.rk.resources.strings
+import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -40,27 +34,32 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
 
-    PreferenceCategory(
-        label = stringResource(id = strings.terminal),
-        description = stringResource(id = strings.terminal_desc),
-        iconResource = drawables.terminal,
-        onNavigate = { navController.navigate(SettingsRoutes.TerminalSettings.route) },
-    )
+    if (Features.terminal.value){
+        PreferenceCategory(
+            label = stringResource(id = strings.terminal),
+            description = stringResource(id = strings.terminal_desc),
+            iconResource = drawables.terminal,
+            onNavigate = { navController.navigate(SettingsRoutes.TerminalSettings.route) },
+        )
+    }
+
+    if (Features.git.value){
+        PreferenceCategory(
+            label = stringResource(id = strings.git),
+            description = stringResource(id = strings.git_desc),
+            iconResource = drawables.github,
+            onNavigate = { navController.navigate(SettingsRoutes.GitSettings.route) },
+        )
+    }
 
     PreferenceCategory(
-        label = stringResource(id = strings.git),
-        description = stringResource(id = strings.git_desc),
-        iconResource = drawables.github,
-        onNavigate = { navController.navigate(SettingsRoutes.GitSettings.route) },
-    )
-    PreferenceCategory(
-        label = stringResource(id = strings.about),
-        description = stringResource(id = strings.about_desc),
-        iconResource = drawables.android,
-        onNavigate = { navController.navigate(SettingsRoutes.About.route) },
+        label = stringResource(id = strings.feature_toggles),
+        description = stringResource(id = strings.feature_toggles_desc),
+        iconResource = drawables.settings,
+        onNavigate = { navController.navigate(SettingsRoutes.FeatureToggles.route) },
     )
 
-    if (showExtensions.value){
+    if (Features.extensions.value){
         PreferenceCategory(
             label = stringResource(strings.ext),
             description = stringResource(strings.ext_desc),
@@ -68,6 +67,14 @@ private fun Categories(navController: NavController) {
             onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
         )
     }
+
+    PreferenceCategory(
+        label = stringResource(id = strings.about),
+        description = stringResource(id = strings.about_desc),
+        iconResource = drawables.android,
+        onNavigate = { navController.navigate(SettingsRoutes.About.route) },
+    )
+
 
 
 }

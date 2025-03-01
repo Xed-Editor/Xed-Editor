@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -28,6 +29,7 @@ import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
+import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.UI
@@ -54,6 +56,7 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.text.Content
@@ -291,28 +294,33 @@ class MainActivity : BaseActivity() {
         }
 
         menu.findItem(R.id.action_add).isVisible = true
+        menu.findItem(R.id.terminal).isVisible = Features.terminal.value
+        menu.findItem(R.id.tools).isVisible = Features.mutators.value || Features.git.value
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
-        var order = 0
-        Mutators.getMutators().forEach { mut ->
-            menu.findItem(R.id.tools).subMenu?.add(
-                1, mut.hashCode(), order, mut.name
-            )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
-                setOnMenuItemClickListener {
-                    DefaultScope.launch {
-                        Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
-                            println(result)
-                        }, onError = { t ->
-                            t.printStackTrace()
-                            toast(t.message)
-                        }, api = ImplAPI::class.java)
+        if (Features.mutators.value){
+            var order = 0
+            Mutators.getMutators().forEach { mut ->
+                menu.findItem(R.id.tools).subMenu?.add(
+                    1, mut.hashCode(), order, mut.name
+                )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
+                    setOnMenuItemClickListener {
+                        DefaultScope.launch {
+                            Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
+                                println(result)
+                            }, onError = { t ->
+                                t.printStackTrace()
+                                toast(t.message)
+                            }, api = ImplAPI::class.java)
+                        }
+                        false
                     }
-                    false
+
+
                 }
-
-
             }
         }
+
 
         return true
     }
@@ -378,6 +386,18 @@ class MainActivity : BaseActivity() {
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
+        lifecycleScope.launch(Dispatchers.IO){
+            for (project in ProjectManager.projects){
+                UI {
+                    toastCatching {
+                        if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
+                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode())
+                            (view.getChildAt(0) as FileTree).reloadFileChildren(UriWrapper(Uri.parse(project.value)))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

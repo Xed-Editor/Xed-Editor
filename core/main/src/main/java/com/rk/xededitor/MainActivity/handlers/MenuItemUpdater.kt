@@ -8,7 +8,9 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
+import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -25,6 +27,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
         updateEditor(fragment as? EditorFragment, menu)
         updateSearchMenu(menu, fragment as? EditorFragment)
         updateGitMenuVisibility(menu, fragment as? EditorFragment)
+        menu.findItem(R.id.terminal).isVisible = Features.terminal.value
     }
 }
 
@@ -55,6 +58,7 @@ private suspend fun updateEditor(
         findItem(Id.tools).isVisible = show
         findItem(Id.select_highlighting).isVisible = show
         findItem(Id.toggle_word_wrap).isVisible = show
+
     }
 
 
@@ -80,6 +84,12 @@ private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?): Boole
 private suspend fun updateGitMenuVisibility(
     menu: Menu, editorFragment: EditorFragment?
 ) {
+
+    if (Features.git.value.not()){
+        menu.findItem(Id.git).isVisible = false
+        return
+    }
+
     if (editorFragment == null) {
         withContext(Dispatchers.Main) {
             menu.findItem(Id.git).isVisible = false

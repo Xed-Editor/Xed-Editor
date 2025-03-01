@@ -73,8 +73,8 @@ class CrashActivity : AppCompatActivity() {
             sb.append("Android Version : ").append(Build.VERSION.RELEASE).appendLine()
             sb.append("SDK Version : ").append(Build.VERSION.SDK_INT).appendLine()
             sb.append("Brand : ").append(Build.BRAND).appendLine()
-            sb.append("Manufacturer : ").append(Build.MANUFACTURER).appendLine().appendLine()
-            sb.append("Model : ").append(Build.MODEL).appendLine()
+            sb.append("Manufacturer : ").append(Build.MANUFACTURER).appendLine()
+            sb.append("Model : ").append(Build.MODEL).appendLine().appendLine()
 
             sb.append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
             sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
