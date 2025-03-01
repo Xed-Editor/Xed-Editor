@@ -67,7 +67,7 @@
     <string name="dir_example">على سبيل المثال، الاسم: Test</string>
     <string name="create">انشاء</string>
     <string name="ask_enter_name">الرجاء إدخال اسم</string>
-    <string name="already_exists">""يوجد ملف/مجلد بهذا الاسم بالفعل</string>
+    <string name="already_exists">يوجد ملف/مجلد بهذا الاسم بالفعل</string>
     <string name="attention">تحذير</string>
     <string name="ask_del">هل أنت متأكد أنك تريد الحذف؟</string>
     <string name="redir">الرجاء إعادة تحديد المسار</string>
