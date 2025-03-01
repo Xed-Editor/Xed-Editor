@@ -38,7 +38,7 @@
     <string name="dir_example">名称，例如：测试</string>
     <string name="create">创建</string>
     <string name="ask_enter_name">请输入一个名称</string>
-    <string name="already_exists">已存在同名文件/文件夹</string>
+    <string name="already_exists">已存在同名文档</string>
     <string name="attention">注意</string>
     <string name="ask_del">确定要删除吗</string>
     <string name="redir">请重新选择目录</string>
