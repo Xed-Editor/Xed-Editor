@@ -315,7 +315,7 @@
     <string name="script_api_info">Per ulteriori informazioni, consulta la classe ImplApi nel codice sorgente di xed-editors in PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="install_from_storage">Installa dalla memoria interna</string>
     <string name="add_session">Aggiungi Sessione</string>
-    <string name="enable_ext">Abilita Estensioni</string>
+    <string name="enable_ext">Estensioni</string>
     <string name="script_get_text">ottieni il testo</string>
     <string name="terminal_runtime">Tempo di Esecuzione del Terminale</string>
     <string name="ext">Estensioni</string>
@@ -371,4 +371,11 @@
     <string name="toggle_ww">Attiva/Disattiva Parola a Capo</string>
     <string name="warning_private_dir">Il contenuto di questa directory verrà eliminato se si cancellano i dati o si elimina Xed-Editor</string>
     <string name="read_only_file">File in sola lettura</string>
+    <string name="new_document">Nuovo Documento</string>
+    <string name="file">File</string>
+    <string name="feature_toggles">Gestisci Funzioni</string>
+    <string name="sponsor_desc">Supporta lo Sviluppo</string>
+    <string name="feature_toggles_desc">Abilita o disabilita funzionalità specifiche</string>
+    <string name="new_document_desc">Nuovo file o cartella</string>
+    <string name="folder">Cartella</string>
 </resources>
