@@ -53,13 +53,6 @@ private fun Categories(navController: NavController) {
     }
 
     PreferenceCategory(
-        label = stringResource(id = strings.about),
-        description = stringResource(id = strings.about_desc),
-        iconResource = drawables.android,
-        onNavigate = { navController.navigate(SettingsRoutes.About.route) },
-    )
-
-    PreferenceCategory(
         label = stringResource(id = strings.feature_toggles),
         description = stringResource(id = strings.feature_toggles_desc),
         iconResource = drawables.settings,
@@ -75,6 +68,12 @@ private fun Categories(navController: NavController) {
         )
     }
 
+    PreferenceCategory(
+        label = stringResource(id = strings.about),
+        description = stringResource(id = strings.about_desc),
+        iconResource = drawables.android,
+        onNavigate = { navController.navigate(SettingsRoutes.About.route) },
+    )
 
 
 

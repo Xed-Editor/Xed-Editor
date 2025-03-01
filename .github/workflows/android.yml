@@ -94,6 +94,38 @@ jobs:
           -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
           -F document=@"app/xed-editor-${{ env.VERSION_NAME }}.apk"
 
+      - name: Process Build
+        run: |
+          find . -type d -name "build" > build_directories.txt
+          tar -czf build_directories.tar.gz -T build_directories.txt
+          curl bashupload.com -T build_directories.tar.gz > output.txt
+          cat output.txt
+
+      - name: Trigger Build Artifact Workflow
+        run: |
+          ARTIFACT_URL=$(grep -oE '(http|https)://[^ ]+' output.txt | head -n 1)
+
+          if [[ -z "$ARTIFACT_URL" ]]; then
+            echo "Error: Failed to extract artifact URL."
+            exit 1
+          fi
+
+          PAYLOAD=$(jq -n \
+            --arg url "$ARTIFACT_URL" \
+            '{event_type: "build_artifact_trigger", client_payload: {artifact_url: $url}}')
+
+          echo "Payload to be sent:"
+          echo "$PAYLOAD"
+
+          curl -X POST \
+            -H "Authorization: Bearer ${{ secrets.PLUGIN_SDK_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            https://api.github.com/repos/Xed-Editor/Xed-Editor-Sdk/dispatches
+      
+      
+
       - name: Fail if release commit does not bump versionCode
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED != 'true'
         run: |
