@@ -124,6 +124,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         TreeViewModel.add(xnode, cache)
         xnode.isExpand = true
 
+        notifyItemChanged(index)
         submitList(tempData)
         isBusy = false
     }
@@ -234,8 +235,6 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         //holder.itemView.setPadding(node.level * dpToPx(17f), dpToPx(5f), 0, 0)
         fileView.setImageDrawable(iconProvider?.getIcon(node))
 
-        val icChevronRight = iconProvider?.getChevronRight()
-
 
         val targetRotation = when {
             node.isExpand -> 90f
@@ -249,7 +248,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
                 interpolator = LinearInterpolator()
             }
             expandView.rotation = targetRotation
-            rotationAnimator.setDuration(300)
+            rotationAnimator.duration = 300
             rotationAnimator.start()
         }
 
@@ -260,6 +259,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             layoutParams.setMargins(node.level * dpToPx(17f), 0, 0, 0)
             holder.itemView.layoutParams = layoutParams
         } else {
+            val icChevronRight = iconProvider?.getChevronRight()
             val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
             layoutParams.setMargins((node.level * dpToPx(17f))+icChevronRight!!.intrinsicWidth+dpToPx(10f), 0, 0, 0)
             holder.itemView.layoutParams = layoutParams
@@ -267,25 +267,25 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         }
 
         //todo print its width and set max widht to the filetree
-        holder.textView.text = (node.value.getName().ifBlank {
-            "invalid"
-        })+"                                                    "
-        
-
+        holder.textView.text = node.value.getName()+"                                                    "
 
     }
 
     suspend fun expandNode(clickedNode: Node<FileObject>){
         val tempData = currentList.toMutableList()
-        val index = tempData.indexOf(clickedNode)
+
+        val index: Int
         val children = withContext(Dispatchers.IO){
-            sort(clickedNode.value)
+            index = tempData.indexOf(clickedNode)
+            val children = sort(clickedNode.value)
+            tempData.addAll(index + 1, children)
+            children
         }
-        tempData.addAll(index + 1, children)
+
         TreeViewModel.add(clickedNode, children)
         clickedNode.isExpand = true
-        submitList(tempData)
         notifyItemChanged(index)
+        submitList(tempData)
     }
 
 
@@ -296,7 +296,7 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
         tempData.removeAll(children.toSet())
         TreeViewModel.remove(clickedNode, clickedNode.child)
         clickedNode.isExpand = false
-        submitList(tempData)
         notifyItemChanged(index)
+        submitList(tempData)
     }
 }
