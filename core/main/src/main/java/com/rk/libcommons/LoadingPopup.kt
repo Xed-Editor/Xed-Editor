@@ -1,6 +1,7 @@
 package com.rk.libcommons
 
 import android.app.Activity
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -10,19 +11,21 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.R
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: CoroutineScope = DefaultScope) {
+class LoadingPopup @OptIn(DelicateCoroutinesApi::class) constructor(private val ctx: Context, hideAfterMillis: Long? = null, scope: CoroutineScope = GlobalScope) {
     private var dialog: AlertDialog? = null
     private lateinit var dialogView: View
 
     init {
-        ctx.runOnUiThread {
-            val inflater1: LayoutInflater = ctx.layoutInflater
+        runOnUiThread{
+            val inflater1: LayoutInflater = LayoutInflater.from(ctx)
             dialogView = inflater1.inflate(R.layout.progress_dialog, null)
             dialogView.findViewById<TextView>(R.id.progress_message).text = strings.wait.getString()
             dialog =
@@ -46,7 +49,7 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: Coro
     }
 
     fun show(): LoadingPopup {
-        ctx.runOnUiThread {
+        runOnUiThread {
             if (dialog?.isShowing?.not() == true) {
                 dialog?.show()
             }
@@ -55,7 +58,7 @@ class LoadingPopup(private val ctx: Activity, hideAfterMillis: Long?,scope: Coro
     }
 
     fun hide() {
-        ctx.runOnUiThread {
+        runOnUiThread {
             if (dialog != null && dialog?.isShowing == true) {
                 dialog?.dismiss()
             }

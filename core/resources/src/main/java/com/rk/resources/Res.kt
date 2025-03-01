@@ -1,6 +1,7 @@
 package com.rk.resources
 
 import android.app.Application
+import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
@@ -17,6 +18,6 @@ inline fun Int.getString():String{
     return ContextCompat.getString(Res.application!!, this)
 }
 
-inline fun Int.getDrawable():Drawable?{
-    return ContextCompat.getDrawable(Res.application!!,this)
+inline fun Int.getDrawable(context: Context):Drawable?{
+    return ContextCompat.getDrawable(context,this)
 }

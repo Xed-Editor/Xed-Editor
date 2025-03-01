@@ -125,6 +125,7 @@ dependencies {
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
     api(libs.word.wrap)
+    //api(libs.ktsh)
 
     //debug libs these libs doesnt get added when creating release builds
     debugApi(libs.bsh)

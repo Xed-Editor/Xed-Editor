@@ -142,7 +142,7 @@ fi
     }
 
     override fun getIcon(context: Context): Drawable? {
-        return drawables.ic_language_c.getDrawable()
+        return drawables.ic_language_c.getDrawable(context)
     }
 
     override fun isRunning(): Boolean {

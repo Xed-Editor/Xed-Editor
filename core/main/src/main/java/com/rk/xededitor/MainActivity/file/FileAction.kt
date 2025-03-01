@@ -164,9 +164,9 @@ class FileAction(
             }
 
             addItem(getString(strings.copy), getString(strings.copy_desc), if (file.isDirectory()){
-                drawables.folder_copy_24px.getDrawable()
+                drawables.folder_copy_24px.getDrawable(mainActivity)
             }else{
-                drawables.content_copy_24px.getDrawable()
+                drawables.content_copy_24px.getDrawable(mainActivity)
             }) {
                 FileClipboard.setFile(file)
             }
@@ -175,7 +175,7 @@ class FileAction(
                 addItem(
                     getString(strings.paste),
                     getString(strings.paste_desc),
-                    drawables.content_paste_24px.getDrawable(),
+                    drawables.content_paste_24px.getDrawable(mainActivity),
                 ) {
                     if (FileClipboard.isEmpty()) {
                         toast(getString(strings.clipboardempty))

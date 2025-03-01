@@ -63,7 +63,7 @@
     <string name="dir_example">Name eg. Test</string>
     <string name="create">Create</string>
     <string name="ask_enter_name">Please enter a name</string>
-    <string name="already_exists">A file/folder already exist with this name</string>
+    <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
     <string name="ask_del">Are you sure you want to delete</string>
     <string name="redir">Please reselect the directory</string>
@@ -407,6 +407,12 @@
     <string name="sponsor_desc">Support Development</string>
     <string name="feature_toggles">Feature Toggles</string>
     <string name="feature_toggles_desc">Enable or disable specific features</string>
+
+    <string name="backup">Backup</string>
+    <string name="restore">Restore</string>
+    <string name="success">Success</string>
+    <string name="failed">Failed</string>
+    <string name="invalidpath">Invalid path</string>
 
 
 </resources>

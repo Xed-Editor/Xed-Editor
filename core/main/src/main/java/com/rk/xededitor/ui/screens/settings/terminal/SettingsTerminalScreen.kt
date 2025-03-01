@@ -3,6 +3,13 @@ package com.rk.xededitor.ui.screens.settings.terminal
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.EditText
+import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.karbon_exec.isTermuxCompatible
 import com.rk.karbon_exec.isTermuxInstalled
 import com.rk.karbon_exec.testExecPermission
@@ -45,13 +53,26 @@ import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.PathUtils.toPath
+import com.rk.libcommons.alpineDir
+import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
+import com.rk.libcommons.toast
+import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.R
 import com.rk.xededitor.ui.components.ValueSlider
 import com.rk.xededitor.ui.screens.terminal.terminalView
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import java.io.File
+import java.lang.Runtime.getRuntime
+import java.util.Date
 
 private const val min_text_size = 10f
 private const val max_text_size = 20f
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun SettingsTerminalScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
@@ -144,6 +165,151 @@ fun SettingsTerminalScreen(navController: NavController) {
                 terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
             }
         )
+
+
+        PreferenceGroup {
+            val context = LocalContext.current
+            val activity = LocalActivity.current
+
+            val restore = rememberLauncherForActivityResult(
+                ActivityResultContracts.GetContent()
+            ) { uri ->
+                if (uri == null){
+                    toast(strings.invalid_path)
+                    return@rememberLauncherForActivityResult
+                }
+
+                val filePath = File(uri.toPath())
+
+                if (filePath.exists().not() ||
+                    filePath.canRead().not() ||
+                    filePath.isFile.not() ||
+                    filePath.canWrite().not()){
+                    toast(strings.invalid_path)
+                    return@rememberLauncherForActivityResult
+                }
+
+                val loading = LoadingPopup(context,null)
+                loading.show()
+
+                GlobalScope.launch(Dispatchers.IO){
+                    alpineDir().deleteRecursively()
+                    alpineDir().mkdirs()
+
+                    val result = getRuntime().exec("tar -xf ${filePath.absolutePath} -C ${alpineDir()}").waitFor()
+                    withContext(Dispatchers.Main){
+                        loading.hide()
+                        if (result == 0){
+                            toast(strings.success)
+                        }else{
+                            toast(strings.failed)
+                        }
+                    }
+                }
+
+
+
+
+            }
+
+            val backup = rememberLauncherForActivityResult(
+                ActivityResultContracts.OpenDocumentTree()
+            ) { uri ->
+                if (uri == null){
+                    toast(strings.invalid_path)
+                    return@rememberLauncherForActivityResult
+                }
+
+                val path = File(uri.toPath())
+
+                if (path.exists().not() ||
+                    path.canRead().not() ||
+                    path.isDirectory.not() ||
+                    path.canWrite().not()){
+                    toast(strings.invalid_path)
+                    return@rememberLauncherForActivityResult
+                }
+
+
+                MaterialAlertDialogBuilder(activity ?: context).apply {
+                    setTitle(strings.file_name)
+                    val popupView: View = LayoutInflater.from(MainActivity.activityRef.get()!!).inflate(R.layout.popup_new, null)
+                    val editText = popupView.findViewById<EditText>(R.id.name)
+                    editText.setText("terminal-backup.tar.gz")
+                    setView(popupView)
+                    setNeutralButton(strings.cancel, null)
+                    setPositiveButton(strings.backup){ _, _ ->
+                        val text = editText.text.toString()
+                        if (text.isBlank()){
+                            toast(strings.inavalid_v)
+                            return@setPositiveButton
+                        }
+
+                        val targetFile = path.child(text)
+                        if (targetFile.exists()){
+                            toast(strings.already_exists)
+                            return@setPositiveButton
+                        }
+
+                        val loading = LoadingPopup(context,null)
+                        loading.show()
+
+                        GlobalScope.launch(Dispatchers.IO) {
+                            try {
+                                val alpineDir = alpineDir().absolutePath
+                                val targetPath = targetFile.absolutePath
+
+                                val processBuilder = ProcessBuilder(
+                                    "tar","-czf", targetPath, ".",
+                                    "--exclude=dev", "--exclude=sys", "--exclude=proc", "--exclude=system","--exclude=apex",
+                                    "--exclude=vendor", "--exclude=data", "--exclude=home", "--exclude=root","--exclude=var/cache", "--exclude=var/tmp", "--exclude=lost+found",
+                                    "--exclude=storage", "--exclude=system_ext", "--exclude=tmp", "--exclude=vendor","--exclude=sdcard","--exclude=storage"
+                                ).apply {
+                                    directory(File(alpineDir))
+                                    redirectErrorStream(true)
+                                }
+
+                                processBuilder.start().waitFor()
+
+                                withContext(Dispatchers.Main) {
+                                    loading.hide()
+                                }
+                            } catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
+                                    loading.hide()
+                                    toast("Error: ${e.message}")
+                                }
+                            }
+
+                        }
+
+                    }
+                    show()
+                }
+
+
+            }
+
+            SettingsToggle(
+                label = stringResource(strings.backup),
+                description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    backup.launch(null)
+                }
+            )
+
+            SettingsToggle(
+                label = stringResource(strings.restore),
+                description = "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    restore.launch("application/gzip")
+                }
+            )
+        }
 
     }
 }

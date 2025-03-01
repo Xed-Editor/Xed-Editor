@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.screens.terminal
 
+import com.rk.libcommons.alpineDir
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
@@ -26,6 +27,16 @@ fun setupTerminalFiles(){
         }
     }
 
+    with(alpineDir().child("bin/logger")){
+        if (exists().not()) {
+            createFileIfNot()
+            setExecutable(true)
+            writeText(
+                application!!.assets.open("terminal/log.sh").bufferedReader()
+                    .use { it.readText() })
+        }
+    }
+
 
     with(localDir().child("stat")){
         if (exists().not()){
@@ -40,4 +51,6 @@ fun setupTerminalFiles(){
             writeText(vmstat)
         }
     }
+
+
 }

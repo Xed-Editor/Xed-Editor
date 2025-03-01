@@ -65,7 +65,7 @@ class HtmlRunner(val file:FileObject) : RunnerImpl() {
         return "Preview html"
     }
 
-    override fun getIcon(context: Context): Drawable? = drawables.ic_language_html.getDrawable()
+    override fun getIcon(context: Context): Drawable? = drawables.ic_language_html.getDrawable(context)
     
     override fun isRunning(): Boolean = httpServer?.isAlive == true
     

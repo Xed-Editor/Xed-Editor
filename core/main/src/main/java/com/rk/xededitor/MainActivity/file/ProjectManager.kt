@@ -71,13 +71,13 @@ object ProjectManager {
 
                 if (file is UriWrapper){
                     if (file.isTermuxUri()){
-                        item.icon = drawables.terminal.getDrawable()
+                        item.icon = drawables.terminal.getDrawable(activity)
                         if (file.getName() == "home" || file.getName() == "Invalid"){
                             item.title = "Termux"
                         }
                     }
                 }else if (file.getAbsolutePath() == alpineHomeDir().absolutePath){
-                    item.icon = drawables.terminal.getDrawable()
+                    item.icon = drawables.terminal.getDrawable(activity)
                     item.title = "Home"
                 }
 
