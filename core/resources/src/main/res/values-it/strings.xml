@@ -14,7 +14,7 @@
     <string name="permission_denied">Permesso Negato</string>
     <string name="path">Percorso</string>
     <string name="action_done">Azione Eseguita</string>
-    <string name="manage_storage_reason">Karbon ha bisogno dei permessi per modificare i file. Per favore concedi i permessi nella schermata seguente.</string>
+    <string name="manage_storage_reason">Xed-Editor ha bisogno dei permessi per modificare i file. Per favore concedi i permessi nella schermata seguente.</string>
     <string name="open_file_desc">Scegli un file per modificarlo direttamente</string>
     <string name="download_sure">Sei sicuro di voler scaricare</string>
     <string name="themes">Temi</string>
@@ -22,7 +22,7 @@
     <string name="cred">Credenziali</string>
     <string name="save_label">Salva</string>
     <string name="copy">Copia</string>
-    <string name="private_files_desc">File Privati di Karbon</string>
+    <string name="private_files_desc">File Privati di Xed-Editor</string>
     <string name="restart_required">Riavvio richiesto</string>
     <string name="attention">Attenzione</string>
     <string name="keyword_regex">Parola chiave (regex)</string>
@@ -93,7 +93,7 @@
     <string name="canthandle">Nessuna app associata a questo tipo di file</string>
     <string name="clipboardempty">Nessun appunto in memoria</string>
     <string name="terminal">Terminale</string>
-    <string name="add_file">Aggiungi File</string>
+    <string name="add_file">Aggiungi File Esterno</string>
     <string name="replaceall">SostituisciTutto</string>
     <string name="add_new_replacement_batch">Aggiungi una nuova sostituzione batch</string>
     <string name="remove_a_search_batch">rimuovi una ricerca batch</string>
@@ -119,12 +119,12 @@
     <string name="file_open_denied">Non è consentito aprire questo file con altre app</string>
     <string name="close_current_project">Chiudi il progetto corrente</string>
     <string name="open_with_other">Apri il file selezionato in altre app</string>
-    <string name="delete_descript">Cancella il file/cartella selezionato</string>
+    <string name="delete_descript">Elimina documento</string>
     <string name="add_file_desc">Seleziona un nuovo file da aggiungere qui</string>
-    <string name="paste_desc">Incolla il file/cartella selezionato</string>
+    <string name="paste_desc">Incolla documento</string>
     <string name="clipboard_empty">Non ci sono file copiati in memoria</string>
     <string name="save_desc">Salva il file selezionato in un\'altra posizione</string>
-    <string name="copy_desc">Copia il file/cartella selezionato</string>
+    <string name="copy_desc">Copia documento</string>
     <string name="failed_move">Non è stato possibile spostare il file</string>
     <string name="file_name">Nome del file</string>
     <string name="ff_path">Percorso del file o della cartella</string>
@@ -146,7 +146,7 @@
     <string name="private_files">File Privati</string>
     <string name="cloning">Sto clonando il repository…</string>
     <string name="err">Errore</string>
-    <string name="open_dir_desc">Scegli una cartella come progetto</string>
+    <string name="open_dir_desc">Apro una cartella utilizzando SAF</string>
     <string name="open_path">Memoria interna</string>
     <string name="open_path_desc">Apri la memoria interna</string>
     <string name="clone_repo_desc">Clona il repository con Git</string>
@@ -169,8 +169,8 @@
     <string name="file_exist_not">Il file non esiste più</string>
     <string name="available">Disponibile</string>
     <string name="fetch_failed">la richiesta ha restituito una risposta vuota</string>
-    <string name="reload_file_tree">Ricarica File File</string>
-    <string name="rename_descript">Rinomina il file/cartella selezionato</string>
+    <string name="reload_file_tree">Ricarica File</string>
+    <string name="rename_descript">Rinomina il documento</string>
     <string name="pushing">Sto inviando al repository remoto…</string>
     <string name="nogit">Errore: folder .git non trovato</string>
     <string name="ok">OK</string>
@@ -249,7 +249,7 @@
     <string name="no_plugins_available">Nessun Plugin Disponibile</string>
     <string name="show_suggestions">Mostra Suggerimenti</string>
     <string name="about">Informazioni</string>
-    <string name="about_desc">Informazioni su Karbon</string>
+    <string name="about_desc">Informazioni su Xed-Editor</string>
     <string name="version">Versione</string>
     <string name="version_code">Codice Versione</string>
     <string name="github_desc">Valuta su GitHub 🤩</string>
@@ -300,7 +300,7 @@
     <string name="ignore">Ignora</string>
     <string name="update_disable">Verifica di aggiornamento disabilitata</string>
     <string name="launch_termux">Avviare Termux?</string>
-    <string name="launch_termux_explanation">Termux è fermo, quindi Karbon non è in grado di eseguirci i comandi. Vuoi avviarlo?</string>
+    <string name="launch_termux_explanation">Termux è fermo, quindi Xed-Editor non è in grado di eseguirci i comandi. Vuoi avviarlo?</string>
     <string name="launch">Avvia</string>
     <string name="default_encoding_desc">Codificazione Predefinita dell\'Editor</string>
     <string name="content">Contenuto</string>
