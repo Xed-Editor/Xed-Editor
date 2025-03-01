@@ -67,7 +67,7 @@
     <string name="dir_example">Örneğin, ad: Test</string>
     <string name="create">Yaratmak</string>
     <string name="ask_enter_name">Lütfen bir ad girin</string>
-    <string name="already_exists">"Bu adda bir dosya/klasör zaten mevcut</string>
+    <string name="already_exists">Bu adda bir dosya/klasör zaten mevcut</string>
     <string name="attention">Dikkat</string>
     <string name="ask_del">Silmek istediğinizden emin misiniz?</string>
     <string name="redir">Lütfen dizini yeniden seçin</string>
