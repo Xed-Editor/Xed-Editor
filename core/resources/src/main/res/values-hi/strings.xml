@@ -67,7 +67,7 @@
     <string name="dir_example">उदाहरण के लिए, नाम: परीक्षण</string>
     <string name="create">बनाएं</string>
     <string name="ask_enter_name">कृपया एक नाम दर्ज करें</string>
-    <string name="already_exists">"इस नाम से एक फ़ाइल/फ़ोल्डर पहले से मौजूद है</string>
+    <string name="already_exists">इस नाम से एक फ़ाइल/फ़ोल्डर पहले से मौजूद है</string>
     <string name="attention">ध्यान</string>
     <string name="ask_del">क्या आप आश्वस्त है कि आपको डिलीट करना है?</string>
     <string name="redir">कृपया निर्देशिका पुनः चुनें</string>
