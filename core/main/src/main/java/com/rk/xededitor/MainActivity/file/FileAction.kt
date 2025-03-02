@@ -57,18 +57,19 @@ class FileAction(
         
 
         ActionPopup(mainActivity, true).apply {
-            if (file.isDirectory()){
-                if (file == rootFolder) {
-                    addItem(
-                        strings.close.getString(),
-                        getString(strings.close_current_project),
-                        getDrawable(drawables.close),
-                    ) {
-                        ProjectManager.removeProject(
-                            mainActivity, rootFolder
-                        )
-                    }
+            if (file == rootFolder) {
+                addItem(
+                    strings.close.getString(),
+                    getString(strings.close_current_project),
+                    getDrawable(drawables.close),
+                ) {
+                    ProjectManager.removeProject(
+                        mainActivity, rootFolder
+                    )
                 }
+            }
+
+            if (file.isDirectory()){
 
                 addItem(
                     strings.refresh.getString(),
