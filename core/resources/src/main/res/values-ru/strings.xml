@@ -67,7 +67,7 @@
     <string name="dir_example">Имя, например: Тест</string>
     <string name="create">Создать</string>
     <string name="ask_enter_name">Пожалуйста, введите имя</string>
-    <string name="already_exists">Файл/папка с таким именем уже существует</string>
+    <string name="already_exists">Документ с таким именем уже существует</string>
     <string name="attention">Внимание</string>
     <string name="ask_del">Вы уверены, что хотите удалить</string>
     <string name="redir">Пожалуйста, выберите каталог еще раз</string>
@@ -334,7 +334,7 @@
     <string name="restore_sessions">Восстанавливать сессии</string>
     <string name="terminal_runtime">Среда выполнения терминала</string>
     <string name="restore_sessions_desc">Восстанавливать открытые вкладки</string>
-    <string name="enable_ext">Включить дополнения</string>
+    <string name="enable_ext">Расширения</string>
     <string name="name_empty_err">Имя не должно быть пустым</string>
     <string name="sessions">Сессии</string>
     <string name="add_session">Добавить сессию</string>
@@ -375,4 +375,13 @@
     <string name="read_only_file">Файл доступен только для чтения</string>
     <string name="toggle_ww">Переключить перенос слов</string>
     <string name="warning_private_dir">Содержимое этого каталога будет удалено, если вы очистите данные или удалите Xed-Editor</string>
+    <string name="sponsor">Поддержать</string>
+    <string name="sponsor_desc">Поддержать разработку</string>
+    <string name="feature_toggles">Переключатель функций</string>
+    <string name="feature_toggles_desc">Включить или отключить определенные функции</string>
+    <string name="restore">Восстановить</string>
+    <string name="success">Успешно</string>
+    <string name="failed">Не удалось</string>
+    <string name="invalidpath">Неверный путь</string>
+    <string name="backup">Резервное копирование</string>
 </resources>
