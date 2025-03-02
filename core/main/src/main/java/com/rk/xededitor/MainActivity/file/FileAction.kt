@@ -17,8 +17,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
+import com.rk.karbon_exec.runBashScript
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.askInput
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
@@ -26,6 +28,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.git.GitClient
@@ -35,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
+import java.io.File
 
 class FileAction(
     private val mainActivity: MainActivity,
@@ -115,17 +119,68 @@ class FileAction(
                 mainActivity.fileManager?.requestAddFile?.launch(intent)
             }
 
-            if (file is FileWrapper && file.isDirectory() && Features.terminal.value){
+
+            fun isTermux(): Boolean{
+                return Settings.terminal_runtime == "Termux"
+            }
+
+
+            if (isTermux() && file is UriWrapper && file.isTermuxUri()){
                 addItem(
-                    getString(strings.open_in_terminal),
+                    getString(strings.open_in_terminal)+" (${Settings.terminal_runtime})",
                     getString(strings.open_dir_in_terminal),
                     getDrawable(drawables.terminal),
                 ) {
-                    val intent = Intent(context, Terminal::class.java)
-                    intent.putExtra("cwd", file.getAbsolutePath())
-                    context.startActivity(intent)
+                    val actualFile = file.convertToTermuxFile()
+                    runBashScript(mainActivity, script = """
+                            cd ${actualFile.absolutePath}
+                            bash -l
+                        """.trimIndent())
+                }
+            }else{
+                val nativeFile = if (file is FileWrapper){
+                    file.file
+                }else if (File(file.getAbsolutePath()).exists()){
+                    File(file.getAbsolutePath())
+                }else{
+                    val magic = File(Uri.parse(file.getAbsolutePath()).toPath())
+                    if (magic.exists()){
+                        magic
+                    }else{
+                        null
+                    }
+                }
+                fun isPrivateDir(file: File?): Boolean{
+                    return file?.absolutePath?.contains(mainActivity.filesDir.parentFile!!.absolutePath)?.not() == true
+                }
+                if ((isTermux() && isPrivateDir(nativeFile)).not()){
+                    if (nativeFile != null && nativeFile.exists() && nativeFile.isDirectory && Features.terminal.value){
+                        addItem(
+                            getString(strings.open_in_terminal)+" (${Settings.terminal_runtime})",
+                            getString(strings.open_dir_in_terminal),
+                            getDrawable(drawables.terminal),
+                        ) {
+
+                            if (Settings.terminal_runtime == "Termux"){
+                                runBashScript(mainActivity, script = """
+                            cd ${file.getAbsolutePath()}
+                            bash -l
+                        """.trimIndent())
+                            }else{
+                                val intent = Intent(context, Terminal::class.java)
+                                intent.putExtra("cwd", file.getAbsolutePath())
+                                context.startActivity(intent)
+                            }
+
+                        }
+                    }
                 }
             }
+
+
+
+
+
 
             addItem(
                 getString(strings.delete),
