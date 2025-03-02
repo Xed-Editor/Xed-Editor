@@ -34,8 +34,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
 private suspend fun updateEditor(
     fragment: EditorFragment?,
     menu: Menu,
-    showItems: Boolean = MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty()
-        ?: false
+    showItems: Boolean = fragment != null && MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty() ?: false
 ) {
 
     var show = showItems
@@ -58,7 +57,6 @@ private suspend fun updateEditor(
         findItem(Id.tools).isVisible = show
         findItem(Id.select_highlighting).isVisible = show
         findItem(Id.toggle_word_wrap).isVisible = show
-
     }
 
 

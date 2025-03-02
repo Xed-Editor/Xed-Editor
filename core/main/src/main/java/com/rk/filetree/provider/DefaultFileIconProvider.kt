@@ -101,9 +101,10 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
 
                         "md" -> markdown
                         "txt" -> text
+
                         "mp3",
                         "wav",
-                        "ogg", "m4a",
+                        "ogg", "m4a","aac", "wma","opus",
                         "flac" -> audio
 
                         "mp4",
