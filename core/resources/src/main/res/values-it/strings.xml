@@ -28,7 +28,7 @@
     <string name="keyword_regex">Parola chiave (regex)</string>
     <string name="save_1">Salva</string>
     <string name="saveexit">Salva e Esci</string>
-    <string name="already_exists">Un file/cartella con questo nome è già presente</string>
+    <string name="already_exists">Un documento con questo nome è già presente</string>
     <string name="open_drawer">apri</string>
     <string name="rr">Riavvio Richiesto</string>
     <string name="create_new_file_desc">Crea un nuovo file nella cartella selezionata</string>
@@ -378,4 +378,10 @@
     <string name="feature_toggles_desc">Abilita o disabilita funzionalità specifiche</string>
     <string name="new_document_desc">Nuovo file o cartella</string>
     <string name="folder">Cartella</string>
+    <string name="sponsor">Sostieni</string>
+    <string name="backup">Backup</string>
+    <string name="restore">Ripristina</string>
+    <string name="success">Successo</string>
+    <string name="invalidpath">Percorso non valido</string>
+    <string name="failed">Fallito</string>
 </resources>
