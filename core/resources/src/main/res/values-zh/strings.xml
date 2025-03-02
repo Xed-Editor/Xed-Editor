@@ -123,7 +123,7 @@
     <string name="apply">应用</string>
     <string name="inavalid_userdata">无效用户数据。请在设置中更改</string>
     <string name="userdatagit">Git 用户数据</string>
-    <string name="reload_file_tree">重新加载文件文件</string>
+    <string name="reload_file_tree">重新加载文件</string>
     <string name="rename_descript">重命名选中的文件/文件夹</string>
     <string name="open_with_other">在其他应用中打开选中的文件</string>
     <string name="delete_descript">删除选中的文件/文件夹</string>
