@@ -12,6 +12,7 @@ import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.R
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import kotlin.collections.indexOf
 
 var smoothTabs = Settings.smooth_tabs
 
@@ -59,6 +60,11 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
                 .attach()
             DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
 
+            MainActivity.withContext {
+                for(i in 0 until tabViewModel.fragmentTitles.size){
+                    tabLayout!!.getTabAt(i)?.text = tabViewModel.fragmentTitles[i]
+                }
+            }
 
             true
         }
