@@ -2,7 +2,7 @@
 <resources>
     <string name="cs">Distinguir mayúsculas</string>
     <string name="wait_download">Espera mientras los archivos se descargan.</string>
-    <string name="reload_file_tree">Actualizar archivo</string>
+    <string name="reload_file_tree">Recargar archivos</string>
     <string name="drawer_lock_desc">Bloquear el cajón al abrir un archivo</string>
     <string name="ni">Esta característica no se ha implementado</string>
     <string name="save_label">Guardar</string>
@@ -102,14 +102,14 @@
     <string name="open_dir_in_terminal">Abrir carpeta en un terminal</string>
     <string name="file_open_denied">Abrir este archivo con otras aplicaciones no está permitido</string>
     <string name="close_current_project">Cerrar proyecto actual</string>
-    <string name="rename_descript">Cambiar nombre del elemento seleccionado</string>
+    <string name="rename_descript">Cambiar nombre del documento</string>
     <string name="open_with_other">Abrir el archivo seleccionado en otra aplicación</string>
-    <string name="delete_descript">Eliminar el elemento seleccionado</string>
+    <string name="delete_descript">Eliminar documento</string>
     <string name="add_file_desc">Seleccionar un nuevo archivo para añadir</string>
     <string name="create_new_file_desc">Crear un nuevo archivo en la carpeta seleccionada</string>
-    <string name="paste_desc">Pegar elemento seleccionado</string>
+    <string name="paste_desc">Pegar documento</string>
     <string name="clipboard_empty">El portapapeles de archivos está vacío</string>
-    <string name="copy_desc">Copiar elemento seleccionado</string>
+    <string name="copy_desc">Copiar documento</string>
     <string name="failed_move">No se pudo mover el archivo</string>
     <string name="ff_path">Ruta de archivo o carpeta</string>
     <string name="path">Ruta</string>
@@ -134,10 +134,10 @@
     <string name="exists">ya existe</string>
     <string name="plugin_dir">Carpeta de extensiones</string>
     <string name="private_files">Archivos privados</string>
-    <string name="private_files_desc">Archivos privados de Karbon</string>
+    <string name="private_files_desc">Archivos privados de Xed-Editor</string>
     <string name="cloning">Clonando repositorio…</string>
     <string name="clone_err">El repositorio es privado, revisa tus credenciales</string>
-    <string name="open_dir_desc">Elige una carpeta de proyecto</string>
+    <string name="open_dir_desc">Abre un directorio usando SAF</string>
     <string name="open_file_desc">Elige un archivo para editarlo directamente</string>
     <string name="open_path">Almacenamiento interno</string>
     <string name="open_path_desc">Abrir almacenamiento interno</string>
@@ -220,7 +220,7 @@
     <string name="no_plugins_available">No hay extensiones disponibles</string>
     <string name="show_suggestions">Mostrar sugerencias</string>
     <string name="about">Acerca de</string>
-    <string name="about_desc">Acerca de Karbon</string>
+    <string name="about_desc">Acerca de Xed-Editor</string>
     <string name="version">Versión</string>
     <string name="version_code">Código de versión</string>
     <string name="light_mode">Claro</string>
@@ -271,7 +271,7 @@
     <string name="ignore">Ignorar</string>
     <string name="update_disable">Comprobación de actualizaciones deshabilitada</string>
     <string name="launch_termux">¿Abrir Termux?</string>
-    <string name="launch_termux_explanation">Termux se ha detenido y Karbon no puede ejecutar comandos dentro de este, ¿deseas reabrirlo?</string>
+    <string name="launch_termux_explanation">Termux se ha detenido, por lo que Xed-Editor no puede ejecutar comandos dentro de este. ¿Deseas reabrirlo?</string>
     <string name="launch">Ejecutar</string>
     <string name="open_file_or_folder">Abrir archivo o carpeta</string>
     <string name="save_all">Guardar todo</string>
@@ -282,7 +282,7 @@
     <string name="file_name">Nombre de archivo</string>
     <string name="app">Aplicación</string>
     <string name="run">Ejecutar</string>
-    <string name="already_exists">Ya existe un archivo o carpeta con ese nombre</string>
+    <string name="already_exists">Ya existe un archivo con ese nombre</string>
     <string name="file_saved">Archivo guardado</string>
     <string name="terminal_text_size">Tamaño de texto del terminal</string>
     <string name="open_file">Abrir un archivo</string>
@@ -290,7 +290,7 @@
     <string name="userdatagit">Datos de usuario para git</string>
     <string name="push_desc">Crear un cambio y publicar al repositorio remoto</string>
     <string name="save_desc">Guardar en otra ubicación</string>
-    <string name="manage_storage_reason">Karbon necesita permisos para poder editar archivos en tu almacenamiento. Por favor otorga acceso a la aplicación en el diálogo siguiente.</string>
+    <string name="manage_storage_reason">Xed-Editor necesita permisos para poder editar archivos en tu almacenamiento. Por favor, otorga acceso a la aplicación en el diálogo siguiente.</string>
     <string name="wait_pkg">Por favor espera mientras se descargan los paquetes.</string>
     <string name="pushing">Publicando a repositorio remoto…</string>
     <string name="installed">Instaladas</string>
@@ -309,4 +309,29 @@
     <string name="ask_unsaved">¿Confirmar desechar este documento sin guardar?</string>
     <string name="encoding_warning">Cambiar la codificación por defecto es peligroso y no se recomienda debido a que puede corromper archivos. Se recomienda encarecidamente que utilices UTF-8 a menos que entiendas por completo las consecuencias y tengas respaldos adecuados de tus archivos.</string>
     <string name="theme_mode_desc">Cambiar el modo de tema a claro, oscuro o automático.</string>
+    <string name="add_session">Añadir sesión</string>
+    <string name="script_show_toast">mostrar mensaje emergente</string>
+    <string name="sessions">Sesiones</string>
+    <string name="terminal_runtime">Tiempo de ejecución de la terminal</string>
+    <string name="enable_ext_desc">Cargar extensiones de terceros</string>
+    <string name="name_empty_err">El nombre no puede estar vacío</string>
+    <string name="enable_ext">Extensiones</string>
+    <string name="terminal_runtime_desc">Seleccionar entorno de ejecución de la terminal</string>
+    <string name="ext">Extensiones</string>
+    <string name="script_showing_dialog">Mostrando un diálogo</string>
+    <string name="script_set_text">establecer texto</string>
+    <string name="mutator_desc">Crear micro herramientas</string>
+    <string name="restore_sessions">Restaurar sesiones</string>
+    <string name="terminal_home_desc">Directorio de inicio predeterminado de la terminal</string>
+    <string name="restore_sessions_desc">Restaurar pestañas anteriores</string>
+    <string name="terminal_home">Inicio de la Terminal</string>
+    <string name="ext_desc">Gestionar extensiones</string>
+    <string name="info_mutators">Los mutadores son pequeños scripts que se utilizan para modificar el texto del editor. Crea un mutador y haz clic en él para abrirlo en el editor.</string>
+    <string name="no_mutators">No hay mutadores</string>
+    <string name="tab_opened">Pestaña abierta</string>
+    <string name="mutator_name">Nombre del mutador</string>
+    <string name="script_get_text">obtener texto</string>
+    <string name="name_used">Nombre ya usado</string>
+    <string name="script_network">red</string>
+    <string name="script_text">este texto se escribirá en el editor</string>
 </resources>
