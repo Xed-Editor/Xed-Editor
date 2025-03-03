@@ -45,7 +45,7 @@
     <string name="canthandle">未找到处理本文件的应用</string>
     <string name="clipboardempty">剪贴板为空</string>
     <string name="terminal">终端</string>
-    <string name="add_file">添加文件</string>
+    <string name="add_file">添加拓展文件</string>
     <string name="keyword_regex">关键词（正则表达式）</string>
     <string name="replaceall">替换所有</string>
     <string name="replacement">替换</string>
@@ -251,7 +251,7 @@
     <string name="no_plugins_available">没有插件可用</string>
     <string name="show_suggestions">键盘选词建议</string>
     <string name="about">关于</string>
-    <string name="about_desc">关于 Karbon</string>
+    <string name="about_desc">关于 Xed-Editor</string>
     <string name="version">版本</string>
     <string name="version_code">版本代号</string>
     <string name="github">GitHub</string>
@@ -309,4 +309,23 @@
     <string name="launch_termux">要启动 Termux 吗？</string>
     <string name="launch_termux_explanation">Termux 不在运行，所以 Karbon 无法在其中运行命令。你想要启动它吗？</string>
     <string name="launch">启动</string>
+    <string name="sessions">会话</string>
+    <string name="script_showing_dialog">展示对话框</string>
+    <string name="loading">加载中…</string>
+    <string name="no_ext">没有安装拓展</string>
+    <string name="not_plugin_err">所选文件不是.plugin文件</string>
+    <string name="install_from_storage">从内部存储安装</string>
+    <string name="network_err">网络错误</string>
+    <string name="email">邮箱</string>
+    <string name="git_auth">GitHub 访问令牌</string>
+    <string name="invalid_email">无效邮箱</string>
+    <string name="invalid_user">无效用户名</string>
+    <string name="initializing">初始化中…</string>
+    <string name="backup">备份</string>
+    <string name="add_session">新建会话</string>
+    <string name="user">用户</string>
+    <string name="terminal_runtime_desc">选择终端运行方式</string>
+    <string name="terminal_runtime">终端运行方式</string>
+    <string name="installing">安装中…</string>
+    <string name="downloading">下载中…</string>
 </resources>
