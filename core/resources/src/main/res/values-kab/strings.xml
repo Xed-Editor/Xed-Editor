@@ -65,4 +65,19 @@
     <string name="github">GitHub</string>
     <string name="close_all">Mdel-iten akk</string>
     <string name="tools">Ifecka</string>
+    <string name="sessions">Tiɣimiyin</string>
+    <string name="ext">Isiɣzaf</string>
+    <string name="installing">Asbeddi…</string>
+    <string name="loading">Aɛebbi…</string>
+    <string name="user">Aseqdac</string>
+    <string name="email">Imayl</string>
+    <string name="enable_ext">Isiɣzaf</string>
+    <string name="downloading">Azdam…</string>
+    <string name="file">Afaylu</string>
+    <string name="folder">Akaram</string>
+    <string name="done">Yedda</string>
+    <string name="script_network">aẓeṭṭa</string>
+    <string name="save">Yettwasekles ufaylu</string>
+    <string name="openfile">Ldi afaylu</string>
+    <string name="fonts">Tisefsa</string>
 </resources>
