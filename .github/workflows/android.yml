@@ -150,9 +150,11 @@ jobs:
             echo "Error: Failed to create release."
             exit 1
           fi
+          
+          mv app/xed-editor-${{ env.VERSION_NAME }}.apk app/xed-editor-v${{ env.COMMIT_HASH }}
 
           curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/vnd.android.package-archive" \
-            --data-binary @app/xed-editor-${{ env.VERSION_NAME }}.apk \
+            --data-binary @app/xed-editor-v${{ env.COMMIT_HASH }}.apk \
             "$UPLOAD_URL?name=xed-editor-v${{ env.COMMIT_HASH }}.apk"
