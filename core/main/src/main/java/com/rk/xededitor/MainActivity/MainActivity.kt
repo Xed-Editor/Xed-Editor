@@ -329,8 +329,9 @@ class MainActivity : BaseActivity() {
     private fun openTabForIntent(intent: Intent){
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data
+            
             val file = File(uri!!.toPath())
-            var fileObject = if (file.exists() && file.canRead() && file.isFile){
+            var fileObject = if (file.exists() && file.canRead() && file.canWrite() && file.isFile){
                 FileWrapper(file)
             }else{
                 UriWrapper(uri)
@@ -388,6 +389,7 @@ class MainActivity : BaseActivity() {
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
         lifecycleScope.launch(Dispatchers.IO){
+            delay(2000)
             for (project in ProjectManager.projects){
                 UI {
                     toastCatching {

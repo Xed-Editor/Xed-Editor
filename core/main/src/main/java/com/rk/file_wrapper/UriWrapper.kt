@@ -28,12 +28,7 @@ class UriWrapper : FileObject {
     var file: DocumentFile
         get() {
             if (_file == null) {
-
-                _file = if (DocumentsContract.isTreeUri(Uri.parse(uri))){
-                    DocumentFile.fromTreeUri(application!!, Uri.parse(uri))
-                }else{
-                    DocumentFile.fromSingleUri(application!!, Uri.parse(uri))
-                }
+                _file = Uri.parse(uri).getDocumentFile()!!
             }
             return _file!!
         }
@@ -49,14 +44,28 @@ class UriWrapper : FileObject {
         this.uri = file.uri.toString()
     }
 
+companion object{
+    fun Uri.getDocumentFile(): DocumentFile?{
+        return if (DocumentsContract.isTreeUri(this)){
+            try {
+                DocumentFile.fromTreeUri(application!!, this)
+            }catch (e: Exception){
+                e.printStackTrace()
+                DocumentFile.fromSingleUri(application!!, this)
+            }
+        }else{
+            try {
+                DocumentFile.fromSingleUri(application!!, this)
+            }catch (e: Exception){
+                e.printStackTrace()
+                DocumentFile.fromTreeUri(application!!, this)
+            }
+        }
+    }
+}
 
     @Throws(IllegalArgumentException::class)
-    constructor(uri: Uri) : this(
-        when {
-            uri.toString().contains("tree/") -> DocumentFile.fromTreeUri(application!!, uri)
-            else -> DocumentFile.fromSingleUri(application!!, uri)
-        } ?: throw IllegalArgumentException("Invalid Uri or missing permission: $uri")
-    )
+    constructor(uri: Uri) : this(uri.getDocumentFile()!!)
 
     override fun listFiles(): List<FileObject> = when {
         !file.isDirectory -> emptyList()
