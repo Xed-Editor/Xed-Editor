@@ -74,6 +74,11 @@
             android:name="com.rk.xededitor.ui.activities.settings.SettingsActivity"
             android:exported="false" />
 
+        <activity android:name="com.rk.runner.runners.web.markdown.MDViewer"
+            android:exported="false"/>
+        <activity android:name="com.rk.runner.runners.web.WebActivity"
+            android:exported="false" />
+
         <activity
             android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
             android:exported="true"
