@@ -70,7 +70,7 @@ jobs:
           fi
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/xed-editor-${{ env.VERSION_NAME }}.apk
+        run: ./gradlew assembleRelease && mv app/build/outputs/apk/release/*.apk app/xed-editor-v${{ env.COMMIT_HASH }}.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
@@ -80,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Xed-Editor-Release
-          path: app/xed-editor-${{ env.VERSION_NAME }}.apk
+          path: app/xed-editor-v${{ env.COMMIT_HASH }}.apk
 
       - name: Delete xed.keystore and signing.properties
         run: rm /tmp/xed.keystore /tmp/signing.properties
@@ -92,7 +92,7 @@ jobs:
           -F chat_id="-1002408175863" \
           -F message_thread_id="582" \
           -F caption="${{ github.event.head_commit.message }} by ${{ github.actor }}" \
-          -F document=@"app/xed-editor-${{ env.VERSION_NAME }}.apk"
+          -F document=@"app/xed-editor-v${{ env.COMMIT_HASH }}.apk"
 
       - name: Process Build
         run: |
@@ -150,8 +150,6 @@ jobs:
             echo "Error: Failed to create release."
             exit 1
           fi
-          
-          mv app/xed-editor-${{ env.VERSION_NAME }}.apk app/xed-editor-v${{ env.COMMIT_HASH }}
 
           curl -s -X POST \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
