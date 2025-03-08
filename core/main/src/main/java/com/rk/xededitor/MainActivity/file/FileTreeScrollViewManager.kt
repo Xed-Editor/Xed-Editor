@@ -2,6 +2,7 @@ package com.rk.xededitor.MainActivity.file
 
 import android.content.Context
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
@@ -31,6 +32,7 @@ object FileTreeScrollViewManager {
         val scrollView = HorizontalScrollView(context).apply {
             layoutParams = params
             isHorizontalScrollBarEnabled = false
+            id = View.generateViewId()
         }
 
         fileTree?.let {
