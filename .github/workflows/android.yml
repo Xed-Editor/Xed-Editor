@@ -155,4 +155,4 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/vnd.android.package-archive" \
             --data-binary @app/xed-editor-${{ env.VERSION_NAME }}.apk \
-            "$UPLOAD_URL?name=xed-editor-v${{ env.VERSION_NAME }}.apk"
+            "$UPLOAD_URL?name=xed-editor-v${{ env.COMMIT_HASH }}.apk"
