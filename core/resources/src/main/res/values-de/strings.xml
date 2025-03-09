@@ -161,4 +161,7 @@
     <string name="open_path_desc">Internen Speicher öffnen</string>
     <string name="open_path">Interner Speicher</string>
     <string name="installed">Installiert</string>
+    <string name="files">Dateien</string>
+    <string name="available">Verfügbar</string>
+    <string name="app">Anwendung</string>
 </resources>
