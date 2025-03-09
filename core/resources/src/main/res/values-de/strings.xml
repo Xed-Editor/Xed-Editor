@@ -164,4 +164,6 @@
     <string name="files">Dateien</string>
     <string name="available">Verfügbar</string>
     <string name="app">Anwendung</string>
+    <string name="change_theme">Thema ändern</string>
+    <string name="editor">Editor</string>
 </resources>
