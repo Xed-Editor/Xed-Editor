@@ -152,4 +152,13 @@
     <string name="pushing">Pushen zum Remote-Repository …</string>
     <string name="nogit">Fehler: .git-Ordner nicht gefunden</string>
     <string name="private_files">Private Dateien</string>
+    <string name="err">Fehler</string>
+    <string name="add">Hinzufügen</string>
+    <string name="already_opened">Datei bereits geöffnet</string>
+    <string name="already_installed">Bereits installiert</string>
+    <string name="yes">Ja</string>
+    <string name="themes">Thema</string>
+    <string name="open_path_desc">Internen Speicher öffnen</string>
+    <string name="open_path">Interner Speicher</string>
+    <string name="installed">Installiert</string>
 </resources>
