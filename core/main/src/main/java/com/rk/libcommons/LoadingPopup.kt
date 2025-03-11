@@ -24,20 +24,21 @@ class LoadingPopup @OptIn(DelicateCoroutinesApi::class) constructor(private val 
     private lateinit var dialogView: View
 
     init {
-        runOnUiThread{
-            val inflater1: LayoutInflater = LayoutInflater.from(ctx)
-            dialogView = inflater1.inflate(R.layout.progress_dialog, null)
-            dialogView.findViewById<TextView>(R.id.progress_message).text = strings.wait.getString()
-            dialog =
-                MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
+        if (isMainThread().not()){
+            throw RuntimeException("loading popup on non-ui thread")
+        }
+        val inflater1: LayoutInflater = LayoutInflater.from(ctx)
+        dialogView = inflater1.inflate(R.layout.progress_dialog, null)
+        dialogView.findViewById<TextView>(R.id.progress_message).text = strings.wait.getString()
+        dialog =
+            MaterialAlertDialogBuilder(ctx).setView(dialogView).setCancelable(false).create()
 
-            if (hideAfterMillis != null) {
-                show()
-                scope.launch {
-                    delay(hideAfterMillis)
-                    withContext(Dispatchers.Main){
-                        hide()
-                    }
+        if (hideAfterMillis != null) {
+            show()
+            scope.launch {
+                delay(hideAfterMillis)
+                withContext(Dispatchers.Main){
+                    hide()
                 }
             }
         }

@@ -41,13 +41,15 @@ import org.apache.commons.net.io.Util.copyStream
 import java.io.File
 
 class FileAction(
-    private val mainActivity: MainActivity,
-    private val rootFolder: FileObject,
-    private val file: FileObject,
+     val mainActivity: MainActivity,
+     val rootFolder: FileObject,
+     val file: FileObject,
 ) {
 
     companion object {
         var to_save_file: FileObject? = null
+        //id : hook
+        val actionPopupHook = hashMapOf<String,ActionPopup.(FileAction)-> Unit>()
     }
     
     private fun getString(@StringRes id:Int):String{
@@ -61,6 +63,9 @@ class FileAction(
         
 
         ActionPopup(mainActivity, true).apply {
+
+            actionPopupHook.values.forEach { it.invoke(this,this@FileAction) }
+
             if (file == rootFolder) {
                 addItem(
                     strings.close.getString(),

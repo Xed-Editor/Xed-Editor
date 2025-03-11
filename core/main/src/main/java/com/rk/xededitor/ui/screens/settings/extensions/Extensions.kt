@@ -78,7 +78,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                     pluginFile.delete()
                     delay(900)
                     withContext(Dispatchers.Main) {
-                        loading?.hide()
+                       // loading?.hide()
                     }
                 }
             } else {
