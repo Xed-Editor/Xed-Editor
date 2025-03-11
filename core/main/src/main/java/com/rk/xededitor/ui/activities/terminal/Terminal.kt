@@ -47,23 +47,24 @@ import okhttp3.Request
 import java.io.File
 import java.net.UnknownHostException
 import com.rk.libcommons.*
+import java.lang.ref.WeakReference
 
 class Terminal : ComponentActivity() {
-    var sessionBinder:SessionService.SessionBinder? = null
+    var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
     var isBound = false
 
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as SessionService.SessionBinder
-            sessionBinder = binder
+            sessionBinder = WeakReference(binder)
             isBound = true
 
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             isBound = false
-            sessionBinder = null
+            sessionBinder = WeakReference(null)
         }
     }
 

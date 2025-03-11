@@ -123,8 +123,8 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                 terminalView.get()
                                     ?.let {
                                         val client = TerminalBackEnd(it, terminalActivity)
-                                        terminalActivity.sessionBinder!!.createSession(
-                                            generateUniqueString(terminalActivity.sessionBinder!!.getService().sessionList),
+                                        terminalActivity.sessionBinder.get()!!.createSession(
+                                            generateUniqueString(terminalActivity.sessionBinder.get()!!.getService().sessionList),
                                             client,
                                             terminalActivity
                                         )
@@ -138,11 +138,11 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                             }
                         }
 
-                        terminalActivity.sessionBinder?.getService()?.sessionList?.let{
+                        terminalActivity.sessionBinder.get()?.getService()?.sessionList?.let{
                             LazyColumn {
                                 items(it){ session_id ->
                                     SelectableCard(
-                                        selected = session_id == terminalActivity.sessionBinder?.getService()?.currentSession?.value,
+                                        selected = session_id == terminalActivity.sessionBinder.get()?.getService()?.currentSession?.value,
                                         onSelect = { changeSession(terminalActivity, session_id) },
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -157,13 +157,13 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                                 style = MaterialTheme.typography.bodyLarge
                                             )
 
-                                            if (session_id != terminalActivity.sessionBinder?.getService()?.currentSession?.value){
+                                            if (session_id != terminalActivity.sessionBinder.get()?.getService()?.currentSession?.value){
                                                 Spacer(modifier = Modifier.weight(1f))
 
                                                 IconButton(
                                                     onClick = {
                                                         println(session_id)
-                                                        terminalActivity.sessionBinder?.terminateSession(session_id)
+                                                        terminalActivity.sessionBinder.get()?.terminateSession(session_id)
                                                     },
                                                     modifier = Modifier.size(24.dp)
                                                 ) {
@@ -208,17 +208,17 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                     val client = TerminalBackEnd(this, terminalActivity)
 
                                     val session = if (pendingCommand != null){
-                                        terminalActivity.sessionBinder!!.getService().currentSession.value = pendingCommand!!.id
-                                        terminalActivity.sessionBinder!!.getSession(pendingCommand!!.id)
-                                            ?: terminalActivity.sessionBinder!!.createSession(
+                                        terminalActivity.sessionBinder.get()!!.getService().currentSession.value = pendingCommand!!.id
+                                        terminalActivity.sessionBinder.get()!!.getSession(pendingCommand!!.id)
+                                            ?: terminalActivity.sessionBinder.get()!!.createSession(
                                                 pendingCommand!!.id,
                                                 client,
                                                 terminalActivity
                                             )
                                     }else{
-                                        terminalActivity.sessionBinder!!.getSession(terminalActivity.sessionBinder!!.getService().currentSession.value)
-                                            ?: terminalActivity.sessionBinder!!.createSession(
-                                                terminalActivity.sessionBinder!!.getService().currentSession.value,
+                                        terminalActivity.sessionBinder.get()!!.getSession(terminalActivity.sessionBinder.get()!!.getService().currentSession.value)
+                                            ?: terminalActivity.sessionBinder.get()!!.createSession(
+                                                terminalActivity.sessionBinder.get()!!.getService().currentSession.value,
                                                 client,
                                                 terminalActivity
                                             )
@@ -359,8 +359,8 @@ fun changeSession(terminalActivity: Terminal, session_id:String){
     terminalView.get()?.apply {
         val client = TerminalBackEnd(this, terminalActivity)
         val session =
-            terminalActivity.sessionBinder!!.getSession(session_id)
-                ?: terminalActivity.sessionBinder!!.createSession(
+            terminalActivity.sessionBinder.get()!!.getSession(session_id)
+                ?: terminalActivity.sessionBinder.get()!!.createSession(
                     session_id,
                     client,
                     terminalActivity
@@ -390,7 +390,7 @@ fun changeSession(terminalActivity: Terminal, session_id:String){
         }
 
     }
-    terminalActivity.sessionBinder!!.getService().currentSession.value = session_id
+    terminalActivity.sessionBinder.get()!!.getService().currentSession.value = session_id
 
 }
 
