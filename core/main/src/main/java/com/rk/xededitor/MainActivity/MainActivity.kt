@@ -388,7 +388,6 @@ class MainActivity : BaseActivity() {
         ExtensionManager.onAppResumed()
         super.onResume()
         PermissionHandler.verifyStoragePermission(this)
-        ProjectManager.processQueue(this)
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
@@ -403,6 +402,9 @@ class MainActivity : BaseActivity() {
                         }
                     }
                 }
+            }
+            kotlinx.coroutines.withContext(Dispatchers.Main){
+                ProjectManager.processQueue(this@MainActivity)
             }
         }
     }
