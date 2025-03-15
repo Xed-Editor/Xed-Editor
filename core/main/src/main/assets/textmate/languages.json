@@ -25,12 +25,6 @@
       "languageConfiguration": "textmate/latex/language-configuration.json"
     },
     {
-      "grammar": "textmate/latex/tex.tmLanguage.json",
-      "name": "TeX",
-      "scopeName": "text.tex",
-      "languageConfiguration": "textmate/latex/language-configuration.json"
-    },
-    {
       "grammar": "textmate/nim/syntaxes/Nim.tmLanguage",
       "name": "nim",
       "scopeName": "source.nim",

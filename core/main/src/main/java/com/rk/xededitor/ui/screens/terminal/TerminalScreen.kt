@@ -24,7 +24,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -41,6 +43,8 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,17 +53,39 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.service.SessionService
+import com.rk.xededitor.ui.activities.settings.SettingsActivity
+import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.activities.settings.settingsNavController
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
+import com.rk.xededitor.ui.screens.debugger.Debugger
+import com.rk.xededitor.ui.screens.settings.SettingsScreen
+import com.rk.xededitor.ui.screens.settings.about.AboutScreen
+import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
+import com.rk.xededitor.ui.screens.settings.developer_options.DeveloperOptions
+import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
+import com.rk.xededitor.ui.screens.settings.editor.EditorFontScreen
+import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
+import com.rk.xededitor.ui.screens.settings.extensions.Extensions
+import com.rk.xededitor.ui.screens.settings.feature_toggles.FeatureToggles
+import com.rk.xededitor.ui.screens.settings.git.SettingsGitScreen
+import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
+import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysView
 import com.termux.view.TerminalView
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -68,9 +94,30 @@ var virtualKeysView = WeakReference<VirtualKeysView?>(null)
 var virtualKeysId = View.generateViewId()
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
+    val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = "terminal",
+        enterTransition = { NavigationAnimationTransitions.enterTransition },
+        exitTransition = { NavigationAnimationTransitions.exitTransition },
+        popEnterTransition = { NavigationAnimationTransitions.popEnterTransition },
+        popExitTransition = { NavigationAnimationTransitions.popExitTransition },
+    ) {
+        composable("terminal"){
+            TerminalScreenX(terminalActivity = terminalActivity, navController = navController)
+        }
+        composable("terminal_settings"){
+            SettingsTerminalScreen()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TerminalScreenX(modifier: Modifier = Modifier, terminalActivity: Terminal,navController: NavController) {
+
     val context = LocalContext.current
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
@@ -108,34 +155,46 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
                                 text = stringResource(strings.sessions),
                                 style = MaterialTheme.typography.titleLarge
                             )
-                            IconButton(onClick = {
-                                fun generateUniqueString(existingStrings: List<String>): String {
-                                    var index = 1
-                                    var newString: String
+                            Row(horizontalArrangement = Arrangement.End) {
+                                IconButton(onClick = {
+                                    fun generateUniqueString(existingStrings: List<String>): String {
+                                        var index = 1
+                                        var newString: String
 
-                                    do {
-                                        newString = "main$index"
-                                        index++
-                                    } while (newString in existingStrings)
+                                        do {
+                                            newString = "main$index"
+                                            index++
+                                        } while (newString in existingStrings)
 
-                                    return newString
-                                }
-                                terminalView.get()
-                                    ?.let {
-                                        val client = TerminalBackEnd(it, terminalActivity)
-                                        terminalActivity.sessionBinder.get()!!.createSession(
-                                            generateUniqueString(terminalActivity.sessionBinder.get()!!.getService().sessionList),
-                                            client,
-                                            terminalActivity
-                                        )
+                                        return newString
                                     }
+                                    terminalView.get()
+                                        ?.let {
+                                            val client = TerminalBackEnd(it, terminalActivity)
+                                            terminalActivity.sessionBinder.get()!!.createSession(
+                                                generateUniqueString(terminalActivity.sessionBinder.get()!!.getService().sessionList),
+                                                client,
+                                                terminalActivity
+                                            )
+                                        }
 
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Add, // Material Design "Add" icon
-                                    contentDescription = stringResource(strings.add_session)
-                                )
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add, // Material Design "Add" icon
+                                        contentDescription = stringResource(strings.add_session)
+                                    )
+                                }
+
+                                IconButton(onClick = {
+                                    navController.navigate("terminal_settings")
+                                }) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Settings,
+                                        contentDescription = stringResource(strings.settings)
+                                    )
+                                }
                             }
+
                         }
 
                         terminalActivity.sessionBinder.get()?.getService()?.sessionList?.let{
