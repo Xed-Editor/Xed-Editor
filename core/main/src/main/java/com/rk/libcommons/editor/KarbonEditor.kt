@@ -85,9 +85,6 @@ class KarbonEditor : CodeEditor {
             val tabSize = Settings.tab_size
             val pinLineNumber = Settings.pin_line_number
             val showLineNumber = Settings.show_line_numbers
-
-            println(showLineNumber)
-
             val cursorAnimation = Settings.cursor_animation
             val textSize = Settings.editor_text_size
             val wordWrap = Settings.wordwrap

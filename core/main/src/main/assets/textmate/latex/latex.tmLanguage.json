@@ -1,0 +1,161 @@
+{
+    "name": "LaTeX",
+    "scopeName": "text.tex.latex",
+    "fileTypes": ["tex", "ltx", "latex"],
+    "patterns": [
+        {
+            "name": "comment.line.percentage.tex",
+            "match": "(?<!\\\\)%.*$"
+        },
+        {
+            "name": "meta.function.environment.latex",
+            "begin": "(\\\\begin)\\s*(?:\\{)([^\\}]*)",
+            "beginCaptures": {
+                "1": {
+                    "name": "support.function.be.latex"
+                },
+                "2": {
+                    "name": "entity.name.environment.latex"
+                }
+            },
+            "end": "(\\\\end)\\s*(?:\\{)(\\2)(?:\\})",
+            "endCaptures": {
+                "1": {
+                    "name": "support.function.be.latex"
+                },
+                "2": {
+                    "name": "entity.name.environment.latex"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "$self"
+                }
+            ]
+        },
+        {
+            "name": "meta.function.section.latex",
+            "match": "(\\\\(?:(?:sub)*section|chapter|paragraph|part|addpart|addchap|addsec)\\*?)(?:\\s*\\{)([^\\}]*)",
+            "captures": {
+                "1": {
+                    "name": "support.function.section.latex"
+                },
+                "2": {
+                    "name": "entity.name.section.latex"
+                }
+            }
+        },
+        {
+            "name": "meta.function.general.latex",
+            "match": "(\\\\[A-Za-z]+)(?:\\*?)(?:\\s*\\{)([^\\}]*)",
+            "captures": {
+                "1": {
+                    "name": "support.function.general.latex"
+                },
+                "2": {
+                    "name": "variable.parameter.function.latex"
+                }
+            }
+        },
+        {
+            "name": "support.function.latex",
+            "match": "\\\\[A-Za-z]+"
+        },
+        {
+            "name": "keyword.control.preamble.latex",
+            "match": "\\\\(?:documentclass|usepackage)(?:\\s*\\[)([^\\]]*)(?:\\])"
+        },
+        {
+            "name": "string.quoted.double.latex",
+            "begin": "``",
+            "end": "''|\"|"
+        },
+        {
+            "name": "string.quoted.single.latex",
+            "begin": "`",
+            "end": "'|'"
+        },
+        {
+            "name": "constant.character.math.tex",
+            "begin": "(\\$\\$|\\$)",
+            "end": "(\\$\\$|\\$)",
+            "patterns": [
+                {
+                    "include": "#math"
+                }
+            ]
+        },
+        {
+            "name": "constant.character.math.tex",
+            "begin": "\\\\\\(",
+            "end": "\\\\\\)",
+            "patterns": [
+                {
+                    "include": "#math"
+                }
+            ]
+        },
+        {
+            "name": "constant.character.math.tex",
+            "begin": "\\\\\\[",
+            "end": "\\\\\\]",
+            "patterns": [
+                {
+                    "include": "#math"
+                }
+            ]
+        },
+        {
+            "begin": "(\\\\begin)\\s*(?:\\{)(math|displaymath|equation|equation\\*|align|align\\*|gather|gather\\*|multline|multline\\*|eqnarray|eqnarray\\*)(?:\\})",
+            "beginCaptures": {
+                "1": {
+                    "name": "support.function.be.latex"
+                },
+                "2": {
+                    "name": "entity.name.environment.math.latex"
+                }
+            },
+            "end": "(\\\\end)\\s*(?:\\{)(math|displaymath|equation|equation\\*|align|align\\*|gather|gather\\*|multline|multline\\*|eqnarray|eqnarray\\*)(?:\\})",
+            "endCaptures": {
+                "1": {
+                    "name": "support.function.be.latex"
+                },
+                "2": {
+                    "name": "entity.name.environment.math.latex"
+                }
+            },
+            "name": "meta.function.environment.math.latex",
+            "patterns": [
+                {
+                    "include": "#math"
+                }
+            ]
+        }
+    ],
+    "repository": {
+        "math": {
+            "patterns": [
+                {
+                    "match": "\\\\[A-Za-z]+",
+                    "name": "support.function.math.latex"
+                },
+                {
+                    "match": "[\\^_]\\{[^\\}]*\\}",
+                    "name": "keyword.control.superscript.latex"
+                },
+                {
+                    "match": "[\\^_][A-Za-z0-9]",
+                    "name": "keyword.control.superscript.latex"
+                },
+                {
+                    "match": "[0-9]+(\\.[0-9]+)?",
+                    "name": "constant.numeric.latex"
+                },
+                {
+                    "match": "[\\+\\-\\*\\=\\/\\>\\<\\|\\:]",
+                    "name": "keyword.operator.latex"
+                }
+            ]
+        }
+    }
+}
