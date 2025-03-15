@@ -55,8 +55,6 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
         PreferenceGroup(heading = stringResource(strings.content)) {
-
-
             if (Features.mutators.value){
                 NextScreenCard(
                     label = stringResource(strings.mutators),

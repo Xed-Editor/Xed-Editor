@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun updateEditorSettings() {
@@ -43,12 +44,12 @@ fun EditorSettingsToggle(
         isEnabled = isEnabled,
         isSwitchLocked = isSwitchLocked,
         sideEffect = {
-            DefaultScope.launch {
+            DefaultScope.launch(Dispatchers.Main) {
+                sideEffect?.invoke(it)
                 if (showSwitch){
                     updateEditorSettings()
                 }
             }
-            sideEffect?.invoke(it)
         },
     )
 }
