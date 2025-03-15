@@ -371,7 +371,7 @@
     <string name="warning_private_dir">アプリデータを消去したり、Xed-Editorを削除すると、このディレクトリの中身は削除されます</string>
     <string name="read_only_file">ファイルは読み取り専用です</string>
     <string name="folder">フォルダ</string>
-    <string name="sponsor">支援者</string>
+    <string name="sponsor">スポンサー</string>
     <string name="sponsor_desc">開発を支援</string>
     <string name="feature_toggles">機能の切り替え</string>
     <string name="feature_toggles_desc">特定の機能を有効化/無効化します</string>
