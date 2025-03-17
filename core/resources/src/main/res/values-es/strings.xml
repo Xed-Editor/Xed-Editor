@@ -382,4 +382,6 @@
     <string name="err_termux_incompatible">Termux no es compatible</string>
     <string name="experimental_feature">Característica experimental</string>
     <string name="soft_keyboard_always">Mostrar siempre el teclado</string>
+    <string name="script_api_info">Consulte la clase ImplApi en el código fuente de xed-editors en PROJECT/core/main/ui/screens/mutators/ImplApi para obtener más información</string>
+    <string name="email">Correo electrónico</string>
 </resources>
