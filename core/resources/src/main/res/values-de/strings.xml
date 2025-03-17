@@ -166,4 +166,13 @@
     <string name="app">Anwendung</string>
     <string name="change_theme">Thema ändern</string>
     <string name="editor">Editor</string>
+    <string name="invalidpath">Ungültiger Pfad</string>
+    <string name="clone_err">Das Repository ist privat. oder Überprüfen Sie Ihre Anmeldeinformationen</string>
+    <string name="fetch_failed">Abrufanforderung hat null zurückgegeben</string>
+    <string name="clone_repo_desc">Repository mit Git klonen</string>
+    <string name="open_cant">Kann nicht mehr öffnen als</string>
+    <string name="download_sure">Möchten Sie wirklich herunterladen</string>
+    <string name="oled_desc">Pure Black-Design für AMOLED-Geräte</string>
+    <string name="open_dir_desc">Öffnen Sie ein Verzeichnis mit SAF</string>
+    <string name="open_file_desc">Wählen Sie eine Datei aus, um sie direkt zu bearbeiten</string>
 </resources>
