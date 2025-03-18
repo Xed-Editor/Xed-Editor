@@ -41,18 +41,7 @@ object KeyEventHandler {
         } else {
             null
         }
-        
-        if (keyEvent.isShiftPressed) {
-            when (keyEvent.keyCode) {
-                KeyEvent.KEYCODE_S -> {
-                    currentFragment?.fragment?.getFile()?.let {
-                        to_save_file = it
-                        MainActivity.activityRef?.get()?.fileManager?.requestOpenDirectoryToSaveFile()
-                    }
-                }
-            }
-        }
-        
+
         if (keyEvent.isCtrlPressed) {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_W -> {
@@ -102,8 +91,19 @@ object KeyEventHandler {
                 }
                 
                 KeyEvent.KEYCODE_S -> {
-                    if (currentFragment?.fragment is EditorFragment) {
-                        (currentFragment.fragment as EditorFragment).save(false)
+                    if (keyEvent.isShiftPressed) {
+                        when (keyEvent.keyCode) {
+                            KeyEvent.KEYCODE_S -> {
+                                currentFragment?.fragment?.getFile()?.let {
+                                    to_save_file = it
+                                    MainActivity.activityRef?.get()?.fileManager?.requestOpenDirectoryToSaveFile()
+                                }
+                            }
+                        }
+                    } else{
+                        if (currentFragment?.fragment is EditorFragment) {
+                            (currentFragment.fragment as EditorFragment).save(false)
+                        }
                     }
                 }
                 
