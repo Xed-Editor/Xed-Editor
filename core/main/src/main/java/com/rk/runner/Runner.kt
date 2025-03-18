@@ -14,6 +14,7 @@ import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.runner.runners.c.C_Runner
+import com.rk.runner.runners.go.GoRunner
 import com.rk.runner.runners.node.NodeRunner
 import com.rk.runner.runners.python.PythonRunner
 import com.rk.runner.runners.shell.ShellRunner
@@ -40,7 +41,7 @@ abstract class RunnerImpl{
 var currentRunner = WeakReference<RunnerImpl?>(null)
 
 object Runner {
-    private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash","c","cpp")
+    private val runnable_ext = hashSetOf("html","md","py","mjs","js","sh","bash","c","cpp","go")
 
     private fun getRunnerInstance(fileObject: FileObject):List<RunnerImpl>{
         val runners = mutableListOf<RunnerImpl>()
@@ -81,6 +82,7 @@ object Runner {
                     "mjs","js" ->  listOf(NodeRunner(file,isTermuxFile = isTermuxFile))
                     "sh","bash" ->  listOf(ShellRunner(file,isTermuxFile = isTermuxFile))
                     "c","cpp" -> listOf(C_Runner(file,isTermuxFile = isTermuxFile))
+                    "go" -> listOf(GoRunner(file,isTermuxFile))
                     else -> emptyList()
                 }
             )

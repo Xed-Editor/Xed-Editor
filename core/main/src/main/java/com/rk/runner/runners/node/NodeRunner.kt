@@ -41,7 +41,7 @@ class NodeRunner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl()
                     context,
                     workingDir = file.parentFile!!.absolutePath,
                     script = """
-    required_packages="nodejs"
+    required_packages="nodejs npm"
     missing_packages=""
 
     # Check for missing packages

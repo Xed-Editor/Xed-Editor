@@ -42,6 +42,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
     private val rust by lazy { ContextCompat.getDrawable(context, drawables.rust) }
     private val markdown by lazy { ContextCompat.getDrawable(context, drawables.markdown) }
     private val php by lazy { ContextCompat.getDrawable(context, drawables.php) }
+    private val go by lazy { ContextCompat.getDrawable(context, drawables.golang) }
 
     override fun getIcon(node: Node<com.rk.file_wrapper.FileObject>): Drawable? {
         return if (node.value.isFile()) {
@@ -123,6 +124,7 @@ class DefaultFileIconProvider(context: Context) : FileIconProvider {
                         "php" -> php
                         "plugin" -> plugin
                         "properties","pro","package.json" -> prop
+                        "go" -> go
                         else -> file
                     }
             }
