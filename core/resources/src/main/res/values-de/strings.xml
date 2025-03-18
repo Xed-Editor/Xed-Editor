@@ -175,4 +175,7 @@
     <string name="oled_desc">Pure Black-Design für AMOLED-Geräte</string>
     <string name="open_dir_desc">Öffnen Sie ein Verzeichnis mit SAF</string>
     <string name="open_file_desc">Wählen Sie eine Datei aus, um sie direkt zu bearbeiten</string>
+    <string name="diagonal_scroll">Diagonales Scrollen</string>
+    <string name="diagonal_scroll_desc">Diagonales Scrollen im Dateibaum aktivieren</string>
+    <string name="smooth_tab_desc">Sanftes Wechseln zwischen Tabs</string>
 </resources>
