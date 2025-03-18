@@ -257,7 +257,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             runCatching {
                 val charset = Settings.encoding
                 val text = editor?.text.toString()
-                if (text.isBlank()){
+                if (isAutoSaver && text.isBlank()){
                     return@safeLaunch
                 }
                 file!!.writeText(text,charset = Charset.forName(charset))
