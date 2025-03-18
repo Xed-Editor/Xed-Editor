@@ -77,7 +77,7 @@
     <string name="push">推送</string>
     <string name="download_done">下载成功。</string>
     <string name="plugin_download_failed">无法下载插件</string>
-    <string name="fetch_failed">抓取请求返回为空</string>
+    <string name="fetch_failed">获取请求返回空</string>
     <string name="app">应用程序</string>
     <string name="oled_desc">AMOLED 纯黑主题</string>
     <string name="downloading_plugin">下载插件中</string>
@@ -160,7 +160,7 @@
     <string name="available">可用</string>
     <string name="already_installed">已完成安装</string>
     <string name="download_sure">确定要下载吗</string>
-    <string name="yes">是</string>
+    <string name="yes">是的</string>
     <string name="change_theme">更改主题</string>
     <string name="editor">编辑器</string>
     <string name="smooth_tabs">平滑标签页</string>
