@@ -178,4 +178,5 @@
     <string name="diagonal_scroll">Diagonales Scrollen</string>
     <string name="diagonal_scroll_desc">Diagonales Scrollen im Dateibaum aktivieren</string>
     <string name="smooth_tab_desc">Sanftes Wechseln zwischen Tabs</string>
+    <string name="ww_desc">Zeilenumbruch in allen Editoren aktivieren</string>
 </resources>
