@@ -254,10 +254,13 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
 
         GlobalScope.safeLaunch(Dispatchers.IO) {
-
             runCatching {
                 val charset = Settings.encoding
-                file!!.writeText(editor?.text.toString(),charset = Charset.forName(charset))
+                val text = editor?.text.toString()
+                if (text.isBlank()){
+                    return@safeLaunch
+                }
+                file!!.writeText(text,charset = Charset.forName(charset))
             }.onFailure {
                 if (it is SecurityException){
                     if (isAutoSaver.not()){
