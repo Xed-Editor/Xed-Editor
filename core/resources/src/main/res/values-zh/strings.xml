@@ -45,7 +45,7 @@
     <string name="canthandle">未找到处理本文件的应用</string>
     <string name="clipboardempty">剪贴板为空</string>
     <string name="terminal">终端</string>
-    <string name="add_file">添加拓展文件</string>
+    <string name="add_file">添加文件</string>
     <string name="keyword_regex">关键词（正则表达式）</string>
     <string name="replaceall">替换所有</string>
     <string name="replacement">替换</string>
