@@ -124,7 +124,12 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
     }
 
-    fun refreshEditorContent() {
+    fun refreshEditorContent(autoRefresher: Boolean = false) {
+        if (autoRefresher){
+            if (System.currentTimeMillis() - lastSaveTime < 500){
+                return
+            }
+        }
         fun refresh() {
             scope.safeLaunch(Dispatchers.IO) {
                 isFileLoaded = false
@@ -153,6 +158,9 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
 
         if (isModified()) {
+            if (autoRefresher){
+                return
+            }
             MaterialAlertDialogBuilder(context).setTitle(strings.unsaved.getString())
                 .setMessage(strings.ask_unsaved.getString())
                 .setNegativeButton(strings.keep_editing.getString(), null)
@@ -169,8 +177,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     object FilesContent {
         fun containsKey(key: String): Boolean {
-            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key)
-                ?: false
+            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key) == true
         }
 
         fun getContent(key: String): Content? {
@@ -223,6 +230,8 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     override fun getFile(): FileObject? = file
 
+
+    private var lastSaveTime = 0L
     @OptIn(DelicateCoroutinesApi::class)
     fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
         if (isAutoSaver && isReadyToSave().not()) {
@@ -261,6 +270,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     return@safeLaunch
                 }
                 file!!.writeText(text,charset = Charset.forName(charset))
+                lastSaveTime = System.currentTimeMillis()
             }.onFailure {
                 if (it is SecurityException){
                     if (isAutoSaver.not()){

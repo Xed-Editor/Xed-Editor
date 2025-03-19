@@ -92,7 +92,7 @@ class RecursiveFileObserver @JvmOverloads constructor(path: String?, mask: Int =
                                 ?.get()?.fragment
 
                         if (fragment is EditorFragment){
-                            fragment.refreshEditorContent()
+                            fragment.refreshEditorContent(autoRefresher = true)
                         }
                     }
                 }
