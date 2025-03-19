@@ -128,7 +128,7 @@
     <string name="open_with_other">在其他应用中打开选中的文件</string>
     <string name="delete_descript">删除选中的文件/文件夹</string>
     <string name="add_file_desc">选择要添加到这里的新文件</string>
-    <string name="paste_desc">粘贴选定的文件/文件夹</string>
+    <string name="paste_desc">粘贴选中的文件/文件夹</string>
     <string name="clipboard_empty">文件剪贴板为空</string>
     <string name="failed_move">移动文件失败</string>
     <string name="ff_path">文件或文件夹路径</string>
@@ -149,7 +149,7 @@
     <string name="data_clear">应用数据已清除</string>
     <string name="action_done">操作已完成</string>
     <string name="clone_repo">克隆存储库</string>
-    <string name="open_dir_desc">选择项目目录</string>
+    <string name="open_dir_desc">打开文件夹（通过 SAF）</string>
     <string name="open_file_desc">选择一个文件以直接编辑它</string>
     <string name="open_path">内部储存</string>
     <string name="open_path_desc">打开内部储存</string>
@@ -185,7 +185,7 @@
     <string name="editor_desc">编辑器通用设置</string>
     <string name="plugin_desc">插件通用设置</string>
     <string name="terminal_desc">终端通用设置</string>
-    <string name="private_files_desc">Karbon 私密文件</string>
+    <string name="private_files_desc">Xed-Editor 私有文件</string>
     <string name="save_1">保存</string>
     <string name="plugin_dir">插件目录</string>
     <string name="file_open_denied">不可用其他应用打开本文件</string>
@@ -199,10 +199,10 @@
     <string name="create_new_file_desc">在选定文件夹下新建文件</string>
     <string name="exists">已存在！</string>
     <string name="dir_exist_not">文件夹不存在</string>
-    <string name="copy_desc">复制选定文件/文件夹</string>
-    <string name="manage_storage_reason">Karbon 需要访问存储以编辑文件。请稍后在系统设置中允许访问。</string>
+    <string name="copy_desc">复制选中文件/文件夹</string>
+    <string name="manage_storage_reason">Xed-Editor 需要存储空间权限以访问和读写文件。请稍后在系统设置中允许访问此权限。</string>
     <string name="private_files">私密文件</string>
-    <string name="clone_err">存储库为私有存储库。或者请检查您的凭据</string>
+    <string name="clone_err">此仓库为私有仓库。或者请检查你的访问凭据</string>
     <string name="text_size">字体大小</string>
     <string name="monet_desc">在应用中使用设备主题。</string>
     <string name="add_new_replacement_batch">添加新的批量替换</string>
@@ -270,7 +270,7 @@
     <string name="add_font">添加新字体</string>
     <string name="termux_exec">Termux Exec</string>
     <string name="encoding_warning">强烈不鼓励改变默认编码，因为这可能导致文件损坏。除非你完全理解这么做的影响并进行了合理备份，否则强烈建议使用 UTF-8 编码。</string>
-    <string name="default_encoding_desc">打开和创建文件时的默认编码</string>
+    <string name="default_encoding_desc">编辑器的默认编码</string>
     <string name="other">其他</string>
     <string name="content">内容</string>
     <string name="fonts">字体</string>
@@ -307,7 +307,7 @@
     <string name="ignore">忽略</string>
     <string name="update_disable">更新检查已禁用</string>
     <string name="launch_termux">要启动 Termux 吗？</string>
-    <string name="launch_termux_explanation">Termux 不在运行，所以 Karbon 无法在其中运行命令。你想要启动它吗？</string>
+    <string name="launch_termux_explanation">Xed-Editor 无法调用 Termux 来运行命令，因为 Termux 未运行。你想要启动它吗？</string>
     <string name="launch">启动</string>
     <string name="sessions">会话</string>
     <string name="script_showing_dialog">展示对话框</string>
@@ -363,8 +363,9 @@
     <string name="highlighting">语法高亮</string>
     <string name="info_ext">扩展可用于修改 xed-editor 的行为和功能。要了解如何构建插件，请单击此处</string>
     <string name="file_not_exist">文件不再存在</string>
-    <string name="info_mutators">修改器是用于修改编辑器文本的小脚本。创建一个修改器并单击它以在编辑器中打开它。</string>
+    <string name="info_mutators">Mutator 是用来批量修改编辑器文本的脚本。创建 Mutator 脚本后并点击即可在编辑器中打开。</string>
     <string name="scroll_to_bottom_desc">打开文件时滚动到底部</string>
     <string name="soft_keyboard_always">始终显示键盘</string>
     <string name="soft_keyboard_always_desc">始终显示软键盘，即使硬件键盘连接</string>
+    <string name="ext">扩展</string>
 </resources>
