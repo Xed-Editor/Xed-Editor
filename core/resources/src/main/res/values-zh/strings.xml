@@ -301,7 +301,7 @@
     <string name="txt_ww_desc">文本文件自动换行</string>
     <string name="sora_s">Sora 文本搜索</string>
     <string name="telegram">Telegram 群</string>
-    <string name="mutators">变形器</string>
+    <string name="mutators">修改器</string>
     <string name="update_av">有新版本可用</string>
     <string name="update">更新</string>
     <string name="ignore">忽略</string>
