@@ -71,7 +71,7 @@
     <string name="open_drawer">打开</string>
     <string name="print">打印</string>
     <string name="go_next">转到下一个</string>
-    <string name="go_prev">转到上一个。</string>
+    <string name="go_prev">转到上一个.</string>
     <string name="replace">替换</string>
     <string name="git_commit_msg">提交信息</string>
     <string name="push">推送</string>
