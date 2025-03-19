@@ -219,11 +219,11 @@ object ProjectManager {
             getSelectedView(activity).reloadFileChildren(parent)
         }
 
-        fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: FileObject) {
+        suspend fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: FileObject) {
             getSelectedView(activity).onFileRenamed(file, file)
         }
 
-        fun updateFileDeleted(activity: MainActivity, file: FileObject) {
+        suspend fun updateFileDeleted(activity: MainActivity, file: FileObject) {
             getSelectedView(activity).onFileRemoved(file)
         }
 

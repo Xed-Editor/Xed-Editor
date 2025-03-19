@@ -17,16 +17,17 @@ import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
 import com.rk.filetree.provider.RecursiveFileObserver
 import com.rk.filetree.util.sort
-import com.rk.libcommons.PathUtils.toPath
 import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-
 
 class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
     private lateinit var rootFileObject: FileObject
     private var watcher: RecursiveFileObserver? = null
+    private val mutex = Mutex()
 
     constructor(context: Context) : super(context)
 
@@ -71,6 +72,7 @@ class FileTree : RecyclerView {
 
     suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) =
         withContext(Dispatchers.IO) {
+            mutex.lock()
             watcher?.stopWatching()
             rootFileObject = file
 
@@ -102,21 +104,33 @@ class FileTree : RecyclerView {
                     watcher!!.startWatching()
                 }
             }
+            mutex.unlock()
         }
 
     suspend fun reloadFileChildren(parent: FileObject) {
-        fileTreeAdapter.reloadFile(parent)
+        mutex.withLock{
+            fileTreeAdapter.reloadFile(parent)
+        }
+
     }
 
     suspend fun onFileAdded(file: FileObject) {
-        fileTreeAdapter.newFile(file)
+        mutex.withLock{
+            fileTreeAdapter.newFile(file)
+        }
+
     }
 
-    fun onFileRemoved(file: FileObject) {
-        fileTreeAdapter.removeFile(file)
+    suspend fun onFileRemoved(file: FileObject) {
+        mutex.withLock{
+            fileTreeAdapter.removeFile(file)
+        }
+
     }
 
-    fun onFileRenamed(file: FileObject, newFileObject: FileObject) {
-        fileTreeAdapter.renameFile(file, newFileObject)
+    suspend fun onFileRenamed(file: FileObject, newFileObject: FileObject) {
+        mutex.withLock{
+            fileTreeAdapter.renameFile(file, newFileObject)
+        }
     }
 }
