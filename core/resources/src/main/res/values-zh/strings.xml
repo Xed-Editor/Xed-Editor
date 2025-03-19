@@ -11,7 +11,7 @@
     <string name="gitcred">Git 凭证</string>
     <string name="auto_save">自动保存</string>
     <string name="save_as">另存为</string>
-    <string name="ni">未实现本功能</string>
+    <string name="ni">该功能未实现</string>
     <string name="save">文件已保存</string>
     <string name="open_file">打开文件</string>
     <string name="cs">区分大小写</string>
@@ -71,7 +71,7 @@
     <string name="open_drawer">打开</string>
     <string name="print">打印</string>
     <string name="go_next">转到下一个</string>
-    <string name="go_prev">转到上一个</string>
+    <string name="go_prev">转到上一个。</string>
     <string name="replace">替换</string>
     <string name="git_commit_msg">提交信息</string>
     <string name="push">推送</string>
@@ -247,7 +247,7 @@
     <string name="dark_mode">暗色</string>
     <string name="auto_mode">自动</string>
     <string name="cannot_be_empty">不可为空。</string>
-    <string name="theme_mode_desc">将主题模式改为自动、亮色或暗色</string>
+    <string name="theme_mode_desc">将主题模式改为自动、亮色或暗色。</string>
     <string name="no_plugins_available">没有插件可用</string>
     <string name="show_suggestions">键盘选词建议</string>
     <string name="about">关于</string>
@@ -268,7 +268,7 @@
     <string name="tools">工具</string>
     <string name="manage_editor_font">管理编辑器字体</string>
     <string name="add_font">添加新字体</string>
-    <string name="termux_exec">Termux Exec</string>
+    <string name="termux_exec">Termux 执行</string>
     <string name="encoding_warning">强烈不鼓励改变默认编码，因为这可能导致文件损坏。除非你完全理解这么做的影响并进行了合理备份，否则强烈建议使用 UTF-8 编码。</string>
     <string name="default_encoding_desc">编辑器的默认编码</string>
     <string name="other">其他</string>
@@ -312,7 +312,7 @@
     <string name="sessions">会话</string>
     <string name="script_showing_dialog">展示对话框</string>
     <string name="loading">加载中…</string>
-    <string name="no_ext">没有安装拓展</string>
+    <string name="no_ext">没有安装拓展。</string>
     <string name="not_plugin_err">所选文件不是.plugin文件</string>
     <string name="install_from_storage">从内部存储安装</string>
     <string name="network_err">网络错误</string>
@@ -333,16 +333,16 @@
     <string name="restore_sessions_desc">恢复之前的标签页</string>
     <string name="terminal_home">终端主页</string>
     <string name="terminal_home_desc">终端默认主目录</string>
-    <string name="no_mutators">没有修改器</string>
+    <string name="no_mutators">没有 Mutator 脚本</string>
     <string name="tab_opened">标签已打开</string>
-    <string name="mutator_name">修改器名称</string>
+    <string name="mutator_name">Mutator 脚本名称</string>
     <string name="name_empty_err">名称不能为空</string>
     <string name="name_used">名称已被使用</string>
     <string name="script_get_text">获取文本</string>
-    <string name="script_show_toast">显示提示信息</string>
+    <string name="script_show_toast">显示 Toast 提示消息</string>
     <string name="script_network">网络</string>
     <string name="use_github_url">使用默认的 github url</string>
-    <string name="custom_git_url">自定义 Git URL</string>
+    <string name="custom_git_url">自定义 Git URL 链接</string>
     <string name="enable_ext">扩展</string>
     <string name="file_err">无法保存文件，请尝试关闭并重新打开文件</string>
     <string name="file_not_loaded">文件尚未加载。</string>
@@ -358,7 +358,7 @@
     <string name="script_set_text">设置文本</string>
     <string name="script_api_info">检查 xed-editors 源代码中的 ImplApi 类（位于 PROJECT/core/main/ui/screens/mutators/ImplApi）以获取更多信息</string>
     <string name="err_no_termux">Termux 未安装</string>
-    <string name="http_git_url">Http git 网址</string>
+    <string name="http_git_url">Http git 链接</string>
     <string name="scroll_to_bottom">滚动到底部</string>
     <string name="highlighting">语法高亮</string>
     <string name="info_ext">扩展可用于修改 xed-editor 的行为和功能。要了解如何构建插件，请单击此处</string>
@@ -368,4 +368,20 @@
     <string name="soft_keyboard_always">始终显示键盘</string>
     <string name="soft_keyboard_always_desc">始终显示软键盘，即使硬件键盘连接</string>
     <string name="ext">扩展</string>
+    <string name="unrestricted_file_desc">允许打开任意大小的文件（可能导致程序崩溃）</string>
+    <string name="suggest_clear_app_data">建议清除应用数据</string>
+    <string name="update_files_cleared">已清除更新的文件</string>
+    <string name="sponsor">赞助</string>
+    <string name="sponsor_desc">支持开发</string>
+    <string name="feature_toggles">特色功能开关</string>
+    <string name="feature_toggles_desc">启用或禁用特定功能</string>
+    <string name="restore">恢复</string>
+    <string name="success">成功</string>
+    <string name="failed">失败</string>
+    <string name="invalidpath">无效的路径</string>
+    <string name="folder">文件夹</string>
+    <string name="file">文件</string>
+    <string name="warning_private_dir">当你清除数据或删除 Xed-Editor 时，此目录的内容将被删除</string>
+    <string name="read_only_file">文件处于只读状态</string>
+    <string name="toggle_ww">切换自动换行</string>
 </resources>
