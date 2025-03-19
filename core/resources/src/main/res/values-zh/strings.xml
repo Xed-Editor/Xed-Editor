@@ -333,13 +333,13 @@
     <string name="restore_sessions_desc">恢复之前的标签页</string>
     <string name="terminal_home">终端主页</string>
     <string name="terminal_home_desc">终端默认主目录</string>
-    <string name="no_mutators">来自突变体</string>
+    <string name="no_mutators">没有修改器</string>
     <string name="tab_opened">标签已打开</string>
-    <string name="mutator_name">变异者名称</string>
+    <string name="mutator_name">修改器名称</string>
     <string name="name_empty_err">名称不能为空</string>
     <string name="name_used">名称已被使用</string>
     <string name="script_get_text">获取文本</string>
-    <string name="script_show_toast">祝酒</string>
+    <string name="script_show_toast">显示提示信息</string>
     <string name="script_network">网络</string>
     <string name="use_github_url">使用默认的 github url</string>
     <string name="custom_git_url">自定义 Git URL</string>
@@ -366,5 +366,5 @@
     <string name="info_mutators">修改器是用于修改编辑器文本的小脚本。创建一个修改器并单击它以在编辑器中打开它。</string>
     <string name="scroll_to_bottom_desc">打开文件时滚动到底部</string>
     <string name="soft_keyboard_always">始终显示键盘</string>
-    <string name="soft_keyboard_always_desc">即使连接了硬件键盘也始终显示软键盘</string>
+    <string name="soft_keyboard_always_desc">始终显示软键盘，即使硬件键盘连接</string>
 </resources>
