@@ -112,6 +112,16 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             }
         }
 
+        if (xnode == null){
+            isBusy = false
+            return
+        }
+
+        if (xnode.isExpand.not()){
+            isBusy = false
+            return
+        }
+
         val cache = sort(parent)
         val children1 = TreeViewModel.getChildren(xnode!!)
 
@@ -143,6 +153,17 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             }
         }
 
+        if (xnode == null){
+            isBusy = false
+            return
+        }
+
+        if (xnode.isExpand.not()){
+            isBusy = false
+            return
+        }
+
+
         val cache = sort(file)
         val children1 = TreeViewModel.getChildren(xnode!!)
 
@@ -172,28 +193,37 @@ class FileTreeAdapter(private val context: Context, val fileTree: FileTree) :
             }
         }
 
-        if (nodetoremove != null) {
-            isBusy = true
-            if (file.isFile()) {
-                val index = tempData.indexOf(nodetoremove)
-                if (index != -1) {
-                    tempData.removeAt(index)
-                }
-            } else {
-                val children = TreeViewModel.getChildren(nodetoremove)
-                tempData.removeAll(children.toSet())
-                TreeViewModel.remove(nodetoremove, nodetoremove.child)
-                nodetoremove.isExpand = false
-
-                val index = tempData.indexOf(nodetoremove)
-                if (index != -1) {
-                    tempData.removeAt(index)
-                }
-            }
-
-            submitList(tempData)
+        if (nodetoremove == null){
             isBusy = false
+            return
         }
+
+        if (nodetoremove.isExpand.not()){
+            isBusy = false
+            return
+        }
+
+
+        isBusy = true
+        if (file.isFile()) {
+            val index = tempData.indexOf(nodetoremove)
+            if (index != -1) {
+                tempData.removeAt(index)
+            }
+        } else {
+            val children = TreeViewModel.getChildren(nodetoremove)
+            tempData.removeAll(children.toSet())
+            TreeViewModel.remove(nodetoremove, nodetoremove.child)
+            nodetoremove.isExpand = false
+
+            val index = tempData.indexOf(nodetoremove)
+            if (index != -1) {
+                tempData.removeAt(index)
+            }
+        }
+
+        submitList(tempData)
+        isBusy = false
     }
 
     fun renameFile(child: FileObject, newFile: FileObject) {
