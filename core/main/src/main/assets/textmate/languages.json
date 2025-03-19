@@ -19,6 +19,12 @@
       "languageConfiguration": "textmate/kotlin/language-configuration.json"
     },
     {
+      "grammar": "textmate/latex/latex.tmLanguage.json",
+      "name": "LaTeX",
+      "scopeName": "text.tex.latex",
+      "languageConfiguration": "textmate/latex/language-configuration.json"
+    },
+    {
       "grammar": "textmate/nim/syntaxes/Nim.tmLanguage",
       "name": "nim",
       "scopeName": "source.nim",

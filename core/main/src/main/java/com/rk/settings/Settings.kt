@@ -55,7 +55,7 @@ object Settings {
         get() = Preference.getBoolean(key = "drawer_lock", default = false)
         set(value) = Preference.setBoolean(key = "drawer_lock", value)
     var show_line_numbers
-        get() = Preference.getBoolean(key = "show_line_numbers", default = true)
+        get() = Preference.getBoolean(key = "show_line_number", default = true)
         set(value) = Preference.setBoolean(key = "show_line_number", value)
     var auto_save
         get() = Preference.getBoolean(key = "auto_save", default = false)

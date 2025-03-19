@@ -34,7 +34,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity,navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
-        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen(navController) }
+        composable(SettingsRoutes.TerminalSettings.route) { SettingsTerminalScreen() }
         composable(SettingsRoutes.GitSettings.route) { SettingsGitScreen() }
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }

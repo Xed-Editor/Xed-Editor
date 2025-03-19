@@ -48,6 +48,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     private lateinit var horizontalScrollView: HorizontalScrollView
     private lateinit var searchLayout: LinearLayout
     var setupEditor: SetupEditor? = null
+    private var isFileLoaded = false
 
 
     fun showArrowKeys(yes: Boolean) {
@@ -186,7 +187,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     }
 
-    private var isFileLoaded = false
     override fun loadFile(file: FileObject) {
         this.file = file
         scope.safeLaunch {
@@ -204,11 +204,13 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                 mutex.withLock {
                     withContext(Dispatchers.Main) {
+                        isFileLoaded = false
                         editor!!.setText(FilesContent.getContent(this@EditorFragment.file!!.getAbsolutePath()))
                         isFileLoaded = true
                     }
                 }
             } else {
+                isFileLoaded = false
                 editor!!.loadFile(file, Charset.forName(Settings.encoding))
                 FilesContent.setContent(
                     this@EditorFragment.file!!.getAbsolutePath(),
@@ -252,6 +254,26 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
 
         GlobalScope.safeLaunch(Dispatchers.IO) {
+            runCatching {
+                val charset = Settings.encoding
+                val text = editor?.text.toString()
+                if (isAutoSaver && text.isBlank()){
+                    return@safeLaunch
+                }
+                file!!.writeText(text,charset = Charset.forName(charset))
+            }.onFailure {
+                if (it is SecurityException){
+                    if (isAutoSaver.not()){
+                        toast(strings.read_only_file)
+                    }
+                    return@safeLaunch
+                }else{
+                    if (isAutoSaver.not()){
+                        toast(it)
+                    }
+                    it.printStackTrace()
+                }
+            }
 
             toastCatching {
                 val charset = Settings.encoding
@@ -359,7 +381,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     private var t = 0
     private val mutex = Mutex()
     private fun isReadyToSave(): Boolean {
-        return 2 >= t && isFileLoaded
+        return 4 >= t && isFileLoaded
     }
 
     private fun setChangeListener() = editor!!.subscribeAlways(ContentChangeEvent::class.java) {

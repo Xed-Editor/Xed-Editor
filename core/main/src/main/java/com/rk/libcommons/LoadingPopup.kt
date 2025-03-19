@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 
@@ -24,7 +25,7 @@ class LoadingPopup @OptIn(DelicateCoroutinesApi::class) constructor(private val 
     private lateinit var dialogView: View
 
     init {
-        runOnUiThread{
+        val code = {
             val inflater1: LayoutInflater = LayoutInflater.from(ctx)
             dialogView = inflater1.inflate(R.layout.progress_dialog, null)
             dialogView.findViewById<TextView>(R.id.progress_message).text = strings.wait.getString()
@@ -40,6 +41,13 @@ class LoadingPopup @OptIn(DelicateCoroutinesApi::class) constructor(private val 
                     }
                 }
             }
+        }
+        if (isMainThread().not()){
+            runBlocking(Dispatchers.Main){
+                code.invoke()
+            }
+        }else{
+            code.invoke()
         }
     }
 

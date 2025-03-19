@@ -78,8 +78,10 @@ val textmateSources = hashMapOf(
     "v" to "source.coq",
     "coq" to "source.coq",
     "properties" to "source.java-properties",
-    "log" to "source.kotlin",
-    "mut" to "source.js"
+    "mut" to "source.js",
+    "latex" to "text.tex.latex",
+    "tex" to "text.tex.latex",
+    "ltx" to "text.tex.latex",
 )
 
 class SetupEditor(

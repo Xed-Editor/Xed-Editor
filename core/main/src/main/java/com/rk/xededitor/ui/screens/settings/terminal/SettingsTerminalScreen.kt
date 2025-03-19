@@ -74,7 +74,7 @@ private const val max_text_size = 20f
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun SettingsTerminalScreen(navController: NavController) {
+fun SettingsTerminalScreen() {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
         val isInstalled = isTermuxInstalled() && isTermuxCompatible()
