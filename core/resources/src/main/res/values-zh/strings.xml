@@ -45,7 +45,7 @@
     <string name="canthandle">未找到处理本文件的应用</string>
     <string name="clipboardempty">剪贴板为空</string>
     <string name="terminal">终端</string>
-    <string name="add_file">添加文件</string>
+    <string name="add_file">添加外部文件</string>
     <string name="keyword_regex">关键词（正则表达式）</string>
     <string name="replaceall">替换所有</string>
     <string name="replacement">替换</string>
@@ -269,7 +269,7 @@
     <string name="manage_editor_font">管理编辑器字体</string>
     <string name="add_font">添加新字体</string>
     <string name="termux_exec">Termux 执行</string>
-    <string name="encoding_warning">强烈不鼓励改变默认编码，因为这可能导致文件损坏。除非你完全理解这么做的影响并进行了合理备份，否则强烈建议使用 UTF-8 编码。</string>
+    <string name="encoding_warning">不建议修改默认的 UTF-8 编码为其他编码，这可能会导致文件损坏。除非你了解相关的知识，并做好了备份。</string>
     <string name="default_encoding_desc">编辑器的默认编码</string>
     <string name="other">其他</string>
     <string name="content">内容</string>
@@ -282,7 +282,7 @@
     <string name="termux_exec_guide_desc">查看文档了解如何启用 Termux Exec</string>
     <string name="gestures">手势</string>
     <string name="config_gestures">配置手势</string>
-    <string name="discard">丢弃</string>
+    <string name="discard">产业</string>
     <string name="force_char">强制Char</string>
     <string name="force_char_desc">在终端中强制使用字符输入</string>
     <string name="useCtrlWorkaround">使用Ctrl工作周围</string>
