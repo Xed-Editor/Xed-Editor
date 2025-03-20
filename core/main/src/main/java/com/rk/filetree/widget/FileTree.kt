@@ -1,7 +1,6 @@
 package com.rk.filetree.widget
 
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
 import android.view.animation.AnimationUtils
@@ -17,16 +16,19 @@ import com.rk.filetree.model.Node
 import com.rk.filetree.provider.DefaultFileIconProvider
 import com.rk.filetree.provider.RecursiveFileObserver
 import com.rk.filetree.util.sort
-import com.rk.libcommons.PathUtils.toPath
 import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-
+import kotlin.coroutines.CoroutineContext
 
 class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
     private lateinit var rootFileObject: FileObject
     private var watcher: RecursiveFileObserver? = null
+    private val mutex = Mutex()
 
     constructor(context: Context) : super(context)
 
@@ -69,9 +71,23 @@ class FileTree : RecyclerView {
         return showRootNode
     }
 
-    suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) =
-        withContext(Dispatchers.IO) {
+    private fun launchWatcher(file: FileObject){
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
             watcher?.stopWatching()
+            if (file is FileWrapper) {
+                var path = file.getAbsolutePath()
+                watcher = RecursiveFileObserver(path = path, fileTree = this@FileTree)
+                watcher!!.startWatching()
+            }
+        }
+    }
+
+    suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) =
+        withContext(Dispatchers.Main) {
+            launch(Dispatchers.IO){
+                launchWatcher(file)
+            }
+
             rootFileObject = file
 
             showRootNodeX?.let { showRootNode = it }
@@ -95,28 +111,32 @@ class FileTree : RecyclerView {
                 fileTreeAdapter.expandNode(nodes[0])
             }
 
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                if (file is FileWrapper) {
-                    var path = file.getAbsolutePath()
-                    watcher = RecursiveFileObserver(path = path, fileTree = this@FileTree)
-                    watcher!!.startWatching()
-                }
-            }
         }
 
     suspend fun reloadFileChildren(parent: FileObject) {
-        fileTreeAdapter.reloadFile(parent)
+        mutex.withLock{
+            fileTreeAdapter.reloadFile(parent)
+        }
+
     }
 
     suspend fun onFileAdded(file: FileObject) {
-        fileTreeAdapter.newFile(file)
+        mutex.withLock{
+            fileTreeAdapter.newFile(file)
+        }
+
     }
 
-    fun onFileRemoved(file: FileObject) {
-        fileTreeAdapter.removeFile(file)
+    suspend fun onFileRemoved(file: FileObject) {
+        mutex.withLock{
+            fileTreeAdapter.removeFile(file)
+        }
+
     }
 
-    fun onFileRenamed(file: FileObject, newFileObject: FileObject) {
-        fileTreeAdapter.renameFile(file, newFileObject)
+    suspend fun onFileRenamed(file: FileObject, newFileObject: FileObject) {
+        mutex.withLock{
+            fileTreeAdapter.renameFile(file, newFileObject)
+        }
     }
 }

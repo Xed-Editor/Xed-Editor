@@ -197,10 +197,10 @@ class FileAction(
                     .setNegativeButton(getString(strings.cancel), null)
                     .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
                         val loading = LoadingPopup(mainActivity, null).show()
-                        ProjectManager.CurrentProject.updateFileDeleted(
-                            mainActivity, file
-                        )
                         mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                            ProjectManager.CurrentProject.updateFileDeleted(
+                                mainActivity, file
+                            )
                             runCatching {
                                 val success = file.delete()
                                 withContext(Dispatchers.Main) {

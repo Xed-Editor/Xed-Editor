@@ -45,7 +45,7 @@ object ProjectManager {
 
     private val limit = activityRef.get()?.binding?.navigationRail?.maxItemCount ?: 11
 
-    suspend fun addProject(activity: MainActivity, file: FileObject) {
+    fun addProject(activity: MainActivity, file: FileObject) {
         if (projects.size >= limit-1) {
             return
         }
@@ -59,9 +59,9 @@ object ProjectManager {
             queue.add(file)
             return
         }
+
         val rail = activity.binding!!.navigationRail
         for (i in 0 until limit) {
-
             val item = rail.menu.getItem(i)
             val menuItemId = item.itemId
             if (menuItemId != R.id.add_new && !projects.contains(menuItemId)) {
@@ -81,10 +81,10 @@ object ProjectManager {
                     item.title = "Home"
                 }
 
-                synchronized(projects) { projects[menuItemId] = file.getAbsolutePath() }
-
                 val fileTree = FileTree(activity)
-                fileTree.loadFiles(file)
+                activity.lifecycleScope.launch{
+                    fileTree.loadFiles(file)
+                }
                 fileTree.setOnFileClickListener(fileClickListener)
                 fileTree.setOnFileLongClickListener(fileLongClickListener)
                 val scrollView =
@@ -92,6 +92,7 @@ object ProjectManager {
                 scrollView.id = file.getAbsolutePath().hashCode()
 
                 activity.binding!!.maindrawer.addView(scrollView)
+                synchronized(projects) { projects[menuItemId] = file.getAbsolutePath() }
 
                 changeProject(file.getAbsolutePath(), activity)
 
@@ -219,11 +220,11 @@ object ProjectManager {
             getSelectedView(activity).reloadFileChildren(parent)
         }
 
-        fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: FileObject) {
+        suspend fun updateFileRenamed(activity: MainActivity, file: FileObject, newFile: FileObject) {
             getSelectedView(activity).onFileRenamed(file, file)
         }
 
-        fun updateFileDeleted(activity: MainActivity, file: FileObject) {
+        suspend fun updateFileDeleted(activity: MainActivity, file: FileObject) {
             getSelectedView(activity).onFileRemoved(file)
         }
 

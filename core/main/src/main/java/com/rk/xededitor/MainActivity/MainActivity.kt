@@ -392,8 +392,10 @@ class MainActivity : BaseActivity() {
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
         lifecycleScope.launch(Dispatchers.IO){
-            delay(2000)
-            for (project in ProjectManager.projects){
+            delay(4000)
+            val projects = ProjectManager.projects
+            for (project in projects.entries){
+
                 UI {
                     toastCatching {
                         if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
