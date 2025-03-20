@@ -5,9 +5,9 @@
     <string name="add">添加</string>
     <string name="cancel">取消</string>
     <string name="share">分享</string>
-    <string name="keepdl">保持抽屉锁锁定</string>
+    <string name="keepdl">保持侧滑栏状态</string>
     <string name="plugin_icon">插件图标</string>
-    <string name="close_others">关闭其他页</string>
+    <string name="close_others">关闭其他</string>
     <string name="gitcred">Git 凭证</string>
     <string name="auto_save">自动保存</string>
     <string name="save_as">另存为</string>
@@ -28,7 +28,7 @@
     <string name="rr">需要重启</string>
     <string name="rapply">请重启以应用设置</string>
     <string name="oled">黑夜主题</string>
-    <string name="ww">文字换行</string>
+    <string name="ww">自动换行</string>
     <string name="restart">重新启动</string>
     <string name="plugin">插件</string>
     <string name="mp">管理插件</string>
@@ -40,9 +40,9 @@
     <string name="ask_enter_name">请输入一个名称</string>
     <string name="already_exists">已存在同名文档</string>
     <string name="attention">注意</string>
-    <string name="ask_del">确定要删除吗</string>
+    <string name="ask_del">你确定要删除吗</string>
     <string name="redir">请重新选择目录</string>
-    <string name="canthandle">未找到处理本文件的应用</string>
+    <string name="canthandle">未找到能处理此文件的应用</string>
     <string name="clipboardempty">剪贴板为空</string>
     <string name="terminal">终端</string>
     <string name="add_file">添加外部文件</string>
@@ -104,10 +104,10 @@
     <string name="new_file_1">新建文件</string>
     <string name="open_with">打开方式…</string>
     <string name="paste">粘贴</string>
-    <string name="close_this">关闭本页</string>
+    <string name="close_this">关闭</string>
     <string name="close_all">全部关闭</string>
     <string name="close">关闭</string>
-    <string name="unsaved">未保存文件</string>
+    <string name="unsaved">未保存的文件</string>
     <string name="unsavedfiles">您有未保存的文件！</string>
     <string name="remove_a_search_batch">移除一组批量搜索</string>
     <string name="title_activity_main">主活动</string>
