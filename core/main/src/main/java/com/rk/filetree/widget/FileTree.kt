@@ -27,6 +27,7 @@ class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
     private lateinit var rootFileObject: FileObject
     private var watcher: RecursiveFileObserver? = null
+    private val mutex = Mutex()
 
     constructor(context: Context) : super(context)
 
@@ -71,7 +72,6 @@ class FileTree : RecyclerView {
 
     suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) =
         withContext(Dispatchers.IO) {
-            
             watcher?.stopWatching()
             rootFileObject = file
 
@@ -103,32 +103,33 @@ class FileTree : RecyclerView {
                     watcher!!.startWatching()
                 }
             }
-            
+        
         }
 
     suspend fun reloadFileChildren(parent: FileObject) {
-        
+        mutex.withLock{
             fileTreeAdapter.reloadFile(parent)
-        
+        }
 
     }
 
     suspend fun onFileAdded(file: FileObject) {
-        
+        mutex.withLock{
             fileTreeAdapter.newFile(file)
-        
+        }
+
     }
 
     suspend fun onFileRemoved(file: FileObject) {
-        
+        mutex.withLock{
             fileTreeAdapter.removeFile(file)
-        
+        }
 
     }
 
     suspend fun onFileRenamed(file: FileObject, newFileObject: FileObject) {
-        
+        mutex.withLock{
             fileTreeAdapter.renameFile(file, newFileObject)
-        
+        }
     }
 }
