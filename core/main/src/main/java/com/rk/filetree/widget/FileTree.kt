@@ -1,7 +1,6 @@
 package com.rk.filetree.widget
 
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
 import android.view.animation.AnimationUtils
@@ -19,9 +18,11 @@ import com.rk.filetree.provider.RecursiveFileObserver
 import com.rk.filetree.util.sort
 import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 class FileTree : RecyclerView {
     private var fileTreeAdapter: FileTreeAdapter
@@ -70,9 +71,23 @@ class FileTree : RecyclerView {
         return showRootNode
     }
 
+    private fun launchWatcher(file: FileObject){
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            watcher?.stopWatching()
+            if (file is FileWrapper) {
+                var path = file.getAbsolutePath()
+                watcher = RecursiveFileObserver(path = path, fileTree = this@FileTree)
+                watcher!!.startWatching()
+            }
+        }
+    }
+
     suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) =
         withContext(Dispatchers.IO) {
-            watcher?.stopWatching()
+            launch(Dispatchers.IO){
+                launchWatcher(file)
+            }
+
             rootFileObject = file
 
             showRootNodeX?.let { showRootNode = it }
@@ -96,14 +111,6 @@ class FileTree : RecyclerView {
                 fileTreeAdapter.expandNode(nodes[0])
             }
 
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                if (file is FileWrapper) {
-                    var path = file.getAbsolutePath()
-                    watcher = RecursiveFileObserver(path = path, fileTree = this@FileTree)
-                    watcher!!.startWatching()
-                }
-            }
-        
         }
 
     suspend fun reloadFileChildren(parent: FileObject) {

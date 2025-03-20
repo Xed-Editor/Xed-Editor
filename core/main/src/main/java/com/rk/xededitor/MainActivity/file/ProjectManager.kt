@@ -81,8 +81,6 @@ object ProjectManager {
                     item.title = "Home"
                 }
 
-                synchronized(projects) { projects[menuItemId] = file.getAbsolutePath() }
-
                 val fileTree = FileTree(activity)
                 fileTree.loadFiles(file)
                 fileTree.setOnFileClickListener(fileClickListener)
@@ -92,6 +90,7 @@ object ProjectManager {
                 scrollView.id = file.getAbsolutePath().hashCode()
 
                 activity.binding!!.maindrawer.addView(scrollView)
+                synchronized(projects) { projects[menuItemId] = file.getAbsolutePath() }
 
                 changeProject(file.getAbsolutePath(), activity)
 
