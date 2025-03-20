@@ -83,7 +83,7 @@ class FileTree : RecyclerView {
     }
 
     suspend fun loadFiles(file: FileObject, showRootNodeX: Boolean? = null) =
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
             launch(Dispatchers.IO){
                 launchWatcher(file)
             }
