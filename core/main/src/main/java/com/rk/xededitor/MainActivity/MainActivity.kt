@@ -394,8 +394,8 @@ class MainActivity : BaseActivity() {
         lifecycleScope.launch(Dispatchers.IO){
             delay(4000)
             val projects = ProjectManager.projects
-            for (i in 0 until projects.size){
-                val project = projects[i]
+            for (project in projects.entries){
+
                 UI {
                     toastCatching {
                         if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
