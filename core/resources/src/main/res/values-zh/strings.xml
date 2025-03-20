@@ -144,7 +144,7 @@
     <string name="fill_both">请填写全部字段</string>
     <string name="pushing">推到远程库…</string>
     <string name="nogit">错误：git文件夹没找到</string>
-    <string name="manage_storage">管理储存</string>
+    <string name="manage_storage">管理存储权限</string>
     <string name="ok">好</string>
     <string name="data_clear">应用数据已清除</string>
     <string name="action_done">操作已完成</string>
