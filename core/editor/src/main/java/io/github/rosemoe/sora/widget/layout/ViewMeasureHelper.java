@@ -39,12 +39,25 @@ public class ViewMeasureHelper {
      * Get desired view size for the given arguments
      */
     public static long getDesiredSize(int widthMeasureSpec, int heightMeasureSpec, float gutterSize, float rowHeight, boolean wordwrap, int tabSize, @NonNull Content text, @NonNull Paint paint) {
-        int maxWidth = View.MeasureSpec.getSize(widthMeasureSpec);
-        int maxHeight = View.MeasureSpec.getSize(heightMeasureSpec);
+       int widthMode = View.MeasureSpec.getMode(widthMeasureSpec);
+         int heightMode = View.MeasureSpec.getMode(heightMeasureSpec);
+         int maxSize = 0X3FFFFFFF;
+         int maxWidth;
+         if (widthMode == View.MeasureSpec.UNSPECIFIED) {
+             maxWidth = maxSize;
+         } else {
+             maxWidth = View.MeasureSpec.getSize(widthMeasureSpec);
+         }
+         int maxHeight;
+         if (heightMode == View.MeasureSpec.UNSPECIFIED) {
+             maxHeight = maxSize;
+         } else {
+             maxHeight = View.MeasureSpec.getSize(heightMeasureSpec);
+         }
         var measurer = new SingleCharacterWidths(tabSize);
         if (wordwrap) {
-            if (View.MeasureSpec.getMode(widthMeasureSpec) != View.MeasureSpec.EXACTLY) {
-                var lines = View.MeasureSpec.getMode(heightMeasureSpec) != View.MeasureSpec.EXACTLY ? new int[text.getLineCount()] : null;
+            if (widthMode != View.MeasureSpec.EXACTLY) {
+                var lines = heightMode != View.MeasureSpec.EXACTLY ? new int[text.getLineCount()] : null;
                 var lineMaxSize = new MutableInt(0);
                 text.runReadActionsOnLines(0, text.getLineCount() - 1, (Content.ContentLineConsumer) (index, line, directions) -> {
                     int measured = (int) Math.ceil(measurer.measureText(line.getBackingCharArray(), 0, line.length(), paint));
@@ -71,7 +84,7 @@ public class ViewMeasureHelper {
                     heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
                 }
             } else {
-                if (View.MeasureSpec.getMode(heightMeasureSpec) != View.MeasureSpec.EXACTLY) {
+               if (heightMode != View.MeasureSpec.EXACTLY) {
                     var rowCount = new MutableInt(0);
                     int availableSize = (int) (maxWidth - gutterSize);
                     if (availableSize <= 0) {
@@ -87,7 +100,7 @@ public class ViewMeasureHelper {
                 }
             }
         } else {
-            if (View.MeasureSpec.getMode(widthMeasureSpec) != View.MeasureSpec.EXACTLY) {
+            if (heightMode != View.MeasureSpec.EXACTLY) {
                 var lineMaxSize = new MutableInt(0);
                 text.runReadActionsOnLines(0, text.getLineCount() - 1, (Content.ContentLineConsumer) (index, line, directions) -> {
                     int measured = (int) Math.ceil(measurer.measureText(line.getBackingCharArray(), 0, line.length(), paint));
@@ -98,7 +111,7 @@ public class ViewMeasureHelper {
                 var width = (int) Math.min(lineMaxSize.value + gutterSize, maxWidth);
                 widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
             }
-            if (View.MeasureSpec.getSize(heightMeasureSpec) != View.MeasureSpec.EXACTLY) {
+           if (heightMode != View.MeasureSpec.EXACTLY) {
                 var height = Math.min(maxHeight, (int) (rowHeight * text.getLineCount()));
                 heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY);
             }
