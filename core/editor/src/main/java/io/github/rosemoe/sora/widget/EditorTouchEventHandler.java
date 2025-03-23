@@ -302,7 +302,7 @@ public final class EditorTouchEventHandler implements GestureDetector.OnGestureL
         var height = pos.height();
         int x, y;
         if (editor.isStickyTextSelection()) {
-            x = (int) (Math.abs(pos.left - e.getX()) > editor.getRowHeight() ? pos.left : e.getX());
+            x = Math.min((int) e.getX(), (int) pos.right);
             y = (int) (pos.top - height / 2);
         } else {
             x = (int) e.getX();
