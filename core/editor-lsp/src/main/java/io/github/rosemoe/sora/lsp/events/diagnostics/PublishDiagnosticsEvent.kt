@@ -44,7 +44,10 @@ class PublishDiagnosticsEvent : EventListener {
 
         diagnosticsContainer.addDiagnostics(data.transformToEditorDiagnostics(originEditor))
 
-        originEditor.diagnostics = diagnosticsContainer
+        // run on ui thread
+         originEditor.post {
+             originEditor.diagnostics = diagnosticsContainer
+         }
     }
 }
 
