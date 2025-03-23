@@ -349,27 +349,36 @@ public class GraphicTextRow {
                 (text.mayNeedBidi() ? TextBidi.getDirections(text) : tmpDirections)
                 : directions;
         float width = 0;
+        float tabWidth = paint.getSpaceWidth() * this.tabWidth;
+        int tabCount = 0;
         for (int i = 0; i < dirs.getRunCount(); i++) {
             int start1 = Math.max(start, dirs.getRunStart(i));
             int end1 = Math.min(end, dirs.getRunEnd(i));
             if (end1 > start1) {
-                // Can be called directly
-                width += paint.myGetTextRunAdvances(text.getBackingCharArray(), start1, end1 - start1, ctxStart, ctxEnd - ctxStart, dirs.isRunRtl(i), widths, widths == null ? 0 : start1, quickMeasureMode);
+                                // split measure commits by '\t' as text is rendered in that way
+                 int nextStart = start1;
+                 for (int j = start1; j < end1; j++) {
+                     if (text.charAt(j) == '\t') {
+                         tabCount++;
+                         if (widths != null) {
+                             widths[j] = tabWidth;
+                         }
+                         int startCommit = nextStart;
+                         int endCommit = j;
+                         if (startCommit < endCommit)
+                             width += paint.myGetTextRunAdvances(text.getBackingCharArray(), startCommit, endCommit - startCommit, ctxStart, ctxEnd - ctxStart, dirs.isRunRtl(i), widths, widths == null ? 0 : startCommit, quickMeasureMode);
+                         nextStart = endCommit + 1;
+                     }
+                 }
+                 if (nextStart < end1) {
+                     width += paint.myGetTextRunAdvances(text.getBackingCharArray(), nextStart, end1 - nextStart, ctxStart, ctxEnd - ctxStart, dirs.isRunRtl(i), widths, widths == null ? 0 : nextStart, quickMeasureMode);
+                 }
             }
             if (dirs.getRunStart(i) >= end) {
                 break;
             }
         }
-        float tabWidth = paint.getSpaceWidth() * this.tabWidth;
-        int tabCount = 0;
-        for (int i = start; i < end; i++) {
-            if (text.charAt(i) == '\t') {
-                tabCount++;
-                if (widths != null) {
-                    widths[i] = tabWidth;
-                }
-            }
-        }
+        
         float extraWidth = tabCount == 0 ? 0 : tabWidth - paint.measureText("\t");
         return width + extraWidth * tabCount;
     }
