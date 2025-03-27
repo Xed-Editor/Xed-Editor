@@ -92,4 +92,15 @@
     <string name="gitKeyExample">pl.: SuperKek:ghp_…</string>
     <string name="file_exist_not">A fájl már nem létezik</string>
     <string name="clone_dir">Mappa repok klónozásához</string>
+    <string name="fill_both">Kérlek töltsd ki mindkét mezőt</string>
+    <string name="data_clear">Alkalmazásadatok törölve</string>
+    <string name="action_done">Kérés végrehajtva</string>
+    <string name="clone_repo">Repo klónozása</string>
+    <string name="nogit">Hiba: .git mappa nem található</string>
+    <string name="exists">már létezik</string>
+    <string name="commit_push">Commit és push</string>
+    <string name="push_desc">Commit készítése és távoli repoba pusholása\"</string>
+    <string name="pushing">Pusholás a távoli repoba…</string>
+    <string name="manage_storage">Tárhely kezelése</string>
+    <string name="manage_storage_reason">A Xed-Editor -nak hozzáférésre van szüksége, hogy a tárhelyeden lévő fájlokat írni tudja. Kérlek engedélyezd ezt a következő felugró rendszerbeállítás-ablakban.</string>
 </resources>
