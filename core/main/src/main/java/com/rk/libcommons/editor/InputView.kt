@@ -6,6 +6,8 @@ import android.view.KeyEvent
 import android.view.View.OnClickListener
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.isDarkMode
+import com.rk.resources.drawables
+import com.rk.resources.getDrawable
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.SymbolInputView
@@ -26,17 +28,19 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
             Color.BLACK
         }
 
+        addSymbols(arrayOf(Pair("->", onClick {
+            editor.onKeyDown(
+                KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
+            )
+        })))
+
+        /*addSymbols(mutableListOf(Pair(drawables.save.getDrawable(editor.context), onClick {
+            editor.onKeyDown(
+                KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
+            )
+        })))*/
+
         val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
-            add(Pair("->", onClick {
-                editor.onKeyDown(
-                    KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
-                )
-            }))
-
-            add(Pair("⌘", onClick {
-                CheapEventBus.showControlPanel()
-            }))
-
             add(Pair("←", onClick {
                 editor.onKeyDown(
                     KeyEvent.KEYCODE_DPAD_LEFT,
