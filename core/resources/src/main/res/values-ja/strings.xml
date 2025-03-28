@@ -366,7 +366,7 @@
     <string name="update_files_cleared">アプリがアップデートされました : データがクリアされました</string>
     <string name="unrestricted_file">サイズによらずファイルを開く</string>
     <string name="suggest_clear_app_data">アプリのデータをクリアすることを推奨します</string>
-    <string name="unrestricted_file_desc">どのようなサイズのファイルでも開けるようにする(クラッシュの可能性あり)</string>
+    <string name="unrestricted_file_desc">どのようなサイズのファイルでも開くようにする(クラッシュの可能性あり)</string>
     <string name="toggle_ww">ワードラップを切り替え</string>
     <string name="warning_private_dir">アプリデータを消去したり、Xed-Editorを削除すると、このディレクトリの中身は削除されます</string>
     <string name="read_only_file">ファイルは読み取り専用です</string>
