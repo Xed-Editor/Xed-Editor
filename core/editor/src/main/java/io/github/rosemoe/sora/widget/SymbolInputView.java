@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -36,11 +37,15 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
+import java.util.List;
 
 import io.github.rosemoe.sora.R;
 
@@ -154,6 +159,21 @@ public class SymbolInputView extends LinearLayout {
     }
 
 
+    public void addSymbols(List<Pair<Drawable,View.OnClickListener>> keys){
+        for (Pair<Drawable,View.OnClickListener> key : keys){
+            var btn = new ImageButton(getContext(), null, android.R.attr.buttonStyleSmall);
+            btn.setAdjustViewBounds(true);
+            btn.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            btn.setMaxHeight(70);
+            btn.setMaxWidth(70);
+            btn.setImageDrawable(key.first);
+            btn.setBackground(ContextCompat.getDrawable(getContext(),R.drawable.extra_keys_btn_background));
+            addView(btn, new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+            if (key.second != null){
+                btn.setOnClickListener(key.second);
+            }
+        }
+    }
 
     public void addSymbols(@NonNull Pair<String,View.OnClickListener>[] keys) {
         for (Pair<String,View.OnClickListener> key : keys){

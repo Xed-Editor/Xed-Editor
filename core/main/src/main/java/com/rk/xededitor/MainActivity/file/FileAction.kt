@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
@@ -48,8 +49,6 @@ class FileAction(
 
     companion object {
         var to_save_file: FileObject? = null
-        //id : hook
-        val actionPopupHook = hashMapOf<String,ActionPopup.(FileAction)-> Unit>()
     }
     
     private fun getString(@StringRes id:Int):String{
@@ -64,7 +63,7 @@ class FileAction(
 
         ActionPopup(mainActivity, true).apply {
 
-            actionPopupHook.values.forEach { it.invoke(this,this@FileAction) }
+            Hooks.actionPopupHook.values.forEach { it.invoke(this,this@FileAction) }
 
             if (file == rootFolder) {
                 addItem(
