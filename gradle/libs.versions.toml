@@ -1,6 +1,6 @@
 [versions]
 accompanistSwiperefresh = "0.36.0"
-agp = "8.6.0"
+agp = "8.9.1"
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
 appcompat = "1.7.0"
