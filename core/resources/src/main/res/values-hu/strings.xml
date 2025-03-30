@@ -103,4 +103,6 @@
     <string name="pushing">Pusholás a távoli repoba…</string>
     <string name="manage_storage">Tárhely kezelése</string>
     <string name="manage_storage_reason">A Xed-Editor -nak hozzáférésre van szüksége, hogy a tárhelyeden lévő fájlokat írni tudja. Kérlek engedélyezd ezt a következő felugró rendszerbeállítás-ablakban.</string>
+    <string name="git">Git</string>
+    <string name="open_in_terminal">Megnyitás terminálban</string>
 </resources>
