@@ -1,5 +1,6 @@
 package com.rk.extension
 
+import com.rk.controlpanel.ControlItem
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.ActionPopup
 import com.rk.xededitor.MainActivity.TabFragment
@@ -25,4 +26,6 @@ object Hooks {
      */
     // ID : Builder
     val actionPopupHook = hashMapOf<ID, ActionPopup.(FileAction) -> Unit>()
+
+    val controlItems = hashMapOf<ID, ControlItem>()
 }
