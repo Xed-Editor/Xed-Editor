@@ -28,11 +28,7 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
             Color.BLACK
         }
 
-        addSymbols(arrayOf(Pair("->", onClick {
-            editor.onKeyDown(
-                KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
-            )
-        })))
+
 
         /*addSymbols(mutableListOf(Pair(drawables.save.getDrawable(editor.context), onClick {
             editor.onKeyDown(
@@ -41,6 +37,17 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
         })))*/
 
         val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
+
+            add(Pair("->", onClick {
+                editor.onKeyDown(
+                    KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
+                )
+            }))
+
+            add(Pair("⌘", onClick{
+                CheapEventBus.showControlPanel()
+            }))
+
             add(Pair("←", onClick {
                 editor.onKeyDown(
                     KeyEvent.KEYCODE_DPAD_LEFT,
