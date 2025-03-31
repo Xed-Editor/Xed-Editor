@@ -6,8 +6,10 @@ import androidx.navigation.NavController
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.category.PreferenceCategory
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
 
 @Composable
@@ -65,6 +67,14 @@ private fun Categories(navController: NavController) {
             description = stringResource(strings.ext_desc),
             iconResource = drawables.extension,
             onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
+        )
+    }
+
+    if (Features.developerOptions.value){
+        NextScreenCard(
+            label = "Developer Options",
+            description = "Debugging options for ${strings.app_name.getString()}",
+            route = SettingsRoutes.DeveloperOptions
         )
     }
 

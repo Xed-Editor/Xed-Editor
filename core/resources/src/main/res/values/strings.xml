@@ -40,7 +40,7 @@
     <string name="new_file_1">New File</string>
     <string name="rename">Rename</string>
     <string name="open_with">Open With…</string>
-    <string name="save_as">Save as</string>
+    <string name="save_as">Save As</string>
     <string name="paste">Paste</string>
     <string name="delete">Delete</string>
     <string name="close_this">Close this</string>
@@ -55,11 +55,11 @@
     <string name="exit">Exit</string>
     <string name="rr">Restart Required</string>
     <string name="rapply">Please restart to apply settings</string>
-    <string name="oled">Black Night Theme</string>
+    <string name="oled">Black Theme</string>
     <string name="ww">Word Wrap</string>
     <string name="keepdl">Keep Drawer Locked</string>
     <string name="restart">Restart</string>
-    <string name="refresh">Refresh</string>
+    <string name="refresh">Reload</string>
     <string name="dir_example">Name eg. Test</string>
     <string name="create">Create</string>
     <string name="ask_enter_name">Please enter a name</string>
@@ -150,7 +150,7 @@
     <string name="open_path">Internal Storage</string>
     <string name="open_path_desc">Open internal storage</string>
     <string name="clone_repo_desc">Clone repository using Git</string>
-    <string name="add">Add</string>
+    <string name="add">New File</string>
     <string name="already_opened">File already opened</string>
     <string name="open_cant">Cannot open more than</string>
     <string name="files">Files</string>
@@ -161,7 +161,7 @@
     <string name="yes">Yes</string>
     <string name="fetch_failed">fetch request returned null</string>
     <string name="app">Application</string>
-    <string name="oled_desc">Pure Black theme for amoled devices</string>
+    <string name="oled_desc">Use a pure black theme for AMOLED devices</string>
     <string name="themes">Themes</string>
     <string name="change_theme">Change Theme</string>
     <string name="editor">Editor</string>
@@ -190,16 +190,14 @@
     <string name="tab_size">Tab Size</string>
     <string name="tab_size_desc">Set tab size</string>
     <string name="monet">Dynamic Colors</string>
-    <string name="monet_desc">Use device theme in app.</string>
+    <string name="monet_desc">Use device theme in app</string>
     <string name="restart_app">Please restart the application.</string>
 
     <string name="old_android">Unsupported Android version</string>
-    <string name="app_desc">General settings for the application</string>
-    <string name="editor_desc">General settings for the editor</string>
-    <string name="terminal_desc">General settings for terminal</string>
-    <string name="git_desc">General settings for git</string>
-    <string name="fail_safe">Fail Safe</string>
-    <string name="failsafe_desc">Use android shell instead of termux</string>
+    <string name="app_desc">General application settings</string>
+    <string name="editor_desc">General editor settings</string>
+    <string name="terminal_desc">General terminal settings</string>
+    <string name="git_desc">General git settings</string>
     <string name="Lshell">Launch Shell</string>
     <string name="Lshell_desc">Executed when the terminal is launched.</string>
     <string name="terminal_text_size">Terminal text size</string>
@@ -238,12 +236,12 @@
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
     <string name="auto_mode">Auto</string>
-    <string name="select_theme_mode" >Select Theme Mode</string>
+    <string name="select_theme_mode" >@string/theme_mode</string>
     
     <string name="cannot_be_empty">It cannot be empty.</string>
     
-    <string name="theme_mode">Theme Mode</string>
-    <string name="theme_mode_desc">Change theme mode to auto, light or dark.</string>
+    <string name="theme_mode">Theme</string>
+    <string name="theme_mode_desc">Change app color theme</string>
 
     <string name="show_suggestions">Show Suggestions</string>
     
@@ -263,7 +261,7 @@
     <string name="git_commit">Git Commit Hash</string>
     
     <string name="check_for_updates">Check for Updates</string>
-    <string name="check_for_updates_desc">Periodically Check For Updates</string>
+    <string name="check_for_updates_desc">Periodically check for updates</string>
 
     <string name="click_open">Click here to open file</string>
     <string name="no">No</string>
@@ -365,9 +363,9 @@
     <string name="invalid_email">Invalid Email</string>
     <string name="invalid_user">Invalid Username</string>
 
-    <string name="use_github_url">Use default github url</string>
+    <string name="use_github_url">Use default git domain</string>
     <string name="custom_git_url">Custom Git Url</string>
-    <string name="http_git_url">Http git url</string>
+    <string name="http_git_url">Http git domain</string>
 
     <string name="scroll_to_bottom">Scroll to Bottom</string>
     <string name="scroll_to_bottom_desc">Scroll to Bottom when opening a file</string>
