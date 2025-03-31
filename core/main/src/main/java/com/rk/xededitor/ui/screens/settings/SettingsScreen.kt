@@ -71,10 +71,11 @@ private fun Categories(navController: NavController) {
     }
 
     if (Features.developerOptions.value){
-        NextScreenCard(
+        PreferenceCategory(
             label = "Developer Options",
             description = "Debugging options for ${strings.app_name.getString()}",
-            route = SettingsRoutes.DeveloperOptions
+            iconResource = drawables.settings,
+            onNavigate = { navController.navigate(SettingsRoutes.DeveloperOptions.route) },
         )
     }
 
