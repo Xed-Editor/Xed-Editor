@@ -55,7 +55,7 @@
     <string name="exit">Выйти</string>
     <string name="rr">Требуется перезапуск</string>
     <string name="rapply">Перезапустите, чтобы применить настройки</string>
-    <string name="oled">Тема: \"Черная ночь\"</string>
+    <string name="oled">Тёмная тема</string>
     <string name="ww">Перенос слов</string>
     <string name="keepdl">Оставить панель закрытой</string>
     <string name="restart">Перезапуск</string>
@@ -63,7 +63,7 @@
     <string name="mp">Управление плагинами</string>
     <string name="ap">Доступные плагины</string>
     <string name="nip">Нет установленных плагинов</string>
-    <string name="refresh">Обновить</string>
+    <string name="refresh">Перезагрузить</string>
     <string name="dir_example">Имя, например: Тест</string>
     <string name="create">Создать</string>
     <string name="ask_enter_name">Пожалуйста, введите имя</string>
@@ -154,7 +154,7 @@
     <string name="open_path">Внутреннее хранилище</string>
     <string name="open_path_desc">Открыть внутреннее хранилище</string>
     <string name="clone_repo_desc">Клонировать репозиторий с помощью Git</string>
-    <string name="add">Добавить</string>
+    <string name="add">Новый файл</string>
     <string name="already_opened">Файл уже открыт</string>
     <string name="open_cant">Невозможно открыть больше чем</string>
     <string name="files">Файлы</string>
@@ -169,7 +169,7 @@
     <string name="plugin_download_failed">Не удалось скачать плагин</string>
     <string name="fetch_failed">Запрос на получение ничего не вернул</string>
     <string name="app">Приложение</string>
-    <string name="oled_desc">Чистая черная тема для amoled устройств</string>
+    <string name="oled_desc">Использовать чистую тёмную тему.для amoled устройств</string>
     <string name="themes">Темы</string>
     <string name="change_theme">Изменить тему</string>
     <string name="editor">Редактор</string>
@@ -198,7 +198,7 @@
     <string name="tab_size">Размер tab</string>
     <string name="tab_size_desc">Установить размер tab</string>
     <string name="monet">Динамические цвета</string>
-    <string name="monet_desc">Использовать тему устройства в приложении.</string>
+    <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
     <string name="old_android">Неподдерживаемая версия Android</string>
     <string name="app_desc">Главные настройки приложения</string>
@@ -247,8 +247,8 @@
     <string name="auto_mode">Автоматическая</string>
     <string name="select_theme_mode">Выбрать режим темы</string>
     <string name="cannot_be_empty">Он не может быть пустым.</string>
-    <string name="theme_mode">Режим темы</string>
-    <string name="theme_mode_desc">Автоматически менять тему: светлая или темная.</string>
+    <string name="theme_mode">Тема</string>
+    <string name="theme_mode_desc">Изменить цветовую тему приложения</string>
     <string name="no_plugins_available">Нет доступных плагинов</string>
     <string name="show_suggestions">Показывать предложения</string>
     <string name="about">О приложении</string>
@@ -349,9 +349,9 @@
     <string name="scroll_to_bottom">Прокрутить вниз</string>
     <string name="scroll_to_bottom_desc">Прокрутить вниз при открытии файла</string>
     <string name="invalid_user">Недействительное имя пользователя</string>
-    <string name="use_github_url">Использовать GitHub ссылку по умолчанию</string>
+    <string name="use_github_url">Использовать домен git по умолчанию</string>
     <string name="custom_git_url">Пользовательская git ссылка</string>
-    <string name="http_git_url">Http git ссылка</string>
+    <string name="http_git_url">Http git домен</string>
     <string name="user">Пользователь</string>
     <string name="git_auth">GitHub токен</string>
     <string name="file_err">Файл не может быть сохранен, попробуйте закрыть и снова открыть файл</string>
