@@ -347,9 +347,9 @@
     <string name="git_auth">Token GitHub</string>
     <string name="invalid_email">Email non Valida</string>
     <string name="invalid_user">Nome Utente non Valido</string>
-    <string name="use_github_url">Utilizza l\'url predefinito di GitHub</string>
+    <string name="use_github_url">Usa il dominio git predefinito</string>
     <string name="custom_git_url">Url Git Personalizzato</string>
-    <string name="http_git_url">Http girl url</string>
+    <string name="http_git_url">Dominio Git http</string>
     <string name="file_err">Il file non può essere salvato, prova a chiuderlo e riaprirlo</string>
     <string name="file_not_loaded">Il file non è ancora caricato.</string>
     <string name="file_not_exist">Il File non esiste più</string>
