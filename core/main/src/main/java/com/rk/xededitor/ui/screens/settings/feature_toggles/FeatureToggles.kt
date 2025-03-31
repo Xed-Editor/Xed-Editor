@@ -16,6 +16,7 @@ object Features{
     val terminal = mutableStateOf(Settings.feature_terminal)
     val mutators = mutableStateOf(Settings.feature_mutators)
     val git = mutableStateOf(Settings.feature_git)
+    val developerOptions = mutableStateOf(Settings.developerOptions)
 }
 
 @Composable
@@ -53,6 +54,15 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
                 sideEffect = {
                     Settings.feature_git = it
                     Features.git.value = it
+                }
+            )
+
+            SettingsToggle(
+                label = "Developer Options",
+                default = Features.developerOptions.value,
+                sideEffect = {
+                    Settings.developerOptions = it
+                    Features.developerOptions.value = it
                 }
             )
         }

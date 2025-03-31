@@ -73,6 +73,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
+import java.util.Collections
 
 class MainActivity : BaseActivity() {
 
@@ -284,7 +285,9 @@ class MainActivity : BaseActivity() {
 
         menu.findItem(R.id.select_highlighting).subMenu?.apply {
             var order = 0
-            textmateSources.values.toSet().forEach { sourceName ->
+            val list = textmateSources.values.toSet().toMutableList()
+            list.sort()
+            list.forEach { sourceName ->
                 var ext = sourceName.substringAfterLast(".")
                 if (sourceName == "text.html.basic"){
                     ext = "html"

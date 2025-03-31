@@ -88,13 +88,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 }
 
             )
-
-            NextScreenCard(
-                label = "Developer Options",
-                description = "Debugging options for ${strings.app_name.getString()}",
-                route = SettingsRoutes.DeveloperOptions
-            )
-
         }
 
         if (showDayNightBottomSheet.value) {
