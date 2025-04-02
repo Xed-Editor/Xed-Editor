@@ -21,12 +21,12 @@
     <string name="cancel">Abbrechen</string>
     <string name="rr">Neustart erforderlich</string>
     <string name="rapply">Bitte neu starten um die Einstellungen anzuwenden</string>
-    <string name="oled">Schwarzes Nacht-Theme</string>
+    <string name="oled">Schwarzes Thema</string>
     <string name="ww">Zeilenumbruch</string>
     <string name="restart">Neustart</string>
     <string name="mp">Plugins verwalten</string>
     <string name="ap">Verfügbare Plugins</string>
-    <string name="refresh">Aktualisieren</string>
+    <string name="refresh">Neu laden</string>
     <string name="dir_example">Name z.B. Test</string>
     <string name="create">Erstellen</string>
     <string name="ask_enter_name">Bitte einen Namen eingeben</string>
@@ -153,7 +153,7 @@
     <string name="nogit">Fehler: .git-Ordner nicht gefunden</string>
     <string name="private_files">Private Dateien</string>
     <string name="err">Fehler</string>
-    <string name="add">Hinzufügen</string>
+    <string name="add">Neue Datei</string>
     <string name="already_opened">Datei bereits geöffnet</string>
     <string name="already_installed">Bereits installiert</string>
     <string name="yes">Ja</string>
