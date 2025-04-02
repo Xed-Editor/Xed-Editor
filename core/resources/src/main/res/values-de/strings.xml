@@ -184,4 +184,13 @@
     <string name="auto_save">Automatisch speichern</string>
     <string name="auto_save_desc">Datei automatisch speichern</string>
     <string name="auto_save_time">Zeiteinstellung automatisches speichern</string>
+    <string name="inavalid_v">Ungültiger Wert</string>
+    <string name="tab_size">Tab-Größe</string>
+    <string name="tab_size_desc">Tab-Größe festlegen</string>
+    <string name="auto_save_time_desc">Datei nach einer bestimmten Zeit automatisch speichern</string>
+    <string name="v_small">Wert zu klein</string>
+    <string name="text_size">Textgröße</string>
+    <string name="intervalinMs">Intervall in Millisekunden</string>
+    <string name="text_size_desc">Textgröße festlegen</string>
+    <string name="v_large">Wert zu groß</string>
 </resources>
