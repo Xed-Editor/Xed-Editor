@@ -195,5 +195,10 @@
     <string name="v_large">Wert zu groß</string>
     <string name="monet">Dynamische Farben</string>
     <string name="restart_app">Bitte Anwendung neu starten.</string>
-    <string name="old_android">Nicht unterstützte Android Version</string>
+    <string name="old_android">Nicht unterstützte Android-Version</string>
+    <string name="editor_desc">Allgemeine Editoreinstellungen</string>
+    <string name="app_desc">Allgemeine Anwendungseinstellungen</string>
+    <string name="terminal_desc">Allgemeine Terminal-Einstellungen</string>
+    <string name="git_desc">Allgemeine git-Einstellungen</string>
+    <string name="terminal_text_size_desc">Textgröße im Terminal festlegen</string>
 </resources>
