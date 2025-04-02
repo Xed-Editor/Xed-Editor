@@ -201,4 +201,6 @@
     <string name="terminal_desc">Allgemeine Terminal-Einstellungen</string>
     <string name="git_desc">Allgemeine git-Einstellungen</string>
     <string name="terminal_text_size_desc">Textgröße im Terminal festlegen</string>
+    <string name="Lshell">Shell starten</string>
+    <string name="terminal_text_size">Textgröße im Terminal</string>
 </resources>
