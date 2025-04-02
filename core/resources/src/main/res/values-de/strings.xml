@@ -193,4 +193,6 @@
     <string name="intervalinMs">Intervall in Millisekunden</string>
     <string name="text_size_desc">Textgröße festlegen</string>
     <string name="v_large">Wert zu groß</string>
+    <string name="monet">Dynamische Farben</string>
+    <string name="restart_app">Bitte App neu starten.</string>
 </resources>
