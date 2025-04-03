@@ -243,7 +243,7 @@
     <string name="force_normal_desc">Forza il layout normale nei dispositivi con schermo grande</string>
     <string name="dark_mode">Scuro</string>
     <string name="auto_mode">Automatico</string>
-    <string name="select_theme_mode">Seleziona Modalità Tema</string>
+    <string name="select_theme_mode">\@string/theme_mode</string>
     <string name="cannot_be_empty">Non può essere vuoto.</string>
     <string name="theme_mode_desc">Cambia il tema colore dell\'app</string>
     <string name="no_plugins_available">Nessun Plugin Disponibile</string>
