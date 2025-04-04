@@ -6,7 +6,7 @@ export HOME=/root
 export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@karbon \[\033[39m\]\w \[\033[0m\]\\$ "
 START_SHELL="/bin/bash"
 # shellcheck disable=SC2034
-PIP_BREAK_SYSTEM_PACKAGES=1
+export PIP_BREAK_SYSTEM_PACKAGES=1
 required_packages="bash gcompat glib git nano sudo file build-base"
 missing_packages=""
 for pkg in $required_packages; do
