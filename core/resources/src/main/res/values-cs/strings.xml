@@ -1,2 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="open_drawer">Otevřít</string>
+    <string name="close_drawer">Zavřít</string>
+    <string name="ni">Táto funkce nebyla ještě přidaná</string>
+    <string name="unsupported_contnt">Nepodporovaný obsah</string>
+    <string name="null_contnt">Chyba: Obsah je null (prázdný)</string>
+    <string name="save">Soubor uložen</string>
+    <string name="saveAll">Všechny soubory uloženy</string>
+    <string name="save_label">Uložit</string>
+    <string name="ww_wait">Vičkejte prosím než zalamování slov bude dokončeno</string>
+    <string name="open_file_or_folder">Otevřít Soubor nebo Složku</string>
+    <string name="open_file">Otevřít Soubor</string>
+    <string name="open_directory">Otevřít Složku</string>
+    <string name="new_file">Nový Soubor</string>
+    <string name="newFile_hint">Jméno (např. Test.txt)</string>
+</resources>
