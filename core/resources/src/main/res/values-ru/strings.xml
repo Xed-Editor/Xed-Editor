@@ -201,11 +201,11 @@
     <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
     <string name="old_android">Неподдерживаемая версия Android</string>
-    <string name="app_desc">Главные настройки приложения</string>
-    <string name="editor_desc">Главные настройки редактора</string>
+    <string name="app_desc">Общие настройки приложения</string>
+    <string name="editor_desc">Общие настройки редактора</string>
     <string name="plugin_desc">Главные настройки плагинов</string>
-    <string name="terminal_desc">Главные настройки терминала</string>
-    <string name="git_desc">Главные настройки git</string>
+    <string name="terminal_desc">Общие настройки терминала</string>
+    <string name="git_desc">Общие настройки git</string>
     <string name="enable_plugins">Включить плагины</string>
     <string name="fail_safe">Режим отказа</string>
     <string name="failsafe_desc">Использовать оболочку Android вместо termux</string>
