@@ -88,7 +88,7 @@ class FileWrapper(var file: File) : FileObject {
 
 
     override fun getAbsolutePath(): String {
-        return file.absolutePath
+        return file.canonicalPath
     }
 
     override fun length(): Long {
