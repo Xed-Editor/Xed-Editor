@@ -169,7 +169,7 @@
     <string name="plugin_download_failed">Не удалось скачать плагин</string>
     <string name="fetch_failed">Запрос на получение ничего не вернул</string>
     <string name="app">Приложение</string>
-    <string name="oled_desc">Использовать чистую тёмную тему.для amoled устройств</string>
+    <string name="oled_desc">Использовать чёрную тему для amoled устройств</string>
     <string name="themes">Темы</string>
     <string name="change_theme">Изменить тему</string>
     <string name="editor">Редактор</string>
