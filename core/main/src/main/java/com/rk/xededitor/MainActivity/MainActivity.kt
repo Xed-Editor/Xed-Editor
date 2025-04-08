@@ -181,7 +181,7 @@ class MainActivity : BaseActivity() {
             val files = state.fragmentFiles.filter { it.exists() && it.canRead() }.toMutableList()
             val types = files.map { it.getFragmentType() }.toMutableList()
             val titles = files.map { it.getName() }.toMutableList()
-            val fileSet = files.map { it.getAbsolutePath() }.toHashSet()
+            val fileSet = files.map { it.getCanonicalPath() }.toHashSet()
 
             fragmentFiles = files
             fragmentTypes = types
@@ -338,7 +338,7 @@ class MainActivity : BaseActivity() {
             val uri = intent.data
             
             val file = File(uri!!.toPath())
-            var fileObject = if (file.exists() && file.canRead() && file.canWrite() && file.isFile){
+            var fileObject = if (file.exists() && file.canRead() && file.isFile){
                 FileWrapper(file)
             }else{
                 UriWrapper(uri)
@@ -395,18 +395,17 @@ class MainActivity : BaseActivity() {
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
         lifecycleScope.launch(Dispatchers.IO){
-            delay(4000)
-            val projects = ProjectManager.projects
+            val projects = ProjectManager.projects.toMap()
             for (project in projects.entries){
-
-                UI {
-                    toastCatching {
-                        if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
+                toastCatching {
+                    if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
+                        UI {
                             val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode())
                             (view.getChildAt(0) as FileTree).reloadFileChildren(UriWrapper(Uri.parse(project.value)))
                         }
                     }
                 }
+
             }
             kotlinx.coroutines.withContext(Dispatchers.Main){
                 ProjectManager.processQueue(this@MainActivity)

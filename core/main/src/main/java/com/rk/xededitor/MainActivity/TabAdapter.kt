@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -132,7 +133,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 
                 fun close() {
                     tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
-                    tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].getAbsolutePath())
+                    tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].getCanonicalPath())
                     
                     synchronized(EditorFragment.fileset) {
                         EditorFragment.fileset.remove(tabViewModel.fragmentFiles[position].getName())
@@ -222,7 +223,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
 
         with(mainActivity) {
-            if (tabViewModel.fileSet.contains(file.getAbsolutePath())) {
+            if (tabViewModel.fileSet.contains(file.getCanonicalPath())) {
                 kotlin.runCatching {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout!!.selectedTabPosition == 0) {
@@ -250,7 +251,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 )
                 return
             }
-            tabViewModel.fileSet.add(file.getAbsolutePath())
+            tabViewModel.fileSet.add(file.getCanonicalPath())
             tabViewModel.fragmentFiles.add(file)
 
             if(tabViewModel.fragmentTitles.contains(file.getName())){

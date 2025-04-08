@@ -84,7 +84,7 @@ class CrashActivity : AppCompatActivity() {
             editor.setText(sb.toString())
             editor.editable = false
 
-            runCatching { SetupEditor(editor,this,lifecycleScope) }
+            runCatching { SetupEditor(editor,application,lifecycleScope) }
             editor.isWordwrap = false
         }.onFailure{
             logErrorOrExit(it)
