@@ -243,8 +243,6 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 }
 
                 return
-            }else{
-                println("no match for ${file.getAbsolutePath()}")
             }
             if (tabViewModel.fragmentFiles.size >= tabLimit) {
                 toast(
