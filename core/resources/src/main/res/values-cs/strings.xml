@@ -176,4 +176,16 @@
     <string name="file_unsaved">Soubor Neuložen</string>
     <string name="update">Aktualizovat</string>
     <string name="ignore">Ignorovat</string>
+    <string name="manage_storage_reason">Xed-Editor potřebuje přístup ke souborům v uložišti. Prosím udělte oprávnění ve náschedujícím nastavením systému.</string>
+    <string name="ok">OK</string>
+    <string name="invalid_path">Umístění neexistuje</string>
+    <string name="action_done">Akce Dokončena</string>
+    <string name="download_sure">Opravdu chcete stáhnout</string>
+    <string name="cursor_anim">Animace Kurzoru</string>
+    <string name="file_name">Jméno souboru</string>
+    <string name="save_desc">Uložte vybraný soubor někde jinde</string>
+    <string name="auto_save_time_desc">Automaticky uložit soubor po určitém času</string>
+    <string name="cs">Rozlišování Velkých a Malých písmen</string>
+    <string name="manage_storage">Spravovat Uložiště</string>
+    <string name="create_new_file_desc">Vytvořit nový soubor pod vybranou složku</string>
 </resources>
