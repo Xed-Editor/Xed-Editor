@@ -9,8 +9,7 @@ import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
-import com.rk.xededitor.git.GitClient
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -26,8 +25,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
         val fragment = tabFragment?.fragment
         updateEditor(fragment as? EditorFragment, menu)
         updateSearchMenu(menu, fragment as? EditorFragment)
-        updateGitMenuVisibility(menu, fragment as? EditorFragment)
-        menu.findItem(R.id.terminal).isVisible = Features.terminal.value
+        menu.findItem(R.id.terminal).isVisible = InbuiltFeatures.terminal.state.value
     }
 }
 
@@ -77,46 +75,6 @@ private fun updateSearchMenu(menu: Menu, editorFragment: EditorFragment?): Boole
         }
     }
     return isSearching
-}
-
-private suspend fun updateGitMenuVisibility(
-    menu: Menu, editorFragment: EditorFragment?
-) {
-
-    if (Features.git.value.not()){
-        menu.findItem(Id.git).isVisible = false
-        return
-    }
-
-    if (editorFragment == null) {
-        withContext(Dispatchers.Main) {
-            menu.findItem(Id.git).isVisible = false
-        }
-        return
-    }
-    withContext(Dispatchers.IO) {
-        if (editorFragment.file is FileWrapper) {
-            val gitRoot = editorFragment.file?.let { findGitRoot((it as FileWrapper).file) }
-            if (gitRoot != null) {
-                MainActivity.activityRef.get()?.let {
-                    GitClient.getCurrentBranch(it, gitRoot, onResult = { branch, err ->
-                        runOnUiThread {
-                            menu.findItem(Id.tools).subMenu?.findItem(Id.git)?.subMenu?.findItem(Id.action_branch)
-                                ?.apply {
-                                    title = "Branch : ${branch ?: "error"}"
-                                }
-                        }
-                    })
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                menu.findItem(Id.git).isVisible =
-                    gitRoot != null && MainActivity.activityRef.get()?.tabLayout!!.tabCount > 0
-            }
-        }
-
-    }
 }
 
 

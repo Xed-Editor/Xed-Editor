@@ -106,7 +106,7 @@ dependencies {
     api(libs.terminal.emulator)
     api(libs.utilcode)
     api(libs.coil.compose)
-    api(libs.org.eclipse.jgit)
+    //api(libs.org.eclipse.jgit)
     api(libs.gson)
     api(libs.commons.net)
    // api(libs.jcodings)

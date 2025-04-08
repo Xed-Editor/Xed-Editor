@@ -40,7 +40,7 @@ fun MainActivity.showControlPanel() {
                                 endIndent = 0.dp,
                                 dividersToSkip = 0,
                             ) {
-                                Hooks.controlItems.values.forEach {
+                                Hooks.ControlPanel.controlItems.values.forEach {
                                     ControlItem(item = it)
                                 }
 

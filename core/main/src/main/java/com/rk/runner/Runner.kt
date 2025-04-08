@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
@@ -22,7 +23,7 @@ import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -98,36 +99,34 @@ object Runner {
         return runners
     }
 
-    fun isRunnable(ext:String): Boolean {
-        if (Features.terminal.value.not()){
+    fun isRunnable(file: FileObject):Boolean{
+        if (InbuiltFeatures.terminal.state.value.not()){
             return false
         }
-        val openedTabs = MainActivity.activityRef.get()?.adapter?.tabFragments?.keys?.map {
-            it.file
+        if (file.getName() == "index.html"){
+            return true
         }
 
-        if (openedTabs != null){
-            for (i in openedTabs.indices){
-                val tab = openedTabs[i]
-                if (tab.getName() == "index.html"){
-                    return true
-                }
+        Hooks.Runner.runners.values.forEach{ pair ->
+            val checker = pair.first
+            val result = checker.invoke(file)
+            if (result){
+                return true
             }
         }
 
-        return runnable_ext.contains(ext)
-    }
 
-    fun isRunnable(file: FileObject):Boolean{
         val ext = file.getName().substringAfterLast('.', "")
-        return isRunnable(ext)
+        return runnable_ext.contains(ext)
     }
 
     suspend fun run(file: FileObject, context: Context) {
         withContext(Dispatchers.Default) {
-            val ext = file.getName().substringAfterLast('.', "")
-            if (isRunnable(ext)) {
-                val runners = getRunnerInstance(file)
+            if (isRunnable(file)) {
+
+                val runners = getRunnerInstance(file).toMutableList()
+                runners.addAll(Hooks.Runner.runners.values.mapNotNull { pair -> pair.second.invoke(file,context) })
+
                 if (runners.isEmpty()) {
                     throw RuntimeException("No runners are available for this file")
                 }

@@ -347,7 +347,7 @@
     <string name="script_api_info">check the ImplApi class in xed-editors source code at PROJECT/core/main/ui/screens/mutators/ImplApi for more information</string>
 
     <string name="installing">Installing…</string>
-    <string name="not_plugin_err">Selected file is not a .plugin file</string>
+    <string name="not_plugin_err">Selected file is not a .apk file</string>
     <string name="install_from_storage">Install from storage</string>
     <string name="no_ext">No Extension Installed.</string>
     <string name="loading">Loading…</string>

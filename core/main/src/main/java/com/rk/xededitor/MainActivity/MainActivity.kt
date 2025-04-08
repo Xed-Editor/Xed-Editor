@@ -56,7 +56,7 @@ import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.text.Content
@@ -302,11 +302,11 @@ class MainActivity : BaseActivity() {
         }
 
         menu.findItem(R.id.action_add).isVisible = true
-        menu.findItem(R.id.terminal).isVisible = Features.terminal.value
-        menu.findItem(R.id.tools).isVisible = Features.mutators.value || Features.git.value
+        menu.findItem(R.id.terminal).isVisible = InbuiltFeatures.terminal.state.value
+        menu.findItem(R.id.tools).isVisible = InbuiltFeatures.mutators.state.value
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
-        if (Features.mutators.value){
+        if (InbuiltFeatures.mutators.state.value){
             var order = 0
             Mutators.getMutators().forEach { mut ->
                 menu.findItem(R.id.tools).subMenu?.add(

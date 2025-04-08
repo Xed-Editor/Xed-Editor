@@ -64,11 +64,11 @@ fun Extensions(modifier: Modifier = Modifier) {
         var loading: LoadingPopup? = null
         runCatching {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-            if (fileExtension == "plugin") {
+            if (fileExtension == "apk") {
                 loading = LoadingPopup(context as Activity, null).show()
                 loading?.setMessage(strings.installing.getString())
                 DefaultScope.launch {
-                    val pluginFile = File(getTempDir(), "installPlugin.plugin")
+                    val pluginFile = File(getTempDir(), "installPlugin.apk")
                     application!!.contentResolver.openInputStream(uri!!).use {
                         FileOutputStream(pluginFile).use { outputStream ->
                             it!!.copyTo(outputStream)

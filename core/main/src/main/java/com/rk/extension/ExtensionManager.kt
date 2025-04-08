@@ -1,14 +1,18 @@
 package com.rk.extension
 
 import android.app.Application
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import com.rk.libcommons.application
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.postIO
 import com.rk.libcommons.toastCatching
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,34 +41,38 @@ object ExtensionManager : ExtensionAPI() {
 
     suspend fun loadExistingPlugins(context: Application): Map<Extension, ExtensionAPI?> =
         withContext(Dispatchers.IO) {
-            context.pluginDir.listFiles()?.forEach { pluginFolder ->
-                val manifestFile = File(pluginFolder, "manifest.properties")
-                val codeFolder = File(pluginFolder, "code")
+            context.pluginDir.listFiles()?.forEach { file ->
+                if (file.exists() && file.isFile && file.canRead() && file.name.endsWith(".apk")) {
+                    val pm = context.packageManager
 
-                if (manifestFile.exists() && codeFolder.exists()) {
-                    val dexFiles =
-                        codeFolder.listFiles { _, name -> name.endsWith(".dex") }?.toList()
-                            ?: emptyList()
+                    // Get info from the APK file (not installed app)
+                    val info = pm.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
 
-                    val properties = Properties()
-                    FileInputStream(manifestFile).use { inputStream ->
-                        properties.load(inputStream)
+                    // Set APK sourceDir to make metadata accessible
+                    info.applicationInfo!!.sourceDir = file.absolutePath
+                    info.applicationInfo!!.publicSourceDir = file.absolutePath
+
+                    val appInfo = info.applicationInfo!!
+
+                    val metadata = appInfo.metaData
+
+                    val versionCode = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P){
+                        info.longVersionCode
+                    }else{
+                        info.versionCode.toLong()
                     }
 
                     val ext = Extension(
-                        manifest = manifestFile,
-                        dexFiles = dexFiles,
-                        name = properties.getProperty("name") ?: "Unknown",
-                        packageName = properties.getProperty("packageName"),
-                        mainClass = properties.getProperty("mainClass") ?: "",
-                        settingsClass = properties.getProperty("settingsClass"),
-                        website = properties.getProperty("pluginWebsite"),
-                        author = properties.getProperty("author"),
-                        version = properties.getProperty("version") ?: "1.0",
-                        versionCode = properties.getProperty("versionCode")?.toIntOrNull() ?: 1,
-                        application = context
+                        name = pm.getApplicationLabel(appInfo).toString(),
+                        packageName = appInfo.packageName,
+                        mainClass = metadata.getString("mainClass")!!,
+                        version = info.versionName!!,
+                        versionCode = versionCode,
+                        application = context,
+                        apkFile = file
                     )
 
+                    //add extension
                     if (extensions[ext] == null) {
                         extensions[ext] = null
                     }
@@ -74,22 +82,8 @@ object ExtensionManager : ExtensionAPI() {
             extensions
         }
 
-    private fun requiredByOthers(dex: File, except: Extension): Boolean {
-        extensions.keys.forEach {
-            if (it != except && it.dexFiles.contains(dex)) {
-                return true
-            }
-        }
-        return false
-    }
-
     suspend fun deletePlugin(extension: Extension) = withContext(Dispatchers.IO) {
-        extension.dexFiles.forEach { dex ->
-            if (requiredByOthers(dex, extension).not()) {
-                dex.delete()
-            }
-        }
-        extension.manifest.parentFile!!.deleteRecursively()
+        extension.apkFile.delete()
         extensions.remove(extension)
         runCatching {
             Preference.removeKey("ext_" + extension.packageName)
@@ -97,83 +91,56 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun installPlugin(context: Application, zipFile: File): Extension? =
+    suspend fun installPlugin(context: Application, apkFile: File) =
         withContext(Dispatchers.IO) {
 
-            if (isPluginEnabled().not()){
-                return@withContext null
+            if (!isPluginEnabled()) return@withContext null
+
+            val pm = context.packageManager
+            val info = pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
+
+            // Set APK sourceDir to make metadata accessible
+            info.applicationInfo!!.sourceDir = apkFile.absolutePath
+            info.applicationInfo!!.publicSourceDir = apkFile.absolutePath
+
+            val appInfo = info.applicationInfo!!
+
+            val destFile = context.pluginDir.child(appInfo.packageName+".apk")
+
+            // Make sure the directory exists
+            destFile.parentFile?.mkdirs()
+
+            // Copy the APK to plugin directory
+            apkFile.copyTo(destFile, overwrite = true)
+
+            val metadata = appInfo.metaData
+
+            val versionCode = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P){
+                info.longVersionCode
+            }else{
+                info.versionCode.toLong()
             }
 
-            val properties = getProperties(zipFile)
-            val pluginName = properties.getProperty("packageName")
-            val destinationFolder = File(context.pluginDir, pluginName).apply { mkdirs() }
+            val ext = Extension(
+                name = pm.getApplicationLabel(appInfo).toString(),
+                packageName = appInfo.packageName,
+                mainClass = metadata.getString("mainClass")!!,
+                version = info.versionName!!,
+                versionCode = versionCode,
+                application = context,
+                apkFile = destFile
+            )
 
-            try {
-                ZipInputStream(FileInputStream(zipFile)).use { zipInputStream ->
-                    var entry: ZipEntry?
-                    while (zipInputStream.nextEntry.also { entry = it } != null) {
-                        entry?.let { zipEntry ->
-                            val outFile = File(destinationFolder, zipEntry.name)
-                            if (zipEntry.isDirectory) {
-                                outFile.mkdirs()
-                            } else {
-                                outFile.parentFile?.mkdirs()
-                                outFile.outputStream().use { output ->
-                                    zipInputStream.copyTo(output)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                val manifestFile = File(destinationFolder, "manifest.properties")
-                val codeFolder = File(destinationFolder, "code")
-                val dexFiles = codeFolder.listFiles { _, name -> name.endsWith(".dex") }?.toList()
-                    ?: emptyList()
-
-                if (manifestFile.exists() && dexFiles.isNotEmpty()) {
-                    val newExtension = Extension(
-                        manifest = manifestFile,
-                        dexFiles = dexFiles,
-                        name = properties.getProperty("name") ?: "Unknown",
-                        packageName = properties.getProperty("packageName"),
-                        mainClass = properties.getProperty("mainClass") ?: "",
-                        settingsClass = properties.getProperty("settingsClass"),
-                        website = properties.getProperty("pluginWebsite"),
-                        author = properties.getProperty("author"),
-                        version = properties.getProperty("version") ?: "1.0",
-                        versionCode = properties.getProperty("versionCode")?.toIntOrNull() ?: 1,
-                        application = context
-                    )
-                    extensions[newExtension] = null
-                    Extension.executeExtensions(context, GlobalScope)
-                    return@withContext newExtension
-                } else {
-                    destinationFolder.deleteRecursively()
-                    throw IllegalStateException("Invalid plugin structure in ${zipFile.name}")
-                }
-            } catch (e: Exception) {
-                destinationFolder.deleteRecursively()
-                e.printStackTrace()
+            //add extension
+            if (extensions[ext] == null) {
+                extensions[ext] = null
             }
+
             return@withContext null
         }
 
-    private suspend fun getProperties(zipFile: File): Properties = withContext(Dispatchers.IO) {
-        val properties = Properties()
-        ZipFile(zipFile).use { zip ->
-            val entry = zip.getEntry("manifest.properties")
-            if (entry != null) {
-                zip.getInputStream(entry).use { inputStream ->
-                    properties.load(inputStream)
-                }
-            }
-        }
-        return@withContext properties
-    }
-
     private fun isPluginEnabled():Boolean{
-        return Features.extensions.value
+        return InbuiltFeatures.extensions.state.value
     }
 
     override fun onPluginLoaded() {

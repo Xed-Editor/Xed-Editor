@@ -32,9 +32,8 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.ui.activities.terminal.Terminal
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,7 +62,7 @@ class FileAction(
 
         ActionPopup(mainActivity, true).apply {
 
-            Hooks.actionPopupHook.values.forEach { it.invoke(this,this@FileAction) }
+            Hooks.FileActions.actionPopupHook.values.forEach { it.invoke(this,this@FileAction) }
 
             if (file == rootFolder) {
                 addItem(
@@ -158,7 +157,7 @@ class FileAction(
                     return file?.absolutePath?.contains(mainActivity.filesDir.parentFile!!.absolutePath)?.not() == true
                 }
                 if ((isTermux() && isPrivateDir(nativeFile)).not()){
-                    if (nativeFile != null && nativeFile.exists() && nativeFile.isDirectory && Features.terminal.value){
+                    if (nativeFile != null && nativeFile.exists() && nativeFile.isDirectory && InbuiltFeatures.terminal.state.value){
                         addItem(
                             getString(strings.open_in_terminal)+" (${Settings.terminal_runtime})",
                             getString(strings.open_dir_in_terminal),
@@ -211,16 +210,6 @@ class FileAction(
                             }
                         }
                     }.show()
-            }
-
-            if (file is FileWrapper && file.isDirectory()) {
-                addItem(title = strings.clone_repo.getString(),
-                    description = strings.clone_repo_desc.getString(),
-                    icon = getDrawable(drawables.github),
-                    listener = {
-                        cloneRepo()
-                    })
-
             }
 
             addItem(getString(strings.copy), getString(strings.copy_desc), if (file.isDirectory()){
@@ -459,45 +448,5 @@ class FileAction(
             e.printStackTrace()
             toast(getString(strings.file_open_denied))
         }
-    }
-
-
-    private fun cloneRepo() {
-        if (file is FileWrapper){
-            mainActivity.askInput(
-                title = "Clone",
-                hint = "repository url",
-                onResult = { input ->
-                    if (input.isEmpty()) {
-                        toast("Invalid url")
-                        return@askInput
-                    }
-
-                    val loading = LoadingPopup(mainActivity, null)
-                    loading.show()
-
-                    mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                        GitClient.clone(mainActivity, input, file.file, onResult = {
-                            runOnUiThread {
-                                if (it == null) {
-                                    mainActivity.lifecycleScope.launch {
-                                        ProjectManager.CurrentProject.updateFileAdded(
-                                            mainActivity,
-                                            file
-                                        )
-                                    }
-                                }
-                                loading.hide()
-                                toast(it?.message)
-                            }
-                        })
-
-                    }
-                }
-            )
-        }else{
-            toast("Unsupported file type")
-        }
-
     }
 }

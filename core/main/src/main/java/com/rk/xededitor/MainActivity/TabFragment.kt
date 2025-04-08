@@ -27,8 +27,8 @@ class TabFragment : Fragment() {
         super.onCreate(savedInstanceState)
         file = arguments?.getSerializable(ARG_FILE_PATH) as FileObject
 
-        if (Hooks.tabs.isNotEmpty()){
-            for (builder in Hooks.tabs.values){
+        if (Hooks.Editor.tabs.isNotEmpty()){
+            for (builder in Hooks.Editor.tabs.values){
                 val builtFragment = builder.invoke(file!!,this)
                 if (builtFragment != null){
                     fragment = builtFragment

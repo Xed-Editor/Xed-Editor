@@ -1,16 +1,32 @@
 package com.rk.xededitor.ui.screens.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
+import com.rk.extension.Hooks
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.components.NextScreenCard
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -35,21 +51,12 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
 
-    if (Features.terminal.value){
+    if (InbuiltFeatures.terminal.state.value){
         PreferenceCategory(
             label = stringResource(id = strings.terminal),
             description = stringResource(id = strings.terminal_desc),
             iconResource = drawables.terminal,
             onNavigate = { navController.navigate(SettingsRoutes.TerminalSettings.route) },
-        )
-    }
-
-    if (Features.git.value){
-        PreferenceCategory(
-            label = stringResource(id = strings.git),
-            description = stringResource(id = strings.git_desc),
-            iconResource = drawables.github,
-            onNavigate = { navController.navigate(SettingsRoutes.GitSettings.route) },
         )
     }
 
@@ -60,7 +67,7 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.FeatureToggles.route) },
     )
 
-    if (Features.extensions.value){
+    if (InbuiltFeatures.extensions.state.value){
         PreferenceCategory(
             label = stringResource(strings.ext),
             description = stringResource(strings.ext_desc),
@@ -69,7 +76,7 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    if (Features.developerOptions.value){
+    if (InbuiltFeatures.developerOptions.state.value){
         PreferenceCategory(
             label = "Developer Options",
             description = "Debugging options for ${strings.app_name.getString()}",
@@ -84,6 +91,40 @@ private fun Categories(navController: NavController) {
         iconResource = drawables.android,
         onNavigate = { navController.navigate(SettingsRoutes.About.route) },
     )
+
+    Hooks.Settings.screens.values.forEach{ screen ->
+        val isSelected = false
+
+        PreferenceTemplate(
+            modifier =
+            Modifier
+                .padding(horizontal = 16.dp)
+                .clip(MaterialTheme.shapes.large)
+                .clickable { navController.navigate(screen.route) }
+                .background(
+                    if (isSelected) MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
+                    else Color.Transparent
+                ),
+            verticalPadding = 14.dp,
+            title = {
+                Text(
+                    text = screen.label,
+                    color =
+                    if (isSelected) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onBackground,
+                )
+            },
+            description = {
+                Text(text = screen.description)
+            },
+            startWidget = {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+                    screen.icon()
+                }
+            },
+        )
+
+    }
 
 
 

@@ -27,12 +27,8 @@ import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
-import com.rk.xededitor.git.commit
-import com.rk.xededitor.git.pull
-import com.rk.xededitor.git.push
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.R
-import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -239,110 +235,6 @@ object MenuClickHandler {
                     })
                 }
                 return true
-            }
-
-            Id.action_pull -> {
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        it.file?.let { it1 -> pull(activity, (it1 as FileWrapper).file) }
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-            }
-
-            Id.action_push -> {
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        it.file?.let { it1 -> push(activity, (it1 as FileWrapper).file) }
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-            }
-
-            Id.action_commit -> {
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        it.file?.let { it1 -> commit(activity, (it1 as FileWrapper).file) }
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-            }
-
-            Id.action_branch -> {
-                fun showRadioButtonDialog(
-                    context: Context,
-                    title: String,
-                    items: List<String>,
-                    defaultSelection: String,
-                    onItemSelected: (String) -> Unit
-                ) {
-                    var selectedItem = defaultSelection
-                    val checkedItem = items.indexOf(defaultSelection)
-
-                    MaterialAlertDialogBuilder(context).setTitle(title).setSingleChoiceItems(
-                            items.toTypedArray(), checkedItem
-                        ) { _, which ->
-                            selectedItem = items[which]
-                        }.setPositiveButton("OK") { _, _ ->
-                            onItemSelected(selectedItem)
-                        }.setNegativeButton("Cancel") { dialog, _ ->
-                            dialog.dismiss()
-                        }.show()
-                }
-
-
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        DefaultScope.launch(Dispatchers.IO) {
-
-                            it.file?.let { it1 ->
-                                findGitRoot((it1 as FileWrapper).file)?.let { root ->
-                                    GitClient.getAllBranches(
-                                        activity,
-                                        root,
-                                        onResult = { branches, eror ->
-                                            GitClient.getCurrentBranchFull(activity,
-                                                root,
-                                                onResult = { branch, erorr ->
-                                                    runOnUiThread {
-                                                        if (branches != null) {
-                                                            if (branch != null) {
-                                                                showRadioButtonDialog(
-                                                                    activity,
-                                                                    title = "Branches",
-                                                                    items = branches,
-                                                                    defaultSelection = branch,
-                                                                    onItemSelected = { selectedBranch ->
-                                                                        DefaultScope.launch(
-                                                                            Dispatchers.IO
-                                                                        ) {
-                                                                            GitClient.setBranch(
-                                                                                activity,
-                                                                                root,
-                                                                                selectedBranch,
-                                                                                {})
-                                                                        }
-                                                                    },
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                })
-
-                                        })
-                                }
-                            }
-                        }
-
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-
-
             }
 
             Id.toggle_word_wrap -> {

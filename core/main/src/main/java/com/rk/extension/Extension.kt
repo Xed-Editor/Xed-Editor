@@ -15,23 +15,19 @@ class Extension(
     val name: String,
     val packageName: String,
     val mainClass: String,
-    val settingsClass: String?,
-    val website: String?,
-    val author: String,
     val version: String,
-    val versionCode: Int,
-    val manifest: File,
-    val dexFiles: List<File>,
+    val versionCode: Long,
+    val apkFile: File,
     val application: Application
 ) : DexClassLoader(
-    dexFiles.joinToString(separator = File.pathSeparator) { it.absolutePath },
+    apkFile.absolutePath,
     application.codeCacheDir.absolutePath,
     null,
     application.classLoader
 ) {
 
     override fun hashCode(): Int {
-        return manifest.absolutePath.hashCode()
+        return apkFile.absolutePath.hashCode()
     }
 
     override fun toString(): String {
