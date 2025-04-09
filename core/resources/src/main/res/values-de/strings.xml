@@ -172,7 +172,7 @@
     <string name="clone_repo_desc">Repository mit Git klonen</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
     <string name="download_sure">Möchten Sie wirklich herunterladen</string>
-    <string name="oled_desc">Pure Black-Design für AMOLED-Geräte</string>
+    <string name="oled_desc">Verwende ein rein schwarzes Farbschema für AMOLED-Geräte</string>
     <string name="open_dir_desc">Öffnen Sie ein Verzeichnis mit SAF</string>
     <string name="open_file_desc">Wählen Sie eine Datei aus, um sie direkt zu bearbeiten</string>
     <string name="diagonal_scroll">Diagonales Scrollen</string>
@@ -203,4 +203,5 @@
     <string name="terminal_text_size_desc">Textgröße im Terminal festlegen</string>
     <string name="Lshell">Shell starten</string>
     <string name="terminal_text_size">Textgröße im Terminal</string>
+    <string name="smooth_tabs">Sanfter Reiterwechsel</string>
 </resources>
