@@ -188,4 +188,26 @@
     <string name="cs">Rozlišování Velkých a Malých písmen</string>
     <string name="manage_storage">Spravovat Uložiště</string>
     <string name="create_new_file_desc">Vytvořit nový soubor pod vybranou složku</string>
+    <string name="enter_path">Napište umístění</string>
+    <string name="sponsor">Sponzorovat</string>
+    <string name="cannot_be_empty">Nemůže být prázdné.</string>
+    <string name="pkg_download_failed">Stažení balíčku selhalo</string>
+    <string name="wait_pkg">Vičkejte prosím než se balíčky stáhnou.</string>
+    <string name="invalidpath">Neplatné umístění</string>
+    <string name="app_desc">Nastavení aplikace</string>
+    <string name="ff_path">Umístění ke souboru/složce</string>
+    <string name="terminal_desc">Nastavení terminálu</string>
+    <string name="Lshell">Spustit Shell</string>
+    <string name="Lshell_desc">Spustěn když je terminál otevřen.</string>
+    <string name="manage_editor_font">Spravovat Fonty</string>
+    <string name="install_from_storage">Instalovat ze uložiště</string>
+    <string name="git_desc">Nastavení Git</string>
+    <string name="default_encoding">Výchozí Kódování</string>
+    <string name="warning">Upozornění</string>
+    <string name="update_av">Nová Aktualizace Dostupná</string>
+    <string name="update_disable">Kontrola aktualizacích vypnutá</string>
+    <string name="launch_termux">Spustit Termux?</string>
+    <string name="launch">Spustit</string>
+    <string name="open_path_desc">Otevřít Interní Uložiště</string>
+    <string name="open_path">Interní Uložiště</string>
 </resources>
