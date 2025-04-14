@@ -137,9 +137,6 @@ object ExtensionManager : ExtensionAPI() {
                 // Make sure the directory exists
                 destFile.parentFile?.mkdirs()
 
-                // Copy the APK to plugin directory
-                apkFile.copyTo(destFile, overwrite = true)
-
                 val metadata = appInfo.metaData
 
                 val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
@@ -165,6 +162,10 @@ object ExtensionManager : ExtensionAPI() {
                 )
 
                 if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
+
+                    // Copy the APK to plugin directory
+                    apkFile.copyTo(destFile, overwrite = true)
+
                     //add extension
                     if (extensions[ext] == null) {
                         extensions[ext] = null
