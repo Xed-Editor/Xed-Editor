@@ -1,5 +1,6 @@
 package com.rk.extension
 
+import android.app.Activity
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
@@ -117,7 +118,7 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun installPlugin(context: Application, apkFile: File) =
+    suspend fun installPlugin(context: Activity, apkFile: File) =
         withContext(Dispatchers.IO) {
             runCatching {
                 if (!isPluginEnabled()) return@withContext null
@@ -159,7 +160,7 @@ object ExtensionManager : ExtensionAPI() {
                     mainClass = metadata.getString("mainClass")!!,
                     version = info.versionName!!,
                     versionCode = versionCode,
-                    application = context,
+                    application = application!!,
                     apkFile = destFile
                 )
 
@@ -181,7 +182,7 @@ object ExtensionManager : ExtensionAPI() {
                         "Unknown error while parsing Xed Version code info from plugin"
                     }
 
-                    dialog(context = context, title = strings.failed.getString(), msg = "Installation of plugin ${ext.name} failed \nreason: \n$reason", onOk = {})
+                    dialog(context = context,title = strings.failed.getString(), msg = "Installation of plugin ${ext.name} failed \nreason: \n$reason", onOk = {})
                 }
             }.onFailure {
                 error(it)

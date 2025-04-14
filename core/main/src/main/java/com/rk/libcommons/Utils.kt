@@ -155,7 +155,7 @@ fun Activity.askInput(
 }
 
 @JvmOverloads
-fun dialog(context: Context? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null,extraButtons: Array<PopupButton>? = null){
+fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null,extraButtons: Array<PopupButton>? = null){
     if (context == null){
         throw IllegalArgumentException("context cannot be null")
         return
@@ -232,7 +232,7 @@ fun error(throwable: Throwable? = null,exception1: Exception? = null){
 
     val activity = MainActivity.activityRef.get()
     if (activity == null){
-       toast(exception)
+        toast(exception)
         return
     }
     dialog(title = strings.err.getString(), msg = exception, onOk = {}, extraButtons = arrayOf(

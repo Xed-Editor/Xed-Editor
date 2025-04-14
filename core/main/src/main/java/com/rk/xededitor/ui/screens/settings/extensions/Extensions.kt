@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.webkit.MimeTypeMap
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -65,6 +66,7 @@ var selectedPlugin: Extension? = null
 @Composable
 fun Extensions(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
 
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -83,7 +85,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                             it!!.copyTo(outputStream)
                         }
                     }
-                    ExtensionManager.installPlugin(application!!, pluginFile)
+                    ExtensionManager.installPlugin(activity!!, pluginFile)
                     pluginFile.delete()
                     delay(900)
                     withContext(Dispatchers.Main) {
@@ -145,6 +147,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                     extensions.keys.forEach { plugin ->
                         var state by remember { mutableStateOf(Preference.getBoolean(key = "ext_" + plugin.packageName,false)) }
 
+
                         val sideEffect:(Boolean)-> Unit = {
                             if (it){
                                 scope.safeLaunch{
@@ -180,7 +183,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                                             "Unknown error while parsing Xed Version code info from plugin"
                                         }
 
-                                        dialog(context = context, title = strings.failed.getString(), msg = "Enabling plugin ${plugin.name} failed \nreason: \n$reason", onOk = {})
+                                        dialog(context = activity, title = strings.failed.getString(), msg = "Enabling plugin ${plugin.name} failed \nreason: \n$reason", onOk = {})
                                     }
 
                                     delay(500)
