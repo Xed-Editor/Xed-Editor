@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.libcommons.application
+import com.rk.libcommons.error
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
 import com.rk.resources.strings
@@ -119,11 +120,10 @@ fun Debugger(modifier: Modifier = Modifier.fillMaxSize()) {
                                 if (output.size > 1){
                                     output.removeAt(0)
                                 }
-
                             }
 
                         }else{
-                            toast("Debugger is not allowed on release builds for user safety reasons")
+                            error("Debugger is not allowed on release builds for user safety reasons")
                         }
 
                     }

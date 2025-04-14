@@ -412,5 +412,7 @@
     <string name="failed">Failed</string>
     <string name="invalidpath">Invalid path</string>
 
+    <string name="unknown_err">Something went wrong</string>
+
 
 </resources>

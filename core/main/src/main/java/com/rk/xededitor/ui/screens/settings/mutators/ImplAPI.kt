@@ -3,6 +3,7 @@ package com.rk.xededitor.ui.screens.settings.mutators
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.error
 import com.rk.libcommons.toast
 import com.rk.mutator_engine.Engine
 import com.rk.mutator_engine.EngineAPI
@@ -68,7 +69,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
                             (fragment as EditorFragment).editor?.setText(text)
                         }
                     }
-                }.onFailure { toast(it.message);it.printStackTrace() }
+                }.onFailure { error(it);it.printStackTrace() }
 
             }
         }

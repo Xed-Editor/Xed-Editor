@@ -41,7 +41,7 @@ object EditorFont {
             }
 
         } catch (e: Exception) {
-            toast(e.message + "\n clear data recommended")
+            error("Clear data recommended \n\n $e")
         }
     }
 

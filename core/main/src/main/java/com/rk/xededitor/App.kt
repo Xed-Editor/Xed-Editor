@@ -13,6 +13,7 @@ import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
+import com.rk.xededitor.ui.screens.settings.extensions.Extensions
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.update.UpdateChecker
@@ -79,8 +80,7 @@ class App : Application() {
             runCatching { UpdateChecker.checkForUpdates("dev") }
 
             if (InbuiltFeatures.extensions.state.value){
-                Extension.executeExtensions(this@App,GlobalScope)
-                ExtensionManager.onAppLaunched()
+                Extension.loadExtensions(this@App, GlobalScope)
             }
         }
 

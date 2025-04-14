@@ -5,6 +5,10 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.error
+import com.rk.libcommons.toast
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.currentTab
@@ -33,7 +37,14 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
     override fun onTabReselected(tab: Tab?) {
         DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
 
-        val popupMenu = PopupMenu(activity, tab!!.view)
+        val view = tab?.view
+
+        if (view == null){
+            error(strings.unknown_err.getString())
+            return
+        }
+
+        val popupMenu = PopupMenu(activity, view)
         popupMenu.menuInflater.inflate(R.menu.tab_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item ->
             val id = item.itemId

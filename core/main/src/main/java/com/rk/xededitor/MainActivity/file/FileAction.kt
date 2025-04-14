@@ -23,6 +23,7 @@ import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.askInput
+import com.rk.libcommons.error
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
@@ -268,7 +269,7 @@ class FileAction(
                                     }.onFailure {
                                         it.printStackTrace()
                                         withContext(Dispatchers.Main) {
-                                            toast(it.message)
+                                            error(it)
                                             loading.hide()
                                         }
                                     }
@@ -330,7 +331,7 @@ class FileAction(
                     it.printStackTrace()
                     withContext(Dispatchers.Main) {
                         loading.hide()
-                        toast(it.message)
+                        error(it)
                     }
                 }
             }
@@ -394,7 +395,7 @@ class FileAction(
                         it.printStackTrace()
                         withContext(Dispatchers.Main) {
                             loading.hide()
-                            toast(it.message.toString())
+                            error(it)
                         }
 
                     }.onSuccess {

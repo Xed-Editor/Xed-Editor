@@ -1,8 +1,12 @@
 package com.rk.libcommons
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.Configuration
+import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +14,12 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -22,6 +28,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -85,18 +93,6 @@ fun toast(message: String?) {
     runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
 }
 
-inline fun toast(e: Exception? = null) {
-    e?.printStackTrace()
-    if (e != null) {
-        toast(e.message)
-    }
-}
-
-inline fun toast(t: Throwable? = null) {
-    t?.printStackTrace()
-    toast(t?.message)
-}
-
 inline fun String?.toastIt() {
     toast(this)
 }
@@ -107,7 +103,7 @@ inline fun toastCatching(block: () -> Unit): Exception? {
         return null
     } catch (e: Exception) {
         e.printStackTrace()
-        toast(e.message)
+        error(e)
         if (BuildConfig.DEBUG) {
             throw e
         }
@@ -128,7 +124,10 @@ inline fun isMainThread(): Boolean {
     return Thread.currentThread().name == "main"
 }
 
-data class PopupButton(val label: String, val listener: (() -> Unit)? = null)
+enum class PopupButtonType{
+    POSITIVE,NEGATIVE,NEUTRAL
+}
+data class PopupButton(val label: String, val listener: ((DialogInterface) -> Unit)? = null, val type: PopupButtonType = PopupButtonType.NEUTRAL)
 
 fun Activity.askInput(
     title: String? = null,
@@ -153,4 +152,101 @@ fun Activity.askInput(
         dialog = show()
     }
 
+}
+
+@JvmOverloads
+fun dialog(context: Context? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null,extraButtons: Array<PopupButton>? = null){
+    if (context == null){
+        throw IllegalArgumentException("context cannot be null")
+        return
+    }
+    runOnUiThread{
+        MaterialAlertDialogBuilder(context).apply {
+            title?.let { setTitle(it) }
+            msg?.let { setMessage(it) }
+
+            onCancel?.let { setNegativeButton(strings.cancel){ dialogInterface,_ ->
+                onCancel(dialogInterface)
+            } }
+
+            onOk?.let { setPositiveButton(strings.ok){ dialogInterface,_ ->
+                onOk(dialogInterface)
+            } }
+
+            extraButtons?.forEach {
+                when(it.type){
+                    PopupButtonType.NEUTRAL -> {
+                        setNeutralButton(it.label){ dialogInterface,_ ->
+                            it.listener?.invoke(dialogInterface)
+                        }
+                    }
+
+                    PopupButtonType.NEGATIVE -> {
+                        setNegativeButton(it.label){ dialogInterface,_ ->
+                            it.listener?.invoke(dialogInterface)
+                        }
+                    }
+
+                    PopupButtonType.POSITIVE -> {
+                        setPositiveButton(it.label){ dialogInterface,_ ->
+                            it.listener?.invoke(dialogInterface)
+                        }
+                    }
+                }
+            }
+
+            show()
+        }
+    }
+}
+
+fun error(msg: String){
+    val activity = MainActivity.activityRef.get()
+    if (activity == null){
+        toast(msg)
+        return
+    }
+    dialog(title = strings.err.getString(), msg = msg, onOk = {})
+}
+
+fun error(@StringRes msgRes: Int){
+    val activity = MainActivity.activityRef.get()
+    if (activity == null){
+        toast(msgRes.getString())
+        return
+    }
+    dialog(title = strings.err.getString(), msg = msgRes.getString(), onOk = {})
+}
+
+
+fun error(throwable: Throwable? = null,exception1: Exception? = null){
+    var exception: String = ""
+    if (throwable == null){
+        if (exception1 == null){
+            toast("Both arguments were null")
+            return
+        }
+
+        exception = exception1.toString()
+    }
+
+    val activity = MainActivity.activityRef.get()
+    if (activity == null){
+       toast(exception)
+        return
+    }
+    dialog(title = strings.err.getString(), msg = exception, onOk = {}, extraButtons = arrayOf(
+        PopupButton(label = strings.report_issue.getString(), listener = {
+            val browserIntent =
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Error%20Report&body=" +
+                                URLEncoder.encode(
+                                    "``` \n${exception}\n ```",
+                                    StandardCharsets.UTF_8.toString(),
+                                )
+                    ),
+                )
+            activity.startActivity(browserIntent)
+        })))
 }

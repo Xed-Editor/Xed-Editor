@@ -32,6 +32,7 @@ import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.libcommons.error
 import java.io.File
 import java.io.FileOutputStream
 
@@ -82,7 +83,9 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                     )
                     EditorFont.saveFonts()
                     toast(strings.font_added.getString())
-                }.onFailure { if (it.message?.isNotBlank() == true){toast(it.message)} }
+                }.onFailure { if (it.message?.isNotBlank() == true){
+                    error(it)
+                } }
             })
 
 

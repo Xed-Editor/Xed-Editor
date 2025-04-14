@@ -1,6 +1,9 @@
 package com.rk.extension
 
 import android.app.Application
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.pm.PackageInfoCompat
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import dalvik.system.DexClassLoader
@@ -65,12 +68,29 @@ class Extension(
     companion object {
         suspend fun loadExtensions(application: Application, scope: CoroutineScope) {
             ExtensionManager.indexPlugins(application)
+            val pm = application.packageManager
+            val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(application.packageName, 0))
             ExtensionManager.extensions.keys.forEach { extension ->
-                if (Preference.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
-                    scope.launch(Dispatchers.IO) {
-                        extension.load()
+
+
+                val info = pm.getPackageArchiveInfo(extension.apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
+                info.applicationInfo!!.sourceDir = extension.apkFile.absolutePath
+                info.applicationInfo!!.publicSourceDir = extension.apkFile.absolutePath
+                val appInfo = info.applicationInfo!!
+                val metadata = appInfo.metaData
+
+                val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
+                val targetSdkVersion = metadata.getInt("targetXedVersionCode",-1)
+
+                if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
+                    if (Preference.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
+                        scope.launch(Dispatchers.IO) {
+                            extension.load()
+                        }
                     }
                 }
+
+
             }
         }
     }

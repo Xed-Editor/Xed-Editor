@@ -36,6 +36,7 @@ import com.rk.libcommons.UI
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
+import com.rk.libcommons.error
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
@@ -249,7 +250,7 @@ class MainActivity : BaseActivity() {
             binding!!.openBtn.visibility = View.GONE
         }
 
-        ExtensionManager.onAppCreated()
+        ExtensionManager.onMainActivityCreated()
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding != null && binding!!.drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -318,7 +319,7 @@ class MainActivity : BaseActivity() {
                                 println(result)
                             }, onError = { t ->
                                 t.printStackTrace()
-                                toast(t.message)
+                                error(it)
                             }, api = ImplAPI::class.java)
                         }
                         false
@@ -388,7 +389,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         isPaused = false
-        ExtensionManager.onAppResumed()
+        ExtensionManager.onMainActivityResumed()
         super.onResume()
         PermissionHandler.verifyStoragePermission(this)
         openTabForIntent(intent)
@@ -499,7 +500,7 @@ class MainActivity : BaseActivity() {
         if (Settings.auto_save) {
             toastCatching { saveAllFiles() }
         }
-        ExtensionManager.onAppDestroyed()
+        ExtensionManager.onMainActivityDestroyed()
         super.onDestroy()
         binding = null
         adapter = null

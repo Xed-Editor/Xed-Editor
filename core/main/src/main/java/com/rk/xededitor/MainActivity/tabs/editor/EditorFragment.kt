@@ -15,6 +15,7 @@ import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.getInputView
+import com.rk.libcommons.error
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
@@ -49,7 +50,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     private lateinit var searchLayout: LinearLayout
     var setupEditor: SetupEditor? = null
     private var isFileLoaded = false
-
 
     fun showArrowKeys(yes: Boolean) {
         horizontalScrollView.visibility = if (yes) {
@@ -174,7 +174,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     }
 
-
     object FilesContent {
         fun containsKey(key: String): Boolean {
             return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key) == true
@@ -233,7 +232,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     private var lastSaveTime = 0L
     @OptIn(DelicateCoroutinesApi::class)
-    fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
+    fun save(showToast: Boolean = false, isAutoSaver: Boolean = false) {
         if (isAutoSaver && isReadyToSave().not()) {
             return
         }
@@ -279,7 +278,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     return@safeLaunch
                 }else{
                     if (isAutoSaver.not()){
-                        toast(it)
+                        error(it)
                     }
                     it.printStackTrace()
                 }
@@ -296,7 +295,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     it.printStackTrace()
                 }
             }
-
 
             val isMutatorFile = file!!.getParentFile()
                 ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()

@@ -3,6 +3,7 @@ package com.rk.xededitor.update
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.libcommons.error
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -59,7 +60,7 @@ object UpdateChecker {
                 Settings.last_update_check_timestamp = System.currentTimeMillis()
             } catch (e: Exception) {
                 e.printStackTrace()
-                toast(e.message)
+                error(e)
             }
         }
     }
