@@ -40,7 +40,7 @@ object Hooks {
     object Runner{
         /**
          * provide a builder that returns a runner for a file if the return value is null then the runner wont be shown
-         * first lambda in the pair is used to check if the runner is available for the given file the sencond lamda is used to build the actual runner
+         * first lambda in the pair is used to check if the runner is available for the given file the second lambda is used to build the actual runner
          */
         val runners = hashMapOf<ID, Pair<(FileObject)-> Boolean,(FileObject, Context)-> RunnerImpl?>>()
     }

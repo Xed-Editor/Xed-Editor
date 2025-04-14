@@ -31,7 +31,7 @@ object ExtensionManager : ExtensionAPI() {
     init {
         if (isLoaded.value.not() && isPluginEnabled()) {
             postIO {
-                loadExistingPlugins(application!!)
+                indexPlugins(application!!)
                 withContext(Dispatchers.Main) {
                     isLoaded.value = true
                 }
@@ -39,7 +39,7 @@ object ExtensionManager : ExtensionAPI() {
         }
     }
 
-    suspend fun loadExistingPlugins(context: Application): Map<Extension, ExtensionAPI?> =
+    suspend fun indexPlugins(context: Application): Map<Extension, ExtensionAPI?> =
         withContext(Dispatchers.IO) {
             context.pluginDir.listFiles()?.forEach { file ->
                 if (file.exists() && file.isFile && file.canRead() && file.name.endsWith(".apk")) {
@@ -143,89 +143,83 @@ object ExtensionManager : ExtensionAPI() {
         return InbuiltFeatures.extensions.state.value
     }
 
-    override fun onPluginLoaded() {
+    override fun onPluginLoaded(extension: Extension) {
         if (isPluginEnabled().not()){
             return
         }
 
-        postIO {
-            extensions.forEach { (ext, instance) ->
-                toastCatching { instance?.onPluginLoaded() }
+        extensions.forEach { (ext, instance) ->
+            postIO {
+                toastCatching { instance?.onPluginLoaded(ext) }
             }
-        }
 
+        }
     }
 
-    override fun onAppCreated() {
+    override fun onMainActivityCreated() {
         if (isPluginEnabled().not()){
             return
         }
 
-        postIO {
-            extensions.forEach { (ext, instance) ->
-                toastCatching { instance?.onAppCreated() }
+        extensions.forEach { (ext, instance) ->
+            postIO {
+                toastCatching { instance?.onMainActivityCreated() }
             }
+
         }
     }
 
-    override fun onAppLaunched() {
+    override fun onMainActivityPaused() {
         if (isPluginEnabled().not()){
             return
         }
 
-        postIO {
-            extensions.forEach { (ext, instance) ->
-                toastCatching { instance?.onAppLaunched() }
+        extensions.forEach { (ext, instance) ->
+            postIO {
+                toastCatching { instance?.onMainActivityPaused() }
             }
-        }
 
+        }
     }
 
-    override fun onAppPaused() {
+    override fun onMainActivityResumed() {
         if (isPluginEnabled().not()){
             return
         }
 
-        postIO {
-            extensions.forEach { (ext, instance) ->
-                toastCatching { instance?.onAppPaused() }
+        extensions.forEach { (ext, instance) ->
+            postIO {
+                toastCatching { instance?.onMainActivityResumed() }
             }
+
         }
     }
 
-    override fun onAppResumed() {
+    override fun onMainActivityDestroyed() {
         if (isPluginEnabled().not()){
             return
         }
 
-        postIO {
-            extensions.forEach { (ext, instance) ->
-                toastCatching { instance?.onAppResumed() }
+        extensions.forEach { (ext, instance) ->
+            postIO {
+                toastCatching { instance?.onMainActivityDestroyed() }
             }
+
         }
     }
 
-    override fun onAppDestroyed() {
-        if (isPluginEnabled().not()){
-            return
-        }
-
-        postIO {
-            extensions.forEach { (ext, instance) ->
-                toastCatching { instance?.onAppDestroyed() }
-            }
-        }
-    }
 
     override fun onLowMemory() {
         if (isPluginEnabled().not()){
             return
         }
 
-        postIO {
-            extensions.forEach { (ext, instance) ->
-               toastCatching { instance?.onLowMemory() }
+        extensions.forEach { (ext, instance) ->
+            postIO {
+                toastCatching { instance?.onLowMemory() }
             }
+
         }
+
     }
 }

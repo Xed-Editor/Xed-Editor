@@ -25,13 +25,15 @@ class Extension(
     null,
     application.classLoader
 ) {
+    private var _isLoaded = false
+    val isLoaded get() = _isLoaded
 
     override fun hashCode(): Int {
         return apkFile.absolutePath.hashCode()
     }
 
     override fun toString(): String {
-        return "Extension : $packageName"
+        return packageName
     }
 
     override fun equals(other: Any?): Boolean {
@@ -39,7 +41,10 @@ class Extension(
         return packageName == other.packageName
     }
 
-    fun execute() {
+    fun load() {
+        if (isLoaded){
+            throw RuntimeException("Extension $this is already loaded")
+        }
         if (Thread.currentThread().name == "main") {
             throw RuntimeException("Tried to execute extension on main thread")
         }
@@ -51,20 +56,19 @@ class Extension(
                 ?: throw RuntimeException("main class could not be cast to ExtensionAPI")
 
             ExtensionManager.extensions[this] = instance
-            instance.onPluginLoaded()
+            instance.onPluginLoaded(this)
         } else {
             throw RuntimeException("mainClass of plugin $name does not override ExtensionAPI")
         }
     }
 
     companion object {
-        suspend fun executeExtensions(application: Application, scope: CoroutineScope) {
-            ExtensionManager.loadExistingPlugins(application)
+        suspend fun loadExtensions(application: Application, scope: CoroutineScope) {
+            ExtensionManager.indexPlugins(application)
             ExtensionManager.extensions.keys.forEach { extension ->
                 if (Preference.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
-                    delay(Random(492).nextLong(10,300))
                     scope.launch(Dispatchers.IO) {
-                        extension.execute()
+                        extension.load()
                     }
                 }
             }
