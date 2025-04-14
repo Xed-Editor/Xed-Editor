@@ -1,6 +1,12 @@
 {
   "languages": [
     {
+      "grammar": "textmate/toml/toml.tmLanguage.json",
+      "name": "toml",
+      "scopeName": "source.toml",
+      "languageConfiguration": "textmate/toml/toml.language-configuration.json"
+    },
+    {
       "grammar": "textmate/java/syntaxes/java.tmLanguage.json",
       "name": "java",
       "scopeName": "source.java",

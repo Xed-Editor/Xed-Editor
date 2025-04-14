@@ -82,6 +82,7 @@ val textmateSources = hashMapOf(
     "latex" to "text.tex.latex",
     "tex" to "text.tex.latex",
     "ltx" to "text.tex.latex",
+    "toml" to "source.toml"
 )
 
 class SetupEditor(
