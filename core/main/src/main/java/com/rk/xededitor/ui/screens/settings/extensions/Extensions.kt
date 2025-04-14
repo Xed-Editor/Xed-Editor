@@ -86,6 +86,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                         }
                     }
                     ExtensionManager.installPlugin(activity!!, pluginFile)
+                    ExtensionManager.indexPlugins(application!!)
                     pluginFile.delete()
                     delay(900)
                     withContext(Dispatchers.Main) {

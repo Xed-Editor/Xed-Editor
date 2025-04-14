@@ -86,19 +86,14 @@ object ExtensionManager : ExtensionAPI() {
                             apkFile = file
                         )
 
-                        if (minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
-                            //add extension
-                            if (extensions[ext] == null) {
-                                extensions[ext] = null
-                            }
-                        }else{
+                        if (!(minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode)){
                             //disable plugin
                             Preference.setBoolean("ext_${ext.packageName}", false)
                         }
 
-
-
-
+                        if (extensions[ext] == null) {
+                            extensions[ext] = null
+                        }
 
                     }
                 }.onFailure { error(it) }
