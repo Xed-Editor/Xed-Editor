@@ -43,11 +43,6 @@
         app:showAsAction="always"
         tools:ignore="HardcodedText" />
     <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/settings"
-        android:title="@string/settings"
-        app:showAsAction="ifRoom" />
-    <item
         android:id="@+id/search"
         android:icon="@drawable/search"
         android:title="@string/search"
@@ -140,6 +135,11 @@
         </menu>
 
     </item>
-
+    
+   <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/settings"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom" />
 
 </menu>
