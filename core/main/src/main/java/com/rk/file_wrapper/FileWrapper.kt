@@ -29,6 +29,10 @@ class FileWrapper(var file: File) : FileObject {
         return file.isDirectory
     }
 
+    override fun getCanonicalPath(): String{
+        return file.canonicalPath
+    }
+
     override suspend fun writeText(
         content: String,
         charset: Charset

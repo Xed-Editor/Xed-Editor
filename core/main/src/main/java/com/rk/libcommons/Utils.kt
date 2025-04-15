@@ -2,6 +2,7 @@ package com.rk.libcommons
 
 import android.app.Activity
 import android.content.Context
+import android.content.DialogInterface
 import android.content.res.Configuration
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -85,18 +87,6 @@ fun toast(message: String?) {
     runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
 }
 
-inline fun toast(e: Exception? = null) {
-    e?.printStackTrace()
-    if (e != null) {
-        toast(e.message)
-    }
-}
-
-inline fun toast(t: Throwable? = null) {
-    t?.printStackTrace()
-    toast(t?.message)
-}
-
 inline fun String?.toastIt() {
     toast(this)
 }
@@ -107,7 +97,7 @@ inline fun toastCatching(block: () -> Unit): Exception? {
         return null
     } catch (e: Exception) {
         e.printStackTrace()
-        toast(e.message)
+        errorDialog(e)
         if (BuildConfig.DEBUG) {
             throw e
         }
@@ -128,7 +118,10 @@ inline fun isMainThread(): Boolean {
     return Thread.currentThread().name == "main"
 }
 
-data class PopupButton(val label: String, val listener: (() -> Unit)? = null)
+enum class PopupButtonType{
+    POSITIVE,NEGATIVE,NEUTRAL
+}
+data class PopupButton(val label: String, val listener: ((DialogInterface) -> Unit)? = null, val type: PopupButtonType = PopupButtonType.NEUTRAL)
 
 fun Activity.askInput(
     title: String? = null,
@@ -153,4 +146,90 @@ fun Activity.askInput(
         dialog = show()
     }
 
+}
+
+@JvmOverloads
+fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null,extraButtons: Array<PopupButton>? = null){
+    if (context == null){
+        throw IllegalArgumentException("context cannot be null")
+        return
+    }
+    runOnUiThread{
+        MaterialAlertDialogBuilder(context).apply {
+            title?.let { setTitle(it) }
+            msg?.let { setMessage(it) }
+
+            onCancel?.let { setNegativeButton(strings.cancel){ dialogInterface,_ ->
+                onCancel(dialogInterface)
+            } }
+
+            onOk?.let { setPositiveButton(strings.ok){ dialogInterface,_ ->
+                onOk(dialogInterface)
+            } }
+
+            extraButtons?.forEach {
+                when(it.type){
+                    PopupButtonType.NEUTRAL -> {
+                        setNeutralButton(it.label){ dialogInterface,_ ->
+                            it.listener?.invoke(dialogInterface)
+                        }
+                    }
+
+                    PopupButtonType.NEGATIVE -> {
+                        setNegativeButton(it.label){ dialogInterface,_ ->
+                            it.listener?.invoke(dialogInterface)
+                        }
+                    }
+
+                    PopupButtonType.POSITIVE -> {
+                        setPositiveButton(it.label){ dialogInterface,_ ->
+                            it.listener?.invoke(dialogInterface)
+                        }
+                    }
+                }
+            }
+
+            show()
+        }
+    }
+}
+
+fun errorDialog(msg: String){
+    if (msg.isBlank()){
+        Log.w("Utils Error function","Message is blank")
+        return
+    }
+
+    val activity = MainActivity.activityRef.get()
+    if (activity == null){
+        toast(msg)
+        return
+    }
+
+    dialog(title = strings.err.getString(), msg = msg, onOk = {})
+}
+
+fun errorDialog(@StringRes msgRes: Int){
+    errorDialog(msg = msgRes.getString())
+}
+
+
+fun errorDialog(throwable: Throwable){
+    var message = StringBuilder()
+    throwable.let {
+        message.append(it.message).append("\n")
+        message.append(it.stackTraceToString()).append("\n")
+    }
+
+    errorDialog(msg = message.toString())
+}
+
+fun errorDialog(exception: Exception){
+    var message = StringBuilder()
+    exception.let {
+        message.append(it.message).append("\n")
+        message.append(it.stackTraceToString()).append("\n")
+    }
+
+    errorDialog(msg = message.toString())
 }

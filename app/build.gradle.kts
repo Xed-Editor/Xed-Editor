@@ -1,5 +1,5 @@
 import java.util.Properties
-
+ 
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -79,8 +79,8 @@ android {
         targetSdk = 28
 
         //versioning
-        versionCode = 46
-        versionName = "3.0.0"
+        versionCode = 48
+        versionName = "3.0.2"
         vectorDrawables {
             useSupportLibrary = true
         }

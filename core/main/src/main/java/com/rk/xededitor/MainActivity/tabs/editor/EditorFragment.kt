@@ -8,6 +8,8 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.UI
@@ -15,6 +17,7 @@ import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.getInputView
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
@@ -49,7 +52,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     private lateinit var searchLayout: LinearLayout
     var setupEditor: SetupEditor? = null
     private var isFileLoaded = false
-
 
     fun showArrowKeys(yes: Boolean) {
         horizontalScrollView.visibility = if (yes) {
@@ -174,7 +176,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     }
 
-
     object FilesContent {
         fun containsKey(key: String): Boolean {
             return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key) == true
@@ -232,8 +233,10 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
 
     private var lastSaveTime = 0L
+
+    @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     @OptIn(DelicateCoroutinesApi::class)
-    fun save(showToast: Boolean = true, isAutoSaver: Boolean = false) {
+    fun save(isAutoSaver: Boolean = false) {
         if (isAutoSaver && isReadyToSave().not()) {
             return
         }
@@ -279,7 +282,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     return@safeLaunch
                 }else{
                     if (isAutoSaver.not()){
-                        toast(it)
+                        errorDialog(it)
                     }
                     it.printStackTrace()
                 }
@@ -288,6 +291,13 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             toastCatching {
                 val charset = Settings.encoding
                 file!!.writeText(editor?.text.toString(),charset = Charset.forName(charset))
+                withContext(Dispatchers.Main){
+                    MainActivity.withContext {
+                        badge?.let {
+                            BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                        }
+                    }
+                }
             }?.let{
                 if (it is SecurityException){
                     toast(strings.read_only_file)
@@ -296,7 +306,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     it.printStackTrace()
                 }
             }
-
 
             val isMutatorFile = file!!.getParentFile()
                 ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
@@ -323,10 +332,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 }
             }
             fileset.remove(file!!.getName())
-
-            if (showToast) {
-                withContext(Dispatchers.Main) { toast(strings.saved.getString()) }
-            }
         }
     }
 
@@ -394,6 +399,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         return 4 >= t && isFileLoaded
     }
 
+    @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     private fun setChangeListener() = editor!!.subscribeAlways(ContentChangeEvent::class.java) {
         scope.safeLaunch {
             updateUndoRedo()
@@ -416,7 +422,15 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                         MainActivity.withContext {
                             tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
                         }
+                        MainActivity.withContext {
+                            badge?.let {
+                                BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                            }
+                        }
                     }
+
+
+
                 }
             }
         }

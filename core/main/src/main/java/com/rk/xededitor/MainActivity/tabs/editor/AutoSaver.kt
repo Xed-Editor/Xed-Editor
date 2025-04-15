@@ -31,7 +31,7 @@ object AutoSaver {
                     delay(Settings.auto_save_interval.toLong())
 
                     if (Settings.auto_save) {
-                        saveAllEditorFragments()
+                       saveAllFiles()
                     }
                 } catch (e: Exception) {
                     println("Error in AutoSaver: ${e.message}")
@@ -49,21 +49,5 @@ object AutoSaver {
         //intentionally empty
     }
 
-    /**
-     * Saves all editor fragments if conditions are met.
-     */
-    private suspend fun saveAllEditorFragments() = MainActivity.activityRef.get()?.apply {
-        if (tabViewModel.fragmentFiles.isNotEmpty()) {
-            withContext(Dispatchers.IO) {
-                adapter?.tabFragments?.values?.forEach { weakRef ->
-                    weakRef.get()?.fragment?.let { fragment ->
-                        if (fragment is EditorFragment) {
-                            fragment.save(showToast = false, isAutoSaver = true)
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 }

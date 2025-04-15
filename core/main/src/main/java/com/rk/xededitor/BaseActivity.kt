@@ -34,7 +34,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         ThemeManager.apply(this)
-        ExtensionManager.onAppPaused()
+        ExtensionManager.onMainActivityPaused()
     }
 
     override fun onLowMemory() {

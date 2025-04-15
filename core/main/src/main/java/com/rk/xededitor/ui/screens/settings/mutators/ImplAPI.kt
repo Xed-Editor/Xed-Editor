@@ -3,12 +3,14 @@ package com.rk.xededitor.ui.screens.settings.mutators
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.rk.libcommons.LoadingPopup
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.mutator_engine.Engine
 import com.rk.mutator_engine.EngineAPI
 import com.rk.xededitor.MainActivity.Kee
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -44,12 +46,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
      * is unavailable or does not contain a text file.
      */
     override fun getEditorText(): String {
-        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.apply {
-            if (fragment is EditorFragment) {
-                return (fragment as EditorFragment).editor?.text.toString()
-            }
-        }
-        return "__invalid__"
+        return (getCurrentEditorFragment()?.editor?.text ?: "__invalid__").toString()
     }
 
     /**
@@ -63,12 +60,8 @@ class ImplAPI(val engine: Engine) : EngineAPI {
         runBlocking {
             withContext(Dispatchers.Main) {
                 runCatching {
-                    MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.apply {
-                        if (fragment is EditorFragment) {
-                            (fragment as EditorFragment).editor?.setText(text)
-                        }
-                    }
-                }.onFailure { toast(it.message);it.printStackTrace() }
+                    getCurrentEditorFragment()?.editor?.setText(text)
+                }.onFailure { errorDialog(it);it.printStackTrace() }
 
             }
         }

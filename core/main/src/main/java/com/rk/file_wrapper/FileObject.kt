@@ -15,6 +15,7 @@ interface FileObject : Serializable {
     fun getParentFile(): FileObject?
     fun exists():Boolean
     fun createNewFile():Boolean
+    fun getCanonicalPath(): String
     fun mkdir():Boolean
     fun mkdirs():Boolean
     fun writeText(text:String)

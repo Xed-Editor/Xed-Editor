@@ -8,7 +8,12 @@
         android:title="@string/add"
         android:visible="false"
         app:showAsAction="ifRoom" />
-
+    <item
+        android:id="@+id/saveAs"
+        android:icon="@drawable/outline_insert_drive_file_24"
+        android:title="@string/save_as"
+        android:visible="false"
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_all"
         android:icon="@drawable/save"
@@ -21,6 +26,7 @@
         android:title="@string/save_1"
         android:visible="false"
         app:showAsAction="always" />
+
     <item
         android:id="@+id/undo"
         android:enabled="false"
@@ -41,6 +47,12 @@
         android:icon="@drawable/settings"
         android:title="@string/settings"
         app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/search"
+        android:title="@string/search"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/terminal"
@@ -48,12 +60,6 @@
         android:title="@string/terminal"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/search"
-        android:icon="@drawable/search"
-        android:title="@string/search"
-        android:visible="false"
-        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/search_next"
         android:icon="@drawable/arrow_upward"
@@ -97,12 +103,6 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
-        android:id="@+id/saveAs"
-        android:icon="@drawable/outline_insert_drive_file_24"
-        android:title="@string/save_as"
-        android:visible="false"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/toggle_word_wrap"
         android:icon="@drawable/edit"
         android:title="@string/toggle_ww"
@@ -131,36 +131,6 @@
         android:visible="false"
         app:showAsAction="never">
         <menu>
-            <item
-                android:id="@+id/git"
-                android:icon="@drawable/git"
-                android:title="@string/git"
-                android:visible="false"
-                app:showAsAction="ifRoom">
-                <menu>
-                    <item
-                        android:id="@+id/action_push"
-                        android:icon="@drawable/git"
-                        android:title="Push"
-                        app:showAsAction="never" />
-                    <item
-                        android:id="@+id/action_pull"
-                        android:icon="@drawable/git"
-                        android:title="Pull"
-                        app:showAsAction="never" />
-                    <item
-                        android:id="@+id/action_commit"
-                        android:icon="@drawable/git"
-                        android:title="Commit"
-                        app:showAsAction="never" />
-                    <item
-                        android:id="@+id/action_branch"
-                        android:icon="@drawable/git"
-                        android:title="Branch : "
-                        app:showAsAction="never" />
-
-                </menu>
-            </item>
             <item
                 android:id="@+id/action_print"
                 android:icon="@drawable/print"

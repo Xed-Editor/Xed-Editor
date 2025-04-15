@@ -27,12 +27,10 @@ import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
-import com.rk.xededitor.git.commit
-import com.rk.xededitor.git.pull
-import com.rk.xededitor.git.push
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
-import com.rk.xededitor.git.GitClient
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -45,16 +43,12 @@ object MenuClickHandler {
 
     private var searchText: String? = ""
 
-    fun getEditorFragment():EditorFragment?{
-       return MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment as? EditorFragment
-    }
-    
     suspend fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
 
         when (id) {
             Id.saveAs -> {
-                getEditorFragment()?.file?.let {
+                getCurrentEditorFragment()?.file?.let {
                     activity.fileManager?.saveAsFile(it)
                 }
                 return true
@@ -73,27 +67,23 @@ object MenuClickHandler {
             }
 
             Id.action_all -> {
-                activity.adapter!!.tabFragments.values.forEach { f ->
-                    if (f.get()?.fragment is EditorFragment) {
-                        (f.get()?.fragment as EditorFragment).save(false)
-                    }
-                }
+                saveAllFiles()
                 toast(strings.save_all.getString())
                 return true
             }
 
             Id.action_save -> {
-                getEditorFragment()?.save(true)
+                getCurrentEditorFragment()?.save(false)
                 return true
             }
 
             Id.undo -> {
-                getEditorFragment()?.undo()
+                getCurrentEditorFragment()?.undo()
                 return true
             }
 
             Id.redo -> {
-                getEditorFragment()?.redo()
+                getCurrentEditorFragment()?.redo()
                 return true
             }
 
@@ -125,22 +115,15 @@ object MenuClickHandler {
 
             Id.action_print -> {
                 val printer = Printer(activity)
-                printer.setCodeText(getEditorFragment()?.editor?.text.toString(), language = getEditorFragment()?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                printer.setCodeText(getCurrentEditorFragment()?.editor?.text.toString(), language = getCurrentEditorFragment()?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
                 return true
             }
-
-            //garbage code
 
             Id.search -> {
                 // Handle search
 
                 if (Settings.use_sora_search) {
-                    val fragment =
-                        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
-
-                    if (fragment is EditorFragment) {
-                        fragment.showSearch(true)
-                    }
+                    getCurrentEditorFragment()?.showSearch(true)
                 } else {
                     handleSearch(activity)
                 }
@@ -149,12 +132,12 @@ object MenuClickHandler {
             }
 
             Id.search_next -> {
-                getEditorFragment()?.editor?.searcher?.gotoNext()
+                getCurrentEditorFragment()?.editor?.searcher?.gotoNext()
                 return true
             }
 
             Id.search_previous -> {
-                getEditorFragment()?.editor?.searcher?.gotoPrevious()
+                getCurrentEditorFragment()?.editor?.searcher?.gotoPrevious()
                 return true
             }
 
@@ -171,7 +154,7 @@ object MenuClickHandler {
             }
 
             Id.refreshEditor -> {
-                getEditorFragment()?.refreshEditorContent()
+                getCurrentEditorFragment()?.refreshEditorContent()
                 return true
             }
 
@@ -239,110 +222,6 @@ object MenuClickHandler {
                     })
                 }
                 return true
-            }
-
-            Id.action_pull -> {
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        it.file?.let { it1 -> pull(activity, (it1 as FileWrapper).file) }
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-            }
-
-            Id.action_push -> {
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        it.file?.let { it1 -> push(activity, (it1 as FileWrapper).file) }
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-            }
-
-            Id.action_commit -> {
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        it.file?.let { it1 -> commit(activity, (it1 as FileWrapper).file) }
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-            }
-
-            Id.action_branch -> {
-                fun showRadioButtonDialog(
-                    context: Context,
-                    title: String,
-                    items: List<String>,
-                    defaultSelection: String,
-                    onItemSelected: (String) -> Unit
-                ) {
-                    var selectedItem = defaultSelection
-                    val checkedItem = items.indexOf(defaultSelection)
-
-                    MaterialAlertDialogBuilder(context).setTitle(title).setSingleChoiceItems(
-                            items.toTypedArray(), checkedItem
-                        ) { _, which ->
-                            selectedItem = items[which]
-                        }.setPositiveButton("OK") { _, _ ->
-                            onItemSelected(selectedItem)
-                        }.setNegativeButton("Cancel") { dialog, _ ->
-                            dialog.dismiss()
-                        }.show()
-                }
-
-
-                activity.adapter!!.getCurrentFragment()?.fragment?.let {
-                    if (it is EditorFragment && it.file is FileWrapper) {
-                        DefaultScope.launch(Dispatchers.IO) {
-
-                            it.file?.let { it1 ->
-                                findGitRoot((it1 as FileWrapper).file)?.let { root ->
-                                    GitClient.getAllBranches(
-                                        activity,
-                                        root,
-                                        onResult = { branches, eror ->
-                                            GitClient.getCurrentBranchFull(activity,
-                                                root,
-                                                onResult = { branch, erorr ->
-                                                    runOnUiThread {
-                                                        if (branches != null) {
-                                                            if (branch != null) {
-                                                                showRadioButtonDialog(
-                                                                    activity,
-                                                                    title = "Branches",
-                                                                    items = branches,
-                                                                    defaultSelection = branch,
-                                                                    onItemSelected = { selectedBranch ->
-                                                                        DefaultScope.launch(
-                                                                            Dispatchers.IO
-                                                                        ) {
-                                                                            GitClient.setBranch(
-                                                                                activity,
-                                                                                root,
-                                                                                selectedBranch,
-                                                                                {})
-                                                                        }
-                                                                    },
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                })
-
-                                        })
-                                }
-                            }
-                        }
-
-                    } else {
-                        throw RuntimeException("wtf just happened?")
-                    }
-                }
-
-
             }
 
             Id.toggle_word_wrap -> {

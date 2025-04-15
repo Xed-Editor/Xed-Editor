@@ -19,6 +19,7 @@ import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -231,7 +232,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     }
                 }
             }.onFailure {
-                toast(it.message)
+                errorDialog(it)
             }
         }
 

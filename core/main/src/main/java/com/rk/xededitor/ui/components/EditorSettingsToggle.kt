@@ -7,13 +7,14 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun updateEditorSettings() {
     MainActivity.withContext {
-        adapter?.tabFragments?.values?.forEach {
-            lifecycleScope.launch { (it.get()?.fragment as? EditorFragment)?.editor?.applySettings() }
+        editorFragmentsForEach {
+            lifecycleScope.launch { it.editor?.applySettings() }
         }
     }
 }

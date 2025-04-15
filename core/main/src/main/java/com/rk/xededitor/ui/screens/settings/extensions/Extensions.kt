@@ -2,15 +2,16 @@ package com.rk.xededitor.ui.screens.settings.extensions
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.webkit.MimeTypeMap
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
@@ -23,11 +24,13 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.pm.PackageInfoCompat
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
 import com.rk.libcommons.DefaultScope
@@ -39,7 +42,6 @@ import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InfoBlock
-import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,6 +49,10 @@ import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.libcommons.dialog
+import com.rk.libcommons.errorDialog
+import com.rk.libcommons.safeLaunch
 import com.rk.settings.Preference
 import java.io.File
 import java.io.FileOutputStream
@@ -57,6 +63,8 @@ var selectedPlugin: Extension? = null
 @Composable
 fun Extensions(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val activity = LocalActivity.current
+    val scope = rememberCoroutineScope()
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
@@ -64,17 +72,18 @@ fun Extensions(modifier: Modifier = Modifier) {
         var loading: LoadingPopup? = null
         runCatching {
             val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-            if (fileExtension == "plugin") {
+            if (fileExtension == "apk") {
                 loading = LoadingPopup(context as Activity, null).show()
                 loading?.setMessage(strings.installing.getString())
                 DefaultScope.launch {
-                    val pluginFile = File(getTempDir(), "installPlugin.plugin")
+                    val pluginFile = File(getTempDir(), "installPlugin.apk")
                     application!!.contentResolver.openInputStream(uri!!).use {
                         FileOutputStream(pluginFile).use { outputStream ->
                             it!!.copyTo(outputStream)
                         }
                     }
-                    ExtensionManager.installPlugin(application!!, pluginFile)
+                    ExtensionManager.installPlugin(activity!!, pluginFile)
+                    ExtensionManager.indexPlugins(application!!)
                     pluginFile.delete()
                     delay(900)
                     withContext(Dispatchers.Main) {
@@ -86,7 +95,7 @@ fun Extensions(modifier: Modifier = Modifier) {
             }
         }.onFailure {
             loading?.hide()
-            toast(it.message)
+            errorDialog(it)
         }
 
     }
@@ -109,7 +118,7 @@ fun Extensions(modifier: Modifier = Modifier) {
 
         LaunchedEffect("refreshPlugins") {
             launch {
-                ExtensionManager.loadExistingPlugins(application!!)
+                ExtensionManager.indexPlugins(application!!)
             }
         }
 
@@ -134,17 +143,68 @@ fun Extensions(modifier: Modifier = Modifier) {
                     )
                 } else {
                     extensions.keys.forEach { plugin ->
-                        SettingsToggle(
+                        var state by remember { mutableStateOf(Preference.getBoolean(key = "ext_" + plugin.packageName,false)) }
+
+
+                        val sideEffect:(Boolean)-> Unit = {
+                            if (it){
+                                scope.safeLaunch{
+                                    val loadingPopup = LoadingPopup(context)
+                                    loadingPopup.setMessage(strings.installing.getString())
+                                    loadingPopup.show()
+
+                                    val pm = context.packageManager
+                                    val info = pm.getPackageArchiveInfo(plugin.apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
+                                    info.applicationInfo!!.sourceDir = plugin.apkFile.absolutePath
+                                    info.applicationInfo!!.publicSourceDir = plugin.apkFile.absolutePath
+
+                                    val appInfo = info.applicationInfo!!
+
+                                    val metadata = appInfo.metaData
+
+                                    val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
+                                    val targetSdkVersion = metadata.getInt("targetXedVersionCode",-1)
+                                    val xedVersionCode = PackageInfoCompat.getLongVersionCode(context.packageManager.getPackageInfo(context.packageName, 0))
+
+
+                                    if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
+                                        Preference.setBoolean(key = "ext_" + plugin.packageName,true)
+                                        state = true
+                                    }else{
+                                        val reason: String = if (minSdkVersion > xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1){
+                                            "Xed-Editor is outdated minimum version code required is $minSdkVersion while current version code is $xedVersionCode"
+                                        }else if (targetSdkVersion < xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1){
+                                            "Plugin ${plugin.name} was made for an older version of Xed-Editor, ask the plugin developer to update the plugin"
+                                        }else if (minSdkVersion == -1 || targetSdkVersion == -1){
+                                            "Undefined minXedVersionCode or targetXedVersionCode"
+                                        }else{
+                                            "Unknown error while parsing Xed Version code info from plugin"
+                                        }
+
+                                        dialog(context = activity, title = strings.failed.getString(), msg = "Enabling plugin ${plugin.name} failed \nreason: \n$reason", onOk = {})
+                                    }
+
+                                    delay(500)
+                                    loadingPopup.hide()
+                                }
+                            }else{
+                                Preference.setBoolean(key = "ext_" + plugin.packageName,false)
+                                state = false
+                            }
+                        }
+                        PreferenceSwitch(checked = state,
+                            onCheckedChange = {
+                               sideEffect(it)
+                            },
                             onLongClick = {
                                 selectedPlugin = plugin
                                 showPluginOptionSheet.value = true
                             },
                             label = plugin.name,
-                            default = Preference.getBoolean(key = "ext_" + plugin.packageName,false),
-                            sideEffect = {
-                                Preference.setBoolean(key = "ext_" + plugin.packageName,it)
-                            },
-                        )
+                            modifier = modifier,
+                            onClick = {
+                                sideEffect(state.not())
+                            })
                     }
                 }
             } else {

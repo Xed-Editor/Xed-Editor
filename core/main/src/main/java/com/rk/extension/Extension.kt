@@ -1,6 +1,9 @@
 package com.rk.extension
 
 import android.app.Application
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.pm.PackageInfoCompat
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import dalvik.system.DexClassLoader
@@ -15,27 +18,25 @@ class Extension(
     val name: String,
     val packageName: String,
     val mainClass: String,
-    val settingsClass: String?,
-    val website: String?,
-    val author: String,
     val version: String,
-    val versionCode: Int,
-    val manifest: File,
-    val dexFiles: List<File>,
+    val versionCode: Long,
+    val apkFile: File,
     val application: Application
 ) : DexClassLoader(
-    dexFiles.joinToString(separator = File.pathSeparator) { it.absolutePath },
+    apkFile.absolutePath,
     application.codeCacheDir.absolutePath,
     null,
     application.classLoader
 ) {
+    private var _isLoaded = false
+    val isLoaded get() = _isLoaded
 
     override fun hashCode(): Int {
-        return manifest.absolutePath.hashCode()
+        return apkFile.absolutePath.hashCode()
     }
 
     override fun toString(): String {
-        return "Extension : $packageName"
+        return packageName
     }
 
     override fun equals(other: Any?): Boolean {
@@ -43,7 +44,10 @@ class Extension(
         return packageName == other.packageName
     }
 
-    fun execute() {
+    fun load() {
+        if (isLoaded){
+            throw RuntimeException("Extension $this is already loaded")
+        }
         if (Thread.currentThread().name == "main") {
             throw RuntimeException("Tried to execute extension on main thread")
         }
@@ -55,22 +59,38 @@ class Extension(
                 ?: throw RuntimeException("main class could not be cast to ExtensionAPI")
 
             ExtensionManager.extensions[this] = instance
-            instance.onPluginLoaded()
+            instance.onPluginLoaded(this)
         } else {
             throw RuntimeException("mainClass of plugin $name does not override ExtensionAPI")
         }
     }
 
     companion object {
-        suspend fun executeExtensions(application: Application, scope: CoroutineScope) {
-            ExtensionManager.loadExistingPlugins(application)
+        suspend fun loadExtensions(application: Application, scope: CoroutineScope) {
+            ExtensionManager.indexPlugins(application)
+            val pm = application.packageManager
+            val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(application.packageName, 0))
             ExtensionManager.extensions.keys.forEach { extension ->
-                if (Preference.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
-                    delay(Random(492).nextLong(10,300))
-                    scope.launch(Dispatchers.IO) {
-                        extension.execute()
+
+
+                val info = pm.getPackageArchiveInfo(extension.apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
+                info.applicationInfo!!.sourceDir = extension.apkFile.absolutePath
+                info.applicationInfo!!.publicSourceDir = extension.apkFile.absolutePath
+                val appInfo = info.applicationInfo!!
+                val metadata = appInfo.metaData
+
+                val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
+                val targetSdkVersion = metadata.getInt("targetXedVersionCode",-1)
+
+                if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
+                    if (Preference.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
+                        scope.launch(Dispatchers.IO) {
+                            extension.load()
+                        }
                     }
                 }
+
+
             }
         }
     }

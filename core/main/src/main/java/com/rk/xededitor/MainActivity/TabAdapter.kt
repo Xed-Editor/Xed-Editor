@@ -8,6 +8,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -17,6 +18,7 @@ import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -132,7 +134,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 
                 fun close() {
                     tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
-                    tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].getAbsolutePath())
+                    tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].getCanonicalPath())
                     
                     synchronized(EditorFragment.fileset) {
                         EditorFragment.fileset.remove(tabViewModel.fragmentFiles[position].getName())
@@ -222,7 +224,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
 
         with(mainActivity) {
-            if (tabViewModel.fileSet.contains(file.getAbsolutePath())) {
+            if (tabViewModel.fileSet.contains(file.getCanonicalPath())) {
                 kotlin.runCatching {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout!!.selectedTabPosition == 0) {
@@ -232,11 +234,11 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                             it.tabLayout!!.getTabAt(mainActivity.tabViewModel.fragmentFiles.indexOf(file))
                         )
 
-                        val fragment = it.adapter!!.getCurrentFragment()?.fragment
-                        if (fragment is EditorFragment) {
-                            fragment.editor?.requestFocus()
-                            fragment.editor?.requestFocusFromTouch()
+                        getCurrentEditorFragment()?.editor?.let {
+                            it.requestFocus()
+                            it.requestFocusFromTouch()
                         }
+
                     }
                 }.onFailure {
                     toast(getString(strings.already_opened))
@@ -250,7 +252,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 )
                 return
             }
-            tabViewModel.fileSet.add(file.getAbsolutePath())
+            tabViewModel.fileSet.add(file.getCanonicalPath())
             tabViewModel.fragmentFiles.add(file)
 
             if(tabViewModel.fragmentTitles.contains(file.getName())){

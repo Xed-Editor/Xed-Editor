@@ -25,6 +25,9 @@ object Settings {
     var feature_extensions
         get() = Preference.getBoolean(key = "enable_extension",default = false)
         set(value) = Preference.setBoolean(key = "enable_extension",value)
+    var developerOptions
+        get() = Preference.getBoolean(key = "developerOptions",default = false)
+        set(value) = Preference.setBoolean(key = "developerOptions",value)
 
 
     var amoled

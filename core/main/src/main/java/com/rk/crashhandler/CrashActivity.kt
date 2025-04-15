@@ -28,6 +28,8 @@ import com.rk.xededitor.BuildConfig
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.toast
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.widget.CodeEditor
 
@@ -47,7 +49,7 @@ class CrashActivity : AppCompatActivity() {
             }
 
             val toolbar = findViewById<Toolbar>(R.id.toolbar)
-            toolbar.setTitle("Error")
+            toolbar.setTitle(strings.err.getString())
             setSupportActionBar(toolbar)
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setDisplayShowTitleEnabled(true)
@@ -84,7 +86,7 @@ class CrashActivity : AppCompatActivity() {
             editor.setText(sb.toString())
             editor.editable = false
 
-            runCatching { SetupEditor(editor,this,lifecycleScope) }
+            runCatching { SetupEditor(editor,application,lifecycleScope) }
             editor.isWordwrap = false
         }.onFailure{
             logErrorOrExit(it)

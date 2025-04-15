@@ -49,6 +49,9 @@ fun File.child(fileName:String):File {
 }
 
 fun File.createFileIfNot():File{
+    if (parentFile.exists().not()){
+        parentFile.mkdirs()
+    }
     if (exists().not()){
         createNewFile()
     }

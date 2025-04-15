@@ -13,7 +13,8 @@ import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.extensions.Extensions
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.update.UpdateChecker
 import com.rk.xededitor.update.UpdateManager
@@ -57,6 +58,7 @@ class App : Application() {
                             violation.printStackTrace()
                             violation.cause?.let { throw it }
                             println("vm policy error")
+                            
                         }
                     }
                 }.build()
@@ -77,9 +79,8 @@ class App : Application() {
 
             runCatching { UpdateChecker.checkForUpdates("dev") }
 
-            if (Features.extensions.value){
-                Extension.executeExtensions(this@App,GlobalScope)
-                ExtensionManager.onAppLaunched()
+            if (InbuiltFeatures.extensions.state.value){
+                Extension.loadExtensions(this@App, GlobalScope)
             }
         }
 

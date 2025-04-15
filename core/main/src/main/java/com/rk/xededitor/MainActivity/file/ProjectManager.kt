@@ -89,7 +89,7 @@ object ProjectManager {
                 fileTree.setOnFileLongClickListener(fileLongClickListener)
                 val scrollView =
                     FileTreeScrollViewManager.getFileTreeParentScrollView(activity, fileTree)
-                scrollView.id = file.getAbsolutePath().hashCode()
+                scrollView.id = file.getAbsolutePath().hashCode()+8264196
 
                 activity.binding!!.maindrawer.addView(scrollView)
                 synchronized(projects) { projects[menuItemId] = file.getAbsolutePath() }
@@ -120,7 +120,7 @@ object ProjectManager {
                 for (i in 0 until activity.binding!!.maindrawer.childCount) {
                     val view = activity.binding!!.maindrawer.getChildAt(i)
                     if (view is DiagonalScrollView) {
-                        if (view.id == file.getAbsolutePath().hashCode()) {
+                        if (view.id == file.getAbsolutePath().hashCode()+8264196) {
                             activity.binding!!.maindrawer.removeView(view)
                         }
                     }
@@ -159,7 +159,7 @@ object ProjectManager {
                 }
 
                 activity.binding!!.maindrawer.removeView(
-                    activity.binding!!.maindrawer.findViewById(file.getAbsolutePath().hashCode())
+                    activity.binding!!.maindrawer.findViewById(file.getAbsolutePath().hashCode()+8264196)
                 )
 
 
@@ -174,11 +174,11 @@ object ProjectManager {
         for (i in 0 until activity.binding!!.maindrawer.childCount) {
             val view = activity.binding!!.maindrawer.getChildAt(i)
             if (view is ViewGroup) {
-                if (view.id != path.hashCode()) {
+                if (view.id != path.hashCode()+8264196) {
                     view.visibility = View.GONE
                 } else {
                     view.visibility = View.VISIBLE
-                    currentProjectId = path.hashCode()
+                    currentProjectId = path.hashCode()+8264196
                 }
             }
         }

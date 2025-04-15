@@ -15,13 +15,14 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -36,10 +37,10 @@ import com.rk.libcommons.UI
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.mutator_engine.Engine
 import com.rk.runner.Runner
@@ -54,9 +55,10 @@ import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
-import com.rk.xededitor.ui.screens.settings.feature_toggles.Features
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.text.Content
@@ -65,7 +67,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -180,7 +181,7 @@ class MainActivity : BaseActivity() {
             val files = state.fragmentFiles.filter { it.exists() && it.canRead() }.toMutableList()
             val types = files.map { it.getFragmentType() }.toMutableList()
             val titles = files.map { it.getName() }.toMutableList()
-            val fileSet = files.map { it.getAbsolutePath() }.toHashSet()
+            val fileSet = files.map { it.getCanonicalPath() }.toHashSet()
 
             fragmentFiles = files
             fragmentTypes = types
@@ -190,12 +191,13 @@ class MainActivity : BaseActivity() {
 
     }
 
+    var badge: BadgeDrawable? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         tabViewModel.restore()
         binding = ActivityTabBinding.inflate(layoutInflater)
-
+        badge = BadgeDrawable.create(this)
         setContentView(binding!!.root)
         setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -248,7 +250,7 @@ class MainActivity : BaseActivity() {
             binding!!.openBtn.visibility = View.GONE
         }
 
-        ExtensionManager.onAppCreated()
+        ExtensionManager.onMainActivityCreated()
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding != null && binding!!.drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -264,7 +266,7 @@ class MainActivity : BaseActivity() {
 
         lifecycleScope.launch {
             while (true) {
-                delay(1000)
+                delay(1500)
                 updateMenu(adapter?.getCurrentFragment())
             }
         }
@@ -273,6 +275,7 @@ class MainActivity : BaseActivity() {
 
     val toolItems = hashSetOf<Int>()
 
+    @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -284,7 +287,9 @@ class MainActivity : BaseActivity() {
 
         menu.findItem(R.id.select_highlighting).subMenu?.apply {
             var order = 0
-            textmateSources.values.toSet().forEach { sourceName ->
+            val list = textmateSources.values.toSet().toMutableList()
+            list.sort()
+            list.forEach { sourceName ->
                 var ext = sourceName.substringAfterLast(".")
                 if (sourceName == "text.html.basic"){
                     ext = "html"
@@ -299,11 +304,11 @@ class MainActivity : BaseActivity() {
         }
 
         menu.findItem(R.id.action_add).isVisible = true
-        menu.findItem(R.id.terminal).isVisible = Features.terminal.value
-        menu.findItem(R.id.tools).isVisible = Features.mutators.value || Features.git.value
+        menu.findItem(R.id.terminal).isVisible = InbuiltFeatures.terminal.state.value
+        menu.findItem(R.id.tools).isVisible = InbuiltFeatures.mutators.state.value
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
-        if (Features.mutators.value){
+        if (InbuiltFeatures.mutators.state.value){
             var order = 0
             Mutators.getMutators().forEach { mut ->
                 menu.findItem(R.id.tools).subMenu?.add(
@@ -315,7 +320,7 @@ class MainActivity : BaseActivity() {
                                 println(result)
                             }, onError = { t ->
                                 t.printStackTrace()
-                                toast(t.message)
+                                errorDialog(t)
                             }, api = ImplAPI::class.java)
                         }
                         false
@@ -335,7 +340,7 @@ class MainActivity : BaseActivity() {
             val uri = intent.data
             
             val file = File(uri!!.toPath())
-            var fileObject = if (file.exists() && file.canRead() && file.canWrite() && file.isFile){
+            var fileObject = if (file.exists() && file.canRead() && file.isFile){
                 FileWrapper(file)
             }else{
                 UriWrapper(uri)
@@ -371,39 +376,26 @@ class MainActivity : BaseActivity() {
         super.onPause()
     }
 
-    private fun saveAllFiles() {
-        if (tabViewModel.fragmentFiles.isNotEmpty()) {
-            adapter?.tabFragments?.values?.forEach { weakRef ->
-                weakRef.get()?.fragment?.let { fragment ->
-                    if (fragment is EditorFragment) {
-                        fragment.save(showToast = false, isAutoSaver = true)
-                    }
-                }
-            }
-        }
-    }
-
     override fun onResume() {
         isPaused = false
-        ExtensionManager.onAppResumed()
+        ExtensionManager.onMainActivityResumed()
         super.onResume()
         PermissionHandler.verifyStoragePermission(this)
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
         lifecycleScope.launch(Dispatchers.IO){
-            delay(4000)
-            val projects = ProjectManager.projects
+            val projects = ProjectManager.projects.toMap()
             for (project in projects.entries){
-
-                UI {
-                    toastCatching {
-                        if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
-                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode())
+                toastCatching {
+                    if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
+                        UI {
+                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode()+8264196)
                             (view.getChildAt(0) as FileTree).reloadFileChildren(UriWrapper(Uri.parse(project.value)))
                         }
                     }
                 }
+
             }
             kotlinx.coroutines.withContext(Dispatchers.Main){
                 ProjectManager.processQueue(this@MainActivity)
@@ -497,7 +489,7 @@ class MainActivity : BaseActivity() {
         if (Settings.auto_save) {
             toastCatching { saveAllFiles() }
         }
-        ExtensionManager.onAppDestroyed()
+        ExtensionManager.onMainActivityDestroyed()
         super.onDestroy()
         binding = null
         adapter = null

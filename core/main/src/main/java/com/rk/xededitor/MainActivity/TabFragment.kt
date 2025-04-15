@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.xededitor.MainActivity.file.getFragmentType
@@ -26,8 +27,8 @@ class TabFragment : Fragment() {
         super.onCreate(savedInstanceState)
         file = arguments?.getSerializable(ARG_FILE_PATH) as FileObject
 
-        if (tabs.isNotEmpty()){
-            for (builder in tabs.values){
+        if (Hooks.Editor.tabs.isNotEmpty()){
+            for (builder in Hooks.Editor.tabs.values){
                 val builtFragment = builder.invoke(file!!,this)
                 if (builtFragment != null){
                     fragment = builtFragment
@@ -83,14 +84,6 @@ class TabFragment : Fragment() {
     }
     
     companion object {
-        //id : builder
-        val tabs:HashMap<String,(file:FileObject,TabFragment)->CoreFragment?> = hashMapOf()
-
-        //return null if the tab should be handled by xed
-        fun registerFileTab(id:String,builder:(file:FileObject,TabFragment)->CoreFragment?){
-            tabs[id] = builder
-        }
-
         private const val ARG_FILE_PATH = "file_path"
         
         fun newInstance(file: FileObject): TabFragment {

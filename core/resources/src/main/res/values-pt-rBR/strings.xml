@@ -138,7 +138,7 @@
     <string name="pushing">Enviando para o repositório remoto…</string>
     <string name="nogit">Erro: pasta .git não encontrada</string>
     <string name="manage_storage">Gerenciar Armazenamento</string>
-    <string name="manage_storage_reason">O aplicativo precisa de acesso para editar arquivos no seu armazenamento. Por favor, permita o acesso na próxima configuração do sistema.</string>
+    <string name="manage_storage_reason">Xed-Editor precisa de acesso para editar arquivos no seu armazenamento. Por favor, permita o acesso na próxima configuração do sistema.</string>
     <string name="ok">OK</string>
     <string name="data_clear">Dados do aplicativo foram apagados</string>
     <string name="action_done">Ação Concluída</string>

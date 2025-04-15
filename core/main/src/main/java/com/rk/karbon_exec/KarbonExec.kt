@@ -78,7 +78,7 @@ fun runCommandTermux(
     cwd: String? = null,
     isTesting: Boolean = false
 ) {
-    runCatching { checkTermuxInstall() }.onFailure { toast(it.message) }.onSuccess {
+    runCatching { checkTermuxInstall() }.onFailure { error(it) }.onSuccess {
         GlobalScope.launch(Dispatchers.Main) {
             if (isTesting.not()) {
                 runCatching { launchTermux() }

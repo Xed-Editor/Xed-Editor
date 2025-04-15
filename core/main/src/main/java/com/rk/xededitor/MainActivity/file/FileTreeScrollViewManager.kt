@@ -11,17 +11,10 @@ import kotlin.properties.Delegates
 
 @Suppress("NOTHING_TO_INLINE")
 object FileTreeScrollViewManager {
-
-    private inline fun dpToPx(dp: Int, density: Float): Int {
-        return (dp * density).toInt()
-    }
-
-    private var fileTreeViewId by Delegates.notNull<Int>()
+    //private var fileTreeViewId by Delegates.notNull<Int>()
 
     fun getFileTreeParentScrollView(context: Context, fileTree: FileTree?): ViewGroup {
-        fileTree?.let { fileTreeViewId = it.id }
-        val density = context.resources.displayMetrics.density
-        val linearLayout = LinearLayout(context)
+       // fileTree?.let { fileTreeViewId = it.id }
 
         val params =
             ViewGroup.LayoutParams(
@@ -32,7 +25,6 @@ object FileTreeScrollViewManager {
         val scrollView = HorizontalScrollView(context).apply {
             layoutParams = params
             isHorizontalScrollBarEnabled = false
-            id = View.generateViewId()
         }
 
         fileTree?.let {

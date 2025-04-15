@@ -103,6 +103,10 @@ companion object{
         ) != null
     }
 
+    override fun getCanonicalPath(): String {
+        return getAbsolutePath()
+    }
+
     @Throws(IOException::class)
     override fun mkdir(): Boolean {
         if (exists()) return false
