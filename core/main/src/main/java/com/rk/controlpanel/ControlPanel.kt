@@ -17,6 +17,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Hooks
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,10 +50,7 @@ fun MainActivity.showControlPanel() {
                                         label = "Save",
                                         keyBind = "CTRL+S",
                                         sideEffect = {
-                                            val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
-                                            if (currentFragment?.fragment is EditorFragment) {
-                                                (currentFragment.fragment as EditorFragment).save(false)
-                                            }
+                                            getCurrentEditorFragment()?.save(isAutoSaver = false)
                                         })
                                 )
 
@@ -64,13 +62,7 @@ fun MainActivity.showControlPanel() {
                                                 lifecycleScope.launch{
                                                     if (tabViewModel.fragmentFiles.isNotEmpty()) {
                                                         withContext(Dispatchers.IO) {
-                                                            adapter?.tabFragments?.values?.forEach { weakRef ->
-                                                                weakRef.get()?.fragment?.let { fragment ->
-                                                                    if (fragment is EditorFragment) {
-                                                                        fragment.save(showToast = false, isAutoSaver = true)
-                                                                    }
-                                                                }
-                                                            }
+                                                            com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles()
                                                         }
                                                     }
                                                 }

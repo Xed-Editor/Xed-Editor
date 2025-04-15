@@ -18,6 +18,7 @@ import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -233,11 +234,11 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                             it.tabLayout!!.getTabAt(mainActivity.tabViewModel.fragmentFiles.indexOf(file))
                         )
 
-                        val fragment = it.adapter!!.getCurrentFragment()?.fragment
-                        if (fragment is EditorFragment) {
-                            fragment.editor?.requestFocus()
-                            fragment.editor?.requestFocusFromTouch()
+                        getCurrentEditorFragment()?.editor?.let {
+                            it.requestFocus()
+                            it.requestFocusFromTouch()
                         }
+
                     }
                 }.onFailure {
                     toast(getString(strings.already_opened))

@@ -8,6 +8,7 @@ import com.rk.libcommons.Printer
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.interfaces.KeyEventHandler
 import io.github.rosemoe.sora.widget.EditorKeyEventHandler
@@ -35,12 +36,8 @@ object KeyEventHandler {
             return
         }
 
-        val currentFragment = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()
-        val editor = if (currentFragment?.fragment is EditorFragment) {
-            (currentFragment.fragment as EditorFragment).editor
-        } else {
-            null
-        }
+        val currentFragment = getCurrentEditorFragment()
+        val editor = getCurrentEditorFragment()?.editor
 
         if (keyEvent.isCtrlPressed) {
             when (keyEvent.keyCode) {
@@ -94,15 +91,15 @@ object KeyEventHandler {
                     if (keyEvent.isShiftPressed) {
                         when (keyEvent.keyCode) {
                             KeyEvent.KEYCODE_S -> {
-                                currentFragment?.fragment?.getFile()?.let {
+                                currentFragment?.getFile()?.let {
                                     to_save_file = it
-                                    MainActivity.activityRef?.get()?.fileManager?.requestOpenDirectoryToSaveFile()
+                                    MainActivity.activityRef.get()?.fileManager?.requestOpenDirectoryToSaveFile()
                                 }
                             }
                         }
                     } else{
-                        if (currentFragment?.fragment is EditorFragment) {
-                            (currentFragment.fragment as EditorFragment).save(false)
+                        if (currentFragment is EditorFragment) {
+                            currentFragment.save(false)
                         }
                     }
                 }
@@ -133,9 +130,9 @@ object KeyEventHandler {
                 
                 KeyEvent.KEYCODE_P -> {
                     MainActivity.activityRef.get()?.let {
-                        if (currentFragment?.fragment is EditorFragment){
+                        if (currentFragment is EditorFragment){
                             val printer = Printer(it)
-                            printer.setCodeText(editor?.text.toString(), language = (currentFragment.fragment as EditorFragment).file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                            printer.setCodeText(editor?.text.toString(), language = currentFragment.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
                         }
                     }
                 }

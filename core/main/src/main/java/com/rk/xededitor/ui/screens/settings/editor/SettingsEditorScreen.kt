@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.libcommons.dpToPx
+import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.ValueSlider
@@ -105,12 +106,10 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     Settings.word_wrap_for_text = it
 
-                    MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                        if (f.value.get()?.fragment is EditorFragment) {
-                            (f.value.get()?.fragment as EditorFragment).apply {
-                                if (file?.getName()?.endsWith(".txt") == true) {
-                                    editor?.isWordwrap = it
-                                }
+                    editorFragmentsForEach { editorFragment ->
+                        with(editorFragment){
+                            if (file?.getName()?.endsWith(".txt") == true) {
+                                editor?.isWordwrap = it
                             }
                         }
                     }
@@ -199,10 +198,8 @@ fun SettingsEditorScreen(navController: NavController) {
                             return@let
                         }
 
-                        MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { f ->
-                            if (f.get()?.fragment is EditorFragment) {
-                                (f.get()?.fragment as EditorFragment).showArrowKeys(it)
-                            }
+                        editorFragmentsForEach { editorFragment ->
+                            editorFragment.showArrowKeys(it)
                         }
                     }
                 })
@@ -295,12 +292,11 @@ fun SettingsEditorScreen(navController: NavController) {
                     } else {
                         Settings.line_spacing = lineSpacingValue.toFloat()
 
-                        MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach {
-                            if (it.get()?.fragment is EditorFragment) {
-                                (it.get()?.fragment as EditorFragment).editor?.lineSpacingExtra =
-                                    lineSpacingValue.toFloat()
-                            }
+                        editorFragmentsForEach {
+                            it.editor?.lineSpacingExtra =
+                                lineSpacingValue.toFloat()
                         }
+
                         showLineSpacingDialog = false
                     }
 
@@ -355,13 +351,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     } else {
                         Settings.editor_text_size = textSizeValue.toInt()
 
-                        MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                            if (f.value.get()?.fragment is EditorFragment) {
-                                (f.value.get()?.fragment as EditorFragment).editor?.setTextSize(
-                                    textSizeValue.toFloat()
-                                )
-                            }
-
+                        editorFragmentsForEach {
+                            it.editor?.setTextSize(
+                                textSizeValue.toFloat()
+                            )
                         }
                         showTextSizeDialog = false
                     }
@@ -391,12 +384,9 @@ fun SettingsEditorScreen(navController: NavController) {
                     } else {
                         Settings.tab_size = tabSizeValue.toInt()
 
-                        MainActivity.activityRef.get()?.adapter?.tabFragments?.forEach { f ->
-                            if (f.value.get()?.fragment is EditorFragment) {
-                                (f.value.get()?.fragment as EditorFragment).editor?.tabWidth =
-                                    tabSizeValue.toInt()
-                            }
-
+                        editorFragmentsForEach {
+                            it.editor?.tabWidth =
+                                tabSizeValue.toInt()
                         }
                         showTabSizeDialog = false
                     }

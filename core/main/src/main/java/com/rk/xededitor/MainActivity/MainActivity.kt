@@ -22,6 +22,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.badge.BadgeDrawable
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -55,6 +58,7 @@ import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
@@ -192,12 +196,13 @@ class MainActivity : BaseActivity() {
 
     }
 
+    var badge: BadgeDrawable? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         tabViewModel.restore()
         binding = ActivityTabBinding.inflate(layoutInflater)
-
+        badge = BadgeDrawable.create(this)
         setContentView(binding!!.root)
         setSupportActionBar(binding!!.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -266,7 +271,7 @@ class MainActivity : BaseActivity() {
 
         lifecycleScope.launch {
             while (true) {
-                delay(1000)
+                delay(1500)
                 updateMenu(adapter?.getCurrentFragment())
             }
         }
@@ -275,6 +280,7 @@ class MainActivity : BaseActivity() {
 
     val toolItems = hashSetOf<Int>()
 
+    @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     @SuppressLint("RestrictedApi")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -373,18 +379,6 @@ class MainActivity : BaseActivity() {
         }
 
         super.onPause()
-    }
-
-    private fun saveAllFiles() {
-        if (tabViewModel.fragmentFiles.isNotEmpty()) {
-            adapter?.tabFragments?.values?.forEach { weakRef ->
-                weakRef.get()?.fragment?.let { fragment ->
-                    if (fragment is EditorFragment) {
-                        fragment.save(showToast = false, isAutoSaver = true)
-                    }
-                }
-            }
-        }
     }
 
     override fun onResume() {

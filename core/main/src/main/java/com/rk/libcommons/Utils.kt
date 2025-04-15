@@ -201,52 +201,41 @@ fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, 
 }
 
 fun error(msg: String){
+    if (msg.isBlank()){
+        Log.w("Utils Error function","Message is blank")
+        return
+    }
+
     val activity = MainActivity.activityRef.get()
     if (activity == null){
         toast(msg)
         return
     }
+
     dialog(title = strings.err.getString(), msg = msg, onOk = {})
 }
 
 fun error(@StringRes msgRes: Int){
-    val activity = MainActivity.activityRef.get()
-    if (activity == null){
-        toast(msgRes.getString())
-        return
-    }
-    dialog(title = strings.err.getString(), msg = msgRes.getString(), onOk = {})
+    error(msg = msgRes.getString())
 }
 
 
-fun error(throwable: Throwable? = null,exception1: Exception? = null){
-    var exception: String = ""
-    if (throwable == null){
-        if (exception1 == null){
-            toast("Both arguments were null")
-            return
-        }
-
-        exception = exception1.toString()
+fun error(throwable: Throwable){
+    var message = StringBuilder()
+    throwable.let {
+        message.append(it.message).append("\n")
+        message.append(it.stackTraceToString()).append("\n")
     }
 
-    val activity = MainActivity.activityRef.get()
-    if (activity == null){
-        toast(exception)
-        return
+    error(msg = message.toString())
+}
+
+fun error(exception: Exception){
+    var message = StringBuilder()
+    exception.let {
+        message.append(it.message).append("\n")
+        message.append(it.stackTraceToString()).append("\n")
     }
-    dialog(title = strings.err.getString(), msg = exception, onOk = {}, extraButtons = arrayOf(
-        PopupButton(label = strings.report_issue.getString(), listener = {
-            val browserIntent =
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Error%20Report&body=" +
-                                URLEncoder.encode(
-                                    "``` \n${exception}\n ```",
-                                    StandardCharsets.UTF_8.toString(),
-                                )
-                    ),
-                )
-            activity.startActivity(browserIntent)
-        })))
+
+    error(msg = message.toString())
 }

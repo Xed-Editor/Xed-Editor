@@ -1,6 +1,10 @@
 package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
+import android.view.View
+import androidx.annotation.OptIn
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.runOnUiThread
 import com.rk.runner.Runner
@@ -8,10 +12,13 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.collections.indexOf
 
 private var lastUpdate = 0L
 suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main) {
@@ -29,10 +36,11 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
     }
 }
 
+@OptIn(ExperimentalBadgeUtils::class)
 private suspend fun updateEditor(
     fragment: EditorFragment?,
     menu: Menu,
-    showItems: Boolean = fragment != null && MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty() ?: false
+    showItems: Boolean = fragment != null && MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty() == true
 ) {
 
     var show = showItems
@@ -41,8 +49,43 @@ private suspend fun updateEditor(
         show = false
     }
 
+
     menu.apply {
-        findItem(Id.action_save).isVisible = show
+        findItem(Id.action_save).apply {
+            val currentFragment = getCurrentEditorFragment()
+            var showBadge = currentFragment?.isModified() == true
+
+            currentFragment?.apply {
+                MainActivity.activityRef.get()?.tabViewModel?.apply {
+                    val index = fragmentFiles.indexOf(file)
+                    val currentTitle = fragmentTitles[index]
+
+                    showBadge = currentTitle.endsWith("*")
+                }
+            }
+
+            if (show && showBadge){
+                println("visible")
+                MainActivity.withContext {
+                    badge?.let {
+                        BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                    }
+
+                }
+            }else{
+                println("gone")
+                MainActivity.withContext {
+                    badge?.let {
+                        BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                    }
+
+                }
+
+            }
+
+
+            isVisible = show
+        }
         findItem(Id.action_all).isVisible = show
         findItem(Id.action_print).isVisible = show
         findItem(Id.search).isVisible = show

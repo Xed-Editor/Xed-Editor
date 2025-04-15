@@ -10,6 +10,7 @@ import com.rk.mutator_engine.EngineAPI
 import com.rk.xededitor.MainActivity.Kee
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -45,12 +46,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
      * is unavailable or does not contain a text file.
      */
     override fun getEditorText(): String {
-        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.apply {
-            if (fragment is EditorFragment) {
-                return (fragment as EditorFragment).editor?.text.toString()
-            }
-        }
-        return "__invalid__"
+        return (getCurrentEditorFragment()?.editor?.text ?: "__invalid__").toString()
     }
 
     /**
@@ -64,11 +60,7 @@ class ImplAPI(val engine: Engine) : EngineAPI {
         runBlocking {
             withContext(Dispatchers.Main) {
                 runCatching {
-                    MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.apply {
-                        if (fragment is EditorFragment) {
-                            (fragment as EditorFragment).editor?.setText(text)
-                        }
-                    }
+                    getCurrentEditorFragment()?.editor?.setText(text)
                 }.onFailure { error(it);it.printStackTrace() }
 
             }

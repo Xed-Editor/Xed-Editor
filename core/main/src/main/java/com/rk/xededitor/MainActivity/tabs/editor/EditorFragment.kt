@@ -232,7 +232,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     private var lastSaveTime = 0L
     @OptIn(DelicateCoroutinesApi::class)
-    fun save(showToast: Boolean = false, isAutoSaver: Boolean = false) {
+    fun save(isAutoSaver: Boolean = false) {
         if (isAutoSaver && isReadyToSave().not()) {
             return
         }
@@ -321,10 +321,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 }
             }
             fileset.remove(file!!.getName())
-
-            if (showToast) {
-                withContext(Dispatchers.Main) { toast(strings.saved.getString()) }
-            }
         }
     }
 

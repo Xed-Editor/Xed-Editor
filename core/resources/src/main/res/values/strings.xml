@@ -209,7 +209,6 @@
     <string name="kill_on_exit">Kill on exit</string>
     <string name="kill_on_exit_desc">Terminate all processes when exiting terminal</string>
     <string name="u_err">Unknown Error</string>
-    <string name="saved">Saved</string>
     <string name="is_null">InputStream is null</string>
     <string name="press_again_exit">Press back again to exit</string>
     <string name="wait_pkg">Please wait while the packages are being downloaded.</string>

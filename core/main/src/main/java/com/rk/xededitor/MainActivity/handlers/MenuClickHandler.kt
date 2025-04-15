@@ -28,6 +28,8 @@ import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
@@ -41,16 +43,12 @@ object MenuClickHandler {
 
     private var searchText: String? = ""
 
-    fun getEditorFragment():EditorFragment?{
-       return MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment as? EditorFragment
-    }
-    
     suspend fun handle(activity: MainActivity, menuItem: MenuItem): Boolean {
         val id = menuItem.itemId
 
         when (id) {
             Id.saveAs -> {
-                getEditorFragment()?.file?.let {
+                getCurrentEditorFragment()?.file?.let {
                     activity.fileManager?.saveAsFile(it)
                 }
                 return true
@@ -69,27 +67,23 @@ object MenuClickHandler {
             }
 
             Id.action_all -> {
-                activity.adapter!!.tabFragments.values.forEach { f ->
-                    if (f.get()?.fragment is EditorFragment) {
-                        (f.get()?.fragment as EditorFragment).save(false)
-                    }
-                }
+                saveAllFiles()
                 toast(strings.save_all.getString())
                 return true
             }
 
             Id.action_save -> {
-                getEditorFragment()?.save(true)
+                getCurrentEditorFragment()?.save(false)
                 return true
             }
 
             Id.undo -> {
-                getEditorFragment()?.undo()
+                getCurrentEditorFragment()?.undo()
                 return true
             }
 
             Id.redo -> {
-                getEditorFragment()?.redo()
+                getCurrentEditorFragment()?.redo()
                 return true
             }
 
@@ -121,22 +115,15 @@ object MenuClickHandler {
 
             Id.action_print -> {
                 val printer = Printer(activity)
-                printer.setCodeText(getEditorFragment()?.editor?.text.toString(), language = getEditorFragment()?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                printer.setCodeText(getCurrentEditorFragment()?.editor?.text.toString(), language = getCurrentEditorFragment()?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
                 return true
             }
-
-            //garbage code
 
             Id.search -> {
                 // Handle search
 
                 if (Settings.use_sora_search) {
-                    val fragment =
-                        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
-
-                    if (fragment is EditorFragment) {
-                        fragment.showSearch(true)
-                    }
+                    getCurrentEditorFragment()?.showSearch(true)
                 } else {
                     handleSearch(activity)
                 }
@@ -145,12 +132,12 @@ object MenuClickHandler {
             }
 
             Id.search_next -> {
-                getEditorFragment()?.editor?.searcher?.gotoNext()
+                getCurrentEditorFragment()?.editor?.searcher?.gotoNext()
                 return true
             }
 
             Id.search_previous -> {
-                getEditorFragment()?.editor?.searcher?.gotoPrevious()
+                getCurrentEditorFragment()?.editor?.searcher?.gotoPrevious()
                 return true
             }
 
@@ -167,7 +154,7 @@ object MenuClickHandler {
             }
 
             Id.refreshEditor -> {
-                getEditorFragment()?.refreshEditorContent()
+                getCurrentEditorFragment()?.refreshEditorContent()
                 return true
             }
 
