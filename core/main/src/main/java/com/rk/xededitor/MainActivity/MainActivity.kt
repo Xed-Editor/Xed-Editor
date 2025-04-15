@@ -440,7 +440,7 @@ class MainActivity : BaseActivity() {
             ActionBarDrawerToggle(this, drawerLayout, strings.open_drawer, strings.close_drawer)
         drawerLayout.addDrawerListener(drawerToggle!!)
         drawerToggle!!.syncState()
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         binding!!.drawerLayout.setScrimColor(Color.TRANSPARENT)
         binding!!.drawerLayout.setDrawerElevation(0f)
         binding!!.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
