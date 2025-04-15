@@ -395,7 +395,7 @@ class MainActivity : BaseActivity() {
                 toastCatching {
                     if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
                         UI {
-                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode())
+                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode()+8264196)
                             (view.getChildAt(0) as FileTree).reloadFileChildren(UriWrapper(Uri.parse(project.value)))
                         }
                     }
