@@ -6,32 +6,22 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.libcommons.application
 import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dialog
-import com.rk.libcommons.error
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.postIO
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.settings.Settings
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
-import com.termux.view.BuildConfig
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.util.Properties
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
-import java.util.zip.ZipInputStream
 
 object ExtensionManager : ExtensionAPI() {
     val isLoaded = mutableStateOf(false)
@@ -96,7 +86,7 @@ object ExtensionManager : ExtensionAPI() {
                         }
 
                     }
-                }.onFailure { error(it) }
+                }.onFailure { errorDialog(it) }
 
 
             }
@@ -181,7 +171,7 @@ object ExtensionManager : ExtensionAPI() {
                     dialog(context = context,title = strings.failed.getString(), msg = "Installation of plugin ${ext.name} failed \nreason: \n$reason", onOk = {})
                 }
             }.onFailure {
-                error(it)
+                errorDialog(it)
             }
 
             return@withContext null

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,7 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
@@ -44,7 +42,6 @@ import com.rk.resources.strings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InfoBlock
-import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -54,7 +51,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.libcommons.dialog
-import com.rk.libcommons.error
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.safeLaunch
 import com.rk.settings.Preference
 import java.io.File
@@ -98,7 +95,7 @@ fun Extensions(modifier: Modifier = Modifier) {
             }
         }.onFailure {
             loading?.hide()
-            error(it)
+            errorDialog(it)
         }
 
     }

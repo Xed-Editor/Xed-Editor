@@ -17,7 +17,7 @@ import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.getInputView
-import com.rk.libcommons.error
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
@@ -282,7 +282,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                     return@safeLaunch
                 }else{
                     if (isAutoSaver.not()){
-                        error(it)
+                        errorDialog(it)
                     }
                     it.printStackTrace()
                 }

@@ -5,8 +5,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.error
-import com.rk.libcommons.toast
+import com.rk.libcommons.errorDialog
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -16,7 +15,6 @@ import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.R
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
-import kotlin.collections.indexOf
 
 var smoothTabs = Settings.smooth_tabs
 
@@ -40,7 +38,7 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
         val view = tab?.view
 
         if (view == null){
-            error(strings.unknown_err.getString())
+            errorDialog(strings.unknown_err.getString())
             return
         }
 

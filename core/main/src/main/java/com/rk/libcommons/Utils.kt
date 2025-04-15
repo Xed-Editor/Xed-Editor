@@ -1,12 +1,9 @@
 package com.rk.libcommons
 
 import android.app.Activity
-import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -28,8 +24,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -103,7 +97,7 @@ inline fun toastCatching(block: () -> Unit): Exception? {
         return null
     } catch (e: Exception) {
         e.printStackTrace()
-        error(e)
+        errorDialog(e)
         if (BuildConfig.DEBUG) {
             throw e
         }
@@ -200,7 +194,7 @@ fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, 
     }
 }
 
-fun error(msg: String){
+fun errorDialog(msg: String){
     if (msg.isBlank()){
         Log.w("Utils Error function","Message is blank")
         return
@@ -215,27 +209,27 @@ fun error(msg: String){
     dialog(title = strings.err.getString(), msg = msg, onOk = {})
 }
 
-fun error(@StringRes msgRes: Int){
-    error(msg = msgRes.getString())
+fun errorDialog(@StringRes msgRes: Int){
+    errorDialog(msg = msgRes.getString())
 }
 
 
-fun error(throwable: Throwable){
+fun errorDialog(throwable: Throwable){
     var message = StringBuilder()
     throwable.let {
         message.append(it.message).append("\n")
         message.append(it.stackTraceToString()).append("\n")
     }
 
-    error(msg = message.toString())
+    errorDialog(msg = message.toString())
 }
 
-fun error(exception: Exception){
+fun errorDialog(exception: Exception){
     var message = StringBuilder()
     exception.let {
         message.append(it.message).append("\n")
         message.append(it.stackTraceToString()).append("\n")
     }
 
-    error(msg = message.toString())
+    errorDialog(msg = message.toString())
 }

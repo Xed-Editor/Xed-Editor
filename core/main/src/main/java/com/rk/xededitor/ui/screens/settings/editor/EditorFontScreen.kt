@@ -22,17 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.libcommons.error
+import com.rk.libcommons.errorDialog
 import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import java.io.File
 import java.io.FileOutputStream
@@ -85,7 +82,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                     EditorFont.saveFonts()
                     toast(strings.font_added.getString())
                 }.onFailure { if (it.message?.isNotBlank() == true){
-                    error(it)
+                    errorDialog(it)
                 } }
             })
 

@@ -15,7 +15,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.core.content.ContextCompat
-import androidx.core.net.toFile
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
@@ -23,7 +22,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.badge.BadgeDrawable
-import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
@@ -39,11 +37,10 @@ import com.rk.libcommons.UI
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
-import com.rk.libcommons.error
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.mutator_engine.Engine
 import com.rk.runner.Runner
@@ -70,7 +67,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -78,7 +74,6 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import java.util.Collections
 
 class MainActivity : BaseActivity() {
 
@@ -325,7 +320,7 @@ class MainActivity : BaseActivity() {
                                 println(result)
                             }, onError = { t ->
                                 t.printStackTrace()
-                                error(it)
+                                errorDialog(t)
                             }, api = ImplAPI::class.java)
                         }
                         false
