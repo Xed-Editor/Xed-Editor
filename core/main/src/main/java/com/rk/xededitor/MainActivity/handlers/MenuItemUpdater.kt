@@ -64,26 +64,15 @@ private suspend fun updateEditor(
                 }
             }
 
-            if (show && showBadge){
-                println("visible")
-                MainActivity.withContext {
-                    badge?.let {
+            MainActivity.withContext {
+                badge?.let {
+                    if (show && showBadge){
                         BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
-                    }
-
-                }
-            }else{
-                println("gone")
-                MainActivity.withContext {
-                    badge?.let {
+                    }else{
                         BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
                     }
-
                 }
-
             }
-
-
             isVisible = show
         }
         findItem(Id.action_all).isVisible = show

@@ -8,6 +8,8 @@ import android.widget.HorizontalScrollView
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import com.google.android.material.badge.BadgeUtils
+import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.UI
@@ -231,6 +233,8 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
 
     private var lastSaveTime = 0L
+
+    @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     @OptIn(DelicateCoroutinesApi::class)
     fun save(isAutoSaver: Boolean = false) {
         if (isAutoSaver && isReadyToSave().not()) {
@@ -287,6 +291,13 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             toastCatching {
                 val charset = Settings.encoding
                 file!!.writeText(editor?.text.toString(),charset = Charset.forName(charset))
+                withContext(Dispatchers.Main){
+                    MainActivity.withContext {
+                        badge?.let {
+                            BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                        }
+                    }
+                }
             }?.let{
                 if (it is SecurityException){
                     toast(strings.read_only_file)
@@ -388,6 +399,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         return 4 >= t && isFileLoaded
     }
 
+    @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     private fun setChangeListener() = editor!!.subscribeAlways(ContentChangeEvent::class.java) {
         scope.safeLaunch {
             updateUndoRedo()
@@ -410,7 +422,15 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                         MainActivity.withContext {
                             tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
                         }
+                        MainActivity.withContext {
+                            badge?.let {
+                                BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                            }
+                        }
                     }
+
+
+
                 }
             }
         }
