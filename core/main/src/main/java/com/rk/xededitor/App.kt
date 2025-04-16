@@ -45,9 +45,10 @@ class App : Application() {
         Res.application = this
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
-        ANRWatchDog().start()
+
 
         if (BuildConfig.DEBUG){
+            ANRWatchDog().start()
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder().apply {
                     detectAll()
@@ -58,7 +59,6 @@ class App : Application() {
                             violation.printStackTrace()
                             violation.cause?.let { throw it }
                             println("vm policy error")
-                            
                         }
                     }
                 }.build()

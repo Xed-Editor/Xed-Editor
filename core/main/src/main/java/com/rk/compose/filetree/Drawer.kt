@@ -1,7 +1,7 @@
 package com.rk.compose.filetree
 
+import android.net.Uri
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,23 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
@@ -38,17 +35,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.Gson
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
+import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.alpineDir
 import com.rk.libcommons.alpineHomeDir
-import com.rk.libcommons.application
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -56,23 +52,20 @@ import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
-import com.rk.xededitor.MainActivity.MainActivity.TabViewModelState
 import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
+import java.io.Serializable
 
-class Projects(val projects: MutableList<FileObjectWrapper>)
-data class FileObjectWrapper(val fileObject: FileObject,val name: String){
+
+data class FileObjectWrapper(val fileObject: FileObject,val name: String): Serializable{
     override fun equals(other: Any?): Boolean {
         if (other is FileObject){
             return other == fileObject
@@ -82,19 +75,25 @@ data class FileObjectWrapper(val fileObject: FileObject,val name: String){
         }
         return other.fileObject == fileObject
     }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + fileObject.hashCode()
+        result = 31 * result + name.hashCode()
+        return result
+    }
 }
 
 
 private val mutex = Mutex()
 
-private suspend fun save(projects: Projects){
+private suspend fun save(){
     mutex.withLock{
         withContext(Dispatchers.IO){
-            FileOutputStream(File(application!!.cacheDir,"projects").also { if (it.exists()){it.delete()} }).use { fileOutputStream ->
-                ObjectOutputStream(fileOutputStream).use {
-                    it.writeObject(projects)
-                }
-            }
+            val gson = Gson()
+            val uniqueProjects = projects.map { it.fileObject.getAbsolutePath() }
+            val jsonString = gson.toJson(uniqueProjects)
+            Settings.projects = jsonString
         }
     }
 }
@@ -103,15 +102,21 @@ private suspend fun restore(){
     mutex.withLock{
         withContext(Dispatchers.IO){
             runCatching {
-                val stateFile = File(application!!.cacheDir,"projects")
-                if (stateFile.exists()) {
-                    FileInputStream(stateFile).use { fileInputStream ->
-                        ObjectInputStream(fileInputStream).use {
-                            val state = it.readObject() as Projects
-                            projects.clear()
-                            projects.addAll(state.projects)
+                val jsonString = Settings.projects
+                if (jsonString.isNotEmpty()) {
+                    val gson = Gson()
+                    val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
+
+                    projectsList.forEach {
+                        val file = File(it)
+                        if (file.exists()) {
+                            addProject(FileWrapper(file))
+                        } else {
+                            addProject(UriWrapper(Uri.parse(it)))
                         }
+                        delay(200)
                     }
+
                 }
             }.onFailure { it.printStackTrace() }
         }
@@ -130,7 +135,7 @@ fun addProject(fileObject: FileObject){
     projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
     currentProject = fileObject
     GlobalScope.launch(Dispatchers.IO){
-        save(Projects(projects = projects))
+        save()
     }
 }
 
@@ -144,7 +149,7 @@ fun removeProject(fileObject: FileObject){
         }
     }
     GlobalScope.launch(Dispatchers.IO){
-        save(Projects(projects = projects))
+        save()
     }
 }
 
