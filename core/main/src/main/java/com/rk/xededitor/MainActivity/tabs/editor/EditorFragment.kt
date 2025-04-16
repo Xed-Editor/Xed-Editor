@@ -233,6 +233,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
 
     private var lastSaveTime = 0L
+    private val saveMutex = Mutex()
 
     @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     @OptIn(DelicateCoroutinesApi::class)
@@ -266,27 +267,30 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
 
         GlobalScope.safeLaunch(Dispatchers.IO) {
-            runCatching {
-                val charset = Settings.encoding
-                val text = editor?.text.toString()
-                if (isAutoSaver && text.isBlank()){
-                    return@safeLaunch
-                }
-                file!!.writeText(text,charset = Charset.forName(charset))
-                lastSaveTime = System.currentTimeMillis()
-            }.onFailure {
-                if (it is SecurityException){
-                    if (isAutoSaver.not()){
-                        toast(strings.read_only_file)
+            saveMutex.withLock{
+                runCatching {
+                    val charset = Settings.encoding
+                    val text = editor?.text.toString()
+                    if (isAutoSaver && text.isBlank()){
+                        return@safeLaunch
                     }
-                    return@safeLaunch
-                }else{
-                    if (isAutoSaver.not()){
-                        errorDialog(it)
+                    file!!.writeText(text,charset = Charset.forName(charset))
+                    lastSaveTime = System.currentTimeMillis()
+                }.onFailure {
+                    if (it is SecurityException){
+                        if (isAutoSaver.not()){
+                            toast(strings.read_only_file)
+                        }
+                        return@safeLaunch
+                    }else{
+                        if (isAutoSaver.not()){
+                            errorDialog(it)
+                        }
+                        it.printStackTrace()
                     }
-                    it.printStackTrace()
                 }
             }
+
 
             toastCatching {
                 val charset = Settings.encoding
