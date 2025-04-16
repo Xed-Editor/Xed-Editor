@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import com.rk.compose.filetree.addProject
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
@@ -97,9 +98,9 @@ class FileManager(private val mainActivity: MainActivity) {
 
                 parentFile?.let {
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.CurrentProject.updateFileAdded(
-                            mainActivity, it
-                        )
+//                        ProjectManager.CurrentProject.updateFileAdded(
+//                            mainActivity, it
+//                        )
                     }
                 }
             }
@@ -112,7 +113,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 val file = File(it.data!!.data!!.toPath())
                 if (file.exists() && file.canRead()) {
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.addProject(mainActivity, FileWrapper(file))
+                        //ProjectManager.addProject(mainActivity, FileWrapper(file))
                     }
                 } else {
                     runCatching {
@@ -124,9 +125,9 @@ class FileManager(private val mainActivity: MainActivity) {
                     }.onFailure { it.printStackTrace() }
 
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.addProject(
-                            mainActivity, UriWrapper(it.data!!.data!!)
-                        )
+//                        ProjectManager.addProject(
+//                            mainActivity, UriWrapper(it.data!!.data!!)
+//                        )
                     }
                 }
 
@@ -302,7 +303,8 @@ class FileManager(private val mainActivity: MainActivity) {
 
                 if (file.isDirectory) {
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.addProject(mainActivity, FileWrapper(file))
+                        //ProjectManager.addProject(mainActivity, FileWrapper(file))
+                        addProject(FileWrapper(file))
                     }
                 } else {
                     mainActivity.adapter!!.addFragment(FileWrapper(file))

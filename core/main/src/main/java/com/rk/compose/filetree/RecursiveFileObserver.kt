@@ -1,10 +1,8 @@
-package com.rk.filetree.provider
+package com.rk.compose.filetree
 
 import android.os.FileObserver
-import android.util.Log
 import com.rk.file_wrapper.FileWrapper
-import com.rk.filetree.provider.RecursiveFileObserver.SingleFileObserver
-import com.rk.filetree.widget.FileTree
+import com.rk.compose.filetree.RecursiveFileObserver.SingleFileObserver
 import com.rk.libcommons.DefaultScope
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.Kee
@@ -22,7 +20,7 @@ import java.util.Stack
  * @version  2011.0121
  */
 
-class RecursiveFileObserver @JvmOverloads constructor(path: String?, mask: Int = ALL_EVENTS,val fileTree: FileTree) :
+class RecursiveFileObserver @JvmOverloads constructor(path: String?, mask: Int = ALL_EVENTS) :
     FileObserver(path, mask) {
     private var mObservers: MutableList<SingleFileObserver>? = null
     var mPath: String?
@@ -101,7 +99,7 @@ class RecursiveFileObserver @JvmOverloads constructor(path: String?, mask: Int =
                 DefaultScope.launch{
                     delay(500)
                     val file = File(correctPath)
-                    fileTree.onFileAdded(FileWrapper(file.parentFile!!))
+                    fileTreeViewModel?.updateCache(FileWrapper(file = file))
                 }
             }
 
@@ -109,7 +107,7 @@ class RecursiveFileObserver @JvmOverloads constructor(path: String?, mask: Int =
                 DefaultScope.launch{
                     delay(500)
                     val file = File(correctPath)
-                    fileTree.reloadFileChildren(FileWrapper(file.parentFile!!))
+                    fileTreeViewModel?.updateCache(FileWrapper(file = file))
                 }
             }
         }

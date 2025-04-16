@@ -30,7 +30,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.ProjectManager
+//import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.delay

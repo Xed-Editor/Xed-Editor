@@ -80,48 +80,10 @@
         android:layout_gravity="start"
        >
 
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="8dp"
-            android:foregroundGravity="center"
-            android:visibility="gone" />
-
-        <!-- Container for NavigationRailView -->
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <com.rk.xededitor.MainActivity.file.ProjectView
-                android:id="@+id/navigation_rail"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                app:labelVisibilityMode="labeled"
-                app:menu="@menu/navigation_rail_menu" />
-
-            <com.google.android.material.divider.MaterialDivider
-                android:layout_width="1px"
-                android:layout_height="match_parent" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:id="@+id/maindrawer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
+        <androidx.compose.ui.platform.ComposeView
+            android:layout_width="match_parent"
+            android:id="@+id/drawerCompose"
+            android:layout_height="match_parent"/>
     </com.google.android.material.navigation.NavigationView>
 
 

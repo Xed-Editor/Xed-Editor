@@ -14,6 +14,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -26,11 +28,11 @@ import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.compose.filetree.DrawerContent
 import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
-import com.rk.filetree.widget.FileTree
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.UI
@@ -47,7 +49,6 @@ import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
-import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
@@ -61,6 +62,7 @@ import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
+import com.rk.xededitor.ui.theme.KarbonTheme
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -241,9 +243,6 @@ class MainActivity : BaseActivity() {
         setupTabLayout()
         setupAdapter()
 
-        ProjectManager.restoreProjects(this)
-        ProjectBar.setupNavigationRail(this)
-
         if (tabViewModel.fragmentFiles.isNotEmpty()) {
             binding!!.tabs.visibility = View.VISIBLE
             binding!!.mainView.visibility = View.VISIBLE
@@ -268,6 +267,14 @@ class MainActivity : BaseActivity() {
             while (true) {
                 delay(1500)
                 updateMenu(adapter?.getCurrentFragment())
+            }
+        }
+
+        binding!!.drawerCompose.let {
+            it.setContent {
+                KarbonTheme {
+                    DrawerContent(modifier = Modifier.fillMaxSize())
+                }
             }
         }
     }
@@ -384,23 +391,6 @@ class MainActivity : BaseActivity() {
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
-        lifecycleScope.launch(Dispatchers.IO){
-            val projects = ProjectManager.projects.toMap()
-            for (project in projects.entries){
-                toastCatching {
-                    if (binding?.navigationRail?.menu?.findItem(project.key)?.title == "Termux"){
-                        UI {
-                            val view: ViewGroup = binding!!.maindrawer.findViewById(project.value.hashCode()+8264196)
-                            (view.getChildAt(0) as FileTree).reloadFileChildren(UriWrapper(Uri.parse(project.value)))
-                        }
-                    }
-                }
-
-            }
-            kotlinx.coroutines.withContext(Dispatchers.Main){
-                ProjectManager.processQueue(this@MainActivity)
-            }
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

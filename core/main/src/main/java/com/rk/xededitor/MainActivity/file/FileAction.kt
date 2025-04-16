@@ -14,6 +14,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.compose.filetree.fileTreeViewModel
+import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
@@ -70,9 +72,10 @@ class FileAction(
                     getString(strings.close_current_project),
                     getDrawable(drawables.close),
                 ) {
-                    ProjectManager.removeProject(
-                        mainActivity, rootFolder
-                    )
+//                    ProjectManager.removeProject(
+//                        mainActivity, rootFolder
+//                    )
+                    removeProject(rootFolder)
                 }
             }
 
@@ -84,7 +87,8 @@ class FileAction(
                     getDrawable(drawables.refresh),
                 ) {
                     mainActivity.lifecycleScope.launch {
-                        ProjectManager.CurrentProject.refresh(mainActivity, parent = file)
+                        //ProjectManager.CurrentProject.refresh(mainActivity, parent = file)
+                        fileTreeViewModel?.updateCache(file)
                     }
                 }
 
@@ -196,9 +200,11 @@ class FileAction(
                     .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
                         val loading = LoadingPopup(mainActivity, null).show()
                         mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                            ProjectManager.CurrentProject.updateFileDeleted(
-                                mainActivity, file
-                            )
+//                            ProjectManager.CurrentProject.updateFileDeleted(
+//                                mainActivity, file
+//                            )
+                            file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
+
                             runCatching {
                                 val success = file.delete()
                                 withContext(Dispatchers.Main) {
@@ -279,6 +285,8 @@ class FileAction(
 
                                     FileClipboard.clear()
                                 }
+
+                                fileTreeViewModel?.updateCache(file)
                             }
                         }
                     }
@@ -324,7 +332,8 @@ class FileAction(
                 }.onSuccess {
                     withContext(Dispatchers.Main) {
                         loading.hide()
-                        ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
+                        //ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
+                        file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
                     }
                 }.onFailure {
                     it.printStackTrace()
@@ -386,18 +395,17 @@ class FileAction(
                         }
 
                         withContext(Dispatchers.Main) {
-                            ProjectManager.CurrentProject.updateFileRenamed(
-                                mainActivity, file, file
-                            )
+                            file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
                         }
                     }.onFailure {
                         it.printStackTrace()
                         withContext(Dispatchers.Main) {
                             loading.hide()
+                        }
                             errorDialog(it)
                         }
 
-                    }.onSuccess {
+                    .onSuccess {
                         withContext(Dispatchers.Main) {
                             loading.hide()
                         }

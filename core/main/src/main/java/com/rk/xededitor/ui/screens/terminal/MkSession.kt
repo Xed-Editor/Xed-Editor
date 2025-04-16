@@ -13,7 +13,7 @@ import com.rk.settings.Settings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.ProjectManager
+//import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -37,21 +37,23 @@ object MkSession {
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
             )
 
-            fun getPwd(): String {
-                return if (intent.hasExtra("cwd")) {
-                    intent.getStringExtra("cwd").toString()
-                } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
-                    val fileObject =
-                        ProjectManager.CurrentProject.getRoot(MainActivity.activityRef.get()!!)
-                    var path = Environment.getExternalStorageDirectory().path
-                    if (fileObject is FileWrapper) {
-                        path = fileObject.getAbsolutePath()
-                    }
-                    path
-                } else {
-                    Environment.getExternalStorageDirectory().path
-                }
-            }
+//            fun getPwd(): String {
+//                return if (intent.hasExtra("cwd")) {
+//                    intent.getStringExtra("cwd").toString()
+//                } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
+//                    val fileObject =
+//                        ProjectManager.CurrentProject.getRoot(MainActivity.activityRef.get()!!)
+//                    var path = Environment.getExternalStorageDirectory().path
+//                    if (fileObject is FileWrapper) {
+//                        path = fileObject.getAbsolutePath()
+//                    }
+//                    path
+//                } else {
+//                    Environment.getExternalStorageDirectory().path
+//                }
+//            }
+
+            fun getPwd() = Environment.getExternalStorageDirectory().path
 
             val workingDir = pendingCommand?.workingDir ?: getPwd()
 
