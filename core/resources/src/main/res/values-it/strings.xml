@@ -326,7 +326,7 @@
     <string name="script_showing_dialog">Mostrando una finestra di dialogo</string>
     <string name="installing">Installazione…</string>
     <string name="script_text">questo testo sarà scritto nell\'editor</string>
-    <string name="not_plugin_err">Il file selezionato non è un file .plugin</string>
+    <string name="not_plugin_err">Il file selezionato non è un file .apk</string>
     <string name="no_mutators">Nessun mutatore</string>
     <string name="name_empty_err">Il nome non può essere vuoto</string>
     <string name="terminal_runtime_desc">Seleziona Tempo di Esecuzione del Terminale</string>
@@ -384,4 +384,5 @@
     <string name="success">Successo</string>
     <string name="invalidpath">Percorso non valido</string>
     <string name="failed">Fallito</string>
+    <string name="unknown_err">Qualcosa è andato storto</string>
 </resources>
