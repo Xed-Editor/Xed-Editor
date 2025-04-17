@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -169,16 +170,21 @@ fun DrawerContent(modifier: Modifier = Modifier) {
         }else{
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
 
-                NavigationRail(modifier = Modifier.width(50.dp)) {
+                val scope = rememberCoroutineScope()
+                NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
-                        ProjectItem(selected = file.fileObject == currentProject, icon = {
+                        NavigationRailItem(selected = file.fileObject == currentProject, icon = {
                             Icon(painter = painterResource(drawables.outline_folder_24),contentDescription = null)
                         }, onClick = {
-                            currentProject = file.fileObject
-                        }, label = file.name)
+                            scope.launch{
+                                delay(150)
+                                currentProject = file.fileObject
+                            }
+
+                        }, label = {Text(file.name, maxLines = 1, overflow = TextOverflow.Ellipsis)})
                     }
 
-                    ProjectItem(selected = false, icon = {
+                    NavigationRailItem(selected = false, icon = {
                         Icon(imageVector = Icons.Outlined.Add,contentDescription = null)
                     }, onClick = {
                         //show add popup
@@ -270,7 +276,9 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                             handleAddNew()
                         }
-                    }, label = "Add")
+                    }, label = {
+                        Text("Add")
+                    })
                 }
 
                 Crossfade(targetState = currentProject) { project ->
