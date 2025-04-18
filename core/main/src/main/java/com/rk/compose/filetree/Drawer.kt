@@ -65,6 +65,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable
+import java.net.URI
 
 
 data class FileObjectWrapper(val fileObject: FileObject,val name: String): Serializable{
@@ -174,7 +175,12 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
                         NavigationRailItem(selected = file.fileObject == currentProject, icon = {
-                            Icon(painter = painterResource(drawables.outline_folder_24),contentDescription = null)
+                            val iconId = if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == alpineHomeDir())){
+                                drawables.terminal
+                            }else{
+                                drawables.outline_folder_24
+                            }
+                            Icon(painter = painterResource(iconId),contentDescription = null)
                         }, onClick = {
                             scope.launch{
                                 delay(50)

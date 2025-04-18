@@ -1,6 +1,7 @@
 package com.rk.compose.filetree
 
 import android.graphics.drawable.Drawable
+import android.os.Environment
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -470,10 +471,15 @@ private fun FileTreeNodeItem(
 }
 
 fun FileObject.toFileTreeNode(): FileTreeNode {
+    val name: String = if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath){
+        "Storage"
+    }else{
+        getName()
+    }
     return FileTreeNode(
         file = this,
         isFile = isFile(),
         isDirectory = isDirectory(),
-        name = getName()
+        name = name
     )
 }
