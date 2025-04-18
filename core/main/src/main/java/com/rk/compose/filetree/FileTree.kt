@@ -387,7 +387,7 @@ private fun FileTreeNodeItem(
                     },
                     onLongClick = {
                         scope.launch{
-                            delay(200)
+                            delay(100)
                             onFileLongClick(node)
                         }
 

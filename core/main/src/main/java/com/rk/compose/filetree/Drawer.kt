@@ -2,7 +2,9 @@ package com.rk.compose.filetree
 
 import android.net.Uri
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -117,7 +119,7 @@ private suspend fun restore(){
                         } else {
                             addProject(UriWrapper(Uri.parse(it)))
                         }
-                        delay(200)
+                        delay(100)
                     }
 
                 }
@@ -156,6 +158,7 @@ fun removeProject(fileObject: FileObject){
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -174,7 +177,8 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 val scope = rememberCoroutineScope()
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
-                        NavigationRailItem(selected = file.fileObject == currentProject, icon = {
+                        NavigationRailItem(
+                            selected = file.fileObject == currentProject, icon = {
                             val iconId = if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == alpineHomeDir())){
                                 drawables.terminal
                             }else{
