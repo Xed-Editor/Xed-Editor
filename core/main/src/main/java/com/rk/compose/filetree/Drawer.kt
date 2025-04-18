@@ -23,6 +23,7 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -169,7 +170,6 @@ fun DrawerContent(modifier: Modifier = Modifier) {
             CircularProgressIndicator()
         }else{
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
-
                 val scope = rememberCoroutineScope()
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
@@ -177,7 +177,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             Icon(painter = painterResource(drawables.outline_folder_24),contentDescription = null)
                         }, onClick = {
                             scope.launch{
-                                delay(150)
+                                delay(50)
                                 currentProject = file.fileObject
                             }
 
@@ -280,6 +280,8 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         Text("Add")
                     })
                 }
+
+                VerticalDivider()
 
                 Crossfade(targetState = currentProject) { project ->
                     if (project != null){
