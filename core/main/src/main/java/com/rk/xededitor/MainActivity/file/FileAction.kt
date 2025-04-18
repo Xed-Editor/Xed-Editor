@@ -196,9 +196,6 @@ class FileAction(
                     .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
                         val loading = LoadingPopup(mainActivity, null).show()
                         mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-//                            ProjectManager.CurrentProject.updateFileDeleted(
-//                                mainActivity, file
-//                            )
                             file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
 
                             runCatching {

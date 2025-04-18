@@ -187,7 +187,6 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun updateCache(file: FileObject) {
-        println("updating ${file.getAbsolutePath()}")
         if (file.isFile()){
             throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
         }
@@ -469,16 +468,19 @@ private fun FileTreeNodeItem(
     }
 }
 
-fun FileObject.toFileTreeNode(): FileTreeNode {
-    val name: String = if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath){
+fun FileObject.getAppropriateName(): String{
+    return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath){
         "Storage"
     }else{
         getName()
     }
+}
+
+fun FileObject.toFileTreeNode(): FileTreeNode {
     return FileTreeNode(
         file = this,
         isFile = isFile(),
         isDirectory = isDirectory(),
-        name = name
+        name = getAppropriateName()
     )
 }

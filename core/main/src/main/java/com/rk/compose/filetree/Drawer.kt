@@ -191,7 +191,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 currentProject = file.fileObject
                             }
 
-                        }, label = {Text(file.name, maxLines = 1, overflow = TextOverflow.Ellipsis)})
+                        }, label = {Text(file.fileObject.getAppropriateName(), maxLines = 1, overflow = TextOverflow.Ellipsis)})
                     }
 
                     NavigationRailItem(selected = false, icon = {
