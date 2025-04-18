@@ -31,6 +31,8 @@ object UpdateManager {
         if (lastVersionCode != currentVersionCode){
             //app is updated
             when(lastVersionCode){
+                //what to do if the last version code matches this
+
                 -1L -> {
                     deleteCommonFiles()
                 }
@@ -38,6 +40,9 @@ object UpdateManager {
                     Preference.clearData()
                     deleteCommonFiles()
                     toast(strings.update_files_cleared)
+                }
+                48L -> {
+                    deleteCommonFiles()
                 }
                 else -> {
                     deleteCommonFiles()

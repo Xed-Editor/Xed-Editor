@@ -72,9 +72,6 @@ class FileAction(
                     getString(strings.close_current_project),
                     getDrawable(drawables.close),
                 ) {
-//                    ProjectManager.removeProject(
-//                        mainActivity, rootFolder
-//                    )
                     removeProject(rootFolder)
                 }
             }
@@ -87,7 +84,6 @@ class FileAction(
                     getDrawable(drawables.refresh),
                 ) {
                     mainActivity.lifecycleScope.launch {
-                        //ProjectManager.CurrentProject.refresh(mainActivity, parent = file)
                         fileTreeViewModel?.updateCache(file)
                     }
                 }
@@ -332,8 +328,7 @@ class FileAction(
                 }.onSuccess {
                     withContext(Dispatchers.Main) {
                         loading.hide()
-                        //ProjectManager.CurrentProject.updateFileAdded(mainActivity, file)
-                        file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
+                        fileTreeViewModel?.updateCache(file)
                     }
                 }.onFailure {
                     it.printStackTrace()

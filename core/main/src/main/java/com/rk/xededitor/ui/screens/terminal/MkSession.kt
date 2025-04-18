@@ -1,6 +1,8 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
+import com.rk.compose.filetree.currentProject
+import com.rk.compose.filetree.projects
 import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
@@ -9,6 +11,7 @@ import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
+import com.rk.libcommons.toast
 import com.rk.settings.Settings
 import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.BuildConfig
@@ -34,28 +37,24 @@ object MkSession {
                 "ANDROID_TZDATA_ROOT" to System.getenv("ANDROID_TZDATA_ROOT"),
                 "BOOTCLASSPATH" to System.getenv("BOOTCLASSPATH"),
                 "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
-                "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE")
+                "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE"),
+                "PATH" to System.getenv("PATH")
             )
 
-//            fun getPwd(): String {
-//                return if (intent.hasExtra("cwd")) {
-//                    intent.getStringExtra("cwd").toString()
-//                } else if (MainActivity.activityRef.get() != null && ProjectManager.projects.isNotEmpty()) {
-//                    val fileObject =
-//                        ProjectManager.CurrentProject.getRoot(MainActivity.activityRef.get()!!)
-//                    var path = Environment.getExternalStorageDirectory().path
-//                    if (fileObject is FileWrapper) {
-//                        path = fileObject.getAbsolutePath()
-//                    }
-//                    path
-//                } else {
-//                    Environment.getExternalStorageDirectory().path
-//                }
-//            }
+            fun getPwd() = if (intent.hasExtra("cwd")){
+                intent.getStringExtra("cwd").toString()
+            }else if (currentProject != null){
+                if (currentProject is FileWrapper){
+                    currentProject!!.getAbsolutePath()
+                }else{
+                    //toast("Current project ${currentProject?.getName()} is not a native directory")
+                    Environment.getExternalStorageDirectory().path
+                }
+            }else{
+                Environment.getExternalStorageDirectory().path
+            }
 
-            fun getPwd() = Environment.getExternalStorageDirectory().path
-
-            val workingDir = pendingCommand?.workingDir ?: getPwd()
+            val workingDir = (pendingCommand?.workingDir ?: getPwd())
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 

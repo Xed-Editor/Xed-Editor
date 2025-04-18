@@ -186,11 +186,10 @@ class FileTreeViewModel : ViewModel() {
         }
     }
 
-    fun updateCache(xfile: FileObject) {
-        val file = if (xfile.isFile()){
-            xfile.getParentFile()!!
-        }else{
-            xfile
+    fun updateCache(file: FileObject) {
+        println("updating ${file.getAbsolutePath()}")
+        if (file.isFile()){
+            throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
         }
         viewModelScope.launch(Dispatchers.IO) {
             val path = file.getAbsolutePath()

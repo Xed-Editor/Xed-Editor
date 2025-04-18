@@ -13,6 +13,7 @@ import androidx.annotation.StringRes
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.rk.compose.filetree.addProject
+import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
@@ -96,12 +97,8 @@ class FileManager(private val mainActivity: MainActivity) {
 
                 copyUriData(mainActivity.contentResolver,sourceUri,destinationUri)
 
-                parentFile?.let {
-                    mainActivity.lifecycleScope.launch {
-//                        ProjectManager.CurrentProject.updateFileAdded(
-//                            mainActivity, it
-//                        )
-                    }
+                mainActivity.lifecycleScope.launch {
+                    fileTreeViewModel?.updateCache(parentFile!!)
                 }
             }
             parentFile = null

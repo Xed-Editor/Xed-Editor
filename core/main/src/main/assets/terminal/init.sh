@@ -2,7 +2,7 @@ set -e  # Exit immediately on Failure
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin
 export HOME=/root
-
+cd "$XPWD"
 export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@karbon \[\033[39m\]\w \[\033[0m\]\\$ "
 START_SHELL="/bin/bash"
 # shellcheck disable=SC2034
@@ -33,6 +33,5 @@ fi
 if [ "$#" -eq 0 ]; then
     $START_SHELL
 else
-    # shellcheck disable=SC2068
     exec "$@"
 fi

@@ -1,5 +1,6 @@
 ARGS="--kill-on-exit"
-ARGS="$ARGS -w $PWD"
+ARGS="$ARGS -w /"
+export XPWD=$PWD
 
 for system_mnt in /apex /odm /product /system /system_ext /vendor \
  /linkerconfig/ld.config.txt \
