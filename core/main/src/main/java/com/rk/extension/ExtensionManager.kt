@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.file_wrapper.FileObject
+import com.rk.libcommons.PopupButton
+import com.rk.libcommons.PopupButtonType
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
@@ -96,12 +98,15 @@ object ExtensionManager : ExtensionAPI() {
                             }
                             extPackages[ext.packageName] = ext.apkFile.absolutePath
                         }else{
-                            errorDialog(
-                                "Cannot load plugin:\n" +
-                                        "A plugin with package name '${ext.packageName}' is already registered.\n" +
-                                        "Conflicting file: ${ext.apkFile.absolutePath}\n\n" +
-                                        "Please make sure plugins have unique package names."
-                            )
+                            dialog(title = strings.err.getString(), msg = "Cannot load plugin:\n" +
+                                    "A plugin with package name '${ext.packageName}' is already registered.\n" +
+                                    "Conflicting file: ${ext.apkFile.absolutePath}\n\n" +
+                                    "Please make sure plugins have unique package names.", extraButtons = arrayOf(
+                                PopupButton(label = strings.delete.getString(), type = PopupButtonType.POSITIVE, listener = {
+                                    ext.apkFile.delete()
+                                    toast("deleted ${ext.apkFile.path}")
+                                    it.dismiss()
+                                }),PopupButton(label = strings.ok.getString(), type = PopupButtonType.NEGATIVE)))
                         }
 
                     }
