@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.libcommons.errorDialog
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import dalvik.system.DexClassLoader
@@ -71,8 +72,6 @@ class Extension(
             val pm = application.packageManager
             val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(application.packageName, 0))
             ExtensionManager.extensions.keys.forEach { extension ->
-
-
                 val info = pm.getPackageArchiveInfo(extension.apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
                 info.applicationInfo!!.sourceDir = extension.apkFile.absolutePath
                 info.applicationInfo!!.publicSourceDir = extension.apkFile.absolutePath
@@ -88,6 +87,8 @@ class Extension(
                             extension.load()
                         }
                     }
+                }else{
+                    errorDialog("Plugin ${extension.packageName} failed to load due to incompatible sdk versions \nxedVersionCode = $xedVersionCode\nminSdkVersion = $minSdkVersion\ntargetSdkVersion = $targetSdkVersion")
                 }
 
 

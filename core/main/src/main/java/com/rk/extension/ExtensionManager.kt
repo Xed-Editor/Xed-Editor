@@ -91,14 +91,10 @@ object ExtensionManager : ExtensionAPI() {
                             Preference.setBoolean("ext_${ext.packageName}", false)
                         }
 
-                        if (extensions[ext] == null) {
-                            extensions[ext] = null
-                        }
+                        extensions[ext] = extensions[ext]
 
                     }
                 }.onFailure { errorDialog(it) }
-
-
             }
 
             extensions
