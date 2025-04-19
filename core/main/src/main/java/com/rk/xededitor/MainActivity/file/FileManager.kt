@@ -110,7 +110,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 val file = File(it.data!!.data!!.toPath())
                 if (file.exists() && file.canRead()) {
                     mainActivity.lifecycleScope.launch {
-                        //ProjectManager.addProject(mainActivity, FileWrapper(file))
+                        addProject(FileWrapper(file))
                     }
                 } else {
                     runCatching {
@@ -121,11 +121,15 @@ class FileManager(private val mainActivity: MainActivity) {
                         )
                     }.onFailure { it.printStackTrace() }
 
-                    mainActivity.lifecycleScope.launch {
-//                        ProjectManager.addProject(
-//                            mainActivity, UriWrapper(it.data!!.data!!)
-//                        )
+                    val uri = it.data?.data
+
+                    uri?.let {
+                        mainActivity.lifecycleScope.launch {
+                            addProject(UriWrapper(it))
+                        }
                     }
+
+
                 }
 
             }
