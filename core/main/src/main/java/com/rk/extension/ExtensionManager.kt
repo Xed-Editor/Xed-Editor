@@ -30,6 +30,7 @@ import java.io.FileOutputStream
 object ExtensionManager : ExtensionAPI() {
     val isLoaded = mutableStateOf(false)
     val extensions = mutableStateMapOf<Extension, ExtensionAPI?>()
+    val extPackages = hashMapOf<String, String>()
 
     init {
         if (isLoaded.value.not() && isPluginEnabled()) {
@@ -89,11 +90,12 @@ object ExtensionManager : ExtensionAPI() {
                             Preference.setBoolean("ext_${ext.packageName}", false)
                         }
 
-                        if (extensions.containsKey(ext).not()) {
+                        if (extPackages[ext.packageName] == null || extPackages[ext.packageName] == ext.apkFile.absolutePath){
                             if (extensions[ext] == null) {
                                 extensions[ext] = null
                             }
-                        } else {
+                            extPackages[ext.packageName] = ext.apkFile.absolutePath
+                        }else{
                             errorDialog(
                                 "Cannot load plugin:\n" +
                                         "A plugin with package name '${ext.packageName}' is already registered.\n" +
