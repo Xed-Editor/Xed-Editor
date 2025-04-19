@@ -19,6 +19,7 @@ import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
+import com.rk.xededitor.App
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -44,14 +45,18 @@ object ExtensionManager : ExtensionAPI() {
     suspend fun indexPlugins(context: Application): Map<Extension, ExtensionAPI?> =
         withContext(Dispatchers.IO) {
             val pm = context.packageManager
-            val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
+            val xedVersionCode =
+                PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
 
             context.pluginDir.listFiles()?.forEach { file ->
 
                 runCatching {
                     if (file.exists() && file.isFile && file.canRead() && file.name.endsWith(".apk")) {
 
-                        val info = pm.getPackageArchiveInfo(file.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
+                        val info = pm.getPackageArchiveInfo(
+                            file.absolutePath,
+                            PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
+                        )!!
                         info.applicationInfo!!.sourceDir = file.absolutePath
                         info.applicationInfo!!.publicSourceDir = file.absolutePath
 
@@ -59,14 +64,14 @@ object ExtensionManager : ExtensionAPI() {
 
                         val metadata = appInfo.metaData
 
-                        val versionCode = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P){
+                        val versionCode = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                             info.longVersionCode
-                        }else{
+                        } else {
                             info.versionCode.toLong()
                         }
 
-                        val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
-                        val targetSdkVersion = metadata.getInt("targetXedVersionCode",-1)
+                        val minSdkVersion = metadata.getInt("minXedVersionCode", -1)
+                        val targetSdkVersion = metadata.getInt("targetXedVersionCode", -1)
 
 
                         val ext = Extension(
@@ -79,13 +84,22 @@ object ExtensionManager : ExtensionAPI() {
                             apkFile = file
                         )
 
-                        if (!(minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode)){
+                        if (!(minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode)) {
                             //disable plugin
                             Preference.setBoolean("ext_${ext.packageName}", false)
                         }
 
-                        if (extensions[ext] == null) {
-                            extensions[ext] = null
+                        if (extensions.containsKey(ext).not()) {
+                            if (extensions[ext] == null) {
+                                extensions[ext] = null
+                            }
+                        } else {
+                            errorDialog(
+                                "Cannot load plugin:\n" +
+                                        "A plugin with package name '${ext.packageName}' is already registered.\n" +
+                                        "Conflicting file: ${ext.apkFile.absolutePath}\n\n" +
+                                        "Please make sure plugins have unique package names."
+                            )
                         }
 
                     }
@@ -108,7 +122,7 @@ object ExtensionManager : ExtensionAPI() {
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun installPlugin(context: Activity, fileObject: FileObject) =
         withContext(Dispatchers.IO) {
-            val apkFile = File(context.pluginDir, fileObject.getName()).createFileIfNot()
+            val apkFile = File(App.getTempDir(), fileObject.getName()).createFileIfNot()
             runCatching {
                 if (!isPluginEnabled()) return@withContext null
 
@@ -119,7 +133,10 @@ object ExtensionManager : ExtensionAPI() {
                 }
 
                 val pm = context.packageManager
-                val info = pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
+                val info = pm.getPackageArchiveInfo(
+                    apkFile.absolutePath,
+                    PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
+                )!!
 
                 // Set APK sourceDir to make metadata accessible
                 info.applicationInfo!!.sourceDir = apkFile.absolutePath
@@ -127,22 +144,26 @@ object ExtensionManager : ExtensionAPI() {
 
                 val appInfo = info.applicationInfo!!
 
-                val destFile = context.pluginDir.child(appInfo.packageName+".apk")
+                val destFile = context.pluginDir.child(appInfo.packageName + ".apk")
 
                 // Make sure the directory exists
                 destFile.parentFile?.mkdirs()
 
                 val metadata = appInfo.metaData
 
-                val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
-                val targetSdkVersion = metadata.getInt("targetXedVersionCode",-1)
-                val xedVersionCode = PackageInfoCompat.getLongVersionCode(context.packageManager.getPackageInfo(context.packageName, 0))
+                val minSdkVersion = metadata.getInt("minXedVersionCode", -1)
+                val targetSdkVersion = metadata.getInt("targetXedVersionCode", -1)
+                val xedVersionCode = PackageInfoCompat.getLongVersionCode(
+                    context.packageManager.getPackageInfo(
+                        context.packageName,
+                        0
+                    )
+                )
 
 
-
-                val versionCode = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P){
+                val versionCode = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                     info.longVersionCode
-                }else{
+                } else {
                     info.versionCode.toLong()
                 }
 
@@ -156,7 +177,7 @@ object ExtensionManager : ExtensionAPI() {
                     apkFile = destFile
                 )
 
-                if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
+                if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode) {
 
                     // Copy the APK to plugin directory
                     apkFile.copyTo(destFile, overwrite = true)
@@ -167,22 +188,31 @@ object ExtensionManager : ExtensionAPI() {
                     }
 
                     toast(strings.success)
-                }else{
-                    val reason: String = if (minSdkVersion > xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1){
-                        "Xed-Editor is outdated minimum version code required is $minSdkVersion while current version code is $xedVersionCode"
-                    }else if (targetSdkVersion < xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1){
-                        "Plugin ${ext.name} was made for an older version of Xed-Editor, ask the plugin developer to update the plugin"
-                    }else if (minSdkVersion == -1 || targetSdkVersion == -1){
-                        "Undefined minXedVersionCode or targetXedVersionCode"
-                    }else{
-                        "Unknown error while parsing Xed Version code info from plugin"
-                    }
 
-                    dialog(context = context,title = strings.failed.getString(), msg = "Installation of plugin ${ext.name} failed \nreason: \n$reason", onOk = {})
+                    if (apkFile.exists()) {
+                        apkFile.delete()
+                    }
+                } else {
+                    val reason: String =
+                        if (minSdkVersion > xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1) {
+                            "Xed-Editor is outdated minimum version code required is $minSdkVersion while current version code is $xedVersionCode"
+                        } else if (targetSdkVersion < xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1) {
+                            "Plugin ${ext.name} was made for an older version of Xed-Editor, ask the plugin developer to update the plugin"
+                        } else if (minSdkVersion == -1 || targetSdkVersion == -1) {
+                            "Undefined minXedVersionCode or targetXedVersionCode"
+                        } else {
+                            "Unknown error while parsing Xed Version code info from plugin"
+                        }
+
+                    dialog(
+                        context = context,
+                        title = strings.failed.getString(),
+                        msg = "Installation of plugin ${ext.name} failed \nreason: \n$reason",
+                        onOk = {})
                 }
             }.onFailure {
                 errorDialog(it)
-                if (apkFile.exists()){
+                if (apkFile.exists()) {
                     apkFile.delete()
                 }
             }
@@ -190,12 +220,12 @@ object ExtensionManager : ExtensionAPI() {
             return@withContext null
         }
 
-    private fun isPluginEnabled():Boolean{
+    private fun isPluginEnabled(): Boolean {
         return InbuiltFeatures.extensions.state.value
     }
 
     override fun onPluginLoaded(extension: Extension) {
-        if (isPluginEnabled().not()){
+        if (isPluginEnabled().not()) {
             return
         }
 
@@ -208,11 +238,11 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onMainActivityCreated() {
-        if (isPluginEnabled().not()){
+        if (isPluginEnabled().not()) {
             return
         }
 
-        extensions.forEach { (ext, instance) ->
+        extensions.forEach { (_, instance) ->
             postIO {
                 toastCatching { instance?.onMainActivityCreated() }
             }
@@ -221,11 +251,11 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onMainActivityPaused() {
-        if (isPluginEnabled().not()){
+        if (isPluginEnabled().not()) {
             return
         }
 
-        extensions.forEach { (ext, instance) ->
+        extensions.forEach { (_, instance) ->
             postIO {
                 toastCatching { instance?.onMainActivityPaused() }
             }
@@ -234,11 +264,11 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onMainActivityResumed() {
-        if (isPluginEnabled().not()){
+        if (isPluginEnabled().not()) {
             return
         }
 
-        extensions.forEach { (ext, instance) ->
+        extensions.forEach { (_, instance) ->
             postIO {
                 toastCatching { instance?.onMainActivityResumed() }
             }
@@ -247,11 +277,11 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     override fun onMainActivityDestroyed() {
-        if (isPluginEnabled().not()){
+        if (isPluginEnabled().not()) {
             return
         }
 
-        extensions.forEach { (ext, instance) ->
+        extensions.forEach { (_, instance) ->
             postIO {
                 toastCatching { instance?.onMainActivityDestroyed() }
             }
@@ -261,11 +291,11 @@ object ExtensionManager : ExtensionAPI() {
 
 
     override fun onLowMemory() {
-        if (isPluginEnabled().not()){
+        if (isPluginEnabled().not()) {
             return
         }
 
-        extensions.forEach { (ext, instance) ->
+        extensions.forEach { (_, instance) ->
             postIO {
                 toastCatching { instance?.onLowMemory() }
             }

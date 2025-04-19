@@ -1,6 +1,12 @@
 {
   "languages": [
     {
+      "grammar": "textmate/dart/Dart.tmLanguage.json",
+      "name": "Dart",
+      "scopeName": "source.dart",
+      "languageConfiguration": "textmate/dart/Dart.config.json"
+    },
+    {
       "grammar": "textmate/toml/toml.tmLanguage.json",
       "name": "toml",
       "scopeName": "source.toml",
