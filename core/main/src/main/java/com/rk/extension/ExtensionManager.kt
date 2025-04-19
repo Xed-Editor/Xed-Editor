@@ -7,8 +7,10 @@ import android.os.Build
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.application
 import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.postIO
@@ -22,6 +24,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 
 object ExtensionManager : ExtensionAPI() {
     val isLoaded = mutableStateOf(false)
@@ -103,10 +106,17 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun installPlugin(context: Activity, apkFile: File) =
+    suspend fun installPlugin(context: Activity, fileObject: FileObject) =
         withContext(Dispatchers.IO) {
+            val apkFile = File(context.pluginDir, fileObject.getName()).createFileIfNot()
             runCatching {
                 if (!isPluginEnabled()) return@withContext null
+
+                fileObject.getInputStream().use { inputStream ->
+                    FileOutputStream(apkFile).use {
+                        inputStream.copyTo(it)
+                    }
+                }
 
                 val pm = context.packageManager
                 val info = pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
@@ -172,6 +182,9 @@ object ExtensionManager : ExtensionAPI() {
                 }
             }.onFailure {
                 errorDialog(it)
+                if (apkFile.exists()){
+                    apkFile.delete()
+                }
             }
 
             return@withContext null

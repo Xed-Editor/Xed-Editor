@@ -50,6 +50,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.safeLaunch
@@ -71,27 +72,26 @@ fun Extensions(modifier: Modifier = Modifier) {
     ) { uri: Uri? ->
         var loading: LoadingPopup? = null
         runCatching {
-            val fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
-            if (fileExtension == "apk") {
+            if (uri == null){
+                return@runCatching
+            }
+
+            val fileObject = UriWrapper(uri)
+            val exists = fileObject.exists()
+            val canRead = fileObject.canRead()
+            val isApk = fileObject.getName().endsWith(".apk")
+
+            if (exists && canRead && isApk){
                 loading = LoadingPopup(context as Activity, null).show()
-                loading?.setMessage(strings.installing.getString())
-                DefaultScope.launch {
-                    val pluginFile = File(getTempDir(), "installPlugin.apk")
-                    application!!.contentResolver.openInputStream(uri!!).use {
-                        FileOutputStream(pluginFile).use { outputStream ->
-                            it!!.copyTo(outputStream)
-                        }
-                    }
-                    ExtensionManager.installPlugin(activity!!, pluginFile)
+                loading.setMessage(strings.installing.getString())
+                DefaultScope.launch{
+                    ExtensionManager.installPlugin(activity!!, fileObject)
                     ExtensionManager.indexPlugins(application!!)
-                    pluginFile.delete()
-                    delay(900)
-                    withContext(Dispatchers.Main) {
-                        loading?.hide()
-                    }
                 }
-            } else {
-                toast(strings.not_plugin_err.getString())
+
+                loading.hide()
+            }else{
+                errorDialog("Install criteria failed \nis_apk = $isApk\ncan_read = $canRead\n exists = $exists\nuri = ${fileObject.getAbsolutePath()}")
             }
         }.onFailure {
             loading?.hide()
@@ -102,7 +102,7 @@ fun Extensions(modifier: Modifier = Modifier) {
 
     PreferenceLayout(label = stringResource(strings.ext), backArrowVisible = true, fab = {
         ExtendedFloatingActionButton(
-            onClick = { filePickerLauncher.launch(arrayOf("*/*")) },
+            onClick = { filePickerLauncher.launch(arrayOf("application/vnd.android.package-archive")) },
             icon = {
                 Icon(
                     imageVector = Icons.Outlined.Add, contentDescription = null
