@@ -591,7 +591,7 @@ public class EditorRenderer {
             drawLineNumberBackground(canvas, offsetX, lineNumberWidth + sideIconWidth + editor.getDividerMarginLeft(), color.getColor(EditorColorScheme.LINE_NUMBER_BACKGROUND));
             int lineNumberColor = editor.getColorScheme().getColor(EditorColorScheme.LINE_NUMBER);
             int currentLineBgColor = editor.getColorScheme().getColor(EditorColorScheme.CURRENT_LINE);
-            if (editor.getCursorAnimator().isRunning() && editor.isEditable()) {
+            if (editor.getCursorAnimator().isRunning() && editor.isHighlightCurrentLine() && editor.isEditable()) {
                 tmpRect.bottom = editor.getCursorAnimator().animatedLineBottom() - editor.getOffsetY();
                 tmpRect.top = tmpRect.bottom - editor.getCursorAnimator().animatedLineHeight();
                 tmpRect.left = 0;
@@ -672,7 +672,7 @@ public class EditorRenderer {
             canvas.clipRect(0, stuckLineCount * editor.getRowHeight(), editor.getWidth(), editor.getHeight());
             int lineNumberColor = editor.getColorScheme().getColor(EditorColorScheme.LINE_NUMBER);
             int currentLineBgColor = editor.getColorScheme().getColor(EditorColorScheme.CURRENT_LINE);
-            if (editor.getCursorAnimator().isRunning() && editor.isEditable()) {
+            if (editor.getCursorAnimator().isRunning() && editor.isHighlightCurrentLine() && editor.isEditable()) {
                 tmpRect.bottom = editor.getCursorAnimator().animatedLineBottom() - editor.getOffsetY();
                 tmpRect.top = tmpRect.bottom - editor.getCursorAnimator().animatedLineHeight();
                 tmpRect.left = 0;
@@ -739,7 +739,7 @@ public class EditorRenderer {
                 tmpRect.bottom = editor.getRowBottom(i) - offsetY - editor.getDpUnit();
                 tmpRect.left = editor.isLineNumberPinned() ? 0 : offset;
                 tmpRect.right = tmpRect.left + editor.measureTextRegionOffset();
-                if (currentLine == line)
+                if (currentLine == line && editor.isHighlightCurrentLine())
                     drawColor(canvas, editor.getColorScheme().getColor(EditorColorScheme.CURRENT_LINE), tmpRect);
                 if (color != 0)
                     drawColor(canvas, color, tmpRect);
@@ -770,7 +770,7 @@ public class EditorRenderer {
                 tmpRect.left = offset;
                 tmpRect.right = editor.getWidth();
                 var colorId = EditorColorScheme.WHOLE_BACKGROUND;
-                if (block.startLine == currentLine) {
+                if (block.startLine == currentLine && editor.isHighlightCurrentLine()) {
                     colorId = EditorColorScheme.CURRENT_LINE;
                 }
                 drawColor(canvas, editor.getColorScheme().getColor(colorId), tmpRect);
@@ -1146,7 +1146,7 @@ public class EditorRenderer {
         // Step 1 - Draw background of rows
 
         // Draw current line background on animation
-        if (editor.getCursorAnimator().isRunning()) {
+        if (editor.getCursorAnimator().isRunning() && editor.isHighlightCurrentLine()) {
             tmpRect.bottom = editor.getCursorAnimator().animatedLineBottom() - editor.getOffsetY();
             tmpRect.top = tmpRect.bottom - editor.getCursorAnimator().animatedLineHeight();
             tmpRect.left = 0;
@@ -1167,7 +1167,10 @@ public class EditorRenderer {
             long charPos = findDesiredVisibleChar(offset3, line, rowInf.startColumn, rowInf.endColumn);
             float paintingOffset = CharPosDesc.getPixelWidthOrOffset(charPos) - offset2;
 
-            var drawCurrentLineBg = line == currentLine && !editor.getCursorAnimator().isRunning() && editor.isEditable();
+            var drawCurrentLineBg = line == currentLine &&
+                    !editor.getCursorAnimator().isRunning() &&
+                    editor.isHighlightCurrentLine() &&
+                    editor.isEditable();
             if (!drawCurrentLineBg || editor.getProps().drawCustomLineBgOnCurrentLine) {
                 // Draw custom background
                 var customBackground = getUserBackgroundForLine(line);
@@ -1615,13 +1618,18 @@ public class EditorRenderer {
      * Draw non-printable characters
      */
     protected void drawWhitespaces(Canvas canvas, float offset, int line, int row, int rowStart, int rowEnd, int min, int max) {
+        float verticalCanvasOffset = (editor.getRowTop(row) + editor.getRowBottom(row)) / 2f;
+        drawWhitespacesOnCanvas(canvas, offset, line, verticalCanvasOffset, rowStart, rowEnd, min, max);
+    }
+
+    protected void drawWhitespacesOnCanvas(Canvas canvas, float offset, int line, float verticalCanvasOffset, int rowStart, int rowEnd, int min, int max) {
         int paintStart = Math.max(rowStart, Math.min(rowEnd, min));
         int paintEnd = Math.max(rowStart, Math.min(rowEnd, max));
         paintOther.setColor(editor.getColorScheme().getColor(EditorColorScheme.NON_PRINTABLE_CHAR));
 
         if (paintStart < paintEnd) {
             float spaceWidth = paintGeneral.getSpaceWidth();
-            float rowCenter = (editor.getRowTop(row) + editor.getRowBottom(row)) / 2f - editor.getOffsetY();
+            float rowCenter = verticalCanvasOffset - editor.getOffsetY();
             offset += measureText(lineBuf, line, rowStart, paintStart - rowStart);
             var chars = lineBuf.getBackingCharArray();
             var lastPos = paintStart;
@@ -2328,8 +2336,11 @@ public class EditorRenderer {
     protected void patchTextRegionWithColor(Canvas canvas, float textOffset, int start, int end, int color, int backgroundColor, int underlineColor) {
         paintGeneral.setColor(color);
         paintOther.setStrokeWidth(editor.getRowHeightOfText() * RenderingConstants.MATCHING_DELIMITERS_UNDERLINE_WIDTH_FACTOR);
-        paintGeneral.setStyle(android.graphics.Paint.Style.FILL_AND_STROKE);
-        paintGeneral.setFakeBoldText(editor.getProps().boldMatchingDelimiters);
+        
+        var useBoldStyle = editor.getProps().boldMatchingDelimiters;
+        paintGeneral.setStyle(useBoldStyle ? Paint.Style.FILL_AND_STROKE : Paint.Style.FILL);
+        paintGeneral.setFakeBoldText(useBoldStyle);
+
         var positions = getTextRegionPositions(start, end);
         patchTextRegions(canvas, textOffset, positions, (canvasLocal, horizontalOffset, row, line, startCol, endCol, style) -> {
             if (backgroundColor != 0) {
