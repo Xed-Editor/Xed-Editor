@@ -43,15 +43,15 @@ import org.apache.commons.net.io.Util.copyStream
 import java.io.File
 
 class FileAction(
-     val mainActivity: MainActivity,
-     val rootFolder: FileObject,
-     val file: FileObject,
+    val mainActivity: MainActivity,
+    val rootFolder: FileObject,
+    val file: FileObject,
 ) {
 
     companion object {
         var to_save_file: FileObject? = null
     }
-    
+
     private fun getString(@StringRes id:Int):String{
         return id.getString()
     }
@@ -60,7 +60,7 @@ class FileAction(
         fun getDrawable(id: Int): Drawable? {
             return ContextCompat.getDrawable(mainActivity, id)
         }
-        
+
 
         ActionPopup(mainActivity, true).apply {
 
@@ -217,6 +217,16 @@ class FileAction(
                 drawables.content_copy_24px.getDrawable(mainActivity)
             }) {
                 FileClipboard.setFile(file)
+                FileClipboard.isCut = false
+            }
+
+            addItem("Cut", "Move Document", if (file.isDirectory()){
+                drawables.folder_copy_24px.getDrawable(mainActivity)
+            }else{
+                drawables.content_copy_24px.getDrawable(mainActivity)
+            }) {
+                FileClipboard.setFile(file)
+                FileClipboard.isCut = true
             }
 
             if (file.isDirectory()){
@@ -264,6 +274,10 @@ class FileAction(
                                         }
 
                                         copy(source, file)
+                                        if (FileClipboard.isCut){
+                                            source.delete()
+                                            FileClipboard.isCut = false
+                                        }
                                     }.onFailure {
                                         it.printStackTrace()
                                         withContext(Dispatchers.Main) {
@@ -394,14 +408,14 @@ class FileAction(
                         withContext(Dispatchers.Main) {
                             loading.hide()
                         }
-                            errorDialog(it)
-                        }
-
-                    .onSuccess {
-                        withContext(Dispatchers.Main) {
-                            loading.hide()
-                        }
+                        errorDialog(it)
                     }
+
+                        .onSuccess {
+                            withContext(Dispatchers.Main) {
+                                loading.hide()
+                            }
+                        }
 
 
                 }

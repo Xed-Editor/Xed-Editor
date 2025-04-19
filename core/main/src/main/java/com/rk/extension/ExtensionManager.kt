@@ -32,7 +32,6 @@ import java.io.FileOutputStream
 object ExtensionManager : ExtensionAPI() {
     val isLoaded = mutableStateOf(false)
     val extensions = mutableStateMapOf<Extension, ExtensionAPI?>()
-    val extPackages = hashMapOf<String, String>()
 
     init {
         if (isLoaded.value.not() && isPluginEnabled()) {
@@ -92,21 +91,8 @@ object ExtensionManager : ExtensionAPI() {
                             Preference.setBoolean("ext_${ext.packageName}", false)
                         }
 
-                        if (extPackages[ext.packageName] == null || extPackages[ext.packageName] == ext.apkFile.absolutePath){
-                            if (extensions[ext] == null) {
-                                extensions[ext] = null
-                            }
-                            extPackages[ext.packageName] = ext.apkFile.absolutePath
-                        }else{
-                            dialog(title = strings.err.getString(), msg = "Cannot load plugin:\n" +
-                                    "A plugin with package name '${ext.packageName}' is already registered.\n" +
-                                    "Conflicting file: ${ext.apkFile.absolutePath}\n\n" +
-                                    "Please make sure plugins have unique package names.", extraButtons = arrayOf(
-                                PopupButton(label = strings.delete.getString(), type = PopupButtonType.POSITIVE, listener = {
-                                    ext.apkFile.delete()
-                                    toast("deleted ${ext.apkFile.path}")
-                                    it.dismiss()
-                                }),PopupButton(label = strings.ok.getString(), type = PopupButtonType.NEGATIVE)))
+                        if (extensions[ext] == null) {
+                            extensions[ext] = null
                         }
 
                     }

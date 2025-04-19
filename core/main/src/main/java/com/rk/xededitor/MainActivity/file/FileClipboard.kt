@@ -6,6 +6,7 @@ import com.rk.file_wrapper.FileObject
 object FileClipboard {
      var fileClipboard: FileObject? = null
      var isPasted: Boolean = true
+     var isCut = false
 
     inline fun setFile(file: FileObject?) {
         synchronized(this) {
