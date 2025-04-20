@@ -150,7 +150,7 @@
     <string name="open_path">Memoria interna</string>
     <string name="open_path_desc">Apri la memoria interna</string>
     <string name="clone_repo_desc">Clona il repository con Git</string>
-    <string name="add">Nuovo File</string>
+    <string name="add">Aggiungi</string>
     <string name="already_opened">File già aperto</string>
     <string name="open_cant">Non è possibile aprire più di</string>
     <string name="files">File</string>
