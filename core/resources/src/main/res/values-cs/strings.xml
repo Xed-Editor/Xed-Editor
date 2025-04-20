@@ -249,4 +249,13 @@
     <string name="unknown_err">Něco se stalo</string>
     <string name="mime">Typ MIME (např. text/plain)</string>
     <string name="click_open">Klepněte tady pro otevření souboru</string>
+    <string name="data_clear">Data aplikace byly vyčištěny</string>
+    <string name="restore_sessions">Obnovit Relace</string>
+    <string name="soft_keyboard_always">Vždy ukázat klávesnici</string>
+    <string name="soft_keyboard_always_desc">Vždy ukáže klávesnici zařízení i když je připojená fyzická klávesnice</string>
+    <string name="unrestricted_file_desc">Povolí otevření souborů jakékoliv velikosti. Může způsobit havárie.</string>
+    <string name="tab_size_desc">Nastavit velikost tabulátoru (počet mezer)</string>
+    <string name="tab_size">Velikost Tabulátoru</string>
+    <string name="restore_sessions_desc">Obnovit minule otevřené karty</string>
+    <string name="terminal_home">Domovská složka Terminálu</string>
 </resources>
