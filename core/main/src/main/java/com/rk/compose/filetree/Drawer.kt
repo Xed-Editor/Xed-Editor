@@ -36,6 +36,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -287,7 +288,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             handleAddNew()
                         }
                     }, label = {
-                        Text("Add")
+                        Text(stringResource(strings.add))
                     })
                 }
 

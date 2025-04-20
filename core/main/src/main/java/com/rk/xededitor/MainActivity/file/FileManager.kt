@@ -28,6 +28,7 @@ import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
@@ -42,14 +43,27 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(it.data!!.data!!.toPath())
-                if (file.exists()) {
-                    mainActivity.adapter!!.addFragment(FileWrapper(file))
-                } else {
-                    mainActivity.adapter!!.addFragment(
-                        UriWrapper(it.data!!.data!!)
-                    )
+
+
+                mainActivity.lifecycleScope.launch{
+                    val file = File(it.data!!.data!!.toPath())
+                    if (file.exists() && file.canRead() && file.canWrite()) {
+                        delay(100)
+                        withContext(Dispatchers.Main){
+                            mainActivity.adapter!!.addFragment(FileWrapper(file))
+                        }
+
+                    } else {
+                        delay(100)
+                        withContext(Dispatchers.Main){
+                            mainActivity.adapter!!.addFragment(
+                                UriWrapper(it.data!!.data!!)
+                            )
+                        }
+                    }
                 }
+
+
 
             }
         }
@@ -158,16 +172,24 @@ class FileManager(private val mainActivity: MainActivity) {
     val createFileLauncher =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                val path = data?.data?.toPath()
-                val file = File(path.toString())
+                mainActivity.lifecycleScope.launch{
+                    val data: Intent? = result.data
+                    val path = data?.data?.toPath()
+                    val file = File(path.toString())
 
-                val wrapper: FileObject = if (file.exists()) {
-                    FileWrapper(file)
-                } else {
-                    UriWrapper(data!!.data!!)
+
+                    val wrapper: FileObject = if (file.exists() && file.canRead() && file.canWrite()) {
+                        FileWrapper(file)
+                    } else {
+                        UriWrapper(data!!.data!!)
+                    }
+                    delay(100)
+                    withContext(Dispatchers.Main){
+                        mainActivity.adapter?.addFragment(wrapper)
+                    }
+
                 }
-                mainActivity.adapter?.addFragment(wrapper)
+
             }
         }
 

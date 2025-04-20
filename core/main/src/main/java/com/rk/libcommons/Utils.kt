@@ -11,12 +11,19 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -148,8 +155,7 @@ fun Activity.askInput(
 
 }
 
-@JvmOverloads
-fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null,extraButtons: Array<PopupButton>? = null){
+fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null){
     if (context == null){
         throw IllegalArgumentException("context cannot be null")
         return
@@ -167,32 +173,41 @@ fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, 
                 onOk(dialogInterface)
             } }
 
-            extraButtons?.forEach {
-                when(it.type){
-                    PopupButtonType.NEUTRAL -> {
-                        setNeutralButton(it.label){ dialogInterface,_ ->
-                            it.listener?.invoke(dialogInterface)
-                        }
-                    }
-
-                    PopupButtonType.NEGATIVE -> {
-                        setNegativeButton(it.label){ dialogInterface,_ ->
-                            it.listener?.invoke(dialogInterface)
-                        }
-                    }
-
-                    PopupButtonType.POSITIVE -> {
-                        setPositiveButton(it.label){ dialogInterface,_ ->
-                            it.listener?.invoke(dialogInterface)
-                        }
-                    }
-                }
-            }
-
             show()
         }
     }
 }
+
+fun composeDialog(context: Activity? = MainActivity.activityRef.get(),content:@Composable (AlertDialog?) -> Unit){
+    if (context == null){
+        throw IllegalArgumentException("context cannot be null")
+        return
+    }
+    var dialog: AlertDialog? = null
+    runOnUiThread{
+        MaterialAlertDialogBuilder(context).apply {
+            setView(ComposeView(context).apply { setContent { KarbonTheme {
+                Surface {
+                    Surface(
+                        shape = MaterialTheme.shapes.large,
+                        tonalElevation = 1.dp,
+                    ) {
+                        DividerColumn(
+                            startIndent = 0.dp,
+                            endIndent = 0.dp,
+                            dividersToSkip = 0,
+                        ) {
+                            content(dialog)
+                        }}
+
+                }
+
+            } } })
+            dialog = show()
+        }
+    }
+}
+
 
 fun errorDialog(msg: String){
     if (msg.isBlank()){

@@ -11,12 +11,15 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.controlpanel.ControlItem
 import com.rk.file_wrapper.FileWrapper
 import com.rk.karbon_exec.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
+import com.rk.libcommons.composeDialog
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
@@ -33,6 +36,7 @@ import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.components.SettingsToggle
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -208,19 +212,39 @@ object MenuClickHandler {
             }
 
             Id.action_add -> {
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-                intent.addCategory(Intent.CATEGORY_OPENABLE)
-                intent.setType("application/octet-stream")
-                intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
 
-                val activities = application!!.packageManager.queryIntentActivities(intent,PackageManager.MATCH_ALL)
-                if (activities.isNotEmpty()){
-                    activity.fileManager!!.createFileLauncher.launch(intent)
-                }else{
-                    activity.askInput(title = "Create File", hint = "newfile.txt", onResult = { input ->
-                        activity.fileManager?.selectDirForNewFileLaunch(input)
-                    })
+                composeDialog{ dialog ->
+                    ControlItem(
+                        item = ControlItem(
+                            label = strings.new_file.getString(),
+                            sideEffect = {
+                                dialog?.dismiss()
+                                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                                intent.setType("application/octet-stream")
+                                intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
+
+                                val activities = application!!.packageManager.queryIntentActivities(intent,PackageManager.MATCH_ALL)
+                                if (activities.isNotEmpty()){
+                                    activity.fileManager!!.createFileLauncher.launch(intent)
+                                }else{
+                                    activity.askInput(title = "Create File", hint = "newfile.txt", onResult = { input ->
+                                        activity.fileManager?.selectDirForNewFileLaunch(input)
+                                    })
+                                }
+                            })
+                    )
+
+                    ControlItem(
+                        item = ControlItem(label = strings.openfile.getString(),
+                            sideEffect = {
+                                dialog?.dismiss()
+                                activity.fileManager?.requestOpenFile()
+                            })
+                    )
+
                 }
+
                 return true
             }
 
