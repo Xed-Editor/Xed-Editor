@@ -1,6 +1,5 @@
 package com.rk.xededitor.MainActivity.handlers
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
@@ -11,7 +10,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.controlpanel.ControlItem
 import com.rk.file_wrapper.FileWrapper
 import com.rk.karbon_exec.launchTermux
@@ -29,16 +27,13 @@ import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
-import com.rk.xededitor.ui.components.SettingsToggle
 import io.github.rosemoe.sora.widget.EditorSearcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 typealias Id = R.id
@@ -212,7 +207,6 @@ object MenuClickHandler {
             }
 
             Id.action_add -> {
-
                 composeDialog{ dialog ->
                     ControlItem(
                         item = ControlItem(
@@ -228,7 +222,7 @@ object MenuClickHandler {
                                 if (activities.isNotEmpty()){
                                     activity.fileManager!!.createFileLauncher.launch(intent)
                                 }else{
-                                    activity.askInput(title = "Create File", hint = "newfile.txt", onResult = { input ->
+                                    activity.askInput(title = strings.new_file.getString(), hint = "newfile.txt", onResult = { input ->
                                         activity.fileManager?.selectDirForNewFileLaunch(input)
                                     })
                                 }

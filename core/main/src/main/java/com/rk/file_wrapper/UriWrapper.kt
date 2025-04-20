@@ -7,6 +7,8 @@ import android.provider.DocumentsContract
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.libcommons.application
+import com.rk.libcommons.dialog
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -44,28 +46,9 @@ class UriWrapper : FileObject {
         this.uri = file.uri.toString()
     }
 
-companion object{
-    fun Uri.getDocumentFile(): DocumentFile?{
-        return if (DocumentsContract.isTreeUri(this)){
-            try {
-                DocumentFile.fromTreeUri(application!!, this)
-            }catch (e: Exception){
-                e.printStackTrace()
-                DocumentFile.fromSingleUri(application!!, this)
-            }
-        }else{
-            try {
-                DocumentFile.fromSingleUri(application!!, this)
-            }catch (e: Exception){
-                e.printStackTrace()
-                DocumentFile.fromTreeUri(application!!, this)
-            }
-        }
-    }
-}
-
     @Throws(IllegalArgumentException::class)
     constructor(uri: Uri) : this(uri.getDocumentFile()!!)
+
 
     override fun listFiles(): List<FileObject> = when {
         !file.isDirectory -> emptyList()
@@ -82,15 +65,20 @@ companion object{
     override fun exists(): Boolean = file.exists()
 
     fun isTermuxUri(): Boolean{
-        return getAbsolutePath().startsWith("content://com.termux.documents")
+        return getAbsolutePath().startsWith("content://com.termux")
     }
 
     fun convertToTermuxFile(): File{
         if (isTermuxUri().not()){
             throw IllegalStateException("this uri is not a termux uri")
         }
-        val prefix = "content://com.termux.documents/tree//data/data/com.termux/files/home/document/"
-        return File(URLDecoder.decode(toUri().toString(), "UTF-8").removePrefix(prefix))
+
+        val path = URLDecoder.decode(file.uri.toString(), "UTF-8").removePrefix("content://com.termux.documents/tree//data/data/com.termux/files/home/document/")
+        if (path.startsWith("/data").not()){
+            errorDialog("Converting termux uri into realpath failed: \nURI : ${file.uri}\n\nPATH : $path")
+        }
+        //dialog(title = "PATH", msg = path, onOk = {})
+        return File(path)
     }
 
     override fun createNewFile(): Boolean {
@@ -271,11 +259,31 @@ companion object{
     }
 
     override fun hashCode(): Int {
-        return uri.hashCode()
+        return file.uri.hashCode()
     }
 
     override fun toString(): String {
-        return uri
+        return file.uri.toString()
+    }
+
+    companion object{
+        fun Uri.getDocumentFile(): DocumentFile?{
+            return if (DocumentsContract.isTreeUri(this)){
+                try {
+                    DocumentFile.fromTreeUri(application!!, this)
+                }catch (e: Exception){
+                    e.printStackTrace()
+                    DocumentFile.fromSingleUri(application!!, this)
+                }
+            }else{
+                try {
+                    DocumentFile.fromSingleUri(application!!, this)
+                }catch (e: Exception){
+                    e.printStackTrace()
+                    DocumentFile.fromTreeUri(application!!, this)
+                }
+            }
+        }
     }
 
 }

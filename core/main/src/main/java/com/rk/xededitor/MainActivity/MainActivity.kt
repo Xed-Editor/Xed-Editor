@@ -172,7 +172,7 @@ class MainActivity : BaseActivity() {
         }
 
         private fun toState(): TabViewModelState {
-            val files = fragmentFiles.filter { it !is UriWrapper }.toMutableList()
+            val files = fragmentFiles //.filter { it !is UriWrapper }.toMutableList()
 
             return TabViewModelState(
                 fragmentFiles = files,
@@ -180,7 +180,7 @@ class MainActivity : BaseActivity() {
         }
 
         private fun restoreState(state: TabViewModelState) {
-            val files = state.fragmentFiles.filter { it.exists() && it.canRead() }.toMutableList()
+            val files = state.fragmentFiles.filter { it.exists() && it.canRead() && it.isFile() }.toMutableList()
             val types = files.map { it.getFragmentType() }.toMutableList()
             val titles = files.map { it.getName() }.toMutableList()
             val fileSet = files.map { it.getCanonicalPath() }.toHashSet()
