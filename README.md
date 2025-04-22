@@ -30,7 +30,7 @@
   - [x] Keybindings
   - [x] Built-in Terminal
   - [x] Termux Interoperability
-  - [x] Run Python, Node.js, etc.
+  - [x] Run Python,Html,C/C++, Node.js, etc.
 
 
 <br>
