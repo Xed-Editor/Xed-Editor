@@ -11,7 +11,7 @@
     <string name="gitcred">Git 凭证</string>
     <string name="auto_save">自动保存</string>
     <string name="save_as">另存为</string>
-    <string name="ni">该功能未实现</string>
+    <string name="ni">该功能暂未实现</string>
     <string name="save">文件已保存</string>
     <string name="open_file">打开文件</string>
     <string name="cs">区分大小写</string>
@@ -27,7 +27,7 @@
     <string name="exit">退出</string>
     <string name="rr">需要重启</string>
     <string name="rapply">请重启以应用设置</string>
-    <string name="oled">黑夜主题</string>
+    <string name="oled">纯黑主题</string>
     <string name="ww">自动换行</string>
     <string name="restart">重新启动</string>
     <string name="plugin">插件</string>
@@ -71,7 +71,7 @@
     <string name="open_drawer">打开</string>
     <string name="print">打印</string>
     <string name="go_next">转到下一个</string>
-    <string name="go_prev">转到上一个.</string>
+    <string name="go_prev">转到上一个</string>
     <string name="replace">替换</string>
     <string name="git_commit_msg">提交信息</string>
     <string name="push">推送</string>
@@ -97,7 +97,7 @@
     <string name="searck_keyword">搜索关键字</string>
     <string name="wait">请稍等…</string>
     <string name="report_issue">报告问题</string>
-    <string name="save_all">保存所有</string>
+    <string name="save_all">保存全部</string>
     <string name="undo">撤销</string>
     <string name="settings">设置</string>
     <string name="new_folder">新建文件夹</string>
@@ -105,7 +105,7 @@
     <string name="open_with">打开方式…</string>
     <string name="paste">粘贴</string>
     <string name="close_this">关闭</string>
-    <string name="close_all">全部关闭</string>
+    <string name="close_all">关闭全部</string>
     <string name="close">关闭</string>
     <string name="unsaved">未保存的文件</string>
     <string name="unsavedfiles">您有未保存的文件！</string>
@@ -204,7 +204,7 @@
     <string name="private_files">私有文件</string>
     <string name="clone_err">此仓库为私有仓库。请检查你的访问凭据</string>
     <string name="text_size">字体大小</string>
-    <string name="monet_desc">在应用中使用设备主题。</string>
+    <string name="monet_desc">跟随系统</string>
     <string name="add_new_replacement_batch">添加新的批量替换</string>
     <string name="enable_plugins">启用插件</string>
     <string name="sim_hard_links">模拟硬链接</string>
@@ -240,14 +240,14 @@
     <string name="force_desktop_desc">强制在小屏幕设备上使用桌面布局</string>
     <string name="force_normal">强制正常模式</string>
     <string name="select_theme_mode">选择主题模式</string>
-    <string name="theme_mode">主题模式</string>
+    <string name="theme_mode">主题</string>
     <string name="show_virtual_keyboard">显示虚拟键盘</string>
     <string name="check_for_updates">检查更新</string>
     <string name="sora_s_desc">使用 Sora Editor 自带的文字搜索</string>
     <string name="dark_mode">暗色</string>
     <string name="auto_mode">自动</string>
     <string name="cannot_be_empty">此处不能为空。</string>
-    <string name="theme_mode_desc">将主题模式改为自动、亮色或暗色。</string>
+    <string name="theme_mode_desc">将主题改为自动、亮色或暗色</string>
     <string name="no_plugins_available">没有插件可用</string>
     <string name="show_suggestions">键盘选词建议</string>
     <string name="about">关于</string>
@@ -313,7 +313,7 @@
     <string name="script_showing_dialog">显示对话框</string>
     <string name="loading">加载中…</string>
     <string name="no_ext">未安装拓展。</string>
-    <string name="not_plugin_err">所选文件不是 .plugin 格式</string>
+    <string name="not_plugin_err">所选文件不是 .apk 格式</string>
     <string name="install_from_storage">从内部存储安装</string>
     <string name="network_err">网络错误</string>
     <string name="email">邮箱</string>
@@ -341,7 +341,7 @@
     <string name="script_get_text">获取文本</string>
     <string name="script_show_toast">显示 Toast 提示消息</string>
     <string name="script_network">网络</string>
-    <string name="use_github_url">使用默认的 GitHub URL</string>
+    <string name="use_github_url">使用默认的 Git 域名</string>
     <string name="custom_git_url">自定义 Git URL 链接</string>
     <string name="enable_ext">扩展</string>
     <string name="file_err">无法保存文件，请尝试关闭并重新打开文件</string>
@@ -358,7 +358,7 @@
     <string name="script_set_text">设置文本</string>
     <string name="script_api_info">检查 Xed-Editors 源代码中的 ImplApi 类（位于 PROJECT/core/main/ui/screens/mutators/ImplApi）以获取更多信息</string>
     <string name="err_no_termux">Termux 未安装</string>
-    <string name="http_git_url">HTTP Git 链接</string>
+    <string name="http_git_url">HTTP Git 域名</string>
     <string name="scroll_to_bottom">滚动到底部</string>
     <string name="highlighting">语法高亮</string>
     <string name="info_ext">扩展可用来自定义 Xed-editor 的行为和功能。要了解如何构建插件，请单击此处</string>
@@ -384,4 +384,5 @@
     <string name="warning_private_dir">当你清除数据或删除 Xed-Editor 时，此目录的内容将被删除</string>
     <string name="read_only_file">文件处于只读状态</string>
     <string name="toggle_ww">切换自动换行</string>
+    <string name="unknown_err">出了点问题</string>
 </resources>
