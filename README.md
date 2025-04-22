@@ -37,7 +37,7 @@
 
 ## Community
 > [!TIP]
-Join the Karbon community to stay updated and engage with other users:
+Join the Xed-Editor community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
 
 <br>
