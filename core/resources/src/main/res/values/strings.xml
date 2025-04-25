@@ -251,7 +251,7 @@
     <string name="github">GitHub</string>
     <string name="github_desc">Star it On Github 🤩</string>
     <string name="telegram">Telegram Group</string>
-    <string name="telegram_desc">Join Telegram community</string>
+    <string name="telegram_desc">Report issues, feature requests etc.</string>
     <string name="join">Join</string>
     
     <string name="show_virtual_keyboard">Show Virtual Keyboard</string>
@@ -412,6 +412,8 @@
     <string name="invalidpath">Invalid path</string>
 
     <string name="unknown_err">Something went wrong</string>
+    <string name="misc">Miscellaneous</string>
+    <string name="misc_desc">Miscellaneous Settings</string>
 
 
 </resources>

@@ -12,24 +12,6 @@ import com.rk.libcommons.application
 import java.nio.charset.Charset
 
 object Settings {
-    //Boolean
-    var feature_terminal
-        get() = Preference.getBoolean(key = "feature_terminal", default = true)
-        set(value) = Preference.setBoolean(key = "feature_terminal",value)
-    var feature_git
-        get() = Preference.getBoolean(key = "feature_git", default = true)
-        set(value) = Preference.setBoolean(key = "feature_git",value)
-    var feature_mutators
-        get() = Preference.getBoolean(key = "feature_mutators", default = true)
-        set(value) = Preference.setBoolean(key = "feature_mutators",value)
-    var feature_extensions
-        get() = Preference.getBoolean(key = "enable_extension",default = false)
-        set(value) = Preference.setBoolean(key = "enable_extension",value)
-    var developerOptions
-        get() = Preference.getBoolean(key = "developerOptions",default = false)
-        set(value) = Preference.setBoolean(key = "developerOptions",value)
-
-
     var amoled
         get() = Preference.getBoolean(key = "oled", default = false)
         set(value) = Preference.setBoolean(key = "oled",value)
