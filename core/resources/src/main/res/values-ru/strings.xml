@@ -5,7 +5,7 @@
     <string name="title_activity_batch_replacement">Пакетная замена</string>
     <string name="ni">Эта функция не реализована</string>
     <string name="unsupported_contnt">Неподдерживаемый контент</string>
-    <string name="null_contnt">Ошибка: содержание пустое</string>
+    <string name="null_contnt">Ошибка: нет содержимого</string>
     <string name="restart_required">Требуется перезапуск</string>
     <string name="save">Файл сохранён</string>
     <string name="saveAll">Все файлы сохранены</string>
@@ -25,12 +25,12 @@
     <string name="copy">Копировать</string>
     <string name="save_all">Сохраните всё</string>
     <string name="save_1">Сохранить</string>
-    <string name="undo">Отмена действия</string>
+    <string name="undo">Отменить</string>
     <string name="settings">Настройки</string>
     <string name="print">Печать</string>
     <string name="search">Поиск</string>
     <string name="go_next">Дальше</string>
-    <string name="go_prev">Назад.</string>
+    <string name="go_prev">Назад</string>
     <string name="close_search">Закрыть поиск</string>
     <string name="replace">Заменить</string>
     <string name="share">Поделиться</string>
@@ -311,7 +311,7 @@
     <string name="launch">Запустить</string>
     <string name="script_api_info">Подробнее можно посмотреть в классе ImplApi в исходном коде Xed-Editor по пути: PROJECT/core/main/ui/screens/mutators/ImplApi</string>
     <string name="no_mutators">Нет мутаторов</string>
-    <string name="not_plugin_err">Выбранный файл не является .plugin файлом</string>
+    <string name="not_plugin_err">Выбранный файл не является .apk файлом</string>
     <string name="mutator_name">Название мутатора</string>
     <string name="loading">Загрузка…</string>
     <string name="terminal_home">Домашняя папка терминала</string>
@@ -384,4 +384,5 @@
     <string name="failed">Не удалось</string>
     <string name="invalidpath">Неверный путь</string>
     <string name="backup">Резервное копирование</string>
+    <string name="unknown_err">Что-то пошло не так</string>
 </resources>
