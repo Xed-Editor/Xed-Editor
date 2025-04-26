@@ -160,10 +160,6 @@ class MainActivity : BaseActivity() {
                                     tab.text = tabViewModel.fragmentTitles[position]
                                 }.attach()
                             }
-
-
-
-
                         }
                     }
                 }

@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
@@ -65,12 +66,9 @@ object PermissionHandler {
                 setTitle(strings.manage_storage)
                 setMessage(strings.manage_storage_reason)
 
-                if (BuildConfig.DEBUG){
-                    setNegativeButton(strings.ignore){ _,_ ->
-                        Settings.ignore_storage_permission = true
-                    }
+                setNegativeButton(strings.ignore.getString() + " (Experimental)"){ _,_ ->
+                    Settings.ignore_storage_permission = true
                 }
-
                 setPositiveButton(strings.ok) { _, _ ->
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)

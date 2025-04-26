@@ -212,14 +212,16 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                         }
                                     )
 
-                                    addItem(
-                                        getString(strings.open_path),
-                                        getString(strings.open_path_desc),
-                                        ContextCompat.getDrawable(this@withContext, drawables.android),
-                                        listener = {
-                                            fileManager?.requestOpenFromPath()
-                                        }
-                                    )
+                                    if (Settings.ignore_storage_permission.not()){
+                                        addItem(
+                                            getString(strings.open_path),
+                                            getString(strings.open_path_desc),
+                                            ContextCompat.getDrawable(this@withContext, drawables.android),
+                                            listener = {
+                                                fileManager?.requestOpenFromPath()
+                                            }
+                                        )
+                                    }
 
                                     if (BuildConfig.DEBUG){
                                         addItem(
