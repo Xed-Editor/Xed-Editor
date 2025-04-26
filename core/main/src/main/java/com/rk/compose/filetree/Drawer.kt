@@ -1,6 +1,10 @@
 package com.rk.compose.filetree
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -212,7 +216,20 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                         }
                                     )
 
-                                    if (Settings.ignore_storage_permission.not()){
+                                    val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                                    val isManager = Environment.isExternalStorageManager()
+                                    val legacyPermission = ContextCompat.checkSelfPermission(
+                                        this@withContext,
+                                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                                        this@withContext,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    ) != PackageManager.PERMISSION_GRANTED
+
+
+
+
+                                    if ((is11Plus && isManager) || (!is11Plus && legacyPermission)){
                                         addItem(
                                             getString(strings.open_path),
                                             getString(strings.open_path_desc),

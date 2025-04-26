@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -380,9 +382,9 @@ class MainActivity : BaseActivity() {
     }
 
     override fun onResume() {
+        super.onResume()
         isPaused = false
         ExtensionManager.onMainActivityResumed()
-        super.onResume()
         PermissionHandler.verifyStoragePermission(this)
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
