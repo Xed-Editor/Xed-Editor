@@ -14,7 +14,7 @@
     <string name="open_directory">Otevřít Složku</string>
     <string name="new_file">Nový Soubor</string>
     <string name="newFile_hint">Jméno (např. Test.txt)</string>
-    <string name="not_plugin_err">Vybraný soubor není typ .plugin</string>
+    <string name="not_plugin_err">Vybraný soubor není typ .apk</string>
     <string name="title">Název</string>
     <string name="git">Git</string>
     <string name="path">Umístění</string>
@@ -42,7 +42,7 @@
     <string name="permission_denied">Přístup Odepřen</string>
     <string name="done">Úspěch</string>
     <string name="err">Chyba</string>
-    <string name="add">Nový Soubor</string>
+    <string name="add">Přidat</string>
     <string name="already_opened">Soubor je už otevřen</string>
     <string name="files">Soubory</string>
     <string name="show_line_number">Ukázat Čísla Řádků</string>
@@ -258,4 +258,20 @@
     <string name="tab_size">Velikost Tabulátoru</string>
     <string name="restore_sessions_desc">Obnovit minule otevřené karty</string>
     <string name="terminal_home">Domovská složka Terminálu</string>
+    <string name="cursor_anim_desc">Zapnout hladké animace kurzoru</string>
+    <string name="warning_private_dir">Obsah této složky bude odstraněn jestli vyčistíte data nebo odstraníte Xed-Editor</string>
+    <string name="github_desc">Dejte hvězdičku na GitHubu 🤩</string>
+    <string name="telegram_desc">Spojit se s Telegram komunitou</string>
+    <string name="join">Spojit se</string>
+    <string name="ask_unsaved">Opravdu chcete tento neuložený soubor zahodit?</string>
+    <string name="keep_editing">Dál upravovat</string>
+    <string name="enable_ext">Zapnout Doplňky</string>
+    <string name="ext_desc">Spravovat Doplňky</string>
+    <string name="custom_git_url">Vlastní Git URL</string>
+    <string name="ext">Doplňky</string>
+    <string name="enable_ext_desc">Načíst doplňky ze třetích stranách</string>
+    <string name="content">Obsah</string>
+    <string name="discard">Zahodit</string>
+    <string name="tools">Nástroje</string>
+    <string name="telegram">Telegram Skupina</string>
 </resources>
