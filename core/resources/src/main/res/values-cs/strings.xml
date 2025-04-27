@@ -265,7 +265,7 @@
     <string name="join">Spojit se</string>
     <string name="ask_unsaved">Opravdu chcete tento neuložený soubor zahodit?</string>
     <string name="keep_editing">Dál upravovat</string>
-    <string name="enable_ext">Zapnout Doplňky</string>
+    <string name="enable_ext">Doplňky</string>
     <string name="ext_desc">Spravovat Doplňky</string>
     <string name="custom_git_url">Vlastní Git URL</string>
     <string name="ext">Doplňky</string>
