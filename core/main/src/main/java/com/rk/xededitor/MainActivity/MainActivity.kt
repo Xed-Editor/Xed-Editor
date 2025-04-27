@@ -42,6 +42,7 @@ import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.toFileObject
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
@@ -342,14 +343,8 @@ class MainActivity : BaseActivity() {
 
     private fun openTabForIntent(intent: Intent){
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
-            val uri = intent.data
-            
-            val file = File(uri!!.toPath())
-            var fileObject = if (file.exists() && file.canRead() && file.isFile){
-                FileWrapper(file)
-            }else{
-                UriWrapper(uri)
-            }
+            val uri = intent.data!!
+            val fileObject = uri.toFileObject()
             adapter?.addFragment(fileObject)
             setIntent(Intent())
         }

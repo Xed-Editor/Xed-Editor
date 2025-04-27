@@ -22,6 +22,7 @@ import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.toFileObject
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -43,28 +44,12 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenFile =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-
-
                 mainActivity.lifecycleScope.launch{
-                    val file = File(it.data!!.data!!.toPath())
-                    if (file.exists() && file.canRead() && file.canWrite()) {
-                        delay(100)
-                        withContext(Dispatchers.Main){
-                            mainActivity.adapter!!.addFragment(FileWrapper(file))
-                        }
-
-                    } else {
-                        delay(100)
-                        withContext(Dispatchers.Main){
-                            mainActivity.adapter!!.addFragment(
-                                UriWrapper(it.data!!.data!!)
-                            )
-                        }
+                    delay(100)
+                    withContext(Dispatchers.Main){
+                        mainActivity.adapter!!.addFragment(it.data!!.data!!.toFileObject())
                     }
                 }
-
-
-
             }
         }
 
@@ -122,7 +107,7 @@ class FileManager(private val mainActivity: MainActivity) {
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 val file = File(it.data!!.data!!.toPath())
-                if (file.exists() && file.canRead()) {
+                if (file.exists() && file.canRead() && file.canWrite()) {
                     mainActivity.lifecycleScope.launch {
                         addProject(FileWrapper(file))
                     }
@@ -174,15 +159,7 @@ class FileManager(private val mainActivity: MainActivity) {
             if (result.resultCode == Activity.RESULT_OK) {
                 mainActivity.lifecycleScope.launch{
                     val data: Intent? = result.data
-                    val path = data?.data?.toPath()
-                    val file = File(path.toString())
-
-
-                    val wrapper: FileObject = if (file.exists() && file.canRead() && file.canWrite()) {
-                        FileWrapper(file)
-                    } else {
-                        UriWrapper(data!!.data!!)
-                    }
+                    val wrapper = data?.data?.toFileObject()!!
                     delay(100)
                     withContext(Dispatchers.Main){
                         mainActivity.adapter?.addFragment(wrapper)

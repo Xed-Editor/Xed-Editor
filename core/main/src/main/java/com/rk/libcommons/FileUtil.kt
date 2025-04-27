@@ -1,6 +1,13 @@
 package com.rk.libcommons
 
 import android.content.Context
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
+import com.rk.file_wrapper.UriWrapper
+import com.rk.libcommons.PathUtils.toPath
 import java.io.File
 
 fun localDir(): File {
@@ -56,4 +63,27 @@ fun File.createFileIfNot():File{
         createNewFile()
     }
     return this
+}
+
+fun File.toFileWrapper():FileWrapper{
+    return FileWrapper(this)
+}
+
+fun Uri.toFileObject():FileObject{
+    val path = toPath()
+    val allowFileWrapper = (path.contains(Environment.getExternalStorageDirectory().absolutePath).not() && path.contains("/sdcard").not()) || ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager())
+    if (allowFileWrapper){
+        if (!toString().startsWith("content://com.termux")){
+            val file = File(path)
+            if (file.exists() && file.canRead() && file.canWrite()){
+                return FileWrapper(file)
+            }
+        }
+
+    }
+    return UriWrapper(this)
+}
+
+fun String.toFileObject():FileObject{
+    return Uri.parse(this).toFileObject()
 }
