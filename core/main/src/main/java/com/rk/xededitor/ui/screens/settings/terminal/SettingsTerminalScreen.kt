@@ -25,7 +25,9 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -77,36 +79,68 @@ private const val max_text_size = 20f
 fun SettingsTerminalScreen() {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
-        val isInstalled = isTermuxInstalled() && isTermuxCompatible()
         val showDayBottomSheet = remember { mutableStateOf(false) }
 
-        val execAllowed = remember { mutableStateOf(false) }
-        val errorMessage = remember { mutableStateOf("") }
+        var execAllowed by remember { mutableStateOf(false) }
+        var isExecLoading by remember { mutableStateOf(true) }
+        var isTermuxInstalled by remember { mutableStateOf<Boolean?>(null) }
+        var isTermuxCompatible by remember { mutableStateOf<Boolean?>(null) }
+        var errorMessage by remember { mutableStateOf("") }
 
-        val result = testExecPermission()
-        execAllowed.value = result.first
-        errorMessage.value = result.second?.message.toString()
 
+        suspend fun update(){
+            isExecLoading = true
+            withContext(Dispatchers.IO){
+                isTermuxInstalled = isTermuxInstalled()
+                if (isTermuxInstalled != true){
+                    return@withContext
+                }
+                isTermuxCompatible = isTermuxCompatible()
+                if (isTermuxCompatible != true){
+                    return@withContext
+                }
+
+                val result = testExecPermission()
+                execAllowed = result.first
+                errorMessage = result.second?.message.toString()
+                result.second?.printStackTrace()
+            }
+            isExecLoading = false
+        }
+
+        LaunchedEffect(Unit) {
+            update()
+        }
 
         PreferenceGroup {
-            SettingsToggle(label = stringResource(strings.termux_exec),
-                description = if (execAllowed.value.not()) {
-                    errorMessage.value
-                } else {
-                    stringResource(strings.termux_exec)
-                },
-                default = execAllowed.value,
-                isSwitchLocked = true,
-                isEnabled = isInstalled,
-                sideEffect = {
-                    if (execAllowed.value.not()) {
-                        val intent =
-                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", context.packageName, null)
-                            }
-                        context.startActivity(intent)
-                    }
-                })
+            fun getStateMessage():String{
+                if (isTermuxInstalled != true){
+                    return "[Error] Termux is not installed"
+                }
+                if (isTermuxCompatible != true){
+                    return "[Error] Termux is not compatible please install termux from fdroid"
+                }
+                if (isExecLoading){
+                    return "[Info] Waiting for termux to respond..."
+                }
+                return if (execAllowed && errorMessage.isBlank()){
+                    "[Info] Termux Exec is working normally"
+                }else if(errorMessage.isBlank() || errorMessage.toString() == "null"){
+                    "[Error] allow-external-apps is not enabled in termux properties"
+                }else{
+                    "[Error] $errorMessage"
+                }
+            }
+
+            SettingsToggle(label = stringResource(strings.termux_exec), description = getStateMessage(), showSwitch = false, default = false, sideEffect = {
+                if (execAllowed.not()) {
+                    val intent =
+                        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", context.packageName, null)
+                        }
+                    context.startActivity(intent)
+                }
+            })
 
 
             SettingsToggle(label = stringResource(strings.termux_exec_guide),
@@ -122,12 +156,12 @@ fun SettingsTerminalScreen() {
                 sideEffect = {
                     val url = if (isTermuxInstalled()) {
                         if (isTermuxCompatible()) {
-                            "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
+                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
                         } else {
-                            "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/GOOGLE_PLAY_TERMUX.md"
+                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/GOOGLE_PLAY_TERMUX.md"
                         }
                     } else {
-                        "https:github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/INSTALL_TERMUX.md"
+                        "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/INSTALL_TERMUX.md"
                     }
 
                     DefaultScope.launch {
