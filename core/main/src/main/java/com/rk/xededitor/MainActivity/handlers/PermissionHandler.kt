@@ -8,10 +8,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
@@ -20,6 +22,7 @@ import com.rk.xededitor.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.ref.WeakReference
 
 object PermissionHandler {
     private const val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
@@ -39,7 +42,19 @@ object PermissionHandler {
         }
     }
 
+    private var dialogRef = WeakReference<AlertDialog?>(null)
     fun verifyStoragePermission(activity: MainActivity) {
+        dialogRef.get()?.apply {
+            if (isShowing){
+                dismiss()
+            }
+        }
+        dialogRef = WeakReference(null)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()){
+                Settings.ignore_storage_permission = false
+            }
+        }
         if (Settings.ignore_storage_permission){
             return
         }
@@ -62,15 +77,13 @@ object PermissionHandler {
         }
         if (shouldAsk) {
             MaterialAlertDialogBuilder(activity).apply {
+                setCancelable(false)
                 setTitle(strings.manage_storage)
                 setMessage(strings.manage_storage_reason)
 
-                if (BuildConfig.DEBUG){
-                    setNegativeButton(strings.ignore){ _,_ ->
-                        Settings.ignore_storage_permission = true
-                    }
+                setNegativeButton(strings.ignore.getString() + " (Experimental)"){ _,_ ->
+                    Settings.ignore_storage_permission = true
                 }
-
                 setPositiveButton(strings.ok) { _, _ ->
                     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
                         val intent = Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
@@ -89,7 +102,9 @@ object PermissionHandler {
                             REQUEST_CODE_STORAGE_PERMISSIONS,
                         )
                     }
-                }.setCancelable(false).show()
+
+                    dialogRef = WeakReference(show())
+                }
             }
         }
     }

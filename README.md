@@ -30,14 +30,14 @@
   - [x] Keybindings
   - [x] Built-in Terminal
   - [x] Termux Interoperability
-  - [x] Run Python, Node.js, etc.
+  - [x] Run Python,Html,C/C++, Node.js, etc.
 
 
 <br>
 
 ## Community
 > [!TIP]
-Join the Karbon community to stay updated and engage with other users:
+Join the Xed-Editor community to stay updated and engage with other users:
 - [Telegram](https://t.me/Xed_Editor)
 
 <br>

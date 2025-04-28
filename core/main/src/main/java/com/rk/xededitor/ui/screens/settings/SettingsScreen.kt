@@ -5,6 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -60,6 +63,31 @@ private fun Categories(navController: NavController) {
         )
     }
 
+    /*
+    PreferenceTemplate(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .clip(MaterialTheme.shapes.large)
+        .clickable { navController.navigate(SettingsRoutes.Misc.route)  }
+        .background(Color.Transparent),
+        verticalPadding = 14.dp,
+        title = {
+            Text(stringResource(id = strings.misc))
+        },
+        description = {
+            Text(stringResource(id = strings.misc_desc))
+        },
+        startWidget = {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    imageVector = Icons.Outlined.Menu,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+    ) */
+
     PreferenceCategory(
         label = stringResource(id = strings.feature_toggles),
         description = stringResource(id = strings.feature_toggles_desc),
@@ -85,11 +113,29 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    PreferenceCategory(
-        label = stringResource(id = strings.about),
-        description = stringResource(id = strings.about_desc),
-        iconResource = drawables.android,
-        onNavigate = { navController.navigate(SettingsRoutes.About.route) },
+
+    PreferenceTemplate(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .clip(MaterialTheme.shapes.large)
+        .clickable { navController.navigate(SettingsRoutes.About.route)  }
+        .background(Color.Transparent),
+        verticalPadding = 14.dp,
+        title = {
+            Text(stringResource(id = strings.about))
+        },
+        description = {
+            Text(stringResource(id = strings.about_desc))
+        },
+        startWidget = {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
     )
 
     Hooks.Settings.screens.values.forEach{ screen ->

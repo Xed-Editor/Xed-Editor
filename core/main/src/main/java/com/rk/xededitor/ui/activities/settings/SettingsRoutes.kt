@@ -14,4 +14,5 @@ sealed class SettingsRoutes(val route: String) {
     data object DeveloperOptions : SettingsRoutes("developer_options")
     data object BeanshellREPL : SettingsRoutes("bsh_repl")
     data object FeatureToggles : SettingsRoutes("feature_toggles")
+    data object Misc : SettingsRoutes("misc")
 }

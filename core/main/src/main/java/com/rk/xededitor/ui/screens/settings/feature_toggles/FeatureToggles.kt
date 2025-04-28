@@ -31,9 +31,9 @@ data class Feature(
 
 object InbuiltFeatures{
     val extensions = Feature(name = strings.enable_ext.getString(), key = "enable_extension",default = false)
-    val terminal = Feature(name = strings.terminal.getString()+" Runners", key = "feature_terminal",default = true)
+    val terminal = Feature(name = strings.terminal.getString()+" + Runners", key = "feature_terminal",default = true)
     val mutators = Feature(name = strings.mutators.getString(), key = "feature_mutators",default = true)
-    val developerOptions = Feature(name = "Developer Options", key = "developerOptions",default = true)
+    val developerOptions = Feature(name = "Developer Options", key = "developerOptions",default = false)
 }
 
 @Composable

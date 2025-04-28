@@ -1,6 +1,10 @@
 package com.rk.compose.filetree
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -50,6 +54,7 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.toFileObject
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -114,12 +119,7 @@ private suspend fun restore(){
                     val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
 
                     projectsList.forEach {
-                        val file = File(it)
-                        if (file.exists()) {
-                            addProject(FileWrapper(file))
-                        } else {
-                            addProject(UriWrapper(Uri.parse(it)))
-                        }
+                        addProject(it.toFileObject())
                         delay(100)
                     }
 
@@ -212,14 +212,29 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                         }
                                     )
 
-                                    addItem(
-                                        getString(strings.open_path),
-                                        getString(strings.open_path_desc),
-                                        ContextCompat.getDrawable(this@withContext, drawables.android),
-                                        listener = {
-                                            fileManager?.requestOpenFromPath()
-                                        }
-                                    )
+                                    val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                                    val isManager = Environment.isExternalStorageManager()
+                                    val legacyPermission = ContextCompat.checkSelfPermission(
+                                        this@withContext,
+                                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                                        this@withContext,
+                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    ) != PackageManager.PERMISSION_GRANTED
+
+
+
+
+                                    if ((is11Plus && isManager) || (!is11Plus && legacyPermission)){
+                                        addItem(
+                                            getString(strings.open_path),
+                                            getString(strings.open_path_desc),
+                                            ContextCompat.getDrawable(this@withContext, drawables.android),
+                                            listener = {
+                                                fileManager?.requestOpenFromPath()
+                                            }
+                                        )
+                                    }
 
                                     if (BuildConfig.DEBUG){
                                         addItem(
