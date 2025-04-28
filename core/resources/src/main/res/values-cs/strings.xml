@@ -36,7 +36,7 @@
     <string name="apply">Použít</string>
     <string name="open_in_terminal">Otevřít ve Terminálu</string>
     <string name="open_dir_in_terminal">Otevřít Složku ve Terminálu</string>
-    <string name="reload_file_tree">Aktualizovat Soubory</string>
+    <string name="reload_file_tree">Znovu Načíst Soubory</string>
     <string name="paste_desc">Vložit soubor</string>
     <string name="open">Otevřít</string>
     <string name="permission_denied">Přístup Odepřen</string>
@@ -261,7 +261,7 @@
     <string name="cursor_anim_desc">Zapnout hladké animace kurzoru</string>
     <string name="warning_private_dir">Obsah této složky bude odstraněn jestli vyčistíte data nebo odstraníte Xed-Editor</string>
     <string name="github_desc">Dejte hvězdičku na GitHubu 🤩</string>
-    <string name="telegram_desc">Spojit se s Telegram komunitou</string>
+    <string name="telegram_desc">Nahlásit problémy, žádosti o nové funkce atd.</string>
     <string name="join">Spojit se</string>
     <string name="ask_unsaved">Opravdu chcete tento neuložený soubor zahodit?</string>
     <string name="keep_editing">Dál upravovat</string>
@@ -324,4 +324,7 @@
     <string name="clone_err">Repozitář je soukromý. nebo Zkontrolujte své přihlašovací údaje</string>
     <string name="show_virtual_keyboard_desc">Zobrazit virtuální klávesnici i když je připojena fyzická klávesnice</string>
     <string name="encoding_warning">Změna výchozího kódování je velmi nedoporučována, může vést k poškození souborů. Důrazně doporučujeme použít UTF-8, dokud plně nepochopíte důsledky a nevytvoříte správnou zálohu.</string>
+    <string name="toggle_ww">Přepnout Zalamování Slov</string>
+    <string name="misc">Smíšené</string>
+    <string name="misc_desc">Smíšené nastavení</string>
 </resources>
