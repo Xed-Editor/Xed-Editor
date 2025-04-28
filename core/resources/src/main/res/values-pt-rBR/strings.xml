@@ -386,4 +386,5 @@
     <string name="feature_toggles_desc">Habilitar ou desabilitar recursos específicos</string>
     <string name="read_only_file">Arquivo é apenas leitura</string>
     <string name="toggle_ww">Alternar quebra de linha</string>
+    <string name="unknown_err">Algo deu errado</string>
 </resources>
