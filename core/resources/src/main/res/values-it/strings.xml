@@ -9,7 +9,7 @@
     <string name="close">Chiudi</string>
     <string name="inavalid_git_cred">Le credenziali sono errate. Modificale nelle impostazioni</string>
     <string name="title_activity_main">AttivitàPrincipale</string>
-    <string name="push_desc">Crea un commit e invia le modifiche al repository remoto\"</string>
+    <string name="push_desc">Crea un commit e invia le modifiche al repository remoto</string>
     <string name="invalid_path">Il percorso non esiste</string>
     <string name="permission_denied">Permesso Negato</string>
     <string name="path">Percorso</string>
@@ -254,7 +254,7 @@
     <string name="version_code">Codice Versione</string>
     <string name="github_desc">Valuta su GitHub 🤩</string>
     <string name="telegram">Gruppo Telegram</string>
-    <string name="telegram_desc">Unisciti alla community Telegram</string>
+    <string name="telegram_desc">Segnala problemi, richiedi funzionalità, etc.</string>
     <string name="join">Unisciti</string>
     <string name="github">GitHub</string>
     <string name="show_virtual_keyboard">Mostra Tastiera Virtuale</string>
@@ -385,4 +385,6 @@
     <string name="invalidpath">Percorso non valido</string>
     <string name="failed">Fallito</string>
     <string name="unknown_err">Qualcosa è andato storto</string>
+    <string name="misc">Varie</string>
+    <string name="misc_desc">Impostazioni varie</string>
 </resources>
