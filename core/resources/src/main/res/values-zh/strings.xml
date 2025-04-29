@@ -288,7 +288,7 @@
     <string name="useCtrlWorkaround">在工作区使用 Ctrl 快捷键</string>
     <string name="force_normal_desc">强制在大屏幕设备上使用正常布局</string>
     <string name="light_mode">亮色</string>
-    <string name="telegram_desc">加入 Telegram 社区</string>
+    <string name="telegram_desc">报告问题、需求反馈等</string>
     <string name="show_virtual_keyboard_desc">连接物理键盘时显示虚拟键盘</string>
     <string name="git_commit">Git 提交哈希</string>
     <string name="check_for_updates_desc">定期检查更新</string>
@@ -385,4 +385,6 @@
     <string name="read_only_file">文件处于只读状态</string>
     <string name="toggle_ww">切换自动换行</string>
     <string name="unknown_err">出了点问题</string>
+    <string name="misc">其他设置</string>
+    <string name="misc_desc">其他的设置选项</string>
 </resources>
