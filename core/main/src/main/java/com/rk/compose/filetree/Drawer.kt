@@ -213,7 +213,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     )
 
                                     val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                                    val isManager = Environment.isExternalStorageManager()
+                                    val isManager = is11Plus && Environment.isExternalStorageManager()
                                     val legacyPermission = ContextCompat.checkSelfPermission(
                                         this@withContext,
                                         Manifest.permission.READ_EXTERNAL_STORAGE,
