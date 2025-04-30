@@ -327,4 +327,6 @@
     <string name="toggle_ww">Přepnout Zalamování Slov</string>
     <string name="misc">Smíšené</string>
     <string name="misc_desc">Smíšené nastavení</string>
+    <string name="smooth_tabs">Hladké animace Karet</string>
+    <string name="smooth_tab_desc">Hladce přepnout mezi karty</string>
 </resources>
