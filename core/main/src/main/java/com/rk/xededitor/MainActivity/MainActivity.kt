@@ -344,7 +344,7 @@ class MainActivity : BaseActivity() {
     private fun openTabForIntent(intent: Intent){
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data!!
-            val fileObject = uri.toFileObject()
+            val fileObject = UriWrapper(uri)
             adapter?.addFragment(fileObject)
             setIntent(Intent())
         }
