@@ -255,7 +255,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             tabViewModel.fileSet.add(file.getCanonicalPath())
             tabViewModel.fragmentFiles.add(file)
 
-            if(tabViewModel.fragmentTitles.contains(file.getName())){
+            if(file.getParentFile() != null && tabViewModel.fragmentTitles.contains(file.getName())){
                 tabViewModel.fragmentTitles.add(file.getParentFile()!!.getName()+"/"+file.getName())
             }else{
                 tabViewModel.fragmentTitles.add(file.getName())
