@@ -59,7 +59,6 @@ object UpdateChecker {
                 Settings.last_update_check_timestamp = System.currentTimeMillis()
             } catch (e: Exception) {
                 e.printStackTrace()
-                errorDialog(e)
             }
         }
     }
