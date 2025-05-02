@@ -294,11 +294,11 @@
     <string name="force_normal">Vynutit normální mód</string>
     <string name="sim_hard_links">Simulovat tvrdé odkazy</string>
     <string name="press_again_exit">Pro odchod stiskněte znovu zpět</string>
-    <string name="unsupported_aarch">Nepodporovaná platforma, používám Pojistku</string>
+    <string name="unsupported_aarch">Nepodporovaná platforma, Použij Pojistku</string>
     <string name="git_commit">Kotrolní součet Git Změny</string>
     <string name="clipboard_empty">Schránka souboru je prázdná</string>
     <string name="pushing">Poslat do vzdáleného repozitáře…</string>
-    <string name="push_desc">Vytvořit změnu a poslat do vzdáleného repozitáře\"</string>
+    <string name="push_desc">Vytvořit změnu a poslat do vzdáleného repozitáře</string>
     <string name="install_done">Instalace úspěšná</string>
     <string name="install_failed">Chyba při instalaci</string>
     <string name="toggle_suggestion">Přepnout našeptávání</string>
