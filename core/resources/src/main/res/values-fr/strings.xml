@@ -58,7 +58,7 @@
     <string name="redir">Re-sélectionnez à nouveau le dossier</string>
     <string name="canthandle">Aucune app trouvée pour gérer le fichier</string>
     <string name="clipboardempty">Le presse-papiers est vide</string>
-    <string name="add_file">Ajouter fichier</string>
+    <string name="add_file">Ajouter un fichier externe</string>
     <string name="keyword_regex">mot-clé (Regex)</string>
     <string name="replaceall">Remplacer tout</string>
     <string name="add_new_replacement_batch">Ajouter lot de substitution</string>
@@ -89,7 +89,7 @@
     <string name="open_in_terminal">Ouvrir dans le terminal</string>
     <string name="open_dir_in_terminal">Ouvrir le dossier dans le terminal</string>
     <string name="file_open_denied">Ouvrir ce fichier avec d’autres apps n’est pas autorisé</string>
-    <string name="reload_file_tree">Recharger fichier</string>
+    <string name="reload_file_tree">Recharger fichiers</string>
     <string name="close_current_project">Fermer le projet courant</string>
     <string name="rename_descript">Renommer le fichier/dossier sélectionné</string>
     <string name="open_with_other">Ouvrir le fichier sélectionné dans d’autres apps</string>
@@ -121,7 +121,7 @@
     <string name="pushing">Push vers le dépôt distant…</string>
     <string name="nogit">Erreur : dossier .git non-trouvé</string>
     <string name="manage_storage">Gérer le stockage</string>
-    <string name="manage_storage_reason">Karbon a besoin de droits pour éditer les fichiers. Autorisez l’accès à votre stockage dans le paramètre système suivant.</string>
+    <string name="manage_storage_reason">Xed-Editor a besoin de droits pour modifier les fichiers. Autorisez l’accès à votre stockage dans le paramètre système suivant.</string>
     <string name="ok">OK</string>
     <string name="data_clear">Données de l’app supprimées</string>
     <string name="action_done">Action complétée</string>
@@ -129,11 +129,11 @@
     <string name="exists">existe déjà !</string>
     <string name="plugin_dir">Dossier des greffons</string>
     <string name="private_files">Fichiers privés</string>
-    <string name="private_files_desc">Fichiers privés de Karbon</string>
+    <string name="private_files_desc">Fichiers privés de Xed-Editor</string>
     <string name="cloning">Dépôt en cours de clonage…</string>
     <string name="clone_err">Le dépôt est privé ou les identifiants sont incorrects</string>
     <string name="err">Erreur</string>
-    <string name="open_dir_desc">Choisir un dossier comme projet</string>
+    <string name="open_dir_desc">Ouvrir un dossier via SAF</string>
     <string name="open_file_desc">Choisir un fichier à éditer</string>
     <string name="open_path">Stockage interne</string>
     <string name="open_path_desc">Ouvrir le stockage interne</string>
@@ -176,13 +176,13 @@
     <string name="text_size_desc">Régler la taille du texte</string>
     <string name="tab_size">Taille d’onglet</string>
     <string name="monet">Couleurs dynamiques</string>
-    <string name="monet_desc">Utiliser l’apparence système dans l’app.</string>
+    <string name="monet_desc">Utiliser l’apparence système dans l’app</string>
     <string name="restart_app">Redémarrer l’application.</string>
     <string name="old_android">Version Android non-supportée</string>
     <string name="editor_desc">Paramètres généraux de l’éditeur</string>
     <string name="plugin_desc">Paramètres généraux des greffons</string>
     <string name="terminal_desc">Paramètres généraux du terminal</string>
-    <string name="git_desc">Paramètres généraux pour git</string>
+    <string name="git_desc">Paramètres généraux de git</string>
     <string name="enable_plugins">Activer les greffons</string>
     <string name="fail_safe">Sécurité</string>
     <string name="Lshell">Lancer le shell</string>
@@ -218,9 +218,9 @@
     <string name="dark_mode">Sombre</string>
     <string name="select_theme_mode">Sélectionner le mode d’apparence</string>
     <string name="cannot_be_empty">Ne peut pas être vide.</string>
-    <string name="theme_mode">Mode d’apparence</string>
+    <string name="theme_mode">Apparence</string>
     <string name="no_plugins_available">Aucun greffon disponible</string>
-    <string name="about_desc">À propos de Karbon</string>
+    <string name="about_desc">À propos de Xed-Editor</string>
     <string name="version">Version</string>
     <string name="version_code">Code de version</string>
     <string name="telegram">Groupe Telegram</string>
@@ -289,7 +289,7 @@
     <string name="manage_editor_font">Gérer les polices de l’éditeur</string>
     <string name="choose_zip">Choisir le fichier zip de l’extension pour l’installer.</string>
     <string name="editor_font_desc">Choisir la police de l’éditeur</string>
-    <string name="theme_mode_desc">Changer le mode d’apparence à auto, clair ou sombre.</string>
+    <string name="theme_mode_desc">Changer la couleur de l\'apparence.</string>
     <string name="telegram_desc">Rejoindre la communauté Telegram</string>
     <string name="click_open">Cliquer ici pour ouvrir un fichier</string>
     <string name="fonts">Polices</string>
