@@ -84,6 +84,12 @@ object Settings {
     var has_shown_terminal_dir_warning
         get() = Preference.getBoolean(key = "has_shown_terminal_dir_warning", default = false)
         set(value) = Preference.setBoolean(key = "has_shown_terminal_dir_warning", value)
+    var anr_watchdog
+        get() = Preference.getBoolean(key = "anr", default = false)
+        set(value) = Preference.setBoolean(key = "anr", value)
+    var strict_mode
+        get() = Preference.getBoolean(key = "strictMode", default = false)
+        set(value) = Preference.setBoolean(key = "strictMode", value)
 
 
 

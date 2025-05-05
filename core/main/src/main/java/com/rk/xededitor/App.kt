@@ -24,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.Executors
+import com.rk.xededitor.BuildConfig
 
 
 class App : Application() {
@@ -46,9 +47,11 @@ class App : Application() {
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
 
-
-        if (BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG || Settings.anr_watchdog){
             ANRWatchDog().start()
+        }
+
+        if (BuildConfig.DEBUG || Settings.strict_mode){
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder().apply {
                     detectAll()

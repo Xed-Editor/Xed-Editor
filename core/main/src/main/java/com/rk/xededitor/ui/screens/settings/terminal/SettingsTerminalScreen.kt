@@ -74,6 +74,32 @@ import java.util.Date
 private const val min_text_size = 10f
 private const val max_text_size = 20f
 
+var execAllowed by mutableStateOf(false)
+var isExecLoading by  mutableStateOf(true)
+var isTermuxInstalled by  mutableStateOf<Boolean?>(null)
+var isTermuxCompatible by  mutableStateOf<Boolean?>(null)
+var errorMessage by mutableStateOf("")
+
+suspend fun updateTermuxExecStatus(){
+    isExecLoading = true
+    withContext(Dispatchers.IO){
+        isTermuxInstalled = isTermuxInstalled()
+        if (isTermuxInstalled != true){
+            return@withContext
+        }
+        isTermuxCompatible = isTermuxCompatible()
+        if (isTermuxCompatible != true){
+            return@withContext
+        }
+
+        val result = testExecPermission()
+        execAllowed = result.first
+        errorMessage = result.second?.message.toString()
+        result.second?.printStackTrace()
+    }
+    isExecLoading = false
+}
+
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun SettingsTerminalScreen() {
@@ -81,35 +107,8 @@ fun SettingsTerminalScreen() {
         val context = LocalContext.current
         val showDayBottomSheet = remember { mutableStateOf(false) }
 
-        var execAllowed by remember { mutableStateOf(false) }
-        var isExecLoading by remember { mutableStateOf(true) }
-        var isTermuxInstalled by remember { mutableStateOf<Boolean?>(null) }
-        var isTermuxCompatible by remember { mutableStateOf<Boolean?>(null) }
-        var errorMessage by remember { mutableStateOf("") }
-
-
-        suspend fun update(){
-            isExecLoading = true
-            withContext(Dispatchers.IO){
-                isTermuxInstalled = isTermuxInstalled()
-                if (isTermuxInstalled != true){
-                    return@withContext
-                }
-                isTermuxCompatible = isTermuxCompatible()
-                if (isTermuxCompatible != true){
-                    return@withContext
-                }
-
-                val result = testExecPermission()
-                execAllowed = result.first
-                errorMessage = result.second?.message.toString()
-                result.second?.printStackTrace()
-            }
-            isExecLoading = false
-        }
-
         LaunchedEffect(Unit) {
-            update()
+            updateTermuxExecStatus()
         }
 
         PreferenceGroup {
@@ -123,10 +122,8 @@ fun SettingsTerminalScreen() {
                 if (isExecLoading){
                     return "[Info] Waiting for termux to respond..."
                 }
-                return if (execAllowed && errorMessage.isBlank()){
+                return if (execAllowed && (errorMessage.isBlank() || errorMessage == "null")){
                     "[Info] Termux Exec is working normally"
-                }else if(errorMessage.isBlank() || errorMessage.toString() == "null"){
-                    "[Error] allow-external-apps is not enabled in termux properties"
                 }else{
                     "[Error] $errorMessage"
                 }

@@ -13,7 +13,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,10 +25,12 @@ import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 //import com.rk.xededitor.MainActivity.file.ProjectManager
@@ -86,6 +89,41 @@ fun DeveloperOptions(modifier: Modifier = Modifier,navController: NavController)
                     memoryUsage.intValue = getMemoryUsage(context)
                 }
             )
+
+            var state by remember {
+                mutableStateOf(Settings.strict_mode || BuildConfig.DEBUG)
+            }
+            PreferenceSwitch(checked = state,
+                onCheckedChange = {
+                    state = it || BuildConfig.DEBUG
+                    Settings.strict_mode = state
+                },
+                label = "Strict Mode",
+                description = "Detects bad development practices like disk or network access on the main thread",
+                modifier = modifier,
+                onClick = {
+                    state = !state || BuildConfig.DEBUG
+                    Settings.strict_mode = state
+                })
+
+
+
+            var state1 by remember {
+                mutableStateOf(Settings.anr_watchdog || BuildConfig.DEBUG)
+            }
+            PreferenceSwitch(checked = state1,
+                onCheckedChange = {
+                    state1 = it || BuildConfig.DEBUG
+                    Settings.anr_watchdog = state1
+                },
+                label = "ANR Watchdog",
+                description = "Force crash Xed-Editor if it becomes unresponsive for more than 5 seconds",
+                modifier = modifier,
+                onClick = {
+                    state = !state || BuildConfig.DEBUG
+                    Settings.anr_watchdog = state
+                })
+
 
             SettingsToggle(
                 label = stringResource(strings.manage_storage),
