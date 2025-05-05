@@ -54,7 +54,6 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.alpineHomeDir
-import com.rk.libcommons.uriToFileObject
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -104,7 +103,6 @@ private val mutex = Mutex()
             val gson = Gson()
             val uniqueProjects = projects.map { it.fileObject.getAbsolutePath() }
             val jsonString = gson.toJson(uniqueProjects)
-            println("Saving $jsonString")
             Settings.projects = jsonString
         }
     }
@@ -115,19 +113,16 @@ suspend fun restoreProjects(){
         withContext(Dispatchers.IO){
             runCatching {
                 val jsonString = Settings.projects
-                println("Saved $jsonString")
-
                 if (jsonString.isNotEmpty()) {
                     val gson = Gson()
                     val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
 
                     projectsList.forEach {
-                        println("Restoring $it")
                         val file = File(it)
                         if (file.exists() && file.canRead() && file.canWrite() && file.isDirectory){
                             addProject(FileWrapper(file))
                         }else{
-                            addProject(uriToFileObject(Uri.parse(it),expectFile = false))
+                            addProject(UriWrapper(Uri.parse(it)))
                         }
                         delay(100)
                     }

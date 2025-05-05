@@ -184,7 +184,9 @@ class FileManager(private val mainActivity: MainActivity) {
     fun selectDirForNewFileLaunch(fileName:String){
         selectDirCallBack = {
             val file = File(it?.data!!.data!!.toPath())
-            val fileObject = if (file.exists().not()) {
+            val fileObject = if (file.exists() && file.canWrite() && file.canWrite() && file.isDirectory) {
+                FileWrapper(file)
+            } else {
                 runCatching {
                     val takeFlags: Int =
                         (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
@@ -193,11 +195,9 @@ class FileManager(private val mainActivity: MainActivity) {
                     )
                 }
                 UriWrapper(it.data!!.data!!)
-            } else {
-                FileWrapper(file)
             }
 
-            if (fileObject.hasChild(fileName).not()){
+            if (fileObject.hasChild(fileName)){
                 toast("File with name $fileName already exists")
             }else{
                 val newFile = fileObject.createChild(true,fileName)
@@ -209,6 +209,8 @@ class FileManager(private val mainActivity: MainActivity) {
                     }
                 }
             }
+
+
 
         }
         selectDirInternal.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
