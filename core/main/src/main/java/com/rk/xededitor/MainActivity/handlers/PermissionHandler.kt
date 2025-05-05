@@ -26,7 +26,7 @@ import java.lang.ref.WeakReference
 
 object PermissionHandler {
     private const val REQUEST_CODE_STORAGE_PERMISSIONS = 1259
-    
+
     fun onRequestPermissionsResult(
         requestCode: Int,
         grantResults: IntArray,
@@ -37,7 +37,7 @@ object PermissionHandler {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                 // permission denied ask again
                 activity.lifecycleScope.launch { verifyStoragePermission(activity) }
-                
+
             }
         }
     }
@@ -103,8 +103,9 @@ object PermissionHandler {
                         )
                     }
 
-                    dialogRef = WeakReference(show())
+                    
                 }
+                dialogRef = WeakReference(show())
             }
         }
     }
