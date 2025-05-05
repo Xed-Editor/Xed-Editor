@@ -54,7 +54,7 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.alpineHomeDir
-import com.rk.libcommons.toFileObject
+import com.rk.libcommons.uriToFileObject
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -98,28 +98,37 @@ data class FileObjectWrapper(val fileObject: FileObject,val name: String): Seria
 
 private val mutex = Mutex()
 
-private suspend fun save(){
+ suspend fun saveProjects(){
     mutex.withLock{
         withContext(Dispatchers.IO){
             val gson = Gson()
             val uniqueProjects = projects.map { it.fileObject.getAbsolutePath() }
             val jsonString = gson.toJson(uniqueProjects)
+            println("Saving $jsonString")
             Settings.projects = jsonString
         }
     }
 }
 
-private suspend fun restore(){
+suspend fun restoreProjects(){
     mutex.withLock{
         withContext(Dispatchers.IO){
             runCatching {
                 val jsonString = Settings.projects
+                println("Saved $jsonString")
+
                 if (jsonString.isNotEmpty()) {
                     val gson = Gson()
                     val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
 
                     projectsList.forEach {
-                        addProject(it.toFileObject())
+                        println("Restoring $it")
+                        val file = File(it)
+                        if (file.exists() && file.canRead() && file.canWrite() && file.isDirectory){
+                            addProject(FileWrapper(file))
+                        }else{
+                            addProject(uriToFileObject(Uri.parse(it),expectFile = false))
+                        }
                         delay(100)
                     }
 
@@ -134,18 +143,20 @@ private suspend fun restore(){
 val projects = mutableStateListOf<FileObjectWrapper>()
 var currentProject by mutableStateOf<FileObject?>(null)
 
-fun addProject(fileObject: FileObject){
+fun addProject(fileObject: FileObject,save:Boolean = false){
     if (projects.find { it.fileObject == fileObject } != null){
         return
     }
     projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
     currentProject = fileObject
-    GlobalScope.launch(Dispatchers.IO){
-        save()
+    if (save){
+        GlobalScope.launch(Dispatchers.IO){
+            saveProjects()
+        }
     }
 }
 
-fun removeProject(fileObject: FileObject){
+fun removeProject(fileObject: FileObject,save: Boolean = false){
     projects.remove(projects.find { it.fileObject == fileObject })
     if (currentProject == fileObject){
         currentProject = if (projects.size-1 >= 0){
@@ -154,22 +165,19 @@ fun removeProject(fileObject: FileObject){
             null
         }
     }
-    GlobalScope.launch(Dispatchers.IO){
-        save()
+    if (save){
+        GlobalScope.launch(Dispatchers.IO){
+            saveProjects()
+        }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+var isLoading by mutableStateOf(true)
+
+
 @Composable
 fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    var isLoading by remember { mutableStateOf(true) }
-    LaunchedEffect(Unit) {
-        isLoading = true
-        restore()
-        isLoading = false
-    }
-
     Box(modifier = Modifier.fillMaxSize()){
         if (isLoading){
             CircularProgressIndicator()

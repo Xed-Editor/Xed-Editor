@@ -69,21 +69,30 @@ fun File.toFileWrapper():FileWrapper{
     return FileWrapper(this)
 }
 
-fun Uri.toFileObject():FileObject{
-    val path = toPath()
-    val allowFileWrapper = (path.contains(Environment.getExternalStorageDirectory().absolutePath).not() && path.contains("/sdcard").not()) || ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager())
-    if (allowFileWrapper){
-        if (!toString().startsWith("content://com.termux")){
-            val file = File(path)
-            if (file.exists() && file.canRead() && file.canWrite()){
-                return FileWrapper(file)
-            }
-        }
-
-    }
-    return UriWrapper(this)
+inline fun isFileManager():Boolean{
+    return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager())
 }
 
-fun String.toFileObject():FileObject{
-    return Uri.parse(this).toFileObject()
+fun uriToFileObject(uri:Uri,expectFile:Boolean? = null):FileObject{
+    val path = uri.toPath()
+
+    val file = File(path)
+
+    val condition = when (expectFile) {
+        null -> {
+            true
+        }
+        true -> {
+            file.isFile
+        }
+        else -> {
+            file.isDirectory
+        }
+    }
+
+    if (file.exists() && file.canRead() && file.canWrite() && condition){
+        return FileWrapper(file)
+    }
+
+    return UriWrapper(uri)
 }

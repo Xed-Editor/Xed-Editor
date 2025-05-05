@@ -31,6 +31,9 @@ import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.compose.filetree.DrawerContent
+import com.rk.compose.filetree.isLoading
+import com.rk.compose.filetree.restoreProjects
+import com.rk.compose.filetree.saveProjects
 import com.rk.extension.ExtensionManager
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
@@ -42,7 +45,6 @@ import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.toFileObject
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
@@ -344,7 +346,12 @@ class MainActivity : BaseActivity() {
     private fun openTabForIntent(intent: Intent){
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
             val uri = intent.data!!
-            val fileObject = UriWrapper(uri)
+            val file = File(uri.toPath())
+            val fileObject = if (file.exists() && file.canRead() && file.canWrite() && file.isFile){
+                FileWrapper(file)
+            }else{
+                UriWrapper(uri)
+            }
             adapter?.addFragment(fileObject)
             setIntent(Intent())
         }
@@ -368,6 +375,7 @@ class MainActivity : BaseActivity() {
     override fun onPause() {
         isPaused = true
         tabViewModel.save()
+        GlobalScope.launch { saveProjects() }
 
         if (Settings.auto_save) {
             toastCatching { saveAllFiles() }
@@ -384,6 +392,11 @@ class MainActivity : BaseActivity() {
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
         lifecycleScope.launch{ Runner.onMainActivityResumed() }
+        lifecycleScope.launch {
+            isLoading = true
+            restoreProjects()
+            isLoading = false
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

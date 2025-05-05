@@ -22,8 +22,8 @@ import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.toFileObject
 import com.rk.libcommons.toast
+import com.rk.libcommons.uriToFileObject
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
@@ -47,7 +47,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 mainActivity.lifecycleScope.launch{
                     delay(100)
                     withContext(Dispatchers.Main){
-                        mainActivity.adapter!!.addFragment(it.data!!.data!!.toFileObject())
+                        mainActivity.adapter!!.addFragment(uriToFileObject(it.data!!.data!!,expectFile = true))
                     }
                 }
             }
@@ -159,7 +159,7 @@ class FileManager(private val mainActivity: MainActivity) {
             if (result.resultCode == Activity.RESULT_OK) {
                 mainActivity.lifecycleScope.launch{
                     val data: Intent? = result.data
-                    val wrapper = data?.data?.toFileObject()!!
+                    val wrapper = uriToFileObject(data?.data!!,expectFile = true)
                     delay(100)
                     withContext(Dispatchers.Main){
                         mainActivity.adapter?.addFragment(wrapper)
