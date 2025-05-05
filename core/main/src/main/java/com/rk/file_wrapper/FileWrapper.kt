@@ -5,6 +5,8 @@ import android.net.Uri
 import android.os.Environment
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
+import com.rk.libcommons.toast
+import com.rk.resources.strings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -38,6 +40,10 @@ class FileWrapper(var file: File) : FileObject {
         content: String,
         charset: Charset
     ): Boolean {
+        if (canWrite().not()){
+            toast(strings.permission_denied)
+            return false
+        }
         withContext(Dispatchers.IO){
             getOutPutStream(false).use {
                 it.write(content.toByteArray(charset))
