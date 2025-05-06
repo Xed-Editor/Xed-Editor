@@ -23,7 +23,7 @@
     <string name="wait">Por favor, aguarde…</string>
     <string name="report_issue">Reportar problema</string>
     <string name="copy">Copiar</string>
-    <string name="save_all">Salvar tudo</string>
+    <string name="save_all">Salvar Todos</string>
     <string name="save_1">Salvar</string>
     <string name="undo">Desfazer</string>
     <string name="settings">Configurações</string>
@@ -41,10 +41,10 @@
     <string name="new_file_1">Novo arquivo</string>
     <string name="rename">Renomear</string>
     <string name="open_with">Abrir com…</string>
-    <string name="save_as">Salvar como</string>
+    <string name="save_as">Salvar Como</string>
     <string name="paste">Colar</string>
     <string name="delete">Excluir</string>
-    <string name="close_this">Fechar este</string>
+    <string name="close_this">Fechar esta</string>
     <string name="close_others">Fechar os outros</string>
     <string name="close_all">Fechar todos</string>
     <string name="insertdate">Inserir data</string>
@@ -56,7 +56,7 @@
     <string name="exit">Sair</string>
     <string name="rr">Reinicialização necessária</string>
     <string name="rapply">Reinicie para aplicar as configurações</string>
-    <string name="oled">Tema Noite Negra</string>
+    <string name="oled">Tema Preto</string>
     <string name="ww">Quebra de linha</string>
     <string name="keepdl">Manter gaveta travada</string>
     <string name="restart">Reiniciar</string>
@@ -170,7 +170,7 @@
     <string name="plugin_download_failed">Falha ao baixar o plugin</string>
     <string name="fetch_failed">requisição fetch retornou nulo</string>
     <string name="app">Aplicativo</string>
-    <string name="oled_desc">Tema Preto Puro para dispositivos amoled</string>
+    <string name="oled_desc">Use um tema preto puro para dispositivos AMOLED</string>
     <string name="themes">Temas</string>
     <string name="change_theme">Alterar Tema</string>
     <string name="editor">Editor</string>
@@ -199,7 +199,7 @@
     <string name="tab_size">Tamanho da Tabulação</string>
     <string name="tab_size_desc">Definir tamanho da tabulação</string>
     <string name="monet">Cores Dinâmicas</string>
-    <string name="monet_desc">Usar tema do dispositivo no app.</string>
+    <string name="monet_desc">Usar o tema do sistema</string>
     <string name="restart_app">Por favor, reinicie o aplicativo.</string>
     <string name="old_android">Versão do Android não suportada</string>
     <string name="app_desc">Configurações gerais do aplicativo</string>
@@ -246,10 +246,10 @@
     <string name="light_mode">Claro</string>
     <string name="dark_mode">Escuro</string>
     <string name="auto_mode">Automático</string>
-    <string name="select_theme_mode">Selecione o modo de tema</string>
+    <string name="select_theme_mode">\@string/theme_mode</string>
     <string name="cannot_be_empty">Não pode ser vazio.</string>
-    <string name="theme_mode">Modo do Tema</string>
-    <string name="theme_mode_desc">Altere o modo do tema para automático, claro ou escuro.</string>
+    <string name="theme_mode">Tema</string>
+    <string name="theme_mode_desc">Alterar o tema do aplicativo</string>
     <string name="no_plugins_available">Nenhum Plugin Disponível</string>
     <string name="show_suggestions">Mostrar Sugestões</string>
     <string name="about">Sobre</string>
@@ -259,13 +259,13 @@
     <string name="github">GitHub</string>
     <string name="github_desc">Marque uma estrela no Github 🤩</string>
     <string name="telegram">Grupo do Telegram</string>
-    <string name="telegram_desc">Junte-se à comunidade do Telegram</string>
+    <string name="telegram_desc">Relatar problemas, solicitar recursos, etc.</string>
     <string name="join">Entrar</string>
     <string name="show_virtual_keyboard">Mostrar Teclado Virtual</string>
     <string name="show_virtual_keyboard_desc">Mostrar teclado virtual quando o teclado físico estiver conectado</string>
     <string name="git_commit">Hash do Commit Git</string>
     <string name="check_for_updates">Checar por Atualizações</string>
-    <string name="check_for_updates_desc">Verifique periodicamente se há atualizações</string>
+    <string name="check_for_updates_desc">Verificar periodicamente se há atualizações</string>
     <string name="sora_s_desc">Use a pesquisa de texto Sora</string>
     <string name="txt_ww">Quebrar arquivos txt</string>
     <string name="no">Não</string>
@@ -287,7 +287,7 @@
     <string name="add_font">Adicionar nova fonte</string>
     <string name="add_font_desc">Escolha uma fonte ttf do armazenamento</string>
     <string name="install_termux">Instalar Termux do F-Droid</string>
-    <string name="termux_exec">Termux Exec</string>
+    <string name="termux_exec">Executável Termux</string>
     <string name="termux_exec_guide">Documentação do Termux Exec</string>
     <string name="termux_exec_guide_desc">Documentação para habilitar o Termux Exec</string>
     <string name="gestures">Gestos</string>
@@ -323,7 +323,7 @@
     <string name="script_showing_dialog">Exibindo um diálogo</string>
     <string name="script_set_text">definir texto</string>
     <string name="installing">Instalando…</string>
-    <string name="not_plugin_err">O arquivo selecionado não é um arquivo .plugin</string>
+    <string name="not_plugin_err">O arquivo selecionado não é um arquivo .apk</string>
     <string name="install_from_storage">Instalar do armazenamento</string>
     <string name="no_ext">Nenhuma extensão instalada.</string>
     <string name="loading">Carregando…</string>
@@ -334,9 +334,9 @@
     <string name="email">E-mail</string>
     <string name="invalid_email">E-mail Inválido</string>
     <string name="invalid_user">Nome de Usuário Inválido</string>
-    <string name="use_github_url">Usar a URL padrão do github</string>
+    <string name="use_github_url">Usar o domínio padrão git</string>
     <string name="custom_git_url">URL Git Personalizada</string>
-    <string name="http_git_url">URL git Http</string>
+    <string name="http_git_url">Domínio http git</string>
     <string name="scroll_to_bottom_desc">Rolar para a parte inferior ao abrir um arquivo</string>
     <string name="tab_opened">Guia Aberta</string>
     <string name="script_text">esse texto será escrito no editor</string>
@@ -358,7 +358,7 @@
     <string name="scroll_to_bottom">Rolar para o Final</string>
     <string name="file_err">O arquivo não pode ser salvo, tente fechar e reabrir o arquivo</string>
     <string name="file_not_loaded">O arquivo ainda não foi carregado.</string>
-    <string name="file_not_exist">O arquivo não existe mais</string>
+    <string name="file_not_exist">O Arquivo Não Existe Mais</string>
     <string name="soft_keyboard_always">Sempre mostrar o teclado</string>
     <string name="soft_keyboard_always_desc">Sempre mostrar o teclado virtual, mesmo que um teclado físico esteja conectado</string>
     <string name="experimental_feature">Recurso Experimental</string>
@@ -387,4 +387,6 @@
     <string name="read_only_file">Arquivo é apenas leitura</string>
     <string name="toggle_ww">Alternar quebra de linha</string>
     <string name="unknown_err">Algo deu errado</string>
+    <string name="misc">Diversos</string>
+    <string name="misc_desc">Configurações Variadas</string>
 </resources>
