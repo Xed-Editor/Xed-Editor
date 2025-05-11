@@ -9,6 +9,8 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.material3.MaterialTheme
+import androidx.core.content.ContextCompat
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.isMainThread

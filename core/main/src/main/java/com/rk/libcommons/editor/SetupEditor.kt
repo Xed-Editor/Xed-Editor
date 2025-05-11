@@ -4,7 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import android.util.TypedValue
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
 import com.rk.libcommons.isDarkMode
@@ -231,6 +233,28 @@ class SetupEditor(
 
             scope.launch(Dispatchers.Main) {
                 editor.colorScheme = editorColorScheme
+
+                editor.apply {
+                    val typedValue = TypedValue()
+                    val theme = context.theme
+                    theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
+                    val colorPrimary = ContextCompat.getColor(context, typedValue.resourceId)
+
+                    val transparentColor = Color.argb(140, Color.red(colorPrimary), Color.green(colorPrimary), Color.blue(colorPrimary))
+
+                    colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE,colorPrimary)
+                    colorScheme.setColor(EditorColorScheme.SELECTION_INSERT,colorPrimary)
+                    colorScheme.setColor(EditorColorScheme.BLOCK_LINE,colorPrimary)
+                    colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT,colorPrimary)
+
+                    colorScheme.setColor(EditorColorScheme.SELECTED_TEXT_BACKGROUND,transparentColor)
+                    //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
+
+                    //bracket
+                    //colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,Color.RED)
+
+                }
+
             }
         }
     }
