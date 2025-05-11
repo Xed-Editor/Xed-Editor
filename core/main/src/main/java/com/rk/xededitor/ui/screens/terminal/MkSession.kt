@@ -2,20 +2,15 @@ package com.rk.xededitor.ui.screens.terminal
 
 import android.os.Environment
 import com.rk.compose.filetree.currentProject
-import com.rk.compose.filetree.projects
 import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localBinDir
-import com.rk.libcommons.localDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
-import com.rk.libcommons.toast
 import com.rk.settings.Settings
-import com.rk.xededitor.App.Companion.getTempDir
+import com.rk.App.Companion.getTempDir
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.MainActivity.MainActivity
 //import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator

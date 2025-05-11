@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +36,9 @@ import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
 import com.rk.extension.ExtensionManager
+import android.view.KeyEvent
 import com.rk.file_wrapper.FileObject
+import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.DefaultScope
@@ -52,7 +55,6 @@ import com.rk.resources.strings
 import com.rk.mutator_engine.Engine
 import com.rk.runner.Runner
 import com.rk.settings.Settings
-import com.rk.xededitor.BaseActivity
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.file.getFragmentType
@@ -68,6 +70,7 @@ import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.ThemeManager
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -82,7 +85,7 @@ import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
 
-class MainActivity : BaseActivity() {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         var activityRef = WeakReference<MainActivity?>(null)
@@ -196,6 +199,7 @@ class MainActivity : BaseActivity() {
 
     var badge: BadgeDrawable? = null
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeManager.apply(this)
         super.onCreate(savedInstanceState)
         activityRef = WeakReference(this)
         tabViewModel.restore()
@@ -380,8 +384,28 @@ class MainActivity : BaseActivity() {
         if (Settings.auto_save) {
             toastCatching { saveAllFiles() }
         }
-
         super.onPause()
+        ThemeManager.apply(this)
+        ExtensionManager.onMainActivityPaused()
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if (event != null) {
+            if (this::class.java.name == MainActivity::class.java.name){
+                KeyEventHandler.onAppKeyEvent(event)
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onLowMemory() {
+        ExtensionManager.onLowMemory()
+        super.onLowMemory()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        ExtensionManager.onLowMemory()
+        super.onTrimMemory(level)
     }
 
     override fun onResume() {

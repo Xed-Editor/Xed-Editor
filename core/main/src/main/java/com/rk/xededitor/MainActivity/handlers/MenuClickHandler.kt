@@ -12,7 +12,7 @@ import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.controlpanel.ControlItem
 import com.rk.file_wrapper.FileWrapper
-import com.rk.karbon_exec.launchTermux
+import com.rk.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
 import com.rk.libcommons.application

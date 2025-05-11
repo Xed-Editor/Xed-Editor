@@ -91,6 +91,10 @@ object Settings {
         get() = Preference.getBoolean(key = "strictMode", default = false)
         set(value) = Preference.setBoolean(key = "strictMode", value)
 
+    var expose_home_dir
+        get() = Preference.getBoolean(key = "expose_home_dir", default = false)
+        set(value) = Preference.setBoolean(key = "expose_home_dir", value)
+
 
 
     //Int

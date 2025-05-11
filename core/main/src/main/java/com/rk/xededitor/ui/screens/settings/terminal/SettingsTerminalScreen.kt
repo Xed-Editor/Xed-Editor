@@ -3,7 +3,6 @@ package com.rk.xededitor.ui.screens.settings.terminal
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -21,15 +20,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,11 +34,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.karbon_exec.isTermuxCompatible
-import com.rk.karbon_exec.isTermuxInstalled
-import com.rk.karbon_exec.testExecPermission
+import com.rk.DocumentProvider
+import com.rk.isTermuxCompatible
+import com.rk.isTermuxInstalled
+import com.rk.testExecPermission
 import com.rk.libcommons.DefaultScope
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -55,6 +51,7 @@ import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.alpineDir
@@ -69,7 +66,6 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import java.io.File
 import java.lang.Runtime.getRuntime
-import java.util.Date
 
 private const val min_text_size = 10f
 private const val max_text_size = 20f
@@ -340,6 +336,38 @@ fun SettingsTerminalScreen() {
                     restore.launch("application/gzip")
                 }
             )
+        }
+
+        PreferenceGroup {
+
+            var state by remember { mutableStateOf(Settings.expose_home_dir) }
+            val sideEffect:(Boolean)->Unit = {
+                if(it){
+                    MaterialAlertDialogBuilder(context).apply {
+                        setTitle(strings.attention)
+                        setMessage(strings.saf_expose_warning)
+                        setPositiveButton(strings.ok){_,_ ->
+                            Settings.expose_home_dir = true
+                            DocumentProvider.setDocumentProviderEnabled(context, true)
+                            state = true
+                        }
+                        setNegativeButton(strings.cancel,null)
+                        show()
+                    }
+                }else{
+                    Settings.expose_home_dir = false
+                    state = false
+                    DocumentProvider.setDocumentProviderEnabled(context, false)
+                }
+            }
+
+            PreferenceSwitch(
+                checked = state,
+                onCheckedChange = { sideEffect(it) },
+                label = stringResource(strings.expose_saf),
+                description = stringResource(strings.expose_saf_desc),
+                onClick = { sideEffect(!state) })
+
         }
 
     }

@@ -1,4 +1,4 @@
-package com.rk.xededitor.service
+package com.rk
 
 import android.app.*
 import android.content.Intent
@@ -19,7 +19,7 @@ class SessionService : Service() {
     var currentSession = mutableStateOf<String>("main")
 
     inner class SessionBinder : Binder() {
-        fun getService():SessionService{
+        fun getService(): SessionService {
             return this@SessionService
         }
         fun createSession(id: String, client: TerminalSessionClient, activity: Terminal): TerminalSession {

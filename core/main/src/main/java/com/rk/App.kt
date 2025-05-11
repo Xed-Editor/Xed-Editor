@@ -1,4 +1,4 @@
-package com.rk.xededitor
+package com.rk
 
 import android.app.Application
 import android.os.Build
@@ -13,11 +13,8 @@ import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
-import com.rk.xededitor.ui.screens.settings.extensions.Extensions
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
-import com.rk.xededitor.update.UpdateChecker
-import com.rk.xededitor.update.UpdateManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -71,7 +68,12 @@ class App : Application() {
         //wait until UpdateManager is done, it should only take few milliseconds
         UpdateManager.inspect()
 
-        GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch {
+
+            if (Settings.expose_home_dir != DocumentProvider.isDocumentProviderEnabled(this@App)){
+                DocumentProvider.setDocumentProviderEnabled(this@App,Settings.expose_home_dir)
+            }
+
             getTempDir().apply {
                 if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
             }

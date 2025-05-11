@@ -20,7 +20,7 @@ import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
-import com.rk.karbon_exec.runBashScript
+import com.rk.runBashScript
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath

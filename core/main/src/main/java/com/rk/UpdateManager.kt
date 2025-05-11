@@ -1,8 +1,7 @@
-package com.rk.xededitor.update
+package com.rk
 
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.libcommons.application
-import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.libcommons.toast
 import com.rk.resources.strings

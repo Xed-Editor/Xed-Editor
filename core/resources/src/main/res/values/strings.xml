@@ -415,5 +415,9 @@
     <string name="misc">Miscellaneous</string>
     <string name="misc_desc">Miscellaneous Settings</string>
 
+    <string name="expose_saf">Expose Home Directory</string>
+    <string name="expose_saf_desc">Make the home directory accessible to external apps via the system file picker (SAF)</string>
+    <string name="saf_expose_warning">Exposing the home directory may reveal sensitive information to malicious apps, including Git tokens, passwords, usernames, and other files stored in your terminal home directory. Do you want to continue?</string>
+
 
 </resources>

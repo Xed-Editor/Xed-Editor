@@ -1,9 +1,8 @@
-package com.rk.xededitor.update
+package com.rk
 
 import android.content.Intent
 import android.net.Uri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.libcommons.errorDialog
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings

@@ -20,7 +20,7 @@
 
 
     <application
-        android:name="com.rk.xededitor.App"
+        android:name="com.rk.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
@@ -53,7 +53,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.rk.xededitor.service.SessionService" />
+        <service android:name="com.rk.SessionService" />
 
 
         <provider

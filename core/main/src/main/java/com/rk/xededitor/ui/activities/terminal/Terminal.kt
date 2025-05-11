@@ -29,14 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rk.libcommons.alpineDir
 import com.rk.libcommons.localDir
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.service.SessionService
+import com.rk.SessionService
 import com.rk.xededitor.ui.screens.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.theme.KarbonTheme

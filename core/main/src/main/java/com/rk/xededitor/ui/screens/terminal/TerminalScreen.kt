@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
@@ -43,8 +42,6 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,10 +58,7 @@ import com.rk.libcommons.dpToPx
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.service.SessionService
-import com.rk.xededitor.ui.activities.settings.SettingsActivity
-import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.activities.settings.settingsNavController
+import com.rk.SessionService
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
@@ -73,7 +67,6 @@ import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysView
 import com.termux.view.TerminalView
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 

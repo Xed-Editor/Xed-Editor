@@ -36,7 +36,10 @@ fun getFullGitCommitHash(): String {
 
 android {
     namespace = "com.rk.xededitor"
-    android.buildFeatures.buildConfig = true
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileSdk = 35
 
     defaultConfig {

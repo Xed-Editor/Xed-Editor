@@ -6,9 +6,7 @@ import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.isMainThread
-import com.rk.resources.getString
-import com.rk.resources.strings
-import com.rk.xededitor.App.Companion.getTempDir
+import com.rk.App.Companion.getTempDir
 import java.io.File
 import java.lang.Runtime.getRuntime
 

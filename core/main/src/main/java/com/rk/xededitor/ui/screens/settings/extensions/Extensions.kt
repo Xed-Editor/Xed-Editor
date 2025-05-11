@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,10 +35,8 @@ import com.rk.extension.ExtensionManager
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
-import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.App.Companion.getTempDir
 import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InfoBlock
 import kotlinx.coroutines.Dispatchers
@@ -55,8 +52,6 @@ import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.safeLaunch
 import com.rk.settings.Preference
-import java.io.File
-import java.io.FileOutputStream
 
 var selectedPlugin: Extension? = null
 

@@ -1,17 +1,13 @@
-package com.rk.karbon_exec
+package com.rk
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Handler
-import android.os.Looper
 import androidx.core.content.ContextCompat
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.application
 import com.rk.libcommons.pendingCommand
-import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import kotlinx.coroutines.DelicateCoroutinesApi

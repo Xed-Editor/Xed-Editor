@@ -2,9 +2,8 @@ package com.rk.runner.runners.c
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import com.rk.file_wrapper.FileObject
-import com.rk.karbon_exec.launchInternalTerminal
-import com.rk.karbon_exec.runBashScript
+import com.rk.launchInternalTerminal
+import com.rk.runBashScript
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
