@@ -33,6 +33,10 @@ class DocumentProvider : DocumentsProvider() {
         row.add(Root.COLUMN_DOCUMENT_ID, "root")
         row.add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE)
         row.add(Root.COLUMN_MIME_TYPES, "*/*")
+        row.add(Root.COLUMN_FLAGS,
+            Root.FLAG_SUPPORTS_CREATE or
+                    Root.FLAG_SUPPORTS_IS_CHILD or
+                    Root.FLAG_LOCAL_ONLY)
         val file = alpineHomeDir()
         val stat = android.os.StatFs(file.path)
         val availableBytes = stat.availableBytes
