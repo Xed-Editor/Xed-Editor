@@ -387,4 +387,7 @@
     <string name="feature_toggles_desc">Activer ou désactiver des fonctionnalités particulières</string>
     <string name="restore">Rétablir</string>
     <string name="feature_toggles">Fonctionnalité activée</string>
+    <string name="expose_saf_desc">Rendre le répertoire personnel accessible aux applications externes via le sélectionneur de fichier du système (SAF)</string>
+    <string name="saf_expose_warning">Rendre accessible le répertoire personnel peut révéler des informations sensibles à des applications malveillantes, comme des jetons git, des mots de passe, des identifiants et d\'autres fichiers enregistré dans votre répertoire personnel. Voulez-vous continuer ?</string>
+    <string name="expose_saf">Rendre accessible le répertoire personnel</string>
 </resources>
