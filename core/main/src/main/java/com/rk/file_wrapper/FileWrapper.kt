@@ -2,7 +2,6 @@ package com.rk.file_wrapper
 
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import com.rk.libcommons.toast
@@ -32,7 +31,7 @@ class FileWrapper(var file: File) : FileObject {
         return file.isDirectory
     }
 
-    override fun getCanonicalPath(): String{
+    override fun getCanonicalPath(): String {
         return file.canonicalPath
     }
 
@@ -40,11 +39,11 @@ class FileWrapper(var file: File) : FileObject {
         content: String,
         charset: Charset
     ): Boolean {
-        if (canWrite().not()){
+        if (canWrite().not()) {
             toast(strings.permission_denied)
             return false
         }
-        withContext(Dispatchers.IO){
+        withContext(Dispatchers.IO) {
             getOutPutStream(false).use {
                 it.write(content.toByteArray(charset))
             }
@@ -138,7 +137,7 @@ class FileWrapper(var file: File) : FileObject {
         return File(file, name).exists()
     }
 
-    override fun createChild(createFile: Boolean, name: String): FileObject? {
+    override fun createChild(createFile: Boolean, name: String): FileObject {
         if (createFile) {
             File(file, name).apply {
                 createNewFile()
@@ -161,14 +160,14 @@ class FileWrapper(var file: File) : FileObject {
     }
 
     override fun getChildForName(name: String): FileObject {
-        return FileWrapper(File(file,name))
+        return FileWrapper(File(file, name))
     }
 
-    override fun readText(): String? {
+    override fun readText(): String {
         return file.readText()
     }
 
-    override fun readText(charset: Charset): String? {
+    override fun readText(charset: Charset): String {
         return file.readText(charset = charset)
     }
 
@@ -177,7 +176,7 @@ class FileWrapper(var file: File) : FileObject {
     }
 
     override fun hashCode(): Int {
-        return getAbsolutePath().hashCode()
+        return file.hashCode()
     }
 
     override fun toString(): String {

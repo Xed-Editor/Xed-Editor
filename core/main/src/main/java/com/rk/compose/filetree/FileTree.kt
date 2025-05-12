@@ -320,7 +320,7 @@ fun FileTree(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                item(key = rootNode.file.getAbsolutePath()) {
+                item(key = rootNode.file.hashCode()) {
                     FileTreeNodeItem(
                         modifier = Modifier.fillMaxWidth(),
                         node = rootNode,
@@ -465,17 +465,15 @@ private fun FileTreeNodeItem(
         ) {
             Column {
                 children.forEach { childNode ->
-                    if (childNode.file.exists()) {
-                        key(childNode.file.getAbsolutePath()) {
-                            FileTreeNodeItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                node = childNode,
-                                depth = depth + 1,
-                                onFileClick = onFileClick,
-                                onFileLongClick = onFileLongClick,
-                                viewModel = viewModel
-                            )
-                        }
+                    key(childNode.file.hashCode()) {
+                        FileTreeNodeItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            node = childNode,
+                            depth = depth + 1,
+                            onFileClick = onFileClick,
+                            onFileLongClick = onFileLongClick,
+                            viewModel = viewModel
+                        )
                     }
                 }
             }
