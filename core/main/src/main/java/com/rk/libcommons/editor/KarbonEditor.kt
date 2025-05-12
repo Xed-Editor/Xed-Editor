@@ -65,6 +65,24 @@ class KarbonEditor : CodeEditor {
         colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, color)
         colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, color)
 
+        val typedValue = TypedValue()
+        val theme = context.theme
+        theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
+        val colorPrimary = ContextCompat.getColor(context, typedValue.resourceId)
+        val transparentColor = Color.argb(130, Color.red(colorPrimary), Color.green(colorPrimary), Color.blue(colorPrimary))
+
+        colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE,colorPrimary)
+        colorScheme.setColor(EditorColorScheme.SELECTION_INSERT,colorPrimary)
+        colorScheme.setColor(EditorColorScheme.BLOCK_LINE,colorPrimary)
+        colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT,colorPrimary)
+
+        colorScheme.setColor(EditorColorScheme.SELECTED_TEXT_BACKGROUND,transparentColor)
+        //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
+
+        //bracket
+        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,Color.TRANSPARENT)
+        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,colorPrimary)
+
         CoroutineScope(Dispatchers.Default).launch {
             applySettings()
         }

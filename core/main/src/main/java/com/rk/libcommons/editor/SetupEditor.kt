@@ -239,7 +239,7 @@ class SetupEditor(
                     val theme = context.theme
                     theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
                     val colorPrimary = ContextCompat.getColor(context, typedValue.resourceId)
-                    val transparentColor = Color.argb(140, Color.red(colorPrimary), Color.green(colorPrimary), Color.blue(colorPrimary))
+                    val transparentColor = Color.argb(130, Color.red(colorPrimary), Color.green(colorPrimary), Color.blue(colorPrimary))
 
                     colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE,colorPrimary)
                     colorScheme.setColor(EditorColorScheme.SELECTION_INSERT,colorPrimary)
@@ -250,7 +250,7 @@ class SetupEditor(
                     //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
 
                     //bracket
-                    colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,colorPrimary)
+                    colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,Color.TRANSPARENT)
                     colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,colorPrimary)
                 }
 
