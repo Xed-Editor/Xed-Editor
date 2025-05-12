@@ -7,8 +7,6 @@ import android.view.View.OnClickListener
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.controlpanel.showControlPanel
 import com.rk.libcommons.isDarkMode
-import com.rk.resources.drawables
-import com.rk.resources.getDrawable
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -16,6 +14,7 @@ import io.github.rosemoe.sora.widget.SymbolInputView
 
 
 private typealias onClick = OnClickListener
+
 fun getInputView(editor: CodeEditor): SymbolInputView {
     val darkTheme: Boolean = when (Settings.default_night_mode) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
@@ -29,7 +28,6 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
         } else {
             Color.BLACK
         }
-
 
 
         /*addSymbols(mutableListOf(Pair(drawables.save.getDrawable(editor.context), onClick {
@@ -46,7 +44,7 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
                 )
             }))
 
-            add(Pair("⌘", onClick{
+            add(Pair("⌘", onClick {
                 MainActivity.withContext { this.showControlPanel() }
             }))
 

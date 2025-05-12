@@ -57,7 +57,7 @@ inline fun CoroutineScope.safeLaunch(
 ): Job {
     return launch(context = context) {
         runCatching { block() }.onFailure {
-            it.printStackTrace();
+            it.printStackTrace()
             if (BuildConfig.DEBUG) {
                 throw it
             }
@@ -125,10 +125,15 @@ inline fun isMainThread(): Boolean {
     return Thread.currentThread().name == "main"
 }
 
-enum class PopupButtonType{
-    POSITIVE,NEGATIVE,NEUTRAL
+enum class PopupButtonType {
+    POSITIVE, NEGATIVE, NEUTRAL
 }
-data class PopupButton(val label: String, val listener: ((DialogInterface) -> Unit)? = null, val type: PopupButtonType = PopupButtonType.NEUTRAL)
+
+data class PopupButton(
+    val label: String,
+    val listener: ((DialogInterface) -> Unit)? = null,
+    val type: PopupButtonType = PopupButtonType.NEUTRAL
+)
 
 fun Activity.askInput(
     title: String? = null,
@@ -155,68 +160,89 @@ fun Activity.askInput(
 
 }
 
-fun dialog(context: Activity? = MainActivity.activityRef.get(), title: String?, msg: String?, onCancel:((DialogInterface)-> Unit)? = null, onOk:((DialogInterface)-> Unit)? = null){
-    if (context == null){
+fun dialog(
+    context: Activity? = MainActivity.activityRef.get(),
+    title: String?,
+    msg: String?,
+    onCancel: ((DialogInterface) -> Unit)? = null,
+    onOk: ((DialogInterface) -> Unit)? = null
+) {
+    if (context == null) {
         throw IllegalArgumentException("context cannot be null")
         return
     }
-    runOnUiThread{
+    runOnUiThread {
         MaterialAlertDialogBuilder(context).apply {
             title?.let { setTitle(it) }
             msg?.let { setMessage(it) }
 
-            onCancel?.let { setNegativeButton(strings.cancel){ dialogInterface,_ ->
-                onCancel(dialogInterface)
-            } }
+            onCancel?.let {
+                setNegativeButton(strings.cancel) { dialogInterface, _ ->
+                    onCancel(dialogInterface)
+                }
+            }
 
-            onOk?.let { setPositiveButton(strings.ok){ dialogInterface,_ ->
-                onOk(dialogInterface)
-            } }
+            onOk?.let {
+                setPositiveButton(strings.ok) { dialogInterface, _ ->
+                    onOk(dialogInterface)
+                }
+            }
 
             show()
         }
     }
 }
 
-fun composeDialog(context: Activity? = MainActivity.activityRef.get(),content:@Composable (AlertDialog?) -> Unit){
-    if (context == null){
+fun composeDialog(
+    context: Activity? = MainActivity.activityRef.get(),
+    content: @Composable (AlertDialog?) -> Unit
+) {
+    if (context == null) {
         throw IllegalArgumentException("context cannot be null")
         return
     }
     var dialog: AlertDialog? = null
-    runOnUiThread{
+    runOnUiThread {
         MaterialAlertDialogBuilder(context).apply {
-            setView(ComposeView(context).apply { setContent { KarbonTheme {
-                Surface {
-                    Surface(
-                        shape = MaterialTheme.shapes.large,
-                        tonalElevation = 1.dp,
-                    ) {
-                        DividerColumn(
-                            startIndent = 0.dp,
-                            endIndent = 0.dp,
-                            dividersToSkip = 0,
-                        ) {
-                            content(dialog)
-                        }}
+            setView(ComposeView(context).apply {
+                setContent {
+                    KarbonTheme {
+                        Surface {
+                            Surface {
+                                Surface(
+                                    shape = MaterialTheme.shapes.large,
+                                    tonalElevation = 1.dp,
+                                ) {
+                                    DividerColumn(
+                                        startIndent = 0.dp,
+                                        endIndent = 0.dp,
+                                        dividersToSkip = 0,
+                                    ) {
+                                        content(dialog)
+                                    }
+                                }
+                            }
 
+
+                        }
+
+                    }
                 }
-
-            } } })
+            })
             dialog = show()
         }
     }
 }
 
 
-fun errorDialog(msg: String){
-    if (msg.isBlank()){
-        Log.w("Utils Error function","Message is blank")
+fun errorDialog(msg: String) {
+    if (msg.isBlank()) {
+        Log.w("Utils Error function", "Message is blank")
         return
     }
 
     val activity = MainActivity.activityRef.get()
-    if (activity == null){
+    if (activity == null) {
         toast(msg)
         return
     }
@@ -224,12 +250,12 @@ fun errorDialog(msg: String){
     dialog(title = strings.err.getString(), msg = msg, onOk = {})
 }
 
-fun errorDialog(@StringRes msgRes: Int){
+fun errorDialog(@StringRes msgRes: Int) {
     errorDialog(msg = msgRes.getString())
 }
 
 
-fun errorDialog(throwable: Throwable){
+fun errorDialog(throwable: Throwable) {
     var message = StringBuilder()
     throwable.let {
         message.append(it.message).append("\n")
@@ -239,7 +265,7 @@ fun errorDialog(throwable: Throwable){
     errorDialog(msg = message.toString())
 }
 
-fun errorDialog(exception: Exception){
+fun errorDialog(exception: Exception) {
     var message = StringBuilder()
     exception.let {
         message.append(it.message).append("\n")

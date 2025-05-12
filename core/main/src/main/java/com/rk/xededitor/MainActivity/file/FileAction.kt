@@ -1,5 +1,7 @@
 package com.rk.xededitor.MainActivity.file
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -10,27 +12,32 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
-import com.rk.runBashScript
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.askInput
+import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.runBashScript
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
@@ -41,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 import java.io.File
+import java.util.Locale
 
 class FileAction(
     val mainActivity: MainActivity,
@@ -52,7 +60,7 @@ class FileAction(
         var to_save_file: FileObject? = null
     }
 
-    private fun getString(@StringRes id:Int):String{
+    private fun getString(@StringRes id: Int): String {
         return id.getString()
     }
 
@@ -64,7 +72,7 @@ class FileAction(
 
         ActionPopup(mainActivity, true).apply {
 
-            Hooks.FileActions.actionPopupHook.values.forEach { it.invoke(this,this@FileAction) }
+            Hooks.FileActions.actionPopupHook.values.forEach { it.invoke(this, this@FileAction) }
 
             if (file == rootFolder) {
                 addItem(
@@ -76,7 +84,7 @@ class FileAction(
                 }
             }
 
-            if (file.isDirectory()){
+            if (file.isDirectory()) {
 
                 addItem(
                     strings.refresh.getString(),
@@ -88,7 +96,8 @@ class FileAction(
                     }
                 }
 
-                addItem(strings.new_document.getString(),
+                addItem(
+                    strings.new_document.getString(),
                     strings.new_document_desc.getString(),
                     getDrawable(drawables.add),
                 ) { new() }
@@ -123,53 +132,59 @@ class FileAction(
             }
 
 
-            fun isTermux(): Boolean{
+            fun isTermux(): Boolean {
                 return Settings.terminal_runtime == "Termux"
             }
 
 
-            if (isTermux() && file is UriWrapper && file.isTermuxUri()){
+            if (isTermux() && file is UriWrapper && file.isTermuxUri()) {
                 addItem(
-                    getString(strings.open_in_terminal)+" (${Settings.terminal_runtime})",
+                    getString(strings.open_in_terminal) + " (${Settings.terminal_runtime})",
                     getString(strings.open_dir_in_terminal),
                     getDrawable(drawables.terminal),
                 ) {
                     val actualFile = file.convertToTermuxFile()
-                    runBashScript(mainActivity, script = """
+                    runBashScript(
+                        mainActivity, script = """
                             cd ${actualFile.absolutePath}
                             bash -l
-                        """.trimIndent())
+                        """.trimIndent()
+                    )
                 }
-            }else{
-                val nativeFile = if (file is FileWrapper){
+            } else {
+                val nativeFile = if (file is FileWrapper) {
                     file.file
-                }else if (File(file.getAbsolutePath()).exists()){
+                } else if (File(file.getAbsolutePath()).exists()) {
                     File(file.getAbsolutePath())
-                }else{
+                } else {
                     val magic = File(Uri.parse(file.getAbsolutePath()).toPath())
-                    if (magic.exists()){
+                    if (magic.exists()) {
                         magic
-                    }else{
+                    } else {
                         null
                     }
                 }
-                fun isPrivateDir(file: File?): Boolean{
-                    return file?.absolutePath?.contains(mainActivity.filesDir.parentFile!!.absolutePath)?.not() == true
+
+                fun isPrivateDir(file: File?): Boolean {
+                    return file?.absolutePath?.contains(mainActivity.filesDir.parentFile!!.absolutePath)
+                        ?.not() == true
                 }
-                if ((isTermux() && isPrivateDir(nativeFile)).not()){
-                    if (nativeFile != null && nativeFile.exists() && nativeFile.isDirectory && InbuiltFeatures.terminal.state.value){
+                if ((isTermux() && isPrivateDir(nativeFile)).not()) {
+                    if (nativeFile != null && nativeFile.exists() && nativeFile.isDirectory && InbuiltFeatures.terminal.state.value) {
                         addItem(
-                            getString(strings.open_in_terminal)+" (${Settings.terminal_runtime})",
+                            getString(strings.open_in_terminal) + " (${Settings.terminal_runtime})",
                             getString(strings.open_dir_in_terminal),
                             getDrawable(drawables.terminal),
                         ) {
 
-                            if (Settings.terminal_runtime == "Termux"){
-                                runBashScript(mainActivity, script = """
+                            if (Settings.terminal_runtime == "Termux") {
+                                runBashScript(
+                                    mainActivity, script = """
                             cd ${file.getAbsolutePath()}
                             bash -l
-                        """.trimIndent())
-                            }else{
+                        """.trimIndent()
+                                )
+                            } else {
                                 val intent = Intent(context, Terminal::class.java)
                                 intent.putExtra("cwd", file.getAbsolutePath())
                                 context.startActivity(intent)
@@ -211,25 +226,29 @@ class FileAction(
                     }.show()
             }
 
-            addItem(getString(strings.copy), getString(strings.copy_desc), if (file.isDirectory()){
-                drawables.folder_copy_24px.getDrawable(mainActivity)
-            }else{
-                drawables.content_copy_24px.getDrawable(mainActivity)
-            }) {
+            addItem(
+                getString(strings.copy), getString(strings.copy_desc), if (file.isDirectory()) {
+                    drawables.folder_copy_24px.getDrawable(mainActivity)
+                } else {
+                    drawables.content_copy_24px.getDrawable(mainActivity)
+                }
+            ) {
                 FileClipboard.setFile(file)
                 FileClipboard.isCut = false
             }
 
-            addItem("Cut", "Move Document", if (file.isDirectory()){
-                drawables.folder_copy_24px.getDrawable(mainActivity)
-            }else{
-                drawables.content_copy_24px.getDrawable(mainActivity)
-            }) {
+            addItem(
+                "Cut", "Move Document", if (file.isDirectory()) {
+                    drawables.folder_copy_24px.getDrawable(mainActivity)
+                } else {
+                    drawables.content_copy_24px.getDrawable(mainActivity)
+                }
+            ) {
                 FileClipboard.setFile(file)
                 FileClipboard.isCut = true
             }
 
-            if (file.isDirectory()){
+            if (file.isDirectory()) {
                 addItem(
                     getString(strings.paste),
                     getString(strings.paste_desc),
@@ -274,7 +293,7 @@ class FileAction(
                                         }
 
                                         copy(source, file)
-                                        if (FileClipboard.isCut){
+                                        if (FileClipboard.isCut) {
                                             source.delete()
                                             FileClipboard.isCut = false
                                         }
@@ -300,7 +319,7 @@ class FileAction(
                 }
             }
 
-            if (file.isFile()){
+            if (file.isFile()) {
                 addItem(
                     getString(strings.save_as),
                     getString(strings.save_desc),
@@ -311,12 +330,137 @@ class FileAction(
                 }
             }
 
+            addItem(
+                strings.info.getString(),
+                strings.file_info.getString(),
+                getDrawable(drawables.outline_info_24)
+            ) {
+                composeDialog {
+                    PreferenceTemplate(
+                        modifier = Modifier.clickable(enabled = true, onClick = {
+                            val clipboard =
+                                mainActivity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText(
+                                strings.path.getString(),
+                                file.getAbsolutePath()
+                            )
+                            clipboard.setPrimaryClip(clip)
+                            toast(strings.copied.getString())
+
+                        }),
+                        description = {
+                            Text(text = file.getAbsolutePath())
+                        },
+                        title = {
+                            Text(text = strings.path.getString())
+                        })
+
+                    PreferenceTemplate(
+                        modifier = Modifier.clickable(enabled = true, onClick = {}),
+                        description = {
+                            Text(text = file::class.qualifiedName ?: "null")
+                        },
+                        title = {
+                            Text(text = "FileObject")
+                        })
+
+                    if (file.isFile()) {
+                        PreferenceTemplate(
+                            modifier = Modifier.clickable(enabled = true, onClick = {}),
+                            description = {
+                                val fileSizeInMB = file.length().toDouble() / (1024 * 1024)
+                                val size =
+                                    String.format(Locale.getDefault(), "%.2f MB", fileSizeInMB)
+                                Text(text = size)
+                            },
+                            title = {
+                                Text(text = strings.file_size.getString())
+                            })
+                    }
+
+                    PreferenceTemplate(
+                        modifier = Modifier.clickable(enabled = true, onClick = {}),
+                        description = {
+                            Text(
+                                text = if (file.isFile()) {
+                                    strings.yes.getString()
+                                } else {
+                                    strings.no.getString()
+                                }
+                            )
+                        },
+                        title = {
+                            Text(text = strings.isfile.getString())
+                        })
+
+
+                    PreferenceTemplate(
+                        modifier = Modifier.clickable(enabled = true, onClick = {}),
+                        description = {
+                            Text(
+                                text = if (file.canRead()) {
+                                    strings.yes.getString()
+                                } else {
+                                    strings.no.getString()
+                                }
+                            )
+
+                        },
+                        title = {
+                            Text(text = strings.can_read.getString())
+                        })
+
+                    PreferenceTemplate(
+                        modifier = Modifier.clickable(enabled = true, onClick = {}),
+                        description = {
+                            Text(
+                                text = if (file.canWrite()) {
+                                    strings.yes.getString()
+                                } else {
+                                    strings.no.getString()
+                                }
+                            )
+                        },
+                        title = {
+                            Text(text = strings.can_write.getString())
+                        })
+
+                    PreferenceTemplate(
+                        modifier = Modifier.clickable(enabled = true, onClick = {}),
+                        description = {
+                            Text(
+                                text = if (file.isSymlink()) {
+                                    strings.yes.getString()
+                                } else {
+                                    strings.no.getString()
+                                }
+                            )
+                        },
+                        title = {
+                            Text(text = "Symlink")
+                        })
+
+
+                    if (file.isSymlink()) {
+                        PreferenceTemplate(
+                            modifier = Modifier.clickable(enabled = true, onClick = {}),
+                            description = {
+                                Text(text = file.getCanonicalPath())
+                            },
+                            title = {
+                                Text(text = "Link Target")
+                            })
+                    }
+
+                }
+            }
+
         }.show()
     }
 
     private fun new() {
 
-        fun create(createFile: Boolean,name: String){
+        fun create(createFile: Boolean, name: String) {
             if (name.isEmpty()) {
                 toast(mainActivity.getString(strings.ask_enter_name))
                 return
@@ -354,16 +498,17 @@ class FileAction(
 
         MaterialAlertDialogBuilder(mainActivity).apply {
             setTitle(strings.new_document)
-            val popupView: View = LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
+            val popupView: View =
+                LayoutInflater.from(mainActivity).inflate(R.layout.popup_new, null)
             val editText = popupView.findViewById<EditText>(R.id.name)
             editText.hint = mainActivity.getString(strings.newFile_hint)
             setView(popupView)
             setNeutralButton(strings.cancel, null)
-            setNegativeButton(strings.file){ _, _ ->
-                create(true,editText.text.toString())
+            setNegativeButton(strings.file) { _, _ ->
+                create(true, editText.text.toString())
             }
-            setPositiveButton(strings.folder){ _, _ ->
-                create(false,editText.text.toString())
+            setPositiveButton(strings.folder) { _, _ ->
+                create(false, editText.text.toString())
             }
             show()
         }
