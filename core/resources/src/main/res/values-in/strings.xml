@@ -31,7 +31,7 @@
     <string name="print">Cetak</string>
     <string name="search">Cari</string>
     <string name="go_next">Selanjutnya</string>
-    <string name="go_prev">Sebelumnya</string>
+    <string name="go_prev">Kembali ke Sblm.</string>
     <string name="close_search">Tutup Pencarian</string>
     <string name="replace">Ganti</string>
     <string name="share">Bagikan</string>
@@ -263,7 +263,7 @@
     <string name="add_font_desc">Pilih font ttf dari penyimpanan</string>
     <string name="install_termux">Pasang Termux dari F-Droid</string>
     <string name="termux_exec">Termux Exec</string>
-    <string name="termux_exec_guide">Docs Termux Exec</string>
+    <string name="termux_exec_guide">Dokumentasi Termux Exec</string>
     <string name="gestures">Gerakan</string>
     <string name="config_gestures">Mengkonfigurasi Gerakan</string>
     <string name="Save_as">Simpan Sebagai</string>
@@ -305,7 +305,7 @@
     <string name="restore_sessions_desc">Pulihkan tab sebelumnya</string>
     <string name="sessions">Sesi</string>
     <string name="add_session">Tambahkan Sesi</string>
-    <string name="terminal_runtime">Terminal Runtime</string>
+    <string name="terminal_runtime">Runtime Terminal</string>
     <string name="terminal_runtime_desc">Pilih Terminal Runtime</string>
     <string name="mutators">Mutator</string>
     <string name="terminal_home">Beranda Terminal</string>
@@ -387,4 +387,14 @@
     <string name="unknown_err">Ada yang tidak beres</string>
     <string name="misc">Lainnya</string>
     <string name="misc_desc">Pengaturan Lainnya</string>
+    <string name="expose_saf_desc">Jadikan direktori beranda dapat diakses oleh aplikasi eksternal melalui pemilih berkas sistem (SAF)</string>
+    <string name="expose_saf">Perlihatkan Direktori Beranda</string>
+    <string name="file_size">Ukuran Berkas</string>
+    <string name="isfile">Merupakan Berkas</string>
+    <string name="can_write">Dapat Menulis</string>
+    <string name="can_read">Dapat Membaca</string>
+    <string name="info">Informasi</string>
+    <string name="copied">Disalin</string>
+    <string name="saf_expose_warning">Memperlihatkan direktori beranda dapat menampilkan informasi sensitif ke aplikasi berbahaya, termasuk token Git, kata sandi, nama pengguna, dan berkas lain yang tersimpan di direktori beranda terminal Anda. Apakah Anda ingin melanjutkan?</string>
+    <string name="file_info">Informasi Berkas</string>
 </resources>
