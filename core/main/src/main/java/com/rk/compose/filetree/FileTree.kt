@@ -1,22 +1,30 @@
 package com.rk.compose.filetree
 
-import android.graphics.drawable.Drawable
 import android.os.Environment
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -31,10 +39,7 @@ import com.rk.file_wrapper.FileObject
 import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.collections.map
 
 private val file = drawables.file
 private val folder = drawables.folder
@@ -82,7 +87,7 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
             else ->
                 when (name.substringAfterLast('.', "")) {
                     "java",
-                    "bsh","gradle" -> java
+                    "bsh", "gradle" -> java
 
                     "html", "htm", "htmx" -> html
                     "kt",
@@ -130,7 +135,7 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
 
                     "mp3",
                     "wav",
-                    "ogg", "m4a","aac", "wma","opus",
+                    "ogg", "m4a", "aac", "wma", "opus",
                     "flac" -> audio
 
                     "mp4",
@@ -148,7 +153,7 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
                     "jsx", "tsx" -> react
                     "php" -> php
                     "plugin" -> plugin
-                    "properties","pro","package.json" -> prop
+                    "properties", "pro", "package.json" -> prop
                     "go" -> go
                     else -> file
                 }
@@ -187,7 +192,7 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun updateCache(file: FileObject) {
-        if (file.isFile()){
+        if (file.isFile()) {
             throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -262,7 +267,7 @@ class FileTreeViewModel : ViewModel() {
                     }
 
                 fileListCache[path] = files
-                viewModelScope.launch{
+                viewModelScope.launch {
                     delay(300)
                     _loadingStates[path] = false
                 }
@@ -308,7 +313,8 @@ fun FileTree(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize().padding(4.dp)
+                .fillMaxSize()
+                .padding(4.dp)
                 .horizontalScroll(rememberScrollState())
         ) {
             LazyColumn(
@@ -376,7 +382,7 @@ private fun FileTreeNodeItem(
                         if (node.isDirectory) {
                             viewModel.toggleNodeExpansion(nodePath)
                         } else {
-                            scope.launch{
+                            scope.launch {
                                 delay(200)
                                 onFileClick(node)
                             }
@@ -384,7 +390,7 @@ private fun FileTreeNodeItem(
                         }
                     },
                     onLongClick = {
-                        scope.launch{
+                        scope.launch {
                             delay(100)
                             onFileLongClick(node)
                         }
@@ -427,7 +433,12 @@ private fun FileTreeNodeItem(
 
             }
 
-            val iconId = getIcon(isFile = node.isFile, isDir = node.isDirectory, isSymlink = node.file.isSymlink(), name = node.name)
+            val iconId = getIcon(
+                isFile = node.isFile,
+                isDir = node.isDirectory,
+                isSymlink = node.file.isSymlink(),
+                name = node.name
+            )
             Icon(
                 painter = painterResource(iconId),
                 contentDescription = null,
@@ -438,7 +449,7 @@ private fun FileTreeNodeItem(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = node.name+"                                        ",
+                text = node.name + "                                                                  ",
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -447,10 +458,14 @@ private fun FileTreeNodeItem(
             )
         }
 
-        AnimatedVisibility(visible = isExpanded && node.isDirectory, enter = fadeIn(), exit = fadeOut()) {
+        AnimatedVisibility(
+            visible = isExpanded && node.isDirectory,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
             Column {
                 children.forEach { childNode ->
-                    if (childNode.file.exists()){
+                    if (childNode.file.exists()) {
                         key(childNode.file.getAbsolutePath()) {
                             FileTreeNodeItem(
                                 modifier = Modifier.fillMaxWidth(),
@@ -468,10 +483,10 @@ private fun FileTreeNodeItem(
     }
 }
 
-fun FileObject.getAppropriateName(): String{
-    return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath){
+fun FileObject.getAppropriateName(): String {
+    return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath) {
         "Storage"
-    }else{
+    } else {
         getName()
     }
 }
