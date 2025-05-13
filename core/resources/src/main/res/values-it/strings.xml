@@ -387,4 +387,14 @@
     <string name="unknown_err">Qualcosa è andato storto</string>
     <string name="misc">Varie</string>
     <string name="misc_desc">Impostazioni varie</string>
+    <string name="expose_saf">Rendi Visibile la Directory Home</string>
+    <string name="saf_expose_warning">L’esposizione della directory home potrebbe rivelare informazioni sensibili ad app malevole, inclusi token Git, password, nomi utente e altri file presenti nella directory home del terminale. Vuoi continuare?</string>
+    <string name="can_read">Può Leggere</string>
+    <string name="can_write">Può Scrivere</string>
+    <string name="isfile">È un File</string>
+    <string name="copied">Copiato</string>
+    <string name="expose_saf_desc">Rendi accessibile la directory home alle app esterne tramite il selettore file di sistema (SAF)</string>
+    <string name="info">Info</string>
+    <string name="file_size">Dimensione File</string>
+    <string name="file_info">Informazioni File</string>
 </resources>
