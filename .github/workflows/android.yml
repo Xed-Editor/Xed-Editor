@@ -70,7 +70,7 @@ jobs:
           fi
 
       - name: Build with Gradle
-        run: ./gradlew assemblefdroidRelease && mv app/build/outputs/apk/fdroid/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
+        run: ./gradlew assemblefdroidRelease && mv app/build/outputs/apk/fdroid/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
         env:
           KEYSTORE_FILE: /tmp/xed.keystore
           SIGNING_PROPERTIES_FILE: /tmp/signing.properties
