@@ -77,7 +77,7 @@ android {
             targetSdk = 28
         }
 
-        create("plastore") {
+        create("playstore") {
             dimension = "store"
             targetSdk = 35
         }
