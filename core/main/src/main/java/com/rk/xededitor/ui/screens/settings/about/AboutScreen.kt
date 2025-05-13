@@ -11,11 +11,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
-import com.rk.resources.strings
-import com.rk.xededitor.BuildConfig
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.libcommons.isFdroid
+import com.rk.resources.strings
+import com.rk.xededitor.BuildConfig
 
 @Composable
 fun AboutScreen() {
@@ -28,7 +29,12 @@ fun AboutScreen() {
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
         PreferenceGroup {
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = strings.version), style = MaterialTheme.typography.titleMedium) },
+                title = {
+                    Text(
+                        text = stringResource(id = strings.version),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 description = {
                     Text(text = versionName.toString(), style = MaterialTheme.typography.titleSmall)
                 },
@@ -36,16 +42,24 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(text = stringResource(id = strings.version_code), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(id = strings.version_code),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 },
                 description = {
                     Text(text = versionCode.toString(), style = MaterialTheme.typography.titleSmall)
                 },
             )
-            
-            
+
+
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = strings.git_commit), style = MaterialTheme.typography.titleMedium) },
+                title = {
+                    Text(
+                        text = stringResource(id = strings.git_commit),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 description = {
                     Text(
                         text = BuildConfig.GIT_SHORT_COMMIT_HASH,
@@ -55,7 +69,29 @@ fun AboutScreen() {
             )
 
             PreferenceTemplate(
-                title = { Text(text = stringResource(id = strings.github), style = MaterialTheme.typography.titleMedium) },
+                title = {
+                    Text(
+                        text = stringResource(strings.flavor),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
+                description = {
+                    Text(
+                        text = if (isFdroid) "FDroid" else "PlayStore",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                },
+            )
+
+
+
+            PreferenceTemplate(
+                title = {
+                    Text(
+                        text = stringResource(id = strings.github),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                },
                 description = {
                     Text(
                         text = stringResource(id = strings.github_desc),
@@ -78,7 +114,10 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(text = stringResource(id = strings.telegram), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(id = strings.telegram),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 },
                 description = {
                     Text(
@@ -103,7 +142,10 @@ fun AboutScreen() {
 
             PreferenceTemplate(
                 title = {
-                    Text(text = stringResource(id = strings.sponsor), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = stringResource(id = strings.sponsor),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 },
                 description = {
                     Text(

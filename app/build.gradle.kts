@@ -1,5 +1,5 @@
 import java.util.Properties
- 
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -11,22 +11,21 @@ android {
     namespace = "com.rk.application"
     compileSdk = 35
 
-
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
     }
-    
+
     signingConfigs {
         create("release") {
             val isGITHUB_ACTION = System.getenv("GITHUB_ACTIONS") == "true"
-            
+
             val propertiesFilePath = if (isGITHUB_ACTION) {
                 "/tmp/signing.properties"
             } else {
                 "/home/rohit/Android/xed-signing/signing.properties"
             }
-            
+
             val propertiesFile = File(propertiesFilePath)
             if (propertiesFile.exists()) {
                 val properties = Properties()
@@ -38,7 +37,7 @@ android {
                 } else {
                     (properties["storeFile"] as String?)?.let { File(it) }
                 }
-                
+
                 storePassword = properties["storePassword"] as String?
             } else {
                 println("Signing properties file not found at $propertiesFilePath")
@@ -51,10 +50,10 @@ android {
             keyPassword = "testkey"
         }
     }
-    
-    
+
+
     buildTypes {
-        release{
+        release {
             isMinifyEnabled = false
             isCrunchPngs = false
             isShrinkResources = false
@@ -63,13 +62,28 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
-        debug{
+        debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
-            resValue("string","app_name","Xed-Debug")
+            resValue("string", "app_name", "Xed-Debug")
         }
     }
-    
+
+    flavorDimensions += "store"
+
+    productFlavors {
+        create("fdroid") {
+            dimension = "store"
+            targetSdk = 28
+        }
+
+        create("plastore") {
+            dimension = "store"
+            targetSdk = 35
+        }
+    }
+
+    //values in this will be overridden by the flavours
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
@@ -85,18 +99,19 @@ android {
             useSupportLibrary = true
         }
     }
-    
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
-    
+
     buildFeatures {
         viewBinding = true
         compose = true
+        buildConfig = true
     }
-    
+
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -108,6 +123,8 @@ android {
             useLegacyPackaging = true
         }
     }
+
+
 }
 
 dependencies {

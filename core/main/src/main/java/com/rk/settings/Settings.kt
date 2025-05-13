@@ -3,24 +3,23 @@ package com.rk.settings
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.Configuration
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.pm.PackageInfoCompat
+import com.rk.isTermuxInstalled
 import com.rk.libcommons.application
+import com.rk.libcommons.isFdroid
 import java.nio.charset.Charset
 
 object Settings {
     var amoled
         get() = Preference.getBoolean(key = "oled", default = false)
-        set(value) = Preference.setBoolean(key = "oled",value)
+        set(value) = Preference.setBoolean(key = "oled", value)
     var monet
         get() = Preference.getBoolean(
             key = "monet",
             default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
         )
-        set(value) = Preference.setBoolean(key = "monet",value)
+        set(value) = Preference.setBoolean(key = "monet", value)
     var pin_line_number
         get() = Preference.getBoolean(key = "pinline", default = false)
         set(value) = Preference.setBoolean(key = "pinline", value)
@@ -29,7 +28,7 @@ object Settings {
         set(value) = Preference.setBoolean(key = "wordwrap", value)
     var word_wrap_for_text
         get() = Preference.getBoolean(key = "ww_txt", default = true)
-        set(value) = Preference.setBoolean(key = "ww_txt",value)
+        set(value) = Preference.setBoolean(key = "ww_txt", value)
     var cursor_animation
         get() = Preference.getBoolean(key = "cursor_animation", default = false)
         set(value) = Preference.setBoolean(key = "cursor_animation", value)
@@ -47,37 +46,37 @@ object Settings {
         set(value) = Preference.setBoolean(key = "auto_save", value)
     var show_suggestions
         get() = Preference.getBoolean(key = "show_suggestions", default = false)
-        set(value) = Preference.setBoolean(key = "show_suggestions",value)
+        set(value) = Preference.setBoolean(key = "show_suggestions", value)
     var check_for_update
         get() = Preference.getBoolean(key = "check_update", default = false)
-        set(value) = Preference.setBoolean(key = "check_update",value)
+        set(value) = Preference.setBoolean(key = "check_update", value)
     var use_sora_search
         get() = Preference.getBoolean(key = "sora_search", default = true)
-        set(value) = Preference.setBoolean(key = "sora_search",value)
+        set(value) = Preference.setBoolean(key = "sora_search", value)
     var is_selected_font_assest
         get() = Preference.getBoolean(key = "is_font_asset", default = false)
-        set(value) = Preference.setBoolean(key = "is_font_asset",value)
+        set(value) = Preference.setBoolean(key = "is_font_asset", value)
     var smooth_tabs
-        get() = Preference.getBoolean(key = "smooth_tab",default = false)
-        set(value) = Preference.setBoolean(key = "smooth_tab",value)
+        get() = Preference.getBoolean(key = "smooth_tab", default = false)
+        set(value) = Preference.setBoolean(key = "smooth_tab", value)
     var restore_session
         get() = Preference.getBoolean(key = "restore_sessions", default = true)
-        set(value) = Preference.setBoolean(key = "restore_sessions",value)
+        set(value) = Preference.setBoolean(key = "restore_sessions", value)
     var scroll_to_bottom
         get() = Preference.getBoolean(key = "scroll_to_bottom", default = false)
-        set(value) = Preference.setBoolean(key = "scroll_to_bottom",value)
+        set(value) = Preference.setBoolean(key = "scroll_to_bottom", value)
     var always_show_soft_keyboard
         get() = Preference.getBoolean(key = "always_show_soft_keyboard", default = false)
-        set(value) = Preference.setBoolean(key = "always_show_soft_keyboard",value)
+        set(value) = Preference.setBoolean(key = "always_show_soft_keyboard", value)
     var ignore_storage_permission
-        get() = Preference.getBoolean(key = "ignore_storage_permission",default = false)
-        set(value) = Preference.setBoolean(key = "ignore_storage_permission",value)
+        get() = Preference.getBoolean(key = "ignore_storage_permission", default = false)
+        set(value) = Preference.setBoolean(key = "ignore_storage_permission", value)
     var unrestricted_files
         get() = Preference.getBoolean(key = "unrestricted_file", default = false)
-        set(value) = Preference.setBoolean(key = "unrestricted_file",value)
+        set(value) = Preference.setBoolean(key = "unrestricted_file", value)
     var github
         get() = Preference.getBoolean(key = "github", default = true)
-        set(value) = Preference.setBoolean(key = "github",value)
+        set(value) = Preference.setBoolean(key = "github", value)
     var has_shown_private_data_dir_warning
         get() = Preference.getBoolean(key = "has_shown_private_data_dir_warning", default = false)
         set(value) = Preference.setBoolean(key = "has_shown_private_data_dir_warning", value)
@@ -96,7 +95,6 @@ object Settings {
         set(value) = Preference.setBoolean(key = "expose_home_dir", value)
 
 
-
     //Int
     var tab_size
         get() = Preference.getInt(key = "tabsize", default = 4)
@@ -108,56 +106,79 @@ object Settings {
         get() = Preference.getInt(key = "auto_save_interval", default = 10000)
         set(value) = Preference.setInt(key = "auto_save_interval", value)
     var default_night_mode
-        get() = Preference.getInt(key = "default_night_mode", default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        set(value) = Preference.setInt(key = "default_night_mode",value)
+        get() = Preference.getInt(
+            key = "default_night_mode",
+            default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
+        set(value) = Preference.setInt(key = "default_night_mode", value)
     var terminal_font_size
         get() = Preference.getInt(key = "terminal_font_size", default = 13)
-        set(value) = Preference.setInt(key = "terminal_font_size",value)
+        set(value) = Preference.setInt(key = "terminal_font_size", value)
 
     //String
     var projects
         get() = Preference.getString(key = "projects", default = "")
-        set(value) = Preference.setString(key = "projects",value)
+        set(value) = Preference.setString(key = "projects", value)
     var font_gson
         get() = Preference.getString(key = "selected_font", default = "")
-        set(value) = Preference.setString(key = "selected_font",value)
+        set(value) = Preference.setString(key = "selected_font", value)
     var selected_font_path
         get() = Preference.getString(key = "selected_font_path", default = "")
-        set(value) = Preference.setString(key = "selected_font_path",value)
+        set(value) = Preference.setString(key = "selected_font_path", value)
     var encoding
         get() = Preference.getString(key = "encoding", default = Charset.defaultCharset().name())
-        set(value) = Preference.setString(key = "encoding",value)
+        set(value) = Preference.setString(key = "encoding", value)
     var mutators
         get() = Preference.getString(key = "mutators", default = "")
-        set(value) = Preference.setString(key = "mutators",value)
-    var terminal_runtime
-        get() = Preference.getString(key = "terminal_runtime", default = "Alpine")
-        set(value) = Preference.setString(key = "terminal_runtime",value)
+        set(value) = Preference.setString(key = "mutators", value)
+    var terminal_runtime: String
+        get() {
+            val default = if (isFdroid) {
+                "Alpine"
+            } else
+                if (isTermuxInstalled()) {
+                    "Termux"
+                } else {
+                    "Alpine"
+                }
+
+            val result = Preference.getString(
+                key = "terminal_runtime", default = default
+            )
+
+            return if (!isFdroid && result == "Alpine") {
+                Settings.terminal_runtime = default
+                default
+            } else {
+                result
+            }
+        }
+        set(value) = Preference.setString(key = "terminal_runtime", value)
     var git_url
         get() = Preference.getString(key = "git_url", default = "github.com")
-        set(value) = Preference.setString(key = "git_url",value)
+        set(value) = Preference.setString(key = "git_url", value)
 
 
     //Long
     var last_update_check_timestamp
         get() = Preference.getLong(key = "last_update", default = 0)
-        set(value) = Preference.setLong(key = "last_update",value)
+        set(value) = Preference.setLong(key = "last_update", value)
     var lastVersionCode
         get() = Preference.getLong(key = "last_version_code", default = -1)
-        set(value) = Preference.setLong(key = "last_version_code",value)
-
+        set(value) = Preference.setLong(key = "last_version_code", value)
 
 
     //Float
     var line_spacing
         get() = Preference.getFloat(key = "line_spacing", default = 0F)
-        set(value) = Preference.setFloat(key = "line_spacing",value)
+        set(value) = Preference.setFloat(key = "line_spacing", value)
 
 
 }
 
 object Preference {
-    private var sharedPreferences: SharedPreferences = application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
+    private var sharedPreferences: SharedPreferences =
+        application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
     //store the result into memory for faster access
     private val stringCache = hashMapOf<String, String?>()
@@ -167,38 +188,38 @@ object Preference {
     private val floatCache = hashMapOf<String, Float>()
 
     @SuppressLint("ApplySharedPref")
-    fun clearData(){
+    fun clearData() {
         sharedPreferences.edit().clear().commit()
     }
 
-    fun removeKey(key: String){
-        if (sharedPreferences.contains(key).not()){
+    fun removeKey(key: String) {
+        if (sharedPreferences.contains(key).not()) {
             return
         }
 
         sharedPreferences.edit().remove(key).apply()
 
-        if (stringCache.containsKey(key)){
+        if (stringCache.containsKey(key)) {
             stringCache.remove(key)
             return
         }
 
-        if (boolCache.containsKey(key)){
+        if (boolCache.containsKey(key)) {
             boolCache.remove(key)
             return
         }
 
-        if (intCache.containsKey(key)){
+        if (intCache.containsKey(key)) {
             intCache.remove(key)
             return
         }
 
-        if (longCache.containsKey(key)){
+        if (longCache.containsKey(key)) {
             longCache.remove(key)
             return
         }
 
-        if (floatCache.containsKey(key)){
+        if (floatCache.containsKey(key)) {
             floatCache.remove(key)
             return
         }
@@ -225,7 +246,6 @@ object Preference {
     }
 
 
-
     fun getString(key: String, default: String): String {
         runCatching {
             return stringCache[key] ?: sharedPreferences.getString(key, default)!!
@@ -236,6 +256,7 @@ object Preference {
         }
         return default
     }
+
     fun setString(key: String, value: String?) {
         stringCache[key] = value
         runCatching {
@@ -286,7 +307,7 @@ object Preference {
         longCache[key] = value
         runCatching {
             val editor = sharedPreferences.edit()
-            editor.putLong(key,value)
+            editor.putLong(key, value)
             editor.apply()
         }.onFailure {
             it.printStackTrace()
@@ -308,7 +329,7 @@ object Preference {
         floatCache[key] = value
         runCatching {
             val editor = sharedPreferences.edit()
-            editor.putFloat(key,value)
+            editor.putFloat(key, value)
             editor.apply()
         }.onFailure {
             it.printStackTrace()

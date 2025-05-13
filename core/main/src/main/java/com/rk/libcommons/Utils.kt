@@ -199,7 +199,6 @@ fun composeDialog(
 ) {
     if (context == null) {
         throw IllegalArgumentException("context cannot be null")
-        return
     }
     var dialog: AlertDialog? = null
     runOnUiThread {
@@ -273,4 +272,11 @@ fun errorDialog(exception: Exception) {
     }
 
     errorDialog(msg = message.toString())
+}
+
+val isFdroid by lazy {
+    val targetSdkVersion = application!!
+        .applicationInfo
+        .targetSdkVersion
+    targetSdkVersion == 28
 }

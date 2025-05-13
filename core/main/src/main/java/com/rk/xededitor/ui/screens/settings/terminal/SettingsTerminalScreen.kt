@@ -36,34 +36,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.DocumentProvider
-import com.rk.isTermuxCompatible
-import com.rk.isTermuxInstalled
-import com.rk.testExecPermission
-import com.rk.libcommons.DefaultScope
-import com.rk.resources.strings
-import com.rk.settings.Settings
-import com.rk.xededitor.ui.components.BottomSheetContent
-import com.rk.xededitor.ui.components.SettingsToggle
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.isTermuxCompatible
+import com.rk.isTermuxInstalled
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.alpineDir
 import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
+import com.rk.libcommons.isFdroid
 import com.rk.libcommons.toast
+import com.rk.resources.strings
+import com.rk.settings.Settings
+import com.rk.testExecPermission
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
+import com.rk.xededitor.ui.components.BottomSheetContent
+import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.components.ValueSlider
 import com.rk.xededitor.ui.screens.terminal.terminalView
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.Runtime.getRuntime
 
@@ -71,20 +72,20 @@ private const val min_text_size = 10f
 private const val max_text_size = 20f
 
 var execAllowed by mutableStateOf(false)
-var isExecLoading by  mutableStateOf(true)
-var isTermuxInstalled by  mutableStateOf<Boolean?>(null)
-var isTermuxCompatible by  mutableStateOf<Boolean?>(null)
+var isExecLoading by mutableStateOf(true)
+var isTermuxInstalled by mutableStateOf<Boolean?>(null)
+var isTermuxCompatible by mutableStateOf<Boolean?>(null)
 var errorMessage by mutableStateOf("")
 
-suspend fun updateTermuxExecStatus(){
+suspend fun updateTermuxExecStatus() {
     isExecLoading = true
-    withContext(Dispatchers.IO){
+    withContext(Dispatchers.IO) {
         isTermuxInstalled = isTermuxInstalled()
-        if (isTermuxInstalled != true){
+        if (isTermuxInstalled != true) {
             return@withContext
         }
         isTermuxCompatible = isTermuxCompatible()
-        if (isTermuxCompatible != true){
+        if (isTermuxCompatible != true) {
             return@withContext
         }
 
@@ -108,32 +109,37 @@ fun SettingsTerminalScreen() {
         }
 
         PreferenceGroup {
-            fun getStateMessage():String{
-                if (isTermuxInstalled != true){
+            fun getStateMessage(): String {
+                if (isTermuxInstalled != true) {
                     return "[Error] Termux is not installed"
                 }
-                if (isTermuxCompatible != true){
+                if (isTermuxCompatible != true) {
                     return "[Error] Termux is not compatible please install termux from fdroid"
                 }
-                if (isExecLoading){
+                if (isExecLoading) {
                     return "[Info] Waiting for termux to respond..."
                 }
-                return if (execAllowed && (errorMessage.isBlank() || errorMessage == "null")){
+                return if (execAllowed && (errorMessage.isBlank() || errorMessage == "null")) {
                     "[Info] Termux Exec is working normally"
-                }else{
+                } else {
                     "[Error] $errorMessage"
                 }
             }
 
-            SettingsToggle(label = stringResource(strings.termux_exec), description = getStateMessage(), showSwitch = false, default = false, sideEffect = {
-                if (execAllowed.not()) {
-                    val intent =
-                        Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", context.packageName, null)
-                        }
-                    context.startActivity(intent)
-                }
-            })
+            SettingsToggle(
+                label = stringResource(strings.termux_exec),
+                description = getStateMessage(),
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    if (execAllowed.not()) {
+                        val intent =
+                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                        context.startActivity(intent)
+                    }
+                })
 
 
             SettingsToggle(label = stringResource(strings.termux_exec_guide),
@@ -144,7 +150,8 @@ fun SettingsTerminalScreen() {
                     Icon(
                         modifier = Modifier.padding(16.dp),
                         imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null)
+                        contentDescription = null
+                    )
                 },
                 sideEffect = {
                     val url = if (isTermuxInstalled()) {
@@ -176,8 +183,8 @@ fun SettingsTerminalScreen() {
                 }
             )
 
-            if (showDayBottomSheet.value){
-                TerminalRuntime(modifier = Modifier,showDayBottomSheet, LocalContext.current)
+            if (showDayBottomSheet.value) {
+                TerminalRuntime(modifier = Modifier, showDayBottomSheet, LocalContext.current)
             }
         }
 
@@ -201,7 +208,7 @@ fun SettingsTerminalScreen() {
             val restore = rememberLauncherForActivityResult(
                 ActivityResultContracts.GetContent()
             ) { uri ->
-                if (uri == null){
+                if (uri == null) {
                     toast(strings.invalid_path)
                     return@rememberLauncherForActivityResult
                 }
@@ -211,30 +218,31 @@ fun SettingsTerminalScreen() {
                 if (filePath.exists().not() ||
                     filePath.canRead().not() ||
                     filePath.isFile.not() ||
-                    filePath.canWrite().not()){
+                    filePath.canWrite().not()
+                ) {
                     toast(strings.invalid_path)
                     return@rememberLauncherForActivityResult
                 }
 
-                val loading = LoadingPopup(context,null)
+                val loading = LoadingPopup(context, null)
                 loading.show()
 
-                GlobalScope.launch(Dispatchers.IO){
+                GlobalScope.launch(Dispatchers.IO) {
                     alpineDir().deleteRecursively()
                     alpineDir().mkdirs()
 
-                    val result = getRuntime().exec("tar -xf ${filePath.absolutePath} -C ${alpineDir()}").waitFor()
-                    withContext(Dispatchers.Main){
+                    val result =
+                        getRuntime().exec("tar -xf ${filePath.absolutePath} -C ${alpineDir()}")
+                            .waitFor()
+                    withContext(Dispatchers.Main) {
                         loading.hide()
-                        if (result == 0){
+                        if (result == 0) {
                             toast(strings.success)
-                        }else{
+                        } else {
                             toast(strings.failed)
                         }
                     }
                 }
-
-
 
 
             }
@@ -242,7 +250,7 @@ fun SettingsTerminalScreen() {
             val backup = rememberLauncherForActivityResult(
                 ActivityResultContracts.OpenDocumentTree()
             ) { uri ->
-                if (uri == null){
+                if (uri == null) {
                     toast(strings.invalid_path)
                     return@rememberLauncherForActivityResult
                 }
@@ -252,7 +260,8 @@ fun SettingsTerminalScreen() {
                 if (path.exists().not() ||
                     path.canRead().not() ||
                     path.isDirectory.not() ||
-                    path.canWrite().not()){
+                    path.canWrite().not()
+                ) {
                     toast(strings.invalid_path)
                     return@rememberLauncherForActivityResult
                 }
@@ -260,25 +269,26 @@ fun SettingsTerminalScreen() {
 
                 MaterialAlertDialogBuilder(activity ?: context).apply {
                     setTitle(strings.file_name)
-                    val popupView: View = LayoutInflater.from(MainActivity.activityRef.get()!!).inflate(R.layout.popup_new, null)
+                    val popupView: View = LayoutInflater.from(MainActivity.activityRef.get()!!)
+                        .inflate(R.layout.popup_new, null)
                     val editText = popupView.findViewById<EditText>(R.id.name)
                     editText.setText("terminal-backup.tar.gz")
                     setView(popupView)
                     setNeutralButton(strings.cancel, null)
-                    setPositiveButton(strings.backup){ _, _ ->
+                    setPositiveButton(strings.backup) { _, _ ->
                         val text = editText.text.toString()
-                        if (text.isBlank()){
+                        if (text.isBlank()) {
                             toast(strings.inavalid_v)
                             return@setPositiveButton
                         }
 
                         val targetFile = path.child(text)
-                        if (targetFile.exists()){
+                        if (targetFile.exists()) {
                             toast(strings.already_exists)
                             return@setPositiveButton
                         }
 
-                        val loading = LoadingPopup(context,null)
+                        val loading = LoadingPopup(context, null)
                         loading.show()
 
                         GlobalScope.launch(Dispatchers.IO) {
@@ -287,10 +297,28 @@ fun SettingsTerminalScreen() {
                                 val targetPath = targetFile.absolutePath
 
                                 val processBuilder = ProcessBuilder(
-                                    "tar","-czf", targetPath, ".",
-                                    "--exclude=dev", "--exclude=sys", "--exclude=proc", "--exclude=system","--exclude=apex",
-                                    "--exclude=vendor", "--exclude=data", "--exclude=home", "--exclude=root","--exclude=var/cache", "--exclude=var/tmp", "--exclude=lost+found",
-                                    "--exclude=storage", "--exclude=system_ext", "--exclude=tmp", "--exclude=vendor","--exclude=sdcard","--exclude=storage"
+                                    "tar",
+                                    "-czf",
+                                    targetPath,
+                                    ".",
+                                    "--exclude=dev",
+                                    "--exclude=sys",
+                                    "--exclude=proc",
+                                    "--exclude=system",
+                                    "--exclude=apex",
+                                    "--exclude=vendor",
+                                    "--exclude=data",
+                                    "--exclude=home",
+                                    "--exclude=root",
+                                    "--exclude=var/cache",
+                                    "--exclude=var/tmp",
+                                    "--exclude=lost+found",
+                                    "--exclude=storage",
+                                    "--exclude=system_ext",
+                                    "--exclude=tmp",
+                                    "--exclude=vendor",
+                                    "--exclude=sdcard",
+                                    "--exclude=storage"
                                 ).apply {
                                     directory(File(alpineDir))
                                     redirectErrorStream(true)
@@ -329,7 +357,11 @@ fun SettingsTerminalScreen() {
 
             SettingsToggle(
                 label = stringResource(strings.restore),
-                description = "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
+                description = "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${
+                    stringResource(
+                        strings.backup
+                    )
+                }",
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -341,20 +373,20 @@ fun SettingsTerminalScreen() {
         PreferenceGroup {
 
             var state by remember { mutableStateOf(Settings.expose_home_dir) }
-            val sideEffect:(Boolean)->Unit = {
-                if(it){
+            val sideEffect: (Boolean) -> Unit = {
+                if (it) {
                     MaterialAlertDialogBuilder(context).apply {
                         setTitle(strings.attention)
                         setMessage(strings.saf_expose_warning)
-                        setPositiveButton(strings.ok){_,_ ->
+                        setPositiveButton(strings.ok) { _, _ ->
                             Settings.expose_home_dir = true
                             DocumentProvider.setDocumentProviderEnabled(context, true)
                             state = true
                         }
-                        setNegativeButton(strings.cancel,null)
+                        setNegativeButton(strings.cancel, null)
                         show()
                     }
-                }else{
+                } else {
                     Settings.expose_home_dir = false
                     state = false
                     DocumentProvider.setDocumentProviderEnabled(context, false)
@@ -392,9 +424,15 @@ fun TerminalRuntime(
         mutableStateOf(Settings.terminal_runtime)
     }
 
-    val types = listOf(
-        RuntimeType.ALPINE.type, RuntimeType.TERMUX.type, RuntimeType.ANDROID.type
-    )
+    val types = if (isFdroid) {
+        listOf(
+            RuntimeType.ALPINE.type, RuntimeType.TERMUX.type, RuntimeType.ANDROID.type
+        )
+    } else {
+        listOf(
+            RuntimeType.TERMUX.type, RuntimeType.ANDROID.type
+        )
+    }
 
     if (showBottomSheet.value) {
         ModalBottomSheet(

@@ -427,4 +427,6 @@
     <string name="can_write">Can Write</string>
     <string name="isfile">Is File</string>
     <string name="copied">Copied</string>
+
+    <string name="flavor">Flavor</string>
 </resources>
