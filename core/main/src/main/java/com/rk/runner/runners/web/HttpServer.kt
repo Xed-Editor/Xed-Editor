@@ -6,7 +6,11 @@ import fi.iki.elonen.NanoHTTPD.Response.Status
 import java.net.URLConnection
 import java.util.Date
 
-class HttpServer(port: Int, val rootDir: FileObject, val serveHook:((FileObject, IHTTPSession)->Response?)? = null) : NanoHTTPD(port) {
+class HttpServer(
+    port: Int,
+    val rootDir: FileObject,
+    val serveHook: ((FileObject, IHTTPSession) -> Response?)? = null
+) : NanoHTTPD(port) {
     init {
         if (rootDir.isDirectory().not()) {
             throw RuntimeException("Expected a directory but got file")
@@ -20,14 +24,14 @@ class HttpServer(port: Int, val rootDir: FileObject, val serveHook:((FileObject,
         if (file.isDirectory()) {
             file = file.getChildForName("index.html")
         }
-        
-        if (serveHook != null){
-            val response = serveHook.invoke(file,session)
-            if (response != null){
+
+        if (serveHook != null) {
+            val response = serveHook.invoke(file, session)
+            if (response != null) {
                 return response
             }
         }
-        
+
         if (file.exists().not()) {
             return newFixedLengthResponse(
                 Status.NOT_FOUND,

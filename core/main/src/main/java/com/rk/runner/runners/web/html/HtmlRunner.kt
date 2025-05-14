@@ -1,24 +1,18 @@
 package com.rk.runner.runners.web.html
 
-import android.app.PendingIntent
-import android.app.Service
 import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.IBinder
 import androidx.browser.customtabs.CustomTabsIntent
 import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
-import java.io.File
 
 
-class HtmlRunner(val file:FileObject) : RunnerImpl() {
-    companion object{
+class HtmlRunner(val file: FileObject) : RunnerImpl() {
+    companion object {
         var httpServer: HttpServer? = null
         private const val PORT = 8357
     }
@@ -43,7 +37,7 @@ class HtmlRunner(val file:FileObject) : RunnerImpl() {
 
     override fun run(context: Context) {
         stop()
-        httpServer = HttpServer(PORT,file.getParentFile()!!)
+        httpServer = HttpServer(PORT, file.getParentFile()!!)
         val url = "http://localhost:$PORT/${file.getName()}"
         CustomTabsIntent.Builder().apply {
             setShowTitle(true)
@@ -65,14 +59,14 @@ class HtmlRunner(val file:FileObject) : RunnerImpl() {
         return "Preview html"
     }
 
-    override fun getIcon(context: Context): Drawable? = drawables.ic_language_html.getDrawable(context)
-    
+    override fun getIcon(context: Context): Drawable? =
+        drawables.ic_language_html.getDrawable(context)
+
     override fun isRunning(): Boolean = httpServer?.isAlive == true
-    
+
     override fun stop() {
-        if (isRunning()){
+        if (isRunning()) {
             httpServer?.stop()
         }
-        println("closed")
     }
 }

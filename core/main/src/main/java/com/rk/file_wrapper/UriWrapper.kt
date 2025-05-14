@@ -1,19 +1,13 @@
 package com.rk.file_wrapper
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
-import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
-import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.toast
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.File
@@ -42,9 +36,9 @@ class UriWrapper : FileObject {
         }
 
 
-    private val uri:String
+    private val uri: String
 
-    constructor(file:DocumentFile){
+    constructor(file: DocumentFile) {
         this.file = file
         this.uri = file.uri.toString()
     }
@@ -67,17 +61,18 @@ class UriWrapper : FileObject {
 
     override fun exists(): Boolean = file.exists()
 
-    fun isTermuxUri(): Boolean{
+    fun isTermuxUri(): Boolean {
         return getAbsolutePath().startsWith("content://com.termux")
     }
 
-    fun convertToTermuxFile(): File{
-        if (isTermuxUri().not()){
+    fun convertToTermuxFile(): File {
+        if (isTermuxUri().not()) {
             throw IllegalStateException("this uri is not a termux uri")
         }
 
-        val path = URLDecoder.decode(file.uri.toString(), "UTF-8").removePrefix("content://com.termux.documents/tree//data/data/com.termux/files/home/document/")
-        if (path.startsWith("/data").not()){
+        val path = URLDecoder.decode(file.uri.toString(), "UTF-8")
+            .removePrefix("content://com.termux.documents/tree//data/data/com.termux/files/home/document/")
+        if (path.startsWith("/data").not()) {
             errorDialog("Converting termux uri into realpath failed: \nURI : ${file.uri}\n\nPATH : $path")
         }
         //dialog(title = "PATH", msg = path, onOk = {})
@@ -135,7 +130,7 @@ class UriWrapper : FileObject {
     }
 
     override fun getOutPutStream(append: Boolean): OutputStream {
-         val mode = if (append) "wa" else "wt"
+        val mode = if (append) "wa" else "wt"
         return application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
@@ -166,10 +161,10 @@ class UriWrapper : FileObject {
         return false
     }
 
-    override fun createChild(createFile: Boolean, name: String):FileObject? {
-        return if (createFile){
-            file.createFile("application/octet-stream",name)?.let { UriWrapper(it) }
-        }else{
+    override fun createChild(createFile: Boolean, name: String): FileObject? {
+        return if (createFile) {
+            file.createFile("application/octet-stream", name)?.let { UriWrapper(it) }
+        } else {
             file.createDirectory(name)?.let { UriWrapper(it) }
         }
     }
@@ -213,7 +208,7 @@ class UriWrapper : FileObject {
             throw IllegalStateException("Cannot get child for a non-directory file")
         }
 
-        val child = file.listFiles().find { it.name == name }
+        val child = file.listFiles().find { it.name == name || it.name == name.removePrefix("/") }
             ?: throw FileNotFoundException("Child with name $name not found")
 
         return UriWrapper(child)
@@ -231,7 +226,7 @@ class UriWrapper : FileObject {
     override fun readText(charset: Charset): String? {
         val uri: Uri = file.uri
         return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
-            BufferedReader(InputStreamReader(inputStream,charset)).use { reader ->
+            BufferedReader(InputStreamReader(inputStream, charset)).use { reader ->
                 reader.readText()
             }
         }
@@ -241,7 +236,7 @@ class UriWrapper : FileObject {
         content: String,
         charset: Charset
     ): Boolean {
-        withContext(Dispatchers.IO){
+        withContext(Dispatchers.IO) {
             getOutPutStream(false).use {
                 it.write(content.toByteArray(charset))
                 it.flush()
@@ -269,19 +264,19 @@ class UriWrapper : FileObject {
         return file.uri.toString()
     }
 
-    companion object{
-        fun Uri.getDocumentFile(): DocumentFile?{
-            return if (DocumentsContract.isTreeUri(this)){
+    companion object {
+        fun Uri.getDocumentFile(): DocumentFile? {
+            return if (DocumentsContract.isTreeUri(this)) {
                 try {
                     DocumentFile.fromTreeUri(application!!, this)
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                     DocumentFile.fromSingleUri(application!!, this)
                 }
-            }else{
+            } else {
                 try {
                     DocumentFile.fromSingleUri(application!!, this)
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     e.printStackTrace()
                     DocumentFile.fromTreeUri(application!!, this)
                 }
