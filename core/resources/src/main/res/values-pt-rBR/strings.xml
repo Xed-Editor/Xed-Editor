@@ -389,4 +389,15 @@
     <string name="unknown_err">Algo deu errado</string>
     <string name="misc">Diversos</string>
     <string name="misc_desc">Configurações Variadas</string>
+    <string name="file_info">Detalhes do Arquivo</string>
+    <string name="file_size">Tamanho do Arquivo</string>
+    <string name="can_read">Pode Ler</string>
+    <string name="can_write">Pode Gravar</string>
+    <string name="flavor">Sabor</string>
+    <string name="isfile">É Arquivo</string>
+    <string name="saf_expose_warning">A exposição do diretório inicial pode revelar informações confidenciais a aplicativos mal-intencionados, inclusive tokens Git, senhas, nomes de usuário e outros arquivos armazenados no diretório inicial do terminal. Deseja continuar?</string>
+    <string name="expose_saf_desc">Tornar o diretório inicial acessível a aplicativos externos por meio do seletor de arquivos do sistema (SAF)</string>
+    <string name="info">Detalhes</string>
+    <string name="copied">Copiado</string>
+    <string name="expose_saf">Expor Diretório Inicial</string>
 </resources>
