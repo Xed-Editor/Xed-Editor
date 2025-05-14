@@ -397,4 +397,5 @@
     <string name="file_size">Taille du fichier</string>
     <string name="info">Info</string>
     <string name="file_info">Info sur les fichiers</string>
+    <string name="flavor">Variation</string>
 </resources>
