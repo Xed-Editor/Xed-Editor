@@ -4,6 +4,8 @@ import android.content.Intent
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +25,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -41,26 +41,23 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.widget.doOnTextChanged
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -83,7 +80,6 @@ import java.lang.ref.WeakReference
 
 var terminalView = WeakReference<TerminalView?>(null)
 var virtualKeysView = WeakReference<VirtualKeysView?>(null)
-
 
 @Composable
 fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
@@ -392,37 +388,59 @@ fun TerminalScreenX(
                                 }
 
                                 1 -> {
-                                    var text by remember { mutableStateOf("") }
-                                    TextField(
-                                        modifier = Modifier.fillMaxSize(),
-                                        value = text, onValueChange = {
-                                            text = it
-                                        }, maxLines = 1,
-                                        singleLine = true,
-                                        colors = TextFieldDefaults.colors(
-                                            unfocusedContainerColor = Color.Transparent,
-                                            focusedContainerColor = Color.Transparent
-                                        ),
-                                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                                        keyboardActions = KeyboardActions(
-                                            onDone = {
-                                                if (text.isEmpty()) {
-                                                    val eventDown = KeyEvent(
-                                                        KeyEvent.ACTION_DOWN,
-                                                        KeyEvent.KEYCODE_ENTER
-                                                    )
-                                                    val eventUp = KeyEvent(
-                                                        KeyEvent.ACTION_UP,
-                                                        KeyEvent.KEYCODE_ENTER
-                                                    )
-                                                    terminalView.get()?.dispatchKeyEvent(eventDown)
-                                                    terminalView.get()?.dispatchKeyEvent(eventUp)
-                                                } else {
-                                                    terminalView.get()?.currentSession?.write(text)
-                                                    text = ""
+                                    var text by rememberSaveable { mutableStateOf("") }
+
+                                    AndroidView(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(75.dp),
+                                        factory = { ctx ->
+                                            EditText(ctx).apply {
+                                                maxLines = 1
+                                                isSingleLine = true
+                                                imeOptions = EditorInfo.IME_ACTION_DONE
+
+                                                // Listen for text changes to update Compose state
+                                                doOnTextChanged { textInput, _, _, _ ->
+                                                    text = textInput.toString()
+                                                }
+
+                                                setOnEditorActionListener { v, actionId, event ->
+                                                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                                                        if (text.isEmpty()) {
+                                                            // Dispatch enter key events if text is empty
+                                                            val eventDown = KeyEvent(
+                                                                KeyEvent.ACTION_DOWN,
+                                                                KeyEvent.KEYCODE_ENTER
+                                                            )
+                                                            val eventUp = KeyEvent(
+                                                                KeyEvent.ACTION_UP,
+                                                                KeyEvent.KEYCODE_ENTER
+                                                            )
+                                                            terminalView.get()
+                                                                ?.dispatchKeyEvent(eventDown)
+                                                            terminalView.get()
+                                                                ?.dispatchKeyEvent(eventUp)
+                                                        } else {
+                                                            terminalView.get()?.currentSession?.write(
+                                                                text
+                                                            )
+                                                            setText("")
+                                                        }
+                                                        true
+                                                    } else {
+                                                        false
+                                                    }
                                                 }
                                             }
-                                        )
+                                        },
+                                        update = { editText ->
+                                            // Keep EditText's text in sync with Compose state, avoid infinite loop by only updating if different
+                                            if (editText.text.toString() != text) {
+                                                editText.setText(text)
+                                                editText.setSelection(text.length)
+                                            }
+                                        }
                                     )
                                 }
                             }

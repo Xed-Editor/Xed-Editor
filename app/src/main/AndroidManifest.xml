@@ -10,7 +10,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="com.termux.permission.RUN_COMMAND"/>
+    <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
+
     <queries>
         <package android:name="com.github.android" />
         <intent>
@@ -74,16 +75,18 @@
             android:name="com.rk.xededitor.ui.activities.settings.SettingsActivity"
             android:exported="false" />
 
-        <activity android:name="com.rk.runner.runners.web.markdown.MDViewer"
-            android:exported="false"/>
-        <activity android:name="com.rk.runner.runners.web.WebActivity"
+        <activity
+            android:name="com.rk.runner.runners.web.markdown.MDViewer"
+            android:exported="false" />
+        <activity
+            android:name="com.rk.runner.runners.web.WebActivity"
             android:exported="false" />
 
         <activity
             android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>
 
 </manifest>
