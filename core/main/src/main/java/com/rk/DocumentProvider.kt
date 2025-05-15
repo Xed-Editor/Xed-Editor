@@ -1,5 +1,8 @@
 package com.rk
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.CancellationSignal
@@ -7,7 +10,6 @@ import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract.Document
 import android.provider.DocumentsContract.Root
 import android.provider.DocumentsProvider
-import android.util.Log
 import android.webkit.MimeTypeMap
 import com.rk.libcommons.alpineHomeDir
 import com.rk.resources.getString
@@ -16,23 +18,17 @@ import com.rk.xededitor.R
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import android.content.ComponentName
-import android.content.Context
-import android.content.pm.PackageManager
 
 class DocumentProvider : DocumentsProvider() {
-    private val TAG = "AlpineDocumentProvider"
-
-    // Define a constant for the root document ID
     private val ROOT_DOC_ID = "root"
 
     override fun onCreate(): Boolean {
-        Log.d(TAG, "onCreate")
+        //Log.d(TAG, "onCreate")
         return true
     }
 
     override fun queryRoots(projection: Array<out String>?): Cursor {
-        Log.d(TAG, "queryRoots")
+        //Log.d(TAG, "queryRoots")
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
         val row = result.newRow()
 
@@ -50,14 +46,14 @@ class DocumentProvider : DocumentsProvider() {
         row.add(Root.COLUMN_MIME_TYPES, "*/*")
 
         val file = alpineHomeDir()
-        Log.d(TAG, "Root directory: ${file.absolutePath}, exists: ${file.exists()}, readable: ${file.canRead()}")
+        //Log.d(TAG, "Root directory: ${file.absolutePath}, exists: ${file.exists()}, readable: ${file.canRead()}")
 
         if (file.exists()) {
             val stat = android.os.StatFs(file.path)
             val availableBytes = stat.availableBytes
             row.add(Root.COLUMN_AVAILABLE_BYTES, availableBytes)
         } else {
-            Log.e(TAG, "Root directory doesn't exist!")
+            //Log.e(TAG, "Root directory doesn't exist!")
         }
 
         row.add(Root.COLUMN_ICON, R.drawable.ic_launcher)
@@ -68,11 +64,11 @@ class DocumentProvider : DocumentsProvider() {
     }
 
     override fun queryDocument(documentId: String, projection: Array<out String>?): Cursor {
-        Log.d(TAG, "queryDocument: $documentId")
+        //Log.d(TAG, "queryDocument: $documentId")
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
         val file = getFileForDocId(documentId)
 
-        Log.d(TAG, "File for docId $documentId: ${file.absolutePath}, exists: ${file.exists()}, readable: ${file.canRead()}")
+        //Log.d(TAG, "File for docId $documentId: ${file.absolutePath}, exists: ${file.exists()}, readable: ${file.canRead()}")
 
         result.newRow().apply {
             add(Document.COLUMN_DOCUMENT_ID, documentId)
@@ -100,20 +96,24 @@ class DocumentProvider : DocumentsProvider() {
         return result
     }
 
-    override fun queryChildDocuments(parentDocumentId: String, projection: Array<out String>?, sortOrder: String?): Cursor {
-        Log.d(TAG, "queryChildDocuments: $parentDocumentId")
+    override fun queryChildDocuments(
+        parentDocumentId: String,
+        projection: Array<out String>?,
+        sortOrder: String?
+    ): Cursor {
+        //Log.d(TAG, "queryChildDocuments: $parentDocumentId")
         val parent = getFileForDocId(parentDocumentId)
         val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
 
-        Log.d(TAG, "Parent directory: ${parent.absolutePath}, exists: ${parent.exists()}, readable: ${parent.canRead()}")
+        //Log.d(TAG, "Parent directory: ${parent.absolutePath}, exists: ${parent.exists()}, readable: ${parent.canRead()}")
 
         if (parent.exists() && parent.isDirectory) {
             val files = parent.listFiles()
-            Log.d(TAG, "Found ${files?.size ?: 0} children")
+            //Log.d(TAG, "Found ${files?.size ?: 0} children")
 
             files?.forEach { file ->
                 val docId = getDocIdForFile(file)
-                Log.d(TAG, "Child: ${file.name}, docId: $docId")
+                //Log.d(TAG, "Child: ${file.name}, docId: $docId")
 
                 result.newRow().apply {
                     add(Document.COLUMN_DOCUMENT_ID, docId)
@@ -139,24 +139,28 @@ class DocumentProvider : DocumentsProvider() {
                 }
             }
         } else {
-            Log.e(TAG, "Parent directory doesn't exist or isn't a directory!")
+            //Log.e(TAG, "Parent directory doesn't exist or isn't a directory!")
         }
 
         return result
     }
 
-    override fun openDocument(documentId: String, mode: String, signal: CancellationSignal?): ParcelFileDescriptor? {
-        Log.d(TAG, "openDocument: $documentId, mode: $mode")
+    override fun openDocument(
+        documentId: String,
+        mode: String,
+        signal: CancellationSignal?
+    ): ParcelFileDescriptor? {
+        //Log.d(TAG, "openDocument: $documentId, mode: $mode")
         val file = getFileForDocId(documentId)
         val accessMode = ParcelFileDescriptor.parseMode(mode)
 
         if (!file.exists()) {
-            Log.e(TAG, "File not found: ${file.absolutePath}")
+            //Log.e(TAG, "File not found: ${file.absolutePath}")
             throw FileNotFoundException("File not found: $file")
         }
 
         if (file.isDirectory) {
-            Log.e(TAG, "Cannot open directory: ${file.absolutePath}")
+            //Log.e(TAG, "Cannot open directory: ${file.absolutePath}")
             throw FileNotFoundException("Cannot open directory: $file")
         }
 
@@ -164,29 +168,33 @@ class DocumentProvider : DocumentsProvider() {
     }
 
     // Added implementation for document creation
-    override fun createDocument(parentDocumentId: String, mimeType: String, displayName: String): String {
-        Log.d(TAG, "createDocument: parent=$parentDocumentId, mimeType=$mimeType, name=$displayName")
+    override fun createDocument(
+        parentDocumentId: String,
+        mimeType: String,
+        displayName: String
+    ): String {
+        //Log.d(TAG, "createDocument: parent=$parentDocumentId, mimeType=$mimeType, name=$displayName")
         val parent = getFileForDocId(parentDocumentId)
 
         if (!parent.exists()) {
-            Log.e(TAG, "Parent directory doesn't exist: ${parent.absolutePath}")
+            //Log.e(TAG, "Parent directory doesn't exist: ${parent.absolutePath}")
             throw FileNotFoundException("Parent not found: $parent")
         }
 
         if (!parent.isDirectory) {
-            Log.e(TAG, "Parent is not a directory: ${parent.absolutePath}")
+            //Log.e(TAG, "Parent is not a directory: ${parent.absolutePath}")
             throw FileNotFoundException("Parent is not a directory: $parent")
         }
 
         val file = File(parent, displayName)
         if (Document.MIME_TYPE_DIR == mimeType) {
             if (!file.mkdir()) {
-                Log.e(TAG, "Failed to create directory: ${file.absolutePath}")
+                //Log.e(TAG, "Failed to create directory: ${file.absolutePath}")
                 throw IOException("Failed to create directory: $file")
             }
         } else {
             if (!file.createNewFile()) {
-                Log.e(TAG, "Failed to create file: ${file.absolutePath}")
+                //Log.e(TAG, "Failed to create file: ${file.absolutePath}")
                 throw IOException("Failed to create file: $file")
             }
         }
@@ -196,7 +204,7 @@ class DocumentProvider : DocumentsProvider() {
 
     // CRITICAL FIX: The issue is with handling hidden files like ".ash_history"
     private fun getFileForDocId(docId: String): File {
-        Log.d(TAG, "getFileForDocId: $docId")
+        //Log.d(TAG, "getFileForDocId: $docId")
         val base = alpineHomeDir()
 
         return when (docId) {
@@ -208,7 +216,7 @@ class DocumentProvider : DocumentsProvider() {
                 // IMPORTANT: Validate that the file is actually inside the base directory
                 // This prevents the "not a descendant of root" error
                 if (!targetFile.canonicalPath.startsWith(base.canonicalPath)) {
-                    Log.e(TAG, "Security violation: $docId is not within ${base.canonicalPath}")
+                    //Log.e(TAG, "Security violation: $docId is not within ${base.canonicalPath}")
                     throw SecurityException("Document $docId is not a descendant of root")
                 }
 
@@ -228,7 +236,7 @@ class DocumentProvider : DocumentsProvider() {
 
         // Make sure the file is inside the base directory
         if (!file.canonicalPath.startsWith(base.canonicalPath)) {
-            Log.e(TAG, "File is outside base directory: ${file.canonicalPath}")
+            //Log.e(TAG, "File is outside base directory: ${file.canonicalPath}")
             throw SecurityException("File ${file.name} is not a descendant of root")
         }
 
@@ -237,7 +245,7 @@ class DocumentProvider : DocumentsProvider() {
         val relativePath = file.canonicalPath.substring(base.canonicalPath.length)
             .trimStart(File.separatorChar)
 
-        Log.d(TAG, "getDocIdForFile: ${file.absolutePath} -> $relativePath")
+        //Log.d(TAG, "getDocIdForFile: ${file.absolutePath} -> $relativePath")
         return relativePath
     }
 
@@ -268,7 +276,8 @@ class DocumentProvider : DocumentsProvider() {
             Document.MIME_TYPE_DIR
         } else {
             val extension = file.extension.lowercase()
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "application/octet-stream"
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+                ?: "application/octet-stream"
         }
     }
 
