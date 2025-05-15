@@ -139,7 +139,7 @@ object Settings {
                 if (isTermuxInstalled()) {
                     "Termux"
                 } else {
-                    "Alpine"
+                    "Android"
                 }
 
             val result = Preference.getString(

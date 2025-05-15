@@ -72,12 +72,12 @@ android {
     flavorDimensions += "store"
 
     productFlavors {
-        create("fdroid") {
+        create("Fdroid") {
             dimension = "store"
             targetSdk = 28
         }
 
-        create("playstore") {
+        create("PlayStore") {
             dimension = "store"
             targetSdk = 35
         }

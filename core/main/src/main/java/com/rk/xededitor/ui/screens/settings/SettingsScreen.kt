@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -25,6 +23,7 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
 import com.rk.extension.Hooks
+import com.rk.libcommons.isFdroid
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -54,7 +53,7 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.EditorSettings.route) },
     )
 
-    if (InbuiltFeatures.terminal.state.value){
+    if (InbuiltFeatures.terminal.state.value) {
         PreferenceCategory(
             label = stringResource(id = strings.terminal),
             description = stringResource(id = strings.terminal_desc),
@@ -95,7 +94,7 @@ private fun Categories(navController: NavController) {
         onNavigate = { navController.navigate(SettingsRoutes.FeatureToggles.route) },
     )
 
-    if (InbuiltFeatures.extensions.state.value){
+    if (InbuiltFeatures.extensions.state.value) {
         PreferenceCategory(
             label = stringResource(strings.ext),
             description = stringResource(strings.ext_desc),
@@ -104,7 +103,8 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    if (InbuiltFeatures.developerOptions.state.value){
+
+    if (isFdroid && InbuiltFeatures.developerOptions.state.value) {
         PreferenceCategory(
             label = "Developer Options",
             description = "Debugging options for ${strings.app_name.getString()}",
@@ -117,7 +117,7 @@ private fun Categories(navController: NavController) {
     PreferenceTemplate(modifier = Modifier
         .padding(horizontal = 16.dp)
         .clip(MaterialTheme.shapes.large)
-        .clickable { navController.navigate(SettingsRoutes.About.route)  }
+        .clickable { navController.navigate(SettingsRoutes.About.route) }
         .background(Color.Transparent),
         verticalPadding = 14.dp,
         title = {
@@ -138,7 +138,7 @@ private fun Categories(navController: NavController) {
         }
     )
 
-    Hooks.Settings.screens.values.forEach{ screen ->
+    Hooks.Settings.screens.values.forEach { screen ->
         val isSelected = false
 
         PreferenceTemplate(
@@ -171,7 +171,6 @@ private fun Categories(navController: NavController) {
         )
 
     }
-
 
 
 }
