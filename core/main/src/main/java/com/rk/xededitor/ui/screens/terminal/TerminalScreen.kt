@@ -406,7 +406,7 @@ fun TerminalScreenX(
                                         keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                                         keyboardActions = KeyboardActions(
                                             onDone = {
-                                                if (text.isBlank()) {
+                                                if (text.isEmpty()) {
                                                     val eventDown = KeyEvent(
                                                         KeyEvent.ACTION_DOWN,
                                                         KeyEvent.KEYCODE_ENTER
