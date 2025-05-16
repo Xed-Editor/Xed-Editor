@@ -53,7 +53,7 @@
     <string name="ww">ワードラップ</string>
     <string name="keepdl">引き出しをロックしたままにする</string>
     <string name="nip">インストールされているプラグインはありません</string>
-    <string name="refresh">更新</string>
+    <string name="refresh">再読み込み</string>
     <string name="dir_example">名前 例: Test</string>
     <string name="create">作成</string>
     <string name="ask_enter_name">名前を入力してください</string>
@@ -117,7 +117,7 @@
     <string name="already_installed">既にインストールされています</string>
     <string name="yes">はい</string>
     <string name="app">アプリケーション</string>
-    <string name="oled_desc">有機ELディスプレイ向けの、純粋な黒色のテーマ</string>
+    <string name="oled_desc">有機ELディスプレイ向けの、純粋な黒色のテーマを使用する</string>
     <string name="change_theme">テーマを変更</string>
     <string name="editor">エディター</string>
     <string name="smooth_tabs">滑らかなタブ</string>
@@ -188,7 +188,7 @@
     <string name="unsavedfiles">未保存のファイルがあります！</string>
     <string name="description">説明</string>
     <string name="auto_save_time">自動保存までの時間</string>
-    <string name="oled">ブラックナイト・テーマ</string>
+    <string name="oled">ブラックテーマ</string>
     <string name="restart">再起動</string>
     <string name="copy_desc">選択されたドキュメントをコピー</string>
     <string name="open_file_desc">直接編集するファイルを選択</string>
@@ -245,13 +245,13 @@
     <string name="auto_mode">自動</string>
     <string name="select_theme_mode">テーマモードを選択</string>
     <string name="cannot_be_empty">空欄にすることはできません。</string>
-    <string name="theme_mode_desc">テーマモードを自動、ライト、ダーク から選択する</string>
+    <string name="theme_mode_desc">アプリケーションのカラーテーマを変更する</string>
     <string name="show_suggestions">候補を表示</string>
     <string name="version_code">バージョンコード</string>
     <string name="github">GitHub</string>
     <string name="github_desc">Githubでスターを付ける🤩</string>
     <string name="telegram">Telegramグループ</string>
-    <string name="telegram_desc">Telegramコミュニティに参加</string>
+    <string name="telegram_desc">問題の報告・機能の提案など</string>
     <string name="join">参加</string>
     <string name="git_commit">Gitコミットのハッシュ</string>
     <string name="check_for_updates">アップデートを確認</string>
@@ -300,7 +300,7 @@
     <string name="script_showing_dialog">ダイアログの表示</string>
     <string name="script_text">このテキストがエディターに書かれます</string>
     <string name="installing">インストール中…</string>
-    <string name="not_plugin_err">選択されたファイルは.pluginファイルではありません</string>
+    <string name="not_plugin_err">選択されたファイルは.apkファイルではありません</string>
     <string name="loading">読み込み中…</string>
     <string name="network_err">ネットワークエラー</string>
     <string name="git_auth">Githubトークン</string>
@@ -329,12 +329,12 @@
     <string name="version">バージョン</string>
     <string name="click_open">ファイルを開くにはここをクリック</string>
     <string name="add_font_desc">ストレージからttfフォントを選択する</string>
-    <string name="use_github_url">デフォルトのGithubのurlを使用</string>
+    <string name="use_github_url">デフォルトのGitドメインを使用</string>
     <string name="txt_ww">テキストファイルのワードラップ</string>
     <string name="txt_ww_desc">テキストファイルを自動的にワードラップする</string>
     <string name="info_ext">拡張機能を使用することで、xed-editorの動作や機能を変更することができます。プラグインの作り方については、ここをクリックしてください</string>
     <string name="dark_mode">ダーク</string>
-    <string name="theme_mode">テーマモード</string>
+    <string name="theme_mode">テーマ</string>
     <string name="initializing">初期化中…</string>
     <string name="user">ユーザー</string>
     <string name="show_virtual_keyboard">画面上のキーボードを表示</string>
@@ -360,7 +360,7 @@
     <string name="soft_keyboard_always">キーボードを常に表示</string>
     <string name="script_api_info">詳しくは、xed-editorsソースコードのPROJECT/core/main/ui/screens/mutators/ImplApiにあるImplApiクラスをチェックしてください</string>
     <string name="install_from_storage">ストレージからインストール</string>
-    <string name="http_git_url">Http git url</string>
+    <string name="http_git_url">Http git ドメイン</string>
     <string name="scroll_to_bottom">下までスクロール</string>
     <string name="experimental_session_restore_warning">この機能は試験的なもので、データが失われる可能性があります</string>
     <string name="update_files_cleared">アプリがアップデートされました : データがクリアされました</string>
@@ -383,4 +383,18 @@
     <string name="new_document">新規ドキュメント</string>
     <string name="new_document_desc">新規ファイル/フォルダ</string>
     <string name="file">ファイル</string>
+    <string name="expose_saf">ホームディレクトリの公開</string>
+    <string name="expose_saf_desc">システムのファイル選択(SAF)経由でホームディレクトリを外部アプリからアクセス可能にする</string>
+    <string name="saf_expose_warning">ホームディレクトリを公開すると、Gitトークン、パスワード、ユーザー名、ターミナルのホームディレクトリに保存されているその他のファイルなどの機密情報が、悪意のあるアプリに漏洩する可能性があります。続行しますか？</string>
+    <string name="can_read">読み込み可能</string>
+    <string name="can_write">書き込み可能</string>
+    <string name="isfile">ファイルかどうか</string>
+    <string name="copied">コピーしました</string>
+    <string name="flavor">種類</string>
+    <string name="unknown_err">不明なエラが発生しました</string>
+    <string name="file_size">ファイルサイズ</string>
+    <string name="info">情報</string>
+    <string name="file_info">ファイル情報</string>
+    <string name="misc">その他</string>
+    <string name="misc_desc">その他の設定</string>
 </resources>
