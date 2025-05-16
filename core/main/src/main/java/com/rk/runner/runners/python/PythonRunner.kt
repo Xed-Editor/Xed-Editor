@@ -4,36 +4,39 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.launchInternalTerminal
-import com.rk.runBashScript
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
+import com.rk.runBashScript
 import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class PythonRunner(val file: File,val isTermuxFile: Boolean = false) : RunnerImpl() {
+class PythonRunner(val file: File, val isTermuxFile: Boolean = false) : RunnerImpl() {
     override fun run(context: Context) {
         val py = localBinDir().child("python")
         if (py.exists().not()) {
             py.writeText(context.assets.open("terminal/python.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = if (isTermuxFile){"Termux"}else{
+        val runtime = if (isTermuxFile) {
+            "Termux"
+        } else {
             Settings.terminal_runtime
         }
-        when(runtime){
-            "Alpine","Android" -> {
+        when (runtime) {
+            "Alpine" -> {
                 launchInternalTerminal(
                     context = context, TerminalCommand(
                         shell = "/bin/sh",
-                        args = arrayOf(py.absolutePath,file.absolutePath),
+                        args = arrayOf(py.absolutePath, file.absolutePath),
                         id = "python",
                         workingDir = file.parentFile!!.absolutePath
                     )
                 )
             }
+
             "Termux" -> {
                 runBashScript(
                     context,

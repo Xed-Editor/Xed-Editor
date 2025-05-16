@@ -3,17 +3,17 @@ package com.rk.runner.runners.c
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.rk.launchInternalTerminal
-import com.rk.runBashScript
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
+import com.rk.runBashScript
 import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class C_Runner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
+class C_Runner(val file: File, val isTermuxFile: Boolean = false) : RunnerImpl() {
 
     override fun run(context: Context) {
         val cc = localBinDir().child("cc")
@@ -22,22 +22,25 @@ class C_Runner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
                 .use { it.readText() })
         }
 
-        val runtime = if (isTermuxFile){"Termux"}else{
+        val runtime = if (isTermuxFile) {
+            "Termux"
+        } else {
             Settings.terminal_runtime
         }
 
 
-        when(runtime){
-            "Alpine","Android" -> {
+        when (runtime) {
+            "Alpine" -> {
                 launchInternalTerminal(
                     context = context, TerminalCommand(
                         shell = "/bin/sh",
-                        args = arrayOf(cc.absolutePath,file.absolutePath),
+                        args = arrayOf(cc.absolutePath, file.absolutePath),
                         id = "cc",
                         workingDir = file.parentFile!!.absolutePath
                     )
                 )
             }
+
             "Termux" -> {
                 runBashScript(
                     context,

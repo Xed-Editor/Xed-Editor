@@ -11,17 +11,16 @@ import com.rk.libcommons.application
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.resources.Res
 import com.rk.settings.Settings
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.Executors
-import com.rk.xededitor.BuildConfig
 
 
 class App : Application() {
@@ -44,16 +43,16 @@ class App : Application() {
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
 
-        if (BuildConfig.DEBUG || Settings.anr_watchdog){
+        if (BuildConfig.DEBUG || Settings.anr_watchdog) {
             ANRWatchDog().start()
         }
 
-        if (BuildConfig.DEBUG || Settings.strict_mode){
+        if (BuildConfig.DEBUG || Settings.strict_mode) {
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder().apply {
                     detectAll()
                     penaltyLog()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
                             println(violation.message)
                             violation.printStackTrace()
@@ -69,13 +68,12 @@ class App : Application() {
         UpdateManager.inspect()
 
         GlobalScope.launch {
-
-            if (Settings.expose_home_dir != DocumentProvider.isDocumentProviderEnabled(this@App)){
-                DocumentProvider.setDocumentProviderEnabled(this@App,Settings.expose_home_dir)
-            }
+            AlpineDocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir)
 
             getTempDir().apply {
-                if (exists() && listFiles().isNullOrEmpty().not()){ deleteRecursively() }
+                if (exists() && listFiles().isNullOrEmpty().not()) {
+                    deleteRecursively()
+                }
             }
 
             SetupEditor.init()
@@ -84,7 +82,7 @@ class App : Application() {
 
             runCatching { UpdateChecker.checkForUpdates("dev") }
 
-            if (InbuiltFeatures.extensions.state.value){
+            if (InbuiltFeatures.extensions.state.value) {
                 Extension.loadExtensions(this@App, GlobalScope)
             }
         }

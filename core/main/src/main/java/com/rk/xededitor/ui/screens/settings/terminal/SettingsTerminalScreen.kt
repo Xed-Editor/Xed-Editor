@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.DocumentProvider
+import com.rk.AlpineDocumentProvider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -380,7 +380,7 @@ fun SettingsTerminalScreen() {
                         setMessage(strings.saf_expose_warning)
                         setPositiveButton(strings.ok) { _, _ ->
                             Settings.expose_home_dir = true
-                            DocumentProvider.setDocumentProviderEnabled(context, true)
+                            AlpineDocumentProvider.setDocumentProviderEnabled(context, true)
                             state = true
                         }
                         setNegativeButton(strings.cancel, null)
@@ -389,7 +389,7 @@ fun SettingsTerminalScreen() {
                 } else {
                     Settings.expose_home_dir = false
                     state = false
-                    DocumentProvider.setDocumentProviderEnabled(context, false)
+                    AlpineDocumentProvider.setDocumentProviderEnabled(context, false)
                 }
             }
 

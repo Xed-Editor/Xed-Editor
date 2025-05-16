@@ -3,15 +3,15 @@ package com.rk.runner.runners.go
 import android.content.Context
 import android.graphics.drawable.Drawable
 import com.rk.launchInternalTerminal
-import com.rk.runBashScript
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
+import com.rk.runBashScript
 import com.rk.runner.RunnerImpl
 import com.rk.settings.Settings
 import java.io.File
 
-class GoRunner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
+class GoRunner(val file: File, val isTermuxFile: Boolean = false) : RunnerImpl() {
 
     override fun run(context: Context) {
         val node = localBinDir().child("go")
@@ -19,22 +19,26 @@ class GoRunner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
             node.writeText(context.assets.open("terminal/go.sh").bufferedReader()
                 .use { it.readText() })
         }
-        val runtime = if (isTermuxFile){"Termux"}else{
+        val runtime = if (isTermuxFile) {
+            "Termux"
+        } else {
             Settings.terminal_runtime
         }
-        when(runtime){
-            "Alpine","Android" -> {
+        when (runtime) {
+            "Alpine" -> {
                 launchInternalTerminal(
                     context = context, TerminalCommand(
                         shell = "/bin/sh",
-                        args = arrayOf(node.absolutePath,file.absolutePath),
+                        args = arrayOf(node.absolutePath, file.absolutePath),
                         id = "go",
                         workingDir = file.parentFile!!.absolutePath
                     )
                 )
             }
+
             "Termux" -> {
-                runBashScript(context, script = """
+                runBashScript(
+                    context, script = """
                         required_packages="go"
                         missing_packages=""
 
@@ -54,7 +58,8 @@ class GoRunner(val file:File,val isTermuxFile: Boolean = false) : RunnerImpl() {
                         go run "${file.absolutePath}"
                         echo -e "\n\nProcess completed. Press Enter to go back to Xed-Editor."
                         read
-                """.trimIndent(), workingDir = file.parentFile!!.absolutePath)
+                """.trimIndent(), workingDir = file.parentFile!!.absolutePath
+                )
             }
         }
     }
