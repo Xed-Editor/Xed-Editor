@@ -351,6 +351,8 @@ fun TerminalScreenX(
                         ) { page ->
                             when (page) {
                                 0 -> {
+                                    terminalView.get()?.requestFocus()
+                                    terminalView.get()?.requestFocusFromTouch()
                                     AndroidView(
                                         factory = { context ->
                                             VirtualKeysView(context, null).apply {
