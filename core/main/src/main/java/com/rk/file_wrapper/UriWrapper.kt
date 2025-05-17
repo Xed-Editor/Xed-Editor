@@ -2,7 +2,6 @@ package com.rk.file_wrapper
 
 import android.content.Context
 import android.net.Uri
-import android.provider.DocumentsContract
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.rk.libcommons.application
@@ -21,13 +20,17 @@ import java.nio.charset.Charset
 import java.util.Locale
 
 class UriWrapper : FileObject {
+
+    private val uri: String
+    private val isTree: Boolean
+
     @Transient
     private var _file: DocumentFile? = null
 
     var file: DocumentFile
         get() {
             if (_file == null) {
-                _file = Uri.parse(uri).getDocumentFile()!!
+                _file = Uri.parse(uri).getDocumentFile(isTree)!!
             }
             return _file!!
         }
@@ -35,16 +38,14 @@ class UriWrapper : FileObject {
             _file = value
         }
 
-
-    private val uri: String
-
     constructor(file: DocumentFile) {
         this.file = file
         this.uri = file.uri.toString()
+        isTree = file.isDirectory
     }
 
     @Throws(IllegalArgumentException::class)
-    constructor(uri: Uri) : this(uri.getDocumentFile()!!)
+    constructor(uri: Uri, isTree: Boolean) : this(uri.getDocumentFile(isTree)!!)
 
 
     override fun listFiles(): List<FileObject> = when {
@@ -265,21 +266,11 @@ class UriWrapper : FileObject {
     }
 
     companion object {
-        fun Uri.getDocumentFile(): DocumentFile? {
-            return if (DocumentsContract.isTreeUri(this)) {
-                try {
-                    DocumentFile.fromTreeUri(application!!, this)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    DocumentFile.fromSingleUri(application!!, this)
-                }
+        fun Uri.getDocumentFile(isTree: Boolean): DocumentFile? {
+            return if (isTree) {
+                DocumentFile.fromTreeUri(application!!, this)
             } else {
-                try {
-                    DocumentFile.fromSingleUri(application!!, this)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    DocumentFile.fromTreeUri(application!!, this)
-                }
+                DocumentFile.fromSingleUri(application!!, this)
             }
         }
     }

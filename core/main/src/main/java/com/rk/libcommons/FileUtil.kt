@@ -1,12 +1,8 @@
 package com.rk.libcommons
 
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
-import com.rk.file_wrapper.UriWrapper
-import com.rk.libcommons.PathUtils.toPath
 import com.rk.xededitor.BuildConfig
 import java.io.File
 
@@ -91,30 +87,4 @@ fun File.toFileWrapper(): FileWrapper {
 
 inline fun isFileManager(): Boolean {
     return ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) && Environment.isExternalStorageManager())
-}
-
-fun uriToFileObject(uri: Uri, expectFile: Boolean? = null): FileObject {
-    val path = uri.toPath()
-
-    val file = File(path)
-
-    val condition = when (expectFile) {
-        null -> {
-            true
-        }
-
-        true -> {
-            file.isFile
-        }
-
-        else -> {
-            file.isDirectory
-        }
-    }
-
-    if (file.exists() && file.canRead() && file.canWrite() && condition) {
-        return FileWrapper(file)
-    }
-
-    return UriWrapper(uri)
 }

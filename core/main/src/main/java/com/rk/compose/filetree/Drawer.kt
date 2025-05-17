@@ -6,9 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -72,15 +70,14 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.Serializable
-import java.net.URI
 
 
-data class FileObjectWrapper(val fileObject: FileObject,val name: String): Serializable{
+data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Serializable {
     override fun equals(other: Any?): Boolean {
-        if (other is FileObject){
+        if (other is FileObject) {
             return other == fileObject
         }
-        if (other !is FileObjectWrapper){
+        if (other !is FileObjectWrapper) {
             return false
         }
         return other.fileObject == fileObject
@@ -97,9 +94,9 @@ data class FileObjectWrapper(val fileObject: FileObject,val name: String): Seria
 
 private val mutex = Mutex()
 
- suspend fun saveProjects(){
-    mutex.withLock{
-        withContext(Dispatchers.IO){
+suspend fun saveProjects() {
+    mutex.withLock {
+        withContext(Dispatchers.IO) {
             val gson = Gson()
             val uniqueProjects = projects.map { it.fileObject.getAbsolutePath() }
             val jsonString = gson.toJson(uniqueProjects)
@@ -108,9 +105,9 @@ private val mutex = Mutex()
     }
 }
 
-suspend fun restoreProjects(){
-    mutex.withLock{
-        withContext(Dispatchers.IO){
+suspend fun restoreProjects() {
+    mutex.withLock {
+        withContext(Dispatchers.IO) {
             runCatching {
                 val jsonString = Settings.projects
                 if (jsonString.isNotEmpty()) {
@@ -119,10 +116,17 @@ suspend fun restoreProjects(){
 
                     projectsList.forEach {
                         val file = File(it)
-                        if (file.exists() && file.canRead() && file.canWrite() && file.isDirectory){
+                        if (file.exists() && file.canRead() && file.canWrite() && file.isDirectory) {
                             addProject(FileWrapper(file))
-                        }else{
-                            addProject(UriWrapper(Uri.parse(it)))
+                        } else {
+                            addProject(
+                                UriWrapper(
+                                    DocumentFile.fromTreeUri(
+                                        activityRef.get()!!,
+                                        Uri.parse(it)
+                                    )!!
+                                )
+                            )
                         }
                         delay(100)
                     }
@@ -138,30 +142,30 @@ suspend fun restoreProjects(){
 val projects = mutableStateListOf<FileObjectWrapper>()
 var currentProject by mutableStateOf<FileObject?>(null)
 
-fun addProject(fileObject: FileObject,save:Boolean = false){
-    if (projects.find { it.fileObject == fileObject } != null){
+fun addProject(fileObject: FileObject, save: Boolean = false) {
+    if (projects.find { it.fileObject == fileObject } != null) {
         return
     }
     projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
     currentProject = fileObject
-    if (save){
-        GlobalScope.launch(Dispatchers.IO){
+    if (save) {
+        GlobalScope.launch(Dispatchers.IO) {
             saveProjects()
         }
     }
 }
 
-fun removeProject(fileObject: FileObject,save: Boolean = false){
+fun removeProject(fileObject: FileObject, save: Boolean = false) {
     projects.remove(projects.find { it.fileObject == fileObject })
-    if (currentProject == fileObject){
-        currentProject = if (projects.size-1 >= 0){
-            projects[projects.size-1].fileObject
-        }else{
+    if (currentProject == fileObject) {
+        currentProject = if (projects.size - 1 >= 0) {
+            projects[projects.size - 1].fileObject
+        } else {
             null
         }
     }
-    if (save){
-        GlobalScope.launch(Dispatchers.IO){
+    if (save) {
+        GlobalScope.launch(Dispatchers.IO) {
             saveProjects()
         }
     }
@@ -173,50 +177,64 @@ var isLoading by mutableStateOf(true)
 @Composable
 fun DrawerContent(modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    Box(modifier = Modifier.fillMaxSize()){
-        if (isLoading){
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (isLoading) {
             CircularProgressIndicator()
-        }else{
+        } else {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
                         NavigationRailItem(
-                            selected = file.fileObject == currentProject, icon = {
-                            val iconId = if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == alpineHomeDir())){
-                                drawables.terminal
-                            }else{
-                                drawables.outline_folder_24
-                            }
-                            Icon(painter = painterResource(iconId),contentDescription = null)
-                        }, onClick = {
-                            scope.launch{
-                                delay(50)
-                                currentProject = file.fileObject
-                            }
+                            selected = file.fileObject == currentProject,
+                            icon = {
+                                val iconId =
+                                    if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == alpineHomeDir())) {
+                                        drawables.terminal
+                                    } else {
+                                        drawables.outline_folder_24
+                                    }
+                                Icon(painter = painterResource(iconId), contentDescription = null)
+                            },
+                            onClick = {
+                                scope.launch {
+                                    delay(50)
+                                    currentProject = file.fileObject
+                                }
 
-                        }, label = {Text(file.fileObject.getAppropriateName(), maxLines = 1, overflow = TextOverflow.Ellipsis)})
+                            },
+                            label = {
+                                Text(
+                                    file.fileObject.getAppropriateName(),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            })
                     }
 
                     NavigationRailItem(selected = false, icon = {
-                        Icon(imageVector = Icons.Outlined.Add,contentDescription = null)
+                        Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
                     }, onClick = {
                         //show add popup
 
                         MainActivity.withContext {
                             fun handleAddNew() {
-                                ActionPopup(this,true).apply {
+                                ActionPopup(this, true).apply {
                                     addItem(
                                         getString(strings.open_directory),
                                         getString(strings.open_dir_desc),
-                                        ContextCompat.getDrawable(this@withContext, drawables.outline_folder_24),
+                                        ContextCompat.getDrawable(
+                                            this@withContext,
+                                            drawables.outline_folder_24
+                                        ),
                                         listener = {
                                             fileManager?.requestOpenDirectory()
                                         }
                                     )
 
                                     val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                                    val isManager = is11Plus && Environment.isExternalStorageManager()
+                                    val isManager =
+                                        is11Plus && Environment.isExternalStorageManager()
                                     val legacyPermission = ContextCompat.checkSelfPermission(
                                         this@withContext,
                                         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -228,37 +246,44 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
 
 
-                                    if ((is11Plus && isManager) || (!is11Plus && legacyPermission)){
+                                    if ((is11Plus && isManager) || (!is11Plus && legacyPermission)) {
                                         addItem(
                                             getString(strings.open_path),
                                             getString(strings.open_path_desc),
-                                            ContextCompat.getDrawable(this@withContext, drawables.android),
+                                            ContextCompat.getDrawable(
+                                                this@withContext,
+                                                drawables.android
+                                            ),
                                             listener = {
                                                 fileManager?.requestOpenFromPath()
                                             }
                                         )
                                     }
 
-                                    if (BuildConfig.DEBUG){
+                                    if (BuildConfig.DEBUG) {
                                         addItem(
                                             getString(strings.private_files),
                                             getString(strings.private_files_desc),
-                                            ContextCompat.getDrawable(this@withContext, drawables.build),
+                                            ContextCompat.getDrawable(
+                                                this@withContext,
+                                                drawables.build
+                                            ),
                                             listener = {
-                                                if (Settings.has_shown_private_data_dir_warning.not()){
+                                                if (Settings.has_shown_private_data_dir_warning.not()) {
                                                     MaterialAlertDialogBuilder(this@withContext).apply {
                                                         setCancelable(false)
                                                         setTitle(strings.warning)
                                                         setMessage(strings.warning_private_dir)
-                                                        setPositiveButton(strings.ok){ _,_ ->
-                                                            Settings.has_shown_private_data_dir_warning = true
+                                                        setPositiveButton(strings.ok) { _, _ ->
+                                                            Settings.has_shown_private_data_dir_warning =
+                                                                true
                                                             lifecycleScope.launch {
                                                                 addProject(FileWrapper(filesDir.parentFile!!))
                                                             }
                                                         }
                                                         show()
                                                     }
-                                                }else{
+                                                } else {
                                                     lifecycleScope.launch {
                                                         addProject(FileWrapper(filesDir.parentFile!!))
                                                     }
@@ -272,15 +297,19 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                     addItem(
                                         strings.terminal_home.getString(),
                                         strings.terminal_home_desc.getString(),
-                                        ContextCompat.getDrawable(this@withContext, drawables.terminal),
+                                        ContextCompat.getDrawable(
+                                            this@withContext,
+                                            drawables.terminal
+                                        ),
                                         listener = {
-                                            if (Settings.has_shown_terminal_dir_warning.not()){
+                                            if (Settings.has_shown_terminal_dir_warning.not()) {
                                                 MaterialAlertDialogBuilder(this@withContext).apply {
                                                     setCancelable(false)
                                                     setTitle(strings.warning)
                                                     setMessage(strings.warning_private_dir)
-                                                    setPositiveButton(strings.ok){ _,_ ->
-                                                        Settings.has_shown_terminal_dir_warning = true
+                                                    setPositiveButton(strings.ok) { _, _ ->
+                                                        Settings.has_shown_terminal_dir_warning =
+                                                            true
                                                         lifecycleScope.launch {
                                                             addProject(FileWrapper(alpineHomeDir()))
                                                         }
@@ -288,7 +317,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                                     show()
                                                 }
 
-                                            }else{
+                                            } else {
                                                 lifecycleScope.launch {
                                                     addProject(FileWrapper(alpineHomeDir()))
                                                 }
@@ -298,7 +327,10 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
 
                                     setTitle(getString(strings.add))
-                                    getDialogBuilder().setNegativeButton(getString(strings.cancel), null)
+                                    getDialogBuilder().setNegativeButton(
+                                        getString(strings.cancel),
+                                        null
+                                    )
                                     show()
                                 }
                             }
@@ -313,27 +345,42 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                 VerticalDivider()
 
                 Crossfade(targetState = currentProject) { project ->
-                    if (project != null){
-                        FileTree(modifier = Modifier.fillMaxSize().weight(1f), rootNode = project.toFileTreeNode(), onFileClick = {
-                            if (it.isFile) {
-                                MainActivity.withContext {
-                                    if (!isPaused){
-                                        adapter!!.addFragment(it.file)
-                                        if (!Settings.keep_drawer_locked) {
-                                            binding!!.drawerLayout.close()
-                                        }
+                    if (project != null) {
+                        FileTree(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                            rootNode = project.toFileTreeNode(),
+                            onFileClick = {
+                                if (it.isFile) {
+                                    MainActivity.withContext {
+                                        if (!isPaused) {
+                                            adapter!!.addFragment(it.file)
+                                            if (!Settings.keep_drawer_locked) {
+                                                binding!!.drawerLayout.close()
+                                            }
 
-                                        DefaultScope.launch { updateMenu(activityRef.get()?.adapter?.getCurrentFragment()) }
+                                            DefaultScope.launch { updateMenu(activityRef.get()?.adapter?.getCurrentFragment()) }
+                                        }
                                     }
                                 }
-                            }
-                        }, onFileLongClick = {
-                            FileAction(activityRef.get()!!,this.file,it.file)
-                        })
-                    }else{
+                            },
+                            onFileLongClick = {
+                                FileAction(activityRef.get()!!, this.file, it.file)
+                            })
+                    } else {
                         Surface(color = MaterialTheme.colorScheme.background) {
-                            Column(modifier = Modifier.fillMaxSize().weight(1f),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(painter = painterResource(drawables.outline_folder_24),contentDescription = null)
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    painter = painterResource(drawables.outline_folder_24),
+                                    contentDescription = null
+                                )
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text("No Folder Opened")
                             }
@@ -360,7 +407,8 @@ fun ProjectItem(
     Column(
         modifier = modifier
             .padding(vertical = 8.dp)
-            .width(50.dp).clickable(onClick = onClick),
+            .width(50.dp)
+            .clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -378,7 +426,12 @@ fun ProjectItem(
             tonalElevation = if (selected) 2.dp else 0.dp,
             modifier = Modifier.size(36.dp),
         ) {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().clickable(onClick = onClick)) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onClick)
+            ) {
                 icon()
             }
         }

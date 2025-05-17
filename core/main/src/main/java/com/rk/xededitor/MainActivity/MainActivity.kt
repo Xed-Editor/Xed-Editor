@@ -3,14 +3,11 @@ package com.rk.xededitor.MainActivity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -21,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
@@ -36,9 +34,7 @@ import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
 import com.rk.extension.ExtensionManager
-import android.view.KeyEvent
 import com.rk.file_wrapper.FileObject
-import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.DefaultScope
@@ -50,14 +46,15 @@ import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
+import com.rk.mutator_engine.Engine
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import com.rk.mutator_engine.Engine
 import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.file.FileManager
 import com.rk.xededitor.MainActivity.file.TabSelectedListener
 import com.rk.xededitor.MainActivity.file.getFragmentType
+import com.rk.xededitor.MainActivity.handlers.KeyEventHandler
 import com.rk.xededitor.MainActivity.handlers.MenuClickHandler
 import com.rk.xededitor.MainActivity.handlers.PermissionHandler
 import com.rk.xededitor.MainActivity.handlers.updateMenu
@@ -112,17 +109,21 @@ class MainActivity : AppCompatActivity() {
         var fragmentTypes = mutableListOf<FragmentType>()
         var fragmentTitles = mutableListOf<String>()
         var fileSet = HashSet<String>()
-        var fragmentContent = hashMapOf<String,Content?>()
+        var fragmentContent = hashMapOf<String, Content?>()
 
         private var _isRestoring = false
-        val isRestoring:Boolean
+        val isRestoring: Boolean
             get() = _isRestoring
 
         @OptIn(DelicateCoroutinesApi::class)
-        fun save(){
+        fun save() {
             val state = toState()
             GlobalScope.launch(Dispatchers.IO) {
-                FileOutputStream(File(application!!.cacheDir,"state").also { if (it.exists()){it.delete()} }).use { fileOutputStream ->
+                FileOutputStream(File(application!!.cacheDir, "state").also {
+                    if (it.exists()) {
+                        it.delete()
+                    }
+                }).use { fileOutputStream ->
                     ObjectOutputStream(fileOutputStream).use {
                         it.writeObject(state)
                     }
@@ -130,9 +131,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        fun restore(){
+        fun restore() {
             viewModelScope.launch(Dispatchers.IO) {
-                if (Settings.restore_session.not()){
+                if (Settings.restore_session.not()) {
                     return@launch
                 }
                 _isRestoring = true
@@ -149,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                     toast("State lost")
                 }.onSuccess {
                     activityRef.get()?.let {
-                        while(it.binding == null || it.tabLayout == null){
+                        while (it.binding == null || it.tabLayout == null) {
                             delay(50)
                         }
                     }
@@ -163,7 +164,7 @@ class MainActivity : AppCompatActivity() {
                             }
                             binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
 
-                            lifecycleScope.launch(Dispatchers.Main){
+                            lifecycleScope.launch(Dispatchers.Main) {
                                 TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
                                     tab.text = tabViewModel.fragmentTitles[position]
                                 }.attach()
@@ -184,7 +185,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun restoreState(state: TabViewModelState) {
-            val files = state.fragmentFiles.filter { it.exists() && it.canRead() && it.isFile() }.toMutableList()
+            val files = state.fragmentFiles.filter { it.exists() && it.canRead() && it.isFile() }
+                .toMutableList()
             val types = files.map { it.getFragmentType() }.toMutableList()
             val titles = files.map { it.getName() }.toMutableList()
             val fileSet = files.map { it.getCanonicalPath() }.toHashSet()
@@ -303,13 +305,20 @@ class MainActivity : AppCompatActivity() {
             list.sort()
             list.forEach { sourceName ->
                 var ext = sourceName.substringAfterLast(".")
-                if (sourceName == "text.html.basic"){
+                if (sourceName == "text.html.basic") {
                     ext = "html"
                 }
 
-                add(1,sourceName.hashCode(),order,ext).setOnMenuItemClickListener {
-                    (adapter?.getCurrentFragment()?.fragment as? EditorFragment)?.apply { scope.launch { setupEditor?.setLanguage(sourceName) } }
-                    false }
+                add(1, sourceName.hashCode(), order, ext).setOnMenuItemClickListener {
+                    (adapter?.getCurrentFragment()?.fragment as? EditorFragment)?.apply {
+                        scope.launch {
+                            setupEditor?.setLanguage(
+                                sourceName
+                            )
+                        }
+                    }
+                    false
+                }
 
                 order++
             }
@@ -320,12 +329,13 @@ class MainActivity : AppCompatActivity() {
         menu.findItem(R.id.tools).isVisible = InbuiltFeatures.mutators.state.value
 
         val tool = ContextCompat.getDrawable(this, drawables.build)
-        if (InbuiltFeatures.mutators.state.value){
+        if (InbuiltFeatures.mutators.state.value) {
             var order = 0
             Mutators.getMutators().forEach { mut ->
                 menu.findItem(R.id.tools).subMenu?.add(
                     1, mut.hashCode(), order, mut.name
-                )?.apply { icon = tool;order++;toolItems.add(mut.hashCode())
+                )?.apply {
+                    icon = tool;order++;toolItems.add(mut.hashCode())
                     setOnMenuItemClickListener {
                         DefaultScope.launch {
                             Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
@@ -347,15 +357,16 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    private fun openTabForIntent(intent: Intent){
-        if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)){
+    private fun openTabForIntent(intent: Intent) {
+        if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)) {
             val uri = intent.data!!
             val file = File(uri.toPath())
-            val fileObject = if (file.exists() && file.canRead() && file.canWrite() && file.isFile){
-                FileWrapper(file)
-            }else{
-                UriWrapper(uri)
-            }
+            val fileObject =
+                if (file.exists() && file.canRead() && file.canWrite() && file.isFile) {
+                    FileWrapper(file)
+                } else {
+                    UriWrapper(DocumentFile.fromSingleUri(this, uri)!!)
+                }
             adapter?.addFragment(fileObject)
             setIntent(Intent())
         }
@@ -363,7 +374,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        setIntent(intent);
+        setIntent(intent)
     }
 
     override fun onRequestPermissionsResult(
@@ -376,6 +387,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     var isPaused = true
+
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onPause() {
         isPaused = true
         tabViewModel.save()
@@ -391,7 +404,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event != null) {
-            if (this::class.java.name == MainActivity::class.java.name){
+            if (this::class.java.name == MainActivity::class.java.name) {
                 KeyEventHandler.onAppKeyEvent(event)
             }
         }
@@ -415,7 +428,7 @@ class MainActivity : AppCompatActivity() {
         PermissionHandler.verifyStoragePermission(this)
         openTabForIntent(intent)
         binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
-        lifecycleScope.launch{ Runner.onMainActivityResumed() }
+        lifecycleScope.launch { Runner.onMainActivityResumed() }
         lifecycleScope.launch {
             isLoading = true
             restoreProjects()
