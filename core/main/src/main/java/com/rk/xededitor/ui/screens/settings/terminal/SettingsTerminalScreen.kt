@@ -78,24 +78,32 @@ var isTermuxCompatible by mutableStateOf<Boolean?>(null)
 var errorMessage by mutableStateOf("")
 
 suspend fun updateTermuxExecStatus() {
+    if (Settings.terminal_runtime != RuntimeType.TERMUX.type) {
+        return
+    }
+
     isExecLoading = true
     withContext(Dispatchers.IO) {
-        isTermuxInstalled = isTermuxInstalled()
-        if (isTermuxInstalled != true) {
-            return@withContext
-        }
-        isTermuxCompatible = isTermuxCompatible()
-        if (isTermuxCompatible != true) {
-            return@withContext
-        }
+        runCatching {
+            isTermuxInstalled = isTermuxInstalled()
+            if (isTermuxInstalled != true) {
+                return@withContext
+            }
+            isTermuxCompatible = isTermuxCompatible()
+            if (isTermuxCompatible != true) {
+                return@withContext
+            }
 
-        val result = testExecPermission()
-        execAllowed = result.first
-        errorMessage = result.second?.message.toString()
-        result.second?.printStackTrace()
+            val result = testExecPermission()
+            execAllowed = result.first
+            errorMessage = result.second?.message.toString()
+            result.second?.printStackTrace()
+        }.onFailure { it.printStackTrace() }
     }
     isExecLoading = false
 }
+
+var runtime by mutableStateOf(Settings.terminal_runtime)
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -104,74 +112,78 @@ fun SettingsTerminalScreen() {
         val context = LocalContext.current
         val showDayBottomSheet = remember { mutableStateOf(false) }
 
-        LaunchedEffect(Unit) {
+
+        LaunchedEffect(runtime) {
             updateTermuxExecStatus()
         }
 
         PreferenceGroup {
-            fun getStateMessage(): String {
-                if (isTermuxInstalled != true) {
-                    return "[Error] Termux is not installed"
-                }
-                if (isTermuxCompatible != true) {
-                    return "[Error] Termux is not compatible please install termux from fdroid"
-                }
-                if (isExecLoading) {
-                    return "[Info] Waiting for termux to respond..."
-                }
-                return if (execAllowed && (errorMessage.isBlank() || errorMessage == "null")) {
-                    "[Info] Termux Exec is working normally"
-                } else {
-                    "[Error] $errorMessage"
-                }
-            }
-
-            SettingsToggle(
-                label = stringResource(strings.termux_exec),
-                description = getStateMessage(),
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    if (execAllowed.not()) {
-                        val intent =
-                            Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", context.packageName, null)
-                            }
-                        context.startActivity(intent)
+            if (runtime == RuntimeType.TERMUX.type) {
+                fun getStateMessage(): String {
+                    if (isTermuxInstalled != true) {
+                        return "[Error] Termux is not installed"
                     }
-                })
-
-
-            SettingsToggle(label = stringResource(strings.termux_exec_guide),
-                description = stringResource(strings.termux_exec_guide_desc),
-                showSwitch = false,
-                default = false,
-                endWidget = {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
-                    )
-                },
-                sideEffect = {
-                    val url = if (isTermuxInstalled()) {
-                        if (isTermuxCompatible()) {
-                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
-                        } else {
-                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/GOOGLE_PLAY_TERMUX.md"
-                        }
+                    if (isTermuxCompatible != true) {
+                        return "[Error] Termux is not compatible please install termux from fdroid"
+                    }
+                    if (isExecLoading) {
+                        return "[Info] Waiting for termux to respond..."
+                    }
+                    return if (execAllowed && (errorMessage.isBlank() || errorMessage == "null")) {
+                        "[Info] Termux Exec is working normally"
                     } else {
-                        "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/INSTALL_TERMUX.md"
+                        "[Error] $errorMessage"
                     }
+                }
 
-                    DefaultScope.launch {
-                        delay(100)
-                        withContext(Dispatchers.Main) {
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                SettingsToggle(
+                    label = stringResource(strings.termux_exec),
+                    description = getStateMessage(),
+                    showSwitch = false,
+                    default = false,
+                    sideEffect = {
+                        if (execAllowed.not()) {
+                            val intent =
+                                Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
                             context.startActivity(intent)
                         }
-                    }
-                })
+                    })
+
+
+                SettingsToggle(label = stringResource(strings.termux_exec_guide),
+                    description = stringResource(strings.termux_exec_guide_desc),
+                    showSwitch = false,
+                    default = false,
+                    endWidget = {
+                        Icon(
+                            modifier = Modifier.padding(16.dp),
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            contentDescription = null
+                        )
+                    },
+                    sideEffect = {
+                        val url = if (isTermuxInstalled()) {
+                            if (isTermuxCompatible()) {
+                                "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/SETUP_TERMUX.md"
+                            } else {
+                                "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/GOOGLE_PLAY_TERMUX.md"
+                            }
+                        } else {
+                            "https://github.com/Xed-Editor/Xed-Editor/blob/main/docs/termux/INSTALL_TERMUX.md"
+                        }
+
+                        DefaultScope.launch {
+                            delay(100)
+                            withContext(Dispatchers.Main) {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        }
+                    })
+            }
+
 
             SettingsToggle(
                 label = stringResource(strings.terminal_runtime),
@@ -454,6 +466,8 @@ fun TerminalRuntime(
                             modifier = Modifier.clickable {
                                 selectedType = mode
                                 Settings.terminal_runtime = selectedType
+                                runtime = selectedType
+
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;
                                 }

@@ -51,7 +51,13 @@ fun isTermuxCompatible(): Boolean {
 fun testExecPermission(): Pair<Boolean, Exception?> {
     try {
         checkTermuxInstall()
-        runCommandTermux(application!!, "$TERMUX_PREFIX/bin/echo", arrayOf(), background = true, isTesting = true)
+        runCommandTermux(
+            application!!,
+            "$TERMUX_PREFIX/bin/echo",
+            arrayOf(),
+            background = true,
+            isTesting = true
+        )
         return Pair(true, null)
     } catch (e: Exception) {
         return Pair(false, e)
@@ -73,8 +79,9 @@ fun runCommandTermux(
     background: Boolean = true,
     cwd: String? = null,
     isTesting: Boolean = false
-) {
-    runCatching { checkTermuxInstall() }.onFailure { error(it) }.onSuccess {
+): Throwable? {
+    runCatching {
+        checkTermuxInstall()
         GlobalScope.launch(Dispatchers.Main) {
             if (isTesting.not()) {
                 runCatching { launchTermux() }
@@ -91,14 +98,17 @@ fun runCommandTermux(
             }
             context.startForegroundService(intent)
         }
+    }.onFailure {
+        return it
     }
+    return null
 }
 
 
 fun runBashScript(
     context: Context, script: String, workingDir: String? = null, background: Boolean = false
-) {
-    runCommandTermux(
+): Throwable? {
+    return runCommandTermux(
         context = context,
         exe = "$TERMUX_PREFIX/bin/bash",
         arrayOf("-c", script),

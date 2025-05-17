@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 var settingsNavController = WeakReference<NavController?>(null)
+
 class SettingsActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,7 @@ class SettingsActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         settingsNavController.get()?.let {
-            if (it.currentDestination?.route == SettingsRoutes.TerminalSettings.route){
+            if (it.currentDestination?.route == SettingsRoutes.TerminalSettings.route) {
                 lifecycleScope.launch { updateTermuxExecStatus() }
             }
         }
