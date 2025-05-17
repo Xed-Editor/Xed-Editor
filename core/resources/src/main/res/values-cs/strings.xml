@@ -329,4 +329,11 @@
     <string name="misc_desc">Smíšené nastavení</string>
     <string name="smooth_tabs">Hladké animace Karet</string>
     <string name="smooth_tab_desc">Hladce přepnout mezi karty</string>
+    <string name="info">Informace</string>
+    <string name="file_info">Informace o Souboru</string>
+    <string name="copied">Kopírováno</string>
+    <string name="isfile">Je Soubor</string>
+    <string name="can_write">Lze Zapisovat</string>
+    <string name="can_read">Lze Číst</string>
+    <string name="file_size">Velikost Souboru</string>
 </resources>
