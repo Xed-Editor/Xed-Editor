@@ -20,17 +20,21 @@
   - [x] Open Multiple Projects
   - [x] Edit Multiple files
   - [x] Word Wrap
+  - [X] Different/Custom Fonts
   - [x] Undo-Redo functionality
   - [x] Syntax Highlighting
   - [x] Search and Batch Replacement
   - [x] Integrated File Browser
+  - [x] Operability With Android's Storage Access Framework (SAF)
   - [x] Create, Rename, Copy, and Delete Files/Folders
+  - [x] Check Files/Folders Info
   - [x] Print text documents
   - [x] AMOLED Theme
   - [x] Keybindings
-  - [x] Built-in Terminal
+  - [x] Built-in Terminal (Alpine Linux)
   - [x] Termux Interoperability
   - [x] Run Python,Html,C/C++, Node.js, etc.
+  - [x] Git (Plugin)
 
 
 <br>
