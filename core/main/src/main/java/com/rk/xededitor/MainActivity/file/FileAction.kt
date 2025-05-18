@@ -74,14 +74,12 @@ class FileAction(
 
             Hooks.FileActions.actionPopupHook.values.forEach { it.invoke(this, this@FileAction) }
 
-            if (file == rootFolder) {
-                addItem(
-                    strings.close.getString(),
-                    getString(strings.close_current_project),
-                    getDrawable(drawables.close),
-                ) {
-                    removeProject(rootFolder)
-                }
+            addItem(
+                strings.close.getString(),
+                getString(strings.close_current_project),
+                getDrawable(drawables.close),
+            ) {
+                removeProject(rootFolder)
             }
 
             if (file.isDirectory()) {
@@ -199,32 +197,40 @@ class FileAction(
 
 
 
+            if (file != rootFolder) {
+                addItem(
+                    getString(strings.delete),
+                    getString(strings.delete_descript),
+                    getDrawable(drawables.delete),
+                ) {
+                    MaterialAlertDialogBuilder(context).setTitle(getString(strings.delete))
+                        .setMessage(
+                            getString(strings.ask_del) + " ${file.getName()}? ${
+                                getString(
+                                    strings.cant_undo
+                                )
+                            }"
+                        )
+                        .setNegativeButton(getString(strings.cancel), null)
+                        .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
+                            val loading = LoadingPopup(mainActivity, null).show()
+                            mainActivity.lifecycleScope.launch(Dispatchers.IO) {
+                                file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
 
-            addItem(
-                getString(strings.delete),
-                getString(strings.delete_descript),
-                getDrawable(drawables.delete),
-            ) {
-                MaterialAlertDialogBuilder(context).setTitle(getString(strings.delete))
-                    .setMessage(getString(strings.ask_del) + " ${file.getName()} ")
-                    .setNegativeButton(getString(strings.cancel), null)
-                    .setPositiveButton(getString(strings.delete)) { _: DialogInterface?, _: Int ->
-                        val loading = LoadingPopup(mainActivity, null).show()
-                        mainActivity.lifecycleScope.launch(Dispatchers.IO) {
-                            file.getParentFile()?.let { fileTreeViewModel?.updateCache(it) }
-
-                            runCatching {
-                                val success = file.delete()
-                                withContext(Dispatchers.Main) {
-                                    loading.hide()
-                                    if (success.not()) {
-                                        toast("Failed to delete file")
+                                runCatching {
+                                    val success = file.delete()
+                                    withContext(Dispatchers.Main) {
+                                        loading.hide()
+                                        if (success.not()) {
+                                            toast(strings.failed)
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }.show()
+                        }.show()
+                }
             }
+
 
             addItem(
                 getString(strings.copy), getString(strings.copy_desc), if (file.isDirectory()) {

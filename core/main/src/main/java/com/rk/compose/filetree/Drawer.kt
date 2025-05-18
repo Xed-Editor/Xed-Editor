@@ -197,9 +197,21 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 Icon(painter = painterResource(iconId), contentDescription = null)
                             },
                             onClick = {
-                                scope.launch {
-                                    delay(50)
-                                    currentProject = file.fileObject
+                                if (file.fileObject == currentProject) {
+                                    MaterialAlertDialogBuilder(activityRef.get()!!).apply {
+                                        setTitle(strings.close)
+                                        setMessage("${strings.close_current_project.getString()} (${file.name})?")
+                                        setNegativeButton(strings.cancel, null)
+                                        setPositiveButton(strings.close) { _, _ ->
+                                            removeProject(file.fileObject, true)
+                                        }
+                                        show()
+                                    }
+                                } else {
+                                    scope.launch {
+                                        delay(50)
+                                        currentProject = file.fileObject
+                                    }
                                 }
 
                             },

@@ -65,7 +65,7 @@
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to delete</string>
+    <string name="ask_del">Are you sure you want to permanently delete</string>
     <string name="redir">Please reselect the directory</string>
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
@@ -429,4 +429,6 @@
     <string name="copied">Copied</string>
 
     <string name="flavor">Flavor</string>
+
+    <string name="cant_undo">This action cannot be undone</string>
 </resources>
