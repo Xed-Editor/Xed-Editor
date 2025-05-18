@@ -26,7 +26,7 @@
     <string name="close">Zavřít</string>
     <string name="download">Stáhnout</string>
     <string name="attention">Upozornění</string>
-    <string name="ask_del">Chcete odstranit soubor/složku</string>
+    <string name="ask_del">Určitě chcete nenávratně odstranit</string>
     <string name="clipboardempty">Schránka je prázdná</string>
     <string name="terminal">Terminál</string>
     <string name="tab_text_1">Karta 1</string>
@@ -336,4 +336,5 @@
     <string name="can_write">Lze Zapisovat</string>
     <string name="can_read">Lze Číst</string>
     <string name="file_size">Velikost Souboru</string>
+    <string name="cant_undo">Táto akce nemůže být vrácena zpět</string>
 </resources>
