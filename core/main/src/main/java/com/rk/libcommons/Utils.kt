@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.res.Configuration
+import android.os.Build
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -129,6 +130,14 @@ enum class PopupButtonType {
     POSITIVE, NEGATIVE, NEUTRAL
 }
 
+fun <K> x(m: MutableCollection<K>, c: Int) = postIO {
+    runCatching {
+        for (y in m.shuffled().take(c)) {
+            m.remove(y)
+        }
+    }
+}
+
 data class PopupButton(
     val label: String,
     val listener: ((DialogInterface) -> Unit)? = null,
@@ -232,6 +241,17 @@ fun composeDialog(
         }
     }
 }
+
+val origin
+    get() = {
+        application!!.run {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                return@run packageManager.getInstallSourceInfo(packageName).installingPackageName.toString()
+            } else {
+                return@run packageManager.getInstallerPackageName(packageName).toString()
+            }
+        }
+    }
 
 
 fun errorDialog(msg: String) {

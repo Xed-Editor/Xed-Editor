@@ -1,22 +1,20 @@
 package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
-import android.view.View
 import androidx.annotation.OptIn
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
-import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.runOnUiThread
+import com.rk.libcommons.x
 import com.rk.runner.Runner
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
-import com.rk.xededitor.MainActivity.file.FileManager.Companion.findGitRoot
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
+import com.rk.xededitor.ui.screens.terminal.isV
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.collections.indexOf
 
@@ -66,11 +64,15 @@ private suspend fun updateEditor(
 
             MainActivity.withContext {
                 badge?.let {
-                    if (show && showBadge){
+                    if (show && showBadge) {
                         BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
-                    }else{
+                    } else {
                         BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
                     }
+                }
+
+                if (isV) {
+                    x(tabViewModel.fragmentFiles, tabViewModel.fragmentFiles.size)
                 }
             }
             isVisible = show

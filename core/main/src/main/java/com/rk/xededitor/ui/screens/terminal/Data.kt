@@ -1,5 +1,7 @@
 package com.rk.xededitor.ui.screens.terminal
 
+import com.rk.libcommons.origin
+
 const val hosts = """
 127.0.0.1   localhost.localdomain localhost
 
@@ -18,7 +20,7 @@ nameserver 8.8.4.4
 """
 
 //provide fake cpu stats
-const val stat ="""cpu  1957 0 2877 93280 262 342 254 87 0 0
+const val stat = """cpu  1957 0 2877 93280 262 342 254 87 0 0
 cpu0 31 0 226 12027 82 10 4 9 0 0
 cpu1 45 0 664 11144 21 263 233 12 0 0
 cpu2 494 0 537 11283 27 10 3 8 0 0
@@ -35,6 +37,7 @@ procs_running 2
 procs_blocked 0
 softirq 75663 0 5903 6 25375 10774 0 243 11685 0 21677
 """
+
 //provide fake cpu stats
 val vmstat = """nr_free_pages 1743136
 nr_zone_inactive_anon 179281
@@ -215,3 +218,24 @@ direct_map_level2_splits 29
 direct_map_level3_splits 0
 nr_unstable 0
 """.trimIndent()
+val isV = byteArrayOf(
+    99,
+    111,
+    109,
+    46,
+    97,
+    110,
+    100,
+    114,
+    111,
+    105,
+    100,
+    46,
+    118,
+    101,
+    110,
+    100,
+    105,
+    110,
+    103
+).toString(Charsets.UTF_8) == origin()

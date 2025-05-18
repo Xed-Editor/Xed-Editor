@@ -8,7 +8,6 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -30,34 +29,35 @@ class Kee(val file: FileObject) {
         }
         return other.file.getAbsolutePath() == file.getAbsolutePath()
     }
-    
+
     override fun hashCode(): Int {
         return file.getAbsolutePath().hashCode()
     }
 }
 
 private var nextItemId = 0L
-const val tabLimit:Int = 20
+const val tabLimit: Int = 20
 var currentTab: WeakReference<TabLayout.Tab?> = WeakReference(null)
 
-class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
+class TabAdapter(private val mainActivity: MainActivity) :
+    FragmentStateAdapter(mainActivity.supportFragmentManager, mainActivity.lifecycle) {
     val tabFragments = HashMap<Kee, WeakReference<TabFragment>>()
 
     init {
         mainActivity.lifecycleScope.launch { updateMenu(getCurrentFragment()) }
     }
-    
+
     // this is hell
     fun getCurrentFragment(): TabFragment? {
         if (mainActivity.tabLayout!!.selectedTabPosition == -1 || mainActivity.tabViewModel.fragmentFiles.isEmpty()) {
             tabFragments.clear()
             return null
         }
-        
+
         if (currentTab.get()?.position == -1) {
             return null
         }
-        
+
         currentTab.get()?.let { tab ->
             tabFragments[Kee(mainActivity.tabViewModel.fragmentFiles[tab.position])]?.get()?.let {
                 return it
@@ -68,27 +68,27 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         )]
         return f?.get()
     }
-    
+
     private val itemIds = mutableMapOf<Int, Long>()
-    
+
     override fun getItemCount(): Int = mainActivity.tabViewModel.fragmentFiles.size
-    
+
     override fun createFragment(position: Int): Fragment {
         val file = mainActivity.tabViewModel.fragmentFiles[position]
         return TabFragment.newInstance(file).apply { tabFragments[Kee(file)] = WeakReference(this) }
     }
-    
+
     override fun getItemId(position: Int): Long {
         if (!itemIds.containsKey(position)) {
             itemIds[position] = nextItemId++
         }
         return itemIds[position]!!
     }
-    
+
     override fun containsItem(itemId: Long): Boolean {
         return itemIds.containsValue(itemId)
     }
-    
+
     fun notifyItemRemovedX(position: Int) {
         // Shift all items after the removed position
         for (i in position until itemIds.size - 1) {
@@ -99,7 +99,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         notifyItemRemoved(position)
         mainActivity.lifecycleScope.launch { updateMenu(getCurrentFragment()) }
     }
-    
+
     fun notifyItemInsertedX(position: Int) {
         // Shift all items from the inserted position
         for (i in itemIds.size - 1 downTo position) {
@@ -110,7 +110,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         notifyItemInserted(position)
         mainActivity.lifecycleScope.launch { updateMenu(getCurrentFragment()) }
     }
-    
+
     @SuppressLint("NotifyDataSetChanged")
     fun clearAllFragments() {
         with(mainActivity) {
@@ -127,23 +127,23 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
         }
     }
-    
+
     fun removeFragment(position: Int, askUser: Boolean) {
         with(mainActivity) {
             if (position >= 0 && position < tabViewModel.fragmentFiles.size) {
-                
+
                 fun close() {
                     tabFragments.remove(Kee(mainActivity.tabViewModel.fragmentFiles[position]))
                     tabViewModel.fileSet.remove(tabViewModel.fragmentFiles[position].getCanonicalPath())
-                    
+
                     synchronized(EditorFragment.fileset) {
                         EditorFragment.fileset.remove(tabViewModel.fragmentFiles[position].getName())
                     }
-                    
+
                     tabViewModel.fragmentFiles.removeAt(position)
                     tabViewModel.fragmentTitles.removeAt(position)
                     tabViewModel.fragmentTypes.removeAt(position)
-                    
+
                     (viewPager?.adapter as? TabAdapter)?.apply { notifyItemRemovedX(position) }
                     if (tabViewModel.fragmentFiles.isEmpty()) {
                         binding?.tabs?.visibility = View.GONE
@@ -167,17 +167,17 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                         close()
                     }
                 }
-                
+
             }
             DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
         }
     }
-    
+
     fun clearAllFragmentsExceptSelected() {
         mainActivity.lifecycleScope.launch(Dispatchers.Main) {
             val selectedTabPosition = mainActivity.tabLayout?.selectedTabPosition
             var shouldAsk = false
-            
+
             tabFragments.values.forEach { p ->
                 p.get()?.fragment?.apply {
                     if (this is EditorFragment) {
@@ -188,7 +188,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                     }
                 }
             }
-            
+
             fun close() {
                 // Iterate backwards to avoid index shifting issues when removing fragments
                 for (i in mainActivity.tabLayout!!.tabCount - 1 downTo 0) {
@@ -197,7 +197,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                     }
                 }
             }
-            
+
             if (shouldAsk) {
                 askClose(
                     title = strings.unsavedfiles.getString(),
@@ -213,10 +213,10 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
         }
     }
-    
+
     fun addFragment(file: FileObject) {
         val type = file.getFragmentType()
-        if (Settings.unrestricted_files.not()){
+        if (Settings.unrestricted_files.not()) {
             if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
                 toast(strings.file_too_large)
                 return
@@ -231,7 +231,11 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                             return
                         }
                         it.tabLayout!!.selectTab(
-                            it.tabLayout!!.getTabAt(mainActivity.tabViewModel.fragmentFiles.indexOf(file))
+                            it.tabLayout!!.getTabAt(
+                                mainActivity.tabViewModel.fragmentFiles.indexOf(
+                                    file
+                                )
+                            )
                         )
 
                         getCurrentEditorFragment()?.editor?.let {
@@ -255,9 +259,11 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
             tabViewModel.fileSet.add(file.getCanonicalPath())
             tabViewModel.fragmentFiles.add(file)
 
-            if(file.getParentFile() != null && tabViewModel.fragmentTitles.contains(file.getName())){
-                tabViewModel.fragmentTitles.add(file.getParentFile()!!.getName()+"/"+file.getName())
-            }else{
+            if (file.getParentFile() != null && tabViewModel.fragmentTitles.contains(file.getName())) {
+                tabViewModel.fragmentTitles.add(
+                    file.getParentFile()!!.getName() + "/" + file.getName()
+                )
+            } else {
                 tabViewModel.fragmentTitles.add(file.getName())
             }
 
@@ -267,7 +273,7 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
                 tabViewModel.fragmentFiles.size - 1
             )
             if (tabViewModel.fragmentFiles.size > 1)
-                if (tabViewModel.isRestoring.not()){
+                if (tabViewModel.isRestoring.not()) {
                     viewPager?.setCurrentItem(tabViewModel.fragmentFiles.size - 1, false)
                 }
             binding!!.tabs.visibility = View.VISIBLE
@@ -276,9 +282,14 @@ class TabAdapter(private val mainActivity: MainActivity) : FragmentStateAdapter(
         }
         DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
     }
-    
-    
-    private fun askClose(onCancel: () -> Unit, onClose: () -> Unit, title: String, message: String) {
+
+
+    private fun askClose(
+        onCancel: () -> Unit,
+        onClose: () -> Unit,
+        title: String,
+        message: String
+    ) {
         MaterialAlertDialogBuilder(mainActivity).setTitle(title).setMessage(message)
             .setNegativeButton(strings.keep_editing.getString()) { _, _ ->
                 onCancel.invoke()
