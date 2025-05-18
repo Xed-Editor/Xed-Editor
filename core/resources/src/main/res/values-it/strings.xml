@@ -88,7 +88,7 @@
     <string name="dir_example">Nome es. Test</string>
     <string name="create">Crea</string>
     <string name="ask_enter_name">Per favore inserisci un nome</string>
-    <string name="ask_del">Sei sicuro di voler cancellare</string>
+    <string name="ask_del">Sei sicuro di voler eliminare definitivamente</string>
     <string name="redir">Per favore seleziona nuovamente la cartella</string>
     <string name="canthandle">Nessuna app associata a questo tipo di file</string>
     <string name="clipboardempty">Nessun appunto in memoria</string>
@@ -397,4 +397,6 @@
     <string name="info">Info</string>
     <string name="file_size">Dimensione File</string>
     <string name="file_info">Informazioni File</string>
+    <string name="flavor">Variante</string>
+    <string name="cant_undo">Questa azione non può essere annullata</string>
 </resources>
