@@ -166,7 +166,12 @@ class MainActivity : AppCompatActivity() {
 
                             lifecycleScope.launch(Dispatchers.Main) {
                                 TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                                    tab.text = tabViewModel.fragmentTitles[position]
+                                    val titles = tabViewModel.fragmentTitles
+                                    if (position in titles.indices) {
+                                        tab.text = titles[position]
+                                    } else {
+                                        toast("${strings.unknown_err} ${strings.restart_app}")
+                                    }
                                 }.attach()
                             }
                         }
@@ -508,7 +513,12 @@ class MainActivity : AppCompatActivity() {
         viewPager!!.adapter = adapter
 
         TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-            tab.text = tabViewModel.fragmentTitles[position]
+            val titles = tabViewModel.fragmentTitles
+            if (position in titles.indices) {
+                tab.text = titles[position]
+            } else {
+                toast("${strings.unknown_err} ${strings.restart_app}")
+            }
         }.attach()
 
 

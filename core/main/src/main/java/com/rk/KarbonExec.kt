@@ -78,30 +78,46 @@ fun runCommandTermux(
     args: Array<String>,
     background: Boolean = true,
     cwd: String? = null,
-    isTesting: Boolean = false
+    isTesting: Boolean = false,
+    callBackIntent: Intent? = null
 ): Throwable? {
+    var t: Throwable? = null
+
+
     runCatching {
         checkTermuxInstall()
         GlobalScope.launch(Dispatchers.Main) {
-            if (isTesting.not()) {
-                runCatching { launchTermux() }
-                delay(200)
-            }
-            val intent = Intent("$TERMUX_PKG.RUN_COMMAND").apply {
-                setClassName(TERMUX_PKG, "$TERMUX_PKG.app.RunCommandService")
-                putExtra("$TERMUX_PKG.RUN_COMMAND_PATH", exe)
-                putExtra("$TERMUX_PKG.RUN_COMMAND_ARGUMENTS", args)
-                putExtra("$TERMUX_PKG.RUN_COMMAND_BACKGROUND", background)
-                cwd?.let { cwd ->
-                    putExtra("$TERMUX_PKG.RUN_COMMAND_SERVICE.EXTRA_WORKDIR", cwd)
+            runCatching {
+                if (isTesting.not()) {
+                    runCatching { launchTermux() }.onFailure { it.printStackTrace();t = it }
+                    delay(200)
                 }
+                val intent = Intent("$TERMUX_PKG.RUN_COMMAND").apply {
+                    setClassName(TERMUX_PKG, "$TERMUX_PKG.app.RunCommandService")
+                    putExtra("$TERMUX_PKG.RUN_COMMAND_PATH", exe)
+                    putExtra("$TERMUX_PKG.RUN_COMMAND_ARGUMENTS", args)
+                    putExtra("$TERMUX_PKG.RUN_COMMAND_BACKGROUND", background)
+
+                    callBackIntent?.let {
+                        putExtra("$TERMUX_PKG.RUN_COMMAND_SERVICE.EXTRA_PENDING_INTENT", it)
+                    }
+
+                    cwd?.let { cwd ->
+                        putExtra("$TERMUX_PKG.RUN_COMMAND_SERVICE.EXTRA_WORKDIR", cwd)
+                    }
+                }
+                context.startForegroundService(intent)
+            }.onFailure {
+                it.printStackTrace()
+                t = it
             }
-            context.startForegroundService(intent)
+
         }
     }.onFailure {
-        return it
+        it.printStackTrace()
+        t = it
     }
-    return null
+    return t
 }
 
 
@@ -132,4 +148,8 @@ fun launchTermux(): Boolean {
     }
     application!!.startActivity(application!!.packageManager.getLaunchIntentForPackage(TERMUX_PKG))
     return true
+}
+
+fun isTermuxRunning() {
+
 }

@@ -5,9 +5,11 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
+import com.rk.libcommons.toast
+import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.file.FileAction.Companion.to_save_file
+import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.interfaces.KeyEventHandler
@@ -32,7 +34,7 @@ object KeyEventHandler {
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastCallTime >= 100) {
             lastCallTime = currentTime
-        }else{
+        } else {
             return
         }
 
@@ -43,18 +45,23 @@ object KeyEventHandler {
             when (keyEvent.keyCode) {
                 KeyEvent.KEYCODE_W -> {
                     MainActivity.activityRef.get()?.apply {
-                        adapter!!.removeFragment(tabLayout!!.selectedTabPosition,true)
+                        adapter!!.removeFragment(tabLayout!!.selectedTabPosition, true)
                         binding!!.tabs.invalidate()
                         binding!!.tabs.requestLayout()
-                        
+
                         // Detach and re-attach the TabLayoutMediator
                         TabLayoutMediator(binding!!.tabs, viewPager!!) { tab, position ->
-                            tab.text = tabViewModel.fragmentTitles[position]
+                            val titles = tabViewModel.fragmentTitles
+                            if (position in titles.indices) {
+                                tab.text = titles[position]
+                            } else {
+                                toast("${strings.unknown_err} ${strings.restart_app}")
+                            }
                         }.attach()
                         DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_K -> {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout!!.selectedTabPosition == 0) {
@@ -70,7 +77,7 @@ object KeyEventHandler {
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_L -> {
                     MainActivity.activityRef.get()?.let {
                         if (it.tabLayout!!.selectedTabPosition == it.tabLayout!!.tabCount - 1) {
@@ -86,7 +93,7 @@ object KeyEventHandler {
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_S -> {
                     if (keyEvent.isShiftPressed) {
                         when (keyEvent.keyCode) {
@@ -97,13 +104,13 @@ object KeyEventHandler {
                                 }
                             }
                         }
-                    } else{
+                    } else {
                         if (currentFragment is EditorFragment) {
                             currentFragment.save(false)
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_PLUS, 70 -> {
                     editor?.let {
                         if (it.textSizePx < 57) {
@@ -111,7 +118,7 @@ object KeyEventHandler {
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_MINUS -> {
                     editor?.let {
                         if (it.textSizePx > 8) {
@@ -119,7 +126,7 @@ object KeyEventHandler {
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_F -> {
                     MainActivity.activityRef.get()?.let {
                         it.lifecycleScope.launch {
@@ -127,16 +134,20 @@ object KeyEventHandler {
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_P -> {
                     MainActivity.activityRef.get()?.let {
-                        if (currentFragment is EditorFragment){
+                        if (currentFragment is EditorFragment) {
                             val printer = Printer(it)
-                            printer.setCodeText(editor?.text.toString(), language = currentFragment.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                            printer.setCodeText(
+                                editor?.text.toString(),
+                                language = currentFragment.file?.getName()?.substringAfterLast(".")
+                                    ?.trim() ?: "txt"
+                            )
                         }
                     }
                 }
-                
+
                 KeyEvent.KEYCODE_G -> {
                     editor?.let {
                         val line = 0
@@ -148,9 +159,9 @@ object KeyEventHandler {
                         }
                         editor.cursor.set(line, column)
                     }
-                    
+
                 }
-                
+
                 KeyEvent.KEYCODE_B -> {
                     editor?.let {
                         val line = editor.text.lineCount - 1
@@ -162,10 +173,10 @@ object KeyEventHandler {
                         }
                         editor.cursor.set(line, column)
                     }
-                    
+
                 }
             }
-            
+
         }
     }
 }
