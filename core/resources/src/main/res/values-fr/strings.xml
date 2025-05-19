@@ -398,4 +398,5 @@
     <string name="info">Info</string>
     <string name="file_info">Info sur les fichiers</string>
     <string name="flavor">Variation</string>
+    <string name="cant_undo">Cette action ne peut pas être annulée</string>
 </resources>
