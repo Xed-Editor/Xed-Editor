@@ -312,7 +312,7 @@
     <string name="sessions">会话</string>
     <string name="script_showing_dialog">显示对话框</string>
     <string name="loading">加载中…</string>
-    <string name="no_ext">未安装拓展。</string>
+    <string name="no_ext">未安装扩展。</string>
     <string name="not_plugin_err">所选文件不是 .apk 格式</string>
     <string name="install_from_storage">从内部存储安装</string>
     <string name="network_err">网络错误</string>
@@ -349,19 +349,19 @@
     <string name="experimental_feature">实验性功能</string>
     <string name="experimental_session_restore_warning">此功能为实验性功能，已知可能会导致数据丢失</string>
     <string name="unrestricted_file">打开任意大小的文件</string>
-    <string name="new_document">新建文档</string>
+    <string name="new_document">新建文件</string>
     <string name="new_document_desc">新建文件或文件夹</string>
     <string name="err_termux_incompatible">Termux 不兼容</string>
     <string name="enable_ext_desc">加载第三方扩展</string>
     <string name="ext_desc">管理扩展</string>
     <string name="script_text">此文本将被写入到编辑器</string>
-    <string name="script_set_text">设置文本</string>
-    <string name="script_api_info">检查 Xed-Editors 源代码中的 ImplApi 类（位于 PROJECT/core/main/ui/screens/mutators/ImplApi）以获取更多信息</string>
+    <string name="script_set_text">设置编辑器文本</string>
+    <string name="script_api_info">检查 Xed-Editor 源代码中的 ImplApi 类（位于 PROJECT/core/main/ui/screens/mutators/ImplApi）以获取更多信息</string>
     <string name="err_no_termux">Termux 未安装</string>
     <string name="http_git_url">HTTP Git 域名</string>
     <string name="scroll_to_bottom">滚动到底部</string>
     <string name="highlighting">语法高亮</string>
-    <string name="info_ext">扩展可用来自定义 Xed-editor 的行为和功能。要了解如何构建插件，请单击此处</string>
+    <string name="info_ext">扩展可用来自定义 Xed-Editor 的行为和功能。要了解如何构建扩展，请单击此处</string>
     <string name="file_not_exist">文件不再存在</string>
     <string name="info_mutators">Mutator 是用来批量修改编辑器文本的脚本。创建 Mutator 脚本后并点击即可在编辑器中打开。</string>
     <string name="scroll_to_bottom_desc">打开文件时滚动到底部</string>
@@ -370,7 +370,7 @@
     <string name="ext">扩展</string>
     <string name="unrestricted_file_desc">允许打开任意大小的文件（可能导致程序崩溃）</string>
     <string name="suggest_clear_app_data">建议清除应用数据</string>
-    <string name="update_files_cleared">已清除更新的文件</string>
+    <string name="update_files_cleared">应用已更新：已清除数据</string>
     <string name="sponsor">赞助</string>
     <string name="sponsor_desc">支持开发</string>
     <string name="feature_toggles">特色功能</string>
@@ -398,4 +398,5 @@
     <string name="info">属性</string>
     <string name="saf_expose_warning">让主目录在文件管理中显示可能会向恶意应用程序泄露敏感信息，包括 Git 令牌、密码、用户名和存储在终端主目录中的其他文件。你想继续吗？</string>
     <string name="expose_saf_desc">让主目录在文件管理中显示以供其他应用程序访问（通过 SAF 的方法）</string>
+    <string name="flavor">版本</string>
 </resources>
