@@ -25,7 +25,7 @@
     <string name="insertdate">插入日期</string>
     <string name="saveexit">保存并退出</string>
     <string name="exit">退出</string>
-    <string name="rr">需要重启</string>
+    <string name="rr">需要重启以生效</string>
     <string name="rapply">请重启以应用设置</string>
     <string name="oled">纯黑主题</string>
     <string name="ww">自动换行</string>
@@ -38,9 +38,9 @@
     <string name="dir_example">名称，例如：测试</string>
     <string name="create">创建</string>
     <string name="ask_enter_name">请输入一个名称</string>
-    <string name="already_exists">已存在同名文档</string>
+    <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你确定要删除吗</string>
+    <string name="ask_del">你确定要永久删除吗</string>
     <string name="redir">请重新选择目录</string>
     <string name="canthandle">未找到能处理此文件的应用</string>
     <string name="clipboardempty">剪贴板为空</string>
@@ -82,7 +82,7 @@
     <string name="oled_desc">适用于支持 AMOLED 设备的纯黑主题</string>
     <string name="downloading_plugin">下载插件中</string>
     <string name="text_size_desc">设置字体大小</string>
-    <string name="tab_size">标签页大小</string>
+    <string name="tab_size">标签大小</string>
     <string name="tab_size_desc">设置标签大小</string>
     <string name="git_desc">Git 通用设置</string>
     <string name="unsupported_contnt">不支持的内容</string>
@@ -108,7 +108,7 @@
     <string name="close_all">关闭全部</string>
     <string name="close">关闭</string>
     <string name="unsaved">未保存的文件</string>
-    <string name="unsavedfiles">您有未保存的文件！</string>
+    <string name="unsavedfiles">你有未保存的文件！</string>
     <string name="remove_a_search_batch">移除一组批量搜索</string>
     <string name="title_activity_main">主界面</string>
     <string name="tab_text_1">标签页 1</string>
@@ -141,7 +141,7 @@
     <string name="pull_desc">同步本地存储库和远程存储库</string>
     <string name="commit_push">提交并推送</string>
     <string name="push_desc">创建新提交并推送更改到远程存储库</string>
-    <string name="fill_both">请填写全部字段</string>
+    <string name="fill_both">请填写所有字段</string>
     <string name="pushing">推到远程存储库…</string>
     <string name="nogit">错误：找不到 .git 文件夹</string>
     <string name="manage_storage">管理存储权限</string>
@@ -189,7 +189,7 @@
     <string name="save_1">保存</string>
     <string name="plugin_dir">插件目录</string>
     <string name="file_open_denied">无法通过其他应用打开此文件</string>
-    <string name="save_desc">将选定文件保存到其他位置</string>
+    <string name="save_desc">将选中文件保存到其他位置</string>
     <string name="wait_download">请等待所有文件下载完成。</string>
     <string name="cloning">克隆存储库…</string>
     <string name="title_activity_batch_replacement">批量替换</string>
@@ -204,11 +204,11 @@
     <string name="private_files">私有文件</string>
     <string name="clone_err">此仓库为私有仓库。请检查你的访问凭据</string>
     <string name="text_size">字体大小</string>
-    <string name="monet_desc">跟随系统</string>
+    <string name="monet_desc">跟随系统主题</string>
     <string name="add_new_replacement_batch">添加新的批量替换</string>
     <string name="enable_plugins">启用插件</string>
     <string name="sim_hard_links">模拟硬链接</string>
-    <string name="sysvipc">处理 System V IPC syscall</string>
+    <string name="sysvipc">处理 System V IPC 系统调用</string>
     <string name="u_err">未知错误</string>
     <string name="choose_file">选择文件</string>
     <string name="fail_safe">故障保险</string>
@@ -223,7 +223,7 @@
     <string name="is_null">InputStream 为 null</string>
     <string name="press_again_exit">再按一次返回键退出</string>
     <string name="wait_pkg">请等待软件包下载完成。</string>
-    <string name="unsupported_aarch">不支持的平台，使用故障保护</string>
+    <string name="unsupported_aarch">不支持的平台，已启用故障保护</string>
     <string name="pkg_download_failed">软件包下载失败</string>
     <string name="failsafe_desc">使用 Android Shell 代替 Termux</string>
     <string name="terminal_text_size">终端字体大小</string>
@@ -243,7 +243,7 @@
     <string name="theme_mode">主题</string>
     <string name="show_virtual_keyboard">显示虚拟键盘</string>
     <string name="check_for_updates">检查更新</string>
-    <string name="sora_s_desc">使用 Sora Editor 自带的文字搜索</string>
+    <string name="sora_s_desc">使用 Sora Editor 的文本搜索</string>
     <string name="dark_mode">暗色</string>
     <string name="auto_mode">自动</string>
     <string name="cannot_be_empty">此处不能为空。</string>
@@ -276,7 +276,7 @@
     <string name="fonts">字体</string>
     <string name="font_added">成功添加字体</string>
     <string name="delete_font">删除字体</string>
-    <string name="add_font_desc">从储存空间中选择 ttf 字体文件</string>
+    <string name="add_font_desc">从储存空间中选择 TTF 字体文件</string>
     <string name="install_termux">从 F-Droid 安装 Termux</string>
     <string name="termux_exec_guide">Termux 执行器文档</string>
     <string name="termux_exec_guide_desc">查看文档了解如何启用 Termux 执行器</string>
@@ -288,7 +288,7 @@
     <string name="useCtrlWorkaround">在工作区使用 Ctrl 快捷键</string>
     <string name="force_normal_desc">强制在大屏幕设备上使用正常布局</string>
     <string name="light_mode">亮色</string>
-    <string name="telegram_desc">报告问题、需求反馈等</string>
+    <string name="telegram_desc">报告问题、功能需求等。</string>
     <string name="show_virtual_keyboard_desc">连接物理键盘时显示虚拟键盘</string>
     <string name="git_commit">Git 提交哈希</string>
     <string name="check_for_updates_desc">定期检查更新</string>
@@ -297,7 +297,7 @@
     <string name="file_too_large">打开的文件过大</string>
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
-    <string name="txt_ww">txt 文件换行</string>
+    <string name="txt_ww">自动换行 TXT 文件</string>
     <string name="txt_ww_desc">文本文件自动换行</string>
     <string name="sora_s">Sora Editor 文本搜索</string>
     <string name="telegram">Telegram 群</string>
@@ -328,7 +328,7 @@
     <string name="terminal_runtime">终端运行环境</string>
     <string name="installing">安装中…</string>
     <string name="downloading">下载中…</string>
-    <string name="mutator_desc">创建微型工具</string>
+    <string name="mutator_desc">管理 Mulator 脚本</string>
     <string name="restore_sessions">恢复会话</string>
     <string name="restore_sessions_desc">恢复之前的标签页</string>
     <string name="terminal_home">终端主页</string>
@@ -338,7 +338,7 @@
     <string name="mutator_name">Mutator 脚本名称</string>
     <string name="name_empty_err">名称不能为空</string>
     <string name="name_used">名称已被使用</string>
-    <string name="script_get_text">获取文本</string>
+    <string name="script_get_text">获取编辑器文本</string>
     <string name="script_show_toast">显示 Toast 提示消息</string>
     <string name="script_network">网络</string>
     <string name="use_github_url">使用默认的 Git 域名</string>
@@ -387,4 +387,15 @@
     <string name="unknown_err">出了点问题</string>
     <string name="misc">其他设置</string>
     <string name="misc_desc">其他的设置选项</string>
+    <string name="expose_saf">显示主目录</string>
+    <string name="file_info">文件属性</string>
+    <string name="file_size">文件大小</string>
+    <string name="can_read">可读</string>
+    <string name="can_write">可写</string>
+    <string name="isfile">是文件</string>
+    <string name="copied">已复制</string>
+    <string name="cant_undo">此操作无法撤消</string>
+    <string name="info">属性</string>
+    <string name="saf_expose_warning">让主目录在文件管理中显示可能会向恶意应用程序泄露敏感信息，包括 Git 令牌、密码、用户名和存储在终端主目录中的其他文件。你想继续吗？</string>
+    <string name="expose_saf_desc">让主目录在文件管理中显示以供其他应用程序访问（通过 SAF 的方法）</string>
 </resources>
