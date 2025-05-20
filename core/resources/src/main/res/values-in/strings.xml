@@ -70,7 +70,7 @@
     <string name="ask_enter_name">Silakan masukkan nama</string>
     <string name="already_exists">Dokumen dengan nama ini sudah ada</string>
     <string name="attention">Perhatian</string>
-    <string name="ask_del">Apakah anda yakin ingin menghapus</string>
+    <string name="ask_del">Apakah anda yakin ingin menghapus secara permanen</string>
     <string name="redir">Pilih kembali direktori tersebut</string>
     <string name="canthandle">Tidak ada aplikasi yang ditemukan untuk menangani berkas tersebut</string>
     <string name="clipboardempty">Papan klip kosong</string>
@@ -397,4 +397,6 @@
     <string name="copied">Disalin</string>
     <string name="saf_expose_warning">Memperlihatkan direktori beranda dapat menampilkan informasi sensitif ke aplikasi berbahaya, termasuk token Git, kata sandi, nama pengguna, dan berkas lain yang tersimpan di direktori beranda terminal Anda. Apakah Anda ingin melanjutkan?</string>
     <string name="file_info">Informasi Berkas</string>
+    <string name="cant_undo">Tindakan ini tidak dapat dibatalkan</string>
+    <string name="flavor">Rasa</string>
 </resources>
