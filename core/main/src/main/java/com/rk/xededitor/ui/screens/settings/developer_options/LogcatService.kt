@@ -48,7 +48,7 @@ class LogcatService : Service(),
         super.onCreate()
         createNotificationChannel()
         val notification = createNotification()
-        startForeground(1, notification)
+        startForeground(2, notification)
         launch(Dispatchers.IO) {
             runCatching {
                 process = ProcessBuilder("logcat")
