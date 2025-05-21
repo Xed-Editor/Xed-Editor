@@ -82,8 +82,7 @@ fun runCommandTermux(
     callBackIntent: Intent? = null
 ): Throwable? {
     var t: Throwable? = null
-
-
+    
     runCatching {
         checkTermuxInstall()
         GlobalScope.launch(Dispatchers.Main) {

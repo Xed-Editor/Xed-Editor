@@ -7,7 +7,10 @@ import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import com.rk.xededitor.databinding.ActivityMarkdownBinding
 
 abstract class WebActivity : AppCompatActivity() {
@@ -21,15 +24,14 @@ abstract class WebActivity : AppCompatActivity() {
         webSettings.domStorageEnabled = true
         webSettings.javaScriptCanOpenWindowsAutomatically = true
         //webSettings.allowContentAccess = true
-       //webSettings.allowFileAccess = true
+        //webSettings.allowFileAccess = true
         webSettings.loadWithOverviewMode = true
         webSettings.useWideViewPort = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
         webView.setWebChromeClient(WebChromeClient())
     }
-    
-    
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,6 +44,13 @@ abstract class WebActivity : AppCompatActivity() {
         supportActionBar!!.setDisplayShowTitleEnabled(true)
 
         setupWebView(binding!!.webview)
+
+        enableEdgeToEdge()
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById<View>(android.R.id.content)) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
     }
 
     override fun onLowMemory() {

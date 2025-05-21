@@ -1,4 +1,5 @@
 <resources>
+
     <style name="Base.Theme.Karbon" parent="Theme.Material3.Light.NoActionBar">
         <!-- Bars -->
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -16,7 +17,7 @@
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
         <item name="fontFamily">@font/outfit_regular</item>
     </style>
-    
+
     <style name="Theme.Karbon" parent="Base.Theme.Karbon">
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
@@ -65,12 +66,12 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
     </style>
-    
+
     <style name="Theme.Karbon.Oled" parent="Theme.Karbon">
         <item name="android:colorBackground">@android:color/black</item>
         <item name="colorSurface">@android:color/black</item>
     </style>
-    
+
     <style name="Base.Theme.Karbon.Monet" parent="Theme.Material3.DynamicColors.Light">
         <!-- Bars -->
         <item name="android:statusBarColor">@android:color/transparent</item>
@@ -84,7 +85,7 @@
         <item name="android:fontFamily">@font/outfit_regular</item>
         <item name="android:forceDarkAllowed">false</item>
     </style>
-    
+
     <style name="Theme.Karbon.Old.Monet" parent="Base.Theme.Karbon.Monet">
         <item name="android:colorBackground">@android:color/black</item>
         <item name="colorSurface">@android:color/black</item>
