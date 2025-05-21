@@ -242,7 +242,7 @@
     <string name="theme_mode">Theme</string>
     <string name="theme_mode_desc">Change app color theme</string>
 
-    <string name="show_suggestions">Show Suggestions</string>
+    <string name="show_suggestions">Show Keyboard Suggestions</string>
 
     <string name="about">About</string>
     <string name="about_desc">About Xed-Editor</string>
@@ -373,8 +373,8 @@
     <string name="file_not_loaded">File isn\'t loaded yet.</string>
     <string name="file_not_exist">File No longer exists</string>
 
-    <string name="soft_keyboard_always">Always show keyboard</string>
-    <string name="soft_keyboard_always_desc">Always show soft keyboard even if hardware keyboard is connected</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Disable virtual keyboard</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Disable virtual keyboard If Hardware keyboard is Available</string>
 
     <string name="experimental_feature">Experimental Feature</string>
     <string name="experimental_session_restore_warning">This Feature is experimental and known to sometimes cause loss of data</string>
@@ -431,4 +431,5 @@
     <string name="flavor">Flavor</string>
 
     <string name="cant_undo">This action cannot be undone</string>
+    <string name="auto_complete">Editor Auto Complete</string>
 </resources>

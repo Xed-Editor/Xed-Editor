@@ -1,20 +1,16 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import androidx.annotation.DrawableRes
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.components.compose.preferences.base.PreferenceGroup
+import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -22,22 +18,16 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.file.smoothTabs
-import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.InputDialog
+import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.SettingsToggle
+import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.libcommons.dpToPx
-import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
-import com.rk.xededitor.ui.components.EditorSettingsToggle
-import com.rk.xededitor.ui.components.NextScreenCard
-import com.rk.xededitor.ui.components.ValueSlider
-import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
-import com.rk.xededitor.ui.screens.terminal.terminalView
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -56,7 +46,7 @@ fun SettingsEditorScreen(navController: NavController) {
 
 
         PreferenceGroup(heading = stringResource(strings.content)) {
-            if (InbuiltFeatures.mutators.state.value){
+            if (InbuiltFeatures.mutators.state.value) {
                 NextScreenCard(
                     label = stringResource(strings.mutators),
                     description = stringResource(strings.mutator_desc),
@@ -81,15 +71,15 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-           /* EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
-                description = stringResource(strings.scroll_to_bottom_desc),
-                default = false,
-                key = PreferencesKeys.SCROLL_TO_BOTTOM,
-                sideEffect = {
-                    if (it) {
-                        toast(strings.ni.getString())
-                    }
-                }) */
+            /* EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
+                 description = stringResource(strings.scroll_to_bottom_desc),
+                 default = false,
+                 key = PreferencesKeys.SCROLL_TO_BOTTOM,
+                 sideEffect = {
+                     if (it) {
+                         toast(strings.ni.getString())
+                     }
+                 }) */
 
 
             EditorSettingsToggle(label = stringResource(id = strings.ww),
@@ -102,12 +92,12 @@ fun SettingsEditorScreen(navController: NavController) {
 
             EditorSettingsToggle(label = stringResource(strings.txt_ww),
                 description = stringResource(strings.txt_ww_desc),
-                default =  Settings.word_wrap_for_text,
+                default = Settings.word_wrap_for_text,
                 sideEffect = {
                     Settings.word_wrap_for_text = it
 
                     editorFragmentsForEach { editorFragment ->
-                        with(editorFragment){
+                        with(editorFragment) {
                             if (file?.getName()?.endsWith(".txt") == true) {
                                 editor?.isWordwrap = it
                             }
@@ -123,13 +113,25 @@ fun SettingsEditorScreen(navController: NavController) {
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
 
             EditorSettingsToggle(
-                label = stringResource(strings.soft_keyboard_always),
-                description = stringResource(strings.soft_keyboard_always_desc),
-                default = Settings.always_show_soft_keyboard,
+                label = stringResource(strings.isDisableSoftKbdIfHardKbdAvailable),
+                description = stringResource(strings.isDisableSoftKbdIfHardKbdAvailable_desc),
+                default = Settings.hide_soft_keyboard_if_hardware,
                 sideEffect = {
-                    Settings.always_show_soft_keyboard = it
+                    Settings.hide_soft_keyboard_if_hardware = it
                 }
             )
+
+            SettingsToggle(
+                label = stringResource(strings.auto_complete),
+                description = stringResource(strings.auto_complete),
+                default = Settings.auto_complete,
+                sideEffect = {
+                    Settings.auto_complete = it
+                    toast(strings.restart_required)
+                }
+            )
+
+
 
             EditorSettingsToggle(label = stringResource(id = strings.line_spacing),
                 description = stringResource(id = strings.line_spacing),
@@ -233,11 +235,11 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.auto_save = it
                     DefaultScope.launch(Dispatchers.Main) {
                         delay(200)
-                        if (it){
+                        if (it) {
                             MaterialAlertDialogBuilder(context).apply {
                                 setTitle(strings.experimental_feature.getString())
                                 setMessage(strings.experimental_session_restore_warning.getString())
-                                setPositiveButton(strings.ok,null)
+                                setPositiveButton(strings.ok, null)
                                 show()
                             }
                         }
@@ -283,10 +285,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     lineSpacingValue = it
                 },
                 onConfirm = {
-                    if (lineSpacingValue.toFloatOrNull() == null){
+                    if (lineSpacingValue.toFloatOrNull() == null) {
                         toast(strings.inavalid_v)
                         lineSpacingValue = Settings.line_spacing.toString()
-                    }else if (lineSpacingValue.toFloat() < 0) {
+                    } else if (lineSpacingValue.toFloat() < 0) {
                         toast(context.getString(strings.v_small))
                         lineSpacingValue = Settings.line_spacing.toString()
                     } else {
@@ -314,10 +316,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     autoSaveTimeValue = it
                 },
                 onConfirm = {
-                    if (autoSaveTimeValue.toIntOrNull() == null){
+                    if (autoSaveTimeValue.toIntOrNull() == null) {
                         toast(strings.inavalid_v)
                         autoSaveTimeValue = Settings.auto_save_interval.toString()
-                    }else if (autoSaveTimeValue.toInt() < 3000) {
+                    } else if (autoSaveTimeValue.toInt() < 3000) {
                         toast(context.getString(strings.v_small))
                         autoSaveTimeValue = Settings.auto_save_interval.toString()
                     } else {
@@ -339,10 +341,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     textSizeValue = it
                 },
                 onConfirm = {
-                    if (textSizeValue.toIntOrNull() == null){
+                    if (textSizeValue.toIntOrNull() == null) {
                         toast(strings.inavalid_v)
                         textSizeValue = Settings.editor_text_size.toString()
-                    }else if (textSizeValue.toInt() > 32) {
+                    } else if (textSizeValue.toInt() > 32) {
                         toast(context.getString(strings.v_large))
                         textSizeValue = Settings.editor_text_size.toString()
                     } else if (textSizeValue.toInt() < 8) {
@@ -372,10 +374,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     tabSizeValue = it
                 },
                 onConfirm = {
-                    if (tabSizeValue.toIntOrNull() == null){
+                    if (tabSizeValue.toIntOrNull() == null) {
                         toast(strings.inavalid_v)
                         tabSizeValue = Settings.tab_size.toString()
-                    }else if (tabSizeValue.toInt() > 16) {
+                    } else if (tabSizeValue.toInt() > 16) {
                         toast(context.getString(strings.v_large))
                         tabSizeValue = Settings.tab_size.toString()
                     } else if (tabSizeValue.toInt() < 1) {

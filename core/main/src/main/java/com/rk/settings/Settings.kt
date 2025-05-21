@@ -65,9 +65,12 @@ object Settings {
     var scroll_to_bottom
         get() = Preference.getBoolean(key = "scroll_to_bottom", default = false)
         set(value) = Preference.setBoolean(key = "scroll_to_bottom", value)
-    var always_show_soft_keyboard
-        get() = Preference.getBoolean(key = "always_show_soft_keyboard", default = false)
+
+    var hide_soft_keyboard_if_hardware
+        get() = Preference.getBoolean(key = "always_show_soft_keyboard", default = true)
         set(value) = Preference.setBoolean(key = "always_show_soft_keyboard", value)
+
+
     var ignore_storage_permission
         get() = Preference.getBoolean(key = "ignore_storage_permission", default = false)
         set(value) = Preference.setBoolean(key = "ignore_storage_permission", value)
@@ -93,6 +96,10 @@ object Settings {
     var expose_home_dir
         get() = Preference.getBoolean(key = "expose_home_dir", default = false)
         set(value) = Preference.setBoolean(key = "expose_home_dir", value)
+
+    var auto_complete
+        get() = Preference.getBoolean(key = "auto_complete", default = true)
+        set(value) = Preference.setBoolean(key = "auto_complete", value)
 
 
     //Int

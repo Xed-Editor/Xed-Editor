@@ -9,12 +9,10 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.material3.MaterialTheme
 import androidx.core.content.ContextCompat
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.isMainThread
-import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.ContentIO
@@ -24,11 +22,9 @@ import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.OutputStream
 import java.nio.charset.Charset
 
 
@@ -69,19 +65,24 @@ class KarbonEditor : CodeEditor {
         val theme = context.theme
         theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
         val colorPrimary = ContextCompat.getColor(context, typedValue.resourceId)
-        val transparentColor = Color.argb(130, Color.red(colorPrimary), Color.green(colorPrimary), Color.blue(colorPrimary))
+        val transparentColor = Color.argb(
+            130,
+            Color.red(colorPrimary),
+            Color.green(colorPrimary),
+            Color.blue(colorPrimary)
+        )
 
-        colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE,colorPrimary)
-        colorScheme.setColor(EditorColorScheme.SELECTION_INSERT,colorPrimary)
-        colorScheme.setColor(EditorColorScheme.BLOCK_LINE,colorPrimary)
-        colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT,colorPrimary)
+        colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE, colorPrimary)
+        colorScheme.setColor(EditorColorScheme.SELECTION_INSERT, colorPrimary)
+        colorScheme.setColor(EditorColorScheme.BLOCK_LINE, colorPrimary)
+        colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, colorPrimary)
 
-        colorScheme.setColor(EditorColorScheme.SELECTED_TEXT_BACKGROUND,transparentColor)
+        colorScheme.setColor(EditorColorScheme.SELECTED_TEXT_BACKGROUND, transparentColor)
         //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
 
         //bracket
-        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,Color.TRANSPARENT)
-        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,colorPrimary)
+        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, colorPrimary)
 
         CoroutineScope(Dispatchers.Default).launch {
             applySettings()
@@ -109,7 +110,6 @@ class KarbonEditor : CodeEditor {
             val textSize = Settings.editor_text_size
             val wordWrap = Settings.wordwrap
             val keyboardSuggestion = Settings.show_suggestions
-            val always_show_soft_keyboard = Settings.always_show_soft_keyboard
             val lineSpacing = Settings.line_spacing
 
             withContext(Dispatchers.Main) {
@@ -123,7 +123,7 @@ class KarbonEditor : CodeEditor {
                 setTextSize(textSize.toFloat())
                 isWordwrap = wordWrap
                 lineSpacingExtra = lineSpacing
-                isDisableSoftKbdIfHardKbdAvailable = always_show_soft_keyboard.not()
+                isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
                 showSuggestions(keyboardSuggestion)
             }
         }
@@ -157,10 +157,10 @@ class KarbonEditor : CodeEditor {
             toastCatching {
                 withContext(Dispatchers.Main) {
                     setText(withContext(Dispatchers.IO) {
-                            assert(isMainThread().not())
-                            fileObject.getInputStream().use {
-                                ContentIO.createFrom(it, encoding)
-                            }
+                        assert(isMainThread().not())
+                        fileObject.getInputStream().use {
+                            ContentIO.createFrom(it, encoding)
+                        }
                     })
                 }
             }
