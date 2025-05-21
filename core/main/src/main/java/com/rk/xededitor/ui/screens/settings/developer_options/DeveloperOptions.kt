@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.rk.LogcatService
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
@@ -156,6 +157,16 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
 
+
+            SettingsToggle(
+                label = stringResource(strings.capture_logcat),
+                description = stringResource(strings.capture_logcat_desc),
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    context.startService(Intent(context, LogcatService::class.java))
+                }
+            )
 
         }
     }

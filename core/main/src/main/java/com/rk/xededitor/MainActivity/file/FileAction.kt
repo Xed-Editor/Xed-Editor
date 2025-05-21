@@ -10,13 +10,11 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceTemplate
@@ -32,6 +30,7 @@ import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.askInput
 import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.openWith
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
@@ -574,44 +573,5 @@ class FileAction(
         )
     }
 
-    private fun openWith(context: Context, file: FileObject) {
 
-        try {
-            val uri: Uri = when (file) {
-                is UriWrapper -> {
-                    file.toUri()
-                }
-
-                is FileWrapper -> {
-                    FileProvider.getUriForFile(
-                        context,
-                        context.applicationContext.packageName + ".fileprovider",
-                        file.file,
-                    )
-                }
-
-                else -> {
-                    throw RuntimeException("Unsupported FileObject")
-                }
-            }
-
-            val mimeType = file.getMimeType(context)
-
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                setDataAndType(uri, mimeType)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                addFlags(Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-            }
-
-            if (intent.resolveActivity(context.packageManager) != null) {
-                context.startActivity(intent)
-            } else {
-                Toast.makeText(context, getString(strings.canthandle), Toast.LENGTH_SHORT).show()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            toast(getString(strings.file_open_denied))
-        }
-    }
 }

@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
@@ -22,19 +24,26 @@ class SessionService : Service() {
         fun getService(): SessionService {
             return this@SessionService
         }
-        fun createSession(id: String, client: TerminalSessionClient, activity: Terminal): TerminalSession {
+
+        fun createSession(
+            id: String,
+            client: TerminalSessionClient,
+            activity: Terminal
+        ): TerminalSession {
             return MkSession.createSession(activity, client, id).also {
                 sessions[id] = it
                 sessionList.add(id)
                 updateNotification()
             }
         }
+
         fun getSession(id: String): TerminalSession? {
             return sessions[id]
         }
+
         fun terminateSession(id: String) {
             sessions[id]?.apply {
-                if (emulator != null){
+                if (emulator != null) {
                     sessions[id]?.finishIfRunning()
                 }
             }
@@ -92,7 +101,7 @@ class SessionService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Karbon Terminal")
+            .setContentTitle("${strings.app_name.getString()} Terminal")
             .setContentText(getNotificationContentText())
             .setSmallIcon(drawables.terminal)
             .setContentIntent(pendingIntent)

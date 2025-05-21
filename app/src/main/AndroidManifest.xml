@@ -55,6 +55,7 @@
         </activity>
 
         <service android:name="com.rk.SessionService" />
+        <service android:name="com.rk.LogcatService" />
 
 
         <provider

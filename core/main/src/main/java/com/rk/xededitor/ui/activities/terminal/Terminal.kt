@@ -30,12 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rk.SessionService
+import com.rk.libcommons.*
 import com.rk.libcommons.alpineDir
 import com.rk.libcommons.localDir
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.SessionService
 import com.rk.xededitor.ui.screens.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -44,9 +45,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
-import java.net.UnknownHostException
-import com.rk.libcommons.*
 import java.lang.ref.WeakReference
+import java.net.UnknownHostException
 
 class Terminal : ComponentActivity() {
     var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
@@ -70,7 +70,7 @@ class Terminal : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         Intent(this, SessionService::class.java).also { intent ->
-            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE)
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
     }
 
@@ -133,9 +133,11 @@ class Terminal : ComponentActivity() {
 
 
                 val rootfsFiles = alpineDir().listFiles()?.filter {
-                    it.absolutePath != alpineHomeDir().absolutePath && it.absolutePath != alpineDir().child("tmp").absolutePath
+                    it.absolutePath != alpineHomeDir().absolutePath && it.absolutePath != alpineDir().child(
+                        "tmp"
+                    ).absolutePath
                 } ?: emptyList()
-                if (rootfsFiles.isEmpty()){
+                if (rootfsFiles.isEmpty()) {
                     filesToDownload.add(
                         DownloadFile(
                             url = if (abi.contains("x86_64")) {
@@ -165,16 +167,17 @@ class Terminal : ComponentActivity() {
                             progress = combinedProgress.coerceIn(
                                 0f, 1f
                             )
-                            progressText = "${strings.downloading.getString()} ${(progress * 100).toInt()}%"
+                            progressText =
+                                "${strings.downloading.getString()} ${(progress * 100).toInt()}%"
                         }
                     },
                     onComplete = {
                         isSetupComplete = true
                     },
                     onError = { error ->
-                        if (error is UnknownHostException){
+                        if (error is UnknownHostException) {
                             toast(strings.network_err.getString())
-                        }else{
+                        } else {
                             error.printStackTrace()
                             toast("Setup Failed: ${error.message}")
                         }
@@ -183,9 +186,9 @@ class Terminal : ComponentActivity() {
 
                     })
             } catch (e: Exception) {
-                if (e is UnknownHostException){
+                if (e is UnknownHostException) {
                     toast(strings.network_err.getString())
-                }else{
+                } else {
                     e.printStackTrace()
                     toast("Setup Failed: ${e.message}")
                 }
@@ -267,7 +270,7 @@ class Terminal : ComponentActivity() {
                     }.onFailure { it.printStackTrace() }
                 }
 
-                MkRootfs(this@Terminal){
+                MkRootfs(this@Terminal) {
                     runOnUiThread {
                         onComplete()
                     }
@@ -321,8 +324,6 @@ class Terminal : ComponentActivity() {
 }
 
 
-
-
 private const val talloc_arm =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/arm/libtalloc.so.2"
 private const val talloc_aarch64 =
@@ -335,6 +336,9 @@ private const val proot_aarch64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
 private const val proot_x86_64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
-private const val alpine_arm = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz"
-private const val alpine_aarch64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz"
-private const val alpine_x86_64 = "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"
+private const val alpine_arm =
+    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz"
+private const val alpine_aarch64 =
+    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz"
+private const val alpine_x86_64 =
+    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"
