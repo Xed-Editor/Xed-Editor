@@ -58,7 +58,7 @@ Join the Xed-Editor community to stay updated and engage with other users:
 >
 > * Visit the Play Store listing: [[Fake App Listing](https://play.google.com/store/apps/details?id=com.rk.xededitor)]
 > * Click **“Flag as inappropriate”**
-> * Or use this form to report a violation: [[Report a policy violation](https://support.google.com/googleplay/android-developer/contact/policy_violation_report?rd=1)
+> * Or use this form to report a violation: [[Report a policy violation](https://support.google.com/googleplay/android-developer/contact/policy_violation_report?rd=1)]
 >
 > **App details:**
 >
