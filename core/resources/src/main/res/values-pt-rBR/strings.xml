@@ -70,7 +70,7 @@
     <string name="ask_enter_name">Por favor, insira um nome</string>
     <string name="already_exists">Já existe um documento com este nome</string>
     <string name="attention">Atenção</string>
-    <string name="ask_del">Tem certeza de que deseja excluir?</string>
+    <string name="ask_del">Tem certeza de que deseja excluir permanentemente?</string>
     <string name="redir">Por favor, selecione novamente o diretório</string>
     <string name="canthandle">Nenhum app encontrado para abrir o arquivo</string>
     <string name="clipboardempty">A Área de Transferência está vazia</string>
@@ -251,7 +251,7 @@
     <string name="theme_mode">Tema</string>
     <string name="theme_mode_desc">Alterar o tema do aplicativo</string>
     <string name="no_plugins_available">Nenhum Plugin Disponível</string>
-    <string name="show_suggestions">Mostrar Sugestões</string>
+    <string name="show_suggestions">Mostrar Sugestões no Teclado</string>
     <string name="about">Sobre</string>
     <string name="about_desc">Sobre o Xed-Editor</string>
     <string name="version">Versão</string>
@@ -400,4 +400,12 @@
     <string name="info">Detalhes</string>
     <string name="copied">Copiado</string>
     <string name="expose_saf">Expor Diretório Inicial</string>
+    <string name="cant_undo">Essa ação não pode ser desfeita</string>
+    <string name="capture_logcat">Capturar Logcat</string>
+    <string name="capture_logcat_desc">Capturar registros em segundo plano para depuração</string>
+    <string name="logcat_service">Serviço Logcat</string>
+    <string name="logcat_service_desc">Capturando logs em segundo plano</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Desativar o teclado virtual se o teclado de hardware estiver disponível</string>
+    <string name="auto_complete">Auto Completar no Editor</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Desativar o teclado virtual</string>
 </resources>
