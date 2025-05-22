@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,28 +19,66 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SetupEditor
-import java.lang.System
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
-import java.util.Date
-import kotlin.system.exitProcess
-import com.rk.xededitor.BuildConfig
-import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.isFdroid
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
-import io.github.rosemoe.sora.widget.CodeEditor
+import java.lang.System
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+import java.text.SimpleDateFormat
+import java.util.Date
+import kotlin.system.exitProcess
 
 class CrashActivity : AppCompatActivity() {
     private lateinit var editor: KarbonEditor
-    
+
+    companion object {
+        fun Context.isModified(): Boolean {
+            if (BuildConfig.DEBUG) {
+                return false
+            }
+            val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageManager.getPackageInfo(
+                    packageName,
+                    PackageManager.GET_SIGNING_CERTIFICATES
+                ).signingInfo?.apkContentsSigners
+            } else {
+                @Suppress("DEPRECATION")
+                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            }
+
+            if (signatures == null) {
+                return true
+            }
+
+            for (signature in signatures) {
+                val cert = CertificateFactory.getInstance("X.509")
+                    .generateCertificate(signature.toByteArray().inputStream()) as X509Certificate
+                val sha256 = MessageDigest.getInstance("SHA-256").digest(cert.encoded)
+                val hex = sha256.joinToString(":") { "%02X".format(it) }
+
+                if (hex.equals(
+                        assets.open("hash").bufferedReader().use { it.readText() },
+                        ignoreCase = true
+                    )
+                ) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        runCatching{
+        runCatching {
             enableEdgeToEdge()
             setContentView(R.layout.activity_error)
             ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -68,27 +107,42 @@ class CrashActivity : AppCompatActivity() {
             sb.append("Thread : ").append(intent.getStringExtra("thread")).appendLine()
             sb.append("App Version : ").append(versionName).appendLine()
             sb.append("Version Code : ").append(versionCode).appendLine()
-            sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0,8)).appendLine()
+            sb.append("Modified : ").append(isModified()).appendLine()
+            sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8))
+                .appendLine()
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
             sb.append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
-            sb.append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))).appendLine()
+            sb.append("LocalTime : ").append(
+                SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))
+            ).appendLine()
             sb.append("Android Version : ").append(Build.VERSION.RELEASE).appendLine()
             sb.append("SDK Version : ").append(Build.VERSION.SDK_INT).appendLine()
             sb.append("Brand : ").append(Build.BRAND).appendLine()
             sb.append("Manufacturer : ").append(Build.MANUFACTURER).appendLine()
+            sb.append("Target Sdk : ")
+                .append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
+            sb.append("Flavour : ").append(
+                if (isFdroid) {
+                    "FDroid"
+                } else {
+                    "PlayStore"
+                }
+            ).appendLine()
             sb.append("Model : ").append(Build.MODEL).appendLine().appendLine()
 
+            
             sb.append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
             sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
-            sb.append("Error StackTrace : ").appendLine().append(intent.getStringExtra("stacktrace"))
+            sb.append("Error StackTrace : ").appendLine()
+                .append(intent.getStringExtra("stacktrace"))
 
 
             editor.setText(sb.toString())
             editor.editable = false
 
-            runCatching { SetupEditor(editor,application,lifecycleScope) }
+            runCatching { SetupEditor(editor, application, lifecycleScope) }
             editor.isWordwrap = false
-        }.onFailure{
+        }.onFailure {
             logErrorOrExit(it)
             it.printStackTrace()
             runCatching { finishAffinity() }

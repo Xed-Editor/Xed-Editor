@@ -168,6 +168,17 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
 
+            SettingsToggle(
+                label = "LSP",
+                description = "Connect to external lsp server",
+                showSwitch = false,
+                default = false,
+                sideEffect = {
+                    toast(strings.ni)
+                }
+            )
+
+
         }
     }
 

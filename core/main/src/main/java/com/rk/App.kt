@@ -22,7 +22,6 @@ import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.Executors
 
-
 class App : Application() {
 
     companion object {
