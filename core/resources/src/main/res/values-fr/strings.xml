@@ -399,4 +399,11 @@
     <string name="file_info">Info sur les fichiers</string>
     <string name="flavor">Variation</string>
     <string name="cant_undo">Cette action ne peut pas être annulée</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Désactiver le clavier virtuel si un clavier physique est disponible</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Désactiver le clavier virtuel</string>
+    <string name="auto_complete">Auto-complétion pour l\'éditeur</string>
+    <string name="logcat_service">Service Logcat</string>
+    <string name="logcat_service_desc">Enregistrement des journaux en arrière-plan</string>
+    <string name="capture_logcat_desc">Enregistrer les journaux en arrière-plan pour le débogage</string>
+    <string name="capture_logcat">Enregistrer Logcat</string>
 </resources>
