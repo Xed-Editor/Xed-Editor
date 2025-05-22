@@ -247,7 +247,7 @@
     <string name="cannot_be_empty">Non può essere vuoto.</string>
     <string name="theme_mode_desc">Cambia il tema colore dell\'app</string>
     <string name="no_plugins_available">Nessun Plugin Disponibile</string>
-    <string name="show_suggestions">Mostra Suggerimenti</string>
+    <string name="show_suggestions">Mostra Suggerimenti Tastiera</string>
     <string name="about">Informazioni</string>
     <string name="about_desc">Informazioni su Xed-Editor</string>
     <string name="version">Versione</string>
@@ -399,4 +399,11 @@
     <string name="file_info">Informazioni File</string>
     <string name="flavor">Variante</string>
     <string name="cant_undo">Questa azione non può essere annullata</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Disabilita tastiera virtuale</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Disabilita la tastiera virtuale se è Disponibile la Tastiera fisica</string>
+    <string name="auto_complete">Completamento Automatico dell\'Editor</string>
+    <string name="logcat_service">Servizio Logcat</string>
+    <string name="logcat_service_desc">Acquisizione log in background</string>
+    <string name="capture_logcat_desc">Acquisisci i log in background per il debug</string>
+    <string name="capture_logcat">Acquisisci Logcat</string>
 </resources>
