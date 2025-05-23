@@ -7,13 +7,11 @@ import android.provider.DocumentsContract
 
 
 object PathUtils {
-    
-    
-    fun Uri.toPath():String{
+    fun Uri.toPath(): String {
         val path = internalConvertUriToPath(application!!, this)
         return path.replace("/document", "/storage").replace(":", "/")
     }
-    
+
     @JvmStatic
     fun convertUriToPath(context: Context, uri: Uri?): String {
         val path = internalConvertUriToPath(context, uri)
@@ -119,13 +117,13 @@ object PathUtils {
         val column = "_data"
         val projection = arrayOf(column)
         try {
-            context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)?.use {
-                cursor ->
-                if (cursor.moveToFirst()) {
-                    val columnIndex = cursor.getColumnIndexOrThrow(column)
-                    return cursor.getString(columnIndex)
+            context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        val columnIndex = cursor.getColumnIndexOrThrow(column)
+                        return cursor.getString(columnIndex)
+                    }
                 }
-            }
         } catch (e: Exception) {
             // Log the exception or handle it as needed
         }
