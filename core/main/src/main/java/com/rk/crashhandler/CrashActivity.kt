@@ -20,6 +20,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.isFdroid
+import com.rk.libcommons.origin
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -111,6 +112,7 @@ class CrashActivity : AppCompatActivity() {
             sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8))
                 .appendLine()
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
+            sb.append("Origin : ").append(origin).appendLine()
             sb.append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
             sb.append("LocalTime : ").append(
                 SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))
@@ -130,7 +132,7 @@ class CrashActivity : AppCompatActivity() {
             ).appendLine()
             sb.append("Model : ").append(Build.MODEL).appendLine().appendLine()
 
-            
+
             sb.append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
             sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
             sb.append("Error StackTrace : ").appendLine()

@@ -84,6 +84,8 @@ class KarbonEditor : CodeEditor {
         colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
         colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, colorPrimary)
 
+        //replaceComponent(EditorTextActionWindow::class.java, TextActionWindow(this));
+
         CoroutineScope(Dispatchers.Default).launch {
             applySettings()
         }

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="defaultSymbolInputBackgroundColor">@android:color/transparent</color>
-    <color name="defaultSymbolInputTextColor">@android:color/white</color>
-    <color name="bg">#1C1B20</color>
-</resources>

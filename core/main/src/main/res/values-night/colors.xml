@@ -140,4 +140,10 @@
     <color name="md_theme_surfaceContainer_highContrast">#1D2024</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#282A2F</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#33353A</color>
+
+    <!-- editor -->
+    <color name="defaultSymbolInputBackgroundColor">@android:color/transparent</color>
+    <color name="defaultSymbolInputTextColor">@android:color/white</color>
+    <color name="bg">#1C1B20</color>
+
 </resources>

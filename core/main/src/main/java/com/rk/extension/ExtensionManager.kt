@@ -7,19 +7,20 @@ import android.os.Build
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.App
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.isFdroid
 import com.rk.libcommons.postIO
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.App
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +45,11 @@ object ExtensionManager : ExtensionAPI() {
 
     suspend fun indexPlugins(context: Application): Map<Extension, ExtensionAPI?> =
         withContext(Dispatchers.IO) {
+
+            if (isFdroid.not()) {
+                return@withContext emptyMap<Extension, ExtensionAPI?>()
+            }
+
             val pm = context.packageManager
             val xedVersionCode =
                 PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))

@@ -253,6 +253,11 @@ val origin
         }
     }
 
+fun Context.getColorFromAttr(attr: Int): Int {
+    val typedValue = android.util.TypedValue()
+    theme.resolveAttribute(attr, typedValue, true)
+    return typedValue.data
+}
 
 fun errorDialog(msg: String) {
     if (msg.isBlank()) {

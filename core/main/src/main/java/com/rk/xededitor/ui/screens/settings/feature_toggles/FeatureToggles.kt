@@ -53,13 +53,16 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
                     InbuiltFeatures.terminal.setEnable(it)
                 }
             )
-            SettingsToggle(
-                label = InbuiltFeatures.extensions.name,
-                default = InbuiltFeatures.extensions.state.value,
-                sideEffect = {
-                    InbuiltFeatures.extensions.setEnable(it)
-                }
-            )
+            if (isFdroid) {
+                SettingsToggle(
+                    label = InbuiltFeatures.extensions.name,
+                    default = InbuiltFeatures.extensions.state.value,
+                    sideEffect = {
+                        InbuiltFeatures.extensions.setEnable(it)
+                    }
+                )
+            }
+
             SettingsToggle(
                 label = InbuiltFeatures.mutators.name,
                 default = InbuiltFeatures.mutators.state.value,
@@ -77,7 +80,6 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
                     }
                 )
             }
-
 
             Hooks.Settings.features.values.forEach { feature ->
                 SettingsToggle(

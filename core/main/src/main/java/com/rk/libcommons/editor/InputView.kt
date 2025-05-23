@@ -10,7 +10,6 @@ import com.rk.libcommons.isDarkMode
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.SymbolInputView
 
 
 private typealias onClick = OnClickListener
