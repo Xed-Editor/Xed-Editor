@@ -13,7 +13,7 @@
     <string name="close_drawer">סגור</string>
     <string name="unsupported_contnt">תוכן לא נתמך</string>
     <string name="null_contnt">שגיאה: התוכן ריק</string>
-    <string name="save">קובץ נשמר</string>
+    <string name="save">הקובץ נשמר</string>
     <string name="saveAll">כל הקבצים נשמרו</string>
     <string name="save_label">שמירה</string>
     <string name="ww_wait">אנא המתן עד להשלמת גלישת המילים</string>
