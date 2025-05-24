@@ -289,12 +289,14 @@ class SetupEditor(
 
             scope.launch(Dispatchers.Main) {
                 editor.colorScheme = editorColorScheme
-
-                editor.apply {
+                editor.colorScheme.let { colorScheme ->
                     val typedValue = TypedValue()
-                    val theme = context.theme
+                    val theme = ctx.theme
                     theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
-                    val colorPrimary = ContextCompat.getColor(context, typedValue.resourceId)
+
+                    val colorPrimary = ContextCompat.getColor(ctx, typedValue.resourceId)
+
+                    
                     val transparentColor = Color.argb(
                         130,
                         Color.red(colorPrimary),
@@ -326,7 +328,7 @@ class SetupEditor(
                     val darkTheme: Boolean = when (Settings.default_night_mode) {
                         AppCompatDelegate.MODE_NIGHT_YES -> true
                         AppCompatDelegate.MODE_NIGHT_NO -> false
-                        else -> isDarkMode(context)
+                        else -> isDarkMode(ctx)
                     }
 
                     val surface = if (darkTheme) {
