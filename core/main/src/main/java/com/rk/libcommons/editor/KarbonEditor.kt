@@ -9,7 +9,6 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.isMainThread
@@ -51,44 +50,20 @@ class KarbonEditor : CodeEditor {
             else -> isDarkMode(context)
         }
 
-        val color = if (darkTheme) {
+        val surface = if (darkTheme) {
             Color.BLACK
         } else {
             Color.WHITE
         }
 
-        colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, color)
-        colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, color)
-        colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, color)
-
-        val typedValue = TypedValue()
-        val theme = context.theme
-        theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
-        val colorPrimary = ContextCompat.getColor(context, typedValue.resourceId)
-        val transparentColor = Color.argb(
-            130,
-            Color.red(colorPrimary),
-            Color.green(colorPrimary),
-            Color.blue(colorPrimary)
-        )
-
-        colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE, colorPrimary)
-        colorScheme.setColor(EditorColorScheme.SELECTION_INSERT, colorPrimary)
-        colorScheme.setColor(EditorColorScheme.BLOCK_LINE, colorPrimary)
-        colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, colorPrimary)
-
-        colorScheme.setColor(EditorColorScheme.SELECTED_TEXT_BACKGROUND, transparentColor)
-        //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
-
-        //bracket
-        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
-        colorScheme.setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND, colorPrimary)
-
-        //replaceComponent(EditorTextActionWindow::class.java, TextActionWindow(this));
+        colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, surface)
+        colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, surface)
+        colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, surface)
 
         CoroutineScope(Dispatchers.Default).launch {
             applySettings()
         }
+
     }
 
     suspend fun applySettings() {
@@ -136,13 +111,12 @@ class KarbonEditor : CodeEditor {
             val fontPath = Settings.selected_font_path
             if (fontPath.isNotEmpty()) {
                 val isAsset = Settings.is_selected_font_assest
-                if (isAsset) {
-                    typefaceText = Typeface.createFromAsset(context.assets, fontPath)
+                typefaceText = if (isAsset) {
+                    Typeface.createFromAsset(context.assets, fontPath)
                 } else {
-                    typefaceText = Typeface.createFromFile(File(fontPath))
+                    Typeface.createFromFile(File(fontPath))
                 }
             } else {
-                println("fallback: font Path is empty")
                 typefaceText =
                     Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
             }

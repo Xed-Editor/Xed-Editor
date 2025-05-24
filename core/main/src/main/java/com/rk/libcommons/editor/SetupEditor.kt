@@ -21,6 +21,16 @@ import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_ITEM_CURRENT
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SELECTED_TEXT_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -298,20 +308,48 @@ class SetupEditor(
                     colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, colorPrimary)
 
                     colorScheme.setColor(
-                        EditorColorScheme.SELECTED_TEXT_BACKGROUND,
+                        SELECTED_TEXT_BACKGROUND,
                         transparentColor
                     )
                     //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
 
+                    //search match text color
+                    colorScheme.setColor(MATCHED_TEXT_BACKGROUND, colorPrimary)
+
+                    colorScheme.setColor(SELECTED_TEXT_BACKGROUND, transparentColor)
+                    //setColor(FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
+
                     //bracket
-                    colorScheme.setColor(
-                        EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE,
-                        Color.TRANSPARENT
-                    )
-                    colorScheme.setColor(
-                        EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
-                        colorPrimary
-                    )
+                    colorScheme.setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+                    colorScheme.setColor(HIGHLIGHTED_DELIMITERS_FOREGROUND, colorPrimary)
+
+                    val darkTheme: Boolean = when (Settings.default_night_mode) {
+                        AppCompatDelegate.MODE_NIGHT_YES -> true
+                        AppCompatDelegate.MODE_NIGHT_NO -> false
+                        else -> isDarkMode(context)
+                    }
+
+                    val surface = if (darkTheme) {
+                        Color.BLACK
+                    } else {
+                        Color.WHITE
+                    }
+
+                    val onSurface = if (darkTheme) {
+                        Color.WHITE
+                    } else {
+                        Color.BLACK
+                    }
+
+                    colorScheme.setColor(TEXT_ACTION_WINDOW_BACKGROUND, surface)
+                    colorScheme.setColor(COMPLETION_WND_BACKGROUND, surface)
+
+                    colorScheme.setColor(TEXT_ACTION_WINDOW_ICON_COLOR, onSurface)
+                    colorScheme.setColor(COMPLETION_WND_TEXT_PRIMARY, onSurface)
+                    colorScheme.setColor(COMPLETION_WND_TEXT_SECONDARY, onSurface)
+
+                    colorScheme.setColor(COMPLETION_WND_ITEM_CURRENT, transparentColor)
+
                 }
 
             }

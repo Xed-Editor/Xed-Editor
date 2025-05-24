@@ -14,6 +14,7 @@ pluginManagement {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
     plugins {
         kotlin("jvm") version "2.1.10"
@@ -29,6 +30,7 @@ dependencyResolutionManagement {
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
