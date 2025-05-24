@@ -232,7 +232,7 @@
     <string name="theme_mode">Tema</string>
     <string name="theme_mode_desc">Ubah warna tema aplikasi</string>
     <string name="no_plugins_available">Tidak Ada Plugin yang Tersedia</string>
-    <string name="show_suggestions">Tampilkan Saran</string>
+    <string name="show_suggestions">Tampilkan Saran di Keyboard</string>
     <string name="about">Tentang</string>
     <string name="about_desc">Tentang Xed-Editor</string>
     <string name="version">Versi</string>
@@ -399,4 +399,11 @@
     <string name="file_info">Informasi Berkas</string>
     <string name="cant_undo">Tindakan ini tidak dapat dibatalkan</string>
     <string name="flavor">Rasa</string>
+    <string name="logcat_service">Layanan Logcat</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Nonaktifkan keyboard virtual</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Nonaktifkan keyboard virtual apabila Perangkat keras keyboard tersedia</string>
+    <string name="auto_complete">Pelengkapan Otomatis Penyunting</string>
+    <string name="capture_logcat">Ambil Logcat</string>
+    <string name="capture_logcat_desc">Ambil pencatatan di latar belakang untuk debugging</string>
+    <string name="logcat_service_desc">Mengambil catatan di latar belakang</string>
 </resources>
