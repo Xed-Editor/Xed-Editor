@@ -74,18 +74,19 @@
 
     <declare-styleable name="CircleCheckbox">
         <attr name="showOuterCircle" format="boolean" />
-        <attr name="checkColor" format="string"/>
-        <attr name="outerCircleColor" format="string"/>
-        <attr name="innerCircleColor" format="string"/>
-        <attr name="labelColor" format="string"/>
-        <attr name="circleBorderColor" format="string"/>
-        <attr name="outerCircleRadius" format="dimension"/>
-        <attr name="innerCircleRadius" format="dimension"/>
-        <attr name="labelSize" format="dimension"/>
-        <attr name="borderThickness" format="dimension"/>
-        <attr name="tickThickness" format="dimension"/>
-        <attr name="label" format="string"/>
-        <attr name="labelLeftPadding" format="dimension"/>
+        <attr name="checkColor" format="string" />
+        <attr name="outerCircleColor" format="string" />
+        <attr name="innerCircleColor" format="string" />
+        <attr name="labelColor" format="string" />
+        <attr name="circleBorderColor" format="string" />
+        <attr name="outerCircleRadius" format="dimension" />
+        <attr name="innerCircleRadius" format="dimension" />
+        <attr name="labelSize" format="dimension" />
+        <attr name="borderThickness" format="dimension" />
+        <attr name="tickThickness" format="dimension" />
+        <attr name="label" format="string" />
+        <attr name="labelLeftPadding" format="dimension" />
     </declare-styleable>
+
 
 </resources>
