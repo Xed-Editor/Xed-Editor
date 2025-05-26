@@ -47,13 +47,6 @@ Join the Xed-Editor community to stay updated and engage with other users:
 <br>
 
 
-
-> \[!CAUTION]
-> ~~⚠️ **Important Warning: Fake App on Google Play Store**~~
-> ~~A **counterfeit version** of my app has been uploaded to the Google Play Store **without my permission**. This unauthorized version includes **ads, trackers**, and other modifications that I did **not** create or approve.~~
-> ~~I want to make it clear: **I have not published my app on the Play Store.**~~
-
-
 ## Installation
 
 <div>
