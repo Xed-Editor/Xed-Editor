@@ -219,6 +219,18 @@
       "scopeName": "source.batchfile",
       "grammar": "textmate/bat/syntaxes/batchfile.tmLanguage.json",
       "languageConfiguration": "textmate/bat/language-configuration.json"
+    },
+    {
+      "name": "lisp",
+      "scopeName": "source.lisp",
+      "grammar": "textmate/lisp/syntaxes/lisp.tmLanguage.json",
+      "languageConfiguration": "textmate/lisp/language-configuration.json"
+    },
+     {
+      "name": "sql",
+      "scopeName": "source.sql",
+      "grammar": "textmate/sql/syntaxes/sql.tmLanguage.json",
+      "languageConfiguration": "textmate/sql/language-configuration.json"
     }
   ]
 }
