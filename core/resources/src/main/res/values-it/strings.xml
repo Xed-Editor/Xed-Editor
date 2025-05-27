@@ -406,4 +406,5 @@
     <string name="logcat_service_desc">Acquisizione log in background</string>
     <string name="capture_logcat_desc">Acquisisci i log in background per il debug</string>
     <string name="capture_logcat">Acquisisci Logcat</string>
+    <string name="tempFile">File Temporaneo</string>
 </resources>
