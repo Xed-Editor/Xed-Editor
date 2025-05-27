@@ -15,9 +15,12 @@ import com.rk.file_wrapper.FileWrapper
 import com.rk.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
+import com.rk.libcommons.alpineHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
+import com.rk.libcommons.child
 import com.rk.libcommons.composeDialog
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.safeLaunch
 import com.rk.libcommons.toast
@@ -54,8 +57,9 @@ object MenuClickHandler {
             }
 
             Id.run -> {
-                val file = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
-                if (file == null){
+                val file =
+                    MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
+                if (file == null) {
                     toast("Illegal state")
                     return true
                 }
@@ -114,7 +118,11 @@ object MenuClickHandler {
 
             Id.action_print -> {
                 val printer = Printer(activity)
-                printer.setCodeText(getCurrentEditorFragment()?.editor?.text.toString(), language = getCurrentEditorFragment()?.file?.getName()?.substringAfterLast(".")?.trim() ?: "txt")
+                printer.setCodeText(
+                    getCurrentEditorFragment()?.editor?.text.toString(),
+                    language = getCurrentEditorFragment()?.file?.getName()?.substringAfterLast(".")
+                        ?.trim() ?: "txt"
+                )
                 return true
             }
 
@@ -160,14 +168,17 @@ object MenuClickHandler {
             Id.share -> {
                 toastCatching {
 
-                    val file = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
-                    if (file == null){
+                    val file =
+                        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
+                    if (file == null) {
                         toast(strings.unsupported_contnt)
                         return true
                     }
 
-                    if (file is FileWrapper){
-                        if (file.getAbsolutePath().contains(application!!.filesDir.parentFile!!.absolutePath)){
+                    if (file is FileWrapper) {
+                        if (file.getAbsolutePath()
+                                .contains(application!!.filesDir.parentFile!!.absolutePath)
+                        ) {
                             //files in private directory cannot be shared
                             toast(strings.permission_denied)
                             return true
@@ -207,7 +218,22 @@ object MenuClickHandler {
             }
 
             Id.action_add -> {
-                composeDialog{ dialog ->
+                composeDialog { dialog ->
+                    ControlItem(
+                        item = ControlItem(
+                            label = strings.tempFile.getString(),
+                            sideEffect = {
+                                dialog?.dismiss()
+                                activity.adapter!!.addFragment(
+                                    FileWrapper(
+                                        alpineHomeDir().child("temp.txt").createFileIfNot()
+                                    )
+                                )
+
+                            }
+                        )
+                    )
+
                     ControlItem(
                         item = ControlItem(
                             label = strings.new_file.getString(),
@@ -218,13 +244,19 @@ object MenuClickHandler {
                                 intent.setType("application/octet-stream")
                                 intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
 
-                                val activities = application!!.packageManager.queryIntentActivities(intent,PackageManager.MATCH_ALL)
-                                if (activities.isNotEmpty()){
+                                val activities = application!!.packageManager.queryIntentActivities(
+                                    intent,
+                                    PackageManager.MATCH_ALL
+                                )
+                                if (activities.isNotEmpty()) {
                                     activity.fileManager!!.createFileLauncher.launch(intent)
-                                }else{
-                                    activity.askInput(title = strings.new_file.getString(), hint = "newfile.txt", onResult = { input ->
-                                        activity.fileManager?.selectDirForNewFileLaunch(input)
-                                    })
+                                } else {
+                                    activity.askInput(
+                                        title = strings.new_file.getString(),
+                                        hint = "newfile.txt",
+                                        onResult = { input ->
+                                            activity.fileManager?.selectDirForNewFileLaunch(input)
+                                        })
                                 }
                             })
                     )

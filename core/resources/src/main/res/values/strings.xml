@@ -437,4 +437,6 @@
     <string name="capture_logcat_desc">Capture logs in background for debugging</string>
     <string name="logcat_service">Logcat Service</string>
     <string name="logcat_service_desc">Capturing logs in background</string>
+
+    <string name="tempFile">Temp File</string>
 </resources>

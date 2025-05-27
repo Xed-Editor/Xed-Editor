@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.rk.isTermuxInstalled
 import com.rk.libcommons.application
 import com.rk.libcommons.isFdroid
+import com.rk.xededitor.BuildConfig
 import java.nio.charset.Charset
 
 object Settings {
@@ -100,6 +101,10 @@ object Settings {
     var auto_complete
         get() = Preference.getBoolean(key = "auto_complete", default = true)
         set(value) = Preference.setBoolean(key = "auto_complete", value)
+
+    var verbose_error
+        get() = Preference.getBoolean(key = "verbose_error", default = BuildConfig.DEBUG)
+        set(value) = Preference.setBoolean(key = "verbose_error", value)
 
 
     //Int

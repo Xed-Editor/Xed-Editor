@@ -144,6 +144,16 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
 
             SettingsToggle(
+                label = "Verbose Errors",
+                description = "Include stacktrace in error dialogs",
+                showSwitch = true,
+                default = Settings.verbose_error,
+                sideEffect = {
+                    Settings.verbose_error = it
+                }
+            )
+
+            SettingsToggle(
                 label = "Debugger",
                 description = "Beanshell",
                 showSwitch = false,
