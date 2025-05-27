@@ -72,7 +72,8 @@ private val rust = drawables.rust
 private val markdown = drawables.markdown
 private val php = drawables.php
 private val go = drawables.golang
-
+private val lisp = drawables.lisp
+private val sql = drawables.sql
 
 private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: String): Int {
     return if (isFile) {
@@ -150,6 +151,8 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
                     "bmp" -> image
 
                     "rs" -> rust
+                    "lisp","clisp" -> lisp
+                    "sql" -> sql
                     "jsx", "tsx" -> react
                     "php" -> php
                     "plugin" -> plugin
