@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="refresh">טעינה מחדש</string>
-    <string name="ni">תכונה זו אינה מיושמת</string>
+    <string name="ni">תכונה זו אינה מיושמת עדיין</string>
     <string name="repo_dir">תיקיית מאגר</string>
     <string name="change_theme">שינוי העיצוב</string>
     <string name="gituserexample">דוגמא: UserDev:example@email.com</string>
@@ -295,7 +295,7 @@
     <string name="terminal_home_desc">ספריית הבית ברירת מחדל של המסוף</string>
     <string name="sessions">הפעלות</string>
     <string name="add_session">הוסף הפעלה</string>
-    <string name="terminal_runtime">זמן ריצה של המסוף</string>
+    <string name="terminal_runtime">הרצת מסוף</string>
     <string name="enable_ext_desc">טען תוספי צד שלישי</string>
     <string name="script_get_text">קבל טקסט</string>
     <string name="script_show_toast">הצג התראה קופצת</string>
@@ -386,4 +386,5 @@
     <string name="warning">אזהרה</string>
     <string name="encoding_warning">שינוי קידוד ברירת המחדל לא מומלץ כלל, מכיוון שהוא עלול להוביל להשחתת קבצים. מומלץ בחום להשתמש ב-UTF-8 אלא אם כן אתם מבינים היטב את ההשלכות ויצרתם גיבויים מתאימים.</string>
     <string name="termux_exec_guide">תיעוד Termux Exec</string>
+    <string name="tempFile">קובץ זמני</string>
 </resources>
