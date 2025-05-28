@@ -342,4 +342,15 @@
     <string name="logcat_service_desc">Zaznamenávání obsahu protokolů na pozadí</string>
     <string name="auto_complete">Automatické Doplňování Editoru</string>
     <string name="logcat_service">Služba Logcat</string>
+    <string name="no_mutators">Žádné mutátory</string>
+    <string name="tab_opened">Karta Otevřena</string>
+    <string name="name_used">Jméno už použito</string>
+    <string name="tempFile">Dočasný Soubor</string>
+    <string name="canthandle">Žádná aplikace nenalezena pro typ tohoto souboru</string>
+    <string name="mutator_name">Jméno Mutátora</string>
+    <string name="no_ext">Žádné Doplňky Nainstalované.</string>
+    <string name="mutators">Mutátory</string>
+    <string name="name_empty_err">Jméno nemůže být prázdné</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Vypnout softwarovou klávesnici</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Vypnout softwarovou klávesnici pokud je připojená fyzická klávesnice</string>
 </resources>
