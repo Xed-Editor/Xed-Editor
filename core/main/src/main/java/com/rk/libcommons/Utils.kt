@@ -243,16 +243,15 @@ fun composeDialog(
     }
 }
 
-val origin
-    get() = {
-        application!!.run {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                return@run packageManager.getInstallSourceInfo(packageName).installingPackageName.toString()
-            } else {
-                return@run packageManager.getInstallerPackageName(packageName).toString()
-            }
+fun origin():String{
+    return application!!.run {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return@run packageManager.getInstallSourceInfo(packageName).installingPackageName.toString()
+        } else {
+            return@run packageManager.getInstallerPackageName(packageName).toString()
         }
     }
+}
 
 fun Context.getColorFromAttr(attr: Int): Int {
     val typedValue = android.util.TypedValue()

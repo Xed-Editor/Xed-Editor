@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.content.Context
+import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -30,6 +31,7 @@ import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
+import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.text.Content
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -86,6 +88,13 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 ConstraintLayout.LayoutParams.MATCH_PARENT, 0
             )
             setupEditor = SetupEditor(this, context, scope)
+            subscribeAlways(EditorKeyEvent::class.java) { event ->
+                if (event.isCtrlPressed){
+                    if (event.keyCode == KeyEvent.KEYCODE_S){
+                        save(isAutoSaver = false)
+                    }
+                }
+            }
         }
 
         horizontalScrollView = HorizontalScrollView(context).apply {

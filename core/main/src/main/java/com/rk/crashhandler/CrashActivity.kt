@@ -112,7 +112,7 @@ class CrashActivity : AppCompatActivity() {
             sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8))
                 .appendLine()
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
-            sb.append("Origin : ").append(origin).appendLine()
+            sb.append("Origin : ").append(origin()).appendLine()
             sb.append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
             sb.append("LocalTime : ").append(
                 SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))
