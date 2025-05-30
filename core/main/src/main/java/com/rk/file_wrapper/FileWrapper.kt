@@ -6,6 +6,7 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import com.rk.libcommons.toast
 import com.rk.resources.strings
+import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -44,9 +45,7 @@ class FileWrapper(var file: File) : FileObject {
             return false
         }
         withContext(Dispatchers.IO) {
-            getOutPutStream(false).use {
-                it.write(content.toByteArray(charset))
-            }
+            file.writeText(content,charset)
         }
 
         return true
