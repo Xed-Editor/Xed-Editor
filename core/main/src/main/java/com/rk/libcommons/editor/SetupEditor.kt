@@ -251,18 +251,14 @@ class SetupEditor(
     }
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
-        val language = if (languageScopeName != "text.plain") {
-            TextMateLanguage.create(languageScopeName, Settings.auto_complete).apply {
-                if (Settings.auto_complete) {
-                    ctx.assets.open("textmate/keywords.json").use { inputStream ->
-                        JsonParser.parseReader(InputStreamReader(inputStream)).asJsonObject
-                            .getAsJsonArray(languageScopeName)?.map { it.asString }?.toTypedArray()
-                            ?.let { setCompleterKeywords(it) }
-                    }
+        val language = TextMateLanguage.create(languageScopeName, Settings.auto_complete).apply {
+            if (Settings.auto_complete) {
+                ctx.assets.open("textmate/keywords.json").use { inputStream ->
+                    JsonParser.parseReader(InputStreamReader(inputStream)).asJsonObject
+                        .getAsJsonArray(languageScopeName)?.map { it.asString }?.toTypedArray()
+                        ?.let { setCompleterKeywords(it) }
                 }
             }
-        } else {
-            PlainTextLanguage()
         }
 
         withContext(Dispatchers.Main) { editor.setEditorLanguage(language as Language) }
