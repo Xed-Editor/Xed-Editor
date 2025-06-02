@@ -399,4 +399,12 @@
     <string name="saf_expose_warning">让主目录在文件管理中显示可能会向恶意应用程序泄露敏感信息，包括 Git 令牌、密码、用户名和存储在终端主目录中的其他文件。你想继续吗？</string>
     <string name="expose_saf_desc">让主目录在文件管理中显示以供其他应用程序访问（通过 SAF 的方法）</string>
     <string name="flavor">版本</string>
+    <string name="tempFile">临时文件</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">显示虚拟键盘</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">如果硬件键盘可用，则禁用虚拟键盘</string>
+    <string name="auto_complete">编辑器自动补全</string>
+    <string name="capture_logcat">抓取 Logcat 日志</string>
+    <string name="capture_logcat_desc">在后台抓取日志以进行调试</string>
+    <string name="logcat_service">Logcat 日志服务</string>
+    <string name="logcat_service_desc">正在后台抓取日志</string>
 </resources>
