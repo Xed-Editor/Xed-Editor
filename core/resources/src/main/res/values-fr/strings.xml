@@ -54,7 +54,7 @@
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement</string>
     <string name="redir">Re-sélectionnez à nouveau le dossier</string>
     <string name="canthandle">Aucune app trouvée pour gérer le fichier</string>
     <string name="clipboardempty">Le presse-papiers est vide</string>
@@ -167,8 +167,8 @@
     <string name="extra_keys">Touches additionnelles</string>
     <string name="extra_keys_desc">Afficher les touches additionnelles dans l’éditeur</string>
     <string name="auto_save_desc">Enregistrer les fichiers automatiquement</string>
-    <string name="auto_save">Enr. auto.</string>
-    <string name="auto_save_time">Intervalle d’enregistement auto.</string>
+    <string name="auto_save">Enr. auto</string>
+    <string name="auto_save_time">Intervalle d’enregistement auto</string>
     <string name="intervalinMs">Intervalle en millisecondes</string>
     <string name="v_small">Valeur trop faible</string>
     <string name="v_large">Valeur trop grande</string>
@@ -216,7 +216,7 @@
     <string name="force_normal_desc">Forcer le mode normal sur les appareils de grande dimension</string>
     <string name="light_mode">Clair</string>
     <string name="dark_mode">Sombre</string>
-    <string name="select_theme_mode">Sélectionner le mode d’apparence</string>
+    <string name="select_theme_mode">\@string/theme_mode</string>
     <string name="cannot_be_empty">Ne peut pas être vide.</string>
     <string name="theme_mode">Apparence</string>
     <string name="no_plugins_available">Aucun greffon disponible</string>
@@ -279,7 +279,7 @@
     <string name="inavalid_v">Valeur invalide</string>
     <string name="app_desc">Paramètres généraux de l’application</string>
     <string name="failsafe_desc">Utiilser le shell android au lieu de termux</string>
-    <string name="show_suggestions">Montrer les suggestions</string>
+    <string name="show_suggestions">Montrer les suggestions clavier</string>
     <string name="github">GitHub</string>
     <string name="cursor_anim_desc">Activer les animations douces pour le curseur</string>
     <string name="tab_size_desc">Régler la taille des onglets</string>
@@ -290,7 +290,7 @@
     <string name="choose_zip">Choisir le fichier zip de l’extension pour l’installer.</string>
     <string name="editor_font_desc">Choisir la police de l’éditeur</string>
     <string name="theme_mode_desc">Changer la couleur de l\'apparence</string>
-    <string name="telegram_desc">Faire remonter des défauts, demander de fonctionnalités, etc.</string>
+    <string name="telegram_desc">Rapports d’erreur, demandes de fonctionnalités, etc.</string>
     <string name="click_open">Cliquer ici pour ouvrir un fichier</string>
     <string name="fonts">Polices</string>
     <string name="no">Non</string>
@@ -381,13 +381,13 @@
     <string name="sponsor">Sponsor</string>
     <string name="sponsor_desc">Appui au développement</string>
     <string name="backup">Sauvegarde</string>
-    <string name="unknown_err">Quelque chose a échoué</string>
+    <string name="unknown_err">Quelque-chose a échoué</string>
     <string name="misc">Divers</string>
     <string name="misc_desc">Autres paramètres</string>
     <string name="feature_toggles_desc">Activer ou désactiver des fonctionnalités particulières</string>
     <string name="restore">Rétablir</string>
-    <string name="feature_toggles">Fonctionnalité activée</string>
-    <string name="expose_saf_desc">Rendre le répertoire personnel accessible aux applications externes via le sélectionneur de fichier du système (SAF)</string>
+    <string name="feature_toggles">Fonctionnalités</string>
+    <string name="expose_saf_desc">Rendre le répertoire personnel accessible aux applications externes via l’outil système de sélection de fichier (SAF)</string>
     <string name="saf_expose_warning">Rendre accessible le répertoire personnel peut révéler des informations sensibles à des applications malveillantes, comme des jetons git, des mots de passe, des identifiants et d\'autres fichiers enregistré dans votre répertoire personnel. Voulez-vous continuer ?</string>
     <string name="expose_saf">Rendre accessible le répertoire personnel</string>
     <string name="copied">Copié</string>
@@ -396,8 +396,8 @@
     <string name="isfile">Est un fichier</string>
     <string name="file_size">Taille du fichier</string>
     <string name="info">Info</string>
-    <string name="file_info">Info sur les fichiers</string>
-    <string name="flavor">Variation</string>
+    <string name="file_info">Informations du fichier</string>
+    <string name="flavor">Variante</string>
     <string name="cant_undo">Cette action ne peut pas être annulée</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Désactiver le clavier virtuel si un clavier physique est disponible</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">Désactiver le clavier virtuel</string>
@@ -406,4 +406,5 @@
     <string name="logcat_service_desc">Enregistrement des journaux en arrière-plan</string>
     <string name="capture_logcat_desc">Enregistrer les journaux en arrière-plan pour le débogage</string>
     <string name="capture_logcat">Enregistrer Logcat</string>
+    <string name="tempFile">Fichier temporaire</string>
 </resources>
