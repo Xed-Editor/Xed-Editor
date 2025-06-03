@@ -40,7 +40,7 @@
     <string name="new_file_1">ملف جديد</string>
     <string name="rename">إعادة تسمية</string>
     <string name="open_with">افتح بواسطة…</string>
-    <string name="save_as">حفظ ك</string>
+    <string name="save_as">حفظ كـ</string>
     <string name="paste">لصق</string>
     <string name="delete">حذف</string>
     <string name="close_this">إغلاق هذا</string>
@@ -55,7 +55,7 @@
     <string name="exit">خروج</string>
     <string name="rr">إعادة التشغيل مطلوبة</string>
     <string name="rapply">يرجى إعادة التشغيل لتطبيق الإعدادات</string>
-    <string name="oled">سمة الليل الأسود</string>
+    <string name="oled">سمة سوداء</string>
     <string name="ww">ألتفاف النص</string>
     <string name="keepdl">بقاء الدرج مغلقا</string>
     <string name="restart">إعادة تشغيل</string>
@@ -63,18 +63,18 @@
     <string name="mp">إدارة المكونات الإضافية</string>
     <string name="ap">الإضافات المتاحة</string>
     <string name="nip">لا توجد مكونات إضافية مثبتة</string>
-    <string name="refresh">إعادة التحديث</string>
+    <string name="refresh">إعادة التحميل</string>
     <string name="dir_example">على سبيل المثال، الاسم: Test</string>
     <string name="create">انشاء</string>
     <string name="ask_enter_name">الرجاء إدخال اسم</string>
-    <string name="already_exists">يوجد ملف/مجلد بهذا الاسم بالفعل</string>
+    <string name="already_exists">يوجد مستند بهذا الاسم بالفعل</string>
     <string name="attention">تحذير</string>
     <string name="ask_del">هل أنت متأكد أنك تريد الحذف؟</string>
     <string name="redir">الرجاء إعادة تحديد المسار</string>
     <string name="canthandle">لم يتم العثور على تطبيق للتعامل مع الملف</string>
     <string name="clipboardempty">الحافظة فارغة</string>
     <string name="terminal">موجه الأوامر</string>
-    <string name="add_file">إضافة ملف</string>
+    <string name="add_file">إضافة ملف خارجي</string>
     <string name="keyword_regex">الكلمة (Regex)</string>
     <string name="replaceall">استبدال كل شيء</string>
     <string name="add_new_replacement_batch">إضافة دفعة بديلة جديدة</string>
@@ -107,15 +107,15 @@
     <string name="file_open_denied">لا يجوز فتح هذا الملف مع برامج أخرى</string>
     <string name="reload_file_tree">إعادة تحميل الملف</string>
     <string name="close_current_project">إغلاق المشروع الحالي</string>
-    <string name="rename_descript">إعادة تسمية الملف/المجلد المحدد</string>
+    <string name="rename_descript">إعادة تسمية المستند</string>
     <string name="open_with_other">فتح الملف المحدد في التطبيقات الأخرى</string>
-    <string name="delete_descript">حذف الملف/المجلد المحدد</string>
+    <string name="delete_descript">حذف المستند</string>
     <string name="add_file_desc">حدد ملفًا جديدًا لإضافته هنا</string>
     <string name="create_new_file_desc">قم بإنشاء ملف جديد ضمن المسار المحدد</string>
-    <string name="paste_desc">لصق الملف/المجلد المحدد</string>
+    <string name="paste_desc">لصق المستند</string>
     <string name="clipboard_empty">حافظة الملفات فارغة</string>
     <string name="save_desc">حفظ الملف المحدد في مكان آخر</string>
-    <string name="copy_desc">نسخ الملف/المجلد المحدد</string>
+    <string name="copy_desc">نسخ المستند</string>
     <string name="failed_move">فشل في نقل الملف</string>
     <string name="file_name">اسم الملف</string>
     <string name="ff_path">مسار الملف أو المسار</string>
@@ -132,12 +132,12 @@
     <string name="pull">سحب</string>
     <string name="pull_desc">مزامنة المستودع المحلي مع المستودع البعيد</string>
     <string name="commit_push">الكوميت والدفع</string>
-    <string name="push_desc">إنشاء كوميت ودفع التغييرات إلى المستودع البعيد_</string>
+    <string name="push_desc">إنشاء كوميت ودفع التغييرات إلى المستودع البعيد</string>
     <string name="fill_both">يرجى ملء كلا الخانتين</string>
     <string name="pushing">تتم الدفع حاليًا إلى المستودع البعيد…</string>
     <string name="nogit">خطأ: لم يتم العثور على مجلد git</string>
     <string name="manage_storage">إدارة التخزين</string>
-    <string name="manage_storage_reason">يحتاج Karbon إلى الوصول لتحرير الملفات الموجودة في مساحة التخزين الخاصة بك. يرجى السماح بالوصول في إعداد النظام القادم.</string>
+    <string name="manage_storage_reason">يحتاج Xed-Editor إلى الوصول لتحرير الملفات الموجودة في مساحة التخزين الخاصة بك. يرجى السماح بالوصول في إعداد النظام القادم.</string>
     <string name="ok">حسنا</string>
     <string name="data_clear">يتم حذف بيانات التطبيق</string>
     <string name="action_done">اكتمال الإجراء</string>
@@ -145,11 +145,11 @@
     <string name="exists">موجودة بالفعل!</string>
     <string name="plugin_dir">مسار الإضافات</string>
     <string name="private_files">ملفات خاصة</string>
-    <string name="private_files_desc">ملفات خاصة من كاربون</string>
+    <string name="private_files_desc">ملفات خاصة لمحرر Xed</string>
     <string name="cloning">يجري نسخ المستودع …</string>
     <string name="clone_err">المستودع خاص . أو تحقق من بيانات الاعتماد الخاصة بك</string>
     <string name="err">خطأ</string>
-    <string name="open_dir_desc">حدد مسارا كمشروع</string>
+    <string name="open_dir_desc">فتح دليل باستخدام SAF</string>
     <string name="open_file_desc">حدد ملفًا لتحريره مباشرةً</string>
     <string name="open_path">التخزين الداخلي</string>
     <string name="open_path_desc">فتح وحدة التخزين الداخلية</string>
@@ -169,7 +169,7 @@
     <string name="plugin_download_failed">غير قادر على تحميل الإضافة</string>
     <string name="fetch_failed">تم إرجاع طلب الجلب فارغًا</string>
     <string name="app">تطبيق</string>
-    <string name="oled_desc">سمة سوداء نقية لأجهزة الأمولد</string>
+    <string name="oled_desc">استخدم سمة سوداء نقية لأجهزة الأمولد</string>
     <string name="themes">السمات</string>
     <string name="change_theme">تغيير السمة</string>
     <string name="editor">محرر</string>
@@ -198,14 +198,14 @@
     <string name="tab_size">حجم علامة التبويب</string>
     <string name="tab_size_desc">ضبط حجم علامة التبويب</string>
     <string name="monet">الألوان الديناميكية</string>
-    <string name="monet_desc">استخدم سمة الجهاز في التطبيق.</string>
+    <string name="monet_desc">استخدم سمة الجهاز في التطبيق</string>
     <string name="restart_app">الرجاء إعادة تشغيل التطبيق.</string>
     <string name="old_android">نسخة أندرويد غير مدعومة</string>
     <string name="app_desc">الإعدادات العامة للتطبيق</string>
     <string name="editor_desc">الإعدادات العامة للمحرر</string>
     <string name="plugin_desc">الإعدادات العامة للمكونات الإضافية</string>
-    <string name="terminal_desc">الإعدادات العامة لموجه الأوامر</string>
-    <string name="git_desc">الإعدادات العامة لـ git</string>
+    <string name="terminal_desc">الإعدادات العامة للمحطة</string>
+    <string name="git_desc">إعدادات git العامة</string>
     <string name="enable_plugins">تفعيل المكونات الإضافية</string>
     <string name="fail_safe">فشل آمن</string>
     <string name="failsafe_desc">استخدم android shell بدلاً من termux</string>
@@ -245,26 +245,26 @@
     <string name="light_mode">ساطع</string>
     <string name="dark_mode">مظلم</string>
     <string name="auto_mode">تلقائي</string>
-    <string name="select_theme_mode">حدد وضع السمة</string>
+    <string name="select_theme_mode">وضع السمة</string>
     <string name="cannot_be_empty">لا يمكن أن تكون فارغة.</string>
-    <string name="theme_mode">وضع السمة</string>
-    <string name="theme_mode_desc">قم بتغيير وضع السمة إلى تلقائي أو فاتح أو داكن.</string>
+    <string name="theme_mode">سمة</string>
+    <string name="theme_mode_desc">تغيير لون سمة التطبيق</string>
     <string name="no_plugins_available">لا توجد مكونات إضافية متاحة</string>
-    <string name="show_suggestions">عرض الاقتراحات</string>
+    <string name="show_suggestions">إظهار اقتراحات لوحة المفاتيح</string>
     <string name="about">حول</string>
-    <string name="about_desc">حول كربون</string>
+    <string name="about_desc">حول Xed-Editor</string>
     <string name="version">الإصدار</string>
     <string name="version_code">رمز الإصدار</string>
     <string name="github">Github</string>
     <string name="github_desc">ضع نجمة في الجيتهب🤩</string>
     <string name="telegram">مجموعة التلجرام</string>
-    <string name="telegram_desc">انضم إلى مجتمع تلجرام</string>
+    <string name="telegram_desc">الإبلاغ عن المشكلات وطلب الميزات وما إلى ذلك.</string>
     <string name="join">انضمام</string>
     <string name="show_virtual_keyboard">إظهار لوحة المفاتيح الافتراضية</string>
     <string name="show_virtual_keyboard_desc">إظهار لوحة المفاتيح الافتراضية عند توصيل لوحة المفاتيح الفعلية</string>
     <string name="git_commit">تجزئة الكوميت Git</string>
     <string name="check_for_updates">التحقق من وجود تحديثات</string>
-    <string name="check_for_updates_desc">التحقق في كثير من الأحيان للحصول على التحديثات</string>
+    <string name="check_for_updates_desc">التحقق دوريًا من وجود تحديثات</string>
     <string name="click_open">انقر هنا لفتح الملف</string>
     <string name="no">لا</string>
     <string name="file_too_large">الملف كبير جدًا ولا يمكن فتحه</string>
@@ -307,7 +307,7 @@
     <string name="ignore">تجاهل</string>
     <string name="update_disable">تم إغلاق تفقد التحديثات</string>
     <string name="launch_termux">فتح ترمكس؟</string>
-    <string name="launch_termux_explanation">تم ايقاف ترمكس وبالتالي لن يتمكن كربون من تشغيل الأوامر فيه. هل ترغب في تشغيله؟</string>
+    <string name="launch_termux_explanation">تم ايقاف ترمكس وبالتالي لن يتمكن Xed-editor من تشغيل الأوامر فيه. هل ترغب في تشغيله؟</string>
     <string name="launch">تشغيل</string>
     <string name="info_ext">يمكن استخدام الإضافات لتعديل سلوك وميزات محرر xed-editor. لمعرفة كيفية بناء إضافة، انقر هنا.</string>
     <string name="mutator_desc">انشاء ادوات ميكرو</string>
@@ -346,13 +346,13 @@
     <string name="add_session">اضف جلسة</string>
     <string name="terminal_runtime_desc">اختيار محطة طرفية</string>
     <string name="terminal_runtime">محطة طرفية</string>
-    <string name="enable_ext">تفعيل الإضافات</string>
+    <string name="enable_ext">الإضافات</string>
     <string name="enable_ext_desc">تحميل إضافات طرف ثالث</string>
     <string name="ext">إضافات</string>
-    <string name="not_plugin_err">الملف المحدد ليس ملفًا من نوع .plugin.</string>
-    <string name="use_github_url">استخدم رابط GitHub الافتراضي</string>
+    <string name="not_plugin_err">الملف المحدد ليس ملفًا من نوع apk.</string>
+    <string name="use_github_url">استخدم رابط Git الافتراضي</string>
     <string name="custom_git_url">رابط Git مخصص</string>
-    <string name="http_git_url">رابط Git عبر HTTP</string>
+    <string name="http_git_url">نطاق Git عبر HTTP</string>
     <string name="scroll_to_bottom">التمرير إلى الأسفل</string>
     <string name="scroll_to_bottom_desc">التمرير إلى الأسفل عند فتح ملف</string>
     <string name="file_err">لا يمكن حفظ الملف، حاول إغلاقه وإعادة فتحه</string>
@@ -371,4 +371,40 @@
     <string name="suggest_clear_app_data">يوصى بمسح بيانات التطبيق</string>
     <string name="toggle_ww">تبديل التفاف الكلمات</string>
     <string name="read_only_file">يتم قراءة الملف فقط</string>
+    <string name="tempFile">ملف مؤقت</string>
+    <string name="folder">‌مجلد</string>
+    <string name="file">ملف</string>
+    <string name="new_document_desc">ملف أو مجلد جديد</string>
+    <string name="new_document">مستند جديد</string>
+    <string name="feature_toggles_desc">تمكين أو تعطيل ميزات معينة</string>
+    <string name="feature_toggles">تبديل الميزات</string>
+    <string name="failed">فشل</string>
+    <string name="success">‌بنجاح</string>
+    <string name="restore">استعادة</string>
+    <string name="backup">نسخ احتياطي</string>
+    <string name="invalidpath">مسار غير صالح</string>
+    <string name="sponsor_desc">أدعم المطور</string>
+    <string name="expose_saf">عرض دليل الرئيسي</string>
+    <string name="saf_expose_warning">قد يؤدي كشف الدليل الرئيسي إلى كشف معلومات حساسة للتطبيقات الضارة، بما في ذلك رموز Git وكلمات المرور وأسماء المستخدمين والملفات الأخرى المخزنة في الدليل الرئيسي لجهازك. هل تريد المتابعة؟</string>
+    <string name="info">معلومات</string>
+    <string name="copied">منسوخ</string>
+    <string name="can_read">يمكن القراءة</string>
+    <string name="file_size">حجم الملف</string>
+    <string name="file_info">معلومات الملف</string>
+    <string name="isfile">هو ملف</string>
+    <string name="flavor">نكهة</string>
+    <string name="sponsor">الراعي</string>
+    <string name="unknown_err">حدث خطأ ما</string>
+    <string name="can_write">يمكن الكتابة</string>
+    <string name="expose_saf_desc">جعل الدليل الرئيسي متاحًا للتطبيقات الخارجية عبر أداة اختيار ملفات النظام (SAF)</string>
+    <string name="cant_undo">لا يمكن التراجع عن هذا الإجراء</string>
+    <string name="misc_desc">إعدادات متنوعة</string>
+    <string name="misc">متنوع</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">تعطيل لوحة المفاتيح الافتراضية</string>
+    <string name="auto_complete">محرر الإكمال التلقائي</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">تعطيل لوحة المفاتيح الافتراضية إذا كانت لوحة المفاتيح المادية متاحة</string>
+    <string name="logcat_service_desc">التقاط السجلات في الخلفية</string>
+    <string name="logcat_service">خدمة Logcat</string>
+    <string name="capture_logcat_desc">التقاط السجلات في الخلفية للتصحيح</string>
+    <string name="capture_logcat">التقاط Logcat</string>
 </resources>
