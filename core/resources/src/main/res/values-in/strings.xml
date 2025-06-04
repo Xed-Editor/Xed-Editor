@@ -406,4 +406,5 @@
     <string name="capture_logcat">Ambil Logcat</string>
     <string name="capture_logcat_desc">Ambil pencatatan di latar belakang untuk debugging</string>
     <string name="logcat_service_desc">Mengambil catatan di latar belakang</string>
+    <string name="tempFile">Berkas Sementara</string>
 </resources>
