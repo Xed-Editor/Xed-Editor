@@ -258,8 +258,8 @@
     <string name="version_code">Código da Versão</string>
     <string name="github">GitHub</string>
     <string name="github_desc">Marque uma estrela no Github 🤩</string>
-    <string name="telegram">Grupo do Telegram</string>
-    <string name="telegram_desc">Relatar problemas, solicitar recursos, etc.</string>
+    <string name="telegram">Grupo no Telegram</string>
+    <string name="telegram_desc">Reporte problemas, solicite recursos, etc.</string>
     <string name="join">Entrar</string>
     <string name="show_virtual_keyboard">Mostrar Teclado Virtual</string>
     <string name="show_virtual_keyboard_desc">Mostrar teclado virtual quando o teclado físico estiver conectado</string>
@@ -370,8 +370,8 @@
     <string name="update_files_cleared">App atualizado : dados limpos</string>
     <string name="new_document">Novo documento</string>
     <string name="sponsor">Patrocinador</string>
-    <string name="sponsor_desc">Suporte o desenvolvimento</string>
-    <string name="feature_toggles">Alternar Recursos</string>
+    <string name="sponsor_desc">Apoie o desenvolvimento</string>
+    <string name="feature_toggles">Opções de recursos</string>
     <string name="backup">Backup</string>
     <string name="restore">Restaurar</string>
     <string name="success">Sucesso</string>
@@ -393,7 +393,7 @@
     <string name="file_size">Tamanho do Arquivo</string>
     <string name="can_read">Pode Ler</string>
     <string name="can_write">Pode Gravar</string>
-    <string name="flavor">Sabor</string>
+    <string name="flavor">Variante</string>
     <string name="isfile">É Arquivo</string>
     <string name="saf_expose_warning">A exposição do diretório inicial pode revelar informações confidenciais a aplicativos mal-intencionados, inclusive tokens Git, senhas, nomes de usuário e outros arquivos armazenados no diretório inicial do terminal. Deseja continuar?</string>
     <string name="expose_saf_desc">Tornar o diretório inicial acessível a aplicativos externos por meio do seletor de arquivos do sistema (SAF)</string>
