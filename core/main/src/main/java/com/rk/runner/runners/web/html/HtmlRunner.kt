@@ -66,7 +66,9 @@ class HtmlRunner(val file: FileObject) : RunnerImpl() {
 
     override fun stop() {
         if (isRunning()) {
+            httpServer?.closeAllConnections()
             httpServer?.stop()
         }
+        httpServer = null
     }
 }

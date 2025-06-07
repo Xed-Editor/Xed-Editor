@@ -145,25 +145,9 @@ object Settings {
         set(value) = Preference.setString(key = "mutators", value)
     var terminal_runtime: String
         get() {
-            val default = if (isFdroid) {
-                "Alpine"
-            } else
-                if (isTermuxInstalled()) {
-                    "Termux"
-                } else {
-                    "Android"
-                }
-
-            val result = Preference.getString(
-                key = "terminal_runtime", default = default
+            return Preference.getString(
+                key = "terminal_runtime", default = "Alpine"
             )
-
-            return if (!isFdroid && result == "Alpine") {
-                Settings.terminal_runtime = default
-                default
-            } else {
-                result
-            }
         }
         set(value) = Preference.setString(key = "terminal_runtime", value)
     var git_url

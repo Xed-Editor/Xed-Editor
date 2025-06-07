@@ -42,6 +42,7 @@ class HttpServer(
 
 
         try {
+
             return newFixedLengthResponse(
                 Status.OK,
                 URLConnection.guessContentTypeFromName(file.getName()),

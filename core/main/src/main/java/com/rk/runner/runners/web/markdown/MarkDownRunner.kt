@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.rk.file_wrapper.FileObject
 import com.rk.runner.RunnerImpl
+import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.xededitor.R
 import java.lang.ref.WeakReference
 
@@ -37,6 +38,13 @@ class MarkDownRunner(val file: FileObject) : RunnerImpl() {
     }
 
     override fun stop() {
+        HtmlRunner.httpServer?.let {
+            it.closeAllConnections()
+            if (it.isAlive) {
+                it.stop()
+            }
+        }
+        HtmlRunner.httpServer = null
         mdViewerRef.get()?.finish()
         mdViewerRef = WeakReference(null)
     }

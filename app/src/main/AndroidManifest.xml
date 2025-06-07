@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
 
     <queries>
@@ -54,7 +55,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.rk.SessionService" />
+        <service android:name="com.rk.SessionService" android:foregroundServiceType="specialUse"/>
         <service android:name="com.rk.LogcatService" />
 
 

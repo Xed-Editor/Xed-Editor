@@ -436,15 +436,9 @@ fun TerminalRuntime(
         mutableStateOf(Settings.terminal_runtime)
     }
 
-    val types = if (isFdroid) {
-        listOf(
-            RuntimeType.ALPINE.type, RuntimeType.TERMUX.type, RuntimeType.ANDROID.type
-        )
-    } else {
-        listOf(
-            RuntimeType.TERMUX.type, RuntimeType.ANDROID.type
-        )
-    }
+    val types =  listOf(
+        RuntimeType.ALPINE.type, RuntimeType.TERMUX.type, RuntimeType.ANDROID.type
+    )
 
     if (showBottomSheet.value) {
         ModalBottomSheet(

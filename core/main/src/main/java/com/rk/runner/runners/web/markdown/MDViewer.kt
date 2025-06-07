@@ -21,7 +21,7 @@ private const val PORT = 8357
 
 class MDViewer : WebActivity() {
     private lateinit var file: FileObject
-    private lateinit var httpServer: HttpServer
+    private var httpServer: HttpServer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,9 +110,20 @@ class MDViewer : WebActivity() {
     }
 
     override fun onDestroy() {
-        if (httpServer.isAlive) {
-            httpServer.stop()
+        if (httpServer?.isAlive == true) {
+            httpServer?.stop()
         }
+        httpServer = null
+        HtmlRunner.httpServer?.let {
+            it.closeAllConnections()
+            if (it.isAlive) {
+                it.stop()
+            }
+
+        }
+        HtmlRunner.httpServer = null
+        mdViewerRef.get()?.finish()
+        mdViewerRef = WeakReference(null)
         super.onDestroy()
     }
 }

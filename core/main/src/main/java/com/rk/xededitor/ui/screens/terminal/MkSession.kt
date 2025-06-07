@@ -61,7 +61,7 @@ object MkSession {
 
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "HOME=${application!!.filesDir.path}",
+                "HOME=${filesDir.path}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
@@ -71,9 +71,14 @@ object MkSession {
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "HOME=${alpineHomeDir()}",
                 "PROMPT_DIRTRIM=2",
-                "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}"
+                "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
+                "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
+                "PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so"
             )
 
+            if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
+                env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
+            }
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 

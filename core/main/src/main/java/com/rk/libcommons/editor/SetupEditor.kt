@@ -20,6 +20,7 @@ import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
+import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_ITEM_CURRENT
@@ -107,7 +108,7 @@ class SetupEditor(
 ) {
     init {
         scope.launch(Dispatchers.IO) {
-            ensureTextmateTheme(ctx)
+            ensureTextmateTheme(editor)
         }
     }
 
@@ -248,6 +249,98 @@ class SetupEditor(
                 e.message.toastIt()
             }
         }
+            suspend fun ensureTextmateTheme(editor: CodeEditor) {
+                val darkTheme = when (Settings.default_night_mode) {
+                    AppCompatDelegate.MODE_NIGHT_YES -> true
+                    AppCompatDelegate.MODE_NIGHT_NO -> false
+                    else -> isDarkMode(editor.context)
+                }
+
+                val themeRegistry = when {
+                    darkTheme && Settings.amoled -> oledThemeRegistry
+                    darkTheme -> darkThemeRegistry
+                    else -> lightThemeRegistry
+                }
+
+                themeRegistry?.let {
+                    val editorColorScheme = TextMateColorScheme.create(it).apply {
+                        if (darkTheme && Settings.amoled) setColor(
+                            EditorColorScheme.WHOLE_BACKGROUND,
+                            Color.BLACK
+                        )
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        editor.colorScheme = editorColorScheme
+                        editor.colorScheme.let { colorScheme ->
+
+                            val colorPrimary = MaterialColors.getColor(
+                                editor.context,
+                                androidx.appcompat.R.attr.colorPrimary,
+                                editor.context.resources.getColor(R.color.md_theme_primary, editor.context.theme)
+                            );
+
+                            val transparentColor = Color.argb(
+                                130,
+                                Color.red(colorPrimary),
+                                Color.green(colorPrimary),
+                                Color.blue(colorPrimary)
+                            )
+
+                            colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE, colorPrimary)
+                            colorScheme.setColor(EditorColorScheme.SELECTION_INSERT, colorPrimary)
+                            colorScheme.setColor(EditorColorScheme.BLOCK_LINE, colorPrimary)
+                            colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, colorPrimary)
+
+                            colorScheme.setColor(
+                                SELECTED_TEXT_BACKGROUND,
+                                transparentColor
+                            )
+                            //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
+
+                            //search match text color
+                            colorScheme.setColor(MATCHED_TEXT_BACKGROUND, colorPrimary)
+
+                            colorScheme.setColor(SELECTED_TEXT_BACKGROUND, transparentColor)
+                            //setColor(FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
+
+                            //bracket
+                            colorScheme.setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+                            colorScheme.setColor(HIGHLIGHTED_DELIMITERS_FOREGROUND, colorPrimary)
+
+                            val darkTheme: Boolean = when (Settings.default_night_mode) {
+                                AppCompatDelegate.MODE_NIGHT_YES -> true
+                                AppCompatDelegate.MODE_NIGHT_NO -> false
+                                else -> isDarkMode(editor.context)
+                            }
+
+                            val surface = if (darkTheme) {
+                                Color.BLACK
+                            } else {
+                                Color.WHITE
+                            }
+
+                            val onSurface = if (darkTheme) {
+                                Color.WHITE
+                            } else {
+                                Color.BLACK
+                            }
+
+                            colorScheme.setColor(TEXT_ACTION_WINDOW_BACKGROUND, surface)
+                            colorScheme.setColor(COMPLETION_WND_BACKGROUND, surface)
+
+                            colorScheme.setColor(TEXT_ACTION_WINDOW_ICON_COLOR, onSurface)
+                            colorScheme.setColor(COMPLETION_WND_TEXT_PRIMARY, onSurface)
+                            colorScheme.setColor(COMPLETION_WND_TEXT_SECONDARY, onSurface)
+
+                            colorScheme.setColor(COMPLETION_WND_ITEM_CURRENT, transparentColor)
+
+                        }
+
+                    }
+                }
+            }
+
     }
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
@@ -264,95 +357,5 @@ class SetupEditor(
         withContext(Dispatchers.Main) { editor.setEditorLanguage(language as Language) }
     }
 
-    private fun ensureTextmateTheme(ctx: Context) {
-        val darkTheme = when (Settings.default_night_mode) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(ctx)
-        }
 
-        val themeRegistry = when {
-            darkTheme && Settings.amoled -> oledThemeRegistry
-            darkTheme -> darkThemeRegistry
-            else -> lightThemeRegistry
-        }
-
-        themeRegistry?.let {
-            val editorColorScheme = TextMateColorScheme.create(it).apply {
-                if (darkTheme && Settings.amoled) setColor(
-                    EditorColorScheme.WHOLE_BACKGROUND,
-                    Color.BLACK
-                )
-            }
-
-            scope.launch(Dispatchers.Main) {
-                editor.colorScheme = editorColorScheme
-                editor.colorScheme.let { colorScheme ->
-
-                    val colorPrimary = MaterialColors.getColor(
-                        ctx,
-                        androidx.appcompat.R.attr.colorPrimary,
-                        ctx.resources.getColor(R.color.md_theme_primary, ctx.theme)
-                    );
-
-                    val transparentColor = Color.argb(
-                        130,
-                        Color.red(colorPrimary),
-                        Color.green(colorPrimary),
-                        Color.blue(colorPrimary)
-                    )
-
-                    colorScheme.setColor(EditorColorScheme.SELECTION_HANDLE, colorPrimary)
-                    colorScheme.setColor(EditorColorScheme.SELECTION_INSERT, colorPrimary)
-                    colorScheme.setColor(EditorColorScheme.BLOCK_LINE, colorPrimary)
-                    colorScheme.setColor(EditorColorScheme.BLOCK_LINE_CURRENT, colorPrimary)
-
-                    colorScheme.setColor(
-                        SELECTED_TEXT_BACKGROUND,
-                        transparentColor
-                    )
-                    //colorScheme.setColor(EditorColorScheme.FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
-
-                    //search match text color
-                    colorScheme.setColor(MATCHED_TEXT_BACKGROUND, colorPrimary)
-
-                    colorScheme.setColor(SELECTED_TEXT_BACKGROUND, transparentColor)
-                    //setColor(FUNCTION_CHAR_BACKGROUND_STROKE,transparentColor)
-
-                    //bracket
-                    colorScheme.setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
-                    colorScheme.setColor(HIGHLIGHTED_DELIMITERS_FOREGROUND, colorPrimary)
-
-                    val darkTheme: Boolean = when (Settings.default_night_mode) {
-                        AppCompatDelegate.MODE_NIGHT_YES -> true
-                        AppCompatDelegate.MODE_NIGHT_NO -> false
-                        else -> isDarkMode(ctx)
-                    }
-
-                    val surface = if (darkTheme) {
-                        Color.BLACK
-                    } else {
-                        Color.WHITE
-                    }
-
-                    val onSurface = if (darkTheme) {
-                        Color.WHITE
-                    } else {
-                        Color.BLACK
-                    }
-
-                    colorScheme.setColor(TEXT_ACTION_WINDOW_BACKGROUND, surface)
-                    colorScheme.setColor(COMPLETION_WND_BACKGROUND, surface)
-
-                    colorScheme.setColor(TEXT_ACTION_WINDOW_ICON_COLOR, onSurface)
-                    colorScheme.setColor(COMPLETION_WND_TEXT_PRIMARY, onSurface)
-                    colorScheme.setColor(COMPLETION_WND_TEXT_SECONDARY, onSurface)
-
-                    colorScheme.setColor(COMPLETION_WND_ITEM_CURRENT, transparentColor)
-
-                }
-
-            }
-        }
-    }
 }

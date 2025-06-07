@@ -1,0 +1,1 @@
+clang -fPIC -Wl,--dependency-file=CMakeFiles/termux-exec.dir/link.d -shared -Wl,-soname,libtermux-exec.so -o libtermux-exec.so "CMakeFiles/termux-exec.dir/termux-exec.c.o" "CMakeFiles/termux-exec.dir/exec-variants.c.o" "CMakeFiles/termux-exec.dir/termux-readlink.c.o"

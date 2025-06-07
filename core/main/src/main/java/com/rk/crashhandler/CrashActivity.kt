@@ -26,6 +26,8 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.System
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -132,7 +134,6 @@ class CrashActivity : AppCompatActivity() {
             ).appendLine()
             sb.append("Model : ").append(Build.MODEL).appendLine().appendLine()
 
-
             sb.append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
             sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
             sb.append("Error StackTrace : ").appendLine()
@@ -142,7 +143,10 @@ class CrashActivity : AppCompatActivity() {
             editor.setText(sb.toString())
             editor.editable = false
 
-            runCatching { SetupEditor(editor, application, lifecycleScope) }
+            lifecycleScope.launch(Dispatchers.IO){
+                SetupEditor.ensureTextmateTheme(editor)
+            }
+
             editor.isWordwrap = false
         }.onFailure {
             logErrorOrExit(it)
@@ -170,7 +174,7 @@ class CrashActivity : AppCompatActivity() {
             R.id.copy_error -> {
                 runCatching {
                     copyToClipboard(this, editor.text.toString())
-                    toast("Copied")
+                    toast(strings.copied.getString())
                 }.onFailure {
                     logErrorOrExit(it)
                 }
@@ -201,7 +205,7 @@ class CrashActivity : AppCompatActivity() {
     }
 
     private fun copyToClipboard(context: Context, text: String) {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipboard = context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("crashInfo", text)
         clipboard.setPrimaryClip(clip)
     }
