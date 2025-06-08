@@ -10,6 +10,7 @@ import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
 import com.rk.App.Companion.getTempDir
+import com.rk.libcommons.isFdroid
 import com.rk.xededitor.BuildConfig
 //import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.terminal.Terminal
@@ -73,12 +74,16 @@ object MkSession {
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                "PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so"
+                "FDROID=${isFdroid}"
             )
 
-            if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
-                env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
+            if (!isFdroid){
+                env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
+                if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
+                    env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
+                }
             }
+
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 

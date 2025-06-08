@@ -197,6 +197,7 @@ tasks.register("downloadPrebuilt") {
         val prootTag = "proot-2025.01.15-r2"
         val prootVersion = "5.1.107-66"
         var prootUrl = "https://github.com/termux-play-store/termux-packages/releases/download/${prootTag}/libproot-loader-ARCH-${prootVersion}.so"
+
         downloadFile("src/main/jniLibs/armeabi-v7a/libproot-loader.so", prootUrl.replace("ARCH", "arm"), "eb1d64e9ef875039534ce7a8eeffa61bbc4c0ae5722cb48c9112816b43646a3e")
         downloadFile("src/main/jniLibs/arm64-v8a/libproot-loader.so", prootUrl.replace("ARCH", "aarch64"), "8814b72f760cd26afe5350a1468cabb6622b4871064947733fcd9cd06f1c8cb8")
         downloadFile("src/main/jniLibs/x86_64/libproot-loader.so", prootUrl.replace("ARCH", "x86_64"), "1a52cc9cc5fdecbf4235659ffeac8c51e4fefd7c75cc205f52d4884a3a0a0ba1")
@@ -206,12 +207,38 @@ tasks.register("downloadPrebuilt") {
     }
 }
 
+tasks.register("removeProotLoaders"){
+    fun rm(path:String){
+        val file = File(projectDir,path)
+
+        if(file.exists()){
+            logger.quiet("Deleting $path")
+            if(file.delete().not()){
+                logger.error("Failed to delete $path")
+            }
+        }
+    }
+
+    rm("src/main/jniLibs/armeabi-v7a/libproot-loader.so")
+    rm("src/main/jniLibs/arm64-v8a/libproot-loader.so")
+    rm("src/main/jniLibs/x86_64/libproot-loader.so")
+    rm("src/main/jniLibs/arm64-v8a/libproot-loader32.so")
+    rm("src/main/jniLibs/x86_64/libproot-loader32.so")
+}
+
 afterEvaluate {
     android.applicationVariants.all { variant ->
-        variant.javaCompileProvider.dependsOn("downloadPrebuilt")
+        if (variant.flavorName == "PlayStore") {
+            variant.javaCompileProvider.dependsOn("downloadPrebuilt")
+        }else{
+            variant.javaCompileProvider.dependsOn("removeProotLoaders")
+        }
         true
     }
 }
+
+
+
 
 dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)

@@ -1,1 +1,5 @@
 /build
+# Ignore prebuilt native libraries
+src/main/jniLibs/arm64-v8a/libproot-loader*.so
+src/main/jniLibs/armeabi-v7a/libproot-loader*.so
+src/main/jniLibs/x86_64/libproot-loader*.so

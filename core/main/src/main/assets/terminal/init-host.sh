@@ -56,4 +56,9 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-$LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+if [ "$FDROID" = false ]; then
+    $LINKER $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+else
+    $PREFIX/local/bin/proot $ARGS sh $PREFIX/local/bin/init "$@"
+fi
+

@@ -303,6 +303,8 @@ fun errorDialog(exception: Exception) {
     errorDialog(msg = message.toString())
 }
 
+
+
 val isFdroid by lazy {
     val targetSdkVersion = application!!
         .applicationInfo
