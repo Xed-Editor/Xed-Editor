@@ -84,6 +84,10 @@ inline fun toast(@StringRes resId: Int) {
     toast(resId.getString())
 }
 
+private fun getContext(): Context{
+    return MainActivity.activityRef.get() ?: application!!
+}
+
 fun toast(message: String?) {
     if (message.isNullOrBlank()) {
         Log.w("UTILS", "Toast with null or empty message")
@@ -93,7 +97,7 @@ fun toast(message: String?) {
         Log.w("TOAST", message)
         return
     }
-    runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
+    runOnUiThread { Toast.makeText(getContext(), message.toString(), Toast.LENGTH_SHORT).show() }
 }
 
 inline fun String?.toastIt() {

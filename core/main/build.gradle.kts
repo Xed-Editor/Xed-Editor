@@ -141,6 +141,7 @@ dependencies {
     //api(project(":core:language-textmate"))
     api(project(":core:resources"))
     api(project(":core:components"))
+    api(project(":core:bridge"))
 
 
 }

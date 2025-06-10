@@ -38,9 +38,6 @@ rootProject.name = "Xed-Editor"
 include(":app")
 include(":core:main")
 
-//include(":core:editor")
-//include(":core:editor-lsp")
-//include(":core:language-textmate")
 include(":core:components")
 include(":core:resources")
-include(":core:xed")
+include(":core:bridge")

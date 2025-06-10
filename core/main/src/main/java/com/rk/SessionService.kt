@@ -10,12 +10,17 @@ import androidx.core.app.NotificationCompat
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.terminal.bridge.Bridge
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class SessionService : Service() {
+
     private val sessions = hashMapOf<String, TerminalSession>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf<String>("main")
@@ -68,6 +73,9 @@ class SessionService : Service() {
 
     override fun onDestroy() {
         sessions.forEach { s -> s.value.finishIfRunning() }
+        GlobalScope.launch {
+            Bridge.cleanup()
+        }
         super.onDestroy()
     }
 
@@ -76,6 +84,11 @@ class SessionService : Service() {
         createNotificationChannel()
         val notification = createNotification()
         startForeground(1, notification)
+
+
+        GlobalScope.launch {
+            Bridge.startServer(ActionHandler.handler)
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

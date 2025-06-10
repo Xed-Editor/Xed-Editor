@@ -34,7 +34,7 @@ object MkSession {
                 "BOOTCLASSPATH" to System.getenv("BOOTCLASSPATH"),
                 "DEX2OATBOOTCLASSPATH" to System.getenv("DEX2OATBOOTCLASSPATH"),
                 "EXTERNAL_STORAGE" to System.getenv("EXTERNAL_STORAGE"),
-                "PATH" to System.getenv("PATH")
+                "PATH" to System.getenv("PATH")?.toString()+":${localBinDir().absolutePath}"
             )
 
             fun getPwd() = if (intent.hasExtra("cwd")){

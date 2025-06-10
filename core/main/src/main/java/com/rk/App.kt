@@ -3,12 +3,15 @@ package com.rk
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
+import android.system.Os
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
 import com.rk.libcommons.application
+import com.rk.libcommons.child
 import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.localBinDir
 import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
@@ -20,6 +23,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
+import java.nio.file.Files
 import java.util.concurrent.Executors
 
 class App : Application() {
@@ -79,11 +83,25 @@ class App : Application() {
             Mutators.loadMutators()
             AutoSaver.start()
 
-            runCatching { UpdateChecker.checkForUpdates("dev") }
-
             if (InbuiltFeatures.extensions.state.value) {
                 Extension.loadExtensions(this@App, GlobalScope)
             }
+
+            runCatching {
+                val bridge = File(applicationInfo.nativeLibraryDir).child("libbridge.so")
+                if (bridge.exists()){
+                    Files.deleteIfExists(localBinDir().child("xed").toPath())
+                    Os.symlink(bridge.absolutePath, localBinDir().child("xed").absolutePath)
+                }
+            }.onFailure {
+                it.printStackTrace()
+            }
+
+
+            runCatching { UpdateChecker.checkForUpdates("dev") }
+
+
+
         }
 
     }
