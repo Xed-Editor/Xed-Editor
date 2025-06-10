@@ -93,4 +93,25 @@
     <string name="cred">Chứng chỉ</string>
     <string name="telegram_desc">Tham gia cộng đồng Telegram</string>
     <string name="terminal">Terminal</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_text_1">Thẻ 1</string>
+    <string name="clone_dir">Thư mục để sao chép kho lưu trữ</string>
+    <string name="file_exist_not">Tập tin không tồn tại</string>
+    <string name="apply">Áp dụng</string>
+    <string name="inavalid_userdata">Dữ liệu người dùng không hợp lệ. Thay đổi nó trong cài đặt</string>
+    <string name="open_in_terminal">Mở Trong Terminal</string>
+    <string name="open_dir_in_terminal">Mở Thư Mục trong Terminal</string>
+    <string name="reload_file_tree">Tải lại tệp</string>
+    <string name="close_current_project">Đóng dự án hiện tại</string>
+    <string name="rename_descript">Đổi tên tài liệu</string>
+    <string name="file_open_denied">Không được phép mở tệp này trong các ứng dụng khác</string>
+    <string name="userdata">Dữ liệu người dùng</string>
+    <string name="repo_dir">Thư mục lưu trữ</string>
+    <string name="userdatagit">Dữ liệu người dùng cho git</string>
+    <string name="dir_exist_not">Thư mục không tồn tại</string>
+    <string name="keepdl">Giữ ngăn kéo bị khoá</string>
+    <string name="tab_text_2">Thẻ 2</string>
+    <string name="git">Git</string>
+    <string name="file_saved">Tệp đã lưu</string>
+    <string name="gituserexample">vd. UserDev:example@email.com</string>
 </resources>
