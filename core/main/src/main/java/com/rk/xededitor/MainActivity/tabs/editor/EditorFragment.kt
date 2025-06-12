@@ -26,6 +26,10 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.App.Companion.getTempDir
+import com.rk.file_wrapper.FileWrapper
+import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.child
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
@@ -216,7 +220,14 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 }
             }
             safeLaunch {
-                setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+                if (isLspSupported(file)){
+                    println("supported")
+                    connectLsp(port = 9999,project = FileWrapper(alpineHomeDir()),editorFragment = this@EditorFragment)
+                }else{
+                    println("not supported")
+                    setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+                }
+
             }
             if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                 mutex.withLock {

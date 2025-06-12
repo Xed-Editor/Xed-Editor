@@ -4,6 +4,7 @@ import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.extension.Hooks
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
@@ -11,6 +12,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.currentTab
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.R
@@ -52,6 +54,11 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
             when (id) {
                 R.id.close_this -> {
                     activity.adapter!!.removeFragment(tab.position, true)
+                    DefaultScope.launch{
+                        if (Hooks.Editor.onTabClosed.isNotEmpty()){
+                            Hooks.Editor.onTabClosed.forEach { it.value.invoke(MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles[tab.position]) }
+                        }
+                    }
                 }
 
                 R.id.close_others -> {
@@ -60,6 +67,11 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
 
                 R.id.close_all -> {
                     activity.adapter!!.clearAllFragments()
+                    DefaultScope.launch{
+                        if (Hooks.Editor.onTabCleared.isNotEmpty()){
+                            Hooks.Editor.onTabCleared.forEach { it.value.invoke() }
+                        }
+                    }
                 }
             }
             activity.binding!!.tabs.invalidate()

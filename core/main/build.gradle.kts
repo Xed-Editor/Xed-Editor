@@ -136,7 +136,9 @@ dependencies {
 
     api(platform("io.github.Rosemoe.sora-editor:bom:0.23.5-0d363ed-SNAPSHOT"))
     api("io.github.Rosemoe.sora-editor:editor")
+    api("io.github.Rosemoe.sora-editor:editor-lsp")
     api("io.github.Rosemoe.sora-editor:language-textmate")
+    api(libs.lsp4j)
     //api(project(":core:editor"))
     //api(project(":core:language-textmate"))
     api(project(":core:resources"))

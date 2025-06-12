@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
+import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.toast
@@ -124,7 +125,9 @@ class TabAdapter(private val mainActivity: MainActivity) :
             binding!!.tabs.visibility = View.GONE
             binding!!.mainView.visibility = View.GONE
             binding!!.openBtn.visibility = View.VISIBLE
-            DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
+            //DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
+
+
         }
     }
 
@@ -194,6 +197,11 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 for (i in mainActivity.tabLayout!!.tabCount - 1 downTo 0) {
                     if (i != selectedTabPosition) {
                         removeFragment(i, false)
+                        DefaultScope.launch{
+                            if (Hooks.Editor.onTabClosed.isNotEmpty()){
+                                Hooks.Editor.onTabClosed.forEach { it.value.invoke(MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles[i]) }
+                            }
+                        }
                     }
                 }
             }

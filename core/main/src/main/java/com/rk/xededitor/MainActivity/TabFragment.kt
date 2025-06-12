@@ -65,6 +65,11 @@ class TabFragment : Fragment() {
 
         DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
 
+        lifecycleScope.launch{
+            if (Hooks.Editor.onTabCreate.isNotEmpty()){
+                Hooks.Editor.onTabCreate.forEach { it.value.invoke(file!!,this@TabFragment) }
+            }
+        }
     }
     
     override fun onCreateView(
@@ -81,6 +86,11 @@ class TabFragment : Fragment() {
         fragment?.onDestroy()
         super.onDestroy()
         DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+        DefaultScope.launch{
+            if (Hooks.Editor.onTabDestroyed.isNotEmpty()){
+                Hooks.Editor.onTabDestroyed.forEach { it.value.invoke(file!!) }
+            }
+        }
     }
     
     companion object {
