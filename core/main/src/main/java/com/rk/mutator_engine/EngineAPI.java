@@ -32,6 +32,7 @@ public interface EngineAPI {
      */
     String http(String url, String options);
     void showDialog(String title,String content);
+    String showInput(String title, String hint, String prefill);
     void exit();
     void sleep(double millis);
 }
