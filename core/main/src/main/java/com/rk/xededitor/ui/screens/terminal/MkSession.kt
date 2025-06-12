@@ -74,7 +74,8 @@ object MkSession {
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                "FDROID=${isFdroid}"
+                "FDROID=${isFdroid}",
+                "RUNTIME=${Settings.terminal_runtime}"
             )
 
             if (!isFdroid){
@@ -83,6 +84,8 @@ object MkSession {
                     env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
                 }
             }
+
+
 
 
             env.addAll(envVariables.map { "${it.key}=${it.value}" })

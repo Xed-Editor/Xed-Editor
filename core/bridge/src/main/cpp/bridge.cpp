@@ -4,14 +4,9 @@
 #include <sstream>
 
 
-
 int main(int argc, char *argv[]) {
     if (argc > 1) {
         std::string action = argv[1];
-
-        if (action == "edit") {
-            if (argc > 2) {
-
                 // Suppose argc and argv are available in your main or function
                 std::ostringstream oss;
                 for (int i = 2; i < argc; ++i) {
@@ -20,28 +15,28 @@ int main(int argc, char *argv[]) {
                 }
                 std::string path = oss.str();
                 char cwd[PATH_MAX];
-                if (getcwd(cwd, sizeof(cwd)) != nullptr) {} else {
+                if (getcwd(cwd, sizeof(cwd)) != nullptr) {}
+                else {
                     perror("getcwd() error");
                     return -1;
+                }
+
+                std::string runtime;
+                const char *env_runtime = std::getenv("RUNTIME");
+                if (env_runtime != nullptr) {
+                    runtime = std::string(env_runtime);
                 }
 
                 std::string json =
                         "{"
                         "\"action\":\"" + action + "\","
                                                    "\"args\":\"" + path + "\","
-                                                                          "\"pwd\":\"" + cwd + "\""
-                                                                                               "}";
+                                                                          "\"pwd\":\"" + cwd + "\","
+                                                                                               "\"runtime\":\"" +
+                        runtime + "\""
+                                  "}";
 
                 connectToSocket(json.c_str());
-            } else {
-                std::cerr << "Error: No path provided for 'edit' action." << std::endl;
-                return 1;
-            }
-        } else {
-            std::cerr << "Unknown action." << std::endl;
-            return 1;
-        }
-
     } else {
         std::cerr << "No argument provided." << std::endl;
         return 1;
