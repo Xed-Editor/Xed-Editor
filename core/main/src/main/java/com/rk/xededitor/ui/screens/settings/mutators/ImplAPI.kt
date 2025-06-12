@@ -175,6 +175,41 @@ class ImplAPI(val engine: Engine) : EngineAPI {
         }
 
     }
+    
+    override fun showInput(title: String?, hint: String?, prefill: String?): String {
+     var result: String? = null
+     runBlocking {
+         withContext(Dispatchers.Main) {
+             MainActivity.withContext {
+                 val editText = android.widget.EditText(this)
+                 editText.hint = hint ?: ""
+                 editText.setText(prefill ?: "")
+ 
+                 val latch = java.util.concurrent.CountDownLatch(1)
+
+                 val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                     .setTitle(title)
+                     .setView(editText)
+                     .setPositiveButton("OK") { _, _ ->
+                         result = editText.text.toString()
+                         latch.countDown()
+                     }
+                     .setNegativeButton("Cancel") { _, _ ->
+                         result = null
+                         latch.countDown()
+                     }
+                     .setOnCancelListener {
+                         result = null
+                         latch.countDown()
+                     }
+                     .show()
+
+                 latch.await()
+             }
+         }
+     }
+     return result ?: ""
+    }
 
     override fun exit() {
         engine.quickJS.close()
