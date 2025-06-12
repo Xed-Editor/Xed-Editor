@@ -24,6 +24,7 @@ class SessionService : Service() {
     private val sessions = hashMapOf<String, TerminalSession>()
     val sessionList = mutableStateListOf<String>()
     var currentSession = mutableStateOf<String>("main")
+    private var deamonRunning = false
 
     inner class SessionBinder : Binder() {
         fun getService(): SessionService {
@@ -56,6 +57,10 @@ class SessionService : Service() {
             sessionList.remove(id)
             if (sessions.isEmpty()) {
                 stopSelf()
+                if (deamonRunning){
+                    Bridge.close()
+                    deamonRunning = false
+                }
             } else {
                 updateNotification()
             }
@@ -73,9 +78,8 @@ class SessionService : Service() {
 
     override fun onDestroy() {
         sessions.forEach { s -> s.value.finishIfRunning() }
-        GlobalScope.launch {
-            Bridge.cleanup()
-        }
+        Bridge.close()
+        deamonRunning = false
         super.onDestroy()
     }
 
@@ -86,16 +90,25 @@ class SessionService : Service() {
         startForeground(1, notification)
 
 
-        GlobalScope.launch {
-            Bridge.startServer(ActionHandler.handler)
+        if (deamonRunning.not()){
+            GlobalScope.launch {
+                Bridge.startServer(ActionHandler.handler)
+                deamonRunning = true
+            }
         }
+
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_EXIT" -> {
                 sessions.forEach { s -> s.value.finishIfRunning() }
+                if (deamonRunning){
+                    Bridge.close()
+                    deamonRunning = false
+                }
                 stopSelf()
+
             }
         }
         return super.onStartCommand(intent, flags, startId)

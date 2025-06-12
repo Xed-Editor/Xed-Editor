@@ -3,6 +3,7 @@ package com.rk.terminal.bridge
 import android.net.LocalServerSocket
 import android.net.LocalSocket
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.BufferedWriter
@@ -20,14 +21,21 @@ object Bridge {
         const val ERR = "err"
     }
 
-    suspend fun startServer(handler: (String) -> String) = withContext(Dispatchers.IO) {
-        if (isRunning){
-            return@withContext
+    suspend fun startServer(handler: (String) -> String): Unit = withContext(Dispatchers.IO) {
+        try {
+            if (isRunning){
+                return@withContext
+            }
+            serverSocket = LocalServerSocket("bridge")
+            isRunning = true
+            println("Server started")
+            listenForClients(handler)
+        }catch (e: Exception){
+            delay(1500)
+            println("Server failed to start trying again... ${e.message}")
+            startServer(handler)
         }
-        serverSocket = LocalServerSocket("bridge")
-        isRunning = true
-        println("Server started")
-        listenForClients(handler)
+
     }
 
     private suspend fun listenForClients(handler: (String) -> String) = withContext(Dispatchers.IO) {
@@ -57,7 +65,7 @@ object Bridge {
                 BufferedReader(InputStreamReader(clientSocket.inputStream)).use { input ->
                     BufferedWriter(OutputStreamWriter(clientSocket.outputStream)).use { output ->
                         var line: String?
-                        while (input.readLine().also { line = it } != null && isRunning) {
+                        while (input.readLine().also { line = it } != null && isRunning && clientSocket.isConnected) {
                             println("Received from client: $line")
                             val result = handler(line!!)
                             output.write(result)
@@ -70,25 +78,32 @@ object Bridge {
                 e.printStackTrace()
             } finally {
                 clientSockets.remove(clientSocket)
-                try { clientSocket.close() } catch (_: Exception) {}
+                try { clientSocket.close() } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         }.start()
     }
 
-    suspend fun cleanup() = withContext(Dispatchers.IO) {
-        isRunning = false
+    fun close(){
         try {
             serverSocket?.close()
-        } catch (_: Exception) {}
+            // Close all active client sockets
+            synchronized(clientSockets) {
+                for (socket in clientSockets) {
+                    try { socket.close() } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                clientSockets.clear()
+            }
+            isRunning = false
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         serverSocket = null
 
-        // Close all active client sockets
-        synchronized(clientSockets) {
-            for (socket in clientSockets) {
-                try { socket.close() } catch (_: Exception) {}
-            }
-            clientSockets.clear()
-        }
+
         println("Bridge cleaned up")
     }
 }
