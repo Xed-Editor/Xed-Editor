@@ -343,7 +343,7 @@
     <string name="restore_sessions_desc">Restaurar as guias anteriores</string>
     <string name="mutator_desc">Criar micro ferramentas</string>
     <string name="name_empty_err">O nome não pode ficar vazio</string>
-    <string name="restore_sessions">Restaurar Sessões</string>
+    <string name="restore_sessions">Restaurar sessões</string>
     <string name="git_auth">Token do Github</string>
     <string name="terminal_home">Caminho Inicial do Terminal</string>
     <string name="terminal_runtime_desc">Selecione o Tempo de Execução do Terminal</string>
