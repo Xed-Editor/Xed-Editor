@@ -115,6 +115,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             isHorizontalScrollBarEnabled = false
 
             addView(getInputView(editor!!))
+            this.isSaveEnabled = false
         }
 
         searchLayout = SearchPanel(constraintLayout!!, editor!!).view
