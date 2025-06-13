@@ -7,6 +7,7 @@ import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.mutator_engine.Engine
 import com.rk.mutator_engine.EngineAPI
+import com.rk.resources.strings
 import com.rk.xededitor.MainActivity.Kee
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
@@ -174,6 +175,39 @@ class ImplAPI(val engine: Engine) : EngineAPI {
             }
         }
 
+    }
+    
+    override fun showInput(title: String?, hint: String?, prefill: String?): String {
+     var result: String? = null
+     runBlocking {
+         val latch = java.util.concurrent.CountDownLatch(1)
+         withContext(Dispatchers.Main) {
+             MainActivity.withContext {
+                 val editText = android.widget.EditText(this)
+                 editText.hint = hint ?: ""
+                 editText.setText(prefill ?: "")
+
+                 MaterialAlertDialogBuilder(this)
+                     .setTitle(title)
+                     .setView(editText)
+                     .setPositiveButton(strings.ok) { _, _ ->
+                         result = editText.text.toString()
+                         latch.countDown()
+                     }
+                     .setNegativeButton(strings.cancel) { _, _ ->
+                         result = null
+                         latch.countDown()
+                     }
+                     .setOnCancelListener {
+                         result = null
+                         latch.countDown()
+                     }
+                     .show()
+             }
+         }
+         latch.await()
+     }
+     return result ?: ""
     }
 
     override fun exit() {
