@@ -47,7 +47,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 
-
+private val hid = View.generateViewId()
 class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragment {
 
     @JvmField
@@ -102,7 +102,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
         }
 
         horizontalScrollView = HorizontalScrollView(context).apply {
-            id = View.generateViewId()
+            id = hid
             visibility = if (Settings.show_arrow_keys) {
                 View.VISIBLE
             } else {
