@@ -15,13 +15,13 @@ for pkg in $required_packages; do
     fi
 done
 if [ -n "$missing_packages" ]; then
-    echo -e "\e[34;1m[*] \e[37mInstalling Important packages\e[0m"
+    echo -e "\e[34;1m[*] \e[0mInstalling Important packages\e[0m"
     apk update && apk upgrade
     apk add $missing_packages
     if [ $? -eq 0 ]; then
-        echo -e "\e[32;1m[+] \e[37mSuccessfully Installed\e[0m"
+        echo -e "\e[32;1m[+] \e[0mSuccessfully Installed\e[0m"
     fi
-    echo -e "\e[34m[*] \e[37mUse \e[32mapk\e[37m to install new packages\e[0m"
+    echo -e "\e[34m[*] \e[0mUse \e[32mapk\e[0m to install new packages\e[0m"
 fi
 
 #fix linker warning
