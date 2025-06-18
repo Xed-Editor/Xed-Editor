@@ -115,11 +115,6 @@ class SetupEditor(
     private fun getSourceForSpacialFileName(fileName: String): String? {
         return when (fileName) {
             "gradlew" -> textmateSources["sh"]
-            "logcat.txt" -> {
-                editor.isWordwrap = Settings.wordwrap
-                textmateSources["log"]
-            }
-
             else -> null
         }
     }
@@ -128,6 +123,7 @@ class SetupEditor(
         mutex.withLock {
             val source = getSourceForSpacialFileName(fileName)
                 ?: textmateSources[fileName.substringAfterLast('.', "").trim()]
+
             source?.let { setLanguage(it) }
         }
     }

@@ -105,8 +105,17 @@ object ExtensionManager : ExtensionAPI() {
         }
 
     suspend fun deletePlugin(extension: Extension) = withContext(Dispatchers.IO) {
-        extension.apkFile.delete()
         extensions.remove(extension)
+        application!!.pluginDir.child("oat").listFiles()?.forEach {
+            if (it.name.startsWith(extension.apkFile.name)){
+                if (it.isDirectory){
+                    it.deleteRecursively()
+                }else{
+                    it.delete()
+                }
+            }
+        }
+        extension.apkFile.delete()
         runCatching {
             Preference.removeKey("ext_" + extension.packageName)
         }
