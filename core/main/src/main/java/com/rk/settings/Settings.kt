@@ -18,7 +18,7 @@ object Settings {
     var monet
         get() = Preference.getBoolean(
             key = "monet",
-            default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+            default = false
         )
         set(value) = Preference.setBoolean(key = "monet", value)
     var pin_line_number

@@ -155,7 +155,7 @@ class SetupEditor(
         fun initActivity(activity: Activity, calculateColors: () -> Pair<String, String>) {
             if (!activityInit) {
                 GlobalScope.launch(Dispatchers.IO) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) {
                         val colors = calculateColors.invoke()
                         initTextMateTheme(activity, colors.first, colors.second)
                     } else {
@@ -176,35 +176,7 @@ class SetupEditor(
             lightThemeRegistry = ThemeRegistry()
 
             try {
-                darkThemeRegistry?.loadTheme(
-                    ThemeModel(
-                        IThemeSource.fromInputStream(
-                            ctx.assets.open(
-                                "textmate/darcula.json"
-                            ), "darcula.json", null
-                        )
-                    )
-                )
-                oledThemeRegistry?.loadTheme(
-                    ThemeModel(
-                        IThemeSource.fromInputStream(
-                            ctx.assets.open(
-                                "textmate/black/darcula.json"
-                            ), "darcula.json", null
-                        )
-                    )
-                )
-                lightThemeRegistry?.loadTheme(
-                    ThemeModel(
-                        IThemeSource.fromInputStream(
-                            ctx.assets.open(
-                                "textmate/quietlight.json"
-                            ), "quietlight.json", null
-                        )
-                    )
-                )
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) {
                     assert(darkSurfaceColor != null)
                     assert(lightSurfaceColor != null)
 
@@ -241,7 +213,40 @@ class SetupEditor(
                             )
                         )
                     )
+                }else{
+                    darkThemeRegistry?.loadTheme(
+                        ThemeModel(
+                            IThemeSource.fromInputStream(
+                                ctx.assets.open(
+                                    "textmate/darcula.json"
+                                ), "darcula.json", null
+                            )
+                        )
+                    )
+                    oledThemeRegistry?.loadTheme(
+                        ThemeModel(
+                            IThemeSource.fromInputStream(
+                                ctx.assets.open(
+                                    "textmate/black/darcula.json"
+                                ), "darcula.json", null
+                            )
+                        )
+                    )
+                    lightThemeRegistry?.loadTheme(
+                        ThemeModel(
+                            IThemeSource.fromInputStream(
+                                ctx.assets.open(
+                                    "textmate/quietlight.json"
+                                ), "quietlight.json", null
+                            )
+                        )
+                    )
                 }
+
+
+
+
+
             } catch (e: Exception) {
                 e.printStackTrace()
                 e.message.toastIt()
