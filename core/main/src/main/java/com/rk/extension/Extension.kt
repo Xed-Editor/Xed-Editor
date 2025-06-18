@@ -3,7 +3,10 @@ package com.rk.extension
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
 import androidx.core.content.pm.PackageInfoCompat
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isMainThread
 import com.rk.settings.Preference
@@ -24,14 +27,11 @@ class Extension(
     val versionCode: Long,
     val apkFile: File,
     val application: Application
-) : DexClassLoader(
-    apkFile.absolutePath,
-    application.codeCacheDir.absolutePath,
-    null,
-    application.classLoader
 ) {
-    private var _isLoaded = false
-    val isLoaded get() = _isLoaded
+    private var dexClassLoader: DexClassLoader? = null
+
+    var isLoaded = false
+        private set
 
     override fun hashCode(): Int {
         return apkFile.absolutePath.hashCode()
@@ -47,14 +47,23 @@ class Extension(
     }
 
     fun load() {
+        apkFile.setReadOnly()
+        dexClassLoader = DexClassLoader(
+            apkFile.absolutePath,
+            application.pluginDir.child("oat").createFileIfNot().absolutePath,
+            null,
+            application.classLoader
+        )
+
         if (isLoaded){
             throw RuntimeException("Extension $this is already loaded")
         }
+
         if (isMainThread()) {
             throw RuntimeException("Tried to execute extension on main thread")
         }
 
-        val mainClassInstance = loadClass(mainClass)
+        val mainClassInstance = dexClassLoader!!.loadClass(mainClass)
 
         if (ExtensionAPI::class.java.isAssignableFrom(mainClassInstance)) {
             val instance = mainClassInstance.getDeclaredConstructor().newInstance() as? ExtensionAPI

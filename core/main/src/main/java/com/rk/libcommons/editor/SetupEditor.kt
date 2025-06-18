@@ -36,6 +36,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -340,6 +342,9 @@ class SetupEditor(
     }
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
+        while (!isInit && isActive){
+            delay(50)
+        }
         val language = TextMateLanguage.create(languageScopeName, Settings.auto_complete).apply {
             if (Settings.auto_complete) {
                 ctx.assets.open("textmate/keywords.json").use { inputStream ->

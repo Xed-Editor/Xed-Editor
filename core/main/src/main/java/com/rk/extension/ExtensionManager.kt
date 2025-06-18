@@ -120,7 +120,7 @@ object ExtensionManager : ExtensionAPI() {
 
     suspend fun deletePlugin(extension: Extension) = withContext(Dispatchers.IO) {
         extensions.remove(extension)
-        deleteFilesWithPackageName(application!!.pluginDir,extension.packageName)
+        deleteFilesWithPackageName(application!!.pluginDir.child("oat"),extension.packageName)
         extension.apkFile.delete()
         runCatching {
             Preference.removeKey("ext_" + extension.packageName)
@@ -175,7 +175,7 @@ object ExtensionManager : ExtensionAPI() {
                     info.versionCode.toLong()
                 }
 
-                deleteFilesWithPackageName(context.pluginDir,appInfo.packageName)
+                deleteFilesWithPackageName(context.pluginDir.child("oat"),appInfo.packageName)
 
                 val ext = Extension(
                     name = pm.getApplicationLabel(appInfo).toString(),
