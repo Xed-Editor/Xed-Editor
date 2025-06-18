@@ -74,6 +74,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
@@ -82,6 +83,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -291,10 +293,16 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        lifecycleScope.launch {
-            while (true) {
-                delay(1500)
-                updateMenu(adapter?.getCurrentFragment())
+
+
+        lifecycleScope.launch(Dispatchers.Unconfined) {
+            while (isActive) {
+                runCatching {
+                    delay(1500)
+                    updateMenu(adapter?.getCurrentFragment())
+                }.onFailure {
+                    it.printStackTrace()
+                }
             }
         }
 
