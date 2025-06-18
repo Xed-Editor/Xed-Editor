@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.isMainThread
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import dalvik.system.DexClassLoader
@@ -49,7 +50,7 @@ class Extension(
         if (isLoaded){
             throw RuntimeException("Extension $this is already loaded")
         }
-        if (Thread.currentThread().name == "main") {
+        if (isMainThread()) {
             throw RuntimeException("Tried to execute extension on main thread")
         }
 
