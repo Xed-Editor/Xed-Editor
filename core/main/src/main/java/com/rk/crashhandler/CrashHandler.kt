@@ -13,6 +13,11 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
+
+            if (ex is ClassCastException){
+                logErrorOrExit(ex)
+            }
+
             val intent = Intent(application!!, CrashActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
 
