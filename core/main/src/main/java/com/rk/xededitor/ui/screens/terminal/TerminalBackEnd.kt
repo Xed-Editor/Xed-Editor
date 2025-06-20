@@ -29,7 +29,7 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
         ClipboardUtils.copyText("Terminal", text)
     }
 
-    override fun onPasteTextFromClipboard(session: TerminalSession) {
+    override fun onPasteTextFromClipboard(session: TerminalSession?) {
         val clip = ClipboardUtils.getText().toString()
         if (clip.trim { it <= ' ' }.isNotEmpty() && terminal.mEmulator != null) {
             terminal.mEmulator.paste(clip)
@@ -43,6 +43,11 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
     override fun onColorsChanged(session: TerminalSession) {}
 
     override fun onTerminalCursorStateChange(state: Boolean) {}
+
+    override fun setTerminalShellPid(
+        session: TerminalSession,
+        pid: Int
+    ) {}
 
     override fun getTerminalCursorStyle(): Int {
         return TerminalEmulator.DEFAULT_TERMINAL_CURSOR_STYLE
