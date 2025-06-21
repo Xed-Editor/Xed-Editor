@@ -385,7 +385,7 @@ fun SettingsTerminalScreen() {
 
             PreferenceGroup {
                 SettingsToggle(
-                    label = "Use Project as working directory", description = "Use Project as working directory in terminal",
+                    label = "Use Project as working directory", description = "Keep the toggle OFF to open the Terminal at the active directory.",
                     default = Settings.project_as_pwd,
                     sideEffect = {
                         Settings.project_as_pwd = it
