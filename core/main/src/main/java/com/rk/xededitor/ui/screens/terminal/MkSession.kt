@@ -10,10 +10,14 @@ import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
 import com.rk.App.Companion.getTempDir
+import com.rk.libcommons.alpineDir
 import com.rk.libcommons.isFdroid
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.MainActivity.MainActivity
 //import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.screens.settings.terminal.RuntimeType
+import com.rk.xededitor.ui.screens.settings.terminal.runtime
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -37,17 +41,36 @@ object MkSession {
                 "PATH" to System.getenv("PATH")?.toString()+":${localBinDir().absolutePath}"
             )
 
-            fun getPwd() = if (intent.hasExtra("cwd")){
-                intent.getStringExtra("cwd").toString()
-            }else if (currentProject != null){
-                if (currentProject is FileWrapper){
-                    currentProject!!.getAbsolutePath()
-                }else{
-                    //toast("Current project ${currentProject?.getName()} is not a native directory")
-                    Environment.getExternalStorageDirectory().path
+            fun getRawPwd(): String{
+                if (intent.hasExtra("cwd")){
+                    return intent.getStringExtra("cwd").toString()
                 }
-            }else{
-                Environment.getExternalStorageDirectory().path
+
+                if (Settings.project_as_pwd){
+                    if (currentProject != null && currentProject is FileWrapper){
+                        return currentProject!!.getAbsolutePath()
+                    }
+                }else{
+                    val tabParent = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()?.getParentFile()
+                    if(tabParent != null && tabParent is FileWrapper){
+                        return tabParent.file.absolutePath
+                    }
+                }
+
+
+                return Environment.getExternalStorageDirectory().absolutePath
+            }
+
+            fun getPwd(): String{
+                val path = getRawPwd()
+
+                if (runtime == RuntimeType.ALPINE.type) {
+                    path.removePrefix(alpineDir().absolutePath)
+                }else{
+                    path
+                }
+
+                return path
             }
 
             val workingDir = (pendingCommand?.workingDir ?: getPwd())

@@ -106,6 +106,10 @@ object Settings {
         get() = Preference.getBoolean(key = "verbose_error", default = BuildConfig.DEBUG)
         set(value) = Preference.setBoolean(key = "verbose_error", value)
 
+    var project_as_pwd
+        get() = Preference.getBoolean(key = "project_as_pwd", default = true)
+        set(value) = Preference.setBoolean(key = "project_as_pwd", value)
+
 
     //Int
     var tab_size

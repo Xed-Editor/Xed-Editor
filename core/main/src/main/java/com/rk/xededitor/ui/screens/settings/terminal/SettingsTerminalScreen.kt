@@ -68,9 +68,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.lang.Runtime.getRuntime
 
-private const val min_text_size = 10f
-private const val max_text_size = 20f
-
 var execAllowed by mutableStateOf(false)
 var isExecLoading by mutableStateOf(true)
 var isTermuxInstalled by mutableStateOf<Boolean?>(null)
@@ -200,190 +197,206 @@ fun SettingsTerminalScreen() {
             }
         }
 
-        ValueSlider(
-            label = {
-                Text(stringResource(strings.text_size))
-            },
-            min = 10,
-            max = 20,
-            onValueChanged = {
-                Settings.terminal_font_size = it
-                terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
-            }
-        )
-
-
-        PreferenceGroup {
-            val context = LocalContext.current
-            val activity = LocalActivity.current
-
-            val restore = rememberLauncherForActivityResult(
-                ActivityResultContracts.GetContent()
-            ) { uri ->
-                if (uri == null) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
-
-                val filePath = File(uri.toPath())
-
-                if (filePath.exists().not() ||
-                    filePath.canRead().not() ||
-                    filePath.isFile.not() ||
-                    filePath.canWrite().not()
-                ) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
-
-                val loading = LoadingPopup(context, null)
-                loading.show()
-
-                GlobalScope.launch(Dispatchers.IO) {
-                    alpineDir().deleteRecursively()
-                    alpineDir().mkdirs()
-
-                    val result =
-                        getRuntime().exec("tar -xf ${filePath.absolutePath} -C ${alpineDir()}")
-                            .waitFor()
-                    withContext(Dispatchers.Main) {
-                        loading.hide()
-                        if (result == 0) {
-                            toast(strings.success)
-                        } else {
-                            toast(strings.failed)
-                        }
-                    }
-                }
-
-
-            }
-
-            val backup = rememberLauncherForActivityResult(
-                ActivityResultContracts.OpenDocumentTree()
-            ) { uri ->
-                if (uri == null) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
-
-                val path = File(uri.toPath())
-
-                if (path.exists().not() ||
-                    path.canRead().not() ||
-                    path.isDirectory.not() ||
-                    path.canWrite().not()
-                ) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
-
-
-                MaterialAlertDialogBuilder(activity ?: context).apply {
-                    setTitle(strings.file_name)
-                    val popupView: View = LayoutInflater.from(MainActivity.activityRef.get()!!)
-                        .inflate(R.layout.popup_new, null)
-                    val editText = popupView.findViewById<EditText>(R.id.name)
-                    editText.setText("terminal-backup.tar.gz")
-                    setView(popupView)
-                    setNeutralButton(strings.cancel, null)
-                    setPositiveButton(strings.backup) { _, _ ->
-                        val text = editText.text.toString()
-                        if (text.isBlank()) {
-                            toast(strings.inavalid_v)
-                            return@setPositiveButton
-                        }
-
-                        val targetFile = path.child(text)
-                        if (targetFile.exists()) {
-                            toast(strings.already_exists)
-                            return@setPositiveButton
-                        }
-
-                        val loading = LoadingPopup(context, null)
-                        loading.show()
-
-                        GlobalScope.launch(Dispatchers.IO) {
-                            try {
-                                val alpineDir = alpineDir().absolutePath
-                                val targetPath = targetFile.absolutePath
-
-                                val processBuilder = ProcessBuilder(
-                                    "tar",
-                                    "-czf",
-                                    targetPath,
-                                    ".",
-                                    "--exclude=dev",
-                                    "--exclude=sys",
-                                    "--exclude=proc",
-                                    "--exclude=system",
-                                    "--exclude=apex",
-                                    "--exclude=vendor",
-                                    "--exclude=data",
-                                    "--exclude=home",
-                                    "--exclude=root",
-                                    "--exclude=var/cache",
-                                    "--exclude=var/tmp",
-                                    "--exclude=lost+found",
-                                    "--exclude=storage",
-                                    "--exclude=system_ext",
-                                    "--exclude=tmp",
-                                    "--exclude=vendor",
-                                    "--exclude=sdcard",
-                                    "--exclude=storage"
-                                ).apply {
-                                    directory(File(alpineDir))
-                                    redirectErrorStream(true)
-                                }
-
-                                processBuilder.start().waitFor()
-
-                                withContext(Dispatchers.Main) {
-                                    loading.hide()
-                                }
-                            } catch (e: Exception) {
-                                withContext(Dispatchers.Main) {
-                                    loading.hide()
-                                    toast("Error: ${e.message}")
-                                }
-                            }
-
-                        }
-
-                    }
-                    show()
-                }
-
-
-            }
-
-            SettingsToggle(
-                label = stringResource(strings.backup),
-                description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    backup.launch(null)
-                }
-            )
-
-            SettingsToggle(
-                label = stringResource(strings.restore),
-                description = "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${
-                    stringResource(
-                        strings.backup
-                    )
-                }",
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    restore.launch("application/gzip")
+        if (runtime != RuntimeType.TERMUX.type) {
+            ValueSlider(
+                label = {
+                    Text(stringResource(strings.text_size))
+                },
+                min = 10,
+                max = 20,
+                onValueChanged = {
+                    Settings.terminal_font_size = it
+                    terminalView.get()?.setTextSize(dpToPx(it.toFloat(), context))
                 }
             )
         }
 
-        PreferenceGroup {
 
+
+        if (runtime == RuntimeType.ALPINE.type) {
+            PreferenceGroup {
+                val context = LocalContext.current
+                val activity = LocalActivity.current
+
+                val restore = rememberLauncherForActivityResult(
+                    ActivityResultContracts.GetContent()
+                ) { uri ->
+                    if (uri == null) {
+                        toast(strings.invalid_path)
+                        return@rememberLauncherForActivityResult
+                    }
+
+                    val filePath = File(uri.toPath())
+
+                    if (filePath.exists().not() ||
+                        filePath.canRead().not() ||
+                        filePath.isFile.not() ||
+                        filePath.canWrite().not()
+                    ) {
+                        toast(strings.invalid_path)
+                        return@rememberLauncherForActivityResult
+                    }
+
+                    val loading = LoadingPopup(context, null)
+                    loading.show()
+
+                    GlobalScope.launch(Dispatchers.IO) {
+                        alpineDir().deleteRecursively()
+                        alpineDir().mkdirs()
+
+                        val result =
+                            getRuntime().exec("tar -xf ${filePath.absolutePath} -C ${alpineDir()}")
+                                .waitFor()
+                        withContext(Dispatchers.Main) {
+                            loading.hide()
+                            if (result == 0) {
+                                toast(strings.success)
+                            } else {
+                                toast(strings.failed)
+                            }
+                        }
+                    }
+
+
+                }
+
+                val backup = rememberLauncherForActivityResult(
+                    ActivityResultContracts.OpenDocumentTree()
+                ) { uri ->
+                    if (uri == null) {
+                        toast(strings.invalid_path)
+                        return@rememberLauncherForActivityResult
+                    }
+
+                    val path = File(uri.toPath())
+
+                    if (path.exists().not() ||
+                        path.canRead().not() ||
+                        path.isDirectory.not() ||
+                        path.canWrite().not()
+                    ) {
+                        toast(strings.invalid_path)
+                        return@rememberLauncherForActivityResult
+                    }
+
+
+                    MaterialAlertDialogBuilder(activity ?: context).apply {
+                        setTitle(strings.file_name)
+                        val popupView: View = LayoutInflater.from(MainActivity.activityRef.get()!!)
+                            .inflate(R.layout.popup_new, null)
+                        val editText = popupView.findViewById<EditText>(R.id.name)
+                        editText.setText("terminal-backup.tar.gz")
+                        setView(popupView)
+                        setNeutralButton(strings.cancel, null)
+                        setPositiveButton(strings.backup) { _, _ ->
+                            val text = editText.text.toString()
+                            if (text.isBlank()) {
+                                toast(strings.inavalid_v)
+                                return@setPositiveButton
+                            }
+
+                            val targetFile = path.child(text)
+                            if (targetFile.exists()) {
+                                toast(strings.already_exists)
+                                return@setPositiveButton
+                            }
+
+                            val loading = LoadingPopup(context, null)
+                            loading.show()
+
+                            GlobalScope.launch(Dispatchers.IO) {
+                                try {
+                                    val alpineDir = alpineDir().absolutePath
+                                    val targetPath = targetFile.absolutePath
+
+                                    val processBuilder = ProcessBuilder(
+                                        "tar",
+                                        "-czf",
+                                        targetPath,
+                                        ".",
+                                        "--exclude=dev",
+                                        "--exclude=sys",
+                                        "--exclude=proc",
+                                        "--exclude=system",
+                                        "--exclude=apex",
+                                        "--exclude=vendor",
+                                        "--exclude=data",
+                                        "--exclude=home",
+                                        "--exclude=root",
+                                        "--exclude=var/cache",
+                                        "--exclude=var/tmp",
+                                        "--exclude=lost+found",
+                                        "--exclude=storage",
+                                        "--exclude=system_ext",
+                                        "--exclude=tmp",
+                                        "--exclude=vendor",
+                                        "--exclude=sdcard",
+                                        "--exclude=storage"
+                                    ).apply {
+                                        directory(File(alpineDir))
+                                        redirectErrorStream(true)
+                                    }
+
+                                    processBuilder.start().waitFor()
+
+                                    withContext(Dispatchers.Main) {
+                                        loading.hide()
+                                    }
+                                } catch (e: Exception) {
+                                    withContext(Dispatchers.Main) {
+                                        loading.hide()
+                                        toast("Error: ${e.message}")
+                                    }
+                                }
+
+                            }
+
+                        }
+                        show()
+                    }
+
+
+                }
+
+                SettingsToggle(
+                    label = stringResource(strings.backup),
+                    description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
+                    showSwitch = false,
+                    default = false,
+                    sideEffect = {
+                        backup.launch(null)
+                    }
+                )
+
+                SettingsToggle(
+                    label = stringResource(strings.restore),
+                    description = "${stringResource(strings.restore)} ${stringResource(strings.terminal)} ${
+                        stringResource(
+                            strings.backup
+                        )
+                    }",
+                    showSwitch = false,
+                    default = false,
+                    sideEffect = {
+                        restore.launch("application/gzip")
+                    }
+                )
+            }
+
+            PreferenceGroup {
+                SettingsToggle(
+                    label = "Use Project as working directory", description = "Use Project as working directory in terminal",
+                    default = Settings.project_as_pwd,
+                    sideEffect = {
+                        Settings.project_as_pwd = it
+                    },
+                    showSwitch = true,
+                )
+            }
+        }
+
+
+        PreferenceGroup {
             var state by remember { mutableStateOf(Settings.expose_home_dir) }
             val sideEffect: (Boolean) -> Unit = {
                 if (it) {
