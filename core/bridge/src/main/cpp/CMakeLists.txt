@@ -11,3 +11,12 @@ set_target_properties(bridge PROPERTIES
         PREFIX "lib"
         SUFFIX ".so"
 )
+
+
+target_compile_options(bridge PRIVATE
+        "-ffile-prefix-map=${CMAKE_SOURCE_DIR}=."
+)
+
+target_link_options(bridge PRIVATE
+        "-Wl,--build-id=none"
+)
