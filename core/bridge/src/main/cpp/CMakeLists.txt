@@ -19,4 +19,5 @@ target_compile_options(bridge PRIVATE
 
 target_link_options(bridge PRIVATE
         "-Wl,--build-id=none"
+        "-s"
 )
