@@ -42,7 +42,7 @@
 ## Community
 > [!TIP]
 Join the Xed-Editor community to stay updated and engage with other users:
-- [Telegram](https://t.me/Xed_Editor)
+- [Telegram](https://t.me/XedEditor)
 
 <br>
 
