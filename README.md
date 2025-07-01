@@ -30,7 +30,7 @@
   - [x] Check Files/Folders Info
   - [x] Print text documents
   - [x] AMOLED Theme
-  - [x] Keybindings
+  - [ ] Keybindings
   - [x] Built-in Terminal (Alpine Linux)
   - [x] Termux Interoperability
   - [x] Run Python,Html,C/C++, Node.js, etc.
