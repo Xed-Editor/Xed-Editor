@@ -128,7 +128,7 @@ fun AboutScreen() {
                 endWidget = {
                     Button(
                         onClick = {
-                            val url = "https://t.me/Xed_Editor"
+                            val url = "https://t.me/XedEditor"
                             val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                             context.startActivity(intent)
                         },
