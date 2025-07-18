@@ -298,7 +298,7 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.Unconfined) {
             while (isActive) {
                 runCatching {
-                    delay(1500)
+                    delay(800)
                     updateMenu(adapter?.getCurrentFragment())
                 }.onFailure {
                     it.printStackTrace()
