@@ -178,8 +178,10 @@ fun dialog(
     context: Activity? = MainActivity.activityRef.get(),
     title: String?,
     msg: String?,
+    okString: String = strings.ok.getString(),
+    cancelString: String = strings.cancel.getString(),
     onCancel: ((DialogInterface) -> Unit)? = null,
-    onOk: ((DialogInterface) -> Unit)? = null
+    onOk: ((DialogInterface) -> Unit)? = null,
 ) {
     if (context == null) {
         throw IllegalArgumentException("context cannot be null")
@@ -191,13 +193,13 @@ fun dialog(
             msg?.let { setMessage(it) }
 
             onCancel?.let {
-                setNegativeButton(strings.cancel) { dialogInterface, _ ->
+                setNegativeButton(cancelString) { dialogInterface, _ ->
                     onCancel(dialogInterface)
                 }
             }
 
             onOk?.let {
-                setPositiveButton(strings.ok) { dialogInterface, _ ->
+                setPositiveButton(okString) { dialogInterface, _ ->
                     onOk(dialogInterface)
                 }
             }
@@ -315,3 +317,20 @@ val isFdroid by lazy {
         .targetSdkVersion
     targetSdkVersion == 28
 }
+
+
+fun expectOOM(requiredMEMBytes: Long): Boolean {
+    val runtime = Runtime.getRuntime()
+    val maxMemory = runtime.maxMemory()
+    val allocatedMemory = runtime.totalMemory()
+    val freeMemory = runtime.freeMemory()
+    val availableMemory = maxMemory - (allocatedMemory - freeMemory)
+
+    val safetyBuffer = 8L * 1024 * 1024
+    val requiredMemory = requiredMEMBytes + safetyBuffer
+
+    // Return true if we expect an OutOfMemoryError
+    return requiredMemory > availableMemory
+}
+
+

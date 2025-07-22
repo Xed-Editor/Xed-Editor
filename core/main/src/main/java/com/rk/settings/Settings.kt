@@ -75,9 +75,6 @@ object Settings {
     var ignore_storage_permission
         get() = Preference.getBoolean(key = "ignore_storage_permission", default = false)
         set(value) = Preference.setBoolean(key = "ignore_storage_permission", value)
-    var unrestricted_files
-        get() = Preference.getBoolean(key = "unrestricted_file", default = false)
-        set(value) = Preference.setBoolean(key = "unrestricted_file", value)
     var github
         get() = Preference.getBoolean(key = "github", default = true)
         set(value) = Preference.setBoolean(key = "github", value)

@@ -54,14 +54,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
-            EditorSettingsToggle(label = stringResource(strings.unrestricted_file),
-                description = stringResource(strings.unrestricted_file_desc),
-                default = Settings.unrestricted_files,
-                sideEffect = {
-                    Settings.unrestricted_files = it
-                }
-            )
-
             EditorSettingsToggle(
                 label = stringResource(strings.restore_sessions),
                 description = stringResource(strings.restore_sessions_desc),

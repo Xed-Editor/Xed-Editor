@@ -10,6 +10,8 @@ import com.google.android.material.tabs.TabLayout
 import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.dialog
+import com.rk.libcommons.expectOOM
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -223,13 +225,24 @@ class TabAdapter(private val mainActivity: MainActivity) :
     }
 
     fun addFragment(file: FileObject) {
-        val type = file.getFragmentType()
-        if (Settings.unrestricted_files.not()) {
-            if ((type == FragmentType.EDITOR) && (file.length() / (1024.0 * 1024.0)) > 10) {
-                toast(strings.file_too_large)
-                return
-            }
+        if (expectOOM(file.length())) {
+            dialog(
+                context = mainActivity,
+                title = "Low Memory Warning",
+                msg = "Xed-Editor may not have enough memory to load this file. Loading it could cause the app to crash. Consider closing other tabs to free up memory. Do you still want to continue loading?" ,
+                cancelString = strings.no.getString(),
+                okString = strings.yes.getString(),
+                onOk = {
+                    addFragmentInternal(file)
+                }, onCancel = {}
+            )
+        }else{
+            addFragmentInternal(file)
         }
+    }
+
+    private fun addFragmentInternal(file: FileObject){
+        val type = file.getFragmentType()
 
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.getCanonicalPath())) {
@@ -289,6 +302,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
             binding!!.openBtn.visibility = View.GONE
         }
         DefaultScope.launch { updateMenu(mainActivity.adapter?.getCurrentFragment()) }
+
     }
 
 

@@ -52,6 +52,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
         val showDayNightBottomSheet = remember { mutableStateOf(false) }
         val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
         val amoledState = remember { mutableStateOf(Settings.amoled) }
+        val context = LocalContext.current
 
         PreferenceGroup {
             SettingsToggle(label = stringResource(id = strings.theme_mode),
@@ -77,15 +78,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     toast(strings.restart_required)
                 })
 
-
-            SettingsToggle(
-                label = stringResource(strings.check_for_updates),
-                description = stringResource(strings.check_for_updates_desc),
-                default = Settings.check_for_update,
-                sideEffect = {
-                    Settings.check_for_update = it
-                })
-
             SettingsToggle(
                 label = stringResource(id = strings.monet),
                 description = stringResource(id = strings.monet_desc),
@@ -98,9 +90,44 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                         Settings.amoled = false
                     }
                     Settings.monet = it
+                    toast(strings.restart_required)
                 }
 
             )
+
+
+            SettingsToggle(
+                label = stringResource(strings.check_for_updates),
+                description = stringResource(strings.check_for_updates_desc),
+                default = Settings.check_for_update,
+                sideEffect = {
+                    Settings.check_for_update = it
+                })
+
+            SettingsToggle(
+                label = stringResource(strings.manage_storage),
+                description = stringResource(strings.manage_storage),
+                isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+                sideEffect = {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                        val intent =
+                            Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+                        intent.data = Uri.parse("package:${context.packageName}")
+                        context.startActivity(intent)
+                    }
+                }
+            )
+
+
         }
 
         if (showDayNightBottomSheet.value) {
