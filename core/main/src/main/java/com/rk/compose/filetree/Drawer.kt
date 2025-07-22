@@ -381,21 +381,19 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                 FileAction(activityRef.get()!!, this.file, it.file)
                             })
                     } else {
-                        Surface(color = MaterialTheme.colorScheme.background) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    painter = painterResource(drawables.outline_folder_24),
-                                    contentDescription = null
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("No Folder Opened")
-                            }
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                painter = painterResource(drawables.outline_folder_24),
+                                contentDescription = null, tint = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("No Folder Opened",color = MaterialTheme.colorScheme.onSurface)
                         }
                     }
 
