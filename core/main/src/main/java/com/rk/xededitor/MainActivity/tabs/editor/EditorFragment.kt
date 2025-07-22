@@ -48,6 +48,8 @@ import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 
 
+var lspPort: Int? = null
+
 class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragment {
 
     @JvmField
@@ -209,6 +211,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     }
 
+
     override fun loadFile(file: FileObject) {
         this.file = file
         scope.safeLaunch {
@@ -221,8 +224,8 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 }
             }
             safeLaunch {
-                if (isLspSupported(file)){
-                    connectLsp(port = 9999,project = FileWrapper(alpineHomeDir()),editorFragment = this@EditorFragment)
+                if (isLspSupported(file) && lspPort != null){
+                    connectLsp(port = lspPort!!,project = FileWrapper(alpineHomeDir()),editorFragment = this@EditorFragment)
                 }else{
                     setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
                 }

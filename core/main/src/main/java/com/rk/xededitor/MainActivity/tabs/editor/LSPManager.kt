@@ -16,8 +16,9 @@ import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
 import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 
+var lspExt: String? = null
 fun isLspSupported(fileObject: FileObject): Boolean{
-    return false && fileObject is FileWrapper && textmateSources.get(fileObject.getName().substringAfterLast(".")) != null
+    return fileObject.getName().substringAfterLast(".") == lspExt && textmateSources.get(fileObject.getName().substringAfterLast(".")) != null
 }
 
 suspend fun connectLsp(port: Int,project: FileObject,editorFragment: EditorFragment) = withContext(
@@ -58,10 +59,5 @@ suspend fun connectLsp(port: Int,project: FileObject,editorFragment: EditorFragm
     }.onFailure {
         it.printStackTrace()
     }
-
-
-
-
-
 
 }

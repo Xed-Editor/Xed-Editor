@@ -6,10 +6,18 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -28,10 +37,13 @@ import com.rk.LogcatService
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.MainActivity.tabs.editor.lspExt
+import com.rk.xededitor.MainActivity.tabs.editor.lspPort
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
 
@@ -155,13 +167,32 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
 
+            var showDialog by remember { mutableStateOf(false) }
+            if (showDialog) {
+                PortAndExtensionDialog(
+                    onDismiss = { showDialog = false },
+                    onConfirm = { port, extension ->
+                       if (textmateSources.get(extension) == null){
+                           toast("Unsupported file extension")
+                           return@PortAndExtensionDialog
+                       }
+                        if (port.toIntOrNull() == null){
+                            toast("Invalid port")
+                            return@PortAndExtensionDialog
+                        }
+                        lspPort = port.toIntOrNull()
+                        lspExt = extension
+                    }
+                )
+            }
+
             SettingsToggle(
                 label = "LSP",
                 description = "Connect to external lsp server",
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    toast(strings.ni)
+                    showDialog = true
                 }
             )
 
@@ -169,4 +200,49 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
         }
     }
 
+}
+
+@Composable
+fun PortAndExtensionDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (port: String, extension: String) -> Unit
+) {
+    var port by remember { mutableStateOf("") }
+    var extension by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Enter Port & Extension") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = port,
+                    onValueChange = { port = it },
+                    label = { Text("Port number") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = extension,
+                    onValueChange = { extension = it },
+                    label = { Text("File extension (e.g. py)") },
+                    singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                onConfirm(port, extension)
+                onDismiss()
+            }) {
+                Text("OK")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
