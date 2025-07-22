@@ -183,7 +183,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
         } else {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
-                NavigationRail(modifier = Modifier.width(61.dp)) {
+                NavigationRail(modifier = Modifier.width(61.dp).padding(top = 0.dp)) {
                     projects.forEach { file ->
                         NavigationRailItem(
                             selected = file.fileObject == currentProject,
@@ -404,60 +404,6 @@ fun DrawerContent(modifier: Modifier = Modifier) {
     }
 
 
-}
-
-@Composable
-fun ProjectItem(
-    modifier: Modifier = Modifier,
-    selected: Boolean,
-    icon: @Composable () -> Unit,
-    onClick: () -> Unit,
-    label: String? = null
-) {
-    Column(
-        modifier = modifier
-            .padding(vertical = 8.dp)
-            .width(50.dp)
-            .clickable(onClick = onClick),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-
-
-        val OvalShape = GenericShape { size, _ ->
-            addOval(Rect(Offset.Zero, size))
-        }
-
-
-        Surface(
-            shape = OvalShape,
-            color = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-            else MaterialTheme.colorScheme.surface,
-            tonalElevation = if (selected) 2.dp else 0.dp,
-            modifier = Modifier.size(36.dp),
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clickable(onClick = onClick)
-            ) {
-                icon()
-            }
-        }
-
-
-        Spacer(modifier = Modifier.height(2.dp))
-        label?.let {
-            Text(
-                text = label,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.labelSmall.copy(fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal)
-            )
-
-        }
-    }
 }
 
 

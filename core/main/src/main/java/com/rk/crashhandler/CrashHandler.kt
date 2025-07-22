@@ -13,9 +13,8 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
-
-            if (ex is ClassCastException){
-                logErrorOrExit(ex)
+            if (ex.message.toString().contains("android.view.AbsSavedState") && ex.message.toString().contains("android.widget.HorizontalScrollView") &&  ex.message.toString().contains("cannot be cast to")){
+                return@runCatching
             }
 
             val intent = Intent(application!!, CrashActivity::class.java)
