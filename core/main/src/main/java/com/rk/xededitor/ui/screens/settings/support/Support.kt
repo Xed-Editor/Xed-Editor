@@ -160,10 +160,10 @@ fun Support(modifier: Modifier = Modifier) {
                 },
                 sideEffect = {
                     val uri = Uri.parse("upi://pay").buildUpon()
-                        .appendQueryParameter("pa", "rohitkushvaha01@axl") // UPI ID
-                        .appendQueryParameter("pn", "Rohit Kushwaha") // Name
-                        .appendQueryParameter("tn", "Xed-Editor") // Note
-                        .appendQueryParameter("cu", "INR") // Currency
+                        .appendQueryParameter("pa", "rohitkushvaha01@axl")
+                        .appendQueryParameter("pn", "Rohit Kushwaha")
+                        .appendQueryParameter("tn", "Xed-Editor")
+                        .appendQueryParameter("cu", "INR")
                         .build()
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         data = uri
