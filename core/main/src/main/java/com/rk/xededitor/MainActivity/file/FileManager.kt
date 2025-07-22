@@ -262,8 +262,13 @@ class FileManager(private val mainActivity: MainActivity) {
         }
 
     fun saveAsFile(file: FileObject) {
-        toSaveAsFile = file
-        directoryPickerLauncher.launch(null)
+        runCatching {
+            toSaveAsFile = file
+            directoryPickerLauncher.launch(null)
+        }.onFailure {
+            errorDialog(it)
+        }
+
     }
 
 
