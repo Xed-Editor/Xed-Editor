@@ -29,6 +29,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.crashhandler.CrashActivity
 import com.rk.libcommons.application
 import com.rk.libcommons.dialog
+import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -103,6 +104,7 @@ fun Support(modifier: Modifier = Modifier) {
                     val url = "https://github.com/sponsors/RohitKushvaha01"
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                     context.startActivity(intent)
+                    Settings.donated = true
                 }
             )
         }
@@ -133,6 +135,7 @@ fun Support(modifier: Modifier = Modifier) {
                     val url = "https://buymeacoffee.com/rohitkushvaha01"
                     val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
                     context.startActivity(intent)
+                    Settings.donated = true
                 }
             )
         }
@@ -172,8 +175,9 @@ fun Support(modifier: Modifier = Modifier) {
                     val chooser = Intent.createChooser(intent, "Use")
                     if (intent.resolveActivity(context.packageManager) != null) {
                         context.startActivity(chooser)
+                        Settings.donated = true
                     } else {
-                        Toast.makeText(context, "No UPI app found", Toast.LENGTH_SHORT).show()
+                        toast("No UPI app found")
                     }
                 }
             )
@@ -183,26 +187,29 @@ fun Support(modifier: Modifier = Modifier) {
 
 fun MainActivity.handleSupport(){
     lifecycleScope.launch(Dispatchers.Main) {
-        if (Settings.visits > 50) {
+        if (Settings.visits > 50 && !Settings.donated) {
             dialog(
                 context = this@handleSupport,
+                cancelable = false,
                 title = "Quick Question",
                 msg = "Are you enjoying Xed-Editor so far?",
                 okString = strings.yes.getString(),
                 cancelString = strings.no.getString(),
                 onCancel = {
-                    Settings.visits = -20
+                    Settings.visits = -300
                     dialog(
                         context = this@handleSupport,
+                        cancelable = false,
                         title = "We’d Love Your Feedback",
                         msg = "Feel free to share your thoughts in our Telegram group or GitHub repository!",
                         onOk = {}
                     )
                 },
                 onOk = {
-                    Settings.visits = 0
+                    Settings.visits = -220
                     dialog(
                         context = this@handleSupport,
+                        cancelable = false,
                         title = "Support the Project",
                         msg = "Would you like to support development of Xed-Editor and help it grow?",
                         okString = strings.yes.getString(),

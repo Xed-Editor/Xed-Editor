@@ -107,6 +107,10 @@ object Settings {
         get() = Preference.getBoolean(key = "project_as_pwd", default = true)
         set(value) = Preference.setBoolean(key = "project_as_pwd", value)
 
+    var donated
+        get() = Preference.getBoolean(key = "donated", default = false)
+        set(value) = Preference.setBoolean(key = "donated", value)
+
 
     //Int
     var tab_size
@@ -131,6 +135,7 @@ object Settings {
     var visits
         get() = Preference.getInt(key = "visits", default = 0)
         set(value) = Preference.setInt(key = "visits", value)
+
 
     //String
     var projects

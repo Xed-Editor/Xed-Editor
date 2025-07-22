@@ -176,6 +176,7 @@ fun Activity.askInput(
 
 fun dialog(
     context: Activity? = MainActivity.activityRef.get(),
+    cancelable: Boolean = true,
     title: String?,
     msg: String?,
     okString: String = strings.ok.getString(),
@@ -189,6 +190,7 @@ fun dialog(
     }
     runOnUiThread {
         MaterialAlertDialogBuilder(context).apply {
+            setCancelable(cancelable)
             title?.let { setTitle(it) }
             msg?.let { setMessage(it) }
 

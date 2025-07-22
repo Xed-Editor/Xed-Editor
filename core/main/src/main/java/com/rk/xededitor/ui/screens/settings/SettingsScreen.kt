@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import com.rk.libcommons.isFdroid
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 
@@ -223,7 +225,7 @@ fun HeartbeatIcon() {
             .scale(scale.value)
     ) {
         Icon(
-            imageVector = Icons.Filled.Favorite,
+            imageVector = if (Settings.donated){Icons.Filled.Favorite}else{Icons.Outlined.FavoriteBorder},
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.primary,
