@@ -50,6 +50,8 @@ import com.rk.xededitor.ui.components.NextScreenCard
 fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
         val showDayNightBottomSheet = remember { mutableStateOf(false) }
+        val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
+        val amoledState = remember { mutableStateOf(Settings.amoled) }
 
         PreferenceGroup {
             SettingsToggle(label = stringResource(id = strings.theme_mode),
@@ -61,10 +63,16 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 })
 
 
+
             SettingsToggle(label = stringResource(id = strings.oled),
                 description = stringResource(id = strings.oled_desc),
                 default = Settings.amoled,
+                state = amoledState,
                 sideEffect = {
+                    if (Settings.monet && it){
+                        monetState.value = false
+                        Settings.monet = false
+                    }
                     Settings.amoled = it
                     toast(strings.restart_required)
                 })
@@ -83,7 +91,12 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 description = stringResource(id = strings.monet_desc),
                 default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet,
                 isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+                state = monetState,
                 sideEffect = {
+                    if (Settings.amoled && it){
+                        amoledState.value = false
+                        Settings.amoled = false
+                    }
                     Settings.monet = it
                 }
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,9 +25,10 @@ import com.rk.components.compose.preferences.switch.PreferenceSwitch
 fun SettingsToggle(
     modifier: Modifier = Modifier,
     label: String,
+    default: Boolean,
+    state: MutableState<Boolean> = remember { mutableStateOf(default) },
     description: String? = null,
     @DrawableRes iconRes: Int? = null,
-    default: Boolean,
     reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
@@ -35,25 +37,22 @@ fun SettingsToggle(
     isSwitchLocked: Boolean = false,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
-    var state by remember {
-        mutableStateOf(default)
-    }
 
     if (showSwitch && endWidget != null){
         throw IllegalStateException("endWidget with show switch")
     }
 
     if (showSwitch) {
-        PreferenceSwitch(checked = state,
+        PreferenceSwitch(checked = state.value,
             onLongClick = onLongClick,
             onCheckedChange = {
                 if (isSwitchLocked.not()) {
-                    state = !state
+                    state.value = !state.value
                 }
                 if (reactiveSideEffect != null) {
-                    state = reactiveSideEffect.invoke(state) == true
+                    state.value = reactiveSideEffect.invoke(state.value) == true
                 } else {
-                    sideEffect?.invoke(state)
+                    sideEffect?.invoke(state.value)
                 }
 
             },
@@ -63,12 +62,12 @@ fun SettingsToggle(
             enabled = isEnabled,
             onClick = {
                 if (isSwitchLocked.not()) {
-                    state = !state
+                    state.value = !state.value
                 }
                 if (reactiveSideEffect != null) {
-                    state = reactiveSideEffect.invoke(state) == true
+                    state.value = reactiveSideEffect.invoke(state.value) == true
                 } else {
-                    sideEffect?.invoke(state)
+                    sideEffect?.invoke(state.value)
                 }
             })
     } else {

@@ -12,6 +12,9 @@
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
         <item name="android:forceDarkAllowed">false</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+
     </style>
 
     <style name="tab_text" parent="@android:style/TextAppearance.Widget.TabWidget">
@@ -65,11 +68,17 @@
         <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+
     </style>
 
     <style name="Theme.Karbon.Oled" parent="Theme.Karbon">
         <item name="android:colorBackground">@android:color/black</item>
         <item name="colorSurface">@android:color/black</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+
     </style>
 
     <style name="Base.Theme.Karbon.Monet" parent="Theme.Material3.DynamicColors.Light">
@@ -84,10 +93,16 @@
         <item name="fontFamily">@font/outfit_regular</item>
         <item name="android:fontFamily">@font/outfit_regular</item>
         <item name="android:forceDarkAllowed">false</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+
     </style>
 
     <style name="Theme.Karbon.Old.Monet" parent="Base.Theme.Karbon.Monet">
         <item name="android:colorBackground">@android:color/black</item>
         <item name="colorSurface">@android:color/black</item>
+        <item name="selectableItemBackground">?android:attr/selectableItemBackground</item>
+        <item name="selectableItemBackgroundBorderless">?android:attr/selectableItemBackgroundBorderless</item>
+
     </style>
 </resources>

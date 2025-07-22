@@ -222,10 +222,8 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             }
             safeLaunch {
                 if (isLspSupported(file)){
-                    println("supported")
                     connectLsp(port = 9999,project = FileWrapper(alpineHomeDir()),editorFragment = this@EditorFragment)
                 }else{
-                    println("not supported")
                     setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
                 }
 
