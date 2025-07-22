@@ -67,6 +67,8 @@ class App : Application() {
             )
         }
 
+        Settings.visits = Settings.visits+1
+
         //wait until UpdateManager is done, it should only take few milliseconds
         UpdateManager.inspect()
 

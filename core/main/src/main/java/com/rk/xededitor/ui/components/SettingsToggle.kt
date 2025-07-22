@@ -35,6 +35,7 @@ fun SettingsToggle(
     onLongClick: (() -> Unit)? = null,
     isEnabled: Boolean = true,
     isSwitchLocked: Boolean = false,
+    startWidget: (@Composable () -> Unit)? = null,
     endWidget: (@Composable () -> Unit)? = null,
 ) {
 
@@ -88,7 +89,8 @@ fun SettingsToggle(
             description = { description?.let { Text(text = it) } },
             enabled = true,
             applyPaddings = false,
-            endWidget = endWidget
+            endWidget = endWidget,
+            startWidget = startWidget
         )
     }
 

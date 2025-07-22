@@ -67,6 +67,7 @@ import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
+import com.rk.xededitor.ui.screens.settings.support.handleSupport
 import com.rk.xededitor.ui.theme.KarbonTheme
 import com.rk.xededitor.ui.theme.ThemeManager
 import io.github.rosemoe.sora.text.Content
@@ -235,37 +236,7 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            SetupEditor.initActivity(this@MainActivity, calculateColors = {
-                val lightThemeContext = ContextThemeWrapper(
-                    this@MainActivity,
-                    com.google.android.material.R.style.Theme_Material3_DynamicColors_Light
-                )
-                val darkThemeContext = ContextThemeWrapper(
-                    this@MainActivity,
-                    com.google.android.material.R.style.Theme_Material3_DynamicColors_Dark
-                )
-
-                val lightSurfaceColor = MaterialColors.getColor(
-                    lightThemeContext,
-                    com.google.android.material.R.attr.colorSurface,
-                    Color.WHITE
-                )
-
-                val darkSurfaceColor = MaterialColors.getColor(
-                    darkThemeContext,
-                    com.google.android.material.R.attr.colorSurface,
-                    Color.BLACK
-                )
-
-                val lightsurfaceColorHex =
-                    String.format("#%06X", 0xFFFFFF and lightSurfaceColor)
-                val darksurfaceColorHex =
-                    String.format("#%06X", 0xFFFFFF and darkSurfaceColor)
-
-                Pair(darksurfaceColorHex, lightsurfaceColorHex)
-            })
-        }
+        lifecycleScope.launch(Dispatchers.IO) { SetupEditor.initActivity(this@MainActivity) }
 
         setupDrawer()
 
@@ -293,8 +264,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-
-
         lifecycleScope.launch(Dispatchers.Unconfined) {
             while (isActive) {
                 runCatching {
@@ -313,6 +282,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        handleSupport()
     }
 
 

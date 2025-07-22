@@ -1,11 +1,19 @@
 package com.rk.xededitor.ui.screens.settings
 
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -138,6 +147,23 @@ private fun Categories(navController: NavController) {
         }
     )
 
+    PreferenceTemplate(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .clip(MaterialTheme.shapes.large)
+        .clickable { navController.navigate(SettingsRoutes.Support.route)  }
+        .background(Color.Transparent),
+        verticalPadding = 14.dp,
+        title = {
+            Text("Support")
+        },
+        description = {
+            Text(stringResource(id = strings.sponsor_desc))
+        },
+        startWidget = {
+            HeartbeatIcon()
+        }
+    )
+
     Hooks.Settings.screens.values.forEach { screen ->
         val isSelected = false
 
@@ -174,3 +200,34 @@ private fun Categories(navController: NavController) {
 
 
 }
+
+
+@Composable
+fun HeartbeatIcon() {
+    val infiniteTransition = rememberInfiniteTransition(label = "heartbeat")
+
+    val scale = infiniteTransition.animateFloat(
+        initialValue = 0.9f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500, easing = LinearOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "scale"
+    )
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(32.dp)
+            .scale(scale.value)
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Favorite,
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.primary,
+        )
+    }
+}
+

@@ -5,12 +5,14 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.toastIt
 import com.rk.settings.Settings
+import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.lang.Language
 import io.github.rosemoe.sora.langs.textmate.TextMateColorScheme
@@ -152,11 +154,41 @@ class SetupEditor(
         }
 
         @OptIn(DelicateCoroutinesApi::class)
-        fun initActivity(activity: Activity, calculateColors: () -> Pair<String, String>) {
+        fun initActivity(activity: Activity) {
             if (!activityInit) {
                 GlobalScope.launch(Dispatchers.IO) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) {
-                        val colors = calculateColors.invoke()
+
+                        val colors = {
+                            val lightThemeContext = ContextThemeWrapper(
+                                activity,
+                                com.google.android.material.R.style.Theme_Material3_DynamicColors_Light
+                            )
+                            val darkThemeContext = ContextThemeWrapper(
+                                activity,
+                                com.google.android.material.R.style.Theme_Material3_DynamicColors_Dark
+                            )
+
+                            val lightSurfaceColor = MaterialColors.getColor(
+                                lightThemeContext,
+                                com.google.android.material.R.attr.colorSurface,
+                                Color.WHITE
+                            )
+
+                            val darkSurfaceColor = MaterialColors.getColor(
+                                darkThemeContext,
+                                com.google.android.material.R.attr.colorSurface,
+                                Color.BLACK
+                            )
+
+                            val lightsurfaceColorHex =
+                                String.format("#%06X", 0xFFFFFF and lightSurfaceColor)
+                            val darksurfaceColorHex =
+                                String.format("#%06X", 0xFFFFFF and darkSurfaceColor)
+
+                            Pair(darksurfaceColorHex, lightsurfaceColorHex)
+                        }()
+
                         initTextMateTheme(activity, colors.first, colors.second)
                     } else {
                         initTextMateTheme(activity, null, null)

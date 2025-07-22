@@ -8,6 +8,8 @@ import androidx.compose.material3.Surface
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.rk.libcommons.toast
+import com.rk.resources.strings
 import com.rk.xededitor.ui.screens.settings.terminal.updateTermuxExecStatus
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.launch
@@ -26,6 +28,14 @@ class SettingsActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     settingsNavController = WeakReference(navController)
                     SettingsNavHost(activity = this@SettingsActivity, navController = navController)
+                    if (intent.hasExtra("route")){
+                        val route = intent.getStringExtra("route")
+                        if (route != null){
+                            navController.navigate(route)
+                        }else{
+                            toast(strings.unknown_err)
+                        }
+                    }
                 }
             }
         }

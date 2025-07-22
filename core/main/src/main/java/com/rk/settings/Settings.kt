@@ -128,6 +128,10 @@ object Settings {
         get() = Preference.getInt(key = "terminal_font_size", default = 13)
         set(value) = Preference.setInt(key = "terminal_font_size", value)
 
+    var visits
+        get() = Preference.getInt(key = "visits", default = 0)
+        set(value) = Preference.setInt(key = "visits", value)
+
     //String
     var projects
         get() = Preference.getString(key = "projects", default = "")

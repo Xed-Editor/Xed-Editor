@@ -2,8 +2,12 @@ package com.rk.xededitor.ui.screens.settings.about
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,7 +15,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
@@ -19,8 +25,10 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.libcommons.isFdroid
+import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -94,7 +102,7 @@ fun AboutScreen() {
         }
 
 
-        PreferenceGroup(heading = "Support") {
+        PreferenceGroup(heading = "Community") {
 
             val stars = remember { mutableStateOf("Unknown") }
 
@@ -125,7 +133,6 @@ fun AboutScreen() {
                 }
             }
 
-
             PreferenceTemplate(
                 title = {
                     Text(
@@ -141,88 +148,45 @@ fun AboutScreen() {
                 },
             )
 
-            PreferenceTemplate(
-                title = {
-                    Text(
-                        text = stringResource(id = strings.github),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                },
-                description = {
-                    Text(
-                        text = stringResource(id = strings.github_desc),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                },
+            SettingsToggle(
+                label = stringResource(id = strings.github),
+                description = stringResource(id = strings.github_desc),
+                isEnabled = true,
+                showSwitch = false,
+                default = false,
                 endWidget = {
-                    Button(
-                        onClick = {
-                            val url = "https://github.com/Xed-Editor/Xed-Editor"
-                            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
-                            context.startActivity(intent)
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(id = strings.github))
-                    }
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
                 },
+                sideEffect = {
+                    val url = "https://github.com/Xed-Editor/Xed-Editor"
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    context.startActivity(intent)
+                }
             )
 
-            PreferenceTemplate(
-                title = {
-                    Text(
-                        text = stringResource(id = strings.telegram),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                },
-                description = {
-                    Text(
-                        text = stringResource(id = strings.telegram_desc),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                },
+            SettingsToggle(
+                label = stringResource(id = strings.telegram),
+                description = stringResource(id = strings.telegram_desc),
+                isEnabled = true,
+                showSwitch = false,
+                default = false,
                 endWidget = {
-                    Button(
-                        onClick = {
-                            val url = "https://t.me/XedEditor"
-                            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
-                            context.startActivity(intent)
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(id = strings.join))
-                    }
-                },
-            )
-
-
-            PreferenceTemplate(
-                title = {
-                    Text(
-                        text = stringResource(id = strings.sponsor),
-                        style = MaterialTheme.typography.titleMedium
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
                     )
                 },
-                description = {
-                    Text(
-                        text = stringResource(id = strings.sponsor_desc),
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                },
-                endWidget = {
-                    Button(
-                        onClick = {
-                            val url = "https://github.com/sponsors/RohitKushvaha01"
-                            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
-                            context.startActivity(intent)
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(stringResource(id = strings.sponsor))
-                    }
-                },
+                sideEffect = {
+                    val url = "https://t.me/XedEditor"
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    context.startActivity(intent)
+                }
             )
-
         }
     }
 }

@@ -20,6 +20,7 @@ import com.rk.xededitor.ui.screens.settings.extensions.Extensions
 import com.rk.xededitor.ui.screens.settings.feature_toggles.FeatureToggles
 import com.rk.xededitor.ui.screens.settings.misc.Misc
 import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
+import com.rk.xededitor.ui.screens.settings.support.Support
 import com.rk.xededitor.ui.screens.settings.terminal.SettingsTerminalScreen
 
 @Composable
@@ -45,6 +46,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
         composable(SettingsRoutes.FeatureToggles.route) { FeatureToggles() }
         composable(SettingsRoutes.Misc.route){ Misc() }
+        composable(SettingsRoutes.Support.route){ Support() }
 
         Hooks.Settings.screens.values.forEach{ screen ->
             composable(screen.route){
