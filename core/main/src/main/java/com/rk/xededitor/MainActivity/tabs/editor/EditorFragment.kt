@@ -49,6 +49,7 @@ import java.nio.charset.Charset
 
 
 var lspPort: Int? = null
+var lspExt: String? = null
 
 class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragment {
 
@@ -60,6 +61,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     private lateinit var searchLayout: LinearLayout
     var setupEditor: SetupEditor? = null
     private var isFileLoaded = false
+    private var lspConnector: LspConnector? = null
 
     fun showArrowKeys(yes: Boolean) {
         horizontalScrollView.visibility = if (yes) {
@@ -224,10 +226,13 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 }
             }
             safeLaunch {
-                if (isLspSupported(file) && lspPort != null){
-                    connectLsp(port = lspPort!!,project = FileWrapper(alpineHomeDir()),editorFragment = this@EditorFragment)
-                }else{
-                    setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+                if (lspPort != null && lspExt != null){
+                    lspConnector = LspConnector(ext = file.getName().substringAfterLast("."), port = lspPort!!)
+                    if (lspConnector!!.isSupported(file)){
+                        lspConnector!!.connect(projectFile = file.getParentFile()!!, editorFragment = this@EditorFragment)
+                    }else{
+                        setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+                    }
                 }
 
             }
@@ -378,6 +383,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
             toastCatching {
+                lspConnector?.disconnect()
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
                 if (file?.getParentFile()
                         ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()

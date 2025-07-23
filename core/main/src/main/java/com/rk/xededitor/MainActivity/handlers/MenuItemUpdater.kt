@@ -1,6 +1,7 @@
 package com.rk.xededitor.MainActivity.handlers
 
 import android.view.Menu
+import android.view.View
 import androidx.annotation.OptIn
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
@@ -62,12 +63,14 @@ private suspend fun updateEditor(
                 }
             }
 
+
             MainActivity.withContext {
-                badge?.let {
+                val itemView = binding?.toolbar?.findViewById<View>(Id.action_save)
+                if (badge != null && itemView != null){
                     if (show && showBadge) {
-                        BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                        BadgeUtils.attachBadgeDrawable(badge!!, binding!!.toolbar, R.id.action_save)
                     } else {
-                        BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                        BadgeUtils.detachBadgeDrawable(badge!!, binding!!.toolbar, R.id.action_save)
                     }
                 }
 

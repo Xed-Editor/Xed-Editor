@@ -1,63 +1,74 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
+import com.rk.libcommons.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.connection.SocketStreamConnectionProvider
 import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomLanguageServerDefinition
 import io.github.rosemoe.sora.lsp.editor.LspEditor
 import io.github.rosemoe.sora.lsp.editor.LspProject
-import io.github.rosemoe.sora.lsp.utils.FileUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
 import org.eclipse.lsp4j.WorkspaceFolder
 import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 
-var lspExt: String? = null
-fun isLspSupported(fileObject: FileObject): Boolean{
-    return fileObject.getName().substringAfterLast(".") == lspExt && textmateSources.get(fileObject.getName().substringAfterLast(".")) != null
-}
+class LspConnector(
+    private val ext: String,
+    private val port: Int
+) {
+    private var project: LspProject? = null
+    private var serverDefinition: CustomLanguageServerDefinition? = null
+    private var lspEditor: LspEditor? = null
 
-suspend fun connectLsp(port: Int,project: FileObject,editorFragment: EditorFragment) = withContext(
-    Dispatchers.IO){
-
-    if (isLspSupported(editorFragment.file!!).not()){
-        println("LSP not supported")
-        return@withContext
+    fun isSupported(file: FileObject): Boolean {
+        val fileExt = file.getName().substringAfterLast(".")
+        return fileExt == ext && textmateSources.containsKey(fileExt)
     }
 
-    val ext = editorFragment.file!!.getName().substringAfterLast(".")
-    val def = object : CustomLanguageServerDefinition(ext, ServerConnectProvider{
-        SocketStreamConnectionProvider(port)
-    }){}
+    suspend fun connect(projectFile: FileObject, editorFragment: EditorFragment) = withContext(Dispatchers.IO) {
+        if (!isSupported(editorFragment.file!!)) {
+            return@withContext
+        }
+        runCatching {
+            serverDefinition = object : CustomLanguageServerDefinition(ext, ServerConnectProvider {
+                SocketStreamConnectionProvider(port)
+            }) {}
 
-    val lspProject = LspProject(project.getAbsolutePath())
-    lspProject.addServerDefinition(def)
+            project = LspProject(projectFile.getAbsolutePath())
 
-    val lspEditor = withContext(Dispatchers.Main){
-        val lspEditorx = lspProject.createEditor(editorFragment.file!!.getAbsolutePath())
-        val wrapperLanguage = TextMateLanguage.create(
-            textmateSources.get(ext), false
-        )
-        lspEditorx.wrapperLanguage = wrapperLanguage
-        lspEditorx.editor = editorFragment.editor
-        lspEditorx
-    }
+            project!!.addServerDefinition(serverDefinition!!)
 
-    runCatching {
-        lspEditor.connectWithTimeout()
-        lspEditor.requestManager?.didChangeWorkspaceFolders(DidChangeWorkspaceFoldersParams().apply {
-            this.event = WorkspaceFoldersChangeEvent().apply {
-                added =
-                    listOf(WorkspaceFolder(project.toUri().toString(),project.getName()))
+            lspEditor = withContext(Dispatchers.Main) {
+                project!!.createEditor(editorFragment.file!!.getAbsolutePath()).apply {
+                    wrapperLanguage = TextMateLanguage.create(textmateSources[ext], false)
+                    editor = editorFragment.editor
+                }
             }
-        })
 
-    }.onFailure {
-        it.printStackTrace()
+            lspEditor!!.connectWithTimeout()
+            lspEditor!!.requestManager?.didChangeWorkspaceFolders(
+                DidChangeWorkspaceFoldersParams().apply {
+                    event = WorkspaceFoldersChangeEvent().apply {
+                        added = listOf(
+                            WorkspaceFolder(
+                                projectFile.toUri().toString(),
+                                projectFile.getName()
+                            )
+                        )
+                    }
+                }
+            )
+        }.onFailure {
+            it.printStackTrace()
+            toast("Failed to connect to lsp server ${it.message}")
+        }
     }
 
+    suspend fun disconnect() = withContext(Dispatchers.IO) {
+        runCatching {
+            lspEditor?.dispose()
+        }.onFailure { it.printStackTrace() }
+    }
 }
