@@ -63,15 +63,12 @@ private suspend fun updateEditor(
             }
 
             MainActivity.withContext {
-                if (fragment != null){
-                    badge?.let {
-                        if (show && showBadge) {
-                            BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
-                        } else {
-                            BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
-                        }
+                badge?.let {
+                    if (show && showBadge) {
+                        BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                    } else {
+                        BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
                     }
-
                 }
 
                 if (isV) {
