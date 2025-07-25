@@ -63,7 +63,7 @@ object PluginApi {
      * PluginApi.openRegisteredTab("myplugin-mytab-123")
      * ```
      */
-    fun openRegisteredTab(id: String,tabName: String) {
+    fun openRegisteredTab(id: String, tabName: String) {
         val file = FileWrapper(localDir().child("customTabs/$id/${tabName}").createFileIfNot())
 
         MainActivity.withContext {
@@ -78,7 +78,7 @@ object PluginApi {
      *
      * @param id The unique tab ID to remove.
      */
-    fun unregisterTab(id: String,tabName: String) {
+    fun unregisterTab(id: String, tabName: String) {
         localDir().child("customTabs/$id/${tabName}").createFileIfNot().delete()
         Hooks.Editor.tabs.remove(id)
     }

@@ -41,9 +41,11 @@ import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.UI
 import com.rk.libcommons.application
+import com.rk.libcommons.child
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.localDir
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.mutator_engine.Engine
@@ -180,7 +182,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun toState(): TabViewModelState {
-            val files = fragmentFiles //.filter { it !is UriWrapper }.toMutableList()
+            val files = fragmentFiles.filter { !it.getAbsolutePath().startsWith(localDir().child("customTabs").absolutePath) }.toMutableList()
 
             return TabViewModelState(
                 fragmentFiles = files,
