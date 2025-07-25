@@ -12,7 +12,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
@@ -28,10 +27,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.badge.BadgeDrawable
 import com.google.android.material.badge.ExperimentalBadgeUtils
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import com.rk.App
 import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
@@ -66,7 +63,7 @@ import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
-import com.rk.xededitor.ui.screens.settings.mutators.ImplAPI
+import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.ui.screens.settings.support.handleSupport
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -85,7 +82,6 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -138,9 +134,6 @@ class MainActivity : AppCompatActivity() {
 
         fun restore() {
             viewModelScope.launch(Dispatchers.IO) {
-                if (Settings.restore_session.not()) {
-                    return@launch
-                }
                 _isRestoring = true
                 val stateFile = File(application!!.cacheDir, "state")
                 runCatching {
@@ -240,7 +233,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) { SetupEditor.initActivity(this@MainActivity) }
 
         setupDrawer()
-
         setupViewPager()
         setupTabLayout()
         setupAdapter()
@@ -287,7 +279,6 @@ class MainActivity : AppCompatActivity() {
 
         handleSupport()
 
-
         lifecycleScope.launch{
             ExtensionManager.indexPlugins(application!!)
             ExtensionManager.loadPlugins(application!!)
@@ -295,6 +286,8 @@ class MainActivity : AppCompatActivity() {
             //for backward compatibility
             ExtensionManager.onMainActivityCreated()
         }
+
+        Mutators.updateMutators()
     }
 
 
@@ -309,6 +302,8 @@ class MainActivity : AppCompatActivity() {
         if (menu is MenuBuilder) {
             menu.setOptionalIconsVisible(true)
         }
+
+        Mutators.updateMutators()
 
         menu.findItem(R.id.select_highlighting).subMenu?.apply {
             var order = 0
@@ -337,32 +332,6 @@ class MainActivity : AppCompatActivity() {
 
         menu.findItem(R.id.action_add).isVisible = true
         menu.findItem(R.id.terminal).isVisible = InbuiltFeatures.terminal.state.value
-        menu.findItem(R.id.tools).isVisible = InbuiltFeatures.mutators.state.value
-
-        val tool = ContextCompat.getDrawable(this, drawables.build)
-        if (InbuiltFeatures.mutators.state.value) {
-            var order = 0
-            Mutators.getMutators().forEach { mut ->
-                menu.findItem(R.id.tools).subMenu?.add(
-                    1, mut.hashCode(), order, mut.name
-                )?.apply {
-                    icon = tool;order++;toolItems.add(mut.hashCode())
-                    setOnMenuItemClickListener {
-                        DefaultScope.launch {
-                            Engine(mut.script, DefaultScope).start(onResult = { engine, result ->
-                                println(result)
-                            }, onError = { t ->
-                                t.printStackTrace()
-                                errorDialog(t)
-                            }, api = ImplAPI::class.java)
-                        }
-                        false
-                    }
-
-
-                }
-            }
-        }
 
 
         return true

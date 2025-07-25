@@ -15,9 +15,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Hooks
+import com.rk.libcommons.DefaultScope
+import com.rk.libcommons.errorDialog
+import com.rk.mutator_engine.Engine
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
+import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
+import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
+import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,16 +65,39 @@ fun MainActivity.showControlPanel() {
                                         label = "Save All",
                                         sideEffect = {
                                             MainActivity.activityRef.get()?.apply {
-                                                lifecycleScope.launch{
+                                                lifecycleScope.launch {
                                                     if (tabViewModel.fragmentFiles.isNotEmpty()) {
                                                         withContext(Dispatchers.IO) {
-                                                            com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles()
+                                                            saveAllFiles()
                                                         }
                                                     }
                                                 }
                                             }
                                         })
                                 )
+
+                                Mutators.mutators.forEach { mut ->
+                                    ControlItem(
+                                        item = ControlItem(
+                                            label = mut.name,
+                                            description = "Mutator",
+                                            keyBind = null,
+                                            sideEffect = {
+                                                DefaultScope.launch {
+                                                    Engine(
+                                                        mut.script,
+                                                        DefaultScope
+                                                    ).start(onResult = { engine, result ->
+                                                        println(result)
+                                                    }, onError = { t ->
+                                                        t.printStackTrace()
+                                                        errorDialog(t)
+                                                    }, api = MutatorAPI::class.java)
+                                                }
+                                            })
+                                    )
+                                }
+
                             }
                         }
 
@@ -94,7 +123,7 @@ fun ControlItem(modifier: Modifier = Modifier, item: ControlItem) {
     PreferenceTemplate(
         modifier = Modifier.clickable(enabled = true, onClick = {
             item.sideEffect()
-            if (item.hideControlPanelOnClick){
+            if (item.hideControlPanelOnClick) {
                 dialog.get()?.dismiss()
             }
 
@@ -107,7 +136,7 @@ fun ControlItem(modifier: Modifier = Modifier, item: ControlItem) {
         title = {
             Text(text = item.label)
         }, endWidget = {
-            if (item.keyBind != null){
+            if (item.keyBind != null) {
                 Text(text = item.keyBind)
             }
         })

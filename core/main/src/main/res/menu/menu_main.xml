@@ -117,24 +117,6 @@
         app:showAsAction="never">
         <menu />
     </item>
-
-
-    <item
-        android:id="@+id/tools"
-        android:icon="@drawable/build"
-        android:title="@string/tools"
-        android:visible="false"
-        app:showAsAction="never">
-        <menu>
-            <item
-                android:id="@+id/action_print"
-                android:icon="@drawable/print"
-                android:title="@string/print"
-                android:visible="false"
-                app:showAsAction="never" />
-        </menu>
-
-    </item>
     
    <item
         android:id="@+id/action_settings"

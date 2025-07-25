@@ -316,7 +316,7 @@
     <string name="launch_termux_explanation">Termux is stopped so xed-editor is unable to run command in it. do you like to start it?</string>
     <string name="launch">Launch</string>
 
-    <string name="mutator_desc">Create micro tools</string>
+    <string name="mutator_desc">Create user scripts</string>
     <string name="restore_sessions">Restore Sessions</string>
     <string name="restore_sessions_desc">"Restore previous tabs</string>
     <string name="terminal_home">Terminal Home</string>

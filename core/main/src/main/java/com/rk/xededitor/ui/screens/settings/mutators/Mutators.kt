@@ -5,6 +5,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.rk.libcommons.application
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.localDir
 import com.rk.resources.drawables
 import com.rk.xededitor.MainActivity.MainActivity
@@ -12,93 +14,62 @@ import com.rk.xededitor.R
 import java.io.File
 
 object Mutators {
-    data class Mutator(val name: String, var script: String) {
+
+    data class Mutator(val file: File) {
+        val name: String
+            get() = file.nameWithoutExtension
+        var script: String
+            get(){
+                return file.readText()
+            }
+            set(value) {
+                file.writeText(value)
+            }
+
         override fun equals(other: Any?): Boolean {
             if (other !is Mutator) return false
-            return other.name + other.script == name + script
+            return other.file.absolutePath == file.absolutePath
         }
 
         override fun hashCode(): Int {
-            return name.hashCode()
+            return file.hashCode()
         }
     }
 
-    private const val DIRECTORY_NAME = "mutators"
-    private val gson = Gson()
-    private val mutators = mutableStateListOf<Mutator>()
+    val mutators = mutableStateListOf<Mutator>()
 
     private fun getMutatorDirectory(): File {
-        val dir = File(localDir(), DIRECTORY_NAME)
+        val dir = File(localDir(), "mutators")
         if (!dir.exists()) {
             dir.mkdirs()
         }
         return dir
     }
 
-    private fun getMutatorFile( mutator: Mutator): File {
-        val dir = getMutatorDirectory()
-        return File(dir, "${mutator.name}.json")
-    }
 
-    fun loadMutators() {
+    fun updateMutators() {
         val dir = getMutatorDirectory()
         mutators.clear()
 
-        dir.listFiles()?.forEach { file ->
-            if (file.extension == "json") {
-                val json = file.readText()
-                val mutator = gson.fromJson(json, Mutator::class.java)
-                mutators.add(mutator)
+        dir.listFiles()?.forEach {
+            if (it.extension == "mut"){
+                mutators.add(Mutator(it))
             }
         }
-
-        val assetManager = application!!.assets
-        try {
-            val assetFiles = assetManager.list("mutators") ?: emptyArray()
-            assetFiles.forEach { assetFile ->
-                if (assetFile.endsWith(".json")) {
-                    val json = assetManager.open("mutators/$assetFile").bufferedReader().use { it.readText() }
-                    val mutator = gson.fromJson(json, Mutator::class.java)
-                    mutators.add(mutator)
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
     }
 
-    fun saveMutator(mutator: Mutator) {
-        val file = getMutatorFile(mutator)
-        val json = gson.toJson(mutator)
-        file.writeText(json)
-    }
-
-    fun deleteMutatorFile( mutator: Mutator) {
-        val file = getMutatorFile(mutator)
-        if (file.exists()) {
-            file.delete()
-        }
-    }
-
-    fun getMutators(): SnapshotStateList<Mutator> = mutators
-
-    fun createMutator(mutator: Mutator) {
+    fun createMutator(name: String,script: String) {
+        val file = getMutatorDirectory().child("$name.mut").createFileIfNot()
+        file.writeText(script)
+        val mutator = Mutator(file)
         mutators.add(mutator)
-        saveMutator(mutator)
-
-        MainActivity.activityRef.get()?.apply {
-            val tool = ContextCompat.getDrawable(this, drawables.build)
-            menu?.findItem(R.id.tools)?.subMenu?.add(0, mutator.hashCode(), toolItems.size, mutator.name)?.icon = tool
-        }
     }
 
     fun deleteMutator(mutator: Mutator) {
         mutators.remove(mutator)
-        deleteMutatorFile(mutator)
-
-        MainActivity.activityRef.get()?.apply {
-            menu?.findItem(R.id.tools)?.subMenu?.removeItem(mutator.hashCode())
+        val file = mutator.file
+        if (file.exists()) {
+            file.delete()
         }
     }
 

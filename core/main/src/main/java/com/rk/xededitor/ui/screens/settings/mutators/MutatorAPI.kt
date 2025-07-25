@@ -27,7 +27,7 @@ import java.io.File
  * all function in class must block the caller
  * */
 
-class ImplAPI(val engine: Engine) : EngineAPI {
+class MutatorAPI(val engine: Engine) : EngineAPI {
     /**
      * Displays a toast message with the specified text.
      *

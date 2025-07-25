@@ -82,7 +82,6 @@ class App : Application() {
             }
 
             SetupEditor.init()
-            Mutators.loadMutators()
             AutoSaver.start()
 
 

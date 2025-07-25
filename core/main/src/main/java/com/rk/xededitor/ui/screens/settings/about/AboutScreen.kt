@@ -3,6 +3,8 @@ package com.rk.xededitor.ui.screens.settings.about
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -16,17 +18,20 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
+import coil.compose.AsyncImage
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.libcommons.isFdroid
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.Dispatchers
@@ -44,6 +49,67 @@ fun AboutScreen() {
     val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
+
+        PreferenceGroup(heading = "Developer") {
+            SettingsToggle(
+                label = "RohitKushvaha01",
+                description = "View github profile",
+                default = false,
+                sideEffect = {
+                    val url = "https://github.com/RohitKushvaha01"
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    context.startActivity(intent)
+                },
+                showSwitch = false,
+                startWidget = {
+                    AsyncImage(
+                        model = "https://github.com/RohitKushvaha01.png",
+                        contentDescription = "GitHub Avatar",
+                        modifier = Modifier.padding(start = 16.dp)
+                            .size(26.dp)
+                            .clip(CircleShape)
+                    )
+                },
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                }
+            )
+
+
+            SettingsToggle(
+                label = "GitHub Sponsor",
+                description = null,
+                isEnabled = true,
+                showSwitch = false,
+                default = false,
+                startWidget = {
+                    Icon(
+                        modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
+                        painter = painterResource(drawables.github),
+                        contentDescription = null
+                    )
+                },
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+                sideEffect = {
+                    val url = "https://github.com/sponsors/RohitKushvaha01"
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    context.startActivity(intent)
+                    Settings.donated = true
+                }
+            )
+
+        }
+
         PreferenceGroup(heading = "BuildInfo") {
             PreferenceTemplate(
                 title = {

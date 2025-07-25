@@ -54,15 +54,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
-            EditorSettingsToggle(
-                label = stringResource(strings.restore_sessions),
-                description = stringResource(strings.restore_sessions_desc),
-                default = Settings.restore_session,
-                sideEffect = {
-                    Settings.restore_session = it
-                }
-            )
-
             /* EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
                  description = stringResource(strings.scroll_to_bottom_desc),
                  default = false,

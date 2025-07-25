@@ -38,7 +38,6 @@ object UpdateManager {
                 40L -> {
                     Preference.clearData()
                     deleteCommonFiles()
-                    toast(strings.update_files_cleared)
                 }
                 48L -> {
                     deleteCommonFiles()

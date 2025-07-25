@@ -338,19 +338,6 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
                 }
             }
 
-            val isMutatorFile = file!!.getParentFile()
-                ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
-                .endsWith(".mut")
-
-            if (isMutatorFile) {
-                Mutators.getMutators().forEach { mut ->
-                    if (mut.name + ".mut" == file!!.getName()) {
-                        mut.script = editor?.text.toString()
-                        Mutators.saveMutator(mut)
-                    }
-                }
-            }
-
             MainActivity.activityRef.get()?.let { activity ->
                 val index = activity.tabViewModel.fragmentFiles.indexOf(file)
                 activity.tabViewModel.fragmentTitles.let {
@@ -383,14 +370,8 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
             toastCatching {
-                lspConnector?.disconnect()
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
-                if (file?.getParentFile()
-                        ?.getAbsolutePath() == getTempDir().absolutePath && file!!.getName()
-                        .endsWith(".mut")
-                ) {
-                    file?.delete()
-                }
+                lspConnector?.disconnect()
             }
         }
         onDestroy()

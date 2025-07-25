@@ -81,7 +81,7 @@ private suspend fun updateEditor(
             isVisible = show
         }
         findItem(Id.action_all).isVisible = show
-        findItem(Id.action_print).isVisible = show
+        //findItem(Id.action_print).isVisible = show
         findItem(Id.search).isVisible = show
         findItem(Id.share).isVisible = show
         findItem(Id.undo).isVisible = show
@@ -89,7 +89,6 @@ private suspend fun updateEditor(
         findItem(Id.suggestions).isVisible = show
         findItem(Id.saveAs).isVisible = show
         findItem(Id.refreshEditor).isVisible = show
-        findItem(Id.tools).isVisible = show
         findItem(Id.select_highlighting).isVisible = show
         findItem(Id.toggle_word_wrap).isVisible = show
     }

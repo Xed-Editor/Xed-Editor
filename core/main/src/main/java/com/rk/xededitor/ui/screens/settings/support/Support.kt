@@ -48,41 +48,10 @@ fun Support(modifier: Modifier = Modifier) {
     PreferenceLayout(label = "Support", backArrowVisible = true) {
         val context = LocalContext.current
 
-
-        PreferenceGroup {
-            SettingsToggle(
-                label = stringResource(id = strings.github),
-                description = stringResource(id = strings.github_desc),
-                isEnabled = true,
-                showSwitch = false,
-                default = false,
-                startWidget = {
-                    Icon(
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
-                        painter = painterResource(drawables.github),
-                        contentDescription = null
-                    )
-                },
-                endWidget = {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
-                    )
-                },
-                sideEffect = {
-                    val url = "https://github.com/Xed-Editor/Xed-Editor"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
-                    context.startActivity(intent)
-                }
-            )
-        }
-
-        // GitHub Sponsor
         PreferenceGroup {
             SettingsToggle(
                 label = "GitHub Sponsor",
-                description = "Support via GitHub Sponsors",
+                description = null,
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -107,13 +76,9 @@ fun Support(modifier: Modifier = Modifier) {
                     Settings.donated = true
                 }
             )
-        }
-
-        // Buy Me a Coffee
-        PreferenceGroup {
             SettingsToggle(
                 label = "Buy Me a Coffee",
-                description = "Support with a small donation",
+                description = null,
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -138,12 +103,9 @@ fun Support(modifier: Modifier = Modifier) {
                     Settings.donated = true
                 }
             )
-        }
-
-        PreferenceGroup {
             SettingsToggle(
                 label = "UPI",
-                description = "Support with a small donation",
+                description = null,
                 isEnabled = true,
                 showSwitch = false,
                 default = false,
@@ -182,6 +144,7 @@ fun Support(modifier: Modifier = Modifier) {
                 }
             )
         }
+
     }
 }
 

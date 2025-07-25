@@ -116,15 +116,15 @@ object MenuClickHandler {
                 return true
             }
 
-            Id.action_print -> {
-                val printer = Printer(activity)
-                printer.setCodeText(
-                    getCurrentEditorFragment()?.editor?.text.toString(),
-                    language = getCurrentEditorFragment()?.file?.getName()?.substringAfterLast(".")
-                        ?.trim() ?: "txt"
-                )
-                return true
-            }
+//            Id.action_print -> {
+//                val printer = Printer(activity)
+//                printer.setCodeText(
+//                    getCurrentEditorFragment()?.editor?.text.toString(),
+//                    language = getCurrentEditorFragment()?.file?.getName()?.substringAfterLast(".")
+//                        ?.trim() ?: "txt"
+//                )
+//                return true
+//            }
 
             Id.search -> {
                 // Handle search

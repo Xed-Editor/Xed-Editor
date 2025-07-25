@@ -43,11 +43,10 @@ import java.io.File
 @Composable
 fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) {
 
-    val mutators = Mutators.getMutators()
+    val mutators = Mutators.mutators
     var showDialog by remember { mutableStateOf(false) }
     var inputText by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
 
     PreferenceLayout(label = stringResource(id = strings.mutators), backArrowVisible = true, fab = {
         FloatingActionButton(onClick = {
@@ -134,12 +133,12 @@ private fun onDone(name: String): Boolean {
         toast(strings.name_empty_err.getString())
         return false
     } else {
-        if (Mutators.getMutators().map { it.name }.contains(name)) {
+        if (Mutators.mutators.map { it.name }.contains(name)) {
             toast(strings.name_used.getString())
             return false
         }
         Mutators.createMutator(
-            Mutators.Mutator(
+
                 name = name, script = """
 
             //${strings.script_get_text.getString()}
@@ -161,11 +160,7 @@ private fun onDone(name: String): Boolean {
             //${strings.script_set_text.getString()}
             //setEditorText("${strings.script_text.getString()}")
             
-            //${strings.script_api_info.getString()}
-            
-
         """.trimIndent()
-            )
         )
         return true
     }
