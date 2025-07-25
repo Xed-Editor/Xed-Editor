@@ -79,35 +79,6 @@ fun AboutScreen() {
                 }
             )
 
-
-            SettingsToggle(
-                label = "GitHub Sponsor",
-                description = null,
-                isEnabled = true,
-                showSwitch = false,
-                default = false,
-                startWidget = {
-                    Icon(
-                        modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
-                        painter = painterResource(drawables.github),
-                        contentDescription = null
-                    )
-                },
-                endWidget = {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
-                    )
-                },
-                sideEffect = {
-                    val url = "https://github.com/sponsors/RohitKushvaha01"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
-                    context.startActivity(intent)
-                    Settings.donated = true
-                }
-            )
-
         }
 
         PreferenceGroup(heading = "BuildInfo") {
