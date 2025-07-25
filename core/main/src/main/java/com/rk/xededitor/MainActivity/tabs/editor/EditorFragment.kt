@@ -228,13 +228,12 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             safeLaunch {
                 if (lspPort != null && lspExt != null){
                     lspConnector = LspConnector(ext = file.getName().substringAfterLast("."), port = lspPort!!)
-                    if (lspConnector!!.isSupported(file)){
-                        lspConnector!!.connect(projectFile = file.getParentFile()!!, editorFragment = this@EditorFragment)
-                    }else{
-                        setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
-                    }
                 }
-
+                if (lspConnector != null && lspConnector!!.isSupported(file)){
+                    lspConnector!!.connect(projectFile = file.getParentFile()!!, editorFragment = this@EditorFragment)
+                }else{
+                    setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+                }
             }
             if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                 mutex.withLock {
