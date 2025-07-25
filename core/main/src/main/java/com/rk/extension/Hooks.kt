@@ -23,7 +23,6 @@ object Hooks {
          * If the result is null, the default tab will be opened.
          */
         val tabs: SnapshotStateMap<ID, (file: FileObject, TabFragment) -> CoreFragment?> = mutableStateMapOf()
-
         val onTabCreate: SnapshotStateMap<ID, (file: FileObject, TabFragment) -> Unit> = mutableStateMapOf()
         val onTabDestroyed: SnapshotStateMap<ID, (file: FileObject) -> Unit> = mutableStateMapOf()
         val onTabClosed: SnapshotStateMap<ID, (file: FileObject) -> Unit> = mutableStateMapOf()

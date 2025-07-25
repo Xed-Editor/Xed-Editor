@@ -9,8 +9,12 @@ import com.rk.controlpanel.ControlItem
 import com.rk.extension.Hooks
 import com.rk.extension.SettingsScreen
 import com.rk.file_wrapper.FileObject
+import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
+import com.rk.libcommons.child
+import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.localDir
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
@@ -18,6 +22,7 @@ import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 /**
@@ -29,7 +34,6 @@ import kotlinx.coroutines.launch
  * Typical usage: In your plugin's initialization, call `register*`
  */
 object PluginApi {
-
     /**
      * Registers a custom editor tab that can be opened like a normal document tab.
      *
@@ -40,7 +44,7 @@ object PluginApi {
      */
     fun registerTab(id: String, tabName: String, builder: (TabFragment) -> CoreFragment) {
         Hooks.Editor.tabs[id] = { file, tabFragment ->
-            if (file.getName() == tabName && file.getAbsolutePath().startsWith("xedtab://${id}")) {
+            if (file.getName() == tabName && file.getAbsolutePath() == localDir().child("customTabs/$id/$tabName").absolutePath) {
                 builder(tabFragment)
             } else {
                 //let xed handle this
@@ -59,8 +63,8 @@ object PluginApi {
      * PluginApi.openRegisteredTab("myplugin-mytab-123")
      * ```
      */
-    fun openRegisteredTab(id: String) {
-        val file = UriWrapper(Uri.parse("xedtab://${id}"), false)
+    fun openRegisteredTab(id: String,tabName: String) {
+        val file = FileWrapper(localDir().child("customTabs/$id/${tabName}").createFileIfNot())
 
         MainActivity.withContext {
             lifecycleScope.launch(Dispatchers.Main) {
@@ -74,7 +78,8 @@ object PluginApi {
      *
      * @param id The unique tab ID to remove.
      */
-    fun unregisterTab(id: String) {
+    fun unregisterTab(id: String,tabName: String) {
+        localDir().child("customTabs/$id/${tabName}").createFileIfNot().delete()
         Hooks.Editor.tabs.remove(id)
     }
 
