@@ -74,14 +74,10 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                 mutators.toList().forEach { mut ->
                     PreferenceTemplate(modifier = modifier.clickable {
                         DefaultScope.launch {
-                            val file = File(getTempDir(), mut.name + ".mut")
-                            withContext(Dispatchers.IO) {
-                                file.writeText(mut.script)
-                            }
                             withContext(Dispatchers.Main) {
                                 MainActivity.activityRef.get()?.adapter?.addFragment(
                                     FileWrapper(
-                                        file
+                                        mut.file
                                     )
                                 )
                                 toast(strings.tab_opened.getString())
