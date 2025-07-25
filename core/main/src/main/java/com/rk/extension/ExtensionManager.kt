@@ -1,64 +1,55 @@
 package com.rk.extension
 
-import android.app.Activity
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.App
 import com.rk.file_wrapper.FileObject
+import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.isFdroid
 import com.rk.libcommons.postIO
 import com.rk.libcommons.toast
-import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
 object ExtensionManager : ExtensionAPI() {
-    val isLoaded = mutableStateOf(false)
-    val extensions = mutableStateMapOf<Extension, ExtensionAPI?>()
+    private val mutex = Mutex()
+    val isIndexing = mutableStateOf(false)
+    val indexedExtension = mutableStateListOf<Extension>()
+    private val loadedExtensions = mutableStateMapOf<Extension, ExtensionAPI>()
+    private var isLoaded = false
 
-    init {
-        if (isLoaded.value.not() && isPluginEnabled()) {
-            postIO {
-                indexPlugins(application!!)
-                withContext(Dispatchers.Main) {
-                    isLoaded.value = true
-                }
-            }
-        }
-    }
+    suspend fun indexPlugins(application: Application) = withContext(Dispatchers.IO){
+        mutex.lock()
+        isIndexing.value = true
 
-    suspend fun indexPlugins(context: Application): Map<Extension, ExtensionAPI?> =
-        withContext(Dispatchers.IO) {
+            runCatching {
+                indexedExtension.clear()
+                val pm = application.packageManager
+                val xedVersionCode =
+                    PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(application.packageName, 0))
 
-            if (isFdroid.not()) {
-                return@withContext emptyMap<Extension, ExtensionAPI?>()
-            }
-
-            val pm = context.packageManager
-            val xedVersionCode =
-                PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(context.packageName, 0))
-
-            context.pluginDir.listFiles()?.forEach { file ->
-
-                runCatching {
+                application.pluginDir.listFiles()?.forEach { file ->
                     if (file.exists() && file.isFile && file.canRead() && file.name.endsWith(".apk")) {
-
                         val info = pm.getPackageArchiveInfo(
                             file.absolutePath,
                             PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
@@ -79,30 +70,50 @@ object ExtensionManager : ExtensionAPI() {
                         val minSdkVersion = metadata.getInt("minXedVersionCode", -1)
                         val targetSdkVersion = metadata.getInt("targetXedVersionCode", -1)
 
-
                         val ext = Extension(
                             name = pm.getApplicationLabel(appInfo).toString(),
                             packageName = appInfo.packageName,
                             mainClass = metadata.getString("mainClass")!!,
                             version = info.versionName!!,
                             versionCode = versionCode,
-                            application = context,
+                            application = application,
                             apkFile = file
                         )
 
                         if (!(minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode)) {
-                            //disable plugin
                             Preference.setBoolean("ext_${ext.packageName}", false)
                         }
 
-                        extensions[ext] = extensions[ext]
-
+                        indexedExtension.add(ext)
                     }
-                }.onFailure { errorDialog(it) }
+                }
+            }.onFailure {
+                errorDialog(it)
             }
 
-            extensions
+
+        isIndexing.value = false
+        mutex.unlock()
+    }
+
+    suspend fun loadPlugins(application: Application) = with(application) {
+        mutex.lock()
+        application.pluginDir.child("oat").mkdirs()
+        indexedExtension.forEach{ ext ->
+            withContext(Dispatchers.IO){
+                if (Preference.getBoolean("ext_${ext.packageName}", false)) {
+                    val instance = ext.load()
+                    if (instance != null){
+                        loadedExtensions[ext] = instance
+                    }else{
+                        errorDialog("Plugin ${ext.packageName} failed to load")
+                    }
+                }
+            }
         }
+        isLoaded = true
+        mutex.unlock()
+    }
 
     private fun deleteFilesWithPackageName(file: File,pkg: String){
         file.let {
@@ -119,7 +130,7 @@ object ExtensionManager : ExtensionAPI() {
     }
 
     suspend fun deletePlugin(extension: Extension) = withContext(Dispatchers.IO) {
-        extensions.remove(extension)
+        indexedExtension.remove(extension)
         deleteFilesWithPackageName(application!!.pluginDir.child("oat"),extension.packageName)
         extension.apkFile.delete()
         runCatching {
@@ -127,20 +138,72 @@ object ExtensionManager : ExtensionAPI() {
         }
     }
 
+    override fun onPluginLoaded(extension: Extension) {
+        throw IllegalAccessException("This function was not supposed to be called")
+    }
+
+    @Deprecated("Use onPluginLoaded function instead")
+    override fun onMainActivityCreated() {
+        DefaultScope.launch(Dispatchers.Default){
+            mutex.withLock{
+                loadedExtensions.values.forEach{
+                    DefaultScope.launch {
+                        it.onMainActivityCreated()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onMainActivityPaused() {
+        DefaultScope.launch(Dispatchers.Default){
+            mutex.withLock{
+                loadedExtensions.values.forEach{ DefaultScope.launch  { it.onMainActivityPaused() } }
+            }
+        }
+
+    }
+
+    override fun onMainActivityResumed() {
+        DefaultScope.launch(Dispatchers.Default){
+            mutex.withLock{
+                loadedExtensions.values.forEach{ DefaultScope.launch { it.onMainActivityResumed() } }
+            }
+        }
+
+    }
+
+    override fun onMainActivityDestroyed() {
+        DefaultScope.launch(Dispatchers.Default){
+            mutex.withLock{
+                loadedExtensions.values.forEach{ DefaultScope.launch { it.onMainActivityDestroyed() } }
+            }
+        }
+
+    }
+
+    override fun onLowMemory() {
+        DefaultScope.launch(Dispatchers.Default){
+            mutex.withLock{
+                loadedExtensions.values.forEach{ DefaultScope.launch { it.onLowMemory() } }
+            }
+        }
+
+    }
+
+
     @OptIn(DelicateCoroutinesApi::class)
-    suspend fun installPlugin(context: Activity, fileObject: FileObject) =
+    suspend fun installPlugin(fileObject: FileObject,application: Application) =
         withContext(Dispatchers.IO) {
             val apkFile = File(App.getTempDir(), fileObject.getName()).createFileIfNot()
             runCatching {
-                if (!isPluginEnabled()) return@withContext null
-
                 fileObject.getInputStream().use { inputStream ->
                     FileOutputStream(apkFile).use {
                         inputStream.copyTo(it)
                     }
                 }
 
-                val pm = context.packageManager
+                val pm = application.packageManager
                 val info = pm.getPackageArchiveInfo(
                     apkFile.absolutePath,
                     PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
@@ -152,7 +215,7 @@ object ExtensionManager : ExtensionAPI() {
 
                 val appInfo = info.applicationInfo!!
 
-                val destFile = context.pluginDir.child(appInfo.packageName + ".apk")
+                val destFile = application.pluginDir.child(appInfo.packageName + ".apk")
 
                 // Make sure the directory exists
                 destFile.parentFile?.mkdirs()
@@ -162,8 +225,8 @@ object ExtensionManager : ExtensionAPI() {
                 val minSdkVersion = metadata.getInt("minXedVersionCode", -1)
                 val targetSdkVersion = metadata.getInt("targetXedVersionCode", -1)
                 val xedVersionCode = PackageInfoCompat.getLongVersionCode(
-                    context.packageManager.getPackageInfo(
-                        context.packageName,
+                    application.packageManager.getPackageInfo(
+                        application.packageName,
                         0
                     )
                 )
@@ -175,7 +238,7 @@ object ExtensionManager : ExtensionAPI() {
                     info.versionCode.toLong()
                 }
 
-                deleteFilesWithPackageName(context.pluginDir.child("oat"),appInfo.packageName)
+                deleteFilesWithPackageName(application.pluginDir.child("oat"),appInfo.packageName)
 
                 val ext = Extension(
                     name = pm.getApplicationLabel(appInfo).toString(),
@@ -183,7 +246,7 @@ object ExtensionManager : ExtensionAPI() {
                     mainClass = metadata.getString("mainClass")!!,
                     version = info.versionName!!,
                     versionCode = versionCode,
-                    application = application!!,
+                    application = application,
                     apkFile = destFile
                 )
 
@@ -193,9 +256,7 @@ object ExtensionManager : ExtensionAPI() {
                     apkFile.copyTo(destFile, overwrite = true)
 
                     //add extension
-                    if (extensions[ext] == null) {
-                        extensions[ext] = null
-                    }
+                    indexedExtension.add(ext)
 
                     toast(strings.success)
 
@@ -214,11 +275,7 @@ object ExtensionManager : ExtensionAPI() {
                             "Unknown error while parsing Xed Version code info from plugin"
                         }
 
-                    dialog(
-                        context = context,
-                        title = strings.failed.getString(),
-                        msg = "Installation of plugin ${ext.name} failed \nreason: \n$reason",
-                        onOk = {})
+                    errorDialog("Installation of plugin ${ext.name} failed \nreason: \n$reason")
                 }
             }.onFailure {
                 errorDialog(it)
@@ -229,88 +286,4 @@ object ExtensionManager : ExtensionAPI() {
 
             return@withContext null
         }
-
-    private fun isPluginEnabled(): Boolean {
-        return InbuiltFeatures.extensions.state.value
-    }
-
-    override fun onPluginLoaded(extension: Extension) {
-        if (isPluginEnabled().not()) {
-            return
-        }
-
-        extensions.forEach { (ext, instance) ->
-            postIO {
-                toastCatching { instance?.onPluginLoaded(ext) }
-            }
-
-        }
-    }
-
-    override fun onMainActivityCreated() {
-        if (isPluginEnabled().not()) {
-            return
-        }
-
-        extensions.forEach { (_, instance) ->
-            postIO {
-                toastCatching { instance?.onMainActivityCreated() }
-            }
-
-        }
-    }
-
-    override fun onMainActivityPaused() {
-        if (isPluginEnabled().not()) {
-            return
-        }
-
-        extensions.forEach { (_, instance) ->
-            postIO {
-                toastCatching { instance?.onMainActivityPaused() }
-            }
-
-        }
-    }
-
-    override fun onMainActivityResumed() {
-        if (isPluginEnabled().not()) {
-            return
-        }
-
-        extensions.forEach { (_, instance) ->
-            postIO {
-                toastCatching { instance?.onMainActivityResumed() }
-            }
-
-        }
-    }
-
-    override fun onMainActivityDestroyed() {
-        if (isPluginEnabled().not()) {
-            return
-        }
-
-        extensions.forEach { (_, instance) ->
-            postIO {
-                toastCatching { instance?.onMainActivityDestroyed() }
-            }
-
-        }
-    }
-
-
-    override fun onLowMemory() {
-        if (isPluginEnabled().not()) {
-            return
-        }
-
-        extensions.forEach { (_, instance) ->
-            postIO {
-                toastCatching { instance?.onLowMemory() }
-            }
-
-        }
-
-    }
 }

@@ -187,7 +187,7 @@ fun Support(modifier: Modifier = Modifier) {
 
 fun MainActivity.handleSupport(){
     lifecycleScope.launch(Dispatchers.Main) {
-        if (Settings.visits > 50) {
+        if (Settings.visits > 300) {
             dialog(
                 context = this@handleSupport,
                 cancelable = false,
@@ -196,7 +196,7 @@ fun MainActivity.handleSupport(){
                 okString = strings.yes.getString(),
                 cancelString = strings.no.getString(),
                 onCancel = {
-                    Settings.visits = -500
+                    Settings.visits = 0
                     dialog(
                         context = this@handleSupport,
                         cancelable = false,
@@ -206,7 +206,7 @@ fun MainActivity.handleSupport(){
                     )
                 },
                 onOk = {
-                    Settings.visits = -420
+                    Settings.visits = 0
                     dialog(
                         context = this@handleSupport,
                         cancelable = false,

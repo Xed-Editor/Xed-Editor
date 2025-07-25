@@ -7,7 +7,7 @@ import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.bumptech.glide.Glide
 import com.rk.file_wrapper.FileObject
 
-class ImageFragment(val context:Context) : CoreFragment {
+class ImageFragment(val context:Context) : CoreFragment() {
     private val photoView = PhotoView(context)
     private var file: FileObject? = null
     

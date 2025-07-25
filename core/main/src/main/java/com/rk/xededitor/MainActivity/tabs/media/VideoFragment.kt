@@ -7,7 +7,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 
-class VideoFragment(val context: Context) : CoreFragment {
+class VideoFragment(val context: Context) : CoreFragment() {
     private val player = ExoPlayer.Builder(context).build()
     private var file: com.rk.file_wrapper.FileObject? = null
     

@@ -12,6 +12,7 @@ import com.rk.libcommons.isMainThread
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import dalvik.system.DexClassLoader
+import dalvik.system.PathClassLoader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -28,7 +29,7 @@ class Extension(
     val apkFile: File,
     val application: Application
 ) {
-    private var dexClassLoader: DexClassLoader? = null
+    private var dexClassLoader: PathClassLoader? = null
 
     var isLoaded = false
         private set
@@ -46,12 +47,10 @@ class Extension(
         return packageName == other.packageName
     }
 
-    fun load() {
+    fun load(): ExtensionAPI? {
         apkFile.setReadOnly()
-        dexClassLoader = DexClassLoader(
+        dexClassLoader = PathClassLoader(
             apkFile.absolutePath,
-            application.pluginDir.child("oat").createFileIfNot().absolutePath,
-            null,
             application.classLoader
         )
 
@@ -69,40 +68,11 @@ class Extension(
             val instance = mainClassInstance.getDeclaredConstructor().newInstance() as? ExtensionAPI
                 ?: throw RuntimeException("main class could not be cast to ExtensionAPI")
 
-            ExtensionManager.extensions[this] = instance
             instance.onPluginLoaded(this)
+            return instance
         } else {
-            throw RuntimeException("mainClass of plugin $name does not override ExtensionAPI")
+            errorDialog("mainClass of plugin $name does not override ExtensionAPI")
         }
-    }
-
-    companion object {
-        suspend fun loadExtensions(application: Application, scope: CoroutineScope) {
-            ExtensionManager.indexPlugins(application)
-            val pm = application.packageManager
-            val xedVersionCode = PackageInfoCompat.getLongVersionCode(pm.getPackageInfo(application.packageName, 0))
-            ExtensionManager.extensions.keys.forEach { extension ->
-                val info = pm.getPackageArchiveInfo(extension.apkFile.absolutePath, PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES)!!
-                info.applicationInfo!!.sourceDir = extension.apkFile.absolutePath
-                info.applicationInfo!!.publicSourceDir = extension.apkFile.absolutePath
-                val appInfo = info.applicationInfo!!
-                val metadata = appInfo.metaData
-
-                val minSdkVersion = metadata.getInt("minXedVersionCode",-1)
-                val targetSdkVersion = metadata.getInt("targetXedVersionCode",-1)
-
-                if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode){
-                    if (Preference.getBoolean("ext_${extension.packageName}", false) && ExtensionManager.extensions[extension] == null) {
-                        scope.launch(Dispatchers.IO) {
-                            extension.load()
-                        }
-                    }
-                }else{
-                    errorDialog("Plugin ${extension.packageName} failed to load due to incompatible sdk versions \nxedVersionCode = $xedVersionCode\nminSdkVersion = $minSdkVersion\ntargetSdkVersion = $targetSdkVersion")
-                }
-
-
-            }
-        }
+        return null
     }
 }

@@ -51,7 +51,7 @@ import java.nio.charset.Charset
 var lspPort: Int? = null
 var lspExt: String? = null
 
-class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragment {
+class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragment() {
 
     @JvmField
     var file: FileObject? = null

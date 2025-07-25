@@ -85,9 +85,6 @@ class App : Application() {
             Mutators.loadMutators()
             AutoSaver.start()
 
-            if (InbuiltFeatures.extensions.state.value) {
-                Extension.loadExtensions(this@App, GlobalScope)
-            }
 
             runCatching {
                 val bridge = File(applicationInfo.nativeLibraryDir).child("libbridge.so")

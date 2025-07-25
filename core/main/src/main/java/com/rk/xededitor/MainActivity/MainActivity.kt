@@ -31,6 +31,7 @@ import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.rk.App
 import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
@@ -250,7 +251,8 @@ class MainActivity : AppCompatActivity() {
             binding!!.openBtn.visibility = View.GONE
         }
 
-        ExtensionManager.onMainActivityCreated()
+
+
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (binding != null && binding!!.drawerLayout.isDrawerOpen(GravityCompat.START)) {
@@ -284,6 +286,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         handleSupport()
+
+
+        lifecycleScope.launch{
+            ExtensionManager.indexPlugins(application!!)
+            ExtensionManager.loadPlugins(application!!)
+
+            //for backward compatibility
+            ExtensionManager.onMainActivityCreated()
+        }
     }
 
 

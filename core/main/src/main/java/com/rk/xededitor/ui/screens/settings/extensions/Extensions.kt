@@ -81,8 +81,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                 loading = LoadingPopup(context as Activity, null).show()
                 loading.setMessage(strings.installing.getString())
                 DefaultScope.launch {
-                    ExtensionManager.installPlugin(activity!!, fileObject)
-                    ExtensionManager.indexPlugins(application!!)
+                    ExtensionManager.installPlugin(fileObject,application!!)
                 }
 
                 loading.hide()
@@ -107,8 +106,6 @@ fun Extensions(modifier: Modifier = Modifier) {
             text = { Text(stringResource(strings.install_from_storage)) },
         )
     }) {
-        val extensions = ExtensionManager.extensions
-        val isLoaded = ExtensionManager.isLoaded
         val showPluginOptionSheet = remember { mutableStateOf(false) }
 
 
@@ -137,13 +134,13 @@ fun Extensions(modifier: Modifier = Modifier) {
         )
 
         PreferenceGroup {
-            if (isLoaded.value) {
-                if (extensions.isEmpty()) {
+            if (!ExtensionManager.isIndexing.value) {
+                if (ExtensionManager.indexedExtension.isEmpty()) {
                     Text(
                         text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)
                     )
                 } else {
-                    extensions.keys.forEach { plugin ->
+                    ExtensionManager.indexedExtension.forEach { plugin ->
                         var state by remember {
                             mutableStateOf(
                                 Preference.getBoolean(
@@ -152,8 +149,6 @@ fun Extensions(modifier: Modifier = Modifier) {
                                 )
                             )
                         }
-
-
                         val sideEffect: (Boolean) -> Unit = {
                             if (it) {
                                 scope.safeLaunch {

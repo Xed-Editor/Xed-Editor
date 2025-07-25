@@ -14,7 +14,7 @@ import kotlinx.coroutines.withContext
 import java.net.ServerSocket
 import java.net.URLEncoder
 
-class WebFragment(val context: Context,val scope: CoroutineScope) : CoreFragment {
+class WebFragment(val context: Context,val scope: CoroutineScope) : CoreFragment() {
     private var file: FileObject? = null
     private val webView:WebView = WebView(context)
     private var httpServer:HttpServer? = null
