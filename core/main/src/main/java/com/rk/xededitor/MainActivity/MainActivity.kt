@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -34,6 +35,7 @@ import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
 import com.rk.extension.ExtensionManager
+import com.rk.extension.Hooks
 import com.rk.file_wrapper.FileObject
 import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
@@ -49,6 +51,7 @@ import com.rk.libcommons.localDir
 import com.rk.libcommons.toast
 import com.rk.libcommons.toastCatching
 import com.rk.mutator_engine.Engine
+import com.rk.pluginApi.PluginApi
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.runner.Runner
@@ -84,6 +87,7 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
+import kotlin.collections.filter
 
 class MainActivity : AppCompatActivity() {
 
@@ -182,24 +186,52 @@ class MainActivity : AppCompatActivity() {
         }
 
         private fun toState(): TabViewModelState {
-            val files = fragmentFiles.filter { !it.getAbsolutePath().startsWith(localDir().child("customTabs").absolutePath) }.toMutableList()
-
+            val files = fragmentFiles
             return TabViewModelState(
                 fragmentFiles = files,
             )
         }
 
         private fun restoreState(state: TabViewModelState) {
-            val files = state.fragmentFiles.filter { it.exists() && it.canRead() && it.isFile() }
-                .toMutableList()
-            val types = files.map { it.getFragmentType() }.toMutableList()
-            val titles = files.map { it.getName() }.toMutableList()
-            val fileSet = files.map { it.getCanonicalPath() }.toHashSet()
+            val customTabsPath = localDir().child("customTabs").absolutePath
 
-            fragmentFiles = files
-            fragmentTypes = types
-            fragmentTitles = titles
-            this.fileSet = fileSet
+            val (customTabs, files) = state.fragmentFiles
+                .asSequence() // lazily evaluated, more efficient for filtering large lists
+                .filter { it.exists() && it.canRead() && it.isFile() }
+                .partition { it.getAbsolutePath().startsWith(customTabsPath) }
+
+
+            customTabs.forEach { tabName ->
+                val id = tabName.getParentFile()!!
+
+                if (PluginApi.isTabRegistered(id.getName())){
+                    PluginApi.openRegisteredTab(id.getName(),tabName.getName())
+                }else{
+                    Log.e("CustomTabs","${id.getName()} is not registered")
+                }
+            }
+
+
+            fun <A, B, C> List<Triple<A, B, C>>.unzipTriple(): Triple<List<A>, List<B>, List<C>> {
+                val first = mutableListOf<A>()
+                val second = mutableListOf<B>()
+                val third = mutableListOf<C>()
+                forEach { (a, b, c) ->
+                    first.add(a)
+                    second.add(b)
+                    third.add(c)
+                }
+                return Triple(first, second, third)
+            }
+
+            val (types, titles, paths) = files.map {
+                Triple(it.getFragmentType(), it.getName(), it.getCanonicalPath())
+            }.unzipTriple()
+
+            fragmentFiles = files.toMutableList()
+            fragmentTypes = types.toMutableList()
+            fragmentTitles = titles.toMutableList()
+            this.fileSet = paths.toHashSet()
         }
 
     }
@@ -285,15 +317,11 @@ class MainActivity : AppCompatActivity() {
             ExtensionManager.indexPlugins(application!!)
             ExtensionManager.loadPlugins(application!!)
 
-            //for backward compatibility
             ExtensionManager.onMainActivityCreated()
         }
 
         Mutators.updateMutators()
     }
-
-
-    val toolItems = hashSetOf<Int>()
 
     @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     @SuppressLint("RestrictedApi")

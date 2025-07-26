@@ -14,6 +14,7 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.localDir
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.MainActivity.MainActivity
@@ -63,7 +64,16 @@ object PluginApi {
      * PluginApi.openRegisteredTab("myplugin-mytab-123")
      * ```
      */
+
+    fun isTabRegistered(id: String): Boolean{
+        return Hooks.Editor.tabs.containsKey(id)
+    }
+
     fun openRegisteredTab(id: String, tabName: String) {
+        if (isTabRegistered(id).not()){
+            errorDialog("PluginApi Error \nsid : $id is not registered")
+            return
+        }
         val file = FileWrapper(localDir().child("customTabs/$id/${tabName}").createFileIfNot())
 
         MainActivity.withContext {

@@ -102,7 +102,7 @@ object ExtensionManager : ExtensionAPI() {
         indexedExtension.forEach{ ext ->
             withContext(Dispatchers.IO){
                 if (Preference.getBoolean("ext_${ext.packageName}", false)) {
-                    val instance = ext.load()
+                    val instance = ext.load(loadedExtensions.containsKey(ext).not())
                     if (instance != null){
                         loadedExtensions[ext] = instance
                     }else{
@@ -142,7 +142,11 @@ object ExtensionManager : ExtensionAPI() {
         throw IllegalAccessException("This function was not supposed to be called")
     }
 
-    @Deprecated("Use onPluginLoaded function instead")
+    override fun onPluginLoaded(extension: Extension, isInit: Boolean) {
+        throw IllegalAccessException("This function was not supposed to be called")
+    }
+
+
     override fun onMainActivityCreated() {
         DefaultScope.launch(Dispatchers.Default){
             mutex.withLock{
@@ -154,6 +158,7 @@ object ExtensionManager : ExtensionAPI() {
             }
         }
     }
+
 
     override fun onMainActivityPaused() {
         DefaultScope.launch(Dispatchers.Default){

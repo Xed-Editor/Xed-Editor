@@ -47,12 +47,15 @@ class Extension(
         return packageName == other.packageName
     }
 
-    fun load(): ExtensionAPI? {
+    fun load(isInit: Boolean): ExtensionAPI? {
         apkFile.setReadOnly()
-        dexClassLoader = PathClassLoader(
-            apkFile.absolutePath,
-            application.classLoader
-        )
+        if (dexClassLoader == null){
+            dexClassLoader = PathClassLoader(
+                apkFile.absolutePath,
+                application.classLoader
+            )
+        }
+
 
         if (isLoaded){
             throw RuntimeException("Extension $this is already loaded")
@@ -66,9 +69,10 @@ class Extension(
 
         if (ExtensionAPI::class.java.isAssignableFrom(mainClassInstance)) {
             val instance = mainClassInstance.getDeclaredConstructor().newInstance() as? ExtensionAPI
-                ?: throw RuntimeException("main class could not be cast to ExtensionAPI")
+                ?: throw RuntimeException("main class ${mainClassInstance.name} could not be cast to ExtensionAPI")
 
             instance.onPluginLoaded(this)
+            instance.onPluginLoaded(this, isInit)
             return instance
         } else {
             errorDialog("mainClass of plugin $name does not override ExtensionAPI")
