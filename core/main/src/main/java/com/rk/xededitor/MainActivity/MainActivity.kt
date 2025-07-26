@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             val (types, titles, paths) = files.map {
-                Triple(it.getFragmentType(), it.getName(), it.getCanonicalPath())
+                Triple(it.getFragmentType(), it.getName(), it.getAbsolutePath())
             }.unzipTriple()
 
             fragmentFiles = files.toMutableList()
