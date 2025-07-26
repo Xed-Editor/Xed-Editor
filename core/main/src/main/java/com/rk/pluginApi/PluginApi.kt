@@ -1,11 +1,17 @@
 package com.rk.pluginApi
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
+import android.content.res.AssetManager
+import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.controlpanel.ControlItem
+import com.rk.extension.Extension
 import com.rk.extension.Hooks
 import com.rk.extension.SettingsScreen
 import com.rk.file_wrapper.FileObject
@@ -24,6 +30,7 @@ import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.InputStream
 
 
 /**
@@ -304,5 +311,238 @@ object PluginApi {
     fun unregisterRunner(id: String) {
         Hooks.Runner.runners.remove(id)
     }
+
+    /**
+     * Enum representing supported Android resource types.
+     *
+     * Use this enum to specify the type of resource you want to retrieve from either
+     * an external APK or the host app itself.
+     *
+     * Example:
+     * ```
+     * val icon = PluginApi.getHostResource(context, "ic_launcher", ResourceType.DRAWABLE) as? Drawable
+     * ```
+     */
+    enum class ResourceType(val typeName: String) {
+        DRAWABLE("drawable"),
+        MIPMAP("mipmap"),
+        STRING("string"),
+        COLOR("color"),
+        LAYOUT("layout"),
+        RAW("raw"),
+        ANIM("anim"),
+        ID("id"),
+        DIMEN("dimen"),
+        BOOL("bool"),
+        INTEGER("integer"),
+        ARRAY("array"),
+        STYLE("style"),
+        XML("xml")
+    }
+
+
+    /**
+     * Loads a resource from an extension.
+     *
+     * @param extension The extension object that includes the target APK file and package name.
+     * @param context Context from the host application.
+     * @param name Name of the resource (e.g., "ic_launcher", "my_string").
+     * @param type Type of the resource to load (from [ResourceType]).
+     *
+     * @return The loaded resource. Type depends on the resource:
+     * - Drawable for DRAWABLE/MIPMAP
+     * - String for STRING
+     * - Int for COLOR
+     * - InputStream for RAW
+     * - Resource ID (Int) for other types
+     * - null if not found or on error
+     */
+    @SuppressLint("DiscouragedApi")
+    fun getResource(
+        extension: Extension,
+        context: Context,
+        name: String,
+        type: ResourceType,
+    ): Any? {
+        try {
+            val resources: Resources
+            val packageName: String = extension.packageName
+            val apkPath = extension.apkFile.absolutePath
+
+                val assetManager = AssetManager::class.java.getDeclaredConstructor().newInstance()
+                AssetManager::class.java
+                    .getMethod("addAssetPath", String::class.java)
+                    .invoke(assetManager, apkPath)
+
+                @Suppress("DEPRECATION")
+                resources = Resources(
+                    assetManager,
+                    context.resources.displayMetrics,
+                    context.resources.configuration
+                )
+
+            val resId = resources.getIdentifier(name, type.typeName, packageName)
+            if (resId == 0) return null
+
+            return when (type) {
+                ResourceType.DRAWABLE, ResourceType.MIPMAP -> ResourcesCompat.getDrawable(resources, resId, context.theme)
+                ResourceType.STRING -> resources.getString(resId)
+                ResourceType.COLOR -> ResourcesCompat.getColor(resources, resId, context.theme)
+                ResourceType.RAW -> resources.openRawResource(resId)
+                ResourceType.LAYOUT,
+                ResourceType.ANIM,
+                ResourceType.ID,
+                ResourceType.DIMEN,
+                ResourceType.BOOL,
+                ResourceType.INTEGER,
+                ResourceType.ARRAY,
+                ResourceType.STYLE,
+                ResourceType.XML -> resId
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
+    /**
+     * Loads a resource from the host application without using the R class.
+     *
+     * This is useful when dynamically accessing resources in your own app via resource name,
+     * especially from plugins or scripts.
+     *
+     * @param context Host app context.
+     * @param name Name of the resource to load (e.g., "ic_launcher", "welcome_message").
+     * @param type Type of the resource (from [ResourceType]).
+     *
+     * @return The loaded resource. Type depends on the resource:
+     * - Drawable for DRAWABLE/MIPMAP
+     * - String for STRING
+     * - Int for COLOR or resource ID
+     * - InputStream for RAW
+     * - null if not found or on error
+     */
+    @SuppressLint("DiscouragedApi")
+    fun getHostResource(
+        context: Context,
+        name: String,
+        type: ResourceType
+    ): Any? {
+        return try {
+            val resources = context.resources
+            val packageName = context.packageName
+
+            val resId = resources.getIdentifier(name, type.typeName, packageName)
+            if (resId == 0) return null
+
+            when (type) {
+                ResourceType.DRAWABLE, ResourceType.MIPMAP -> ResourcesCompat.getDrawable(resources, resId, context.theme)
+                ResourceType.STRING -> resources.getString(resId)
+                ResourceType.COLOR -> ResourcesCompat.getColor(resources, resId, context.theme)
+                ResourceType.RAW -> resources.openRawResource(resId)
+                ResourceType.LAYOUT,
+                ResourceType.ANIM,
+                ResourceType.ID,
+                ResourceType.DIMEN,
+                ResourceType.BOOL,
+                ResourceType.INTEGER,
+                ResourceType.ARRAY,
+                ResourceType.STYLE,
+                ResourceType.XML -> resId
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+
+    fun Extension.getDrawable(context: Context, name: String): Drawable? =
+        PluginApi.getResource(this, context, name, ResourceType.DRAWABLE) as? Drawable
+
+    fun Extension.getMipmap(context: Context, name: String): Drawable? =
+        PluginApi.getResource(this, context, name, ResourceType.MIPMAP) as? Drawable
+
+    fun Extension.getString(context: Context, name: String): String? =
+        PluginApi.getResource(this, context, name, ResourceType.STRING) as? String
+
+    fun Extension.getColor(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.COLOR) as? Int
+
+    fun Extension.getRaw(context: Context, name: String): InputStream? =
+        PluginApi.getResource(this, context, name, ResourceType.RAW) as? InputStream
+
+    fun Extension.getLayoutId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.LAYOUT) as? Int
+
+    fun Extension.getAnimId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.ANIM) as? Int
+
+    fun Extension.getId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.ID) as? Int
+
+    fun Extension.getDimenId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.DIMEN) as? Int
+
+    fun Extension.getBoolId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.BOOL) as? Int
+
+    fun Extension.getIntegerId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.INTEGER) as? Int
+
+    fun Extension.getArrayId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.ARRAY) as? Int
+
+    fun Extension.getStyleId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.STYLE) as? Int
+
+    fun Extension.getXmlId(context: Context, name: String): Int? =
+        PluginApi.getResource(this, context, name, ResourceType.XML) as? Int
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    fun Context.getHostDrawable(name: String): Drawable? =
+        PluginApi.getHostResource(this, name, ResourceType.DRAWABLE) as? Drawable
+
+    fun Context.getHostMipmap(name: String): Drawable? =
+        PluginApi.getHostResource(this, name, ResourceType.MIPMAP) as? Drawable
+
+    fun Context.getHostString(name: String): String? =
+        PluginApi.getHostResource(this, name, ResourceType.STRING) as? String
+
+    fun Context.getHostColor(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.COLOR) as? Int
+
+    fun Context.getHostRaw(name: String): InputStream? =
+        PluginApi.getHostResource(this, name, ResourceType.RAW) as? InputStream
+
+    fun Context.getHostLayoutId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.LAYOUT) as? Int
+
+    fun Context.getHostAnimId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.ANIM) as? Int
+
+    fun Context.getHostId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.ID) as? Int
+
+    fun Context.getHostDimenId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.DIMEN) as? Int
+
+    fun Context.getHostBoolId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.BOOL) as? Int
+
+    fun Context.getHostIntegerId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.INTEGER) as? Int
+
+    fun Context.getHostArrayId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.ARRAY) as? Int
+
+    fun Context.getHostStyleId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.STYLE) as? Int
+
+    fun Context.getHostXmlId(name: String): Int? =
+        PluginApi.getHostResource(this, name, ResourceType.XML) as? Int
+
+
 }
 
