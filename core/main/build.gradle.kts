@@ -145,5 +145,6 @@ dependencies {
     api(project(":core:components"))
     api(project(":core:bridge"))
 
+    api(libs.kotlin.reflect)
 
 }

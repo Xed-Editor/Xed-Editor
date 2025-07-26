@@ -13,6 +13,7 @@ desugar_jdk_libs = "2.1.5"
 eventbus = "3.3.1"
 foundation = "1.8.0-beta02"
 glide = "4.16.0"
+kotlinReflect = "2.0.10"
 ktsh = "1.0.0"
 leakcanaryAndroid = "2.14"
 lsp4j = "0.23.1"
@@ -74,6 +75,7 @@ eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
 foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlinReflect" }
 ktsh = { module = "com.jaredrummler:ktsh", version.ref = "ktsh" }
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanaryAndroid" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
