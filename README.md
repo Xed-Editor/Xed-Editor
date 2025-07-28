@@ -62,8 +62,6 @@ Join the Xed-Editor community to stay updated and engage with other users:
 </div>
 
 ### Recommended Installation
-> [!IMPORTANT]
-Release builds on F-Droid Izzy and GitHub releases can become outdated quickly. Please use the action builds if the release is older than a few weeks.
 
 - **Latest Alpha Build**: Download from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
 
