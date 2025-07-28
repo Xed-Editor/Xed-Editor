@@ -47,7 +47,7 @@ Join the Xed-Editor community to stay updated and engage with other users:
 <br>
 
 
-## Installation
+## Download
 
 <div>
   <a href="https://github.com/Xed-Editor/Xed-Editor/releases">
@@ -60,8 +60,6 @@ Join the Xed-Editor community to stay updated and engage with other users:
     <img src="https://img.shields.io/f-droid/v/com.rk.xededitor">
   </a>
 </div>
-
-### Recommended Installation
 
 - **Latest Alpha Build**: Download from [Actions](https://github.com/Xed-Editor/Xed-Editor/actions/)
 
