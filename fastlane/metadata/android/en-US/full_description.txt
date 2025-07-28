@@ -1,6 +1,7 @@
 Xed Editor, also known as Karbon, is a powerful text editor designed for Android devices, catering to developers and programmers. It offers a range of features to enhance productivity and streamline coding.
 
 Key Features:
+
 - Advanced Editing Capabilities: Syntax highlighting for multiple programming languages, auto-indentation, search and batch replacement, and undo-redo support.
 - File Management: Open and edit multiple files using tabs, integrated file browser, and options to create, rename, copy, and delete files/folders.
 - Customization: AMOLED theme for night use, multiple theme options, and customizable keybindings.
