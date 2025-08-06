@@ -13,7 +13,8 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
 
     override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
-            if (ex.message.toString().contains("android.view.AbsSavedState") && ex.message.toString().contains("android.widget.HorizontalScrollView") &&  ex.message.toString().contains("cannot be cast to")){
+
+            if (ex.message.toString().contains("android.view.View${"$"}BaseSavedState") && ex.message.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")){
                 return@runCatching
             }
 
