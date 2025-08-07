@@ -54,7 +54,8 @@ fun setupTerminalFiles(){
         "android_debug:x:50455",
         "android_cache:x:${10000 + aid}",
         "android_storage:x:${40000 + aid}",
-        "android_media:x:${50000 + aid}"
+        "android_media:x:${50000 + aid}",
+        "android_external_storage:x:1077"
     )
 
     val existing = if (groupFile.exists()) {
