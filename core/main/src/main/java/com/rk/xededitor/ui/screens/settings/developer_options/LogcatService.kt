@@ -4,7 +4,7 @@ import android.app.*
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.sandboxHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
@@ -52,7 +52,7 @@ class LogcatService : Service(),
         launch(Dispatchers.IO) {
             runCatching {
                 process = ProcessBuilder("logcat")
-                    .redirectOutput(alpineHomeDir().child("logcat.txt"))
+                    .redirectOutput(sandboxHomeDir().child("logcat.txt"))
                     .redirectErrorStream(true)
                     .start()
             }.onFailure {

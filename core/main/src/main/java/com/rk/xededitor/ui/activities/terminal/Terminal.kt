@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.SessionService
 import com.rk.libcommons.*
-import com.rk.libcommons.alpineDir
+import com.rk.libcommons.sandboxDir
 import com.rk.libcommons.localDir
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -132,8 +132,8 @@ class Terminal : ComponentActivity() {
                 ).toMutableList()
 
 
-                val rootfsFiles = alpineDir().listFiles()?.filter {
-                    it.absolutePath != alpineHomeDir().absolutePath && it.absolutePath != alpineDir().child(
+                val rootfsFiles = sandboxDir().listFiles()?.filter {
+                    it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
                         "tmp"
                     ).absolutePath
                 } ?: emptyList()
@@ -141,14 +141,14 @@ class Terminal : ComponentActivity() {
                     filesToDownload.add(
                         DownloadFile(
                             url = if (abi.contains("x86_64")) {
-                                alpine_x86_64
+                                sandbox_x86_64
                             } else if (abi.contains("arm64-v8a")) {
-                                alpine_aarch64
+                                sandbox_aarch64
                             } else if (abi.contains("armeabi-v7a")) {
-                                alpine_arm
+                                sandbox_arm
                             } else {
                                 throw RuntimeException("Unsupported CPU")
-                            }, outputPath = "tmp/alpine.tar.gz"
+                            }, outputPath = "tmp/sandbox.tar.gz"
                         )
                     )
 
@@ -179,7 +179,7 @@ class Terminal : ComponentActivity() {
                             toast(strings.network_err.getString())
                         } else {
                             error.printStackTrace()
-                            toast("Setup Failed: ${error.message}")
+                            errorDialog("Setup Failed: ${error.message}")
                         }
                         finish()
 
@@ -336,9 +336,10 @@ private const val proot_aarch64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/aarch64/proot"
 private const val proot_x86_64 =
     "https://raw.githubusercontent.com/Xed-Editor/Karbon-PackagesX/main/x86_64/proot"
-private const val alpine_arm =
-    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/armhf/alpine-minirootfs-3.21.0-armhf.tar.gz"
-private const val alpine_aarch64 =
-    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/aarch64/alpine-minirootfs-3.21.0-aarch64.tar.gz"
-private const val alpine_x86_64 =
-    "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"
+
+private const val sandbox_arm =
+    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-armhf.tar.gz"
+private const val sandbox_aarch64 =
+    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-arm64.tar.gz"
+private const val sandbox_x86_64 =
+    "https://cdimage.ubuntu.com/ubuntu-base/releases/plucky/release/ubuntu-base-25.04-base-amd64.tar.gz"

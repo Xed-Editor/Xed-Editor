@@ -51,7 +51,7 @@ import com.rk.file_wrapper.FileWrapper
 import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.sandboxHomeDir
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -189,7 +189,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             selected = file.fileObject == currentProject,
                             icon = {
                                 val iconId =
-                                    if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == alpineHomeDir())) {
+                                    if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == sandboxHomeDir())) {
                                         drawables.terminal
                                     } else {
                                         drawables.outline_folder_24
@@ -323,7 +323,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                                                         Settings.has_shown_terminal_dir_warning =
                                                             true
                                                         lifecycleScope.launch {
-                                                            addProject(FileWrapper(alpineHomeDir()))
+                                                            addProject(FileWrapper(sandboxHomeDir()))
                                                         }
                                                     }
                                                     show()
@@ -331,7 +331,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
 
                                             } else {
                                                 lifecycleScope.launch {
-                                                    addProject(FileWrapper(alpineHomeDir()))
+                                                    addProject(FileWrapper(sandboxHomeDir()))
                                                 }
                                             }
                                         }

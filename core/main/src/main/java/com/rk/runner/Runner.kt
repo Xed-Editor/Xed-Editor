@@ -14,11 +14,6 @@ import com.rk.file_wrapper.UriWrapper
 import com.rk.libcommons.toastCatching
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
-import com.rk.runner.runners.c.C_Runner
-import com.rk.runner.runners.go.GoRunner
-import com.rk.runner.runners.node.NodeRunner
-import com.rk.runner.runners.python.PythonRunner
-import com.rk.runner.runners.shell.ShellRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import com.rk.xededitor.MainActivity.MainActivity
@@ -79,11 +74,6 @@ object Runner {
         if (file != null){
             runners.addAll(
                 when(ext){
-                    "py" -> listOf(PythonRunner(file, isTermuxFile = isTermuxFile))
-                    "mjs","js" ->  listOf(NodeRunner(file,isTermuxFile = isTermuxFile))
-                    "sh","bash" ->  listOf(ShellRunner(file,isTermuxFile = isTermuxFile))
-                    "c","cpp" -> listOf(C_Runner(file,isTermuxFile = isTermuxFile))
-                    "go" -> listOf(GoRunner(file,isTermuxFile))
                     else -> emptyList()
                 }
             )

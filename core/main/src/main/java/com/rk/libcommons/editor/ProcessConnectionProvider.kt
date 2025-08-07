@@ -8,7 +8,7 @@ import java.io.OutputStream
 
 class ProcessConnectionProvider(
     private val command: Array<String>,
-    private val alpine: Boolean = true
+    private val sandbox: Boolean = true
 ) : StreamConnectionProvider {
 
     private var process: Process? = null
@@ -24,8 +24,8 @@ class ProcessConnectionProvider(
     override fun start() {
         if (process != null) return // already started
 
-        val pb = if (alpine) {
-            val initHost = localBinDir().child("init-host")
+        val pb = if (sandbox) {
+            val initHost = localBinDir().child("sandbox.sh")
             ProcessBuilder("sh", "-c",initHost.absolutePath, command.joinToString(" "))
         } else {
             ProcessBuilder(*command)

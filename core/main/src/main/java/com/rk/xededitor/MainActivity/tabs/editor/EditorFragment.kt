@@ -25,11 +25,6 @@ import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.App.Companion.getTempDir
-import com.rk.file_wrapper.FileWrapper
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.alpineHomeDir
-import com.rk.libcommons.child
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R

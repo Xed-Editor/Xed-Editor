@@ -3,7 +3,7 @@ package com.rk.libcommons
 var pendingCommand: TerminalCommand? = null
 
 data class TerminalCommand(
-    val alpine: Boolean = true,
+    val sandbox: Boolean = true,
     val shell: String,
     val args: Array<String> = arrayOf(),
     val id: String,

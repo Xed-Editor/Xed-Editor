@@ -2,7 +2,7 @@ package com.rk
 import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import com.rk.file_wrapper.FileWrapper
-import com.rk.libcommons.alpineDir
+import com.rk.libcommons.sandboxDir
 import com.rk.libcommons.child
 import com.rk.libcommons.toast
 import com.rk.resources.strings
@@ -19,8 +19,8 @@ object ActionHandler {
     }
 
     private fun getCorrectPathForLogging(file: File): String{
-        return if (file.absolutePath.contains(alpineDir().absolutePath)){
-            file.absolutePath.removePrefix(alpineDir().absolutePath)
+        return if (file.absolutePath.contains(sandboxDir().absolutePath)){
+            file.absolutePath.removePrefix(sandboxDir().absolutePath)
         }else{
             file.absolutePath
         }
@@ -33,13 +33,6 @@ object ActionHandler {
             val args = json.getString("args")
             val pwd = json.getString("pwd")
 
-            val runtime = if(json.has("runtime")) {
-                json.getString("runtime")
-            }else{
-                Log.w(this@ActionHandler::class.java.simpleName,"No runtime argument provided. assuming Android")
-                "Android"
-            }
-
 
 
             when(action){
@@ -47,20 +40,7 @@ object ActionHandler {
                     if (args.isEmpty()){
                         return "No file path provided"
                     }
-                   val file = if (args.startsWith("/")){
-                        if (runtime == "Alpine"){
-                            alpineDir().child(args)
-                        }else{
-                            File(args)
-                        }
-                    }else{
-                        if (runtime == "Alpine"){
-                            alpineDir().child(pwd).child(args)
-                        }else{
-                            File(pwd,args)
-                        }
-
-                   }
+                   val file = sandboxDir().child(args)
 
                     if (file.exists().not()){
                         return "File not found : ${getCorrectPathForLogging(file)}"

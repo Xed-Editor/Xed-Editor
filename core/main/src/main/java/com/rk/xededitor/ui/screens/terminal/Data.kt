@@ -2,8 +2,7 @@ package com.rk.xededitor.ui.screens.terminal
 
 import com.rk.libcommons.origin
 
-const val hosts = """
-127.0.0.1   localhost.localdomain localhost
+val hosts = """127.0.0.1   localhost.localdomain localhost
 
 # IPv6.
 ::1         localhost.localdomain localhost ip6-localhost ip6-loopback
@@ -12,15 +11,12 @@ ff00::0     ip6-mcastprefix
 ff02::1     ip6-allnodes
 ff02::2     ip6-allrouters
 ff02::3     ip6-allhosts
-"""
+""".trimIndent()
 
-const val nameserver = """
-nameserver 8.8.8.8
-nameserver 8.8.4.4
-"""
+const val nameserver = "nameserver 8.8.8.8\nnameserver 8.8.4.4"
 
 //provide fake cpu stats
-const val stat = """cpu  1957 0 2877 93280 262 342 254 87 0 0
+val stat = """cpu  1957 0 2877 93280 262 342 254 87 0 0
 cpu0 31 0 226 12027 82 10 4 9 0 0
 cpu1 45 0 664 11144 21 263 233 12 0 0
 cpu2 494 0 537 11283 27 10 3 8 0 0
@@ -36,7 +32,7 @@ processes 772
 procs_running 2
 procs_blocked 0
 softirq 75663 0 5903 6 25375 10774 0 243 11685 0 21677
-"""
+""".trimIndent()
 
 //provide fake cpu stats
 val vmstat = """nr_free_pages 1743136

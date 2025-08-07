@@ -1,6 +1,7 @@
 package com.rk.xededitor.ui.screens.terminal
 
-import com.rk.libcommons.alpineDir
+import android.system.Os
+import com.rk.libcommons.sandboxDir
 import com.rk.libcommons.application
 import com.rk.libcommons.child
 import com.rk.libcommons.createFileIfNot
@@ -8,15 +9,6 @@ import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localDir
 
 fun setupTerminalFiles(){
-
-    with(localBinDir().child("init-host")){
-        if (exists().not()) {
-            createFileIfNot()
-            writeText(
-                application!!.assets.open("terminal/init-host.sh").bufferedReader()
-                    .use { it.readText() })
-        }
-    }
 
     with(localBinDir().child("init")){
         if (exists().not()) {
@@ -27,12 +19,11 @@ fun setupTerminalFiles(){
         }
     }
 
-    with(alpineDir().child("bin/logger")){
+    with(localBinDir().child("sandbox")){
         if (exists().not()) {
             createFileIfNot()
-            setExecutable(true)
             writeText(
-                application!!.assets.open("terminal/log.sh").bufferedReader()
+                application!!.assets.open("terminal/sandbox.sh").bufferedReader()
                     .use { it.readText() })
         }
     }
@@ -51,6 +42,34 @@ fun setupTerminalFiles(){
             writeText(vmstat)
         }
     }
+
+
+
+    val groupFile = sandboxDir().child("etc/group")
+    val aid = Os.getgid()
+    val linesToAdd = listOf(
+        "inet:x:3003",
+        "everybody:x:9997",
+        "android_app:x:20455",
+        "android_debug:x:50455",
+        "android_cache:x:${10000 + aid}",
+        "android_storage:x:${40000 + aid}",
+        "android_media:x:${50000 + aid}"
+    )
+
+    val existing = if (groupFile.exists()) {
+        groupFile.readText()
+    } else {
+        ""
+    }
+
+    for (line in linesToAdd) {
+        val gid = line.substringAfterLast(":")
+        if (!existing.contains(":$gid")) {
+            groupFile.appendText("$line\n")
+        }
+    }
+
 
 
 }

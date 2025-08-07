@@ -37,42 +37,30 @@ fun getPrivateDir(): File {
 
 fun localDir(): File {
     return getPrivateDir().child("local").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
+        it.createDirIfNot()
     }
 }
 
 fun localBinDir(): File {
     return localDir().child("bin").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
+        it.createDirIfNot()
     }
 }
 
 fun localLibDir(): File {
     return localDir().child("lib").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
+        it.createDirIfNot()
     }
 }
 
-fun alpineDir(): File {
-    return localDir().child("alpine").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
+fun sandboxDir(): File {
+    return localDir().child("sandbox").also {
+        it.createDirIfNot()
     }
 }
 
-fun alpineHomeDir(): File {
-    return alpineDir().child("root").also {
-        if (!it.exists()) {
-            it.mkdirs()
-        }
-    }
+fun sandboxHomeDir(): File {
+    return localDir().child("home").createDirIfNot()
 }
 
 
@@ -81,11 +69,26 @@ fun File.child(fileName: String): File {
 }
 
 fun File.createFileIfNot(): File {
-    if (parentFile.exists().not()) {
-        parentFile.mkdirs()
+    return (FileWrapper(this).createFileIfNot() as FileWrapper).file
+}
+
+fun FileObject.createFileIfNot(): FileObject {
+    if (getParentFile()?.exists()?.not() == true) {
+        getParentFile()!!.mkdirs()
     }
     if (exists().not()) {
         createNewFile()
+    }
+    return this
+}
+
+fun File.createDirIfNot(): File {
+    return (FileWrapper(this).createDirIfNot() as FileWrapper).file
+}
+
+fun FileObject.createDirIfNot(): FileObject {
+    if (exists().not()){
+        mkdirs()
     }
     return this
 }

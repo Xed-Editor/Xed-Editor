@@ -1,37 +1,58 @@
-set -e  # Exit immediately on Failure
+info() {
+  printf '\033[34;1m[*] \033[0m%s\n' "$1"
+}
 
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/share/bin:/usr/share/sbin:/usr/local/bin:/usr/local/sbin:/system/bin:/system/xbin:$PREFIX/local/bin
-export HOME=/root
-cd "$XPWD"
-export PS1="\[\e[38;5;46m\]\u\[\033[39m\]@karbon \[\033[39m\]\w \[\033[0m\]\\$ "
-START_SHELL="/bin/bash"
-# shellcheck disable=SC2034
-export PIP_BREAK_SYSTEM_PACKAGES=1
-required_packages="bash gcompat glib git nano"
-missing_packages=""
-for pkg in $required_packages; do
-    if ! apk info -e $pkg >/dev/null 2>&1; then
-        missing_packages="$missing_packages $pkg"
+warn() {
+  printf '\033[33;1m[!] \033[0m%s\n' "$1"
+}
+
+error() {
+  printf '\033[31;1m[x] \033[0m%s\n' "$1"
+}
+
+confirm() {
+  # $1 = prompt message
+  printf '%s [y/N]: ' "$1"
+  read -r reply
+  case "$reply" in
+    [yY]|[yY][eE][sS]) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+ALPINE_DIR="$PREFIX/local/alpine"
+RETAINED_FILE="$ALPINE_DIR/.retained"
+
+if [ -d "$ALPINE_DIR" ]; then
+  if [ -f "$RETAINED_FILE" ]; then
+    :
+  else
+    info "Detected existing Alpine installation"
+    printf "\nxed-editor has now migrated from Alpine to Ubuntu for better compatibility and support.\n\n"
+
+    if confirm "Do you want to migrate your home data from Alpine to Ubuntu?"; then
+      info "Migrating data..."
+      mkdir -p "/home/alpine-data"
+      mv "$ALPINE_DIR/root" "/home/alpine-data/" 2>/dev/null
+      mv "$ALPINE_DIR/home" "/home/alpine-data/" 2>/dev/null
+      info "Data migration completed."
+    else
+      warn "Skipped data migration."
     fi
-done
-if [ -n "$missing_packages" ]; then
-    echo -e "\e[34;1m[*] \e[0mInstalling Important packages\e[0m"
-    apk update && apk upgrade
-    apk add $missing_packages
-    if [ $? -eq 0 ]; then
-        echo -e "\e[32;1m[+] \e[0mSuccessfully Installed\e[0m"
+
+    if confirm "Do you want to delete the Alpine installation to free up space?"; then
+      info "Deleting Alpine installation..."
+      rm -rf "$ALPINE_DIR"
+      info "Alpine has been removed."
+    else
+      warn "Alpine installation retained."
+      touch "$RETAINED_FILE"
     fi
-    echo -e "\e[34m[*] \e[0mUse \e[32mapk\e[0m to install new packages\e[0m"
+  fi
 fi
 
-#fix linker warning
-if [[ ! -f /linkerconfig/ld.config.txt ]];then
-    mkdir -p /linkerconfig
-    touch /linkerconfig/ld.config.txt
-fi
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin
 
-if [ "$#" -eq 0 ]; then
-    $START_SHELL
-else
-    exec "$@"
-fi
+# Continue with the rest of the script
+cd "$WKDIR" || { error "Failed to change directory to $WKDIR"; exit 1; }
+exec bash

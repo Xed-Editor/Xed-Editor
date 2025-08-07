@@ -3,7 +3,7 @@
 
     <application>
         <provider
-            android:name="com.rk.AlpineDocumentProvider"
+            android:name="com.rk.DocumentProvider"
             android:authorities="${applicationId}.documents"
             android:exported="true"
             android:grantUriPermissions="true"

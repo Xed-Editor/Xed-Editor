@@ -10,7 +10,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rk.libcommons.toast
 import com.rk.resources.strings
-import com.rk.xededitor.ui.screens.settings.terminal.updateTermuxExecStatus
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -37,15 +36,6 @@ class SettingsActivity : ComponentActivity() {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        settingsNavController.get()?.let {
-            if (it.currentDestination?.route == SettingsRoutes.TerminalSettings.route) {
-                lifecycleScope.launch { updateTermuxExecStatus() }
             }
         }
     }

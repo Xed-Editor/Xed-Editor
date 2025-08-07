@@ -3,21 +3,19 @@ package com.rk.xededitor.ui.screens.terminal
 import android.os.Environment
 import com.rk.compose.filetree.currentProject
 import com.rk.file_wrapper.FileWrapper
-import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.sandboxHomeDir
 import com.rk.libcommons.child
 import com.rk.libcommons.localBinDir
 import com.rk.libcommons.localLibDir
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
 import com.rk.App.Companion.getTempDir
-import com.rk.libcommons.alpineDir
+import com.rk.libcommons.sandboxDir
 import com.rk.libcommons.isFdroid
+import com.rk.libcommons.localDir
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
-//import com.rk.xededitor.MainActivity.file.ProjectManager
 import com.rk.xededitor.ui.activities.terminal.Terminal
-import com.rk.xededitor.ui.screens.settings.terminal.RuntimeType
-import com.rk.xededitor.ui.screens.settings.terminal.runtime
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
@@ -41,39 +39,43 @@ object MkSession {
                 "PATH" to System.getenv("PATH")?.toString()+":${localBinDir().absolutePath}"
             )
 
-            fun getRawPwd(): String{
+
+
+            fun getPwd(): String?{
+                if (pendingCommand?.workingDir != null){
+                    return pendingCommand?.workingDir
+                }
+
                 if (intent.hasExtra("cwd")){
                     return intent.getStringExtra("cwd").toString()
                 }
 
                 if (Settings.project_as_pwd){
                     if (currentProject != null && currentProject is FileWrapper){
-                        return currentProject!!.getAbsolutePath()
+                        return if (Settings.sandbox){
+                            currentProject!!.getAbsolutePath().removePrefix(localDir().absolutePath)
+                        }else{
+                            currentProject!!.getAbsolutePath()
+                        }
                     }
                 }else{
                     val tabParent = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()?.getParentFile()
                     if(tabParent != null && tabParent is FileWrapper){
-                        return tabParent.file.absolutePath
+                        return if (Settings.sandbox){
+                            tabParent.file.absolutePath.removePrefix(localDir().absolutePath)
+                        }else{
+                            tabParent.file.absolutePath
+                        }
                     }
                 }
-
-
-                return Environment.getExternalStorageDirectory().absolutePath
-            }
-
-            fun getPwd(): String{
-                val path = getRawPwd()
-
-                if (runtime == RuntimeType.ALPINE.type) {
-                    path.removePrefix(alpineDir().absolutePath)
+                return if (Settings.sandbox){
+                    "/home"
                 }else{
-                    path
+                    sandboxHomeDir().absolutePath
                 }
-
-                return path
             }
 
-            val workingDir = (pendingCommand?.workingDir ?: getPwd())
+            val workingDir = getPwd()
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 
@@ -85,7 +87,7 @@ object MkSession {
 
             val env = mutableListOf(
                 "PROOT_TMP_DIR=${tmpDir.absolutePath}",
-                "HOME=${filesDir.path}",
+                "WKDIR=${workingDir}",
                 "PUBLIC_HOME=${getExternalFilesDir(null)?.absolutePath}",
                 "COLORTERM=truecolor",
                 "TERM=xterm-256color",
@@ -93,12 +95,13 @@ object MkSession {
                 "DEBUG=${BuildConfig.DEBUG}",
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
-                "HOME=${alpineHomeDir()}",
+                "EXT_HOME=${sandboxHomeDir()}",
+                "HOME=/home",
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
                 "FDROID=${isFdroid}",
-                "RUNTIME=${Settings.terminal_runtime}"
+                "SANDBOX=${Settings.sandbox}"
             )
 
             if (!isFdroid){
@@ -108,9 +111,6 @@ object MkSession {
                 }
             }
 
-
-
-
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
             pendingCommand?.env?.let {
@@ -119,24 +119,23 @@ object MkSession {
 
             setupTerminalFiles()
 
-            val initHost = localBinDir().child("init-host")
+            val sanboxSH = localBinDir().child("sandbox")
 
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
-                args = if (Settings.terminal_runtime == "Android"
-                ) {
-                    arrayOf()
+                args = if (Settings.sandbox) {
+                    arrayOf("-c", sanboxSH.absolutePath)
                 } else {
-                    arrayOf("-c", initHost.absolutePath)
+                    arrayOf()
                 }
                 "/system/bin/sh"
-            } else if (pendingCommand!!.alpine.not()) {
+            } else if (pendingCommand!!.sandbox.not()) {
                 args = pendingCommand!!.args
                 pendingCommand!!.shell
             } else {
                 args = mutableListOf(
-                    "-c", initHost.absolutePath, pendingCommand!!.shell
+                    "-c", sanboxSH.absolutePath, pendingCommand!!.shell
                 ).also<MutableList<String>> {
                     it.addAll(pendingCommand!!.args)
                 }.toTypedArray<String>()
@@ -147,7 +146,7 @@ object MkSession {
             pendingCommand = null
             return TerminalSession(
                 shell,
-                workingDir,
+                localDir().absolutePath,
                 args,
                 env.toTypedArray(),
                 TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,

@@ -129,72 +129,17 @@ class FileAction(
             }
 
 
-            fun isTermux(): Boolean {
-                return Settings.terminal_runtime == "Termux"
-            }
-
-
-            if (isTermux() && file is UriWrapper && file.isTermuxUri()) {
+            if (file is FileWrapper) {
                 addItem(
-                    getString(strings.open_in_terminal) + " (${Settings.terminal_runtime})",
+                    getString(strings.open_in_terminal),
                     getString(strings.open_dir_in_terminal),
                     getDrawable(drawables.terminal),
                 ) {
-                    val actualFile = file.convertToTermuxFile()
-                    runBashScript(
-                        mainActivity, script = """
-                            cd ${actualFile.absolutePath}
-                            bash -l
-                        """.trimIndent()
-                    )
-                }
-            } else {
-                val nativeFile = if (file is FileWrapper) {
-                    file.file
-                } else if (File(file.getAbsolutePath()).exists()) {
-                    File(file.getAbsolutePath())
-                } else {
-                    val magic = File(Uri.parse(file.getAbsolutePath()).toPath())
-                    if (magic.exists()) {
-                        magic
-                    } else {
-                        null
-                    }
-                }
-
-                fun isPrivateDir(file: File?): Boolean {
-                    return file?.absolutePath?.contains(mainActivity.filesDir.parentFile!!.absolutePath)
-                        ?.not() == true
-                }
-                if ((isTermux() && isPrivateDir(nativeFile)).not()) {
-                    if (nativeFile != null && nativeFile.exists() && nativeFile.isDirectory && InbuiltFeatures.terminal.state.value) {
-                        addItem(
-                            getString(strings.open_in_terminal) + " (${Settings.terminal_runtime})",
-                            getString(strings.open_dir_in_terminal),
-                            getDrawable(drawables.terminal),
-                        ) {
-
-                            if (Settings.terminal_runtime == "Termux") {
-                                runBashScript(
-                                    mainActivity, script = """
-                            cd ${file.getAbsolutePath()}
-                            bash -l
-                        """.trimIndent()
-                                )
-                            } else {
-                                val intent = Intent(context, Terminal::class.java)
-                                intent.putExtra("cwd", file.getAbsolutePath())
-                                context.startActivity(intent)
-                            }
-
-                        }
-                    }
+                    val intent = Intent(context, Terminal::class.java)
+                    intent.putExtra("cwd", file.getAbsolutePath())
+                    context.startActivity(intent)
                 }
             }
-
-
-
-
 
             if (file != rootFolder) {
                 addItem(
@@ -204,7 +149,7 @@ class FileAction(
                 ) {
                     MaterialAlertDialogBuilder(context).setTitle(getString(strings.delete))
                         .setMessage(
-                            getString(strings.ask_del) + " ${file.getName()}? ${
+                            getString(strings.ask_del) + " '${file.getName()}'? ${
                                 getString(
                                     strings.cant_undo
                                 )

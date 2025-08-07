@@ -15,7 +15,7 @@ import com.rk.file_wrapper.FileWrapper
 import com.rk.launchTermux
 import com.rk.libcommons.DefaultScope
 import com.rk.libcommons.Printer
-import com.rk.libcommons.alpineHomeDir
+import com.rk.libcommons.sandboxHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.child
@@ -96,23 +96,11 @@ object MenuClickHandler {
             }
 
             Id.terminal -> {
-                val runtime = Settings.terminal_runtime
-                if (runtime == "Termux") {
-                    kotlin.runCatching {
-                        launchTermux()
-                    }.onFailure {
-                        runOnUiThread {
-                            Toast.makeText(activity, it.message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    activity.startActivity(
-                        Intent(
-                            activity, Terminal::class.java
-                        )
+                activity.startActivity(
+                    Intent(
+                        activity, Terminal::class.java
                     )
-
-                }
+                )
                 return true
             }
 
@@ -226,7 +214,7 @@ object MenuClickHandler {
                                 dialog?.dismiss()
                                 activity.adapter!!.addFragment(
                                     FileWrapper(
-                                        alpineHomeDir().child("temp.txt").createFileIfNot()
+                                        sandboxHomeDir().child("temp.txt").createFileIfNot()
                                     )
                                 )
 

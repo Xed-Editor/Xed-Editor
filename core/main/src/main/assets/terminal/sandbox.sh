@@ -1,6 +1,5 @@
 ARGS="--kill-on-exit"
 ARGS="$ARGS -w /"
-export XPWD=$PWD
 
 for system_mnt in /apex /odm /product /system /system_ext /vendor \
  /linkerconfig/ld.config.txt \
@@ -20,6 +19,8 @@ ARGS="$ARGS -b /dev"
 ARGS="$ARGS -b /data"
 ARGS="$ARGS -b /dev/urandom:/dev/random"
 ARGS="$ARGS -b /proc"
+ARGS="$ARGS -b $EXT_HOME:/home"
+ARGS="$ARGS -b $EXT_HOME:/root"
 ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b $PREFIX/local/stat:/proc/stat"
 ARGS="$ARGS -b $PREFIX/local/vmstat:/proc/vmstat"
@@ -44,13 +45,14 @@ fi
 ARGS="$ARGS -b $PREFIX"
 ARGS="$ARGS -b /sys"
 
-if [ ! -d "$PREFIX/local/alpine/tmp" ]; then
- mkdir -p "$PREFIX/local/alpine/tmp"
- chmod 1777 "$PREFIX/local/alpine/tmp"
+if [ ! -d "$PREFIX/local/sandbox/tmp" ]; then
+ mkdir -p "$PREFIX/local/sandbox/tmp"
+ chmod 1777 "$PREFIX/local/sandbox/tmp"
 fi
-ARGS="$ARGS -b $PREFIX/local/alpine/tmp:/dev/shm"
 
-ARGS="$ARGS -r $PREFIX/local/alpine"
+ARGS="$ARGS -b $PREFIX/local/sandbox/tmp:/dev/shm"
+
+ARGS="$ARGS -r $PREFIX/local/sandbox"
 ARGS="$ARGS -0"
 ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"

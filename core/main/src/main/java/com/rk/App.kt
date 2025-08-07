@@ -6,7 +6,6 @@ import android.os.StrictMode
 import android.system.Os
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
-import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
 import com.rk.libcommons.application
 import com.rk.libcommons.child
@@ -17,8 +16,6 @@ import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
-import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
-import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -30,7 +27,7 @@ class App : Application() {
 
     companion object {
         fun getTempDir(): File {
-            val tmp = File(application!!.filesDir.parentFile, "tmp")
+            val tmp = File(application!!.cacheDir.parentFile, "tmp")
             if (!tmp.exists()) {
                 tmp.mkdir()
             }
@@ -73,7 +70,7 @@ class App : Application() {
         UpdateManager.inspect()
 
         GlobalScope.launch {
-            AlpineDocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir)
+            DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir)
 
             getTempDir().apply {
                 if (exists() && listFiles().isNullOrEmpty().not()) {

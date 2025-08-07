@@ -108,6 +108,10 @@ object Settings {
         get() = Preference.getBoolean(key = "donated", default = false)
         set(value) = Preference.setBoolean(key = "donated", value)
 
+    var sandbox
+        get() = Preference.getBoolean(key = "sandbox", default = true)
+        set(value) = Preference.setBoolean(key = "sandbox", value)
+
 
     //Int
     var tab_size
@@ -150,13 +154,6 @@ object Settings {
     var mutators
         get() = Preference.getString(key = "mutators", default = "")
         set(value) = Preference.setString(key = "mutators", value)
-    var terminal_runtime: String
-        get() {
-            return Preference.getString(
-                key = "terminal_runtime", default = "Alpine"
-            )
-        }
-        set(value) = Preference.setString(key = "terminal_runtime", value)
     var git_url
         get() = Preference.getString(key = "git_url", default = "github.com")
         set(value) = Preference.setString(key = "git_url", value)
