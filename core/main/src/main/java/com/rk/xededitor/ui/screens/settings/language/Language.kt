@@ -78,7 +78,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             }
 
             otherList.remove(Locale("hi"))
-            indiaList.addFirst(Locale("hi"))
+            indiaList.add(0,Locale("hi"))
 
             indianLangs.addAll(indiaList)
             languages.addAll(otherList)
