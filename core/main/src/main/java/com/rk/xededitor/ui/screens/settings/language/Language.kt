@@ -66,7 +66,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             val otherList = mutableListOf<Locale>()
 
             langs.forEach {
-                if (it.language == "hi" ||
+                if (
                     it.language == "en" ||
                     it.language == "ta" ||
                     it.language == "id" ||
@@ -77,9 +77,10 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            indianLangs.addAll(indiaList.sortedWith(compareBy<Locale> {
-                if (it.language == "hi") 0 else 1
-            }.thenBy { it.displayLanguage }))
+            otherList.remove(Locale("hi"))
+            indiaList.addFirst(Locale("hi"))
+
+            indianLangs.addAll(indiaList)
             languages.addAll(otherList)
         }
 
