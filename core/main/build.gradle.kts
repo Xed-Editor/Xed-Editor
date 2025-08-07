@@ -1,4 +1,6 @@
 import java.io.ByteArrayOutputStream
+import java.io.File
+import groovy.json.JsonOutput
 
 plugins {
     alias(libs.plugins.androidLibrary)
@@ -83,9 +85,46 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "2.1.10"
     }
-
-
 }
+
+val runPrecompileScript by tasks.registering {
+    group = "build setup"
+    description = "Update supported_locales.json in assets"
+    doFirst {
+        val resDir = file("${project.rootDir}/core/resources/src/main/res")
+        val outputFile = file("src/main/assets/supported_locales.json")
+        // Ensure output directory exists
+        outputFile.parentFile.mkdirs()
+
+        val locales = mutableListOf<String>()
+
+        resDir.listFiles { file -> file.isDirectory && file.name.startsWith("values") }?.forEach { dir ->
+            val folderName = dir.name
+            val locale = when {
+                folderName == "values" -> "en"
+                folderName.startsWith("values-") -> {
+                    // Replace -r with -
+                    folderName.removePrefix("values-").replace("-r", "-")
+                }
+                else -> null
+            }
+            locale?.let { locales.add(it) }
+        }
+
+        // Write JSON array to file
+        outputFile.writeText(
+            JsonOutput.prettyPrint(JsonOutput.toJson(locales))
+        )
+
+        println("✅ Generated ${outputFile.path}")
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn(runPrecompileScript)
+}
+
+
 
 dependencies {
     api(libs.appcompat)

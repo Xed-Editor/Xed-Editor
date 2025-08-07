@@ -55,6 +55,24 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
         val context = LocalContext.current
 
         PreferenceGroup {
+
+            SettingsToggle(
+                label = stringResource(strings.lang),
+                description = stringResource(strings.lang_desc),
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+                sideEffect = {
+                    navController.navigate(SettingsRoutes.LanguageScreen.route)
+                }
+            )
+
             SettingsToggle(label = stringResource(id = strings.theme_mode),
                 description = stringResource(id = strings.theme_mode_desc),
                 showSwitch = false,
@@ -106,7 +124,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
             SettingsToggle(
                 label = stringResource(strings.manage_storage),
-                description = stringResource(strings.manage_storage),
+                description = stringResource(strings.manage_storage_desc),
                 isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
                 showSwitch = false,
                 default = false,

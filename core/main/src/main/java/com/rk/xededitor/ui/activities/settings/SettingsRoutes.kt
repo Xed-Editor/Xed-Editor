@@ -16,4 +16,5 @@ sealed class SettingsRoutes(val route: String) {
     data object FeatureToggles : SettingsRoutes("feature_toggles")
     data object Misc : SettingsRoutes("misc")
     data object Support : SettingsRoutes("support")
+    data object LanguageScreen : SettingsRoutes("language")
 }
