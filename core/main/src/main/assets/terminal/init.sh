@@ -1,3 +1,6 @@
+force_color_prompt=yes
+shopt -s checkwinsize
+
 info() {
   printf '\033[34;1m[*] \033[0m%s\n' "$1"
 }
@@ -51,8 +54,35 @@ if [ -d "$ALPINE_DIR" ]; then
   fi
 fi
 
+if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-not-found ]; then
+	function command_not_found_handle {
+	        # check because c-n-f could've been removed in the meantime
+                if [ -x /usr/lib/command-not-found ]; then
+		   /usr/lib/command-not-found -- "$1"
+                   return $?
+                elif [ -x /usr/share/command-not-found/command-not-found ]; then
+		   /usr/share/command-not-found/command-not-found -- "$1"
+                   return $?
+		else
+		   printf "%s: command not found\n" "$1" >&2
+		   return 127
+		fi
+	}
+fi
+
+
+if [[ -f ~/.bashrc ]]; then
+    source ~/.bashrc
+fi
+
+
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin
 
-# Continue with the rest of the script
+export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] # "
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
 cd "$WKDIR" || { error "Failed to change directory to $WKDIR"; exit 1; }
-exec bash
