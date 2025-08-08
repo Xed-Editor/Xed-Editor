@@ -59,8 +59,16 @@ ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
 if [ "$FDROID" = false ]; then
-    $LINKER $PREFIX/local/bin/proot $ARGS /bin/bash --rcfile $PREFIX/local/bin/init "$@"
+    if [ $# -gt 0 ]; then
+        $LINKER "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i -c "$*"
+    else
+        $LINKER "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i
+    fi
 else
-    $PREFIX/local/bin/proot $ARGS /bin/bash --rcfile $PREFIX/local/bin/init "$@"
+    if [ $# -gt 0 ]; then
+        "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i -c "$*"
+    else
+        "$PREFIX"/local/bin/proot $ARGS /bin/bash --rcfile "$PREFIX"/local/bin/init -i
+    fi
 fi
 

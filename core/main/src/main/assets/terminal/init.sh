@@ -1,3 +1,4 @@
+# shellcheck disable=SC2034
 force_color_prompt=yes
 shopt -s checkwinsize
 
@@ -72,6 +73,7 @@ fi
 
 
 if [[ -f ~/.bashrc ]]; then
+    # shellcheck disable=SC1090
     source ~/.bashrc
 fi
 

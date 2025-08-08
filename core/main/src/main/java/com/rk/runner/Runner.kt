@@ -95,7 +95,7 @@ object Runner {
 
 
     private suspend fun showRunnerSelectionDialog(runners: List<RunnerImpl>) {
-        TODO()
+        errorDialog("Multi runner support not implemented yet")
     }
 
     suspend fun onMainActivityResumed(){

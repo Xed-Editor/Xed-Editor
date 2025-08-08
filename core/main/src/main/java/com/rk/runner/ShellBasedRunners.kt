@@ -18,6 +18,7 @@ import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
+import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,9 +48,16 @@ object ShellBasedRunners{
     }
 
 
+
     suspend fun saveRunners(){
         val json = Gson().toJson(runners)
         localDir().child("runners.json").writeText(json)
+    }
+
+    suspend fun deleteRunner(runner: ShellBasedRunner,deleteScript: Boolean = true){
+        runners.remove(runner)
+        saveRunners()
+        runnerDir().child("${runner.getName()}.sh").createFileIfNot().delete()
     }
 
     suspend fun indexRunners() {
@@ -71,7 +79,7 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
         val script = runnerDir().child("${name}.sh").createFileIfNot()
         launchInternalTerminal(context, TerminalCommand(
             exe = "/bin/bash",
-            args = arrayOf("-c",script.absolutePath,fileObject.getAbsolutePath()),
+            args = arrayOf(script.absolutePath,fileObject.getAbsolutePath()),
             id = name,
         ))
     }
@@ -80,7 +88,7 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
         pendingCommand = terminalCommand
         context.startActivity(
             Intent(
-                context, Class.forName("com.rk.xededitor.ui.activities.terminal.Terminal")
+                context, Terminal::class.java
             )
         )
     }
