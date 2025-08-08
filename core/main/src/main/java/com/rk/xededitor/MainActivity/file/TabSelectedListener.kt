@@ -5,14 +5,13 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.Tab
 import com.google.android.material.tabs.TabLayoutMediator
 import com.rk.extension.Hooks
-import com.rk.libcommons.DefaultScope
+import com.rk.DefaultScope
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.TabFragment
 import com.rk.xededitor.MainActivity.currentTab
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.R
@@ -29,7 +28,7 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
             activity.viewPager!!.setCurrentItem(tab!!.position, false)
         }
         tab?.text = tab?.text
-        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+        DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
         tab?.view?.setOnLongClickListener { view ->
             onTabReselected(tab)
@@ -38,7 +37,7 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
     }
 
     override fun onTabReselected(tab: Tab?) {
-        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+        DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
         val view = tab?.view
 
@@ -56,7 +55,7 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
                     activity.adapter!!.removeFragment(tab.position, true)
                     DefaultScope.launch{
                         if (Hooks.Editor.onTabClosed.isNotEmpty()){
-                            Hooks.Editor.onTabClosed.forEach { it.value.invoke(MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles[tab.position]) }
+                            Hooks.Editor.onTabClosed.forEach { it.value.invoke(MainActivity.instance?.tabViewModel!!.fragmentFiles[tab.position]) }
                         }
                     }
                 }
@@ -86,13 +85,16 @@ class TabSelectedListener(val activity: MainActivity) : TabLayout.OnTabSelectedL
                     toast("${strings.unknown_err} ${strings.restart_app}")
                 }
             }.attach()
-            DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+            DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
-            MainActivity.withContext {
-                for (i in 0 until tabViewModel.fragmentTitles.size) {
-                    tabLayout!!.getTabAt(i)?.text = tabViewModel.fragmentTitles[i]
+            if (MainActivity.instance != null){
+                with(MainActivity.instance!!){
+                    for (i in 0 until tabViewModel.fragmentTitles.size) {
+                        tabLayout!!.getTabAt(i)?.text = tabViewModel.fragmentTitles[i]
+                    }
                 }
             }
+
 
             true
         }

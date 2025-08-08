@@ -1,12 +1,12 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.content.Context
-import com.rk.libcommons.sandboxDir
-import com.rk.libcommons.sandboxHomeDir
-import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
 import com.rk.libcommons.isMainThread
 import com.rk.App.Companion.getTempDir
+import com.rk.file.child
+import com.rk.file.createFileIfNot
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import java.io.File
 import java.lang.Runtime.getRuntime
 

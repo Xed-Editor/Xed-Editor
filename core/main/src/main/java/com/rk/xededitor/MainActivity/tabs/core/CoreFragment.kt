@@ -1,7 +1,7 @@
 package com.rk.xededitor.MainActivity.tabs.core
 
 import android.view.View
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 
 abstract class CoreFragment {
     private var file: FileObject? = null

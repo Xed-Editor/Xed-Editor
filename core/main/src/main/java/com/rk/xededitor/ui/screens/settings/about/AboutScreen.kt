@@ -25,10 +25,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import coil.compose.AsyncImage
+import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.libcommons.isFdroid
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -131,7 +131,7 @@ fun AboutScreen() {
                 },
                 description = {
                     Text(
-                        text = if (isFdroid) "FDroid" else "PlayStore",
+                        text = if (App.isFDroid) "FDroid" else "PlayStore",
                         style = MaterialTheme.typography.titleSmall,
                     )
                 },

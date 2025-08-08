@@ -1,67 +1,40 @@
 package com.rk.xededitor.ui.screens.settings.terminal
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.DocumentProvider
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
-import com.rk.isTermuxCompatible
-import com.rk.isTermuxInstalled
-import com.rk.libcommons.DefaultScope
+import com.rk.file.child
+import com.rk.file.sandboxDir
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
-import com.rk.libcommons.sandboxDir
-import com.rk.libcommons.child
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.testExecPermission
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
-import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.components.ValueSlider
 import com.rk.xededitor.ui.screens.terminal.terminalView
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -159,7 +132,7 @@ fun SettingsTerminalScreen() {
 
                 MaterialAlertDialogBuilder(activity ?: context).apply {
                     setTitle(strings.file_name)
-                    val popupView: View = LayoutInflater.from(MainActivity.activityRef.get()!!)
+                    val popupView: View = LayoutInflater.from(MainActivity.instance)
                         .inflate(R.layout.popup_new, null)
                     val editText = popupView.findViewById<EditText>(R.id.name)
                     editText.setText("terminal-backup.tar.gz")

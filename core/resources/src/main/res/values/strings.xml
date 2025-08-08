@@ -444,4 +444,7 @@
     <string name="lang">Language</string>
     <string name="lang_desc">Language settings</string>
     <string name="indian">Indian</string>
+    <string name="runners">Runners</string>
+    <string name="runners_desc">Shell runners</string>
+    <string name="no_runners">No Runners</string>
 </resources>

@@ -73,18 +73,21 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
         var result = "__invalid__"  // Default value
         runBlocking {
             withContext(Dispatchers.Main) {
-                MainActivity.withContext {
-                    val fragment =
-                        adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(
-                            com.rk.file_wrapper.FileWrapper(
-                                it
-                            )
-                        ) })
-                            ?.get()?.fragment
-                    if (fragment is EditorFragment) {
-                        result = fragment.editor?.text.toString()
+                if (MainActivity.instance != null){
+                    with(MainActivity.instance!!) {
+                        val fragment =
+                            adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(
+                                com.rk.file.FileWrapper(
+                                    it
+                                )
+                            ) })
+                                ?.get()?.fragment
+                        if (fragment is EditorFragment) {
+                            result = fragment.editor?.text.toString()
+                        }
                     }
                 }
+
             }
         }
         return result
@@ -94,9 +97,12 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
         var loadingPopup:LoadingPopup? = null
         runBlocking {
             withContext(Dispatchers.Main){
-                MainActivity.withContext {
-                    loadingPopup = LoadingPopup(this,null).show()
+                if (MainActivity.instance != null){
+                    with(MainActivity.instance!!) {
+                        loadingPopup = LoadingPopup(this,null).show()
+                    }
                 }
+
             }
         }
 
@@ -167,11 +173,14 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
     override fun showDialog(title: String?, content: String?) {
         runBlocking {
             withContext(Dispatchers.Main) {
-                MainActivity.withContext {
-                    MaterialAlertDialogBuilder(this).setTitle(title).setMessage(content)
-                        .setPositiveButton("OK", null).show()
+                if (MainActivity.instance != null){
+                    with(MainActivity.instance!!) {
+                        MaterialAlertDialogBuilder(this).setTitle(title).setMessage(content)
+                            .setPositiveButton("OK", null).show()
 
+                    }
                 }
+
             }
         }
 
@@ -182,28 +191,31 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
      runBlocking {
          val latch = java.util.concurrent.CountDownLatch(1)
          withContext(Dispatchers.Main) {
-             MainActivity.withContext {
-                 val editText = android.widget.EditText(this)
-                 editText.hint = hint ?: ""
-                 editText.setText(prefill ?: "")
+             if (MainActivity.instance != null){
+                 with(MainActivity.instance!!) {
+                     val editText = android.widget.EditText(this)
+                     editText.hint = hint ?: ""
+                     editText.setText(prefill ?: "")
 
-                 MaterialAlertDialogBuilder(this)
-                     .setTitle(title)
-                     .setView(editText)
-                     .setPositiveButton(strings.ok) { _, _ ->
-                         result = editText.text.toString()
-                         latch.countDown()
-                     }
-                     .setNegativeButton(strings.cancel) { _, _ ->
-                         result = null
-                         latch.countDown()
-                     }
-                     .setOnCancelListener {
-                         result = null
-                         latch.countDown()
-                     }
-                     .show()
+                     MaterialAlertDialogBuilder(this)
+                         .setTitle(title)
+                         .setView(editText)
+                         .setPositiveButton(strings.ok) { _, _ ->
+                             result = editText.text.toString()
+                             latch.countDown()
+                         }
+                         .setNegativeButton(strings.cancel) { _, _ ->
+                             result = null
+                             latch.countDown()
+                         }
+                         .setOnCancelListener {
+                             result = null
+                             latch.countDown()
+                         }
+                         .show()
+                 }
              }
+
          }
          latch.await()
      }

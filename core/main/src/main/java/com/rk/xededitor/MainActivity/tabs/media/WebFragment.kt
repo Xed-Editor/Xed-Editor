@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import com.rk.runner.runners.web.HttpServer
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import kotlinx.coroutines.CoroutineScope

@@ -1,4 +1,4 @@
-package com.rk.libcommons
+package com.rk
 
 import androidx.lifecycle.lifecycleScope
 import com.rk.xededitor.MainActivity.MainActivity
@@ -10,5 +10,5 @@ import kotlinx.coroutines.GlobalScope
 @OptIn(DelicateCoroutinesApi::class)
 val DefaultScope:CoroutineScope
     get() {
-        return MainActivity.activityRef.get()?.lifecycleScope ?: GlobalScope
+        return MainActivity.instance?.lifecycleScope ?: GlobalScope
     }

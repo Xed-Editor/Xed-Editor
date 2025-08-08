@@ -111,7 +111,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             }else{
                 SettingsToggle(
                     modifier = Modifier,
-                    label = "Loading...",
+                    label = stringResource(strings.loading),
                     default = false,
                     sideEffect = {},
                     showSwitch = false,
@@ -142,7 +142,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
             }else{
                 SettingsToggle(
                     modifier = Modifier,
-                    label = "Loading...",
+                    label = stringResource(strings.loading),
                     default = false,
                     sideEffect = {},
                     showSwitch = false,

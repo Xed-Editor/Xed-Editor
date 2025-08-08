@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import com.rk.isTermuxInstalled
 import com.rk.libcommons.application
-import com.rk.libcommons.isFdroid
 import com.rk.xededitor.BuildConfig
 import java.nio.charset.Charset
 

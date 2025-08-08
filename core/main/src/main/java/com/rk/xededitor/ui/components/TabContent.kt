@@ -81,7 +81,7 @@ class MainViewModel : ViewModel() {
 }
 
 @Composable
-fun TabContent(modifier: Modifier = Modifier, file: com.rk.file_wrapper.FileObject, type: FragmentType, viewModel: MainViewModel = viewModel()) {
+fun TabContent(modifier: Modifier = Modifier, file: com.rk.file.FileObject, type: FragmentType, viewModel: MainViewModel = viewModel()) {
     when(type){
         FragmentType.EDITOR -> {
             CodeEditor(

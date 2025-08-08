@@ -12,23 +12,20 @@ import androidx.constraintlayout.widget.ConstraintSet
 import com.google.android.material.badge.BadgeUtils
 import com.google.android.material.badge.ExperimentalBadgeUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.rk.file_wrapper.FileObject
-import com.rk.libcommons.UI
+import com.rk.file.FileObject
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SearchPanel
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.safeLaunch
+import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
-import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import com.rk.xededitor.R
-import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.text.Content
@@ -146,28 +143,36 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             }
         }
         fun refresh() {
-            scope.safeLaunch(Dispatchers.IO) {
-                isFileLoaded = false
-                editor?.loadFile(file!!, Charset.forName(Settings.encoding))
-                UI {
-                    MainActivity.withContext {
-                        val index = tabViewModel.fragmentFiles.indexOf(file)
-                        tabViewModel.fragmentTitles.let {
-                            if (file!!.getName() != it[index]) {
-                                it[index] = file!!.getName()
-                                tabLayout!!.getTabAt(index)?.text = file!!.getName()
+            scope.launch(Dispatchers.IO) {
+                runCatching {
+
+
+                    isFileLoaded = false
+                    editor?.loadFile(file!!, Charset.forName(Settings.encoding))
+                    runOnUiThread {
+                        if (MainActivity.instance != null){
+                            with(MainActivity.instance!!) {
+                                val index = tabViewModel.fragmentFiles.indexOf(file)
+                                tabViewModel.fragmentTitles.let {
+                                    if (file!!.getName() != it[index]) {
+                                        it[index] = file!!.getName()
+                                        tabLayout!!.getTabAt(index)?.text = file!!.getName()
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                file?.let {
-                    if (fileset.contains(it.getName())) {
-                        fileset.remove(it.getName())
-                    }
-                }
-                FilesContent.remove(file!!.getAbsolutePath())
-                isFileLoaded = true
 
+                    }
+                    file?.let {
+                        if (fileset.contains(it.getName())) {
+                            fileset.remove(it.getName())
+                        }
+                    }
+                    FilesContent.remove(file!!.getAbsolutePath())
+                    isFileLoaded = true
+                }.onFailure {
+                    errorDialog(it)
+                }
             }
         }
 
@@ -191,19 +196,19 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     object FilesContent {
         fun containsKey(key: String): Boolean {
-            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.containsKey(key) == true
+            return MainActivity.instance?.tabViewModel?.fragmentContent?.containsKey(key) == true
         }
 
         fun getContent(key: String): Content? {
-            return MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.get(key)
+            return MainActivity.instance?.tabViewModel?.fragmentContent?.get(key)
         }
 
         fun setContent(key: String, content: Content) {
-            MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.put(key, content)
+            MainActivity.instance?.tabViewModel?.fragmentContent?.put(key, content)
         }
 
         fun remove(key: String) {
-            MainActivity.activityRef.get()?.tabViewModel?.fragmentContent?.remove(key)
+            MainActivity.instance?.tabViewModel?.fragmentContent?.remove(key)
         }
 
     }
@@ -211,24 +216,34 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     override fun loadFile(file: FileObject) {
         this.file = file
-        scope.safeLaunch {
-            UI {
-                setChangeListener()
-                file.let {
-                    if (it.getName().endsWith(".txt") && Settings.word_wrap_for_text) {
-                        editor?.isWordwrap = true
+        scope.launch {
+            runCatching {
+                runOnUiThread{
+                    setChangeListener()
+                    file.let {
+                        if (it.getName().endsWith(".txt") && Settings.word_wrap_for_text) {
+                            editor?.isWordwrap = true
+                        }
                     }
                 }
+            }.onFailure {
+                errorDialog(it)
             }
-            safeLaunch {
-                if (lspPort != null && lspExt != null){
-                    lspConnector = LspConnector(ext = file.getName().substringAfterLast("."), port = lspPort!!)
+
+            launch {
+                runCatching {
+                    if (lspPort != null && lspExt != null){
+                        lspConnector = LspConnector(ext = file.getName().substringAfterLast("."), port = lspPort!!)
+                    }
+                    if (lspConnector != null && lspConnector!!.isSupported(file)){
+                        lspConnector!!.connect(projectFile = file.getParentFile()!!, editorFragment = this@EditorFragment)
+                    }else{
+                        setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
+                    }
+                }.onFailure {
+                    errorDialog(it)
                 }
-                if (lspConnector != null && lspConnector!!.isSupported(file)){
-                    lspConnector!!.connect(projectFile = file.getParentFile()!!, editorFragment = this@EditorFragment)
-                }else{
-                    setupEditor!!.setupLanguage(this@EditorFragment.file!!.getName())
-                }
+
             }
             if (FilesContent.containsKey(this@EditorFragment.file!!.getAbsolutePath())) {
                 mutex.withLock {
@@ -287,63 +302,67 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
             return
         }
 
-        GlobalScope.safeLaunch(Dispatchers.IO) {
-            saveMutex.withLock{
+        GlobalScope.launch(Dispatchers.IO) {
+            runCatching {
+                saveMutex.withLock{
+                    runCatching {
+                        val charset = Settings.encoding
+                        val text = editor?.text.toString()
+                        if (isAutoSaver && text.isBlank()){
+                            return@runCatching
+                        }
+                        file!!.writeText(text,charset = Charset.forName(charset))
+                        lastSaveTime = System.currentTimeMillis()
+                    }.onFailure {
+                        if (it is SecurityException){
+                            if (isAutoSaver.not()){
+                                toast(strings.read_only_file)
+                            }
+                            return@runCatching
+                        }else{
+                            if (isAutoSaver.not()){
+                                errorDialog(it)
+                            }
+                            it.printStackTrace()
+                        }
+                    }
+                }
+
                 runCatching {
                     val charset = Settings.encoding
-                    val text = editor?.text.toString()
-                    if (isAutoSaver && text.isBlank()){
-                        return@safeLaunch
+                    file!!.writeText(editor?.text.toString(),charset = Charset.forName(charset))
+                    withContext(Dispatchers.Main){
+                        with(MainActivity.instance!!){
+                            badge?.let {
+                                BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                            }
+                        }
                     }
-                    file!!.writeText(text,charset = Charset.forName(charset))
-                    lastSaveTime = System.currentTimeMillis()
                 }.onFailure {
                     if (it is SecurityException){
-                        if (isAutoSaver.not()){
-                            toast(strings.read_only_file)
-                        }
-                        return@safeLaunch
+                        toast(strings.read_only_file)
+                        return@runCatching
                     }else{
-                        if (isAutoSaver.not()){
-                            errorDialog(it)
-                        }
                         it.printStackTrace()
                     }
                 }
-            }
 
-
-            toastCatching {
-                val charset = Settings.encoding
-                file!!.writeText(editor?.text.toString(),charset = Charset.forName(charset))
-                withContext(Dispatchers.Main){
-                    MainActivity.withContext {
-                        badge?.let {
-                            BadgeUtils.detachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                MainActivity.instance?.let { activity ->
+                    val index = activity.tabViewModel.fragmentFiles.indexOf(file)
+                    activity.tabViewModel.fragmentTitles.let {
+                        if (file!!.getName() != it[index]) {
+                            it[index] = file!!.getName()
+                            withContext(Dispatchers.Main) {
+                                activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
+                            }
                         }
                     }
                 }
-            }?.let{
-                if (it is SecurityException){
-                    toast(strings.read_only_file)
-                    return@safeLaunch
-                }else{
-                    it.printStackTrace()
-                }
+                fileset.remove(file!!.getName())
+            }.onFailure {
+                errorDialog(it)
             }
 
-            MainActivity.activityRef.get()?.let { activity ->
-                val index = activity.tabViewModel.fragmentFiles.indexOf(file)
-                activity.tabViewModel.fragmentTitles.let {
-                    if (file!!.getName() != it[index]) {
-                        it[index] = file!!.getName()
-                        withContext(Dispatchers.Main) {
-                            activity.tabLayout!!.getTabAt(index)?.text = file!!.getName()
-                        }
-                    }
-                }
-            }
-            fileset.remove(file!!.getName())
         }
     }
 
@@ -363,9 +382,11 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
     @OptIn(DelicateCoroutinesApi::class)
     override fun onClosed() {
         GlobalScope.launch(Dispatchers.IO) {
-            toastCatching {
+            runCatching {
                 file?.getAbsolutePath()?.let { FilesContent.remove(it) }
                 lspConnector?.disconnect()
+            }.onFailure {
+                errorDialog(it)
             }
         }
         onDestroy()
@@ -384,7 +405,7 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     private suspend inline fun updateUndoRedo() {
         withContext(Dispatchers.Main) {
-            MainActivity.activityRef.get()?.let {
+            MainActivity.instance?.let {
                 it.menu?.findItem(R.id.redo)?.isEnabled = editor?.canRedo() == true
                 it.menu?.findItem(R.id.undo)?.isEnabled = editor?.canUndo() == true
             }
@@ -408,38 +429,38 @@ class EditorFragment(val context: Context,val scope:CoroutineScope) : CoreFragme
 
     @androidx.annotation.OptIn(ExperimentalBadgeUtils::class)
     private fun setChangeListener() = editor!!.subscribeAlways(ContentChangeEvent::class.java) {
-        scope.safeLaunch {
-            updateUndoRedo()
+        scope.launch {
+            runCatching {
+                updateUndoRedo()
 
-            //return if the file is being loaded
-            if (t < 2) {
-                t++;return@safeLaunch
-            }
+                //return if the file is being loaded
+                if (t < 2) {
+                    t++;return@launch
+                }
 
-            fileset.add(file!!.getName())
+                fileset.add(file!!.getName())
 
-            MainActivity.activityRef.get()?.tabViewModel?.apply {
-                val index = fragmentFiles.indexOf(file)
-                val currentTitle = fragmentTitles[index]
+                MainActivity.instance?.tabViewModel?.apply {
+                    val index = fragmentFiles.indexOf(file)
+                    val currentTitle = fragmentTitles[index]
 
-                if (currentTitle.endsWith("*").not()) {
-                    fragmentTitles[index] = "$currentTitle*"
+                    if (currentTitle.endsWith("*").not()) {
+                        fragmentTitles[index] = "$currentTitle*"
 
-                    scope.launch(Dispatchers.Main){
-                        MainActivity.withContext {
-                            tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
-                        }
-                        MainActivity.withContext {
-                            badge?.let {
-                                BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                        scope.launch(Dispatchers.Main){
+                            with(MainActivity.instance!!){
+                                tabLayout!!.getTabAt(index)?.text = fragmentTitles[index]
+                                badge?.let {
+                                    BadgeUtils.attachBadgeDrawable(it, binding!!.toolbar, R.id.action_save)
+                                }
                             }
                         }
                     }
-
-
-
                 }
+            }.onFailure {
+                errorDialog(it)
             }
+
         }
     }
 }

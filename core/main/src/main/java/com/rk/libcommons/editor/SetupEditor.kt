@@ -9,8 +9,8 @@ import androidx.appcompat.view.ContextThemeWrapper
 import com.google.android.material.color.MaterialColors
 import com.google.gson.JsonParser
 import com.rk.libcommons.application
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isDarkMode
-import com.rk.libcommons.toastIt
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
@@ -274,14 +274,8 @@ class SetupEditor(
                         )
                     )
                 }
-
-
-
-
-
             } catch (e: Exception) {
-                e.printStackTrace()
-                e.message.toastIt()
+                errorDialog(e)
             }
         }
             suspend fun ensureTextmateTheme(editor: CodeEditor) {

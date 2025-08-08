@@ -9,10 +9,10 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.isMainThread
-import com.rk.libcommons.toastCatching
 import com.rk.settings.Settings
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
@@ -107,7 +107,7 @@ class KarbonEditor : CodeEditor {
     }
 
     fun applyFont() {
-        toastCatching {
+        runCatching {
             val fontPath = Settings.selected_font_path
             if (fontPath.isNotEmpty()) {
                 val isAsset = Settings.is_selected_font_assest
@@ -120,9 +120,11 @@ class KarbonEditor : CodeEditor {
                 typefaceText =
                     Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
             }
-        }?.let {
-            toastCatching {
+        }.onFailure {
+            runCatching {
                 typefaceText = Typeface.createFromAsset(context.assets, "fonts/Default.ttf")
+            }.onFailure {
+                errorDialog(it)
             }
         }
 
@@ -130,7 +132,7 @@ class KarbonEditor : CodeEditor {
 
     suspend fun loadFile(fileObject: FileObject, encoding: Charset) {
         withContext(Dispatchers.IO) {
-            toastCatching {
+            runCatching {
                 withContext(Dispatchers.Main) {
                     setText(withContext(Dispatchers.IO) {
                         assert(isMainThread().not())

@@ -4,7 +4,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.html.HtmlRunner

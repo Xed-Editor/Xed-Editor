@@ -9,7 +9,7 @@ import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 
 class VideoFragment(val context: Context) : CoreFragment() {
     private val player = ExoPlayer.Builder(context).build()
-    private var file: com.rk.file_wrapper.FileObject? = null
+    private var file: com.rk.file.FileObject? = null
     
     override fun getView(): View? {
         return PlayerView(context).apply {
@@ -27,7 +27,7 @@ class VideoFragment(val context: Context) : CoreFragment() {
     
     }
     
-    override fun loadFile(file: com.rk.file_wrapper.FileObject) {
+    override fun loadFile(file: com.rk.file.FileObject) {
         this.file = file
         val mediaItem = MediaItem.fromUri(file.toUri())
         player.setMediaItem(mediaItem)
@@ -35,7 +35,7 @@ class VideoFragment(val context: Context) : CoreFragment() {
         player.play()
     }
     
-    override fun getFile(): com.rk.file_wrapper.FileObject? {
+    override fun getFile(): com.rk.file.FileObject? {
         return file
     }
     

@@ -7,24 +7,19 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.controlpanel.ControlItem
-import com.rk.file_wrapper.FileWrapper
-import com.rk.launchTermux
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.Printer
-import com.rk.libcommons.sandboxHomeDir
+import com.rk.file.FileWrapper
+import com.rk.DefaultScope
+import com.rk.file.child
+import com.rk.file.createFileIfNot
+import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
-import com.rk.libcommons.child
 import com.rk.libcommons.composeDialog
-import com.rk.libcommons.createFileIfNot
-import com.rk.libcommons.runOnUiThread
-import com.rk.libcommons.safeLaunch
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
-import com.rk.libcommons.toastCatching
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
@@ -58,13 +53,13 @@ object MenuClickHandler {
 
             Id.run -> {
                 val file =
-                    MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
+                    MainActivity.instance?.adapter?.getCurrentFragment()?.fragment?.getFile()
                 if (file == null) {
                     toast("Illegal state")
                     return true
                 }
-                DefaultScope.safeLaunch {
-                    Runner.run(file, activity)
+                DefaultScope.launch {
+                    Runner.run(activity,file)
                 }
                 return true
             }
@@ -154,10 +149,10 @@ object MenuClickHandler {
             }
 
             Id.share -> {
-                toastCatching {
+                runCatching {
 
                     val file =
-                        MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()
+                        MainActivity.instance?.adapter?.getCurrentFragment()?.fragment?.getFile()
                     if (file == null) {
                         toast(strings.unsupported_contnt)
                         return true
@@ -191,6 +186,8 @@ object MenuClickHandler {
                     }
 
                     activity.startActivity(Intent.createChooser(intent, "Share file"))
+                }.onFailure {
+                    errorDialog(it)
                 }
                 return true
             }
@@ -310,7 +307,7 @@ object MenuClickHandler {
         editorFragment?.editor?.searcher?.stopSearch()
         editorFragment?.editor!!.setSearching(false)
         editorFragment.editor?.invalidate()
-        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+        DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
         return true
     }
@@ -328,7 +325,7 @@ object MenuClickHandler {
             .setView(popupView).setNegativeButton(activity.getString(strings.cancel), null)
             .setPositiveButton(activity.getString(strings.search)) { _, _ ->
                 // search
-                DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+                DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
                 initiateSearch(activity, searchBox, popupView)
             }.show()
@@ -360,7 +357,7 @@ object MenuClickHandler {
                 ),
             )
             it.editor?.setSearching(true)
-            DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+            DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
         }
     }

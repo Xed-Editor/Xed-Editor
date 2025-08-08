@@ -153,16 +153,14 @@ fun MainActivity.handleSupport(){
         if (Settings.visits > 300) {
             dialog(
                 context = this@handleSupport,
-                cancelable = false,
                 title = "Quick Question",
                 msg = "Are you enjoying Xed-Editor so far?",
-                okString = strings.yes.getString(),
-                cancelString = strings.no.getString(),
+                okString = strings.yes,
+                cancelString = strings.no,
                 onCancel = {
                     Settings.visits = 0
                     dialog(
                         context = this@handleSupport,
-                        cancelable = false,
                         title = "We’d Love Your Feedback",
                         msg = "Feel free to share your thoughts in our Telegram group or GitHub repository!",
                         onOk = {}
@@ -172,11 +170,10 @@ fun MainActivity.handleSupport(){
                     Settings.visits = 0
                     dialog(
                         context = this@handleSupport,
-                        cancelable = false,
                         title = "Support the Project",
                         msg = "Would you like to support development of Xed-Editor and help it grow?",
-                        okString = strings.yes.getString(),
-                        cancelString = strings.no.getString(),
+                        okString = strings.yes,
+                        cancelString = strings.no,
                         onCancel = {},
                         onOk = {
                             val intent = Intent(application!!, SettingsActivity::class.java)

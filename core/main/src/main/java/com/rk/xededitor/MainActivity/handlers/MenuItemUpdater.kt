@@ -26,7 +26,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
     }
 
     lastUpdate = System.currentTimeMillis()
-    val menu = MainActivity.activityRef.get()?.menu
+    val menu = MainActivity.instance?.menu
     if (menu != null) {
         val fragment = tabFragment?.fragment
         updateEditor(fragment as? EditorFragment, menu)
@@ -39,7 +39,7 @@ suspend fun updateMenu(tabFragment: TabFragment?) = withContext(Dispatchers.Main
 private suspend fun updateEditor(
     fragment: EditorFragment?,
     menu: Menu,
-    showItems: Boolean = fragment != null && MainActivity.activityRef.get()?.adapter?.tabFragments?.isNotEmpty() == true
+    showItems: Boolean = fragment != null && MainActivity.instance?.adapter?.tabFragments?.isNotEmpty() == true
 ) {
 
     var show = showItems
@@ -55,7 +55,7 @@ private suspend fun updateEditor(
             var showBadge = currentFragment?.isModified() == true
 
             currentFragment?.apply {
-                MainActivity.activityRef.get()?.tabViewModel?.apply {
+                MainActivity.instance?.tabViewModel?.apply {
                     val index = fragmentFiles.indexOf(file)
                     val currentTitle = fragmentTitles[index]
 
@@ -63,8 +63,7 @@ private suspend fun updateEditor(
                 }
             }
 
-
-            MainActivity.withContext {
+            with(MainActivity.instance!!){
                 val itemView = binding?.toolbar?.findViewById<View>(Id.action_save)
                 if (badge != null && itemView != null){
                     if (show && showBadge) {

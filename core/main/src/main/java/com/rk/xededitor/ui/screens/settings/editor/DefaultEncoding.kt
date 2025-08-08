@@ -55,7 +55,7 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                     indication = ripple(),
                     interactionSource = intraction
                 ) {
-                    MainActivity.activityRef.get()?.adapter?.clearAllFragments()
+                    MainActivity.instance?.adapter?.clearAllFragments()
                     selectedEncoding = Charset.defaultCharset().name()
                     Settings.encoding = selectedEncoding
                 },
@@ -78,7 +78,7 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                             indication = ripple(),
                             interactionSource = intraction
                         ) {
-                            MainActivity.activityRef.get()?.adapter?.clearAllFragments()
+                            MainActivity.instance?.adapter?.clearAllFragments()
                             selectedEncoding = charset.name()
                             Settings.encoding = charset.name()
                         },

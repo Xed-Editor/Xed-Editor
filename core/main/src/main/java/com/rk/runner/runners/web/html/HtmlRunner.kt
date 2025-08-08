@@ -4,14 +4,14 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
 
 
-class HtmlRunner(val file: FileObject) : RunnerImpl() {
+class HtmlRunner() : RunnerImpl() {
     companion object {
         var httpServer: HttpServer? = null
         private const val PORT = 8357
@@ -35,7 +35,7 @@ class HtmlRunner(val file: FileObject) : RunnerImpl() {
 //        }
 //    }
 
-    override fun run(context: Context) {
+    override fun run(context: Context,file: FileObject) {
         stop()
         httpServer = HttpServer(PORT, file.getParentFile()!!)
         val url = "http://localhost:$PORT/${file.getName()}"
@@ -53,10 +53,6 @@ class HtmlRunner(val file: FileObject) : RunnerImpl() {
 
     override fun getName(): String {
         return "Html"
-    }
-
-    override fun getDescription(): String {
-        return "Preview html"
     }
 
     override fun getIcon(context: Context): Drawable? =

@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import com.rk.resources.drawables
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

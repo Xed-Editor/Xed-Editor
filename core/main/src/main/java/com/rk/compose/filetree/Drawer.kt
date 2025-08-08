@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -25,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
@@ -33,12 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -46,19 +39,19 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
-import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.file_wrapper.UriWrapper
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.libcommons.ActionPopup
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.sandboxHomeDir
+import com.rk.DefaultScope
+import com.rk.file.sandboxHomeDir
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.MainActivity.Companion.activityRef
+import com.rk.xededitor.MainActivity.MainActivity.Companion.instance
 import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import kotlinx.coroutines.Dispatchers
@@ -122,7 +115,7 @@ suspend fun restoreProjects() {
                             addProject(
                                 UriWrapper(
                                     DocumentFile.fromTreeUri(
-                                        activityRef.get()!!,
+                                        instance!!,
                                         Uri.parse(it)
                                     )!!
                                 )
@@ -198,7 +191,7 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             },
                             onClick = {
                                 if (file.fileObject == currentProject) {
-                                    MaterialAlertDialogBuilder(activityRef.get()!!).apply {
+                                    MaterialAlertDialogBuilder(instance!!).apply {
                                         setTitle(strings.close)
                                         setMessage("${strings.close_current_project.getString()} (${file.name})?")
                                         setNegativeButton(strings.cancel, null)
@@ -228,127 +221,129 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                         Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
                     }, onClick = {
                         //show add popup
-
-                        MainActivity.withContext {
-                            fun handleAddNew() {
-                                ActionPopup(this, true).apply {
-                                    addItem(
-                                        getString(strings.open_directory),
-                                        getString(strings.open_dir_desc),
-                                        ContextCompat.getDrawable(
-                                            this@withContext,
-                                            drawables.outline_folder_24
-                                        ),
-                                        listener = {
-                                            fileManager?.requestOpenDirectory()
-                                        }
-                                    )
-
-                                    val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                                    val isManager =
-                                        is11Plus && Environment.isExternalStorageManager()
-                                    val legacyPermission = ContextCompat.checkSelfPermission(
-                                        this@withContext,
-                                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                                    ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                                        this@withContext,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    ) != PackageManager.PERMISSION_GRANTED
-
-
-
-
-                                    if ((is11Plus && isManager) || (!is11Plus && legacyPermission)) {
+                        if (MainActivity.instance != null){
+                            with(MainActivity.instance!!) {
+                                fun handleAddNew() {
+                                    ActionPopup(this, true).apply {
                                         addItem(
-                                            getString(strings.open_path),
-                                            getString(strings.open_path_desc),
+                                            getString(strings.open_directory),
+                                            getString(strings.open_dir_desc),
                                             ContextCompat.getDrawable(
-                                                this@withContext,
-                                                drawables.android
+                                                this@with,
+                                                drawables.outline_folder_24
                                             ),
                                             listener = {
-                                                fileManager?.requestOpenFromPath()
+                                                fileManager?.requestOpenDirectory()
                                             }
                                         )
-                                    }
 
-                                    if (BuildConfig.DEBUG) {
+                                        val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                                        val isManager =
+                                            is11Plus && Environment.isExternalStorageManager()
+                                        val legacyPermission = ContextCompat.checkSelfPermission(
+                                            this@with,
+                                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                                        ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                                            this@with,
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                        ) != PackageManager.PERMISSION_GRANTED
+
+
+
+
+                                        if ((is11Plus && isManager) || (!is11Plus && legacyPermission)) {
+                                            addItem(
+                                                getString(strings.open_path),
+                                                getString(strings.open_path_desc),
+                                                ContextCompat.getDrawable(
+                                                    this@with,
+                                                    drawables.android
+                                                ),
+                                                listener = {
+                                                    fileManager?.requestOpenFromPath()
+                                                }
+                                            )
+                                        }
+
+                                        if (BuildConfig.DEBUG) {
+                                            addItem(
+                                                getString(strings.private_files),
+                                                getString(strings.private_files_desc),
+                                                ContextCompat.getDrawable(
+                                                    this@with,
+                                                    drawables.build
+                                                ),
+                                                listener = {
+                                                    if (Settings.has_shown_private_data_dir_warning.not()) {
+                                                        MaterialAlertDialogBuilder(this@with).apply {
+                                                            setCancelable(false)
+                                                            setTitle(strings.warning)
+                                                            setMessage(strings.warning_private_dir)
+                                                            setPositiveButton(strings.ok) { _, _ ->
+                                                                Settings.has_shown_private_data_dir_warning =
+                                                                    true
+                                                                lifecycleScope.launch {
+                                                                    addProject(FileWrapper(filesDir.parentFile!!))
+                                                                }
+                                                            }
+                                                            show()
+                                                        }
+                                                    } else {
+                                                        lifecycleScope.launch {
+                                                            addProject(FileWrapper(filesDir.parentFile!!))
+                                                        }
+                                                    }
+
+                                                }
+                                            )
+                                        }
+
+
                                         addItem(
-                                            getString(strings.private_files),
-                                            getString(strings.private_files_desc),
+                                            strings.terminal_home.getString(),
+                                            strings.terminal_home_desc.getString(),
                                             ContextCompat.getDrawable(
-                                                this@withContext,
-                                                drawables.build
+                                                this@with,
+                                                drawables.terminal
                                             ),
                                             listener = {
-                                                if (Settings.has_shown_private_data_dir_warning.not()) {
-                                                    MaterialAlertDialogBuilder(this@withContext).apply {
+                                                if (Settings.has_shown_terminal_dir_warning.not()) {
+                                                    MaterialAlertDialogBuilder(this@with).apply {
                                                         setCancelable(false)
                                                         setTitle(strings.warning)
                                                         setMessage(strings.warning_private_dir)
                                                         setPositiveButton(strings.ok) { _, _ ->
-                                                            Settings.has_shown_private_data_dir_warning =
+                                                            Settings.has_shown_terminal_dir_warning =
                                                                 true
                                                             lifecycleScope.launch {
-                                                                addProject(FileWrapper(filesDir.parentFile!!))
+                                                                addProject(FileWrapper(sandboxHomeDir()))
                                                             }
                                                         }
                                                         show()
                                                     }
+
                                                 } else {
                                                     lifecycleScope.launch {
-                                                        addProject(FileWrapper(filesDir.parentFile!!))
+                                                        addProject(FileWrapper(sandboxHomeDir()))
                                                     }
                                                 }
-
                                             }
                                         )
+
+
+                                        setTitle(getString(strings.add))
+                                        getDialogBuilder().setNegativeButton(
+                                            getString(strings.cancel),
+                                            null
+                                        )
+                                        show()
                                     }
-
-
-                                    addItem(
-                                        strings.terminal_home.getString(),
-                                        strings.terminal_home_desc.getString(),
-                                        ContextCompat.getDrawable(
-                                            this@withContext,
-                                            drawables.terminal
-                                        ),
-                                        listener = {
-                                            if (Settings.has_shown_terminal_dir_warning.not()) {
-                                                MaterialAlertDialogBuilder(this@withContext).apply {
-                                                    setCancelable(false)
-                                                    setTitle(strings.warning)
-                                                    setMessage(strings.warning_private_dir)
-                                                    setPositiveButton(strings.ok) { _, _ ->
-                                                        Settings.has_shown_terminal_dir_warning =
-                                                            true
-                                                        lifecycleScope.launch {
-                                                            addProject(FileWrapper(sandboxHomeDir()))
-                                                        }
-                                                    }
-                                                    show()
-                                                }
-
-                                            } else {
-                                                lifecycleScope.launch {
-                                                    addProject(FileWrapper(sandboxHomeDir()))
-                                                }
-                                            }
-                                        }
-                                    )
-
-
-                                    setTitle(getString(strings.add))
-                                    getDialogBuilder().setNegativeButton(
-                                        getString(strings.cancel),
-                                        null
-                                    )
-                                    show()
                                 }
-                            }
 
-                            handleAddNew()
+                                handleAddNew()
+                            }
                         }
+
                     }, label = {
                         Text(stringResource(strings.add))
                     })
@@ -365,20 +360,23 @@ fun DrawerContent(modifier: Modifier = Modifier) {
                             rootNode = project.toFileTreeNode(),
                             onFileClick = {
                                 if (it.isFile) {
-                                    MainActivity.withContext {
-                                        if (!isPaused) {
-                                            adapter!!.addFragment(it.file)
-                                            if (!Settings.keep_drawer_locked) {
-                                                binding!!.drawerLayout.close()
-                                            }
+                                    if (MainActivity.instance != null){
+                                        with(MainActivity.instance!!) {
+                                            if (!isPaused) {
+                                                adapter!!.addFragment(it.file)
+                                                if (!Settings.keep_drawer_locked) {
+                                                    binding!!.drawerLayout.close()
+                                                }
 
-                                            DefaultScope.launch { updateMenu(activityRef.get()?.adapter?.getCurrentFragment()) }
+                                                DefaultScope.launch { updateMenu(instance?.adapter?.getCurrentFragment()) }
+                                            }
                                         }
                                     }
+
                                 }
                             },
                             onFileLongClick = {
-                                FileAction(activityRef.get()!!, this.file, it.file)
+                                FileAction(instance!!, this.file, it.file)
                             })
                     } else {
                         Column(

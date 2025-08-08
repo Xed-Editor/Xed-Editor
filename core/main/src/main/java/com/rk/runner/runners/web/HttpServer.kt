@@ -1,6 +1,6 @@
 package com.rk.runner.runners.web
 
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
 import java.net.URLConnection

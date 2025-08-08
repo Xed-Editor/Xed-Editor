@@ -4,7 +4,7 @@ import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 
 fun fragmentsForEach(callback:(CoreFragment)-> Unit){
-    MainActivity.activityRef.get()?.adapter?.tabFragments?.values?.forEach { weakRef ->
+    MainActivity.instance?.adapter?.tabFragments?.values?.forEach { weakRef ->
         weakRef.get()?.fragment?.let {
             callback.invoke(it)
         }
@@ -30,7 +30,7 @@ fun saveAllFiles(){
 }
 
 fun getCurrentFragment(): CoreFragment?{
-    return MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment
+    return MainActivity.instance?.adapter?.getCurrentFragment()?.fragment
 }
 
 fun getCurrentEditorFragment(): EditorFragment?{

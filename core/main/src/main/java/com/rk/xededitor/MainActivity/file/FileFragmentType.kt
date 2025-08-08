@@ -1,10 +1,9 @@
 package com.rk.xededitor.MainActivity.file
 
 import com.rk.xededitor.MainActivity.tabs.core.FragmentType
-import java.io.File
 
 
-fun com.rk.file_wrapper.FileObject.getFragmentType(): FragmentType {
+fun com.rk.file.FileObject.getFragmentType(): FragmentType {
     return when (getName().substringAfterLast('.', "").lowercase()) {
         // Video file extensions
         "mp4", "mkv", "mov", "avi", "flv", "wmv", "webm" -> FragmentType.VIDEO

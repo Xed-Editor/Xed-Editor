@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.rk.extension.Hooks
-import com.rk.file_wrapper.FileObject
-import com.rk.libcommons.DefaultScope
+import com.rk.file.FileObject
+import com.rk.DefaultScope
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
@@ -63,7 +63,7 @@ class TabFragment : Fragment() {
 
 
 
-        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+        DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
 
         lifecycleScope.launch{
             if (Hooks.Editor.onTabCreate.isNotEmpty()){
@@ -85,7 +85,7 @@ class TabFragment : Fragment() {
     override fun onDestroy() {
         fragment?.onDestroy()
         super.onDestroy()
-        DefaultScope.launch { updateMenu(MainActivity.activityRef.get()?.adapter?.getCurrentFragment()) }
+        DefaultScope.launch { updateMenu(MainActivity.instance?.adapter?.getCurrentFragment()) }
         DefaultScope.launch{
             if (Hooks.Editor.onTabDestroyed.isNotEmpty()){
                 Hooks.Editor.onTabDestroyed.forEach { it.value.invoke(file!!) }

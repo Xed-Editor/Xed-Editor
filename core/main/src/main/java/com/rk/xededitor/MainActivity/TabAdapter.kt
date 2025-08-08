@@ -8,17 +8,15 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import com.rk.extension.Hooks
-import com.rk.file_wrapper.FileObject
-import com.rk.libcommons.DefaultScope
+import com.rk.file.FileObject
+import com.rk.DefaultScope
 import com.rk.libcommons.dialog
 import com.rk.libcommons.expectOOM
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.file.getFragmentType
 import com.rk.xededitor.MainActivity.handlers.updateMenu
-import com.rk.xededitor.MainActivity.tabs.core.FragmentType
 import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import kotlinx.coroutines.Dispatchers
@@ -201,7 +199,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
                         removeFragment(i, false)
                         DefaultScope.launch{
                             if (Hooks.Editor.onTabClosed.isNotEmpty()){
-                                Hooks.Editor.onTabClosed.forEach { it.value.invoke(MainActivity.activityRef.get()!!.tabViewModel.fragmentFiles[i]) }
+                                Hooks.Editor.onTabClosed.forEach { it.value.invoke(MainActivity.instance?.tabViewModel!!.fragmentFiles[i]) }
                             }
                         }
                     }
@@ -230,8 +228,8 @@ class TabAdapter(private val mainActivity: MainActivity) :
                 context = mainActivity,
                 title = "Low Memory Warning",
                 msg = "Xed-Editor may not have enough memory to load this file. Loading it could cause the app to crash. Consider closing other tabs to free up memory. Do you still want to continue loading?" ,
-                cancelString = strings.no.getString(),
-                okString = strings.yes.getString(),
+                cancelString = strings.no,
+                okString = strings.yes,
                 onOk = {
                     addFragmentInternal(file)
                 }, onCancel = {}
@@ -247,7 +245,7 @@ class TabAdapter(private val mainActivity: MainActivity) :
         with(mainActivity) {
             if (tabViewModel.fileSet.contains(file.getCanonicalPath())) {
                 kotlin.runCatching {
-                    MainActivity.activityRef.get()?.let {
+                    MainActivity.instance?.let {
                         if (it.tabLayout!!.selectedTabPosition == 0) {
                             return
                         }

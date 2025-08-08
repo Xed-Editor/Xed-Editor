@@ -17,9 +17,9 @@ import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import com.rk.App
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.SetupEditor
-import com.rk.libcommons.isFdroid
 import com.rk.libcommons.origin
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -126,7 +126,7 @@ class CrashActivity : AppCompatActivity() {
             sb.append("Target Sdk : ")
                 .append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
             sb.append("Flavour : ").append(
-                if (isFdroid) {
+                if (App.isFDroid) {
                     "FDroid"
                 } else {
                     "PlayStore"

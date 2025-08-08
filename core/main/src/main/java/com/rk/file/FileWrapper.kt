@@ -1,4 +1,4 @@
-package com.rk.file_wrapper
+package com.rk.file
 
 import android.content.Context
 import android.net.Uri
@@ -6,7 +6,6 @@ import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import com.rk.libcommons.toast
 import com.rk.resources.strings
-import io.github.rosemoe.sora.text.ContentIO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

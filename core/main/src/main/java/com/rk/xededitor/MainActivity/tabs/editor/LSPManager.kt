@@ -1,7 +1,7 @@
 package com.rk.xededitor.MainActivity.tabs.editor
 
 import android.util.Log
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast

@@ -7,10 +7,10 @@ import android.system.Os
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.ExtensionManager
+import com.rk.file.child
+import com.rk.file.localBinDir
 import com.rk.libcommons.application
-import com.rk.libcommons.child
 import com.rk.libcommons.editor.SetupEditor
-import com.rk.libcommons.localBinDir
 import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
@@ -32,6 +32,13 @@ class App : Application() {
                 tmp.mkdir()
             }
             return tmp
+        }
+
+        val isFDroid by lazy {
+            val targetSdkVersion = application!!
+                .applicationInfo
+                .targetSdkVersion
+            targetSdkVersion == 28
         }
     }
 
@@ -94,17 +101,11 @@ class App : Application() {
 
 
             runCatching { UpdateChecker.checkForUpdates("dev") }
-
-
-
         }
 
     }
 
     override fun onTrimMemory(level: Int) {
-        MainActivity.withContext {
-            binding?.viewpager2?.offscreenPageLimit = 1
-        }
         ExtensionManager.onLowMemory()
         super.onTrimMemory(level)
     }

@@ -1,18 +1,16 @@
 package com.rk.xededitor.ui.screens.terminal
 
-import android.os.Environment
+import com.rk.App
 import com.rk.compose.filetree.currentProject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.libcommons.sandboxHomeDir
-import com.rk.libcommons.child
-import com.rk.libcommons.localBinDir
-import com.rk.libcommons.localLibDir
+import com.rk.file.FileWrapper
 import com.rk.libcommons.pendingCommand
 import com.rk.settings.Settings
 import com.rk.App.Companion.getTempDir
-import com.rk.libcommons.sandboxDir
-import com.rk.libcommons.isFdroid
-import com.rk.libcommons.localDir
+import com.rk.file.child
+import com.rk.file.localBinDir
+import com.rk.file.localDir
+import com.rk.file.localLibDir
+import com.rk.file.sandboxHomeDir
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
@@ -59,7 +57,7 @@ object MkSession {
                         }
                     }
                 }else{
-                    val tabParent = MainActivity.activityRef.get()?.adapter?.getCurrentFragment()?.fragment?.getFile()?.getParentFile()
+                    val tabParent = MainActivity.instance?.adapter?.getCurrentFragment()?.fragment?.getFile()?.getParentFile()
                     if(tabParent != null && tabParent is FileWrapper){
                         return if (Settings.sandbox){
                             tabParent.file.absolutePath.removePrefix(localDir().absolutePath)
@@ -100,11 +98,11 @@ object MkSession {
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
-                "FDROID=${isFdroid}",
+                "FDROID=${App.isFDroid}",
                 "SANDBOX=${Settings.sandbox}"
             )
 
-            if (!isFdroid){
+            if (!App.isFDroid){
                 env.add("PROOT_LOADER=${applicationInfo.nativeLibraryDir}/libproot-loader.so")
                 if (File(applicationInfo.nativeLibraryDir).child("libproot-loader32.so").exists()){
                     env.add("PROOT_LOADER32=${applicationInfo.nativeLibraryDir}/libproot-loader32.so")
@@ -132,10 +130,10 @@ object MkSession {
                 "/system/bin/sh"
             } else if (pendingCommand!!.sandbox.not()) {
                 args = pendingCommand!!.args
-                pendingCommand!!.shell
+                pendingCommand!!.exe
             } else {
                 args = mutableListOf(
-                    "-c", sanboxSH.absolutePath, pendingCommand!!.shell
+                    "-c", sanboxSH.absolutePath, pendingCommand!!.exe
                 ).also<MutableList<String>> {
                     it.addAll(pendingCommand!!.args)
                 }.toTypedArray<String>()

@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.EditText
@@ -21,32 +20,26 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
-import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.file_wrapper.UriWrapper
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
 import com.rk.libcommons.ActionPopup
 import com.rk.libcommons.LoadingPopup
-import com.rk.libcommons.PathUtils.toPath
-import com.rk.libcommons.askInput
 import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.openWith
+import com.rk.file.openWith
+import com.rk.libcommons.askInput
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.runBashScript
-import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.terminal.Terminal
-import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
-import java.io.File
 import java.util.Locale
 
 class FileAction(
@@ -276,7 +269,7 @@ class FileAction(
                     getDrawable(drawables.save),
                 ) {
                     to_save_file = file
-                    MainActivity.activityRef.get()?.fileManager?.requestOpenDirectoryToSaveFile()
+                    MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile()
                 }
             }
 

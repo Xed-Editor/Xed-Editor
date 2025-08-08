@@ -2,7 +2,6 @@ package com.rk.libcommons
 
 import android.app.Activity
 import android.content.Context
-import android.content.DialogInterface
 import android.content.res.Configuration
 import android.os.Build
 import android.util.Log
@@ -12,68 +11,36 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.blankj.utilcode.util.ThreadUtils
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.R
 import com.rk.xededitor.ui.theme.KarbonTheme
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
-
-@OptIn(DelicateCoroutinesApi::class)
-fun postIO(block: suspend CoroutineScope.() -> Unit) {
-    GlobalScope.launch(Dispatchers.IO, block = block)
-}
-
-suspend fun IO(block: suspend CoroutineScope.() -> Unit) {
-    withContext(Dispatchers.IO, block)
-}
-
-suspend fun Default(block: suspend CoroutineScope.() -> Unit) {
-    withContext(Dispatchers.Default, block)
-}
-
-suspend fun UI(block: suspend CoroutineScope.() -> Unit) {
-    withContext(Dispatchers.Main, block)
-}
-
-inline fun CoroutineScope.safeLaunch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    crossinline block: suspend CoroutineScope.() -> Unit
-): Job {
-    return launch(context = context) {
-        runCatching { block() }.onFailure {
-            it.printStackTrace()
-            if (BuildConfig.DEBUG) {
-                throw it
-            }
-        }
-    }
-}
-
-inline fun CoroutineScope.safeToastLaunch(
-    context: CoroutineContext = EmptyCoroutineContext,
-    crossinline block: suspend CoroutineScope.() -> Unit
-): Job {
-    return launch(context = context) { toastCatching { block() } }
-}
-
+import kotlin.math.roundToInt
+import com.rk.xededitor.R
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -82,10 +49,6 @@ inline fun runOnUiThread(runnable: Runnable) {
 
 inline fun toast(@StringRes resId: Int) {
     toast(resId.getString())
-}
-
-private fun getContext(): Context{
-    return MainActivity.activityRef.get() ?: application!!
 }
 
 fun toast(message: String?) {
@@ -97,25 +60,7 @@ fun toast(message: String?) {
         Log.w("TOAST", message)
         return
     }
-    runOnUiThread { Toast.makeText(getContext(), message.toString(), Toast.LENGTH_SHORT).show() }
-}
-
-inline fun String?.toastIt() {
-    toast(this)
-}
-
-inline fun toastCatching(block: () -> Unit): Exception? {
-    try {
-        block()
-        return null
-    } catch (e: Exception) {
-        e.printStackTrace()
-        errorDialog(e)
-        if (BuildConfig.DEBUG) {
-            throw e
-        }
-        return e
-    }
+    runOnUiThread { Toast.makeText(application!!, message.toString(), Toast.LENGTH_SHORT).show() }
 }
 
 fun isDarkMode(ctx: Context): Boolean {
@@ -124,95 +69,101 @@ fun isDarkMode(ctx: Context): Boolean {
 
 inline fun dpToPx(dp: Float, ctx: Context): Int {
     val density = ctx.resources.displayMetrics.density
-    return Math.round(dp * density)
+    return (dp * density).roundToInt()
 }
 
 inline fun isMainThread(): Boolean {
-    return Thread.currentThread().name == "main"
+    return ThreadUtils.isMainThread()
 }
 
-enum class PopupButtonType {
-    POSITIVE, NEGATIVE, NEUTRAL
-}
-
-fun <K> x(m: MutableCollection<K>, c: Int) = postIO {
-    runCatching {
-        for (y in m.shuffled().take(c)) {
-            m.remove(y)
+@OptIn(DelicateCoroutinesApi::class)
+fun <K> x(m: MutableCollection<K>, c: Int) {
+    GlobalScope.launch(Dispatchers.IO){
+        runCatching {
+            for (y in m.shuffled().take(c)) {
+                m.remove(y)
+            }
         }
     }
 }
 
-data class PopupButton(
-    val label: String,
-    val listener: ((DialogInterface) -> Unit)? = null,
-    val type: PopupButtonType = PopupButtonType.NEUTRAL
-)
+@Composable
+fun dialogCompose(){
+    TODO()
+}
 
-fun Activity.askInput(
-    title: String? = null,
-    input: String? = null,
-    hint: String,
-    onResult: (String) -> Unit
+@Composable
+fun DialogContent(
+    alertDialog: AlertDialog?,
+    title: String,
+    msg: String,
+    @StringRes cancelString: Int,
+    @StringRes okString: Int,
+    onOk: () -> Unit,
+    onCancel: () -> Unit
 ) {
-    val popupView: View = LayoutInflater.from(this).inflate(R.layout.popup_new, null)
-    val editText = popupView.findViewById<EditText>(R.id.name)
-    editText.hint = hint
+    Column(modifier = Modifier.padding(24.dp)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
 
-    MaterialAlertDialogBuilder(this).apply {
-        title?.let { setTitle(it) }
-        input?.let { editText.setText(it) }
-        setView(popupView)
-        var dialog: AlertDialog? = null
-        setNegativeButton(strings.cancel, null)
-        setPositiveButton(strings.ok) { _, _ ->
-            dialog?.dismiss()
-            onResult.invoke(editText.text.toString())
+        Text(
+            text = msg,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(onClick = {
+                alertDialog?.dismiss()
+                onCancel()
+            }) {
+                Text(stringResource(cancelString))
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            TextButton(onClick = {
+                alertDialog?.dismiss()
+                onOk()
+            }) {
+                Text(stringResource(okString))
+            }
         }
-        dialog = show()
     }
-
 }
 
 fun dialog(
-    context: Activity? = MainActivity.activityRef.get(),
-    cancelable: Boolean = true,
-    title: String?,
-    msg: String?,
-    okString: String = strings.ok.getString(),
-    cancelString: String = strings.cancel.getString(),
-    onCancel: ((DialogInterface) -> Unit)? = null,
-    onOk: ((DialogInterface) -> Unit)? = null,
+    context: Activity = MainActivity.instance!!,
+    title: String,
+    msg: String,
+    @StringRes cancelString: Int = strings.cancel,
+    @StringRes okString: Int = strings.ok,
+    onOk: () -> Unit = {},
+    onCancel: () -> Unit = {}
 ) {
-    if (context == null) {
-        throw IllegalArgumentException("context cannot be null")
-        return
-    }
-    runOnUiThread {
-        MaterialAlertDialogBuilder(context).apply {
-            setCancelable(cancelable)
-            title?.let { setTitle(it) }
-            msg?.let { setMessage(it) }
-
-            onCancel?.let {
-                setNegativeButton(cancelString) { dialogInterface, _ ->
-                    onCancel(dialogInterface)
-                }
-            }
-
-            onOk?.let {
-                setPositiveButton(okString) { dialogInterface, _ ->
-                    onOk(dialogInterface)
-                }
-            }
-
-            show()
-        }
+    composeDialog(context = context) { alertDialog ->
+        DialogContent(
+            alertDialog = alertDialog,
+            title = title,
+            msg = msg,
+            cancelString = cancelString,
+            okString = okString,
+            onOk = onOk,
+            onCancel = onCancel
+        )
     }
 }
 
+
+
 fun composeDialog(
-    context: Activity? = MainActivity.activityRef.get(),
+    context: Activity? = MainActivity.instance,
     content: @Composable (AlertDialog?) -> Unit
 ) {
     if (context == null) {
@@ -273,12 +224,6 @@ fun errorDialog(msg: String) {
         return
     }
 
-    val activity = MainActivity.activityRef.get()
-    if (activity == null) {
-        toast(msg)
-        return
-    }
-
     dialog(title = strings.err.getString(), msg = msg, onOk = {})
 }
 
@@ -287,6 +232,7 @@ fun errorDialog(@StringRes msgRes: Int) {
 }
 
 
+//todo handle multple function call fro same throwable
 fun errorDialog(throwable: Throwable) {
     var message = StringBuilder()
     throwable.let {
@@ -312,15 +258,6 @@ fun errorDialog(exception: Exception) {
 }
 
 
-
-val isFdroid by lazy {
-    val targetSdkVersion = application!!
-        .applicationInfo
-        .targetSdkVersion
-    targetSdkVersion == 28
-}
-
-
 fun expectOOM(requiredMEMBytes: Long): Boolean {
     val runtime = Runtime.getRuntime()
     val maxMemory = runtime.maxMemory()
@@ -328,11 +265,37 @@ fun expectOOM(requiredMEMBytes: Long): Boolean {
     val freeMemory = runtime.freeMemory()
     val availableMemory = maxMemory - (allocatedMemory - freeMemory)
 
-    val safetyBuffer = 8L * 1024 * 1024
+    val safetyBuffer = 16L * 1024 * 1024
     val requiredMemory = requiredMEMBytes + safetyBuffer
 
     // Return true if we expect an OutOfMemoryError
     return requiredMemory > availableMemory
+}
+
+
+fun Activity.askInput(
+    title: String? = null,
+    input: String? = null,
+    hint: String,
+    onResult: (String) -> Unit
+) {
+    val popupView: View = LayoutInflater.from(this).inflate(R.layout.popup_new, null)
+    val editText = popupView.findViewById<EditText>(R.id.name)
+    editText.hint = hint
+
+    MaterialAlertDialogBuilder(this).apply {
+        title?.let { setTitle(it) }
+        input?.let { editText.setText(it) }
+        setView(popupView)
+        var dialog: AlertDialog? = null
+        setNegativeButton(strings.cancel, null)
+        setPositiveButton(strings.ok) { _, _ ->
+            dialog?.dismiss()
+            onResult.invoke(editText.text.toString())
+        }
+        dialog = show()
+    }
+
 }
 
 

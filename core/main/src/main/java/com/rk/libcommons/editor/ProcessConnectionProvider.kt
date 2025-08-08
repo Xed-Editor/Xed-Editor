@@ -1,7 +1,7 @@
 package com.rk.libcommons.editor
 
-import com.rk.libcommons.child
-import com.rk.libcommons.localBinDir
+import com.rk.file.child
+import com.rk.file.localBinDir
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import java.io.InputStream
 import java.io.OutputStream

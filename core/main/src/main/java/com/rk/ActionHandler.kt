@@ -1,9 +1,8 @@
 package com.rk
-import android.util.Log
 import androidx.lifecycle.lifecycleScope
-import com.rk.file_wrapper.FileWrapper
-import com.rk.libcommons.sandboxDir
-import com.rk.libcommons.child
+import com.rk.file.FileWrapper
+import com.rk.file.child
+import com.rk.file.sandboxDir
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.terminal.bridge.Bridge
@@ -48,7 +47,8 @@ object ActionHandler {
                     if (file.isDirectory){
                         return "Path is a directory : ${getCorrectPathForLogging(file)}"
                     }
-                    MainActivity.withContext {
+
+                    with(MainActivity.instance!!){
                         lifecycleScope.launch(Dispatchers.Main){
                             adapter!!.addFragment(FileWrapper(file))
                             toast(strings.tab_opened)

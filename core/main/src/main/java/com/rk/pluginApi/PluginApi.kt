@@ -2,11 +2,9 @@ package com.rk.pluginApi
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.AssetManager
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.view.View
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
@@ -14,14 +12,12 @@ import com.rk.controlpanel.ControlItem
 import com.rk.extension.Extension
 import com.rk.extension.Hooks
 import com.rk.extension.SettingsScreen
-import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.file_wrapper.UriWrapper
-import com.rk.libcommons.ActionPopup
-import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.child
+import com.rk.file.createFileIfNot
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.localDir
+import com.rk.file.localDir
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.MainActivity.TabFragment
@@ -29,7 +25,6 @@ import com.rk.xededitor.MainActivity.file.FileAction
 import com.rk.xededitor.MainActivity.tabs.core.CoreFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
 import java.io.InputStream
 
 
@@ -83,7 +78,7 @@ object PluginApi {
         }
         val file = FileWrapper(localDir().child("customTabs/$id/${tabName}").createFileIfNot())
 
-        MainActivity.withContext {
+        with(MainActivity.instance!!){
             lifecycleScope.launch(Dispatchers.Main) {
                 adapter!!.addFragment(file)
             }

@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -35,24 +34,18 @@ import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
 import com.rk.extension.ExtensionManager
-import com.rk.extension.Hooks
-import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.file_wrapper.UriWrapper
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.PathUtils.toPath
-import com.rk.libcommons.UI
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
+import com.rk.file.child
+import com.rk.file.localDir
 import com.rk.libcommons.application
-import com.rk.libcommons.child
 import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.localDir
+import com.rk.libcommons.runOnUiThread
 import com.rk.libcommons.toast
-import com.rk.libcommons.toastCatching
-import com.rk.mutator_engine.Engine
 import com.rk.pluginApi.PluginApi
-import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.Settings
@@ -68,7 +61,6 @@ import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.R
 import com.rk.xededitor.databinding.ActivityTabBinding
 import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
-import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.ui.screens.settings.support.handleSupport
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -87,15 +79,19 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
 import java.lang.ref.WeakReference
-import kotlin.collections.filter
 
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        var activityRef = WeakReference<MainActivity?>(null)
-        fun withContext(invoke: MainActivity.() -> Unit) {
-            activityRef.get()?.let { invoke(it) }
-        }
+        private var activityRef = WeakReference<MainActivity?>(null)
+
+        var instance: MainActivity?
+            private set(value) {
+                activityRef = WeakReference(value)
+            }
+            get() {
+                return activityRef.get()
+            }
     }
 
     var binding: ActivityTabBinding? = null
@@ -159,26 +155,29 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
-                    UI {
-                        withContext {
-                            if (fragmentFiles.isNotEmpty()) {
-                                binding!!.tabs.visibility = View.VISIBLE
-                                binding!!.mainView.visibility = View.VISIBLE
-                                binding!!.openBtn.visibility = View.GONE
-                            }
-                            binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
+                    runOnUiThread {
+                        if (MainActivity.instance != null){
+                            with(MainActivity.instance!!) {
+                                if (fragmentFiles.isNotEmpty()) {
+                                    binding!!.tabs.visibility = View.VISIBLE
+                                    binding!!.mainView.visibility = View.VISIBLE
+                                    binding!!.openBtn.visibility = View.GONE
+                                }
+                                binding?.viewpager2?.offscreenPageLimit = tabLimit.toInt()
 
-                            lifecycleScope.launch(Dispatchers.Main) {
-                                TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                                    val titles = tabViewModel.fragmentTitles
-                                    if (position in titles.indices) {
-                                        tab.text = titles[position]
-                                    } else {
-                                        toast("${strings.unknown_err} ${strings.restart_app}")
-                                    }
-                                }.attach()
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
+                                        val titles = tabViewModel.fragmentTitles
+                                        if (position in titles.indices) {
+                                            tab.text = titles[position]
+                                        } else {
+                                            toast("${strings.unknown_err} ${strings.restart_app}")
+                                        }
+                                    }.attach()
+                                }
                             }
                         }
+
                     }
                 }
                 _isRestoring = false
@@ -370,13 +369,7 @@ class MainActivity : AppCompatActivity() {
     private fun openTabForIntent(intent: Intent) {
         if ((Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action)) {
             val uri = intent.data!!
-            val file = File(uri.toPath())
-            val fileObject =
-                if (file.exists() && file.canRead() && file.canWrite() && file.isFile) {
-                    FileWrapper(file)
-                } else {
-                    UriWrapper(DocumentFile.fromSingleUri(this, uri)!!)
-                }
+            val fileObject = UriWrapper(DocumentFile.fromSingleUri(this, uri)!!)
             adapter?.addFragment(fileObject)
             setIntent(Intent())
         }
@@ -405,7 +398,7 @@ class MainActivity : AppCompatActivity() {
         GlobalScope.launch { saveProjects() }
 
         if (Settings.auto_save) {
-            toastCatching { saveAllFiles() }
+            runCatching { saveAllFiles() }.onFailure { errorDialog(it) }
         }
         super.onPause()
         ThemeManager.apply(this)
@@ -463,7 +456,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewPager() {
         viewPager = binding!!.viewpager2.apply {
-            offscreenPageLimit = 1
             isUserInputEnabled = false
         }
     }
@@ -526,7 +518,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         if (Settings.auto_save) {
-            toastCatching { saveAllFiles() }
+            runCatching {
+                saveAllFiles()
+            }.onFailure {
+                errorDialog(it)
+            }
         }
         ExtensionManager.onMainActivityDestroyed()
         super.onDestroy()

@@ -4,8 +4,9 @@ import android.app.*
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.rk.libcommons.sandboxHomeDir
-import com.rk.libcommons.child
+import com.rk.file.child
+import com.rk.file.sandboxHomeDir
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -38,7 +39,7 @@ class LogcatService : Service(),
             cancel()
         }.onFailure {
             it.printStackTrace()
-            toast(it.message)
+            errorDialog(it)
         }
 
         super.onDestroy()
@@ -57,7 +58,7 @@ class LogcatService : Service(),
                     .start()
             }.onFailure {
                 it.printStackTrace()
-                toast(it.message)
+                errorDialog(it)
                 stopSelf()
             }
 

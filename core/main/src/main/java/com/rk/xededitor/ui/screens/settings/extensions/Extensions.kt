@@ -37,13 +37,12 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.extension.Extension
 import com.rk.extension.ExtensionManager
-import com.rk.file_wrapper.UriWrapper
-import com.rk.libcommons.DefaultScope
+import com.rk.file.UriWrapper
+import com.rk.DefaultScope
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.safeLaunch
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -151,62 +150,67 @@ fun Extensions(modifier: Modifier = Modifier) {
                         }
                         val sideEffect: (Boolean) -> Unit = {
                             if (it) {
-                                scope.safeLaunch {
-                                    val loadingPopup = LoadingPopup(context)
-                                    loadingPopup.setMessage(strings.installing.getString())
-                                    loadingPopup.show()
+                                scope.launch {
+                                    runCatching {
+                                        val loadingPopup = LoadingPopup(context)
+                                        loadingPopup.setMessage(strings.installing.getString())
+                                        loadingPopup.show()
 
-                                    val pm = context.packageManager
-                                    val info = pm.getPackageArchiveInfo(
-                                        plugin.apkFile.absolutePath,
-                                        PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
-                                    )!!
-                                    info.applicationInfo!!.sourceDir = plugin.apkFile.absolutePath
-                                    info.applicationInfo!!.publicSourceDir =
-                                        plugin.apkFile.absolutePath
+                                        val pm = context.packageManager
+                                        val info = pm.getPackageArchiveInfo(
+                                            plugin.apkFile.absolutePath,
+                                            PackageManager.GET_META_DATA or PackageManager.GET_ACTIVITIES
+                                        )!!
+                                        info.applicationInfo!!.sourceDir = plugin.apkFile.absolutePath
+                                        info.applicationInfo!!.publicSourceDir =
+                                            plugin.apkFile.absolutePath
 
-                                    val appInfo = info.applicationInfo!!
+                                        val appInfo = info.applicationInfo!!
 
-                                    val metadata = appInfo.metaData
+                                        val metadata = appInfo.metaData
 
-                                    val minSdkVersion = metadata.getInt("minXedVersionCode", -1)
-                                    val targetSdkVersion =
-                                        metadata.getInt("targetXedVersionCode", -1)
-                                    val xedVersionCode = PackageInfoCompat.getLongVersionCode(
-                                        context.packageManager.getPackageInfo(
-                                            context.packageName,
-                                            0
+                                        val minSdkVersion = metadata.getInt("minXedVersionCode", -1)
+                                        val targetSdkVersion =
+                                            metadata.getInt("targetXedVersionCode", -1)
+                                        val xedVersionCode = PackageInfoCompat.getLongVersionCode(
+                                            context.packageManager.getPackageInfo(
+                                                context.packageName,
+                                                0
+                                            )
                                         )
-                                    )
 
 
-                                    if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode) {
-                                        Preference.setBoolean(
-                                            key = "ext_" + plugin.packageName,
-                                            true
-                                        )
-                                        state = true
-                                    } else {
-                                        val reason: String =
-                                            if (minSdkVersion > xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1) {
-                                                "Xed-Editor is outdated minimum version code required is $minSdkVersion while current version code is $xedVersionCode"
-                                            } else if (targetSdkVersion < xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1) {
-                                                "Plugin ${plugin.name} was made for an older version of Xed-Editor, ask the plugin developer to update the plugin"
-                                            } else if (minSdkVersion == -1 || targetSdkVersion == -1) {
-                                                "Undefined minXedVersionCode or targetXedVersionCode"
-                                            } else {
-                                                "Unknown error while parsing Xed Version code info from plugin"
-                                            }
+                                        if (minSdkVersion != -1 && targetSdkVersion != -1 && minSdkVersion <= xedVersionCode && targetSdkVersion <= xedVersionCode) {
+                                            Preference.setBoolean(
+                                                key = "ext_" + plugin.packageName,
+                                                true
+                                            )
+                                            state = true
+                                        } else {
+                                            val reason: String =
+                                                if (minSdkVersion > xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1) {
+                                                    "Xed-Editor is outdated minimum version code required is $minSdkVersion while current version code is $xedVersionCode"
+                                                } else if (targetSdkVersion < xedVersionCode && minSdkVersion != -1 && targetSdkVersion != -1) {
+                                                    "Plugin ${plugin.name} was made for an older version of Xed-Editor, ask the plugin developer to update the plugin"
+                                                } else if (minSdkVersion == -1 || targetSdkVersion == -1) {
+                                                    "Undefined minXedVersionCode or targetXedVersionCode"
+                                                } else {
+                                                    "Unknown error while parsing Xed Version code info from plugin"
+                                                }
 
-                                        dialog(
-                                            context = activity,
-                                            title = strings.failed.getString(),
-                                            msg = "Enabling plugin ${plugin.name} failed \nreason: \n$reason",
-                                            onOk = {})
+                                            dialog(
+                                                context = activity!!,
+                                                title = strings.failed.getString(),
+                                                msg = "Enabling plugin ${plugin.name} failed \nreason: \n$reason",
+                                                onOk = {})
+                                        }
+
+                                        delay(500)
+                                        loadingPopup.hide()
+                                    }.onFailure {
+                                        errorDialog(it)
                                     }
 
-                                    delay(500)
-                                    loadingPopup.hide()
                                 }
                             } else {
                                 Preference.setBoolean(key = "ext_" + plugin.packageName, false)

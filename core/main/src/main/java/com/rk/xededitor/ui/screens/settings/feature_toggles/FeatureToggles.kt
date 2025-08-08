@@ -5,10 +5,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.extension.Hooks
-import com.rk.libcommons.isFdroid
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -53,7 +53,7 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
                     InbuiltFeatures.terminal.setEnable(it)
                 }
             )
-            if (isFdroid) {
+            if (App.isFDroid) {
                 SettingsToggle(
                     label = InbuiltFeatures.extensions.name,
                     default = InbuiltFeatures.extensions.state.value,
@@ -71,7 +71,7 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
                 }
             )
 
-            if (isFdroid) {
+            if (App.isFDroid) {
                 SettingsToggle(
                     label = InbuiltFeatures.developerOptions.name,
                     default = InbuiltFeatures.developerOptions.state.value,

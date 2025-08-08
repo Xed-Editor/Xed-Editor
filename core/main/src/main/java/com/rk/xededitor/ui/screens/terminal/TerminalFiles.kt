@@ -1,12 +1,12 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.system.Os
-import com.rk.libcommons.sandboxDir
+import com.rk.file.sandboxDir
 import com.rk.libcommons.application
-import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
-import com.rk.libcommons.localBinDir
-import com.rk.libcommons.localDir
+import com.rk.file.child
+import com.rk.file.createFileIfNot
+import com.rk.file.localBinDir
+import com.rk.file.localDir
 
 fun setupTerminalFiles(){
 

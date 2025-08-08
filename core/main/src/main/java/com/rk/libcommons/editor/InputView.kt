@@ -44,7 +44,7 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
             }))
 
             add(Pair("⌘", onClick {
-                MainActivity.withContext { this.showControlPanel() }
+                MainActivity.instance?.showControlPanel()
             }))
 
             add(Pair("←", onClick {

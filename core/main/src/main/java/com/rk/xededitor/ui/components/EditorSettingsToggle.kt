@@ -4,15 +4,14 @@ import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import com.rk.libcommons.DefaultScope
+import com.rk.DefaultScope
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 fun updateEditorSettings() {
-    MainActivity.withContext {
+    with(MainActivity.instance!!){
         editorFragmentsForEach {
             lifecycleScope.launch { it.editor?.applySettings() }
         }

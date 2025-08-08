@@ -11,7 +11,7 @@ import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.libcommons.DefaultScope
+import com.rk.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -178,7 +178,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     Settings.show_arrow_keys = it
 
-                    MainActivity.activityRef.get()?.let { activity ->
+                    MainActivity.instance?.let { activity ->
                         if (activity.tabViewModel.fragmentFiles.isEmpty()) {
                             return@let
                         }

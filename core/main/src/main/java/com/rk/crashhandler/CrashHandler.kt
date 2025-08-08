@@ -3,8 +3,8 @@ package com.rk.crashhandler
 import android.content.Intent
 import android.os.Looper
 import com.rk.libcommons.application
-import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
+import com.rk.file.child
+import com.rk.file.createFileIfNot
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess

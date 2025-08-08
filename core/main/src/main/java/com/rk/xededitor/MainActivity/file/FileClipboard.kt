@@ -1,6 +1,6 @@
 package com.rk.xededitor.MainActivity.file
 
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 
 @Suppress("NOTHING_TO_INLINE")
 object FileClipboard {

@@ -5,8 +5,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.pm.PackageInfoCompat
-import com.rk.libcommons.child
-import com.rk.libcommons.createFileIfNot
+import com.rk.file.child
+import com.rk.file.createFileIfNot
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isMainThread
 import com.rk.settings.Preference

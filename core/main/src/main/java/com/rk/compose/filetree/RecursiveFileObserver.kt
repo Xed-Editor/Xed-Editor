@@ -1,9 +1,9 @@
 package com.rk.compose.filetree
 
 import android.os.FileObserver
-import com.rk.file_wrapper.FileWrapper
+import com.rk.file.FileWrapper
 import com.rk.compose.filetree.RecursiveFileObserver.SingleFileObserver
-import com.rk.libcommons.DefaultScope
+import com.rk.DefaultScope
 import com.rk.settings.Settings
 import com.rk.xededitor.MainActivity.Kee
 import com.rk.xededitor.MainActivity.MainActivity
@@ -78,21 +78,24 @@ class RecursiveFileObserver @JvmOverloads constructor(path: String?, mask: Int =
         when (event) {
             CLOSE_WRITE -> {
                 if (Settings.auto_save.not()){
-                    MainActivity.withContext {
-                        val fragment =
-                            adapter?.tabFragments?.get(
-                                Kee(
-                                    FileWrapper(
-                                        File(correctPath)
+                    if (MainActivity.instance != null){
+                        with(MainActivity.instance!!) {
+                            val fragment =
+                                adapter?.tabFragments?.get(
+                                    Kee(
+                                        FileWrapper(
+                                            File(correctPath)
+                                        )
                                     )
                                 )
-                            )
-                                ?.get()?.fragment
+                                    ?.get()?.fragment
 
-                        if (fragment is EditorFragment){
-                            fragment.refreshEditorContent(autoRefresher = true)
+                            if (fragment is EditorFragment){
+                                fragment.refreshEditorContent(autoRefresher = true)
+                            }
                         }
                     }
+
                 }
                 }
             CREATE -> {

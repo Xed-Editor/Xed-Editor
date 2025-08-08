@@ -15,10 +15,7 @@ object AutoSaver {
     init {
         GlobalScope.launch(Dispatchers.Default) {
             while (isActive) {
-                if (MainActivity.activityRef.get() == null ||
-                    MainActivity.activityRef.get()!!.isPaused == true ||
-                    MainActivity.activityRef.get()!!.isFinishing ||
-                    MainActivity.activityRef.get()!!.isDestroyed) {
+                if (MainActivity.instance != null && MainActivity.instance?.isPaused == true || MainActivity.instance?.isFinishing == true || MainActivity.instance?.isDestroyed == true) {
                     if (Settings.auto_save) {
                         delay(1000)
                     }else{

@@ -1,7 +1,6 @@
 package com.rk.controlpanel
 
 import android.app.Dialog
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -15,11 +14,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.Hooks
-import com.rk.libcommons.DefaultScope
+import com.rk.DefaultScope
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
 import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
 import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
@@ -64,7 +62,7 @@ fun MainActivity.showControlPanel() {
                                     item = ControlItem(
                                         label = "Save All",
                                         sideEffect = {
-                                            MainActivity.activityRef.get()?.apply {
+                                            MainActivity.instance.apply {
                                                 lifecycleScope.launch {
                                                     if (tabViewModel.fragmentFiles.isNotEmpty()) {
                                                         withContext(Dispatchers.IO) {

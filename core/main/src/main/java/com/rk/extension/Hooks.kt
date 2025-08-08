@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import com.rk.controlpanel.ControlItem
-import com.rk.file_wrapper.FileObject
+import com.rk.file.FileObject
 import com.rk.libcommons.ActionPopup
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.MainActivity.TabFragment

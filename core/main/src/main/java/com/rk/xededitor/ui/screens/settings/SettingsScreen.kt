@@ -29,11 +29,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
 import com.rk.extension.Hooks
-import com.rk.libcommons.isFdroid
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -70,6 +70,13 @@ private fun Categories(navController: NavController) {
             description = stringResource(id = strings.terminal_desc),
             iconResource = drawables.terminal,
             onNavigate = { navController.navigate(SettingsRoutes.TerminalSettings.route) },
+        )
+
+        PreferenceCategory(
+            label = stringResource(id = strings.runners),
+            description = stringResource(id = strings.runners_desc),
+            iconResource = drawables.run,
+            onNavigate = { navController.navigate(SettingsRoutes.Runners.route) },
         )
     }
 
@@ -115,7 +122,7 @@ private fun Categories(navController: NavController) {
     }
 
 
-    if (isFdroid && InbuiltFeatures.developerOptions.state.value) {
+    if (App.isFDroid && InbuiltFeatures.developerOptions.state.value) {
         PreferenceCategory(
             label = "Developer Options",
             description = "Debugging options for ${strings.app_name.getString()}",

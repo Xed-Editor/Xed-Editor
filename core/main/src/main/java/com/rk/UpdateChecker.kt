@@ -90,7 +90,7 @@ object UpdateChecker {
         
         withContext(Dispatchers.Main) {
             if (updates.isNotEmpty()) {
-                MainActivity.activityRef.get()?.let {
+                MainActivity.instance?.let {
                     MaterialAlertDialogBuilder(it).apply {
                         setTitle(strings.update_av.getString())
                         setMessage(updates.joinToString("\n"))

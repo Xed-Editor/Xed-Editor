@@ -14,11 +14,10 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.rk.compose.filetree.addProject
 import com.rk.compose.filetree.fileTreeViewModel
-import com.rk.file_wrapper.FileObject
-import com.rk.file_wrapper.FileWrapper
-import com.rk.file_wrapper.UriWrapper
-import com.rk.libcommons.DefaultScope
-import com.rk.libcommons.PathUtils.toPath
+import com.rk.file.FileObject
+import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
+import com.rk.DefaultScope
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.errorDialog
@@ -47,13 +46,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     delay(100)
 
                     val uri = it.data!!.data!!
-                    val file = File(uri.toPath())
-                    val fileObject =
-                        if (file.exists() && file.canRead() && file.canWrite() && file.isFile) {
-                            FileWrapper(file)
-                        } else {
-                            UriWrapper(DocumentFile.fromSingleUri(mainActivity, uri)!!)
-                        }
+                    val fileObject = UriWrapper(DocumentFile.fromSingleUri(mainActivity, uri)!!)
 
                     withContext(Dispatchers.Main) {
                         mainActivity.adapter!!.addFragment(fileObject)
@@ -121,30 +114,23 @@ class FileManager(private val mainActivity: MainActivity) {
     private var requestOpenDir =
         mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                val file = File(it.data!!.data!!.toPath())
-                if (file.exists() && file.canRead() && file.canWrite()) {
+                runCatching {
+                    val takeFlags: Int =
+                        (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+                    mainActivity.contentResolver.takePersistableUriPermission(
+                        it.data!!.data!!, takeFlags
+                    )
+                }.onFailure { it.printStackTrace() }
+
+                val uri = it.data?.data
+
+                uri?.let {
                     mainActivity.lifecycleScope.launch {
-                        addProject(FileWrapper(file))
+                        addProject(UriWrapper(DocumentFile.fromTreeUri(mainActivity, it)!!))
                     }
-                } else {
-                    runCatching {
-                        val takeFlags: Int =
-                            (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-                        mainActivity.contentResolver.takePersistableUriPermission(
-                            it.data!!.data!!, takeFlags
-                        )
-                    }.onFailure { it.printStackTrace() }
-
-                    val uri = it.data?.data
-
-                    uri?.let {
-                        mainActivity.lifecycleScope.launch {
-                            addProject(UriWrapper(DocumentFile.fromTreeUri(mainActivity, it)!!))
-                        }
-                    }
-
-
                 }
+
+
 
             }
         }
@@ -173,13 +159,7 @@ class FileManager(private val mainActivity: MainActivity) {
                     val data: Intent? = result.data
 
                     val uri = result.data!!.data!!
-                    val file = File(uri.toPath())
-                    val fileObject =
-                        if (file.exists() && file.canRead() && file.canWrite() && file.isFile) {
-                            FileWrapper(file)
-                        } else {
-                            UriWrapper(DocumentFile.fromSingleUri(mainActivity, uri)!!)
-                        }
+                    val fileObject = UriWrapper(DocumentFile.fromSingleUri(mainActivity, uri)!!)
 
                     delay(100)
                     withContext(Dispatchers.Main) {
@@ -204,20 +184,18 @@ class FileManager(private val mainActivity: MainActivity) {
 
     fun selectDirForNewFileLaunch(fileName: String) {
         selectDirCallBack = {
-            val file = File(it?.data!!.data!!.toPath())
-            val fileObject =
-                if (file.exists() && file.canWrite() && file.canWrite() && file.isDirectory) {
-                    FileWrapper(file)
-                } else {
-                    runCatching {
-                        val takeFlags: Int =
-                            (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-                        mainActivity.contentResolver.takePersistableUriPermission(
-                            it.data!!.data!!, takeFlags
-                        )
-                    }
-                    UriWrapper(DocumentFile.fromTreeUri(mainActivity, it.data!!.data!!)!!)
+            val data = it?.data!!
+            val fileObject = run {
+                runCatching {
+                    val takeFlags: Int =
+                        (data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
+
+                    mainActivity.contentResolver.takePersistableUriPermission(
+                        data!!.data!!, takeFlags
+                    )
                 }
+                UriWrapper(DocumentFile.fromTreeUri(mainActivity, it.data!!.data!!)!!)
+            }
 
             if (fileObject.hasChild(fileName)) {
                 toast("File with name $fileName already exists")
