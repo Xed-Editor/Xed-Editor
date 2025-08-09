@@ -9,8 +9,7 @@
 
   <img src="https://img.shields.io/github/downloads/Xed-Editor/Xed-Editor/total?label=Downloads" alt="Download Count">
   <img src="https://github.com/Rohitkushvaha01/Xed-Editor/actions/workflows/android.yml/badge.svg?event=push" alt="CI">
-
- <img src="https://tokei.rs/b1/github/Xed-Editor/Xed-Editor" alt="CI">
+ 
 </div>
 
 
