@@ -29,6 +29,7 @@ object ShellBasedRunners{
     init {
         DefaultScope.launch{
             indexRunners()
+
         }
     }
 

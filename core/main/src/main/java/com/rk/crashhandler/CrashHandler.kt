@@ -2,6 +2,7 @@ package com.rk.crashhandler
 
 import android.content.Intent
 import android.os.Looper
+import android.util.Log
 import com.rk.libcommons.application
 import com.rk.file.child
 import com.rk.file.createFileIfNot
@@ -14,7 +15,17 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
     override fun uncaughtException(thread: Thread, ex: Throwable) {
         runCatching {
 
-            if (ex.message.toString().contains("android.view.View${"$"}BaseSavedState") && ex.message.toString().contains("android.widget.HorizontalScrollView${"$"}SavedState")){
+            if (ex.message.toString().contains("android.view.View${"$"}BaseSavedState") ||
+                ex.message.toString()
+                    .contains("android.widget.HorizontalScrollView${"$"}SavedState")){
+                Log.w("CrashHandler", "Ignoring crash")
+                return@runCatching
+            }
+
+            if (ex.stackTrace.toString().contains("android.view.View${"$"}BaseSavedState") ||
+                ex.stackTrace.toString()
+                    .contains("android.widget.HorizontalScrollView${"$"}SavedState")){
+                Log.w("CrashHandler", "Ignoring crash")
                 return@runCatching
             }
 

@@ -220,7 +220,11 @@ fun Context.getColorFromAttr(attr: Int): Int {
 
 fun errorDialog(msg: String) {
     if (msg.isBlank()) {
-        Log.w("Utils Error function", "Message is blank")
+        Log.w("ERROR_DIALOG", "Message is blank")
+        return
+    }
+    if (msg.contains("Job was cancelled")){
+        Log.w("ERROR_DIALOG", msg)
         return
     }
 
@@ -234,6 +238,10 @@ fun errorDialog(@StringRes msgRes: Int) {
 
 //todo handle multple function call fro same throwable
 fun errorDialog(throwable: Throwable) {
+    if (throwable.message.toString().contains("Job was cancelled")){
+        Log.w("ERROR_DIALOG", throwable.message.toString())
+        return
+    }
     var message = StringBuilder()
     throwable.let {
         message.append(it.message).append("\n")
