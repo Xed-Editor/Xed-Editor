@@ -16,9 +16,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.file.smoothTabs
-import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.InputDialog
@@ -79,13 +76,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     Settings.word_wrap_for_text = it
 
-                    editorFragmentsForEach { editorFragment ->
-                        with(editorFragment) {
-                            if (file?.getName()?.endsWith(".txt") == true) {
-                                editor?.isWordwrap = it
-                            }
-                        }
-                    }
                 }
             )
         }
@@ -178,15 +168,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     Settings.show_arrow_keys = it
 
-                    MainActivity.instance?.let { activity ->
-                        if (activity.tabViewModel.fragmentFiles.isEmpty()) {
-                            return@let
-                        }
 
-                        editorFragmentsForEach { editorFragment ->
-                            editorFragment.showArrowKeys(it)
-                        }
-                    }
                 })
 
             NextScreenCard(
@@ -200,7 +182,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.smooth_tabs,
                 sideEffect = {
                     Settings.smooth_tabs = it
-                    smoothTabs = it
+                    //smoothTabs = it
                 })
             EditorSettingsToggle(
                 label = stringResource(id = strings.keepdl),
@@ -277,11 +259,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     } else {
                         Settings.line_spacing = lineSpacingValue.toFloat()
 
-                        editorFragmentsForEach {
-                            it.editor?.lineSpacingExtra =
-                                lineSpacingValue.toFloat()
-                        }
-
                         showLineSpacingDialog = false
                     }
 
@@ -334,14 +311,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         toast(context.getString(strings.v_small))
                         textSizeValue = Settings.editor_text_size.toString()
                     } else {
-                        Settings.editor_text_size = textSizeValue.toInt()
 
-                        editorFragmentsForEach {
-                            it.editor?.setTextSize(
-                                textSizeValue.toFloat()
-                            )
-                        }
-                        showTextSizeDialog = false
                     }
 
                 },
@@ -369,10 +339,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     } else {
                         Settings.tab_size = tabSizeValue.toInt()
 
-                        editorFragmentsForEach {
-                            it.editor?.tabWidth =
-                                tabSizeValue.toInt()
-                        }
                         showTabSizeDialog = false
                     }
                 },

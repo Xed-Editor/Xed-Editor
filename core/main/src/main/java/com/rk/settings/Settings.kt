@@ -1,5 +1,4 @@
 package com.rk.settings
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,187 +6,107 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.application
 import com.rk.xededitor.BuildConfig
+import java.lang.ref.WeakReference
 import java.nio.charset.Charset
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 object Settings {
-    var amoled
-        get() = Preference.getBoolean(key = "oled", default = false)
-        set(value) = Preference.setBoolean(key = "oled", value)
-    var monet
-        get() = Preference.getBoolean(
-            key = "monet",
-            default = false
-        )
-        set(value) = Preference.setBoolean(key = "monet", value)
-    var pin_line_number
-        get() = Preference.getBoolean(key = "pinline", default = false)
-        set(value) = Preference.setBoolean(key = "pinline", value)
-    var wordwrap
-        get() = Preference.getBoolean(key = "wordwrap", default = false)
-        set(value) = Preference.setBoolean(key = "wordwrap", value)
-    var word_wrap_for_text
-        get() = Preference.getBoolean(key = "ww_txt", default = true)
-        set(value) = Preference.setBoolean(key = "ww_txt", value)
-    var cursor_animation
-        get() = Preference.getBoolean(key = "cursor_animation", default = false)
-        set(value) = Preference.setBoolean(key = "cursor_animation", value)
-    var show_arrow_keys
-        get() = Preference.getBoolean(key = "arrow_keys", default = true)
-        set(value) = Preference.setBoolean(key = "arrow_keys", value)
-    var keep_drawer_locked
-        get() = Preference.getBoolean(key = "drawer_lock", default = false)
-        set(value) = Preference.setBoolean(key = "drawer_lock", value)
-    var show_line_numbers
-        get() = Preference.getBoolean(key = "show_line_number", default = true)
-        set(value) = Preference.setBoolean(key = "show_line_number", value)
-    var auto_save
-        get() = Preference.getBoolean(key = "auto_save", default = false)
-        set(value) = Preference.setBoolean(key = "auto_save", value)
-    var show_suggestions
-        get() = Preference.getBoolean(key = "show_suggestions", default = false)
-        set(value) = Preference.setBoolean(key = "show_suggestions", value)
-    var check_for_update
-        get() = Preference.getBoolean(key = "check_update", default = false)
-        set(value) = Preference.setBoolean(key = "check_update", value)
-    var use_sora_search
-        get() = Preference.getBoolean(key = "sora_search", default = true)
-        set(value) = Preference.setBoolean(key = "sora_search", value)
-    var is_selected_font_assest
-        get() = Preference.getBoolean(key = "is_font_asset", default = false)
-        set(value) = Preference.setBoolean(key = "is_font_asset", value)
-    var smooth_tabs
-        get() = Preference.getBoolean(key = "smooth_tab", default = false)
-        set(value) = Preference.setBoolean(key = "smooth_tab", value)
-    var scroll_to_bottom
-        get() = Preference.getBoolean(key = "scroll_to_bottom", default = false)
-        set(value) = Preference.setBoolean(key = "scroll_to_bottom", value)
+    var amoled by CachedPreference("oled", false)
+    var monet by CachedPreference("monet", false)
+    var pin_line_number by CachedPreference("pinline", false)
+    var wordwrap by CachedPreference("wordwrap", false)
+    var word_wrap_for_text by CachedPreference("ww_txt", true)
+    var cursor_animation by CachedPreference("cursor_animation", false)
+    var show_arrow_keys by CachedPreference("arrow_keys", true)
+    var keep_drawer_locked by CachedPreference("drawer_lock", false)
+    var show_line_numbers by CachedPreference("show_line_number", true)
+    var auto_save by CachedPreference("auto_save", false)
+    var show_suggestions by CachedPreference("show_suggestions", false)
+    var check_for_update by CachedPreference("check_update", false)
+    var use_sora_search by CachedPreference("sora_search", true)
+    var is_selected_font_assest by CachedPreference("is_font_asset", false)
+    var smooth_tabs by CachedPreference("smooth_tab", false)
+    var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
+    var hide_soft_keyboard_if_hardware by CachedPreference("always_show_soft_keyboard", true)
+    var ignore_storage_permission by CachedPreference("ignore_storage_permission", false)
+    var github by CachedPreference("github", true)
+    var has_shown_private_data_dir_warning by CachedPreference("has_shown_private_data_dir_warning", false)
+    var has_shown_terminal_dir_warning by CachedPreference("has_shown_terminal_dir_warning", false)
+    var anr_watchdog by CachedPreference("anr", false)
+    var strict_mode by CachedPreference("strictMode", false)
+    var expose_home_dir by CachedPreference("expose_home_dir", false)
+    var auto_complete by CachedPreference("auto_complete", true)
+    var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
+    var project_as_pwd by CachedPreference("project_as_pwd", true)
+    var donated by CachedPreference("donated", false)
+    var sandbox by CachedPreference("sandbox", true)
 
-    var hide_soft_keyboard_if_hardware
-        get() = Preference.getBoolean(key = "always_show_soft_keyboard", default = true)
-        set(value) = Preference.setBoolean(key = "always_show_soft_keyboard", value)
+    // Int settings
+    var tab_size by CachedPreference("tabsize", 4)
+    var editor_text_size by CachedPreference("textsize", 14)
+    var auto_save_interval by CachedPreference("auto_save_interval", 10000)
+    var default_night_mode by CachedPreference(
+        "default_night_mode",
+        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+    )
+    var terminal_font_size by CachedPreference("terminal_font_size", 13)
+    var visits by CachedPreference("visits", 0)
 
+    // String settings
+    var projects by CachedPreference("projects", "")
+    var font_gson by CachedPreference("selected_font", "")
+    var selected_font_path by CachedPreference("selected_font_path", "")
+    var encoding by CachedPreference("encoding", Charset.defaultCharset().name())
+    var mutators by CachedPreference("mutators", "")
+    var git_url by CachedPreference("git_url", "github.com")
 
-    var ignore_storage_permission
-        get() = Preference.getBoolean(key = "ignore_storage_permission", default = false)
-        set(value) = Preference.setBoolean(key = "ignore_storage_permission", value)
-    var github
-        get() = Preference.getBoolean(key = "github", default = true)
-        set(value) = Preference.setBoolean(key = "github", value)
-    var has_shown_private_data_dir_warning
-        get() = Preference.getBoolean(key = "has_shown_private_data_dir_warning", default = false)
-        set(value) = Preference.setBoolean(key = "has_shown_private_data_dir_warning", value)
-    var has_shown_terminal_dir_warning
-        get() = Preference.getBoolean(key = "has_shown_terminal_dir_warning", default = false)
-        set(value) = Preference.setBoolean(key = "has_shown_terminal_dir_warning", value)
-    var anr_watchdog
-        get() = Preference.getBoolean(key = "anr", default = false)
-        set(value) = Preference.setBoolean(key = "anr", value)
-    var strict_mode
-        get() = Preference.getBoolean(key = "strictMode", default = false)
-        set(value) = Preference.setBoolean(key = "strictMode", value)
+    // Long settings
+    var last_update_check_timestamp by CachedPreference("last_update", 0L)
+    var lastVersionCode by CachedPreference("last_version_code", -1L)
 
-    var expose_home_dir
-        get() = Preference.getBoolean(key = "expose_home_dir", default = false)
-        set(value) = Preference.setBoolean(key = "expose_home_dir", value)
-
-    var auto_complete
-        get() = Preference.getBoolean(key = "auto_complete", default = true)
-        set(value) = Preference.setBoolean(key = "auto_complete", value)
-
-    var verbose_error
-        get() = Preference.getBoolean(key = "verbose_error", default = BuildConfig.DEBUG)
-        set(value) = Preference.setBoolean(key = "verbose_error", value)
-
-    var project_as_pwd
-        get() = Preference.getBoolean(key = "project_as_pwd", default = true)
-        set(value) = Preference.setBoolean(key = "project_as_pwd", value)
-
-    var donated
-        get() = Preference.getBoolean(key = "donated", default = false)
-        set(value) = Preference.setBoolean(key = "donated", value)
-
-    var sandbox
-        get() = Preference.getBoolean(key = "sandbox", default = true)
-        set(value) = Preference.setBoolean(key = "sandbox", value)
-
-
-    //Int
-    var tab_size
-        get() = Preference.getInt(key = "tabsize", default = 4)
-        set(value) = Preference.setInt(key = "tabsize", value)
-    var editor_text_size
-        get() = Preference.getInt(key = "textsize", default = 14)
-        set(value) = Preference.setInt(key = "textsize", value)
-    var auto_save_interval
-        get() = Preference.getInt(key = "auto_save_interval", default = 10000)
-        set(value) = Preference.setInt(key = "auto_save_interval", value)
-    var default_night_mode
-        get() = Preference.getInt(
-            key = "default_night_mode",
-            default = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        )
-        set(value) = Preference.setInt(key = "default_night_mode", value)
-    var terminal_font_size
-        get() = Preference.getInt(key = "terminal_font_size", default = 13)
-        set(value) = Preference.setInt(key = "terminal_font_size", value)
-
-    var visits
-        get() = Preference.getInt(key = "visits", default = 0)
-        set(value) = Preference.setInt(key = "visits", value)
-
-
-    //String
-    var projects
-        get() = Preference.getString(key = "projects", default = "")
-        set(value) = Preference.setString(key = "projects", value)
-    var font_gson
-        get() = Preference.getString(key = "selected_font", default = "")
-        set(value) = Preference.setString(key = "selected_font", value)
-    var selected_font_path
-        get() = Preference.getString(key = "selected_font_path", default = "")
-        set(value) = Preference.setString(key = "selected_font_path", value)
-    var encoding
-        get() = Preference.getString(key = "encoding", default = Charset.defaultCharset().name())
-        set(value) = Preference.setString(key = "encoding", value)
-    var mutators
-        get() = Preference.getString(key = "mutators", default = "")
-        set(value) = Preference.setString(key = "mutators", value)
-    var git_url
-        get() = Preference.getString(key = "git_url", default = "github.com")
-        set(value) = Preference.setString(key = "git_url", value)
-
-
-    //Long
-    var last_update_check_timestamp
-        get() = Preference.getLong(key = "last_update", default = 0)
-        set(value) = Preference.setLong(key = "last_update", value)
-    var lastVersionCode
-        get() = Preference.getLong(key = "last_version_code", default = -1)
-        set(value) = Preference.setLong(key = "last_version_code", value)
-
-
-    //Float
-    var line_spacing
-        get() = Preference.getFloat(key = "line_spacing", default = 0F)
-        set(value) = Preference.setFloat(key = "line_spacing", value)
-
-
+    // Float settings
+    var line_spacing by CachedPreference("line_spacing", 0f)
 }
 
 object Preference {
     private var sharedPreferences: SharedPreferences =
         application!!.getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-    //store the result into memory for faster access
-    private val stringCache = hashMapOf<String, String?>()
-    private val boolCache = hashMapOf<String, Boolean>()
-    private val intCache = hashMapOf<String, Int>()
-    private val longCache = hashMapOf<String, Long>()
-    private val floatCache = hashMapOf<String, Float>()
+    // Weak reference caches to allow garbage collection of unused settings
+    private val stringCache = mutableMapOf<String, WeakReference<String?>>()
+    private val boolCache = mutableMapOf<String, WeakReference<Boolean>>()
+    private val intCache = mutableMapOf<String, WeakReference<Int>>()
+    private val longCache = mutableMapOf<String, WeakReference<Long>>()
+    private val floatCache = mutableMapOf<String, WeakReference<Float>>()
+
+    // Preload all settings at startup
+    fun preloadAllSettings() {
+        // This will force all settings to be loaded into cache
+        // The weak references will allow GC if settings aren't used
+        Settings::class.members.forEach { member ->
+            if (member is KProperty<*>) {
+                try {
+                    member.getter.call(Settings)
+                } catch (e: Exception) {
+                    // Ignore - some properties might not be accessible
+                }
+            }
+        }
+    }
 
     @SuppressLint("ApplySharedPref")
     fun clearData() {
         sharedPreferences.edit().clear().commit()
+        clearCaches()
+    }
+
+    fun clearCaches() {
+        stringCache.clear()
+        boolCache.clear()
+        intCache.clear()
+        longCache.clear()
+        floatCache.clear()
     }
 
     fun removeKey(key: String) {
@@ -196,142 +115,143 @@ object Preference {
         }
 
         sharedPreferences.edit().remove(key).apply()
+        clearKeyFromCache(key)
+    }
 
-        if (stringCache.containsKey(key)) {
-            stringCache.remove(key)
-            return
-        }
-
-        if (boolCache.containsKey(key)) {
-            boolCache.remove(key)
-            return
-        }
-
-        if (intCache.containsKey(key)) {
-            intCache.remove(key)
-            return
-        }
-
-        if (longCache.containsKey(key)) {
-            longCache.remove(key)
-            return
-        }
-
-        if (floatCache.containsKey(key)) {
-            floatCache.remove(key)
-            return
-        }
+    private fun clearKeyFromCache(key: String) {
+        stringCache.remove(key)
+        boolCache.remove(key)
+        intCache.remove(key)
+        longCache.remove(key)
+        floatCache.remove(key)
     }
 
     fun getBoolean(key: String, default: Boolean): Boolean {
-        runCatching {
-            return boolCache[key] ?: sharedPreferences.getBoolean(key, default)
-                .also { boolCache[key] = it }
-        }.onFailure {
-            it.printStackTrace()
-            setBoolean(key, default)
+        return boolCache[key]?.get() ?: run {
+            val value = try {
+                sharedPreferences.getBoolean(key, default)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setBoolean(key, default)
+                default
+            }
+            boolCache[key] = WeakReference(value)
+            value
         }
-        return default
     }
 
     fun setBoolean(key: String, value: Boolean) {
-        boolCache[key] = value
+        boolCache[key] = WeakReference(value)
         runCatching {
-            val editor = sharedPreferences.edit()
-            editor.putBoolean(key, value)
-            editor.apply()
+            sharedPreferences.edit().putBoolean(key, value).apply()
         }.onFailure { it.printStackTrace() }
     }
 
-
     fun getString(key: String, default: String): String {
-        runCatching {
-            return stringCache[key] ?: sharedPreferences.getString(key, default)!!
-                .also { stringCache[key] = it }
-        }.onFailure {
-            it.printStackTrace()
-            setString(key, default)
+        return stringCache[key]?.get() ?: run {
+            val value = try {
+                sharedPreferences.getString(key, default) ?: default
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setString(key, default)
+                default
+            }
+            stringCache[key] = WeakReference(value)
+            value
         }
-        return default
     }
 
     fun setString(key: String, value: String?) {
-        stringCache[key] = value
+        stringCache[key] = WeakReference(value)
         runCatching {
-            val editor = sharedPreferences.edit()
-            editor.putString(key, value)
-            editor.apply()
-        }.onFailure {
-            it.printStackTrace()
-        }
-
+            sharedPreferences.edit().putString(key, value).apply()
+        }.onFailure { it.printStackTrace() }
     }
 
     fun getInt(key: String, default: Int): Int {
-        runCatching {
-            return intCache[key] ?: sharedPreferences.getInt(key, default)
-                .also { intCache[key] = it }
-        }.onFailure {
-            it.printStackTrace()
-            setInt(key, default)
+        return intCache[key]?.get() ?: run {
+            val value = try {
+                sharedPreferences.getInt(key, default)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setInt(key, default)
+                default
+            }
+            intCache[key] = WeakReference(value)
+            value
         }
-        return default
     }
 
     fun setInt(key: String, value: Int) {
-        intCache[key] = value
+        intCache[key] = WeakReference(value)
         runCatching {
-            val editor = sharedPreferences.edit()
-            editor.putInt(key, value)
-            editor.apply()
-        }.onFailure {
-            it.printStackTrace()
-        }
-
+            sharedPreferences.edit().putInt(key, value).apply()
+        }.onFailure { it.printStackTrace() }
     }
 
     fun getLong(key: String, default: Long): Long {
-        runCatching {
-            return longCache[key] ?: sharedPreferences.getLong(key, default)
-                .also { longCache[key] = it }
-        }.onFailure {
-            it.printStackTrace()
-            setLong(key, default)
+        return longCache[key]?.get() ?: run {
+            val value = try {
+                sharedPreferences.getLong(key, default)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setLong(key, default)
+                default
+            }
+            longCache[key] = WeakReference(value)
+            value
         }
-        return default
     }
 
     fun setLong(key: String, value: Long) {
-        longCache[key] = value
+        longCache[key] = WeakReference(value)
         runCatching {
-            val editor = sharedPreferences.edit()
-            editor.putLong(key, value)
-            editor.apply()
-        }.onFailure {
-            it.printStackTrace()
-        }
+            sharedPreferences.edit().putLong(key, value).apply()
+        }.onFailure { it.printStackTrace() }
     }
 
     fun getFloat(key: String, default: Float): Float {
-        runCatching {
-            return floatCache[key] ?: sharedPreferences.getFloat(key, default)
-                .also { floatCache[key] = it }
-        }.onFailure {
-            it.printStackTrace()
-            setFloat(key, default)
+        return floatCache[key]?.get() ?: run {
+            val value = try {
+                sharedPreferences.getFloat(key, default)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setFloat(key, default)
+                default
+            }
+            floatCache[key] = WeakReference(value)
+            value
         }
-        return default
     }
 
     fun setFloat(key: String, value: Float) {
-        floatCache[key] = value
+        floatCache[key] = WeakReference(value)
         runCatching {
-            val editor = sharedPreferences.edit()
-            editor.putFloat(key, value)
-            editor.apply()
-        }.onFailure {
-            it.printStackTrace()
+            sharedPreferences.edit().putFloat(key, value).apply()
+        }.onFailure { it.printStackTrace() }
+    }
+}
+
+class CachedPreference<T>(private val key: String, private val defaultValue: T) : ReadWriteProperty<Any?, T> {
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        return when (defaultValue) {
+            is Boolean -> Preference.getBoolean(key, defaultValue) as T
+            is String -> Preference.getString(key, defaultValue) as T
+            is Int -> Preference.getInt(key, defaultValue) as T
+            is Long -> Preference.getLong(key, defaultValue) as T
+            is Float -> Preference.getFloat(key, defaultValue) as T
+            else -> throw IllegalArgumentException("Unsupported preference type")
         }
     }
 
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        when (value) {
+            is Boolean -> Preference.setBoolean(key, value)
+            is String -> Preference.setString(key, value)
+            is Int -> Preference.setInt(key, value)
+            is Long -> Preference.setLong(key, value)
+            is Float -> Preference.setFloat(key, value)
+            else -> throw IllegalArgumentException("Unsupported preference type")
+        }
+    }
 }

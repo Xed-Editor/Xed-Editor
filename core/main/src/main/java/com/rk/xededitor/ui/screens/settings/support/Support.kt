@@ -34,7 +34,7 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.MainActivity.MainActivity
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.activities.settings.settingsNavController

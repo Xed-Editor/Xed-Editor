@@ -26,7 +26,6 @@ import com.rk.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.InputDialog
 import kotlinx.coroutines.Dispatchers
@@ -72,11 +71,6 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                     PreferenceTemplate(modifier = modifier.clickable {
                         DefaultScope.launch {
                             withContext(Dispatchers.Main) {
-                                MainActivity.instance?.adapter?.addFragment(
-                                    FileWrapper(
-                                        mut.file
-                                    )
-                                )
                                 toast(strings.tab_opened.getString())
                             }
 

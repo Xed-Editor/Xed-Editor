@@ -8,10 +8,6 @@ import com.rk.libcommons.toast
 import com.rk.mutator_engine.Engine
 import com.rk.mutator_engine.EngineAPI
 import com.rk.resources.strings
-import com.rk.xededitor.MainActivity.Kee
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.EditorFragment
-import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -47,7 +43,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
      * is unavailable or does not contain a text file.
      */
     override fun getEditorText(): String {
-        return (getCurrentEditorFragment()?.editor?.text ?: "__invalid__").toString()
+        return "NOP"
     }
 
     /**
@@ -58,37 +54,14 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
      * @param text The text to set in the current editor. If null, the editor's content will be cleared.
      */
     override fun setEditorText(text: String?) {
-        runBlocking {
-            withContext(Dispatchers.Main) {
-                runCatching {
-                    getCurrentEditorFragment()?.editor?.setText(text)
-                }.onFailure { errorDialog(it);it.printStackTrace() }
 
-            }
-        }
 
     }
 
     override fun getEditorTextFromPath(path: String?): String {
         var result = "__invalid__"  // Default value
         runBlocking {
-            withContext(Dispatchers.Main) {
-                if (MainActivity.instance != null){
-                    with(MainActivity.instance!!) {
-                        val fragment =
-                            adapter?.tabFragments?.get(path?.let { File(it) }?.let { Kee(
-                                com.rk.file.FileWrapper(
-                                    it
-                                )
-                            ) })
-                                ?.get()?.fragment
-                        if (fragment is EditorFragment) {
-                            result = fragment.editor?.text.toString()
-                        }
-                    }
-                }
 
-            }
         }
         return result
     }
@@ -96,14 +69,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
     override fun http(url: String?, options: String?): String? {
         var loadingPopup:LoadingPopup? = null
         runBlocking {
-            withContext(Dispatchers.Main){
-                if (MainActivity.instance != null){
-                    with(MainActivity.instance!!) {
-                        loadingPopup = LoadingPopup(this,null).show()
-                    }
-                }
 
-            }
         }
 
         val result = xhttp(url, options)
@@ -173,13 +139,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
     override fun showDialog(title: String?, content: String?) {
         runBlocking {
             withContext(Dispatchers.Main) {
-                if (MainActivity.instance != null){
-                    with(MainActivity.instance!!) {
-                        MaterialAlertDialogBuilder(this).setTitle(title).setMessage(content)
-                            .setPositiveButton("OK", null).show()
 
-                    }
-                }
 
             }
         }
@@ -191,30 +151,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
      runBlocking {
          val latch = java.util.concurrent.CountDownLatch(1)
          withContext(Dispatchers.Main) {
-             if (MainActivity.instance != null){
-                 with(MainActivity.instance!!) {
-                     val editText = android.widget.EditText(this)
-                     editText.hint = hint ?: ""
-                     editText.setText(prefill ?: "")
 
-                     MaterialAlertDialogBuilder(this)
-                         .setTitle(title)
-                         .setView(editText)
-                         .setPositiveButton(strings.ok) { _, _ ->
-                             result = editText.text.toString()
-                             latch.countDown()
-                         }
-                         .setNegativeButton(strings.cancel) { _, _ ->
-                             result = null
-                             latch.countDown()
-                         }
-                         .setOnCancelListener {
-                             result = null
-                             latch.countDown()
-                         }
-                         .show()
-                 }
-             }
 
          }
          latch.await()

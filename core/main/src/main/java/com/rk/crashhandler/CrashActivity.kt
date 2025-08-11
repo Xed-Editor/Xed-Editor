@@ -19,7 +19,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.rk.App
 import com.rk.libcommons.editor.KarbonEditor
-import com.rk.libcommons.editor.SetupEditor
 import com.rk.libcommons.origin
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -142,10 +141,6 @@ class CrashActivity : AppCompatActivity() {
 
             editor.setText(sb.toString())
             editor.editable = false
-
-            lifecycleScope.launch(Dispatchers.IO){
-                SetupEditor.ensureTextmateTheme(editor)
-            }
 
             editor.isWordwrap = false
         }.onFailure {

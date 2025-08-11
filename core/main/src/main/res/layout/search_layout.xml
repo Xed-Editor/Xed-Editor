@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:visibility="gone">
 
-    <HorizontalScrollView
+    <com.rk.SafeHorizontalScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:overScrollMode="always"
@@ -70,7 +70,7 @@
                 android:src="@drawable/settings" />
 
         </LinearLayout>
-    </HorizontalScrollView>
+    </com.rk.SafeHorizontalScrollView>
 
     <EditText
         android:id="@+id/search_editor"

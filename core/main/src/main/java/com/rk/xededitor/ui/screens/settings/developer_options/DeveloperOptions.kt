@@ -42,8 +42,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.MainActivity.tabs.editor.lspExt
-import com.rk.xededitor.MainActivity.tabs.editor.lspPort
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
 
@@ -180,8 +178,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                             toast("Invalid port")
                             return@PortAndExtensionDialog
                         }
-                        lspPort = port.toIntOrNull()
-                        lspExt = extension
+                        //lspPort = port.toIntOrNull()
+                        //lspExt = extension
                     }
                 )
             }

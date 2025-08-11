@@ -19,14 +19,14 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
                 ex.message.toString()
                     .contains("android.widget.HorizontalScrollView${"$"}SavedState")){
                 Log.w("CrashHandler", "Ignoring crash")
-                return@runCatching
+                //return@runCatching
             }
 
             if (ex.stackTrace.toString().contains("android.view.View${"$"}BaseSavedState") ||
                 ex.stackTrace.toString()
                     .contains("android.widget.HorizontalScrollView${"$"}SavedState")){
                 Log.w("CrashHandler", "Ignoring crash")
-                return@runCatching
+                //return@runCatching
             }
 
             val intent = Intent(application!!, CrashActivity::class.java)

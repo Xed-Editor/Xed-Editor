@@ -13,13 +13,10 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.extension.Hooks
 import com.rk.DefaultScope
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.getCurrentEditorFragment
-import com.rk.xededitor.MainActivity.tabs.editor.saveAllFiles
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -45,16 +42,12 @@ fun MainActivity.showControlPanel() {
                                 endIndent = 0.dp,
                                 dividersToSkip = 0,
                             ) {
-                                Hooks.ControlPanel.controlItems.values.forEach {
-                                    ControlItem(item = it)
-                                }
-
                                 ControlItem(
                                     item = ControlItem(
                                         label = "Save",
                                         keyBind = "CTRL+S",
                                         sideEffect = {
-                                            getCurrentEditorFragment()?.save(isAutoSaver = false)
+                                            //getCurrentEditorFragment()?.save(isAutoSaver = false)
                                         })
                                 )
 
@@ -64,11 +57,11 @@ fun MainActivity.showControlPanel() {
                                         sideEffect = {
                                             MainActivity.instance.apply {
                                                 lifecycleScope.launch {
-                                                    if (tabViewModel.fragmentFiles.isNotEmpty()) {
-                                                        withContext(Dispatchers.IO) {
-                                                            saveAllFiles()
-                                                        }
-                                                    }
+//                                                    if (tabViewModel.fragmentFiles.isNotEmpty()) {
+//                                                        withContext(Dispatchers.IO) {
+//                                                            saveAllFiles()
+//                                                        }
+//                                                    }
                                                 }
                                             }
                                         })

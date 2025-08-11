@@ -455,5 +455,8 @@
     <string name="runner_name_exists">Runner name already exists</string>
     <string name="edit_runner">Edit Runner</string>
     <string name="info_runners">Runners are small bash scripts that are used to run a file/project. Create a runner and click on it to open it in the editor.</string>
-
+    <string name="redo">Redo</string>
+    <string name="read_mode">Read Mode</string>
+    <string name="edit_mode">Edit Mode</string>
+    <string name="no_folder_opened">No Folder Opened</string>
 </resources>

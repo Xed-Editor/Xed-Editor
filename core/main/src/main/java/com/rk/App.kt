@@ -10,18 +10,19 @@ import com.rk.extension.ExtensionManager
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.libcommons.application
-import com.rk.libcommons.editor.SetupEditor
+import com.rk.libcommons.editor.FontCache
+import com.rk.libcommons.editor.KarbonEditor
 import com.rk.resources.Res
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.AutoSaver
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.Executors
+import com.rk.settings.Preference
+import kotlinx.coroutines.Dispatchers
 
 class App : Application() {
 
@@ -71,38 +72,57 @@ class App : Application() {
             )
         }
 
-        Settings.visits = Settings.visits+1
-
-        //wait until UpdateManager is done, it should only take few milliseconds
-        UpdateManager.inspect()
-
         GlobalScope.launch {
-            DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir)
+            launch(Dispatchers.IO){
+                KarbonEditor.initGrammarRegistry()
+            }
+            launch{
+                val fontPath = Settings.selected_font_path
+                if (fontPath.isNotEmpty()) {
+                    FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_assest)
+                } else {
+                    FontCache.loadFont(this@App, "fonts/Default.ttf", true)
+                }
+            }
+            launch(Dispatchers.IO){
+                Preference.preloadAllSettings()
+            }
 
-            getTempDir().apply {
-                if (exists() && listFiles().isNullOrEmpty().not()) {
-                    deleteRecursively()
+            launch{DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir)}
+
+            launch(Dispatchers.IO){
+                getTempDir().apply {
+                    if (exists() && listFiles().isNullOrEmpty().not()) {
+                        deleteRecursively()
+                    }
                 }
             }
 
-            SetupEditor.init()
-            AutoSaver.start()
+            //AutoSaver.start()
 
-
-            runCatching {
-                val bridge = File(applicationInfo.nativeLibraryDir).child("libbridge.so")
-                if (bridge.exists()){
-                    Files.deleteIfExists(localBinDir().child("xed").toPath())
-                    Os.symlink(bridge.absolutePath, localBinDir().child("xed").absolutePath)
+            launch{
+                runCatching {
+                    val bridge = File(applicationInfo.nativeLibraryDir).child("libbridge.so")
+                    if (bridge.exists()){
+                        Files.deleteIfExists(localBinDir().child("xed").toPath())
+                        Os.symlink(bridge.absolutePath, localBinDir().child("xed").absolutePath)
+                    }
+                }.onFailure {
+                    it.printStackTrace()
                 }
-            }.onFailure {
-                it.printStackTrace()
             }
 
 
-            runCatching { UpdateChecker.checkForUpdates("dev") }
+            launch{
+                runCatching { UpdateChecker.checkForUpdates("dev") }
+            }
+
+            Settings.visits = Settings.visits+1
+
+            //wait until UpdateManager is done, it should only take few milliseconds
+            UpdateManager.inspect()
+
         }
-
     }
 
     override fun onTrimMemory(level: Int) {

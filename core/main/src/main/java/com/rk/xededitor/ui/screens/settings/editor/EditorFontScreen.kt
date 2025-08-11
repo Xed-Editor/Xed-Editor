@@ -30,7 +30,6 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.libcommons.errorDialog
-import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
 import java.io.File
 import java.io.FileOutputStream
 
@@ -98,9 +97,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                         Settings.selected_font_path = font.pathOrAsset
                         Settings.is_selected_font_assest = font.isAsset
 
-                        editorFragmentsForEach{
-                            it.editor?.applyFont()
-                        }
+
                         selectedFontCompose.value = font
                     },
                     contentModifier = Modifier

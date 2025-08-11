@@ -6,7 +6,6 @@ import com.rk.file.sandboxDir
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.terminal.bridge.Bridge
-import com.rk.xededitor.MainActivity.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -48,12 +47,12 @@ object ActionHandler {
                         return "Path is a directory : ${getCorrectPathForLogging(file)}"
                     }
 
-                    with(MainActivity.instance!!){
-                        lifecycleScope.launch(Dispatchers.Main){
-                            adapter!!.addFragment(FileWrapper(file))
-                            toast(strings.tab_opened)
-                        }
-                    }
+//                    with(MainActivity.instance!!){
+//                        lifecycleScope.launch(Dispatchers.Main){
+//                            adapter!!.addFragment(FileWrapper(file))
+//                            toast(strings.tab_opened)
+//                        }
+//                    }
                 }
                 else -> {
                     return "Unknown action : $action"

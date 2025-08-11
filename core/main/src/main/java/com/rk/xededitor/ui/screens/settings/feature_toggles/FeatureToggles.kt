@@ -8,7 +8,6 @@ import androidx.compose.ui.res.stringResource
 import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.extension.Hooks
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
@@ -77,16 +76,6 @@ fun FeatureToggles(modifier: Modifier = Modifier) {
                     default = InbuiltFeatures.developerOptions.state.value,
                     sideEffect = {
                         InbuiltFeatures.developerOptions.setEnable(it)
-                    }
-                )
-            }
-
-            Hooks.Settings.features.values.forEach { feature ->
-                SettingsToggle(
-                    label = feature.name,
-                    default = feature.state.value,
-                    sideEffect = {
-                        feature.setEnable(it)
                     }
                 )
             }

@@ -5,18 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.MainActivity.tabs.editor.editorFragmentsForEach
+import com.rk.xededitor.ui.activities.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-
-fun updateEditorSettings() {
-    with(MainActivity.instance!!){
-        editorFragmentsForEach {
-            lifecycleScope.launch { it.editor?.applySettings() }
-        }
-    }
-}
 
 @Composable
 fun EditorSettingsToggle(
@@ -47,7 +38,7 @@ fun EditorSettingsToggle(
             DefaultScope.launch(Dispatchers.Main) {
                 sideEffect?.invoke(it)
                 if (showSwitch){
-                    updateEditorSettings()
+                    //updateEditorSettings()
                 }
             }
         },

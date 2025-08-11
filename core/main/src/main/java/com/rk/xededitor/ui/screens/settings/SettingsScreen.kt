@@ -33,7 +33,6 @@ import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
-import com.rk.extension.Hooks
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -172,42 +171,6 @@ private fun Categories(navController: NavController) {
             HeartbeatIcon()
         }
     )
-
-    Hooks.Settings.screens.values.forEach { screen ->
-        val isSelected = false
-
-        PreferenceTemplate(
-            modifier =
-            Modifier
-                .padding(horizontal = 16.dp)
-                .clip(MaterialTheme.shapes.large)
-                .clickable { navController.navigate(screen.route) }
-                .background(
-                    if (isSelected) MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-                    else Color.Transparent
-                ),
-            verticalPadding = 14.dp,
-            title = {
-                Text(
-                    text = screen.label,
-                    color =
-                    if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onBackground,
-                )
-            },
-            description = {
-                Text(text = screen.description)
-            },
-            startWidget = {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                    screen.icon()
-                }
-            },
-        )
-
-    }
-
-
 }
 
 

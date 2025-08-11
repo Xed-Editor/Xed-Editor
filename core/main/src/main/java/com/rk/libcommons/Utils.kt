@@ -33,7 +33,6 @@ import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -41,6 +40,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import com.rk.xededitor.R
+import com.rk.xededitor.ui.activities.main.MainActivity
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {

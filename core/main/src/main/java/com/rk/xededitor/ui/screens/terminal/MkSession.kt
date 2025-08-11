@@ -12,7 +12,6 @@ import com.rk.file.localDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxHomeDir
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.termux.terminal.TerminalEmulator
 import com.termux.terminal.TerminalSession
@@ -57,14 +56,15 @@ object MkSession {
                         }
                     }
                 }else{
-                    val tabParent = MainActivity.instance?.adapter?.getCurrentFragment()?.fragment?.getFile()?.getParentFile()
-                    if(tabParent != null && tabParent is FileWrapper){
-                        return if (Settings.sandbox){
-                            tabParent.file.absolutePath.removePrefix(localDir().absolutePath)
-                        }else{
-                            tabParent.file.absolutePath
-                        }
-                    }
+//                    val tabParent = MainActivity.instance?.adapter?.getCurrentFragment()?.fragment?.getFile()?.getParentFile()
+//                    if(tabParent != null && tabParent is FileWrapper){
+//                        return if (Settings.sandbox){
+//                            tabParent.file.absolutePath.removePrefix(localDir().absolutePath)
+//                        }else{
+//                            tabParent.file.absolutePath
+//                        }
+//                    }
+
                 }
                 return if (Settings.sandbox){
                     "/home"

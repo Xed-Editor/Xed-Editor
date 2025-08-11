@@ -409,4 +409,5 @@
     <string name="auto_complete">Auto Completar no Editor</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">Desativar o teclado virtual</string>
     <string name="tempFile">Arquivo Temporário</string>
+
 </resources>

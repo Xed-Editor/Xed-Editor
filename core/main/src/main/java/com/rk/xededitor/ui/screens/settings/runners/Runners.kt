@@ -38,7 +38,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
@@ -147,11 +146,6 @@ fun Runners(modifier: Modifier = Modifier) {
                             description = null,
                             default = false,
                             sideEffect = { _ ->
-                                MainActivity.instance?.adapter?.addFragment(
-                                    FileWrapper(
-                                        runnerDir().child("${runner.getName()}.sh").createFileIfNot()
-                                    )
-                                )
                                 toast(strings.tab_opened)
                             },
                             showSwitch = false,

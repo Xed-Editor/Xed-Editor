@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.rk.extension.Hooks
 import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
 import com.rk.xededitor.ui.screens.debugger.Debugger
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
@@ -51,11 +50,5 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.Support.route){ Support() }
         composable(SettingsRoutes.LanguageScreen.route){ LanguageScreen() }
         composable(SettingsRoutes.Runners.route){ Runners() }
-
-        Hooks.Settings.screens.values.forEach{ screen ->
-            composable(screen.route){
-                screen.content()
-            }
-        }
     }
 }

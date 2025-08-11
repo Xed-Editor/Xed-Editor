@@ -33,25 +33,25 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Karbon"
         tools:targetApi="tiramisu">
-        <activity
-            android:name="com.rk.xededitor.MainActivity.MainActivity"
+
+        <activity android:name="com.rk.xededitor.ui.activities.main.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
             android:inputType="textFilter"
             android:launchMode="singleTask"
             android:persistableMode="persistAcrossReboots"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter tools:ignore="AppLinkUrlError">
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.intent.action.EDIT" />
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        <intent-filter tools:ignore="AppLinkUrlError">
+            <action android:name="android.intent.action.VIEW" />
+            <action android:name="android.intent.action.EDIT" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="*/*" />
-            </intent-filter>
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:mimeType="*/*" />
+        </intent-filter>
         </activity>
 
         <service android:name="com.rk.SessionService" android:foregroundServiceType="specialUse"/>

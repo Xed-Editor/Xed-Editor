@@ -7,10 +7,6 @@ import com.google.gson.Gson
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localDir
-import com.rk.libcommons.application
-import com.rk.resources.drawables
-import com.rk.xededitor.MainActivity.MainActivity
-import com.rk.xededitor.R
 import java.io.File
 
 object Mutators {

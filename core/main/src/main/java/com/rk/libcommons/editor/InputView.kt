@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.rk.controlpanel.showControlPanel
 import com.rk.libcommons.isDarkMode
 import com.rk.settings.Settings
-import com.rk.xededitor.MainActivity.MainActivity
 import io.github.rosemoe.sora.widget.CodeEditor
 
 
@@ -44,7 +43,7 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
             }))
 
             add(Pair("⌘", onClick {
-                MainActivity.instance?.showControlPanel()
+                //MainActivity.instance?.showControlPanel()
             }))
 
             add(Pair("←", onClick {

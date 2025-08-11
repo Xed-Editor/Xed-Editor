@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.MainActivity.MainActivity
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -55,7 +54,7 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                     indication = ripple(),
                     interactionSource = intraction
                 ) {
-                    MainActivity.instance?.adapter?.clearAllFragments()
+                    //MainActivity.instance?.adapter?.clearAllFragments()
                     selectedEncoding = Charset.defaultCharset().name()
                     Settings.encoding = selectedEncoding
                 },
@@ -78,7 +77,7 @@ fun DefaultEncoding(modifier: Modifier = Modifier) {
                             indication = ripple(),
                             interactionSource = intraction
                         ) {
-                            MainActivity.instance?.adapter?.clearAllFragments()
+                            //MainActivity.instance?.adapter?.clearAllFragments()
                             selectedEncoding = charset.name()
                             Settings.encoding = charset.name()
                         },

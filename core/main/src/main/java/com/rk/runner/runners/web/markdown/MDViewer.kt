@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.webkit.WebViewClient
 import androidx.lifecycle.lifecycleScope
 import com.rk.file.FileObject
+import com.rk.libcommons.errorDialog
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.html.HtmlRunner
@@ -37,8 +38,14 @@ class MDViewer : WebActivity() {
                 it.stop()
             }
         }
+        val parent = file.getParentFile()
+        if (parent == null) {
+            errorDialog("Unable to preview this file. No parent directory is available. Consider moving this file somewhere else.")
+            finish()
+        }
 
-        httpServer = HttpServer(PORT, file.getParentFile()!!) { md, session ->
+
+        httpServer = HttpServer(PORT, parent!!) { md, session ->
             val parameters = session.parameters
             val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
             if (parameters.containsKey("textmd")) {
