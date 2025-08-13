@@ -459,4 +459,6 @@
     <string name="read_mode">Read Mode</string>
     <string name="edit_mode">Edit Mode</string>
     <string name="no_folder_opened">No Folder Opened</string>
+    <string name="cut">Cut</string>
+    <string name="cut_desc">Move Document</string>
 </resources>

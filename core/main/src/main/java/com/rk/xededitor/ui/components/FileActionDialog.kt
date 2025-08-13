@@ -1,6 +1,10 @@
 // Updated FileActionDialog with implemented operations
 package com.rk.xededitor.ui.components
 
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.apache.commons.net.io.Util.copyStream
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -119,22 +123,35 @@ fun FileActionDialog(
             )
 
             AddDialogItem(
-                icon = drawables.round_content_paste_20,
-                title = stringResource(strings.paste),
-                description = stringResource(strings.paste_desc),
+                icon = drawables.round_content_cut_20,
+                title = stringResource(strings.cut),
+                description = stringResource(strings.cut_desc),
                 onClick = {
                     scope.launch {
-                        val success = FileOperations.pasteFromClipboard(file)
-                        if (success) {
-                            fileTreeViewModel?.updateCache(file)
-                            toast(context.getString(strings.paste))
-                        } else {
-                            toast(context.getString(strings.failed))
-                        }
+                        FileOperations.copyToClipboard(file,isCut = true)
+                        toast(context.getString(strings.cut))
                         onDismissRequest()
                     }
                 }
             )
+
+            if (FileOperations.clipboard != null && file.isDirectory()){
+                AddDialogItem(
+                    icon = drawables.round_content_paste_20,
+                    title = stringResource(strings.paste),
+                    description = stringResource(strings.paste_desc),
+                    onClick = {
+                        scope.launch {
+                            val parentFile = FileOperations.clipboard!!.getParentFile()
+                            pasteFile(context,FileOperations.clipboard!!,file,isCut = FileOperations.isCut)
+                            fileTreeViewModel?.updateCache(file)
+                            fileTreeViewModel?.updateCache(parentFile!!)
+                            onDismissRequest()
+                        }
+                    }
+                )
+            }
+
 
             AddDialogItem(
                 icon = Icons.AutoMirrored.Outlined.ExitToApp,
@@ -221,28 +238,12 @@ fun FileActionDialog(
 
 // File Operations utility class
 object FileOperations {
-    private var clipboard: FileObject? = null
+    var clipboard: FileObject? = null
+    var isCut: Boolean = false
 
-    suspend fun copyToClipboard(file: FileObject) {
+    suspend fun copyToClipboard(file: FileObject,isCut: Boolean = false) {
         clipboard = file
-    }
-
-    suspend fun pasteFromClipboard(targetDirectory: FileObject): Boolean {
-        return try {
-            clipboard?.let { source ->
-                if (targetDirectory.isDirectory()) {
-                    val targetPath = "${targetDirectory.getAbsolutePath()}/${source.getName()}"
-                    if (source.isFile()) {
-                        source.copyTo(targetPath)
-                    } else {
-                        source.copyDirectoryTo(targetPath)
-                    }
-                    true
-                } else false
-            } ?: false
-        } catch (e: Exception) {
-            false
-        }
+        this.isCut = isCut
     }
 
     suspend fun renameFile(file: FileObject, newName: String): Boolean {
@@ -427,20 +428,126 @@ private fun formatFileSize(bytes: Long): String {
     return String.format(Locale.getDefault(),"%.1f GB", gb)
 }
 
-private fun formatDate(timestamp: Long): String {
-    return SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-        .format(Date(timestamp))
+
+
+/**
+ * Pastes a file or folder to the destination directory
+ * @param context Android context for content resolver operations
+ * @param sourceFile The file or folder to copy/move
+ * @param destinationFolder The target directory
+ * @param isCut Whether to move (cut) or copy the file
+ * @param onProgress Optional callback for progress updates (current file being processed)
+ * @return Result indicating success or failure with error message
+ */
+suspend fun pasteFile(
+    context: Context,
+    sourceFile: FileObject,
+    destinationFolder: FileObject,
+    isCut: Boolean = false,
+    onProgress: ((String) -> Unit)? = null
+): Result<Unit> = withContext(Dispatchers.IO) {
+
+    runCatching {
+        // Validation checks
+        if (!destinationFolder.isDirectory()) {
+            throw IllegalArgumentException("Destination must be a directory")
+        }
+
+        if (!destinationFolder.canWrite()) {
+            throw IllegalStateException("Destination directory is not writable")
+        }
+
+        if (!sourceFile.exists()) {
+            throw IllegalArgumentException("Source file does not exist")
+        }
+
+        // Prevent copying a directory into itself
+        if (sourceFile.isDirectory() && isParentOf(sourceFile, destinationFolder)) {
+            throw IllegalArgumentException("Cannot copy a directory into itself")
+        }
+
+        // Check if target already exists
+        val targetName = sourceFile.getName()
+        if (destinationFolder.hasChild(targetName)) {
+            throw IllegalStateException("A file or folder with name '$targetName' already exists in destination")
+        }
+
+        // Perform the copy operation
+        copyRecursive(context, sourceFile, destinationFolder, onProgress)
+
+        // If it's a cut operation, delete the source
+        if (isCut) {
+            val deleteSuccess = sourceFile.delete()
+            if (!deleteSuccess) {
+                throw IllegalStateException("Failed to delete source file after moving")
+            }
+        }
+    }
 }
 
-// Extension functions for FileObject (you may need to implement these based on your FileObject class)
-private suspend fun FileObject.copyTo(targetPath: String) {
-    // Implement file copying logic
-    toast(strings.ni)
+/**
+ * Recursively copies a file or directory
+ */
+private suspend fun copyRecursive(
+    context: Context,
+    sourceFile: FileObject,
+    targetParent: FileObject,
+    onProgress: ((String) -> Unit)?
+) {
+    onProgress?.invoke("Processing: ${sourceFile.getName()}")
 
+    if (sourceFile.isDirectory()) {
+        // Create target directory
+        val targetDir = targetParent.createChild(false, sourceFile.getName())
+            ?: throw IllegalStateException("Failed to create directory: ${sourceFile.getName()}")
+
+        // Copy all children
+        sourceFile.listFiles().forEach { child ->
+            copyRecursive(context, child, targetDir, onProgress)
+        }
+    } else {
+        // Copy file content
+        val targetFile = targetParent.createChild(true, sourceFile.getName())
+            ?: throw IllegalStateException("Failed to create file: ${sourceFile.getName()}")
+
+        context.contentResolver.openInputStream(sourceFile.toUri())?.use { inputStream ->
+            context.contentResolver.openOutputStream(targetFile.toUri())?.use { outputStream ->
+                copyStream(inputStream, outputStream)
+            } ?: throw IllegalStateException("Failed to open output stream for: ${sourceFile.getName()}")
+        } ?: throw IllegalStateException("Failed to open input stream for: ${sourceFile.getName()}")
+    }
 }
 
-private suspend fun FileObject.copyDirectoryTo(targetPath: String){
-    // Implement directory copying logic
-    toast(strings.ni)
-
+/**
+ * Checks if parentDir is a parent of childDir (prevents copying directory into itself)
+ */
+private fun isParentOf(parentDir: FileObject, childDir: FileObject): Boolean {
+    var current: FileObject? = childDir
+    while (current != null) {
+        if (current == parentDir) {
+            return true
+        }
+        current = current.getParentFile()
+    }
+    return false
 }
+
+/**
+ * Convenience function for copying files
+ */
+suspend fun copyFile(
+    context: Context,
+    sourceFile: FileObject,
+    destinationFolder: FileObject,
+    onProgress: ((String) -> Unit)? = null
+): Result<Unit> = pasteFile(context, sourceFile, destinationFolder, isCut = false, onProgress)
+
+/**
+ * Convenience function for moving files
+ */
+suspend fun moveFile(
+    context: Context,
+    sourceFile: FileObject,
+    destinationFolder: FileObject,
+    onProgress: ((String) -> Unit)? = null
+): Result<Unit> = pasteFile(context, sourceFile, destinationFolder, isCut = true, onProgress)
