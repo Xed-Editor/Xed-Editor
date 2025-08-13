@@ -41,8 +41,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.gson.Gson
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
@@ -51,15 +49,12 @@ import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.ui.activities.main.MainActivity
-import com.rk.xededitor.ui.activities.main.MainActivity.Companion.instance
-import com.rk.xededitor.ui.activities.main.TabCache.preloadedTabs
 import com.rk.xededitor.ui.components.FileActionDialog
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -205,8 +200,9 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
+                var showPrivateWarningDialog by remember { mutableStateOf<(()->Unit)?>(null) }
                 var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
-
+                var closeProjectDialog by remember { mutableStateOf<FileObject?>(null) }
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
@@ -223,15 +219,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                             },
                             onClick = {
                                 if (file.fileObject == currentProject) {
-                                    MaterialAlertDialogBuilder(instance!!).apply {
-                                        setTitle(strings.close)
-                                        setMessage("${strings.close_current_project.getString()} (${file.name})?")
-                                        setNegativeButton(strings.cancel, null)
-                                        setPositiveButton(strings.close) { _, _ ->
-                                            removeProject(file.fileObject, true)
-                                        }
-                                        show()
-                                    }
+                                    closeProjectDialog = file.fileObject
                                 } else {
                                     scope.launch {
                                         currentProject = file.fileObject
@@ -264,7 +252,8 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                         FileTree(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .weight(1f).systemBarsPadding(),
+                                .weight(1f)
+                                .systemBarsPadding(),
                             rootNode = project.toFileTreeNode(),
                             onFileClick = {
                                 if (it.isFile) {
@@ -299,6 +288,9 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                         openFolder = openFolder,
                         onAddProject = { fileObject ->
                             scope.launch { addProject(fileObject, true) }
+                        },
+                        showPrivateFileWarning = {
+                            showPrivateWarningDialog = it
                         }
                     )
                 }
@@ -309,16 +301,69 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                     })
                 }
 
+                if (showPrivateWarningDialog != null){
+                    AlertDialog(
+                        onDismissRequest = {
+                           showPrivateWarningDialog = null
+                        },
+                        title = {
+                            Text(text = stringResource(strings.warning))
+                        },
+                        text = {
+                            Text(text = stringResource(strings.warning_private_dir))
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                showPrivateWarningDialog?.invoke()
+                                showPrivateWarningDialog = null
+                            }) {
+                                Text(text = strings.ok.getString())
+                            }
+                        },
+                    )
+                }
+
+                if (closeProjectDialog != null){
+                    AlertDialog(
+                        onDismissRequest = {
+                            closeProjectDialog = null
+                        },
+                        title = {
+                            Text(text = strings.close.getString())
+                        },
+                        text = {
+                            Text(text = "${strings.close_current_project.getString()} (${closeProjectDialog?.getName()})?")
+                        },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                closeProjectDialog = null
+                                currentProject?.let { removeProject(it) }
+                            }) {
+                                Text(text = strings.close.getString())
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = {
+                                closeProjectDialog = null
+                            }) {
+                                Text(text = strings.cancel.getString())
+                            }
+                        }
+                    )
+                }
+
             }
         }
     }
 }
 
+
 @Composable
 private fun AddProjectDialog(
     onDismiss: () -> Unit,
     onAddProject: (FileObject) -> Unit,
-    openFolder: ManagedActivityResultLauncher<Uri?, Uri?>
+    openFolder: ManagedActivityResultLauncher<Uri?, Uri?>,
+    showPrivateFileWarning:(onOK:()-> Unit)-> Unit
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -370,17 +415,11 @@ private fun AddProjectDialog(
                     description = stringResource(strings.private_files_desc),
                     onClick = {
                         if (!Settings.has_shown_private_data_dir_warning) {
-                            MaterialAlertDialogBuilder(context).apply {
-                                setCancelable(false)
-                                setTitle(strings.warning)
-                                setMessage(strings.warning_private_dir)
-                                setPositiveButton(strings.ok) { _, _ ->
-                                    Settings.has_shown_private_data_dir_warning = true
-                                    lifecycleScope.launch {
-                                        onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
-                                    }
+                            showPrivateFileWarning{
+                                Settings.has_shown_private_data_dir_warning = true
+                                lifecycleScope.launch {
+                                    onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
                                 }
-                                show()
                             }
                         } else {
                             lifecycleScope.launch {
@@ -399,17 +438,11 @@ private fun AddProjectDialog(
                 description = stringResource(strings.terminal_home_desc),
                 onClick = {
                     if (!Settings.has_shown_terminal_dir_warning) {
-                        MaterialAlertDialogBuilder(context).apply {
-                            setCancelable(false)
-                            setTitle(strings.warning)
-                            setMessage(strings.warning_private_dir)
-                            setPositiveButton(strings.ok) { _, _ ->
-                                Settings.has_shown_terminal_dir_warning = true
-                                lifecycleScope.launch {
-                                    onAddProject(FileWrapper(sandboxHomeDir()))
-                                }
+                        showPrivateFileWarning{
+                            Settings.has_shown_private_data_dir_warning = true
+                            lifecycleScope.launch {
+                                onAddProject(FileWrapper(sandboxHomeDir()))
                             }
-                            show()
                         }
                     } else {
                         lifecycleScope.launch {
