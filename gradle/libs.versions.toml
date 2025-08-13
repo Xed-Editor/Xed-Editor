@@ -8,6 +8,7 @@ browser = "1.8.0"
 bsh = "3.0.0-SNAPSHOT"
 collection = "1.4.5"
 commonsNet = "3.11.1"
+constraintlayoutCompose = "1.1.1"
 datastorePreferences = "1.1.2"
 desugar_jdk_libs = "2.1.5"
 eventbus = "3.3.1"
@@ -60,6 +61,7 @@ runtimeAndroid = "1.7.8"
 
 [libraries]
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }

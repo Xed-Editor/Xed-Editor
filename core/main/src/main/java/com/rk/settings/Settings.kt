@@ -54,12 +54,10 @@ object Settings {
     var visits by CachedPreference("visits", 0)
 
     // String settings
-    var projects by CachedPreference("projects", "")
+    var selectedProject by CachedPreference("selected_project", "")
     var font_gson by CachedPreference("selected_font", "")
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding by CachedPreference("encoding", Charset.defaultCharset().name())
-    var mutators by CachedPreference("mutators", "")
-    var git_url by CachedPreference("git_url", "github.com")
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)

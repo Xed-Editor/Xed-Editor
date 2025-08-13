@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -37,6 +41,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.file.FileObject
 import com.rk.resources.drawables
+import com.rk.xededitor.ui.activities.main.getDrawerWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -173,6 +178,7 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
 
 // ViewModel to handle file operations and caching
 class FileTreeViewModel : ViewModel() {
+    var selectedFile = mutableStateMapOf<FileObject, FileObject>()
     private val fileListCache = mutableStateMapOf<String, List<FileTreeNode>>()
     private val expandedNodes = mutableStateMapOf<String, Boolean>()
 
@@ -312,12 +318,12 @@ fun FileTree(
 
     Surface(
         modifier = modifier,
-        color = Color.Transparent,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(4.dp)
+                .padding(vertical = 8.dp)
                 .horizontalScroll(rememberScrollState())
         ) {
             LazyColumn(
@@ -355,6 +361,7 @@ private fun FileTreeNodeItem(
     val nodePath = node.file.getAbsolutePath()
     val isExpanded = viewModel.isNodeExpanded(nodePath)
     val horizontalPadding = (depth * 16).dp
+
     val isLoading = viewModel.isNodeLoading(nodePath)
 
     // Load children when expanded
@@ -378,28 +385,31 @@ private fun FileTreeNodeItem(
     val scope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .combinedClickable(
-                    onClick = {
-                        if (node.isDirectory) {
-                            viewModel.toggleNodeExpansion(nodePath)
-                        } else {
-                            scope.launch {
-                                delay(200)
-                                onFileClick(node)
-                            }
-
-                        }
-                    },
-                    onLongClick = {
+            modifier = Modifier.combinedClickable(
+                onClick = {
+                    if (node.isDirectory) {
+                        viewModel.toggleNodeExpansion(nodePath)
+                    } else {
                         scope.launch {
                             delay(100)
-                            onFileLongClick(node)
+                            onFileClick(node)
                         }
 
                     }
-                )
+                    viewModel.selectedFile[currentProject!!] = node.file
+                },
+                onLongClick = {
+                    viewModel.selectedFile[currentProject!!] = node.file
+                    scope.launch {
+                        delay(50)
+                        onFileLongClick(node)
+                    }
+
+                }
+            ).then(if (viewModel.selectedFile[currentProject] == node.file){
+                Modifier.background(color = MaterialTheme.colorScheme.primaryContainer)}else{
+                Modifier})
+                .fillMaxWidth()
                 .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -452,11 +462,11 @@ private fun FileTreeNodeItem(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = node.name + "                                                                  ",
+                text = node.name,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier,
+                modifier = Modifier.width((getDrawerWidth()-61.dp)),
                 color = MaterialTheme.colorScheme.onSurface
             )
         }

@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import android.system.Os
+import android.view.Surface
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.ExtensionManager
@@ -22,8 +23,10 @@ import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.Executors
 import com.rk.settings.Preference
+import com.rk.xededitor.ui.activities.main.TabCache
 import kotlinx.coroutines.Dispatchers
 
+@OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
 
     companion object {
@@ -43,11 +46,17 @@ class App : Application() {
         }
     }
 
+    init {
+        application = this
+        Res.application = this
+        GlobalScope.launch(Dispatchers.IO){
+            TabCache.preloadTabs()
+        }
+    }
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
-        application = this
-        Res.application = this
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
 

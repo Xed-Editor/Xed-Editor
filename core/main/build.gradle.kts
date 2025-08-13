@@ -167,6 +167,7 @@ dependencies {
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
     api(libs.word.wrap)
+    api(libs.androidx.constraintlayout.compose)
     //api(libs.ktsh)
 
     //debug libs these libs doesnt get added when creating release builds

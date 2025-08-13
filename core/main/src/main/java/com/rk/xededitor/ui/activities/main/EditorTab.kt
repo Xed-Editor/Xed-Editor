@@ -44,6 +44,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TE
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SELECTED_TEXT_BACKGROUND
@@ -171,6 +172,11 @@ fun CodeEditor(
                             ConstraintLayout.LayoutParams.MATCH_PARENT,
                             0
                         )
+                        fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
+                            keys.forEach { setColor(it, color) }
+                        }
+
+                        colorScheme.setColors(surfaceColor.toArgb(),WHOLE_BACKGROUND,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
 
                         state.editor = this
                         textmateScope?.let { langScope ->
@@ -178,12 +184,7 @@ fun CodeEditor(
                                 setLanguage(langScope)
                             }
                         }
-
                         updateColors { colors ->
-                            fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
-                                keys.forEach { setColor(it, color) }
-                            }
-
                             with(colors){
                                 setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
@@ -220,6 +221,8 @@ fun CodeEditor(
 
                             }
                         }
+
+
 
 
                         setText(state.content)

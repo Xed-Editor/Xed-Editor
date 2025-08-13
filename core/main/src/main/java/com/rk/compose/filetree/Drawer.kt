@@ -10,17 +10,13 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -35,6 +31,7 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.*
 import androidx.compose.ui.platform.LocalContext
@@ -43,18 +40,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
-import com.rk.libcommons.ActionPopup
 import com.rk.DefaultScope
-import com.rk.FileManager
+import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
+import com.rk.libcommons.errorDialog
+import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -62,18 +59,21 @@ import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.main.MainActivity.Companion.instance
+import com.rk.xededitor.ui.activities.main.TabCache.preloadedTabs
 import com.rk.xededitor.ui.components.FileActionDialog
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.io.Serializable
 import com.rk.xededitor.ui.components.*
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 
 data class FileObjectWrapper(val fileObject: FileObject, val name: String) : Serializable {
@@ -101,10 +101,13 @@ private val mutex = Mutex()
 suspend fun saveProjects() {
     mutex.withLock {
         withContext(Dispatchers.IO) {
-            val gson = Gson()
-            val uniqueProjects = projects.map { it.fileObject.getAbsolutePath() }
-            val jsonString = gson.toJson(uniqueProjects)
-            Settings.projects = jsonString
+            currentProject?.getAbsolutePath()?.let { Settings.selectedProject = it }
+
+            val file = application!!.cacheDir.child("projects")
+
+            ObjectOutputStream(FileOutputStream(file)).use { oos ->
+                oos.writeObject(projects.map { it.fileObject })
+            }
         }
     }
 }
@@ -113,37 +116,31 @@ suspend fun restoreProjects() {
     mutex.withLock {
         withContext(Dispatchers.IO) {
             runCatching {
-                val jsonString = Settings.projects
-                if (jsonString.isNotEmpty()) {
-                    val gson = Gson()
-                    val projectsList = gson.fromJson(jsonString, Array<String>::class.java).toList()
-
-                    projectsList.forEach {
-                        val file = File(it)
-                        if (file.exists() && file.canRead() && file.canWrite() && file.isDirectory) {
-                            addProject(FileWrapper(file))
-                        } else {
-                            addProject(
-                                UriWrapper(
-                                    DocumentFile.fromTreeUri(
-                                        application!!,
-                                        Uri.parse(it)
-                                    )!!
-                                )
-                            )
+                val file = application!!.cacheDir.child("projects")
+                if (file.exists() && file.canRead()) {
+                    ObjectInputStream(FileInputStream(file)).use { ois ->
+                        val list = mutableStateListOf<FileObjectWrapper>()
+                        list.addAll((ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) })
+                        withContext(Dispatchers.Main){
+                            projects = list
                         }
-                        delay(100)
-                    }
 
+                    }
                 }
-            }.onFailure { it.printStackTrace() }
+                projects.forEach{
+                    if (it.fileObject.getAbsolutePath() == Settings.selectedProject){
+                        currentProject = it.fileObject
+                    }
+                }
+
+            }.onFailure { it.printStackTrace();errorDialog(it) }
         }
     }
 
 }
 
 
-val projects = mutableStateListOf<FileObjectWrapper>()
+var projects = mutableStateListOf<FileObjectWrapper>()
 var currentProject by mutableStateOf<FileObject?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -207,8 +204,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
         } else {
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
-                val context = LocalContext.current
-                var showAddDialog by remember { mutableStateOf(false) }
+                var showAddDialog by rememberSaveable { mutableStateOf(false) }
                 var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
 
 
@@ -328,113 +324,105 @@ private fun AddProjectDialog(
     val activity = context as? MainActivity
     val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(strings.add)) },
-        text = {
-            Column {
+    XedDialog(onDismissRequest = onDismiss) {
+        Column {
 
+            AddDialogItem(
+                icon = drawables.file_symlink,
+                title = stringResource(strings.open_directory),
+                description = stringResource(strings.open_dir_desc),
+                onClick = {
+                    openFolder.launch(null)
+                    onDismiss()
+                }
+            )
+
+
+            // Open Path option
+            val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+            val isManager = is11Plus && Environment.isExternalStorageManager()
+            val legacyPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+            ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            ) != PackageManager.PERMISSION_GRANTED
+
+            val storage = Environment.getExternalStorageDirectory()
+            if (((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead() ) {
                 AddDialogItem(
-                    icon = drawables.file_symlink,
-                    title = stringResource(strings.open_directory),
-                    description = stringResource(strings.open_dir_desc),
+                    icon = drawables.android,
+                    title = stringResource(strings.open_path),
+                    description = stringResource(strings.open_path_desc),
                     onClick = {
-                        openFolder.launch(null)
+                        addProject(FileWrapper(storage))
                         onDismiss()
                     }
                 )
+            }
 
-
-                // Open Path option
-                val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
-                val isManager = is11Plus && Environment.isExternalStorageManager()
-                val legacyPermission = ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                ) != PackageManager.PERMISSION_GRANTED
-
-                val storage = Environment.getExternalStorageDirectory()
-                if (((is11Plus && isManager) || (!is11Plus && legacyPermission)) && storage.canWrite() && storage.canRead() ) {
-                    AddDialogItem(
-                        icon = drawables.android,
-                        title = stringResource(strings.open_path),
-                        description = stringResource(strings.open_path_desc),
-                        onClick = {
-                            addProject(FileWrapper(storage))
-                            onDismiss()
-                        }
-                    )
-                }
-
-                // Private Files option (debug only)
-                if (BuildConfig.DEBUG) {
-                    AddDialogItem(
-                        icon = drawables.build,
-                        title = stringResource(strings.private_files),
-                        description = stringResource(strings.private_files_desc),
-                        onClick = {
-                            if (!Settings.has_shown_private_data_dir_warning) {
-                                MaterialAlertDialogBuilder(context).apply {
-                                    setCancelable(false)
-                                    setTitle(strings.warning)
-                                    setMessage(strings.warning_private_dir)
-                                    setPositiveButton(strings.ok) { _, _ ->
-                                        Settings.has_shown_private_data_dir_warning = true
-                                        lifecycleScope.launch {
-                                            onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
-                                        }
-                                    }
-                                    show()
-                                }
-                            } else {
-                                lifecycleScope.launch {
-                                    onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
-                                }
-                            }
-                            onDismiss()
-                        }
-                    )
-                }
-
-                // Terminal Home option
+            // Private Files option (debug only)
+            if (BuildConfig.DEBUG) {
                 AddDialogItem(
-                    icon = drawables.terminal,
-                    title = stringResource(strings.terminal_home),
-                    description = stringResource(strings.terminal_home_desc),
+                    icon = drawables.build,
+                    title = stringResource(strings.private_files),
+                    description = stringResource(strings.private_files_desc),
                     onClick = {
-                        if (!Settings.has_shown_terminal_dir_warning) {
+                        if (!Settings.has_shown_private_data_dir_warning) {
                             MaterialAlertDialogBuilder(context).apply {
                                 setCancelable(false)
                                 setTitle(strings.warning)
                                 setMessage(strings.warning_private_dir)
                                 setPositiveButton(strings.ok) { _, _ ->
-                                    Settings.has_shown_terminal_dir_warning = true
+                                    Settings.has_shown_private_data_dir_warning = true
                                     lifecycleScope.launch {
-                                        onAddProject(FileWrapper(sandboxHomeDir()))
+                                        onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
                                     }
                                 }
                                 show()
                             }
                         } else {
                             lifecycleScope.launch {
-                                onAddProject(FileWrapper(sandboxHomeDir()))
+                                onAddProject(FileWrapper(activity!!.filesDir.parentFile!!))
                             }
                         }
                         onDismiss()
                     }
                 )
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(strings.cancel))
-            }
+
+            // Terminal Home option
+            AddDialogItem(
+                icon = drawables.terminal,
+                title = stringResource(strings.terminal_home),
+                description = stringResource(strings.terminal_home_desc),
+                onClick = {
+                    if (!Settings.has_shown_terminal_dir_warning) {
+                        MaterialAlertDialogBuilder(context).apply {
+                            setCancelable(false)
+                            setTitle(strings.warning)
+                            setMessage(strings.warning_private_dir)
+                            setPositiveButton(strings.ok) { _, _ ->
+                                Settings.has_shown_terminal_dir_warning = true
+                                lifecycleScope.launch {
+                                    onAddProject(FileWrapper(sandboxHomeDir()))
+                                }
+                            }
+                            show()
+                        }
+                    } else {
+                        lifecycleScope.launch {
+                            onAddProject(FileWrapper(sandboxHomeDir()))
+                        }
+                    }
+                    onDismiss()
+                }
+            )
         }
-    )
+    }
+
+
 }
 
 

@@ -78,7 +78,6 @@ class KarbonEditor : CodeEditor {
     init {
         applyFont()
         applySettings()
-        preColor()
     }
 
 
@@ -243,23 +242,5 @@ class KarbonEditor : CodeEditor {
         }
 
         withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
-    }
-
-    private fun preColor(){
-        val darkTheme: Boolean = when (Settings.default_night_mode) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> isDarkMode(context)
-        }
-
-        val surface = if (darkTheme) {
-            Color.BLACK
-        } else {
-            Color.WHITE
-        }
-
-        colorScheme.setColor(EditorColorScheme.WHOLE_BACKGROUND, surface)
-        colorScheme.setColor(EditorColorScheme.LINE_NUMBER_BACKGROUND, surface)
-        colorScheme.setColor(EditorColorScheme.LINE_DIVIDER, surface)
     }
 }

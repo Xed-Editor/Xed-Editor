@@ -106,7 +106,7 @@
     <string name="close_current_project">Close current project</string>
     <string name="rename_descript">Rename the document</string>
     <string name="open_with_other">Open selected file in other apps</string>
-    <string name="delete_descript">Delete document</string>
+    <string name="delete_descript">Permanently Delete document</string>
     <string name="add_file_desc">Select a new file to be added here</string>
     <string name="create_new_file_desc">Create a new file under selected folder</string>
     <string name="paste_desc">Paste document</string>

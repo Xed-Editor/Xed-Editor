@@ -3,13 +3,83 @@ package com.rk.xededitor.ui.activities.main
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.rk.file.FileObject
+import com.rk.file.child
+import com.rk.libcommons.application
+import com.rk.libcommons.errorDialog
+import com.rk.libcommons.toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+
+
+object TabCache {
+    val mutex = Mutex()
+    val preloadedTabs = mutableListOf<FileObject>()
+
+
+
+    suspend fun preloadTabs() = mutex.withLock{
+        runCatching {
+            val file = application!!.cacheDir.child("tabs")
+            if (file.exists() && file.canRead()) {
+                ObjectInputStream(FileInputStream(file)).use { ois ->
+                    val files = ois.readObject() as List<FileObject>
+                    preloadedTabs.clear()
+                    preloadedTabs.addAll(files.filter {
+                        it.exists() && it.canRead() && it.canWrite() && it.isFile()
+                    })
+                }
+            }
+        }.onFailure {
+            errorDialog(it)
+        }
+    }
+
+    suspend fun saveFileTabs(tabs: List<Tab>) = withContext(Dispatchers.IO){
+        mutex.withLock {
+            runCatching {
+                val files = tabs.filter { it is EditorTab }.map { (it as EditorTab).file }
+
+                val file = application!!.cacheDir.child("tabs")
+
+                ObjectOutputStream(FileOutputStream(file)).use { oos ->
+                    oos.writeObject(files)
+                }
+            }.onFailure {
+                it.printStackTrace()
+                toast("Unable to save tabs")
+            }
+        }
+    }
+}
+
 
 class MainViewModel : ViewModel() {
-    private var nextTabId = 0
     val tabs = mutableStateListOf<Tab>()
+
+    init {
+        viewModelScope.launch{
+            TabCache.mutex.withLock{
+                TabCache.preloadedTabs.forEach { file ->
+                    viewModelScope.launch {
+                        newEditorTab(file)
+                    }
+                }
+            }
+        }
+
+    }
+
+    private var nextTabId = 0
+
     var currentTabIndex by mutableIntStateOf(0)
 
     val currentTab: Tab? get() {
@@ -17,14 +87,21 @@ class MainViewModel : ViewModel() {
     }
 
     // Editor tab management
-    suspend fun newEditorTab(file: FileObject): Boolean {
-        withContext(Dispatchers.IO){
-            if (tabs.any { it is EditorTab && it.file == file }){
-                return@withContext false
+    suspend fun newEditorTab(file: FileObject, checkDuplicate:Boolean = true): Boolean {
+        if (checkDuplicate){
+            withContext(Dispatchers.IO){
+                if (tabs.any { it is EditorTab && it.file == file }){
+                    return@withContext false
+                }
             }
         }
-        tabs.add(EditorTab(viewPagerId = nextTabId++, file = file, viewModel = this))
-        currentTabIndex = tabs.lastIndex
+
+        withContext(Dispatchers.Main.immediate){
+            val editorTab = EditorTab(viewPagerId = nextTabId++, file = file, viewModel = this@MainViewModel)
+            tabs.add(editorTab)
+
+            currentTabIndex = tabs.lastIndex
+        }
         return true
     }
 
@@ -38,6 +115,7 @@ class MainViewModel : ViewModel() {
         }
 
         tabs.removeAt(currentTabIndex)
+
 
         // Adjust currentTabIndex after removal
         when {
@@ -60,6 +138,7 @@ class MainViewModel : ViewModel() {
         }
 
         tabs.removeAt(index)
+
 
         // Adjust currentTabIndex after removal
         when {
@@ -86,6 +165,7 @@ class MainViewModel : ViewModel() {
         }
 
         val currentTab = tabs[currentTabIndex]
+
         tabs.clear()
         tabs.add(currentTab)
         currentTabIndex = 0
