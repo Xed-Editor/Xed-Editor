@@ -2,9 +2,12 @@ package com.rk.xededitor.ui.activities.main
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.util.Log
 import android.view.Display
 import android.view.Surface
@@ -36,11 +39,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
+import com.rk.file.UriWrapper
+import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.components.GlobalActions
@@ -49,6 +55,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import kotlin.math.roundToInt
@@ -90,6 +97,24 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         isPaused = false
         instance = this
+        lifecycleScope.launch{
+            handleIntent(intent)
+        }
+    }
+
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+
+    suspend fun handleIntent(intent: Intent){
+        if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action){
+            val uri = intent.data!!
+            val file = UriWrapper(uri,false)
+            viewModel.newEditorTab(file)
+            setIntent(Intent())
+        }
     }
 
 
@@ -102,6 +127,7 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
+
 
         setContent {
             KarbonTheme {

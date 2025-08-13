@@ -86,7 +86,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
     var expanded by remember { mutableStateOf(false) }
     val activity = LocalActivity.current
 
-    var editable by remember { mutableStateOf(true) }
+    var editable by remember(tab) { mutableStateOf(tab.file.canWrite()) }
     var isRunnable by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()

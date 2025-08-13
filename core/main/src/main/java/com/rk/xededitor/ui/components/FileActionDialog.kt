@@ -97,6 +97,7 @@ fun FileActionDialog(
                 description = stringResource(strings.rename_descript),
                 onClick = {
                     showRenameDialog = true
+                    onDismissRequest()
                 }
             )
 
@@ -106,6 +107,7 @@ fun FileActionDialog(
                 description = stringResource(strings.delete_descript),
                 onClick = {
                     showDeleteDialog = true
+                    onDismissRequest()
                 }
             )
 
@@ -180,6 +182,7 @@ fun FileActionDialog(
                 description = stringResource(strings.file_info),
                 onClick = {
                     showInfoDialog = true
+                    onDismissRequest()
                 }
             )
         }
