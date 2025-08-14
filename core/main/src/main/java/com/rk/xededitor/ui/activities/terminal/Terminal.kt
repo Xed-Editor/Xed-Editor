@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.documentfile.provider.DocumentFile
 import com.rk.SessionService
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -191,7 +192,7 @@ class Terminal : ComponentActivity() {
                     onComplete = {
                         isSetupComplete = true
                     },
-                    onError = { error ->
+                    onError = { error,file ->
                         if (error is UnknownHostException) {
                             toast(strings.network_err.getString())
                         }else if (error is SocketTimeoutException){
@@ -199,9 +200,13 @@ class Terminal : ComponentActivity() {
                         } else {
                             error.printStackTrace()
                             GlobalScope.launch(Dispatchers.IO){
-                                sandboxDir().deleteRecursively()
-                                localBinDir().deleteRecursively()
-                                localDir().deleteRecursively()
+                                if (file?.absolutePath?.contains(localBinDir().absolutePath) == true){
+                                    localBinDir().deleteRecursively()
+                                }
+
+                                if (file?.name == "sandbox.tar.gz"){
+                                    sandboxDir().deleteRecursively()
+                                }
                             }
                             errorDialog("Setup Failed: ${error.message}")
                         }
@@ -267,15 +272,17 @@ class Terminal : ComponentActivity() {
         filesToDownload: List<DownloadFile>,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: () -> Unit,
-        onError: (Exception) -> Unit
+        onError: (Exception, File?) -> Unit
     ) {
+        var currentFile: File? = null
+
         withContext(Dispatchers.IO) {
             try {
-
                 var completedFiles = 0
 
                 filesToDownload.forEach { file ->
                     val outputFile = File(context.filesDir.parentFile, file.outputPath)
+                    currentFile = outputFile
 
                     outputFile.parentFile?.mkdirs()
 
@@ -311,7 +318,7 @@ class Terminal : ComponentActivity() {
                 e.printStackTrace()
                 localDir().deleteRecursively()
                 withContext(Dispatchers.Main) {
-                    onError(e)
+                    onError(e,currentFile)
                 }
             }
         }
