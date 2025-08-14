@@ -60,11 +60,11 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 
     val memoryUsage = remember { mutableIntStateOf(-1) }
 
-    LaunchedEffect("DeveloperOptions") {
+    LaunchedEffect("DebugOptions") {
         memoryUsage.intValue = getMemoryUsage(context)
     }
 
-    PreferenceLayout(label = "Developer Options") {
+    PreferenceLayout(label = "Debug Options") {
         PreferenceGroup {
             SettingsToggle(
                 label = "Force Crash",
@@ -88,7 +88,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
             SettingsToggle(
                 label = "Memory Usage",
-                description = "${memoryUsage.intValue} MB (click to refresh)",
+                description = "${memoryUsage.intValue} MB",
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -105,7 +105,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     Settings.strict_mode = state
                 },
                 label = "Strict Mode",
-                description = "Detects bad development practices like disk or network access on the main thread",
+                description = "Detect disk or network access on the main thread",
                 modifier = modifier,
                 onClick = {
                     state = !state || BuildConfig.DEBUG
@@ -122,7 +122,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     Settings.anr_watchdog = state1
                 },
                 label = "ANR Watchdog",
-                description = "Force crash Xed-Editor if it becomes unresponsive for more than 5 seconds",
+                description = "Terminate Xed-Editor if it becomes unresponsive for more than 5 seconds",
                 modifier = modifier,
                 onClick = {
                     state1 = !state1 || BuildConfig.DEBUG
@@ -149,7 +149,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     if (BuildConfig.DEBUG) {
                         navController.navigate(SettingsRoutes.BeanshellREPL.route)
                     } else {
-                        toast("Debugger is not allowed on release builds for safety reasons")
+                        toast("Debugger is not allowed on release builds")
                     }
                 }
             )
@@ -162,6 +162,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 default = false,
                 sideEffect = {
                     context.startService(Intent(context, LogcatService::class.java))
+                    toast("capturing logcat")
                 }
             )
 
@@ -170,7 +171,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 PortAndExtensionDialog(
                     onDismiss = { showDialog = false },
                     onConfirm = { port, extension ->
-                       if (textmateSources.get(extension) == null){
+                       if (textmateSources[extension] == null){
                            toast("Unsupported file extension")
                            return@PortAndExtensionDialog
                        }

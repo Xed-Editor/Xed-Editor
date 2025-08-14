@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.RadioButton
@@ -42,11 +43,13 @@ import kotlinx.coroutines.withContext
 fun LanguageScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     PreferenceLayout(label = stringResource(strings.lang),backArrowVisible = true, fab = {
-        FloatingActionButton(onClick = {
+        ExtendedFloatingActionButton(onClick = {
             context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://hosted.weblate.org/engage/xed-editor/")))
-        }) {
+        }, text = {
+            Text("Translate")
+        }, icon = {
             Icon(imageVector = Icons.Default.Add, contentDescription = null)
-        }
+        })
     }) {
 
 
@@ -85,7 +88,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
         }
 
 
-        val resources = application!!.resources
+        val resources = context.resources
         val configuration = resources.configuration
         val localeList = configuration.locales
         val currentLocale = localeList[0]

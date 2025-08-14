@@ -34,7 +34,7 @@ class LogcatService : Service(),
     override fun onDestroy() {
         runCatching {
             if (process?.isAlive == true) {
-                process?.destroyForcibly()
+                process?.destroy()
             }
             cancel()
         }.onFailure {

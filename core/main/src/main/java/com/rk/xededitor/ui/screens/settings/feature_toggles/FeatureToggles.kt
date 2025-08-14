@@ -38,7 +38,7 @@ object InbuiltFeatures {
     val mutators =
         Feature(name = strings.mutators.getString(), key = "feature_mutators", default = true)
     val developerOptions =
-        Feature(name = "Developer Options", key = "developerOptions", default = false)
+        Feature(name = "Debug Options", key = "developerOptions", default = false)
 }
 
 @Composable
