@@ -65,128 +65,139 @@ fun FileActionDialog(
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
+    var showXedDialog by remember { mutableStateOf(true) }
 
-    XedDialog(onDismissRequest = onDismissRequest) {
-        Column(modifier = Modifier.padding(0.dp).verticalScroll(rememberScrollState())) {
+    if (showXedDialog){
+        XedDialog(onDismissRequest = onDismissRequest) {
+            Column(modifier = Modifier.padding(0.dp).verticalScroll(rememberScrollState())) {
 
-            AddDialogItem(
-                icon = Icons.Outlined.Close,
-                title = stringResource(strings.close),
-                description = stringResource(strings.close_current_project),
-                onClick = {
-                    removeProject(root, true)
-                    onDismissRequest()
-                }
-            )
-
-            if (file.isDirectory()) {
                 AddDialogItem(
-                    icon = Icons.Outlined.Refresh,
-                    title = stringResource(strings.refresh),
-                    description = stringResource(strings.reload_file_tree),
+                    icon = Icons.Outlined.Close,
+                    title = stringResource(strings.close),
+                    description = stringResource(strings.close_current_project),
                     onClick = {
-                        fileTreeViewModel?.updateCache(file)
+                        removeProject(root, true)
+                        showXedDialog = true
                         onDismissRequest()
                     }
                 )
-            }
 
-            AddDialogItem(
-                icon = Icons.Outlined.Edit,
-                title = stringResource(strings.rename),
-                description = stringResource(strings.rename_descript),
-                onClick = {
-                    showRenameDialog = true
-                    onDismissRequest()
+                if (file.isDirectory()) {
+                    AddDialogItem(
+                        icon = Icons.Outlined.Refresh,
+                        title = stringResource(strings.refresh),
+                        description = stringResource(strings.reload_file_tree),
+                        onClick = {
+                            fileTreeViewModel?.updateCache(file)
+                            showXedDialog = true
+                            onDismissRequest()
+                        }
+                    )
                 }
-            )
 
-            AddDialogItem(
-                icon = Icons.Outlined.Delete,
-                title = stringResource(strings.delete),
-                description = stringResource(strings.delete_descript),
-                onClick = {
-                    showDeleteDialog = true
-                    onDismissRequest()
-                }
-            )
-
-            AddDialogItem(
-                icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
-                title = stringResource(strings.copy),
-                description = stringResource(strings.copy_desc),
-                onClick = {
-                    scope.launch {
-                        FileOperations.copyToClipboard(file)
-                        toast(context.getString(strings.copied))
-                        onDismissRequest()
-                    }
-                }
-            )
-
-            AddDialogItem(
-                icon = drawables.round_content_cut_20,
-                title = stringResource(strings.cut),
-                description = stringResource(strings.cut_desc),
-                onClick = {
-                    scope.launch {
-                        FileOperations.copyToClipboard(file,isCut = true)
-                        toast(context.getString(strings.cut))
-                        onDismissRequest()
-                    }
-                }
-            )
-
-            if (FileOperations.clipboard != null && file.isDirectory()){
                 AddDialogItem(
-                    icon = drawables.round_content_paste_20,
-                    title = stringResource(strings.paste),
-                    description = stringResource(strings.paste_desc),
+                    icon = Icons.Outlined.Edit,
+                    title = stringResource(strings.rename),
+                    description = stringResource(strings.rename_descript),
+                    onClick = {
+                        showXedDialog = false
+                        showRenameDialog = true
+                    }
+                )
+
+                AddDialogItem(
+                    icon = Icons.Outlined.Delete,
+                    title = stringResource(strings.delete),
+                    description = stringResource(strings.delete_descript),
+                    onClick = {
+                        showXedDialog = false
+                        showDeleteDialog = true
+                    }
+                )
+
+                AddDialogItem(
+                    icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
+                    title = stringResource(strings.copy),
+                    description = stringResource(strings.copy_desc),
                     onClick = {
                         scope.launch {
-                            val parentFile = FileOperations.clipboard!!.getParentFile()
-                            pasteFile(context,FileOperations.clipboard!!,file,isCut = FileOperations.isCut)
-                            fileTreeViewModel?.updateCache(file)
-                            fileTreeViewModel?.updateCache(parentFile!!)
+                            FileOperations.copyToClipboard(file)
+                            toast(context.getString(strings.copied))
+                            showXedDialog = true
                             onDismissRequest()
                         }
                     }
                 )
+
+                AddDialogItem(
+                    icon = drawables.round_content_cut_20,
+                    title = stringResource(strings.cut),
+                    description = stringResource(strings.cut_desc),
+                    onClick = {
+                        scope.launch {
+                            FileOperations.copyToClipboard(file,isCut = true)
+                            toast(context.getString(strings.cut))
+                            showXedDialog = true
+                            onDismissRequest()
+                        }
+                    }
+                )
+
+                if (FileOperations.clipboard != null && file.isDirectory()){
+                    AddDialogItem(
+                        icon = drawables.round_content_paste_20,
+                        title = stringResource(strings.paste),
+                        description = stringResource(strings.paste_desc),
+                        onClick = {
+                            scope.launch {
+                                val parentFile = FileOperations.clipboard!!.getParentFile()
+                                pasteFile(context,FileOperations.clipboard!!,file,isCut = FileOperations.isCut)
+                                fileTreeViewModel?.updateCache(file)
+                                fileTreeViewModel?.updateCache(parentFile!!)
+                                showXedDialog = true
+                                onDismissRequest()
+                            }
+                        }
+                    )
+                }
+
+
+                AddDialogItem(
+                    icon = Icons.AutoMirrored.Outlined.ExitToApp,
+                    title = stringResource(strings.open_with),
+                    description = stringResource(strings.open_with_other),
+                    onClick = {
+                        FileOperations.openWithExternalApp(context, file)
+                        showXedDialog = true
+                        onDismissRequest()
+                    }
+                )
+
+                AddDialogItem(
+                    icon = drawables.file_symlink,
+                    title = stringResource(strings.save_as),
+                    description = stringResource(strings.save_desc),
+                    onClick = {
+                        // This would typically open a file picker
+                        FileOperations.saveAs(context, file)
+                        showXedDialog = true
+                        onDismissRequest()
+                    }
+                )
+
+                AddDialogItem(
+                    icon = Icons.Outlined.Info,
+                    title = stringResource(strings.info),
+                    description = stringResource(strings.file_info),
+                    onClick = {
+                        showXedDialog = false
+                        showInfoDialog = true
+                    }
+                )
             }
-
-
-            AddDialogItem(
-                icon = Icons.AutoMirrored.Outlined.ExitToApp,
-                title = stringResource(strings.open_with),
-                description = stringResource(strings.open_with_other),
-                onClick = {
-                    FileOperations.openWithExternalApp(context, file)
-                    onDismissRequest()
-                }
-            )
-
-            AddDialogItem(
-                icon = drawables.file_symlink,
-                title = stringResource(strings.save_as),
-                description = stringResource(strings.save_desc),
-                onClick = {
-                    // This would typically open a file picker
-                    FileOperations.saveAs(context, file)
-                    onDismissRequest()
-                }
-            )
-
-            AddDialogItem(
-                icon = Icons.Outlined.Info,
-                title = stringResource(strings.info),
-                description = stringResource(strings.file_info),
-                onClick = {
-                    showInfoDialog = true
-                    onDismissRequest()
-                }
-            )
         }
     }
+
 
     // Rename Dialog
     if (showRenameDialog) {
@@ -203,9 +214,13 @@ fun FileActionDialog(
                     }
                 }
                 showRenameDialog = false
+                showXedDialog = true
                 onDismissRequest()
             },
-            onDismiss = { showRenameDialog = false }
+            onDismiss = {
+                showXedDialog = true
+                showRenameDialog = false
+            }
         )
     }
 
@@ -224,9 +239,13 @@ fun FileActionDialog(
                     }
                 }
                 showDeleteDialog = false
+                showXedDialog = true
                 onDismissRequest()
             },
-            onDismiss = { showDeleteDialog = false }
+            onDismiss = {
+                showXedDialog = true
+                showDeleteDialog = false
+            }
         )
     }
 
@@ -234,7 +253,10 @@ fun FileActionDialog(
     if (showInfoDialog) {
         FileInfoDialog(
             file = file,
-            onDismiss = { showInfoDialog = false }
+            onDismiss = {
+                showXedDialog = true
+                showInfoDialog = false
+            }
         )
     }
 }
