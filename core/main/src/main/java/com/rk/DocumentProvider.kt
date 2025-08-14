@@ -26,6 +26,8 @@ import java.util.Locale
 
 class DocumentProvider : DocumentsProvider() {
     override fun queryRoots(projection: Array<String>?): Cursor {
+        val BASE_DIR = sandboxHomeDir(context!!)
+
         val result = MatrixCursor(
             projection
                 ?: DEFAULT_ROOT_PROJECTION
@@ -262,8 +264,6 @@ class DocumentProvider : DocumentsProvider() {
 
 
         private const val ALL_MIME_TYPES = "*/*"
-
-        private val BASE_DIR = sandboxHomeDir()
 
         // The default columns to return information about a root if no specific
         // columns are requested in a query.

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
+import com.rk.App.Companion.getTempDir
 import com.rk.SessionService
 import com.rk.file.child
 import com.rk.file.localBinDir
@@ -112,7 +114,7 @@ class Terminal : ComponentActivity() {
         var needsDownload by remember { mutableStateOf(false) }
         // Add state for current file download info
         var currentFileName by remember { mutableStateOf("") }
-        var downloadedBytes by remember { mutableStateOf(0L) }
+        var downloadedBytes by remember { mutableLongStateOf(0L) }
         var totalBytes by remember { mutableStateOf(0L) }
 
         // Helper function to format bytes to MB string
@@ -187,7 +189,7 @@ class Terminal : ComponentActivity() {
                         if (total > 0) {
                             val downloadedMB = formatBytesToMB(downloaded)
                             val totalMB = formatBytesToMB(total)
-                            progressText = "${strings.downloading.getString()} $fileName ($downloadedMB/$totalMB MB)"
+                            progressText = "${strings.downloading.getString()} ${fileName.removeSuffix(".so").removePrefix("lib")} ($downloadedMB/$totalMB MB)"
                         }
                     },
                     onComplete = {
@@ -207,6 +209,7 @@ class Terminal : ComponentActivity() {
 
                                 if (file?.name == "sandbox.tar.gz"){
                                     sandboxDir().deleteRecursively()
+                                    File(getTempDir(), "sandbox.tar.gz").delete()
                                 }
                             }
                             errorDialog("Setup Failed: ${error.message}")
