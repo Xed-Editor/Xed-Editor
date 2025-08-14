@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -107,6 +108,15 @@ class Terminal : ComponentActivity() {
         var progressText by remember { mutableStateOf(strings.installing.getString()) }
         var isSetupComplete by remember { mutableStateOf(false) }
         var needsDownload by remember { mutableStateOf(false) }
+        // Add state for current file download info
+        var currentFileName by remember { mutableStateOf("") }
+        var downloadedBytes by remember { mutableStateOf(0L) }
+        var totalBytes by remember { mutableStateOf(0L) }
+
+        // Helper function to format bytes to MB string
+        fun formatBytesToMB(bytes: Long): String {
+            return "%.2f".format(bytes / (1024.0 * 1024.0))
+        }
 
         LaunchedEffect(Unit) {
             try {
@@ -167,15 +177,15 @@ class Terminal : ComponentActivity() {
 
                 setupEnvironment(context = context,
                     filesToDownload = filesToDownload,
-                    onProgress = { completedFiles, totalFiles, currentProgress ->
-                        if (needsDownload) {
-                            val fileProgress = completedFiles.toFloat() / totalFiles.toFloat()
-                            val combinedProgress = (fileProgress + currentProgress) / totalFiles
-                            progress = combinedProgress.coerceIn(
-                                0f, 1f
-                            )
-                            progressText =
-                                "${strings.downloading.getString()} ${(progress * 100).toInt()}%"
+                    onProgress = { fileName, downloaded, total ->
+                        downloadedBytes = downloaded
+                        totalBytes = total
+                        currentFileName = fileName
+
+                        if (total > 0) {
+                            val downloadedMB = formatBytesToMB(downloaded)
+                            val totalMB = formatBytesToMB(total)
+                            progressText = "${strings.downloading.getString()} $fileName ($downloadedMB/$totalMB MB)"
                         }
                     },
                     onComplete = {
@@ -221,13 +231,24 @@ class Terminal : ComponentActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = progressText, style = MaterialTheme.typography.bodyLarge
+                            text = progressText,
+                            style = MaterialTheme.typography.bodyLarge
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         LinearProgressIndicator(
                             progress = { progress },
                             modifier = Modifier.fillMaxWidth(0.8f),
                         )
+                        // Show additional progress details
+                        if (totalBytes > 0) {
+                            val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
+                            progress = (downloadedBytes.toFloat() / totalBytes * 1)
+                            Text(
+                                text = "${percent}%",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
                     }
                 }
             } else {
@@ -244,7 +265,7 @@ class Terminal : ComponentActivity() {
     private suspend fun setupEnvironment(
         context: Context,
         filesToDownload: List<DownloadFile>,
-        onProgress: (completedFiles: Int, totalFiles: Int, currentProgress: Float) -> Unit,
+        onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
         onComplete: () -> Unit,
         onError: (Exception) -> Unit
     ) {
@@ -252,8 +273,6 @@ class Terminal : ComponentActivity() {
             try {
 
                 var completedFiles = 0
-                val totalFiles = filesToDownload.size
-                var totalProgress = 0f
 
                 filesToDownload.forEach { file ->
                     val outputFile = File(context.filesDir.parentFile, file.outputPath)
@@ -261,25 +280,21 @@ class Terminal : ComponentActivity() {
                     outputFile.parentFile?.mkdirs()
 
                     if (!outputFile.exists()) {
-                        outputFile.createNewFile()
-
-                        downloadFile(url = file.url,
+                        downloadFile(
+                            url = file.url,
                             outputFile = outputFile,
-                            onProgress = { downloadedBytes, totalBytes ->
-                                val currentFileProgress =
-                                    downloadedBytes.toFloat() / totalBytes.toFloat()
-                                totalProgress = (completedFiles + currentFileProgress) / totalFiles
-
-                                runOnUiThread {
-                                    onProgress(completedFiles, totalFiles, totalProgress)
-                                }
-
-                            })
+                            onProgress = { downloaded, total ->
+                                onProgress(file.outputPath.substringAfterLast("/"), downloaded, total)
+                            }
+                        )
+                    } else {
+                        // Report existing file as already downloaded
+                        onProgress(file.outputPath.substringAfterLast("/"), outputFile.length(), outputFile.length())
                     }
                     completedFiles++
-                    withContext(Dispatchers.Main) {
-                        onProgress(completedFiles, totalFiles, totalProgress)
-                    }
+//                    withContext(Dispatchers.Main) {
+//                        onProgress(completedFiles, totalFiles, totalProgress)
+//                    }
 
                     runCatching {
                         outputFile.setExecutable(true)
@@ -316,7 +331,6 @@ class Terminal : ComponentActivity() {
 
                 val body = response.body ?: throw Exception("Empty response body")
                 val totalBytes = body.contentLength()
-
 
                 var downloadedBytes = 0L
 
