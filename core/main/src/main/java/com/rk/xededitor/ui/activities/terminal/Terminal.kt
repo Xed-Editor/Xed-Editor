@@ -10,6 +10,7 @@ import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -43,6 +44,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.screens.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -59,7 +61,7 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
-class Terminal : ComponentActivity() {
+class Terminal : AppCompatActivity() {
     var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
     var isBound = false
 
@@ -95,6 +97,7 @@ class Terminal : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        FPSBooster(this)
         enableEdgeToEdge()
         setContent {
             KarbonTheme {
