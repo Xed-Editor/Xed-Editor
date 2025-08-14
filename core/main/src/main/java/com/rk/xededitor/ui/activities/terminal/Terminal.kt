@@ -55,6 +55,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import java.util.concurrent.TimeUnit
 
 class Terminal : ComponentActivity() {
     var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
@@ -328,7 +329,11 @@ class Terminal : ComponentActivity() {
         url: String, outputFile: File, onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit
     ) {
         withContext(Dispatchers.IO) {
-            val client = OkHttpClient.Builder().build()
+            val client = OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .readTimeout(1, TimeUnit.MINUTES)
+                .writeTimeout(1, TimeUnit.MINUTES)
+                .callTimeout(10, TimeUnit.MINUTES).build()
             val request = Request.Builder().url(url).build()
 
             client.newCall(request).execute().use { response ->
