@@ -354,7 +354,7 @@
 
     <string name="initializing">Initializing…</string>
     <string name="downloading">Downloading…</string>
-    <string name="network_err">Network Error</string>
+    <string name="network_err">Network error. Please check that your internet connection is working properly.</string>
 
     <string name="user">User</string>
     <string name="email">Email</string>
@@ -461,4 +461,6 @@
     <string name="no_folder_opened">No Folder Opened</string>
     <string name="cut">Cut</string>
     <string name="cut_desc">Move Document</string>
+
+    <string name="timeout">Download cancelled due to timeout. Please ensure your internet connection is stable</string>
 </resources>

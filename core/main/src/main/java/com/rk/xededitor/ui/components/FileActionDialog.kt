@@ -1,11 +1,5 @@
-// Updated FileActionDialog with implemented operations
 package com.rk.xededitor.ui.components
 
-
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.apache.commons.net.io.Util.copyStream
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
@@ -36,18 +30,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.file.FileObject
+import com.rk.file.FileWrapper
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.main.MainActivity
+import com.rk.xededitor.ui.activities.terminal.Terminal
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
+import kotlinx.coroutines.withContext
+import org.apache.commons.net.io.Util.copyStream
 import java.util.Locale
 
 @Composable
@@ -95,6 +90,20 @@ fun FileActionDialog(
                     )
                 }
 
+                if (file is FileWrapper && file.isDirectory()){
+                    AddDialogItem(
+                        icon = drawables.terminal,
+                        title = stringResource(strings.open_in_terminal),
+                        description = stringResource(strings.open_in_terminal),
+                        onClick = {
+                            val intent = Intent(context,Terminal::class.java)
+                            intent.putExtra("cwd",file.getAbsolutePath())
+                            context.startActivity(intent)
+                            onDismissRequest()
+                        }
+                    )
+                }
+
                 AddDialogItem(
                     icon = Icons.Outlined.Edit,
                     title = stringResource(strings.rename),
@@ -136,7 +145,6 @@ fun FileActionDialog(
                     onClick = {
                         scope.launch {
                             FileOperations.copyToClipboard(file,isCut = true)
-                            toast(context.getString(strings.cut))
                             showXedDialog = true
                             onDismissRequest()
                         }
@@ -184,6 +192,20 @@ fun FileActionDialog(
                         onDismissRequest()
                     }
                 )
+
+                if (file.isFile()){
+                    AddDialogItem(
+                        icon = drawables.arrow_downward,
+                        title = stringResource(strings.add_file),
+                        description = stringResource(strings.add_file_desc),
+                        onClick = {
+                            // This would typically open a file picker
+                            FileOperations.addFile(context, file.getParentFile()!!)
+                            showXedDialog = true
+                            onDismissRequest()
+                        }
+                    )
+                }
 
                 AddDialogItem(
                     icon = Icons.Outlined.Info,
@@ -288,10 +310,14 @@ object FileOperations {
     }
 
     fun openWithExternalApp(context: Context, file: FileObject) {
-        return
+        toast(strings.ni)
     }
 
     fun saveAs(context: Context, file: FileObject) {
+        toast(strings.ni)
+    }
+
+    fun addFile(context: Context, parent: FileObject){
         toast(strings.ni)
     }
 }
@@ -397,14 +423,15 @@ fun FileInfoDialog(
             )
 
             InfoRow("Name", file.getName())
-            InfoRow("Path", file.getAbsolutePath())
             if (file.isFile()){
                 InfoRow("Size", formatFileSize(file.length()))
             }
             InfoRow("Type", if (file.isDirectory()) "Directory" else "File")
-            //InfoRow("Last Modified", formatDate(file.lastModified()))
             InfoRow("Readable", if (file.canRead()) "Yes" else "No")
             InfoRow("Writable", if (file.canWrite()) "Yes" else "No")
+
+            InfoRow("FileType", file.javaClass.simpleName)
+            InfoRow("Path", file.getAbsolutePath())
 
             Row(
                 modifier = Modifier

@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.SessionService
 import com.rk.file.child
+import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
@@ -41,12 +42,16 @@ import com.rk.resources.strings
 import com.rk.xededitor.ui.screens.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.theme.KarbonTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.lang.ref.WeakReference
+import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 class Terminal : ComponentActivity() {
@@ -95,6 +100,7 @@ class Terminal : ComponentActivity() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @Composable
     fun TerminalScreenHost(context: Context) {
         var progress by remember { mutableFloatStateOf(0f) }
@@ -178,8 +184,15 @@ class Terminal : ComponentActivity() {
                     onError = { error ->
                         if (error is UnknownHostException) {
                             toast(strings.network_err.getString())
+                        }else if (error is SocketTimeoutException){
+                            errorDialog(strings.timeout)
                         } else {
                             error.printStackTrace()
+                            GlobalScope.launch(Dispatchers.IO){
+                                sandboxDir().deleteRecursively()
+                                localBinDir().deleteRecursively()
+                                localDir().deleteRecursively()
+                            }
                             errorDialog("Setup Failed: ${error.message}")
                         }
                         finish()
@@ -189,6 +202,8 @@ class Terminal : ComponentActivity() {
             } catch (e: Exception) {
                 if (e is UnknownHostException) {
                     toast(strings.network_err.getString())
+                }else if (e is SocketTimeoutException){
+                    errorDialog(strings.timeout)
                 } else {
                     e.printStackTrace()
                     toast("Setup Failed: ${e.message}")
