@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -34,6 +32,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rk.resources.strings
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 
 @Composable
 fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewModel: MainViewModel,drawerState: DrawerState) {
@@ -58,106 +57,80 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 }
             }
         } else {
-            val pagerState = rememberPagerState(
-                pageCount = { viewModel.tabs.size },
-                initialPage = if (viewModel.tabs.isNotEmpty() && viewModel.currentTabIndex < viewModel.tabs.size)
-                    viewModel.currentTabIndex else 0
-            )
 
-            // Handle viewModel index changes
-            LaunchedEffect(viewModel.currentTabIndex, viewModel.tabs.size) {
-                if (viewModel.tabs.isNotEmpty() && viewModel.currentTabIndex < viewModel.tabs.size) {
-                    pagerState.scrollToPage(viewModel.currentTabIndex)
-                }
-            }
 
-            // Handle pager state changes - but only if it's within valid bounds
-            LaunchedEffect(pagerState.currentPage, viewModel.tabs.size) {
-                if (pagerState.currentPage < viewModel.tabs.size) {
-                    viewModel.currentTabIndex = pagerState.currentPage
-                }
-            }
 
             ScrollableTabRow(
-                selectedTabIndex = if (pagerState.currentPage < viewModel.tabs.size) pagerState.currentPage else 0,
+                selectedTabIndex = if (viewModel.currentTabIndex < viewModel.tabs.size) viewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),
                 edgePadding = 0.dp,
                 divider = {}
             ) {
                 viewModel.tabs.forEachIndexed { index, tabState ->
-                    var showTabMenu by remember { mutableStateOf(false) }
+                    key(tabState) {
+                        var showTabMenu by remember { mutableStateOf(false) }
+                        Tab(
+                            selected = viewModel.currentTabIndex== index,
+                            onClick = {
+                                if (viewModel.currentTabIndex == index) {
+                                    showTabMenu = true
+                                } else {
+                                    viewModel.currentTabIndex = index
+                                }
+                            },
+                            text = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                            "*${tabState.title}"
+                                        } else {
+                                            tabState.title
+                                        },
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showTabMenu,
+                                    onDismissRequest = { showTabMenu = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(strings.close_this)) },
+                                        onClick = {
+                                            showTabMenu = false
+                                            viewModel.removeTab(index)
+                                        }
+                                    )
 
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            if (viewModel.currentTabIndex == index) {
-                                showTabMenu = true
-                            } else {
-                                viewModel.currentTabIndex = index
-                            }
-                        },
-                        text = {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                        "*${tabState.title}"
-                                    } else {
-                                        tabState.title
-                                    },
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = showTabMenu,
-                                onDismissRequest = { showTabMenu = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(strings.close_this)) },
-                                    onClick = {
-                                        showTabMenu = false
-                                        viewModel.removeTab(index)
-                                    }
-                                )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(strings.close_others)) },
+                                        onClick = {
+                                            showTabMenu = false
+                                            // Set the current tab to the one we're closing others from
+                                            viewModel.setCurrentTabIndex(index)
+                                            viewModel.removeOtherTabs()
+                                        }
+                                    )
 
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(strings.close_others)) },
-                                    onClick = {
-                                        showTabMenu = false
-                                        // Set the current tab to the one we're closing others from
-                                        viewModel.setCurrentTabIndex(index)
-                                        viewModel.removeOtherTabs()
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(strings.close_all)) },
-                                    onClick = {
-                                        showTabMenu = false
-                                        viewModel.closeAllTabs()
-                                    }
-                                )
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(strings.close_all)) },
+                                        onClick = {
+                                            showTabMenu = false
+                                            viewModel.closeAllTabs()
+                                        }
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
             HorizontalDivider()
 
-            if (viewModel.tabs.isNotEmpty()) {
-                HorizontalPager(
-                    state = pagerState,
-                    userScrollEnabled = false,
-                    modifier = Modifier,
-                    beyondViewportPageCount = viewModel.tabs.size
-                ) { page ->
-                    // Add bounds checking here too
-                    if (page < viewModel.tabs.size) {
-                        key(viewModel.tabs[page].viewPagerId) {
-                            viewModel.tabs[page].content()
-                        }
-                    }
+            viewModel.currentTab?.let { tab ->
+                key(tab) {
+                    tab.content()
                 }
             }
         }

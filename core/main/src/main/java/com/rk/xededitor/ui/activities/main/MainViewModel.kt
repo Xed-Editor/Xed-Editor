@@ -10,6 +10,7 @@ import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -64,6 +65,7 @@ object TabCache {
 
 class MainViewModel : ViewModel() {
     val tabs = mutableStateListOf<Tab>()
+    val mutex = Mutex()
 
     init {
         viewModelScope.launch{
@@ -78,76 +80,46 @@ class MainViewModel : ViewModel() {
 
     }
 
-    private var nextTabId = 0
 
     var currentTabIndex by mutableIntStateOf(0)
 
-    val currentTab: Tab? get() {
-        return tabs.getOrNull(currentTabIndex)
-    }
+    val currentTab: Tab?
+        get() = tabs.getOrNull(currentTabIndex)
 
-    // Editor tab management
-    suspend fun newEditorTab(file: FileObject, checkDuplicate:Boolean = true): Boolean {
-        if (checkDuplicate){
-            withContext(Dispatchers.IO){
-                if (tabs.any { it is EditorTab && it.file == file }){
-                    return@withContext false
+    suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true): Boolean = withContext(
+        Dispatchers.IO) {
+        if (checkDuplicate && tabs.any { it is EditorTab && it.file == file }) {
+            return@withContext false
+        }
+
+        return@withContext withContext(Dispatchers.Main) {
+                mutex.withLock{
+                    val editorTab = EditorTab(file = file, viewModel = this@MainViewModel)
+
+                    tabs.add(editorTab)
+                    delay(50)
+                    currentTabIndex = tabs.lastIndex
                 }
+
+                true
             }
-        }
 
-        withContext(Dispatchers.Main.immediate){
-            val editorTab = EditorTab(viewPagerId = nextTabId++, file = file, viewModel = this@MainViewModel)
-            tabs.add(editorTab)
-
-            currentTabIndex = tabs.lastIndex
-        }
-        return true
     }
 
-    /**
-     * Remove the current tab
-     * @return true if a tab was removed, false if no current tab exists
-     */
-    fun removeCurrentTab(): Boolean {
-        if (tabs.isEmpty() || currentTabIndex < 0 || currentTabIndex >= tabs.size) {
-            return false
-        }
-
-        tabs.removeAt(currentTabIndex)
-
-
-        // Adjust currentTabIndex after removal
-        when {
-            tabs.isEmpty() -> currentTabIndex = 0
-            currentTabIndex >= tabs.size -> currentTabIndex = tabs.lastIndex
-            // If currentTabIndex is still valid, keep it as is
-        }
-
-        return true
-    }
-
-    /**
-     * Remove a specific tab by index
-     * @param index the index of the tab to remove
-     * @return true if the tab was removed, false if index is invalid
-     */
     fun removeTab(index: Int): Boolean {
-        if (index < 0 || index >= tabs.size) {
-            return false
-        }
+        if (index !in tabs.indices) return false
+
+        // Close tab resources if needed
+        (tabs[index] as? EditorTab)?.onTabRemoved()
 
         tabs.removeAt(index)
 
-
-        // Adjust currentTabIndex after removal
-        when {
-            tabs.isEmpty() -> currentTabIndex = 0
-            currentTabIndex > index -> currentTabIndex--
-            currentTabIndex >= tabs.size -> currentTabIndex = tabs.lastIndex
-            // If currentTabIndex is still valid and not affected, keep it as is
+        // More robust index adjustment
+        currentTabIndex = when {
+            tabs.isEmpty() -> 0
+            index <= currentTabIndex -> maxOf(0, currentTabIndex - 1)
+            else -> currentTabIndex
         }
-
         return true
     }
 

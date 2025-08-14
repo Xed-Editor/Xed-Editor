@@ -69,13 +69,16 @@ data class CodeEditorState(
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
-    override val viewPagerId: Int,
     val file: FileObject,
-    val viewModel: MainViewModel
+    val viewModel: MainViewModel,
 ) : Tab() {
     override val title: String get() = file.getName()
     val scope = CoroutineScope(Dispatchers.Default)
     val editorState by mutableStateOf(CodeEditorState())
+
+    override fun onTabRemoved() {
+        editorState.editor?.release()
+    }
 
     init {
         if (editorState.content == null){
