@@ -7,6 +7,7 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -315,10 +316,14 @@ class Terminal : AppCompatActivity() {
                     }.onFailure { it.printStackTrace() }
                 }
 
-                MkRootfs(this@Terminal, onFailure = {
-                    errorDialog(it)
-                }, onComplete = {
+                MkRootfs(this@Terminal,onComplete = {
                     runOnUiThread {
+                        if (it.isNullOrBlank().not()){
+                            Log.e("TERMINAL",it)
+                            errorDialog(it)
+                            finish()
+                        }
+
                         onComplete()
                     }
                 })

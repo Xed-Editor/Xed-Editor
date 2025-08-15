@@ -10,7 +10,7 @@ import com.rk.file.sandboxHomeDir
 import java.io.File
 import java.lang.Runtime.getRuntime
 
-class MkRootfs(val context: Context, private val onComplete: () -> Unit,private val onFailure:(String)-> Unit) {
+class MkRootfs(val context: Context, private val onComplete: (String?) -> Unit) {
     private val sandboxFile = File(getTempDir(), "sandbox.tar.gz")
 
     init {
@@ -22,8 +22,7 @@ class MkRootfs(val context: Context, private val onComplete: () -> Unit,private 
 
 
         if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
-            onComplete.invoke()
-            println("completed")
+            onComplete.invoke(null)
         } else {
             initializeInternal()
         }
@@ -33,7 +32,7 @@ class MkRootfs(val context: Context, private val onComplete: () -> Unit,private 
         if (isMainThread()) {
             throw RuntimeException("IO operation on the main thread")
         }
-        val process = ProcessBuilder("tar", "-xf", sandboxFile.absolutePath, "-C", sandboxDir().absolutePath)
+        val process = ProcessBuilder("tar", "-xzhf", sandboxFile.absolutePath, "-C", sandboxDir().absolutePath)
             .redirectErrorStream(true)
             .start()
 
@@ -46,10 +45,10 @@ class MkRootfs(val context: Context, private val onComplete: () -> Unit,private 
                 child("etc/resolv.conf").also { it.createFileIfNot(); it.writeText(nameserver) }
                 child("etc/hosts").writeText(hosts)
             }
-            onComplete.invoke()
+            onComplete.invoke(null)
         } else {
             val error = process.errorStream.bufferedReader().use { it.readText() }
-            onFailure.invoke(error)
+            onComplete.invoke(error)
         }
 
 
