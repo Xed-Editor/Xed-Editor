@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
@@ -67,6 +68,7 @@ fun FileActionDialog(
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
+    var showNewDialog by remember { mutableStateOf(false) }
     var showXedDialog by remember { mutableStateOf(true) }
 
     if (showXedDialog){
@@ -114,6 +116,19 @@ fun FileActionDialog(
                         }
                     )
                     
+                }
+
+                if (file.isDirectory()){
+                    AddDialogItem(
+                        icon = Icons.Outlined.Add,
+                        title = stringResource(strings.new_document),
+                        description = stringResource(strings.new_document_desc),
+                        onClick = {
+                            showXedDialog = false
+                           showNewDialog = true
+                        }
+                    )
+
                 }
 
                 AddDialogItem(
@@ -313,6 +328,21 @@ fun FileActionDialog(
             }
         )
     }
+
+    if (showNewDialog){
+        NewDocumentDialog(
+            parentFile = file, onDismiss = {
+                showXedDialog = true
+                showNewDialog = false
+            },
+            onConfirm = {
+                fileTreeViewModel?.updateCache(file)
+                showXedDialog = true
+                showNewDialog = false
+                onDismissRequest()
+            }
+        )
+    }
 }
 
 // File Operations utility class
@@ -400,6 +430,59 @@ fun RenameDialog(
                     enabled = newName.isNotBlank() && newName != currentName
                 ) {
                     Text("Rename")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun NewDocumentDialog(
+    parentFile: FileObject,
+    onConfirm: (FileObject?) -> Unit,
+    onDismiss: () -> Unit
+) {
+
+    var value by remember { mutableStateOf("") }
+    XedDialog(onDismissRequest = onDismiss) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = stringResource(strings.new_document),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            OutlinedTextField(
+                value = value,
+                onValueChange = { value = it },
+                label = { Text(stringResource(strings.newFile_hint)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = {
+                    if (!parentFile.hasChild(value)){
+                        onConfirm(parentFile.createChild(createFile = false,value))
+                    }
+
+                }) {
+                    Text(stringResource(strings.folder))
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                TextButton(
+                    onClick = {
+                        if (!parentFile.hasChild(value)){
+                            onConfirm(parentFile.createChild(createFile = true,value))
+                        }
+                    },
+                    enabled = value.isNotBlank()
+                ) {
+                    Text(stringResource(strings.file))
                 }
             }
         }

@@ -315,11 +315,13 @@ class Terminal : AppCompatActivity() {
                     }.onFailure { it.printStackTrace() }
                 }
 
-                MkRootfs(this@Terminal) {
+                MkRootfs(this@Terminal, onFailure = {
+                    errorDialog(it)
+                }, onComplete = {
                     runOnUiThread {
                         onComplete()
                     }
-                }
+                })
 
             } catch (e: Exception) {
                 e.printStackTrace()
