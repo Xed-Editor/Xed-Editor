@@ -159,21 +159,6 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 }
             ),
             EditorAction(
-                id = "save_all",
-                type = ActionType.PainterAction(drawables.save),
-                labelRes = strings.save_all,
-                action = {
-                    GlobalScope.launch{
-                        viewModel.tabs.forEach{
-                            if (it is EditorTab){
-                                it.save()
-                            }
-                        }
-                    }
-                    tab.editorState.editor!!.updateUndoRedo()
-                }
-            ),
-            EditorAction(
                 id = "refresh",
                 type = ActionType.PainterAction(drawables.refresh),
                 labelRes = strings.refresh,

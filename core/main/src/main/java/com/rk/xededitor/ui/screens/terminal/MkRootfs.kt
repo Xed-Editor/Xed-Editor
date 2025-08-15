@@ -32,9 +32,17 @@ class MkRootfs(val context: Context, private val onComplete: (String?) -> Unit) 
         if (isMainThread()) {
             throw RuntimeException("IO operation on the main thread")
         }
-        val process = ProcessBuilder("tar", "-xzhf", sandboxFile.absolutePath, "-C", sandboxDir().absolutePath)
-            .redirectErrorStream(true)
-            .start()
+        val process = ProcessBuilder(
+            "tar",
+            "--no-same-owner",
+            "--exclude", "/var/lock",
+            "--exclude", "/dev",
+            "--exclude", "/proc",
+            "--exclude", "/etc/alternatives",
+            "--exclude", "/etc/systemd",
+            "-xf", sandboxFile.absolutePath,
+            "-C", sandboxDir().absolutePath
+        ).start()
 
         val result = process.waitFor()
         sandboxFile.delete()
