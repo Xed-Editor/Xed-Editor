@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 fun AddDialogItem(
     @DrawableRes icon: Int,
     title: String,
-    description: String,
+    description: String? = null,
     onClick: () -> Unit
 ) {
     AddDialogItem(
@@ -45,7 +45,7 @@ fun AddDialogItem(
 fun AddDialogItem(
     icon: ImageVector,
     title: String,
-    description: String,
+    description: String? = null,
     onClick: () -> Unit
 ) {
     AddDialogItem(
@@ -65,7 +65,7 @@ fun AddDialogItem(
 fun AddDialogItem(
     icon: @Composable ()-> Unit,
     title: String,
-    description: String,
+    description: String? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -81,7 +81,10 @@ fun AddDialogItem(
 
         Column {
             Text(title, style = MaterialTheme.typography.bodyLarge)
-            Text(description, style = MaterialTheme.typography.bodySmall)
+            if (description != null){
+                Text(description, style = MaterialTheme.typography.bodySmall)
+            }
+
         }
     }
 

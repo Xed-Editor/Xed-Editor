@@ -45,6 +45,7 @@ import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.DefaultScope
+import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
@@ -370,7 +371,7 @@ private fun AddProjectDialog(
     val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
 
     XedDialog(onDismissRequest = onDismiss) {
-        Column {
+        DividerColumn {
 
             AddDialogItem(
                 icon = drawables.file_symlink,
@@ -381,6 +382,7 @@ private fun AddProjectDialog(
                     onDismiss()
                 }
             )
+
 
 
             // Open Path option

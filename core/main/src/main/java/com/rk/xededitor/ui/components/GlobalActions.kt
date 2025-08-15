@@ -1,22 +1,41 @@
 package com.rk.xededitor.ui.components
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import com.rk.DefaultScope
+import com.rk.components.compose.preferences.base.DividerColumn
+import com.rk.controlpanel.ControlItem
+import com.rk.file.FileWrapper
+import com.rk.file.child
+import com.rk.file.createFileIfNot
+import com.rk.file.sandboxHomeDir
+import com.rk.libcommons.application
+import com.rk.libcommons.askInput
+import com.rk.libcommons.composeDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.main.MainViewModel
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import kotlinx.coroutines.launch
+
+var addDialog by mutableStateOf(false)
 
 @Composable
 fun RowScope.GlobalActions(viewModel: MainViewModel) {
@@ -24,7 +43,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
     if (viewModel.tabs.isEmpty()){
 
         IconButton(onClick = {
-            toast(strings.ni)
+            addDialog = true
         }) {
             Icon(imageVector = Icons.Outlined.Add,contentDescription = null)
         }
@@ -43,5 +62,49 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
             Icon(imageVector = Icons.Outlined.Settings,contentDescription = null)
         }
     }
+
+    if (addDialog){
+        XedDialog(onDismissRequest = {
+            addDialog = false
+        }) {
+            DividerColumn {
+                AddDialogItem(icon = drawables.file, title = stringResource(strings.tempFile)) {
+                    DefaultScope.launch{
+                        viewModel.newEditorTab(FileWrapper(sandboxHomeDir().child("temp").createFileIfNot()),checkDuplicate = true)
+                    }
+                    addDialog = false
+                }
+
+                AddDialogItem(icon = Icons.Outlined.Add, title = stringResource(strings.new_file)) {
+                    addDialog = false
+                    val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+                    intent.addCategory(Intent.CATEGORY_OPENABLE)
+                    intent.setType("application/octet-stream")
+                    intent.putExtra(Intent.EXTRA_TITLE, "newfile.txt")
+
+                    val activities = application!!.packageManager.queryIntentActivities(
+                        intent,
+                        PackageManager.MATCH_ALL
+                    )
+                    if (activities.isNotEmpty()) {
+                        MainActivity.instance?.fileManager!!.createFileLauncher.launch(intent)
+                    } else {
+                        MainActivity.instance?.askInput(
+                            title = strings.new_file.getString(),
+                            hint = "newfile.txt",
+                            onResult = { input ->
+                                MainActivity.instance?.fileManager?.selectDirForNewFileLaunch(input)
+                            })
+                    }
+                }
+
+                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.openfile)) {
+                    addDialog = false
+                    MainActivity.instance?.fileManager?.requestOpenFile()
+                }
+            }
+        }
+    }
+
 
 }

@@ -46,6 +46,7 @@ import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
+import com.rk.file.FileManager
 import com.rk.file.UriWrapper
 import com.rk.libcommons.toast
 import com.rk.resources.strings
@@ -69,7 +70,8 @@ fun getDrawerWidth(): Dp {
 }
 
 class MainActivity : AppCompatActivity() {
-    private val viewModel: MainViewModel by viewModels()
+    val viewModel: MainViewModel by viewModels()
+    val fileManager = FileManager(this)
 
 
     companion object {

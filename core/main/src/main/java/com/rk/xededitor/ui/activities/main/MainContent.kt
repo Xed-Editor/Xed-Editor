@@ -90,38 +90,39 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         overflow = TextOverflow.Ellipsis
                                     )
                                 }
-                                DropdownMenu(
-                                    expanded = showTabMenu,
-                                    onDismissRequest = { showTabMenu = false }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(strings.close_this)) },
-                                        onClick = {
-                                            showTabMenu = false
-                                            viewModel.removeTab(index)
-                                        }
-                                    )
 
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(strings.close_others)) },
-                                        onClick = {
-                                            showTabMenu = false
-                                            // Set the current tab to the one we're closing others from
-                                            viewModel.setCurrentTabIndex(index)
-                                            viewModel.removeOtherTabs()
-                                        }
-                                    )
-
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(strings.close_all)) },
-                                        onClick = {
-                                            showTabMenu = false
-                                            viewModel.closeAllTabs()
-                                        }
-                                    )
-                                }
                             }
                         )
+                        DropdownMenu(
+                            expanded = showTabMenu,
+                            onDismissRequest = { showTabMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(strings.close_this)) },
+                                onClick = {
+                                    showTabMenu = false
+                                    viewModel.removeTab(index)
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(stringResource(strings.close_others)) },
+                                onClick = {
+                                    showTabMenu = false
+                                    // Set the current tab to the one we're closing others from
+                                    viewModel.setCurrentTabIndex(index)
+                                    viewModel.removeOtherTabs()
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text(stringResource(strings.close_all)) },
+                                onClick = {
+                                    showTabMenu = false
+                                    viewModel.closeAllTabs()
+                                }
+                            )
+                        }
                     }
                 }
             }

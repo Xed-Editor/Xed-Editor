@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -30,10 +31,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
+import com.rk.file.openWith
+import com.rk.file.to_save_file
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -64,7 +68,7 @@ fun FileActionDialog(
 
     if (showXedDialog){
         XedDialog(onDismissRequest = onDismissRequest) {
-            Column(modifier = Modifier.padding(0.dp).verticalScroll(rememberScrollState())) {
+            DividerColumn(modifier = Modifier.padding(0.dp).verticalScroll(rememberScrollState())) {
 
                 AddDialogItem(
                     icon = Icons.Outlined.Close,
@@ -77,6 +81,8 @@ fun FileActionDialog(
                     }
                 )
 
+                
+
                 if (file.isDirectory()) {
                     AddDialogItem(
                         icon = Icons.Outlined.Refresh,
@@ -88,6 +94,7 @@ fun FileActionDialog(
                             onDismissRequest()
                         }
                     )
+                    
                 }
 
                 if (file is FileWrapper && file.isDirectory()){
@@ -102,6 +109,7 @@ fun FileActionDialog(
                             onDismissRequest()
                         }
                     )
+                    
                 }
 
                 AddDialogItem(
@@ -113,6 +121,7 @@ fun FileActionDialog(
                         showRenameDialog = true
                     }
                 )
+                
 
                 AddDialogItem(
                     icon = Icons.Outlined.Delete,
@@ -123,6 +132,7 @@ fun FileActionDialog(
                         showDeleteDialog = true
                     }
                 )
+                
 
                 AddDialogItem(
                     icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
@@ -137,6 +147,7 @@ fun FileActionDialog(
                         }
                     }
                 )
+                
 
                 AddDialogItem(
                     icon = drawables.round_content_cut_20,
@@ -150,6 +161,7 @@ fun FileActionDialog(
                         }
                     }
                 )
+                
 
                 if (FileOperations.clipboard != null && file.isDirectory()){
                     AddDialogItem(
@@ -167,6 +179,7 @@ fun FileActionDialog(
                             }
                         }
                     )
+                    
                 }
 
 
@@ -180,6 +193,7 @@ fun FileActionDialog(
                         onDismissRequest()
                     }
                 )
+                
 
                 AddDialogItem(
                     icon = drawables.file_symlink,
@@ -192,6 +206,7 @@ fun FileActionDialog(
                         onDismissRequest()
                     }
                 )
+                
 
                 if (file.isFile()){
                     AddDialogItem(
@@ -200,11 +215,12 @@ fun FileActionDialog(
                         description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
-                            FileOperations.addFile(context, file.getParentFile()!!)
+                            FileOperations.addFile(file.getParentFile()!!)
                             //showXedDialog = true
                             onDismissRequest()
                         }
                     )
+                    
                 }
 
                 AddDialogItem(
@@ -217,6 +233,7 @@ fun FileActionDialog(
                         //onDismissRequest()
                     }
                 )
+                
             }
         }
     }
@@ -312,15 +329,20 @@ object FileOperations {
     }
 
     fun openWithExternalApp(context: Context, file: FileObject) {
-        toast(strings.ni)
+        openWith(context,file)
     }
 
     fun saveAs(context: Context, file: FileObject) {
-        toast(strings.ni)
+        to_save_file = file
+        MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile()
     }
 
-    fun addFile(context: Context, parent: FileObject){
-        toast(strings.ni)
+    fun addFile(parent: FileObject){
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "*/*"
+        MainActivity.instance?.fileManager?.parentFile = parent
+        MainActivity.instance?.fileManager?.requestAddFile?.launch(intent)
     }
 }
 

@@ -155,7 +155,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 type = ActionType.VectorAction(imageVector = Icons.Outlined.Add),
                 labelRes = strings.add,
                 action = {
-                    toast(strings.ni)
+                    addDialog = true
                 }
             ),
             EditorAction(
