@@ -67,6 +67,8 @@ data class CodeEditorState(
     var isDirty by mutableStateOf(false)
 }
 
+var showControlPanel by mutableStateOf(false)
+
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
     var file: FileObject,
@@ -120,18 +122,24 @@ class EditorTab(
                 textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
 
-        CodeEditor(
-            modifier = Modifier,
-            state = editorState,
-            textmateScope = language,
-            onKeyEvent = { event ->
-                if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                    scope.launch(Dispatchers.IO) {
-                        save()
+            if (showControlPanel){
+                ControlPanel(onDismissRequest = {
+                    showControlPanel = false
+                }, viewModel = viewModel)
+            }
+
+            CodeEditor(
+                modifier = Modifier,
+                state = editorState,
+                textmateScope = language,
+                onKeyEvent = { event ->
+                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                        scope.launch(Dispatchers.IO) {
+                            save()
+                        }
                     }
                 }
-            }
-        )
+            )
 
     }
 
