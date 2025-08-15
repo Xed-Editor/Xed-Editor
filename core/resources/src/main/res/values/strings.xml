@@ -463,4 +463,5 @@
     <string name="cut_desc">Move Document</string>
 
     <string name="timeout">Download cancelled due to timeout. Please ensure your internet connection is stable</string>
+    <string name="more">More</string>
 </resources>

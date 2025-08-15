@@ -69,10 +69,10 @@ data class CodeEditorState(
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
-    val file: FileObject,
+    var file: FileObject,
     val viewModel: MainViewModel,
 ) : Tab() {
-    override val title: String get() = file.getName()
+    override var title: MutableState<String> = mutableStateOf(file.getName())
     val scope = CoroutineScope(Dispatchers.Default)
     val editorState by mutableStateOf(CodeEditorState())
 

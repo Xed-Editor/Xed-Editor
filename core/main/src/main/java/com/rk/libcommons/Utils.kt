@@ -151,18 +151,25 @@ fun dialog(
     msg: String,
     @StringRes cancelString: Int = strings.cancel,
     @StringRes okString: Int = strings.ok,
-    onOk: () -> Unit = {},
-    onCancel: () -> Unit = {}
+    onDialog:(AlertDialog?) -> Unit = {},
+    onOk: (AlertDialog?) -> Unit = {},
+    onCancel: (AlertDialog?) -> Unit = {},
+    cancelable: Boolean = true
 ) {
     composeDialog(context = context) { alertDialog ->
+        alertDialog?.setCancelable(cancelable)
         DialogContent(
             alertDialog = alertDialog,
             title = title,
             msg = msg,
             cancelString = cancelString,
             okString = okString,
-            onOk = onOk,
-            onCancel = onCancel
+            onOk = {
+                onOk(alertDialog)
+            },
+            onCancel = {
+                onCancel(alertDialog)
+            }
         )
     }
 }

@@ -47,7 +47,9 @@ import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
 import com.rk.file.FileManager
+import com.rk.file.FilePermission
 import com.rk.file.UriWrapper
+import com.rk.file.isFileManager
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.xededitor.ui.FPSBooster
@@ -125,12 +127,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FPSBooster(this)
+        FilePermission.verifyStoragePermission(this)
 
         enableEdgeToEdge()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
-
 
         setContent {
             KarbonTheme {
@@ -191,4 +193,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        FilePermission.onRequestPermissionsResult(requestCode,grantResults,lifecycleScope,this)
+    }
+
+
+
 }

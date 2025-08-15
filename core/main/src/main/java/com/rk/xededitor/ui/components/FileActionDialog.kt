@@ -38,9 +38,11 @@ import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.xededitor.ui.activities.main.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
@@ -53,8 +55,9 @@ import java.util.Locale
 fun FileActionDialog(
     modifier: Modifier = Modifier,
     file: FileObject,
-    root: FileObject,
-    onDismissRequest: () -> Unit
+    root: FileObject?,
+    onDismissRequest: () -> Unit,
+    fileTreeContext: Boolean = true
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
@@ -70,18 +73,19 @@ fun FileActionDialog(
         XedDialog(onDismissRequest = onDismissRequest) {
             DividerColumn(modifier = Modifier.padding(0.dp).verticalScroll(rememberScrollState())) {
 
-                AddDialogItem(
-                    icon = Icons.Outlined.Close,
-                    title = stringResource(strings.close),
-                    description = stringResource(strings.close_current_project),
-                    onClick = {
-                        removeProject(root, true)
-                        showXedDialog = true
-                        onDismissRequest()
-                    }
-                )
+                if (fileTreeContext && root != null){
+                    AddDialogItem(
+                        icon = Icons.Outlined.Close,
+                        title = stringResource(strings.close),
+                        description = stringResource(strings.close_current_project),
+                        onClick = {
+                            removeProject(root, true)
+                            showXedDialog = true
+                            onDismissRequest()
+                        }
+                    )
+                }
 
-                
 
                 if (file.isDirectory()) {
                     AddDialogItem(
@@ -163,7 +167,7 @@ fun FileActionDialog(
                 )
                 
 
-                if (FileOperations.clipboard != null && file.isDirectory()){
+                if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()){
                     AddDialogItem(
                         icon = drawables.round_content_paste_20,
                         title = stringResource(strings.paste),
@@ -208,14 +212,14 @@ fun FileActionDialog(
                 )
                 
 
-                if (file.isFile()){
+                if (fileTreeContext && file.isDirectory()){
                     AddDialogItem(
                         icon = drawables.arrow_downward,
                         title = stringResource(strings.add_file),
                         description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
-                            FileOperations.addFile(file.getParentFile()!!)
+                            FileOperations.addFile(file)
                             //showXedDialog = true
                             onDismissRequest()
                         }
@@ -245,10 +249,19 @@ fun FileActionDialog(
             currentName = file.getName(),
             onConfirm = { newName ->
                 scope.launch {
+                    val parentFile = file.getParentFile()
                     val success = FileOperations.renameFile(file, newName)
                     if (success) {
-                        fileTreeViewModel?.updateCache(file.getParentFile()!!)
-                        toast(context.getString(strings.success))
+                        if (parentFile != null){
+                            fileTreeViewModel?.updateCache(file.getParentFile()!!)
+                            MainActivity.instance?.apply {
+                                val targetTab = viewModel.tabs.
+                                find { it is EditorTab && it.file == file } as? EditorTab
+
+                                targetTab?.title?.value = newName
+                                targetTab?.file = parentFile.getChildForName(newName)
+                            }
+                        }
                     } else {
                         toast(context.getString(strings.failed))
                     }
@@ -316,6 +329,7 @@ object FileOperations {
         return try {
             file.renameTo(newName)
         } catch (e: Exception) {
+            errorDialog(e)
             false
         }
     }
@@ -324,6 +338,7 @@ object FileOperations {
         return try {
             file.delete()
         } catch (e: Exception) {
+            errorDialog(e)
             false
         }
     }

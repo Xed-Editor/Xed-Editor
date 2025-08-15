@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
@@ -29,14 +31,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.rk.compose.filetree.currentProject
+import com.rk.file.FileObject
 import com.rk.resources.strings
+import com.rk.xededitor.ui.components.FileActionDialog
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 
 @Composable
 fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewModel: MainViewModel,drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
+    var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -57,9 +65,6 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 }
             }
         } else {
-
-
-
             ScrollableTabRow(
                 selectedTabIndex = if (viewModel.currentTabIndex < viewModel.tabs.size) viewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),
@@ -79,50 +84,60 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                 }
                             },
                             text = {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                            "*${tabState.title}"
-                                        } else {
-                                            tabState.title
-                                        },
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                                Text(
+                                    text = if (tabState is EditorTab && tabState.editorState.isDirty) {
+                                        "*${tabState.title.value}"
+                                    } else {
+                                        tabState.title.value
+                                    },
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                DropdownMenu(
+                                    expanded = showTabMenu,
+                                    offset = DpOffset((-22).dp,15.dp),
+                                    onDismissRequest = { showTabMenu = false },
+                                    modifier = Modifier
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(strings.close_this)) },
+                                        onClick = {
+                                            showTabMenu = false
+                                            viewModel.removeTab(index)
+                                        }
                                     )
+
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(strings.close_others)) },
+                                        onClick = {
+                                            showTabMenu = false
+                                            // Set the current tab to the one we're closing others from
+                                            viewModel.setCurrentTabIndex(index)
+                                            viewModel.removeOtherTabs()
+                                        }
+                                    )
+
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(strings.close_all)) },
+                                        onClick = {
+                                            showTabMenu = false
+                                            viewModel.closeAllTabs()
+                                        }
+                                    )
+
+                                    if (tabState is EditorTab){
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(strings.more)) },
+                                            onClick = {
+                                                fileActionDialog = tabState.file
+                                            }
+                                        )
+                                    }
+
                                 }
 
                             }
                         )
-                        DropdownMenu(
-                            expanded = showTabMenu,
-                            onDismissRequest = { showTabMenu = false }
-                        ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(strings.close_this)) },
-                                onClick = {
-                                    showTabMenu = false
-                                    viewModel.removeTab(index)
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(strings.close_others)) },
-                                onClick = {
-                                    showTabMenu = false
-                                    // Set the current tab to the one we're closing others from
-                                    viewModel.setCurrentTabIndex(index)
-                                    viewModel.removeOtherTabs()
-                                }
-                            )
-
-                            DropdownMenuItem(
-                                text = { Text(stringResource(strings.close_all)) },
-                                onClick = {
-                                    showTabMenu = false
-                                    viewModel.closeAllTabs()
-                                }
-                            )
-                        }
                     }
                 }
             }
@@ -134,6 +149,16 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                     tab.content()
                 }
             }
+
+            if (fileActionDialog != null && currentProject != null){
+                FileActionDialog(modifier = Modifier, file = fileActionDialog!!, root = currentProject!!, onDismissRequest = {
+                    fileActionDialog = null
+                },fileTreeContext = false)
+            }
+
+
+
         }
+
     }
 }

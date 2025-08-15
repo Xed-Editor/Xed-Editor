@@ -159,14 +159,6 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 }
             ),
             EditorAction(
-                id = "save_as",
-                type = ActionType.PainterAction(drawables.file_symlink),
-                labelRes = strings.save_as,
-                action = {
-                    toast(strings.ni)
-                }
-            ),
-            EditorAction(
                 id = "save_all",
                 type = ActionType.PainterAction(drawables.save),
                 labelRes = strings.save_all,
