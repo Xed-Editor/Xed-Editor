@@ -162,7 +162,7 @@ fun FileActionDialog(
                                 pasteFile(context,FileOperations.clipboard!!,file,isCut = FileOperations.isCut)
                                 fileTreeViewModel?.updateCache(file)
                                 fileTreeViewModel?.updateCache(parentFile!!)
-                                showXedDialog = true
+                                //showXedDialog = true
                                 onDismissRequest()
                             }
                         }
@@ -176,7 +176,7 @@ fun FileActionDialog(
                     description = stringResource(strings.open_with_other),
                     onClick = {
                         FileOperations.openWithExternalApp(context, file)
-                        showXedDialog = true
+                        //showXedDialog = true
                         onDismissRequest()
                     }
                 )
@@ -188,7 +188,7 @@ fun FileActionDialog(
                     onClick = {
                         // This would typically open a file picker
                         FileOperations.saveAs(context, file)
-                        showXedDialog = true
+                        //showXedDialog = true
                         onDismissRequest()
                     }
                 )
@@ -201,7 +201,7 @@ fun FileActionDialog(
                         onClick = {
                             // This would typically open a file picker
                             FileOperations.addFile(context, file.getParentFile()!!)
-                            showXedDialog = true
+                            //showXedDialog = true
                             onDismissRequest()
                         }
                     )
@@ -214,6 +214,7 @@ fun FileActionDialog(
                     onClick = {
                         showXedDialog = false
                         showInfoDialog = true
+                        //onDismissRequest()
                     }
                 )
             }
@@ -236,7 +237,7 @@ fun FileActionDialog(
                     }
                 }
                 showRenameDialog = false
-                showXedDialog = true
+                //showXedDialog = true
                 onDismissRequest()
             },
             onDismiss = {
@@ -261,7 +262,7 @@ fun FileActionDialog(
                     }
                 }
                 showDeleteDialog = false
-                showXedDialog = true
+                //showXedDialog = true
                 onDismissRequest()
             },
             onDismiss = {
@@ -278,6 +279,7 @@ fun FileActionDialog(
             onDismiss = {
                 showXedDialog = true
                 showInfoDialog = false
+                onDismissRequest()
             }
         )
     }
