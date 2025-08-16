@@ -10,6 +10,14 @@ import com.rk.file.localDir
 
 fun setupTerminalFiles(){
 
+    if (sandboxDir().exists().not()){
+        return
+    }
+
+    if (localBinDir().exists().not()){
+        return
+    }
+
     with(localBinDir().child("init")){
         if (exists().not()) {
             createFileIfNot()

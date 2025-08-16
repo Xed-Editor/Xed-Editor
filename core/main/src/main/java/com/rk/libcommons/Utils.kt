@@ -146,7 +146,7 @@ fun DialogContent(
 }
 
 fun dialog(
-    context: Activity = MainActivity.instance!!,
+    context: Activity? = MainActivity.instance,
     title: String,
     msg: String,
     @StringRes cancelString: Int = strings.cancel,
@@ -156,6 +156,10 @@ fun dialog(
     onCancel: (AlertDialog?) -> Unit = {},
     cancelable: Boolean = true
 ) {
+    if (context == null){
+        toast(msg)
+        return
+    }
     composeDialog(context = context) { alertDialog ->
         alertDialog?.setCancelable(cancelable)
         DialogContent(

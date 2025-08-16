@@ -27,7 +27,6 @@ import com.rk.xededitor.ui.screens.settings.theme.themes
 
 data class Theme(val id: String,val name: String, val lightScheme: ColorScheme, val darkScheme: ColorScheme)
 
-
 val currentTheme = mutableStateOf<Theme?>(null)
 val dynamicTheme = mutableStateOf(Settings.monet)
 

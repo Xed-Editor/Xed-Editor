@@ -46,8 +46,8 @@ import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.FPSBooster
-import com.rk.xededitor.ui.screens.terminal.MkRootfs
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
+import com.rk.xededitor.ui.screens.terminal.setupRootfs
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -109,11 +109,11 @@ class Terminal : AppCompatActivity() {
         }
     }
 
+    var progressText by mutableStateOf(strings.installing.getString())
     @OptIn(DelicateCoroutinesApi::class)
     @Composable
     fun TerminalScreenHost(context: Context) {
         var progress by remember { mutableFloatStateOf(0f) }
-        var progressText by remember { mutableStateOf(strings.installing.getString()) }
         var isSetupComplete by remember { mutableStateOf(false) }
         var needsDownload by remember { mutableStateOf(false) }
         // Add state for current file download info
@@ -316,14 +316,9 @@ class Terminal : AppCompatActivity() {
                     }.onFailure { it.printStackTrace() }
                 }
 
-                MkRootfs(this@Terminal,onComplete = {
+                progressText = "Setting up..."
+                setupRootfs(this@Terminal,onComplete = {
                     runOnUiThread {
-                        if (it.isNullOrBlank().not()){
-                            Log.e("TERMINAL",it)
-                            errorDialog(it)
-                            finish()
-                        }
-
                         onComplete()
                     }
                 })

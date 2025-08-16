@@ -23,6 +23,9 @@ import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.Executors
 import com.rk.settings.Preference
+import com.rk.terminal.newSandbox
+import com.rk.terminal.readStderr
+import com.rk.terminal.readStdout
 import com.rk.xededitor.ui.activities.main.TabCache
 import com.rk.xededitor.ui.theme.loadThemes
 import com.rk.xededitor.ui.theme.updateThemes
@@ -75,10 +78,8 @@ class App : Application() {
                     penaltyLog()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         penaltyListener(Executors.newSingleThreadExecutor()) { violation ->
-                            println(violation.message)
                             violation.printStackTrace()
                             violation.cause?.let { throw it }
-                            println("vm policy error")
                         }
                     }
                 }.build()

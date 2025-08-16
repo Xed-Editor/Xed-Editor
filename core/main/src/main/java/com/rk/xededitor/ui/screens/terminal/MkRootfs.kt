@@ -1,65 +1,56 @@
 package com.rk.xededitor.ui.screens.terminal
 
 import android.content.Context
+import android.util.Log
 import com.rk.libcommons.isMainThread
 import com.rk.App.Companion.getTempDir
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
+import com.rk.terminal.getDefaultBindings
+import com.rk.terminal.newSandbox
+import com.rk.terminal.readStderr
+import com.rk.terminal.readStdout
 import java.io.File
 import java.lang.Runtime.getRuntime
+import kotlin.invoke
 
-class MkRootfs(val context: Context, private val onComplete: (String?) -> Unit) {
-    private val sandboxFile = File(getTempDir(), "sandbox.tar.gz")
-
-    init {
-        val rootfsFiles = sandboxDir().listFiles()?.filter {
-            it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
-                "tmp"
-            ).absolutePath
-        } ?: emptyList()
-
-
-        if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
-            onComplete.invoke(null)
-        } else {
-            initializeInternal()
-        }
+suspend fun setupRootfs(context: Context, onComplete: () -> Unit){
+    if (isMainThread()) {
+        throw RuntimeException("IO operation on the main thread")
     }
 
-    private fun initializeInternal() {
-        if (isMainThread()) {
-            throw RuntimeException("IO operation on the main thread")
-        }
-        val process = ProcessBuilder(
-            "tar",
-            "--no-same-owner",
-            "--exclude", "/var/lock",
-            "--exclude", "/dev",
-            "--exclude", "/proc",
-            "--exclude", "/etc/alternatives",
-            "--exclude", "/etc/systemd",
-            "-xf", sandboxFile.absolutePath,
-            "-C", sandboxDir().absolutePath
-        ).start()
+    val sandboxFile = File(getTempDir(), "sandbox.tar.gz")
+    val rootfsFiles = sandboxDir().listFiles()?.filter {
+        it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
+            "tmp"
+        ).absolutePath
+    } ?: emptyList()
 
-        val result = process.waitFor()
+
+    if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
+        onComplete.invoke()
+    } else {
+
+        val excludes = mutableListOf<String>()
+        getDefaultBindings().forEach{
+            excludes.add("--exclude")
+            excludes.add(it.outside)
+        }
+
+        val process = newSandbox(excludeMounts = listOf(), root = sandboxDir(context), workingDir = "/","tar",*(excludes.toTypedArray()),"-xf", sandboxFile.absolutePath,).apply {
+            println(readStdout())
+        }
+
+        process.waitFor()
         sandboxFile.delete()
 
-        if (result == 0) {
-            with(sandboxDir()) {
-                child("etc/hostname").writeText("Xed-Editor")
-                child("etc/resolv.conf").also { it.createFileIfNot(); it.writeText(nameserver) }
-                child("etc/hosts").writeText(hosts)
-            }
-            onComplete.invoke(null)
-        } else {
-            val error = process.errorStream.bufferedReader().use { it.readText() }
-            onComplete.invoke(error)
+        with(sandboxDir()) {
+            child("etc/hostname").writeText("Xed-Editor")
+            child("etc/resolv.conf").also { it.createFileIfNot(); it.writeText(nameserver) }
+            child("etc/hosts").writeText(hosts)
         }
-
-
-
+        onComplete.invoke()
     }
 }
