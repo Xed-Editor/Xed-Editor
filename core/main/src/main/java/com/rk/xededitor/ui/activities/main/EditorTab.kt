@@ -100,15 +100,11 @@ class EditorTab(
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun save() = withContext(Dispatchers.IO){
-        if (file.canWrite()){
-            runCatching {
-                file.writeText(editorState.content.toString())
-                editorState.isDirty = false
-            }.onFailure {
-                errorDialog(it)
-            }
-        }else{
-            errorDialog(strings.read_only_file)
+        runCatching {
+            file.writeText(editorState.content.toString())
+            editorState.isDirty = false
+        }.onFailure {
+            errorDialog(it)
         }
     }
 
@@ -164,6 +160,7 @@ fun CodeEditor(
 
 
         val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+        val realSurface = MaterialTheme.colorScheme.surface
         val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
         AndroidView(
@@ -258,7 +255,7 @@ fun CodeEditor(
                         )
                         isHorizontalScrollBarEnabled = false
                         isSaveEnabled = false
-                        addView(getInputView(editor))
+                        addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
                     }
 
                     addView(editor)

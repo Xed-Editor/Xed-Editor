@@ -1,39 +1,19 @@
 package com.rk.libcommons.editor
 
-import android.graphics.Color
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View.OnClickListener
-import androidx.appcompat.app.AppCompatDelegate
-import com.rk.controlpanel.showControlPanel
-import com.rk.libcommons.isDarkMode
-import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.main.showControlPanel
 import io.github.rosemoe.sora.widget.CodeEditor
 
 
 private typealias onClick = OnClickListener
 
-fun getInputView(editor: CodeEditor): SymbolInputView {
-    val darkTheme: Boolean = when (Settings.default_night_mode) {
-        AppCompatDelegate.MODE_NIGHT_YES -> true
-        AppCompatDelegate.MODE_NIGHT_NO -> false
-        else -> isDarkMode(editor.context)
-    }
+fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): SymbolInputView {
 
     return SymbolInputView(editor.context).apply {
-        textColor = if (darkTheme) {
-            Color.WHITE
-        } else {
-            Color.BLACK
-        }
-
-
-        /*addSymbols(mutableListOf(Pair(drawables.save.getDrawable(editor.context), onClick {
-            editor.onKeyDown(
-                KeyEvent.KEYCODE_TAB, KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_TAB)
-            )
-        })))*/
+        textColor = onSurfaceColor
+        setBgColor(surfaceColor)
 
         val keys = mutableListOf<Pair<String, OnClickListener>>().apply {
 
@@ -44,7 +24,6 @@ fun getInputView(editor: CodeEditor): SymbolInputView {
             }))
 
             add(Pair("⌘", onClick {
-                //MainActivity.instance?.showControlPanel()
                 showControlPanel = true
             }))
 

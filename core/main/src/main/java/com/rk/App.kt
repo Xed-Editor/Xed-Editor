@@ -24,6 +24,8 @@ import java.nio.file.Files
 import java.util.concurrent.Executors
 import com.rk.settings.Preference
 import com.rk.xededitor.ui.activities.main.TabCache
+import com.rk.xededitor.ui.theme.loadThemes
+import com.rk.xededitor.ui.theme.updateThemes
 import kotlinx.coroutines.Dispatchers
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -59,6 +61,8 @@ class App : Application() {
         super.onCreate()
 
         Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
+
+        updateThemes()
 
         if (BuildConfig.DEBUG || Settings.anr_watchdog) {
             ANRWatchDog().start()

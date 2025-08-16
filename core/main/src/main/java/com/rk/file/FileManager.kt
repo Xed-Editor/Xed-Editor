@@ -1,6 +1,5 @@
 package com.rk.file
 
-import com.rk.xededitor.ui.activities.main.MainActivity
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentResolver
@@ -31,34 +30,45 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 import java.io.File
+import androidx.activity.ComponentActivity
+import com.rk.xededitor.ui.activities.main.MainActivity
 
 var to_save_file: FileObject? = null
-class FileManager(private val mainActivity: MainActivity) {
+class FileManager(private val activity: ComponentActivity) {
 
     private fun getString(@StringRes id: Int): String {
         return id.getString()
     }
 
+    private var callBack:((Uri?)-> Unit)? = null
+
+
+
     private var requestOpenFile =
-        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+       activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
-                mainActivity.lifecycleScope.launch {
-                    delay(100)
+                val uri = it.data!!.data!!
+                if (callBack == null){
+                    activity.lifecycleScope.launch {
+                        delay(100)
 
-                    val uri = it.data!!.data!!
-                    val fileObject = UriWrapper(DocumentFile.fromSingleUri(mainActivity, uri)!!)
+                        val fileObject = UriWrapper(DocumentFile.fromSingleUri(activity, uri)!!)
 
-                    withContext(Dispatchers.Main) {
-                        //mainActivity.adapter!!.addFragment(fileObject)
-                        mainActivity.viewModel.newEditorTab(fileObject)
+                        withContext(Dispatchers.Main) {
+                            MainActivity.instance?.viewModel?.newEditorTab(fileObject)
+                        }
                     }
+                }else{
+                    callBack!!.invoke(uri)
+                    callBack = null
                 }
+
             }
         }
 
     var parentFile: FileObject? = null
     var requestAddFile =
-        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val sourceUri = result.data!!.data!!
 
@@ -98,14 +108,14 @@ class FileManager(private val mainActivity: MainActivity) {
 
 
                 val destinationFile = parentFile!!.createChild(
-                    true, getFileName(mainActivity.contentResolver, sourceUri)
+                    true, getFileName(activity.contentResolver, sourceUri)
                 )
 
                 val destinationUri = destinationFile!!.toUri()
 
-                copyUriData(mainActivity.contentResolver, sourceUri, destinationUri)
+                copyUriData(activity.contentResolver, sourceUri, destinationUri)
 
-                mainActivity.lifecycleScope.launch {
+                activity.lifecycleScope.launch {
                     fileTreeViewModel?.updateCache(parentFile!!)
                 }
             }
@@ -113,12 +123,12 @@ class FileManager(private val mainActivity: MainActivity) {
         }
 
     private var requestOpenDir =
-        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 runCatching {
                     val takeFlags: Int =
                         (it.data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-                    mainActivity.contentResolver.takePersistableUriPermission(
+                    activity.contentResolver.takePersistableUriPermission(
                         it.data!!.data!!, takeFlags
                     )
                 }.onFailure { it.printStackTrace() }
@@ -126,8 +136,8 @@ class FileManager(private val mainActivity: MainActivity) {
                 val uri = it.data?.data
 
                 uri?.let {
-                    mainActivity.lifecycleScope.launch {
-                        addProject(UriWrapper(DocumentFile.fromTreeUri(mainActivity, it)!!))
+                    activity.lifecycleScope.launch {
+                        addProject(UriWrapper(DocumentFile.fromTreeUri(activity, it)!!))
                     }
                 }
 
@@ -139,13 +149,13 @@ class FileManager(private val mainActivity: MainActivity) {
 
 
     private var requestToSaveFile =
-        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK && to_save_file != null) {
                 val sourceUri = to_save_file!!.toUri()
 
-                mainActivity.contentResolver.openInputStream(sourceUri)
+                activity.contentResolver.openInputStream(sourceUri)
                     .use { inputStream ->
-                        mainActivity.contentResolver.openOutputStream(
+                        activity.contentResolver.openOutputStream(
                             it.data!!.data!!
                         )?.use { outputStream ->
                             copyStream(inputStream, outputStream)
@@ -155,18 +165,18 @@ class FileManager(private val mainActivity: MainActivity) {
         }
 
     val createFileLauncher =
-        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                mainActivity.lifecycleScope.launch {
+                activity.lifecycleScope.launch {
                     val data: Intent? = result.data
 
                     val uri = result.data!!.data!!
-                    val fileObject = UriWrapper(DocumentFile.fromSingleUri(mainActivity, uri)!!)
+                    val fileObject = UriWrapper(DocumentFile.fromSingleUri(activity, uri)!!)
 
                     delay(100)
                     withContext(Dispatchers.Main) {
-                        //mainActivity.adapter?.addFragment(fileObject)
-                        mainActivity.viewModel.newEditorTab(fileObject)
+                        //activity.adapter?.addFragment(fileObject)
+                        MainActivity.instance?.viewModel?.newEditorTab(fileObject)
                     }
 
                 }
@@ -177,7 +187,7 @@ class FileManager(private val mainActivity: MainActivity) {
 
     private var selectDirCallBack: ((ActivityResult?) -> Unit)? = null
     private var selectDirInternal =
-        mainActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == Activity.RESULT_OK) {
                 selectDirCallBack?.invoke(it)
                 selectDirCallBack = null
@@ -193,11 +203,11 @@ class FileManager(private val mainActivity: MainActivity) {
                     val takeFlags: Int =
                         (data!!.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
 
-                    mainActivity.contentResolver.takePersistableUriPermission(
+                    activity.contentResolver.takePersistableUriPermission(
                         data!!.data!!, takeFlags
                     )
                 }
-                UriWrapper(DocumentFile.fromTreeUri(mainActivity, it.data!!.data!!)!!)
+                UriWrapper(DocumentFile.fromTreeUri(activity, it.data!!.data!!)!!)
             }
 
             if (fileObject.hasChild(fileName)) {
@@ -206,7 +216,7 @@ class FileManager(private val mainActivity: MainActivity) {
                 val newFile = fileObject.createChild(true, fileName)
                 DefaultScope.launch(Dispatchers.Main) {
                     if (newFile != null) {
-                        //mainActivity.adapter?.addFragment(newFile)
+                        //activity.adapter?.addFragment(newFile)
                     } else {
                         toast("Unable to create file")
                     }
@@ -222,15 +232,15 @@ class FileManager(private val mainActivity: MainActivity) {
     private var toSaveAsFile: FileObject? = null
 
     private val directoryPickerLauncher =
-        mainActivity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        activity.registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
             runCatching {
                 uri?.let { selectedUri ->
-                    val documentFile = DocumentFile.fromTreeUri(mainActivity, selectedUri)
+                    val documentFile = DocumentFile.fromTreeUri(activity, selectedUri)
                     val newFile =
                         documentFile?.createFile("*/*", toSaveAsFile?.getName() ?: "new_file")
 
                     newFile?.uri?.let { newUri ->
-                        mainActivity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
+                        activity.contentResolver.openOutputStream(newUri)?.use { outputStream ->
                             toSaveAsFile?.getInputStream()?.use { inputStream ->
                                 inputStream.copyTo(outputStream)
                             }
@@ -253,10 +263,11 @@ class FileManager(private val mainActivity: MainActivity) {
     }
 
 
-    fun requestOpenFile() {
+    fun requestOpenFile(mimeType: String = "*/*", callback:((Uri?)-> Unit)? = null) {
+        this.callBack = callback
         Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
+            type = mimeType
             requestOpenFile.launch(this)
         }
     }
@@ -275,9 +286,9 @@ class FileManager(private val mainActivity: MainActivity) {
             selectDirCallBack = {
                 val sourceUri = to_save_file!!.toUri()
 
-                mainActivity.contentResolver.openInputStream(sourceUri)
+                activity.contentResolver.openInputStream(sourceUri)
                     .use { inputStream ->
-                        mainActivity.contentResolver.openOutputStream(
+                        activity.contentResolver.openOutputStream(
                             it?.data!!.data!!
                         )?.use { outputStream ->
                             copyStream(inputStream, outputStream)
@@ -291,7 +302,7 @@ class FileManager(private val mainActivity: MainActivity) {
 
     @SuppressLint("SdCardPath")
     fun requestOpenFromPath() {
-        mainActivity.askInput(
+        activity.askInput(
             title = strings.path.getString(),
             input = "/sdcard",
             hint = strings.ff_path.getString(),
@@ -313,14 +324,14 @@ class FileManager(private val mainActivity: MainActivity) {
                 }
 
                 if (file.isDirectory) {
-                    mainActivity.lifecycleScope.launch {
-                        //ProjectManager.addProject(mainActivity, FileWrapper(file))
+                    activity.lifecycleScope.launch {
+                        //ProjectManager.addProject(activity, FileWrapper(file))
                         addProject(FileWrapper(file))
                     }
                 } else {
-                    //mainActivity.adapter!!.addFragment(FileWrapper(file))
+                    //activity.adapter!!.addFragment(FileWrapper(file))
                     DefaultScope.launch{
-                        mainActivity.viewModel.newEditorTab(FileWrapper(file))
+                        MainActivity.instance?.viewModel?.newEditorTab(FileWrapper(file))
                     }
                 }
             }

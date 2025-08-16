@@ -53,6 +53,7 @@ import io.github.rosemoe.sora.widget.CodeEditor;
 public class SymbolInputView extends LinearLayout {
 
     private int textColor;
+    private int bgColor;
     private CodeEditor editor;
 
 
@@ -77,9 +78,7 @@ public class SymbolInputView extends LinearLayout {
     }
 
     private void init() {
-        setBackgroundColor(getContext().getResources().getColor(R.color.defaultSymbolInputBackgroundColor));
         setOrientation(HORIZONTAL);
-        setTextColor(getContext().getResources().getColor(R.color.defaultSymbolInputTextColor));
     }
 
     /**
@@ -104,6 +103,11 @@ public class SymbolInputView extends LinearLayout {
             ((Button) getChildAt(i)).setTextColor(color);
         }
         textColor = color;
+    }
+
+    public void setBgColor(int bgColor) {
+        this.bgColor = bgColor;
+        setBackgroundColor(bgColor);
     }
 
     /**

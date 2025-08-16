@@ -55,7 +55,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
         val context = LocalContext.current
 
         PreferenceGroup {
-
             SettingsToggle(
                 label = stringResource(strings.lang),
                 description = stringResource(strings.lang_desc),

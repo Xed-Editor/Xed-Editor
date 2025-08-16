@@ -15,6 +15,7 @@ import android.view.SurfaceControl
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -155,6 +156,14 @@ class MainActivity : AppCompatActivity() {
                                 drawerShape = RectangleShape
                                 //drawerTonalElevation = 0.dp
                             ) {
+                                BackHandler {
+                                    if (drawerState.isOpen){
+                                        scope.launch{
+                                            drawerState.close()
+                                        }
+                                    }
+                                }
+
                                 LaunchedEffect(Unit) {
                                     isLoading = true
                                     restoreProjects()

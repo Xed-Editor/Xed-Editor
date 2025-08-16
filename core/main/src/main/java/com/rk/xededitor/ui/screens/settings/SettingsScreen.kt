@@ -57,6 +57,13 @@ private fun Categories(navController: NavController) {
     )
 
     PreferenceCategory(
+        label = "Themes",
+        description = "Custom themes",
+        iconResource = drawables.palette,
+        onNavigate = { navController.navigate(SettingsRoutes.Themes.route) },
+    )
+
+    PreferenceCategory(
         label = stringResource(id = strings.editor),
         description = stringResource(id = strings.editor_desc),
         iconResource = drawables.edit,
