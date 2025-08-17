@@ -16,9 +16,7 @@ import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
 import com.rk.xededitor.ui.screens.settings.editor.EditorFontScreen
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.extensions.Extensions
-import com.rk.xededitor.ui.screens.settings.feature_toggles.FeatureToggles
 import com.rk.xededitor.ui.screens.settings.language.LanguageScreen
-import com.rk.xededitor.ui.screens.settings.misc.Misc
 import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
 import com.rk.xededitor.ui.screens.settings.runners.Runners
 import com.rk.xededitor.ui.screens.settings.support.Support
@@ -46,8 +44,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.DeveloperOptions.route){ DeveloperOptions(navController = navController) }
         composable(SettingsRoutes.BeanshellREPL.route){ Debugger() }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
-        composable(SettingsRoutes.FeatureToggles.route) { FeatureToggles() }
-        composable(SettingsRoutes.Misc.route){ Misc() }
         composable(SettingsRoutes.Support.route){ Support() }
         composable(SettingsRoutes.LanguageScreen.route){ LanguageScreen() }
         composable(SettingsRoutes.Runners.route){ Runners() }

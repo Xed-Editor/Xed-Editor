@@ -235,11 +235,8 @@
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
     <string name="auto_mode">Auto</string>
-    <string name="select_theme_mode">@string/theme_mode</string>
-
+    <string name="theme_mode">Theme Mode</string>
     <string name="cannot_be_empty">It cannot be empty.</string>
-
-    <string name="theme_mode">Theme</string>
     <string name="theme_mode_desc">Change app color theme</string>
 
     <string name="show_suggestions">Show Keyboard Suggestions</string>
@@ -464,4 +461,6 @@
 
     <string name="timeout">Download cancelled due to timeout. Please ensure your internet connection is stable</string>
     <string name="more">More</string>
+    <string name="theme_settings">Theme Settings</string>
+    <string name="add_theme">Add Theme</string>
 </resources>

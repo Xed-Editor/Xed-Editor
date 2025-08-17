@@ -20,6 +20,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -53,6 +54,7 @@ import com.rk.file.UriWrapper
 import com.rk.file.isFileManager
 import com.rk.libcommons.toast
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.components.GlobalActions
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -126,6 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
         super.onCreate(savedInstanceState)
         FPSBooster(this)
         FilePermission.verifyStoragePermission(this)

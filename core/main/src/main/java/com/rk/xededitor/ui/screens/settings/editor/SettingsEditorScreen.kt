@@ -21,7 +21,7 @@ import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.SettingsToggle
-import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
+import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
