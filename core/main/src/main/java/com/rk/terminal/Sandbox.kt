@@ -81,6 +81,12 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
     }
     if (!root.exists()) throw NoSuchFileException(root)
 
+    val randomInt = Random.nextInt()
+    val tmpDir = App.getTempDir().child("$randomInt-sandbox")
+    if (!tmpDir.exists()) {
+        tmpDir.mkdirs()
+    }
+
     val linker = if (File("/system/bin/linker64").exists()) "/system/bin/linker64" else "/system/bin/linker"
 
     val args = mutableListOf<String>().apply {
@@ -94,6 +100,7 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
 
         getDefaultBindings().attachTo(this,excludeMounts)
 
+        bind(tmpDir.absolutePath)
 
         add("-0")
         add("--link2symlink")
@@ -110,11 +117,6 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
     processBuilder.environment().let { env ->
         env["LD_LIBRARY_PATH"] = localLibDir().absolutePath
 
-        val randomInt = Random.nextInt()
-        val tmpDir = File("${root.absolutePath}/local/sandbox/tmp/$randomInt-sandbox")
-        if (!tmpDir.exists()) {
-            tmpDir.mkdirs()
-        }
         env["PROOT_TMP_DIR"] = tmpDir.absolutePath
 
         if (!App.isFDroid){
