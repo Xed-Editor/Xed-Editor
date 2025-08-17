@@ -40,6 +40,7 @@ okhttp = "4.12.0"
 orgEclipseJgit = "6.2.0.202206071550-r"
 photoview = "2.3.0"
 quickjsAndroid = "0.9.2"
+composeRuntime = "1.9.0"
 sshj = "0.39.0"
 swiperefreshlayout = "1.1.0"
 terminalView = "0.118.3"
@@ -64,6 +65,7 @@ runtimeAndroid = "1.7.8"
 accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "composeRuntime" }
 annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 anrwatchdog = { module = "com.github.anrwatchdog:anrwatchdog", version.ref = "anrwatchdog" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
