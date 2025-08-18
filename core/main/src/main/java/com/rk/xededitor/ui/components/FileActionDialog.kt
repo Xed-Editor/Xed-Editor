@@ -37,6 +37,7 @@ import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
 import com.rk.libcommons.errorDialog
@@ -379,15 +380,14 @@ object FileOperations {
 
     fun saveAs(context: Context, file: FileObject) {
         to_save_file = file
-        MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile()
+        MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile(file)
     }
 
-    fun addFile(parent: FileObject){
+    fun addFile(parentFile: FileObject){
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "*/*"
-        MainActivity.instance?.fileManager?.parentFile = parent
-        MainActivity.instance?.fileManager?.requestAddFile?.launch(intent)
+        MainActivity.instance?.fileManager?.requestAddFile(parentFile)
     }
 }
 
