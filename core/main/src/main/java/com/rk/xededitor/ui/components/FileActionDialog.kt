@@ -37,6 +37,7 @@ import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
 import com.rk.libcommons.errorDialog
@@ -79,7 +80,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = Icons.Outlined.Close,
                         title = stringResource(strings.close),
-                        description = stringResource(strings.close_current_project),
+                        //description = stringResource(strings.close_current_project),
                         onClick = {
                             removeProject(root, true)
                             showXedDialog = true
@@ -93,7 +94,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = Icons.Outlined.Refresh,
                         title = stringResource(strings.refresh),
-                        description = stringResource(strings.reload_file_tree),
+                        //description = stringResource(strings.reload_file_tree),
                         onClick = {
                             fileTreeViewModel?.updateCache(file)
                             showXedDialog = true
@@ -107,7 +108,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = drawables.terminal,
                         title = stringResource(strings.open_in_terminal),
-                        description = stringResource(strings.open_in_terminal),
+                        //description = stringResource(strings.open_in_terminal),
                         onClick = {
                             val intent = Intent(context,Terminal::class.java)
                             intent.putExtra("cwd",file.getAbsolutePath())
@@ -122,7 +123,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = Icons.Outlined.Add,
                         title = stringResource(strings.new_document),
-                        description = stringResource(strings.new_document_desc),
+                        //description = stringResource(strings.new_document_desc),
                         onClick = {
                             showXedDialog = false
                            showNewDialog = true
@@ -134,7 +135,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = Icons.Outlined.Edit,
                     title = stringResource(strings.rename),
-                    description = stringResource(strings.rename_descript),
+                    //description = stringResource(strings.rename_descript),
                     onClick = {
                         showXedDialog = false
                         showRenameDialog = true
@@ -145,7 +146,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = Icons.Outlined.Delete,
                     title = stringResource(strings.delete),
-                    description = stringResource(strings.delete_descript),
+                    //description = stringResource(strings.delete_descript),
                     onClick = {
                         showXedDialog = false
                         showDeleteDialog = true
@@ -156,7 +157,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
                     title = stringResource(strings.copy),
-                    description = stringResource(strings.copy_desc),
+                    //description = stringResource(strings.copy_desc),
                     onClick = {
                         scope.launch {
                             FileOperations.copyToClipboard(file)
@@ -171,7 +172,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = drawables.round_content_cut_20,
                     title = stringResource(strings.cut),
-                    description = stringResource(strings.cut_desc),
+                    //description = stringResource(strings.cut_desc),
                     onClick = {
                         scope.launch {
                             FileOperations.copyToClipboard(file,isCut = true)
@@ -186,7 +187,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = drawables.round_content_paste_20,
                         title = stringResource(strings.paste),
-                        description = stringResource(strings.paste_desc),
+                        //description = stringResource(strings.paste_desc),
                         onClick = {
                             scope.launch {
                                 val parentFile = FileOperations.clipboard!!.getParentFile()
@@ -205,7 +206,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = Icons.AutoMirrored.Outlined.ExitToApp,
                     title = stringResource(strings.open_with),
-                    description = stringResource(strings.open_with_other),
+                    //description = stringResource(strings.open_with_other),
                     onClick = {
                         FileOperations.openWithExternalApp(context, file)
                         //showXedDialog = true
@@ -217,7 +218,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = drawables.file_symlink,
                     title = stringResource(strings.save_as),
-                    description = stringResource(strings.save_desc),
+                    //description = stringResource(strings.save_desc),
                     onClick = {
                         // This would typically open a file picker
                         FileOperations.saveAs(context, file)
@@ -231,7 +232,7 @@ fun FileActionDialog(
                     AddDialogItem(
                         icon = drawables.arrow_downward,
                         title = stringResource(strings.add_file),
-                        description = stringResource(strings.add_file_desc),
+                        //description = stringResource(strings.add_file_desc),
                         onClick = {
                             // This would typically open a file picker
                             FileOperations.addFile(file)
@@ -245,7 +246,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = Icons.Outlined.Info,
                     title = stringResource(strings.info),
-                    description = stringResource(strings.file_info),
+                    //description = stringResource(strings.file_info),
                     onClick = {
                         showXedDialog = false
                         showInfoDialog = true
@@ -379,15 +380,14 @@ object FileOperations {
 
     fun saveAs(context: Context, file: FileObject) {
         to_save_file = file
-        MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile()
+        MainActivity.instance?.fileManager?.requestOpenDirectoryToSaveFile(file)
     }
 
-    fun addFile(parent: FileObject){
+    fun addFile(parentFile: FileObject){
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.addCategory(Intent.CATEGORY_OPENABLE)
         intent.type = "*/*"
-        MainActivity.instance?.fileManager?.parentFile = parent
-        MainActivity.instance?.fileManager?.requestAddFile?.launch(intent)
+        MainActivity.instance?.fileManager?.requestAddFile(parentFile)
     }
 }
 

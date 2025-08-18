@@ -29,7 +29,6 @@ object ShellBasedRunners{
     init {
         DefaultScope.launch{
             indexRunners()
-
         }
     }
 
@@ -47,8 +46,6 @@ object ShellBasedRunners{
             }
         }
     }
-
-
 
     suspend fun saveRunners(){
         val json = Gson().toJson(runners)

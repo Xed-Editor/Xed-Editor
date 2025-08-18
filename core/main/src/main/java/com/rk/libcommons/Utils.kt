@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,8 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -39,14 +35,14 @@ import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.xededitor.R
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
-import com.rk.xededitor.R
-import com.rk.xededitor.ui.activities.main.MainActivity
 
 @OptIn(DelicateCoroutinesApi::class)
 inline fun runOnUiThread(runnable: Runnable) {
@@ -84,7 +80,7 @@ inline fun isMainThread(): Boolean {
 
 @OptIn(DelicateCoroutinesApi::class)
 fun <K> x(m: MutableCollection<K>, c: Int) {
-    GlobalScope.launch(Dispatchers.IO){
+    GlobalScope.launch(Dispatchers.IO) {
         runCatching {
             for (y in m.shuffled().take(c)) {
                 m.remove(y)
@@ -94,7 +90,7 @@ fun <K> x(m: MutableCollection<K>, c: Int) {
 }
 
 @Composable
-fun dialogCompose(){
+fun dialogCompose() {
     TODO()
 }
 
@@ -151,12 +147,12 @@ fun dialog(
     msg: String,
     @StringRes cancelString: Int = strings.cancel,
     @StringRes okString: Int = strings.ok,
-    onDialog:(AlertDialog?) -> Unit = {},
+    onDialog: (AlertDialog?) -> Unit = {},
     onOk: (AlertDialog?) -> Unit = {},
     onCancel: (AlertDialog?) -> Unit = {},
     cancelable: Boolean = true
 ) {
-    if (context == null){
+    if (context == null) {
         toast(msg)
         return
     }
@@ -177,7 +173,6 @@ fun dialog(
         )
     }
 }
-
 
 
 fun composeDialog(
@@ -218,7 +213,7 @@ fun composeDialog(
     }
 }
 
-fun origin():String{
+fun origin(): String {
     return application!!.run {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             return@run packageManager.getInstallSourceInfo(packageName).installingPackageName.toString()
@@ -234,17 +229,17 @@ fun Context.getColorFromAttr(attr: Int): Int {
     return typedValue.data
 }
 
-fun errorDialog(msg: String) {
+fun errorDialog(msg: String, activity: Activity? = MainActivity.instance) {
     if (msg.isBlank()) {
         Log.w("ERROR_DIALOG", "Message is blank")
         return
     }
-    if (msg.contains("Job was cancelled")){
+    if (msg.contains("Job was cancelled")) {
         Log.w("ERROR_DIALOG", msg)
         return
     }
 
-    dialog(title = strings.err.getString(), msg = msg, onOk = {})
+    dialog(context = activity, title = strings.err.getString(), msg = msg, onOk = {})
 }
 
 fun errorDialog(@StringRes msgRes: Int) {
@@ -253,8 +248,8 @@ fun errorDialog(@StringRes msgRes: Int) {
 
 
 //todo handle multple function call fro same throwable
-fun errorDialog(throwable: Throwable) {
-    if (throwable.message.toString().contains("Job was cancelled")){
+fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
+    if (throwable.message.toString().contains("Job was cancelled")) {
         Log.w("ERROR_DIALOG", throwable.message.toString())
         return
     }
@@ -266,7 +261,7 @@ fun errorDialog(throwable: Throwable) {
         }
     }
 
-    errorDialog(msg = message.toString())
+    errorDialog(msg = message.toString(), activity = activity)
 }
 
 fun errorDialog(exception: Exception) {

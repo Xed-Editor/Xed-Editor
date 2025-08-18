@@ -38,7 +38,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.screens.settings.feature_toggles.InbuiltFeatures
+import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 
 @Composable
 fun SettingsScreen(navController: NavController) {
@@ -57,8 +57,8 @@ private fun Categories(navController: NavController) {
     )
 
     PreferenceCategory(
-        label = "Themes",
-        description = "Custom themes",
+        label = stringResource(strings.themes),
+        description = stringResource(strings.theme_settings),
         iconResource = drawables.palette,
         onNavigate = { navController.navigate(SettingsRoutes.Themes.route) },
     )
@@ -110,13 +110,6 @@ private fun Categories(navController: NavController) {
             }
         }
     ) */
-
-    PreferenceCategory(
-        label = stringResource(id = strings.feature_toggles),
-        description = stringResource(id = strings.feature_toggles_desc),
-        iconResource = drawables.settings,
-        onNavigate = { navController.navigate(SettingsRoutes.FeatureToggles.route) },
-    )
 
     if (InbuiltFeatures.extensions.state.value) {
         PreferenceCategory(

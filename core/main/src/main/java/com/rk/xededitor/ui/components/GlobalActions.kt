@@ -15,16 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.controlpanel.ControlItem
 import com.rk.file.FileWrapper
+import com.rk.file.UriWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.composeDialog
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -86,21 +89,33 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                         intent,
                         PackageManager.MATCH_ALL
                     )
-                    if (activities.isNotEmpty()) {
-                        MainActivity.instance?.fileManager!!.createFileLauncher.launch(intent)
-                    } else {
-                        MainActivity.instance?.askInput(
-                            title = strings.new_file.getString(),
-                            hint = "newfile.txt",
-                            onResult = { input ->
-                                MainActivity.instance?.fileManager?.selectDirForNewFileLaunch(input)
-                            })
+                    if (activities.isEmpty()){
+                        errorDialog(strings.unsupported_feature)
+                    }else{
+                        MainActivity.instance?.apply {
+                            fileManager.createNewFile(mimeType = "*/*", title = "newfile.txt"){
+                                if (it != null){
+                                    lifecycleScope.launch{
+                                        viewModel.newEditorTab(it,checkDuplicate = true,switchToTab = true)
+                                    }
+                                }
+                            }
+                        }
                     }
+
                 }
 
                 AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.openfile)) {
                     addDialog = false
-                    MainActivity.instance?.fileManager?.requestOpenFile()
+                    MainActivity.instance?.apply {
+                        fileManager.requestOpenFile(mimeType = "*/*"){
+                            if (it != null){
+                                lifecycleScope.launch{
+                                    viewModel.newEditorTab(UriWrapper(it,false),checkDuplicate = true,switchToTab = true)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

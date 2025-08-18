@@ -5,12 +5,14 @@
     "bn",
     "cs",
     "de",
+    "el",
     "es",
     "fr",
     "hi",
     "hu",
     "in",
     "it",
+    "iw",
     "ja",
     "kab",
     "pt-BR",
@@ -20,7 +22,5 @@
     "uk",
     "vi",
     "zh",
-    "en",
-    "el",
-    "iw"
+    "en"
 ]

@@ -29,6 +29,7 @@ data class Theme(val id: String,val name: String, val lightScheme: ColorScheme, 
 
 val currentTheme = mutableStateOf<Theme?>(null)
 val dynamicTheme = mutableStateOf(Settings.monet)
+val amoled = mutableStateOf(Settings.amoled)
 
 @Composable
 fun KarbonTheme(
@@ -37,7 +38,7 @@ fun KarbonTheme(
         AppCompatDelegate.MODE_NIGHT_NO -> false
         else -> isDarkMode(LocalContext.current)
     },
-    highContrastDarkTheme: Boolean = Settings.amoled,
+    highContrastDarkTheme: Boolean = amoled.value,
     dynamicColor: Boolean = dynamicTheme.value,
     content: @Composable () -> Unit,
 ) {

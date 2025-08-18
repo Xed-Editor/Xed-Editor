@@ -3,6 +3,7 @@ package com.rk.xededitor.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +28,7 @@ fun XedDialog(onDismissRequest:()-> Unit,dialogProperties: DialogProperties = Di
         properties = dialogProperties
     ) {
         Box(
-            modifier = Modifier.clip(shape = RoundedCornerShape(16.dp))
+            modifier = Modifier.padding(16.dp).clip(shape = RoundedCornerShape(16.dp))
                 .width((config.screenWidthDp / 1.25).dp)
                 .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center

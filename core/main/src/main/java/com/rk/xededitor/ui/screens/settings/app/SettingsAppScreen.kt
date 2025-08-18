@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.rk.App
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -42,17 +43,42 @@ import kotlinx.coroutines.launch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.settings.Preference
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.NextScreenCard
 
+data class Feature(
+    val name: String,
+    val key: String,
+    val default: Boolean,
+    val onChange: ((Boolean) -> Unit)? = null,
+) {
+    val state: MutableState<Boolean> by lazy { mutableStateOf(Preference.getBoolean(key, default)) }
+    fun setEnable(enable: Boolean) {
+        Preference.setBoolean(key, enable)
+        state.value = enable
+        onChange?.invoke(enable)
+    }
+}
+
+object InbuiltFeatures {
+    val extensions =
+        Feature(name = strings.enable_ext.getString(), key = "enable_extension", default = false)
+    val terminal = Feature(
+        name = strings.terminal.getString() + " + Runners",
+        key = "feature_terminal",
+        default = true
+    )
+    val mutators =
+        Feature(name = strings.mutators.getString(), key = "feature_mutators", default = true)
+    val developerOptions =
+        Feature(name = "Debug Options", key = "developerOptions", default = false)
+}
 
 @Composable
 fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.app), backArrowVisible = true) {
-        val showDayNightBottomSheet = remember { mutableStateOf(false) }
-        val monetState = remember { mutableStateOf(Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet) }
-        val amoledState = remember { mutableStateOf(Settings.amoled) }
-        val context = LocalContext.current
+       val context = LocalContext.current
 
         PreferenceGroup {
             SettingsToggle(
@@ -71,47 +97,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     navController.navigate(SettingsRoutes.LanguageScreen.route)
                 }
             )
-
-            SettingsToggle(label = stringResource(id = strings.theme_mode),
-                description = stringResource(id = strings.theme_mode_desc),
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    showDayNightBottomSheet.value = true
-                })
-
-
-
-            SettingsToggle(label = stringResource(id = strings.oled),
-                description = stringResource(id = strings.oled_desc),
-                default = Settings.amoled,
-                state = amoledState,
-                sideEffect = {
-                    if (Settings.monet && it){
-                        monetState.value = false
-                        Settings.monet = false
-                    }
-                    Settings.amoled = it
-                    toast(strings.restart_required)
-                })
-
-            SettingsToggle(
-                label = stringResource(id = strings.monet),
-                description = stringResource(id = strings.monet_desc),
-                default = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && Settings.monet,
-                isEnabled = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
-                state = monetState,
-                sideEffect = {
-                    if (Settings.amoled && it){
-                        amoledState.value = false
-                        Settings.amoled = false
-                    }
-                    Settings.monet = it
-                    toast(strings.restart_required)
-                }
-
-            )
-
 
             SettingsToggle(
                 label = stringResource(strings.check_for_updates),
@@ -147,75 +132,42 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
         }
 
-        if (showDayNightBottomSheet.value) {
-            DayNightDialog(
-                showBottomSheet = showDayNightBottomSheet,
-                context = LocalContext.current,
-                activity = activity
-            )
-        }
-    }
-
-
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DayNightDialog(
-    showBottomSheet: MutableState<Boolean>, context: Context, activity: SettingsActivity
-) {
-    val bottomSheetState = rememberModalBottomSheetState()
-    val coroutineScope = rememberCoroutineScope()
-    var selectedMode by remember {
-        mutableIntStateOf(Settings.default_night_mode)
-    }
-
-    val modes = listOf(
-        AppCompatDelegate.MODE_NIGHT_NO,
-        AppCompatDelegate.MODE_NIGHT_YES,
-        AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-    )
-    val modeLabels = listOf(
-        context.getString(strings.light_mode),
-        context.getString(strings.dark_mode),
-        context.getString(strings.auto_mode)
-    )
-
-    if (showBottomSheet.value) {
-        ModalBottomSheet(
-            onDismissRequest = { showBottomSheet.value = false }, sheetState = bottomSheetState
-        ) {
-            BottomSheetContent(title = { Text(text = stringResource(id = strings.select_theme_mode)) },
-                buttons = {
-                    OutlinedButton(onClick = {
-                        coroutineScope.launch {
-                            bottomSheetState.hide(); showBottomSheet.value = false
-                        }
-                    }) {
-                        Text(text = stringResource(id = strings.cancel))
-                    }
-                }) {
-                LazyColumn {
-                    itemsIndexed(modes) { index, mode ->
-                        PreferenceTemplate(title = { Text(text = modeLabels[index]) },
-                            modifier = Modifier.clickable {
-                                selectedMode = mode
-                                Settings.default_night_mode = selectedMode
-                                //AppCompatDelegate.setDefaultNightMode(selectedMode)
-                                coroutineScope.launch {
-                                    bottomSheetState.hide(); showBottomSheet.value = false;
-                                }
-                                toast(strings.restart_required)
-                            },
-                            startWidget = {
-                                RadioButton(
-                                    selected = selectedMode == mode, onClick = null
-                                )
-                            })
-                    }
+        PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
+            SettingsToggle(
+                label = InbuiltFeatures.terminal.name,
+                default = InbuiltFeatures.terminal.state.value,
+                sideEffect = {
+                    InbuiltFeatures.terminal.setEnable(it)
                 }
+            )
+            if (App.isFDroid) {
+                SettingsToggle(
+                    label = InbuiltFeatures.extensions.name,
+                    default = InbuiltFeatures.extensions.state.value,
+                    sideEffect = {
+                        InbuiltFeatures.extensions.setEnable(it)
+                    }
+                )
+            }
+
+            SettingsToggle(
+                label = InbuiltFeatures.mutators.name,
+                default = InbuiltFeatures.mutators.state.value,
+                sideEffect = {
+                    InbuiltFeatures.mutators.setEnable(it)
+                }
+            )
+
+            if (App.isFDroid) {
+                SettingsToggle(
+                    label = InbuiltFeatures.developerOptions.name,
+                    default = InbuiltFeatures.developerOptions.state.value,
+                    sideEffect = {
+                        InbuiltFeatures.developerOptions.setEnable(it)
+                    }
+                )
             }
         }
+
     }
 }

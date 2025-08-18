@@ -75,7 +75,7 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                     key(tabState) {
                         var showTabMenu by remember { mutableStateOf(false) }
                         Tab(
-                            selected = viewModel.currentTabIndex== index,
+                            selected = viewModel.currentTabIndex == index,
                             onClick = {
                                 if (viewModel.currentTabIndex == index) {
                                     showTabMenu = true

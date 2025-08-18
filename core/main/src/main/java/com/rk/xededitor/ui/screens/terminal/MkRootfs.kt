@@ -16,7 +16,7 @@ import java.io.File
 import java.lang.Runtime.getRuntime
 import kotlin.invoke
 
-suspend fun setupRootfs(context: Context, onComplete: () -> Unit){
+suspend fun setupRootfs(context: Context, onComplete: (String?) -> Unit){
     if (isMainThread()) {
         throw RuntimeException("IO operation on the main thread")
     }
@@ -30,17 +30,23 @@ suspend fun setupRootfs(context: Context, onComplete: () -> Unit){
 
 
     if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
-        onComplete.invoke()
+        onComplete.invoke(null)
     } else {
 
         val excludes = mutableListOf<String>()
         getDefaultBindings().forEach{
-            excludes.add("--exclude")
-            excludes.add(it.outside)
+            if (it.outside.contains(context.filesDir.parentFile!!.absolutePath).not()){
+                excludes.add("--exclude")
+                excludes.add(it.outside)
+            }
         }
 
-        val process = newSandbox(excludeMounts = listOf(), root = sandboxDir(context), workingDir = "/","tar",*(excludes.toTypedArray()),"-xf", sandboxFile.absolutePath,).apply {
-            println(readStdout())
+        val error: String
+        val process = newSandbox(excludeMounts = listOf(), root = File("/"), workingDir = "/","tar",*(excludes.toTypedArray()),"-xf", sandboxFile.absolutePath,"-C",sandboxDir().absolutePath).apply {
+            Log.i("TERMINAL",readStdout())
+
+            error = readStderr()
+            Log.e("TERMINAL",error)
         }
 
         process.waitFor()
@@ -51,6 +57,7 @@ suspend fun setupRootfs(context: Context, onComplete: () -> Unit){
             child("etc/resolv.conf").also { it.createFileIfNot(); it.writeText(nameserver) }
             child("etc/hosts").writeText(hosts)
         }
-        onComplete.invoke()
+
+        onComplete.invoke(error)
     }
 }
