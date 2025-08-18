@@ -463,4 +463,5 @@
     <string name="more">More</string>
     <string name="theme_settings">Theme Settings</string>
     <string name="add_theme">Add Theme</string>
+    <string name="unsupported_feature">This feature is not supported on your device</string>
 </resources>

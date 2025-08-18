@@ -53,6 +53,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.math.min
 
@@ -169,8 +170,10 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                         }
                         tab.editorState.content = content
                         withContext(Dispatchers.Main){
-                            tab.editorState.editor?.setText(content)
-                            tab.editorState.editor!!.updateUndoRedo()
+                            tab.editorState.updateLock.withLock{
+                                tab.editorState.editor?.setText(content)
+                                tab.editorState.editor!!.updateUndoRedo()
+                            }
                         }
                     }
                 }
