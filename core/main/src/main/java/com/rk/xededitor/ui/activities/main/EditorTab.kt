@@ -57,6 +57,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 data class CodeEditorState(
@@ -65,6 +67,7 @@ data class CodeEditorState(
     var editor: KarbonEditor? = null
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
+    val updateLock = Mutex()
 }
 
 var showControlPanel by mutableStateOf(false)
@@ -89,7 +92,10 @@ class EditorTab(
                     editorState.content = file.getInputStream().use {
                         ContentIO.createFrom(it)
                     }
-                    editorState.editor?.setText(editorState.content)
+                    editorState.updateLock.withLock{
+                        editorState.editor?.setText(editorState.content)
+                    }
+
                 }.onFailure {
                     errorDialog(it)
                 }
@@ -232,13 +238,17 @@ fun CodeEditor(
 
 
 
-
-                        setText(state.content)
-
+                        scope.launch{
+                            state.updateLock.withLock{
+                                setText(state.content)
+                            }
+                        }
 
                         subscribeAlways(ContentChangeEvent::class.java) {
-                            state.isDirty = true
-                            updateUndoRedo()
+                            if (!state.updateLock.isLocked){
+                                state.isDirty = true
+                                updateUndoRedo()
+                            }
                         }
 
                         subscribeAlways(EditorKeyEvent::class.java) { event ->
