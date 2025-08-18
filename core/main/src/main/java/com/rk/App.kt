@@ -4,32 +4,27 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import android.system.Os
-import android.view.Surface
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
-import com.rk.extension.ExtensionManager
+import com.rk.extension.internal.ExtensionAPIManager
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.FontCache
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.resources.Res
+import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.ui.activities.main.TabCache
+import com.rk.xededitor.ui.theme.updateThemes
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.file.Files
 import java.util.concurrent.Executors
-import com.rk.settings.Preference
-import com.rk.terminal.newSandbox
-import com.rk.terminal.readStderr
-import com.rk.terminal.readStdout
-import com.rk.xededitor.ui.activities.main.TabCache
-import com.rk.xededitor.ui.theme.loadThemes
-import com.rk.xededitor.ui.theme.updateThemes
-import kotlinx.coroutines.Dispatchers
 
 @OptIn(DelicateCoroutinesApi::class)
 class App : Application() {
@@ -54,7 +49,7 @@ class App : Application() {
     init {
         application = this
         Res.application = this
-        GlobalScope.launch(Dispatchers.IO){
+        GlobalScope.launch(Dispatchers.IO) {
             TabCache.preloadTabs()
         }
     }
@@ -87,10 +82,10 @@ class App : Application() {
         }
 
         GlobalScope.launch {
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 KarbonEditor.initGrammarRegistry()
             }
-            launch{
+            launch {
                 val fontPath = Settings.selected_font_path
                 if (fontPath.isNotEmpty()) {
                     FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_assest)
@@ -98,13 +93,18 @@ class App : Application() {
                     FontCache.loadFont(this@App, "fonts/Default.ttf", true)
                 }
             }
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 Preference.preloadAllSettings()
             }
 
-            launch{DocumentProvider.setDocumentProviderEnabled(this@App, Settings.expose_home_dir)}
+            launch {
+                DocumentProvider.setDocumentProviderEnabled(
+                    this@App,
+                    Settings.expose_home_dir
+                )
+            }
 
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 getTempDir().apply {
                     if (exists() && listFiles().isNullOrEmpty().not()) {
                         deleteRecursively()
@@ -114,10 +114,10 @@ class App : Application() {
 
             //AutoSaver.start()
 
-            launch{
+            launch {
                 runCatching {
                     val bridge = File(applicationInfo.nativeLibraryDir).child("libbridge.so")
-                    if (bridge.exists()){
+                    if (bridge.exists()) {
                         Files.deleteIfExists(localBinDir().child("xed").toPath())
                         Os.symlink(bridge.absolutePath, localBinDir().child("xed").absolutePath)
                     }
@@ -127,11 +127,11 @@ class App : Application() {
             }
 
 
-            launch{
+            launch {
                 runCatching { UpdateChecker.checkForUpdates("dev") }
             }
 
-            Settings.visits = Settings.visits+1
+            Settings.visits = Settings.visits + 1
 
             //wait until UpdateManager is done, it should only take few milliseconds
             UpdateManager.inspect()
@@ -140,7 +140,7 @@ class App : Application() {
     }
 
     override fun onTrimMemory(level: Int) {
-        ExtensionManager.onLowMemory()
+        ExtensionAPIManager.onLowMemory()
         super.onTrimMemory(level)
     }
 
