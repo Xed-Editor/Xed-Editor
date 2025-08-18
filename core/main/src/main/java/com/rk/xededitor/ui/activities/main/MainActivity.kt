@@ -37,7 +37,9 @@ import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
+import com.rk.extension.LocalExtensionManager
 import com.rk.extension.ProvideExtensionManager
+import com.rk.extension.internal.loadAllExtensions
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.UriWrapper
@@ -130,6 +132,12 @@ class MainActivity : AppCompatActivity() {
                     ) {
                         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                         val scope = rememberCoroutineScope()
+
+                        val extensionManager = LocalExtensionManager.current
+
+                        LaunchedEffect(Unit) {
+                            extensionManager.loadAllExtensions()
+                        }
 
                         ModalNavigationDrawer(
                             modifier = Modifier

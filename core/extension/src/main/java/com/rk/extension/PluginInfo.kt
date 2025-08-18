@@ -21,3 +21,10 @@ data class PluginInfo(
     val repository: String = "",
     val tags: List<String> = emptyList()
 ) : Serializable
+
+
+data class CachedPlugin(
+    val sha: String, // from GitHub
+    val metadata: PluginInfo,
+    val lastFetched: Long
+) : Serializable

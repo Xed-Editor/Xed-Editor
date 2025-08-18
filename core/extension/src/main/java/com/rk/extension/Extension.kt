@@ -6,7 +6,7 @@ import dalvik.system.PathClassLoader
 import java.io.File
 
 sealed interface Extension {
-    val id: String
+    val id: ExtensionId
     val name: String
     val version: String
     val authors: List<String>
@@ -20,7 +20,6 @@ sealed interface Extension {
  */
 data class StoreExtension(
     val info: PluginInfo,
-    val downloadUrl: String,
     val verified: Boolean = false
 ) : Extension {
     override val id get() = info.id

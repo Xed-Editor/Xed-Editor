@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.core.ktx)
 
     implementation(libs.gson)
+    implementation(libs.okhttp)
     implementation(libs.compose.runtime)
 
     testImplementation(libs.junit)

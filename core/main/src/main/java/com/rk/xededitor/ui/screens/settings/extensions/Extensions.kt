@@ -7,12 +7,21 @@ import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -21,11 +30,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -34,12 +45,13 @@ import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
 import com.rk.DefaultScope
 import com.rk.components.compose.preferences.base.PreferenceGroup
-import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.components.compose.preferences.base.PreferenceScaffold
 import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.LocalExtensionManager
+import com.rk.extension.PluginRegistry
+import com.rk.extension.github.GitHubApiException
 import com.rk.extension.internal.installExtension
 import com.rk.extension.internal.load
 import com.rk.file.UriWrapper
@@ -85,23 +97,8 @@ fun Extensions(modifier: Modifier = Modifier) {
                 loading = LoadingPopup(context as Activity, null).show()
                 loading.setMessage(strings.installing.getString())
                 DefaultScope.launch {
-                    when (val result = extensionManager.installExtension(fileObject, true)) {
-                        is InstallResult.AlreadyInstalled -> {
-                            errorDialog("Plugin already installed", activity)
-                        }
-
-                        is InstallResult.Error -> {
-                            errorDialog(result.message, activity)
-                        }
-
-                        is InstallResult.Success -> {
-                            toast(strings.installed)
-                        }
-
-                        is InstallResult.ValidationFailed -> {
-                            errorDialog(result.error?.message ?: "Validation failed", activity)
-                        }
-                    }
+                    val result = extensionManager.installExtension(fileObject, true)
+                    handleInstallResult(result, activity)
                 }
 
                 loading.hide()
@@ -117,148 +114,270 @@ fun Extensions(modifier: Modifier = Modifier) {
         }
     }
 
-    PreferenceLayout(label = stringResource(strings.ext), backArrowVisible = true, fab = {
-        ExtendedFloatingActionButton(
-            onClick = { filePickerLauncher.launch(arrayOf("application/zip")) },
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Add, contentDescription = null
-                )
-            },
-            text = { Text(stringResource(strings.install_from_storage)) },
-        )
-    }) {
-        val showPluginOptionSheet = remember { mutableStateOf(false) }
-        var isIndexing by remember { mutableStateOf(false) }
+    PreferenceScaffold(
+        label = stringResource(strings.ext),
+        isExpandedScreen = false,
+        backArrowVisible = true,
+        fab = {
+            ExtendedFloatingActionButton(
+                onClick = { filePickerLauncher.launch(arrayOf("application/zip")) },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Add, contentDescription = null
+                    )
+                },
+                text = { Text(stringResource(strings.install_from_storage)) },
+            )
+        }
+    ) { innerPadding ->
+        var showPluginOptionSheet by remember { mutableStateOf(false) }
 
-        LaunchedEffect("refreshPlugins") {
-            isIndexing = true
-            launch {
-                extensionManager.indexLocalExtensions()
-                isIndexing = false
+        val extensions by remember {
+            derivedStateOf {
+                extensionManager.localExtensions + extensionManager.storeExtension
             }
         }
 
-        InfoBlock(
-            modifier = Modifier.clickable {
-                context.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        "https://github.com/Xed-Editor/pluginTemplate".toUri()
-                    )
-                )
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.Outlined.Info, contentDescription = null
-                )
-            },
-            text = stringResource(strings.info_ext),
-        )
+        var isIndexing by remember { mutableStateOf(false) }
+        var isFetching by remember { mutableStateOf(false) }
 
-        PreferenceGroup {
-            if (!isIndexing) {
-                if (extensionManager.installedExtensions.isEmpty()) {
-                    Text(
-                        text = stringResource(strings.no_ext), modifier = Modifier.padding(16.dp)
+        LaunchedEffect(Unit) {
+            isIndexing = true
+            extensionManager.indexLocalExtensions()
+            isIndexing = false
+        }
+
+        LaunchedEffect(Unit) {
+            try {
+                isFetching = true
+                extensionManager.indexStoreExtensions()
+            } catch (err: GitHubApiException) {
+                val message = buildString {
+                    appendLine(err.message)
+                    appendLine("Response Code: ${err.statusCode}")
+
+                    if (err.response.isNotBlank()) {
+                        appendLine("Response: ${err.response}")
+                    }
+                }
+
+                toast(message)
+            } finally {
+                isFetching = false
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            InfoBlock(
+                modifier = Modifier.clickable {
+                    context.startActivity(
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://github.com/Xed-Editor/pluginTemplate".toUri()
+                        )
                     )
-                } else {
-                    extensionManager.installedExtensions.forEach { plugin ->
-                        var state by remember {
-                            mutableStateOf(
-                                Preference.getBoolean(
-                                    key = "ext_" + plugin.id,
-                                    false
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Outlined.Info, contentDescription = null
+                    )
+                },
+                text = stringResource(strings.info_ext),
+            )
+
+            if (isIndexing) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                if (extensions.isNotEmpty()) {
+                    LazyColumn(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
+                    ) {
+                        items(extensions.map { it.value }.sortedBy { it.name }) { plugin ->
+                            var installState by remember {
+                                mutableStateOf(
+                                    if (extensionManager.isInstalled(plugin.id)) {
+                                        InstallState.Installed
+                                    } else {
+                                        InstallState.Idle
+                                    }
                                 )
+                            }
+
+                            var extension = extensionManager.localExtensions[plugin.id]
+                            ExtensionCard(
+                                plugin = plugin,
+                                installState = installState,
+                                onInstallClick = {
+                                    installState = InstallState.Installing
+
+                                    runCatching {
+                                        val dir = context.cacheDir.resolve(plugin.id)
+                                        PluginRegistry.downloadExtension(plugin.id, dir)
+                                        dir
+                                    }.onSuccess { dir ->
+                                        val loadingPopup = LoadingPopup(context)
+                                        loadingPopup.setMessage(strings.installing.getString())
+                                        loadingPopup.show()
+
+                                        val result = extensionManager.installExtensionFromDir(
+                                            dir = dir,
+                                            isDev = false
+                                        )
+
+                                        handleInstallResult(result, activity) { ext ->
+                                            installState = InstallState.Installed
+                                            extension = ext
+
+                                            scope.launch(Dispatchers.Default) {
+                                                ext.load(application!!).onSuccess {
+                                                    // success
+                                                }.onFailure {
+                                                    errorDialog(it.message ?: "Unexpected error", activity)
+                                                }
+
+                                                // it maybe called on extension load success
+                                                // I am calling here because extension load always
+                                                // fails in latest version due to API change (com.rk.pluginApi.PluginApi)
+                                                Preference.setBoolean(
+                                                    key = "ext_" + plugin.id,
+                                                    true
+                                                )
+                                            }
+                                        }
+
+                                        delay(100)
+                                        loadingPopup.hide()
+                                    }.onFailure { err ->
+                                        errorDialog(err, activity)
+                                        installState = InstallState.Idle
+                                    }
+                                },
+                                onUninstallClick = {
+                                    extensionManager
+                                        .uninstallExtension(plugin.id)
+                                        .onSuccess {
+                                            toast("Uninstalled")
+                                            Preference.setBoolean(
+                                                key = "ext_" + plugin.id,
+                                                false
+                                            )
+                                        }
+                                        .onFailure { errorDialog(it, activity) }
+                                    installState = InstallState.Idle
+                                },
+                                onLongPress = {
+                                    if (extension != null) {
+                                        selectedPlugin = extension
+                                        showPluginOptionSheet = true
+                                    }
+                                }
                             )
                         }
 
-                        val sideEffect = { isChecked: Boolean ->
-                            if (isChecked) {
-                                scope.launch(Dispatchers.Default) {
-                                    val loadingPopup = LoadingPopup(context)
-                                    loadingPopup.setMessage(strings.installing.getString())
-                                    loadingPopup.show()
+                        if (isFetching) {
+                            item {
+                                Spacer(modifier = Modifier.height(16.dp))
 
-                                    plugin.load(application!!).onFailure {
-                                        errorDialog(it.message ?: "Unknown error", activity)
-                                    }.onSuccess {
-                                        Preference.setBoolean(
-                                            key = "ext_" + plugin.id,
-                                            true
-                                        )
-                                        state = true
-                                    }
-
-                                    delay(500)
-                                    loadingPopup.hide()
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = stringResource(strings.loading),
+                                        modifier = Modifier.padding(16.dp)
+                                    )
                                 }
-                            } else {
-                                Preference.setBoolean(key = "ext_" + plugin.id, false)
-                                state = false
                             }
                         }
-
-                        PreferenceSwitch(
-                            checked = state,
-                            onCheckedChange = { sideEffect(it) },
-                            onLongClick = {
-                                selectedPlugin = plugin
-                                showPluginOptionSheet.value = true
-                            },
-                            label = plugin.name,
-                            modifier = modifier,
-                            onClick = { sideEffect(state.not()) }
-                        )
                     }
-                }
-            } else {
-                Text(
-                    text = stringResource(strings.loading), modifier = Modifier.padding(16.dp)
-                )
-            }
-        }
-
-        val bottomSheetState = rememberModalBottomSheetState()
-
-        if (showPluginOptionSheet.value) {
-            ModalBottomSheet(
-                onDismissRequest = { showPluginOptionSheet.value = false },
-                sheetState = bottomSheetState
-            ) {
-                BottomSheetContent(buttons = {}) {
+                } else {
                     PreferenceGroup {
-                        PreferenceTemplate(
-                            modifier = modifier.clickable {
-                                showPluginOptionSheet.value = false
-                                DefaultScope.launch(Dispatchers.Main) {
-                                    val loading = LoadingPopup(context as Activity, null).show()
-
-                                    withContext(Dispatchers.Default) {
-                                        selectedPlugin?.let {
-                                            extensionManager.uninstallExtension(it.id)
-                                        }
-                                    }
-
-                                    selectedPlugin = null
-                                    delay(300)
-                                    loading.hide()
-                                }
-                            },
-                            contentModifier = Modifier.fillMaxHeight(),
-                            title = { Text(text = stringResource(strings.delete)) },
-                            enabled = true,
-                            applyPaddings = true,
-                            startWidget = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(strings.delete)
-                                )
-                            },
+                        Text(
+                            text = stringResource(strings.no_ext),
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
                 }
             }
+
+            val bottomSheetState = rememberModalBottomSheetState()
+
+            if (showPluginOptionSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showPluginOptionSheet = false },
+                    sheetState = bottomSheetState
+                ) {
+                    BottomSheetContent(buttons = {}) {
+                        PreferenceGroup {
+                            PreferenceTemplate(
+                                modifier = modifier.clickable {
+                                    showPluginOptionSheet = false
+                                    DefaultScope.launch(Dispatchers.Main) {
+                                        val loading = LoadingPopup(context as Activity, null).show()
+
+                                        withContext(Dispatchers.Default) {
+                                            selectedPlugin?.let {
+                                                extensionManager
+                                                    .uninstallExtension(it.id)
+                                                    .onSuccess {
+                                                        toast("Uninstalled")
+                                                        extensionManager.indexLocalExtensions()
+                                                    }
+                                            }
+                                        }
+
+                                        selectedPlugin = null
+                                        delay(300)
+                                        loading.hide()
+                                    }
+                                },
+                                contentModifier = Modifier.fillMaxHeight(),
+                                title = { Text(text = stringResource(strings.delete)) },
+                                enabled = true,
+                                applyPaddings = true,
+                                startWidget = {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Delete,
+                                        contentDescription = stringResource(strings.delete)
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
+            }
         }
+    }
+}
+
+private fun handleInstallResult(
+    result: InstallResult,
+    activity: Activity?,
+    onSuccess: (LocalExtension) -> Unit = {}
+) = when (result) {
+    is InstallResult.AlreadyInstalled -> {
+        errorDialog("Plugin already installed", activity)
+    }
+
+    is InstallResult.Error -> {
+        errorDialog(result.message, activity)
+    }
+
+    is InstallResult.Success -> {
+        toast(strings.installed)
+        onSuccess(result.extension)
+    }
+
+    is InstallResult.ValidationFailed -> {
+        errorDialog(result.error?.message ?: "Validation failed", activity)
     }
 }
