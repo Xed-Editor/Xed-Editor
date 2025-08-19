@@ -179,6 +179,14 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 }
             ),
             EditorAction(
+                id = "search",
+                type = ActionType.PainterAction(drawables.search),
+                labelRes = strings.search,
+                action = {
+                    tab.editorState.isSearching = true
+                }
+            ),
+            EditorAction(
                 id = "editable",
                 type = ActionType.VectorAction(if (editable){
                     Icons.Outlined.Lock

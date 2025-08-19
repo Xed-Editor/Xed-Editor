@@ -32,6 +32,7 @@ import com.rk.libcommons.isMainThread
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.xededitor.ui.components.EditorActions
+import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
@@ -68,6 +69,16 @@ data class CodeEditorState(
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
     val updateLock = Mutex()
+
+
+    var isSearching by mutableStateOf(false)
+    var isReplaceShown by mutableStateOf(false)
+    var ignoreCase by mutableStateOf(true)
+    var searchRegex by mutableStateOf(false)
+    var searchWholeWord by mutableStateOf(false)
+    var showOptionsMenu by mutableStateOf(false)
+    var searchKeyword by mutableStateOf("")
+    var replaceKeyword by mutableStateOf("")
 }
 
 var showControlPanel by mutableStateOf(false)
@@ -120,28 +131,34 @@ class EditorTab(
     }
 
     override val content: @Composable (() -> Unit) get() = {
-            val language = file.let {
-                textmateSources[it.getName().substringAfterLast('.', "").trim()]
-            }
+            Column {
+                val language = file.let {
+                    textmateSources[it.getName().substringAfterLast('.', "").trim()]
+                }
 
-            if (showControlPanel){
-                ControlPanel(onDismissRequest = {
-                    showControlPanel = false
-                }, viewModel = viewModel)
-            }
+                if (showControlPanel){
+                    ControlPanel(onDismissRequest = {
+                        showControlPanel = false
+                    }, viewModel = viewModel)
+                }
 
-            CodeEditor(
-                modifier = Modifier,
-                state = editorState,
-                textmateScope = language,
-                onKeyEvent = { event ->
-                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                        scope.launch(Dispatchers.IO) {
-                            save()
+                SearchPanel(editorState = editorState)
+
+                CodeEditor(
+                    modifier = Modifier,
+                    state = editorState,
+                    textmateScope = language,
+                    onKeyEvent = { event ->
+                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                            scope.launch(Dispatchers.IO) {
+                                save()
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
+
+
 
     }
 
@@ -164,8 +181,8 @@ fun CodeEditor(
         val constraintSet = remember { ConstraintSet() }
         val scope = rememberCoroutineScope()
 
-
         val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+        val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
         val realSurface = MaterialTheme.colorScheme.surface
         val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
@@ -212,10 +229,12 @@ fun CodeEditor(
                                 setColors(
                                     surfaceColor.toArgb(),
                                     WHOLE_BACKGROUND,
-                                    TEXT_ACTION_WINDOW_BACKGROUND,
-                                    COMPLETION_WND_BACKGROUND,
                                     LINE_NUMBER_BACKGROUND
                                 )
+
+                                setColors(surfaceContainer.toArgb(),
+                                    TEXT_ACTION_WINDOW_BACKGROUND,
+                                    COMPLETION_WND_BACKGROUND)
 
                                 setColors(
                                     onSurfaceColor.toArgb(),
@@ -223,7 +242,6 @@ fun CodeEditor(
                                     EditorColorScheme.SELECTION_INSERT,
                                     EditorColorScheme.BLOCK_LINE,
                                     EditorColorScheme.BLOCK_LINE_CURRENT,
-                                    MATCHED_TEXT_BACKGROUND,
                                     HIGHLIGHTED_DELIMITERS_FOREGROUND
                                 )
 

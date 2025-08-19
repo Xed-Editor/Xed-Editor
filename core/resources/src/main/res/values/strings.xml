@@ -29,8 +29,8 @@
     <string name="settings">Settings</string>
     <string name="print">Print</string>
     <string name="search">Search</string>
-    <string name="go_next">Go Next</string>
-    <string name="go_prev">Go Prev.</string>
+    <string name="go_next">Next</string>
+    <string name="go_prev">Prev</string>
     <string name="close_search">Close Search</string>
     <string name="replace">Replace</string>
     <string name="share">Share</string>
