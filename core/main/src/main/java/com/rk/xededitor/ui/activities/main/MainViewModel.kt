@@ -9,6 +9,7 @@ import com.rk.file.child
 import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
+import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -68,16 +69,17 @@ class MainViewModel : ViewModel() {
     val mutex = Mutex()
 
     init {
-        viewModelScope.launch{
-            TabCache.mutex.withLock{
-                TabCache.preloadedTabs.forEach { file ->
-                    viewModelScope.launch {
-                        newEditorTab(file,checkDuplicate = false,switchToTab = false)
+        if (Settings.restore_sessions){
+            viewModelScope.launch{
+                TabCache.mutex.withLock{
+                    TabCache.preloadedTabs.forEach { file ->
+                        viewModelScope.launch {
+                            newEditorTab(file,checkDuplicate = false,switchToTab = false)
+                        }
                     }
                 }
             }
         }
-
     }
 
 

@@ -85,6 +85,14 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
 
+            EditorSettingsToggle(label = stringResource(id = strings.restore_sessions),
+                description = stringResource(id = strings.restore_sessions_desc),
+                default = Settings.restore_sessions,
+                sideEffect = {
+                    Settings.restore_sessions = it
+                }
+            )
+
             EditorSettingsToggle(
                 label = stringResource(strings.isDisableSoftKbdIfHardKbdAvailable),
                 description = stringResource(strings.isDisableSoftKbdIfHardKbdAvailable_desc),

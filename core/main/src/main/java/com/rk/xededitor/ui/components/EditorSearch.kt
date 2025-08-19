@@ -58,7 +58,6 @@ fun SearchPanel(
 
     // Search error state
     var hasSearchError by remember { mutableStateOf(false) }
-    var editorSearching by remember { mutableStateOf(false) }
 
     // Search execution logic
     fun tryCommitSearch() {
@@ -67,7 +66,6 @@ fun SearchPanel(
             try {
                 val searchOptions = getSearchOptions(editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord)
                 editor?.searcher?.search(query, searchOptions)
-                editorSearching = true
                 hasSearchError = false
             } catch (e: PatternSyntaxException) {
                 hasSearchError = true
@@ -209,7 +207,7 @@ fun SearchPanel(
 
                                 matchCount = if (it.isEmpty()) {
                                     0
-                                } else if (editorSearching) {
+                                } else if (editor?.searcher?.hasQuery() == true) {
                                     editor?.searcher?.matchedPositionCount ?: -1
                                 }else{
                                     0

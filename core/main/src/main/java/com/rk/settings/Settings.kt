@@ -17,6 +17,7 @@ object Settings {
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pinline", false)
     var wordwrap by CachedPreference("wordwrap", false)
+    var restore_sessions by CachedPreference("restore_sessions", false)
     var word_wrap_for_text by CachedPreference("ww_txt", true)
     var cursor_animation by CachedPreference("cursor_animation", false)
     var show_arrow_keys by CachedPreference("arrow_keys", true)

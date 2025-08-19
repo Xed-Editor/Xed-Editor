@@ -93,8 +93,11 @@ class App : Application() {
                     FontCache.loadFont(this@App, "fonts/Default.ttf", true)
                 }
             }
-            launch(Dispatchers.IO) {
-                Preference.preloadAllSettings()
+
+            if (Settings.restore_sessions){
+                launch(Dispatchers.IO) {
+                    Preference.preloadAllSettings()
+                }
             }
 
             launch {
