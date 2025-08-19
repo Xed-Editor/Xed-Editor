@@ -24,6 +24,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -32,6 +34,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
@@ -43,6 +47,8 @@ import com.rk.extension.internal.loadAllExtensions
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.UriWrapper
+import com.rk.libcommons.editor.KarbonEditor
+import com.rk.libcommons.toast
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -111,6 +117,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    val editors = mutableMapOf<Tab, ConstraintLayout?>()
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
@@ -125,6 +133,14 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             KarbonTheme {
+
+                SideEffect {
+                    editors.forEach{
+                        it.value?.children?.filterIsInstance<KarbonEditor>()?.firstOrNull()?.release()
+                        editors[it.key] = null
+                    }
+                }
+
                 ProvideExtensionManager {
                     Surface(
                         modifier = Modifier.fillMaxSize(),

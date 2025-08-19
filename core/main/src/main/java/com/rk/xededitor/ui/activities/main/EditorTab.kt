@@ -94,6 +94,11 @@ class EditorTab(
 
     override fun onTabRemoved() {
         editorState.editor?.release()
+        MainActivity.instance?.editors?.apply {
+            if (containsKey(this@EditorTab)){
+                remove(this@EditorTab)
+            }
+        }
     }
 
     init {
@@ -128,6 +133,11 @@ class EditorTab(
     override fun release() {
         scope.cancel()
         editorState.editor?.release()
+        MainActivity.instance?.editors?.apply {
+            if (containsKey(this@EditorTab)){
+                remove(this@EditorTab)
+            }
+        }
     }
 
     override val content: @Composable (() -> Unit) get() = {
@@ -148,6 +158,10 @@ class EditorTab(
                     modifier = Modifier,
                     state = editorState,
                     textmateScope = language,
+                    root = MainActivity.instance?.editors[this@EditorTab],
+                    setRoot = {
+                        MainActivity.instance?.editors[this@EditorTab] = it
+                    },
                     onKeyEvent = { event ->
                         if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
                             scope.launch(Dispatchers.IO) {
@@ -175,6 +189,8 @@ fun CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     textmateScope: String? = null,
+    root: ConstraintLayout? = null,
+    setRoot:(ConstraintLayout)-> Unit,
     onKeyEvent:(EditorKeyEvent)-> Unit
 ) {
     AnimatedVisibility(visible = true) {
@@ -189,61 +205,62 @@ fun CodeEditor(
         AndroidView(
             modifier = modifier.fillMaxSize(),
             factory = { ctx ->
-                ConstraintLayout(ctx).apply {
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-
-
-                    val horizontalScrollViewId = View.generateViewId()
-                    val editor = KarbonEditor(ctx).apply {
-                        id = View.generateViewId()
-                        layoutParams = ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            0
+                if (root == null){
+                    ConstraintLayout(ctx).apply {
+                        layoutParams = ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT
                         )
-                        fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
-                            keys.forEach { setColor(it, color) }
-                        }
 
-                        colorScheme.setColors(surfaceColor.toArgb(),WHOLE_BACKGROUND,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
 
-                        state.editor = this
-                        textmateScope?.let { langScope ->
-                            scope.launch(Dispatchers.IO) {
-                                setLanguage(langScope)
+                        val horizontalScrollViewId = View.generateViewId()
+                        val editor = KarbonEditor(ctx).apply {
+                            id = View.generateViewId()
+                            layoutParams = ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                0
+                            )
+                            fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
+                                keys.forEach { setColor(it, color) }
                             }
-                        }
-                        updateColors { colors ->
-                            with(colors){
-                                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
-                                setColors(
-                                    onSurfaceColor.toArgb(),
-                                    TEXT_ACTION_WINDOW_ICON_COLOR,
-                                    COMPLETION_WND_TEXT_PRIMARY,
-                                    COMPLETION_WND_TEXT_SECONDARY
-                                )
+                            colorScheme.setColors(surfaceColor.toArgb(),WHOLE_BACKGROUND,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
 
-                                setColors(
-                                    surfaceColor.toArgb(),
-                                    WHOLE_BACKGROUND,
-                                    LINE_NUMBER_BACKGROUND
-                                )
+                            state.editor = this
+                            textmateScope?.let { langScope ->
+                                scope.launch(Dispatchers.IO) {
+                                    setLanguage(langScope)
+                                }
+                            }
+                            updateColors { colors ->
+                                with(colors){
+                                    setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
-                                setColors(surfaceContainer.toArgb(),
-                                    TEXT_ACTION_WINDOW_BACKGROUND,
-                                    COMPLETION_WND_BACKGROUND)
+                                    setColors(
+                                        onSurfaceColor.toArgb(),
+                                        TEXT_ACTION_WINDOW_ICON_COLOR,
+                                        COMPLETION_WND_TEXT_PRIMARY,
+                                        COMPLETION_WND_TEXT_SECONDARY
+                                    )
 
-                                setColors(
-                                    onSurfaceColor.toArgb(),
-                                    EditorColorScheme.SELECTION_HANDLE,
-                                    EditorColorScheme.SELECTION_INSERT,
-                                    EditorColorScheme.BLOCK_LINE,
-                                    EditorColorScheme.BLOCK_LINE_CURRENT,
-                                    HIGHLIGHTED_DELIMITERS_FOREGROUND
-                                )
+                                    setColors(
+                                        surfaceColor.toArgb(),
+                                        WHOLE_BACKGROUND,
+                                        LINE_NUMBER_BACKGROUND
+                                    )
+
+                                    setColors(surfaceContainer.toArgb(),
+                                        TEXT_ACTION_WINDOW_BACKGROUND,
+                                        COMPLETION_WND_BACKGROUND)
+
+                                    setColors(
+                                        onSurfaceColor.toArgb(),
+                                        EditorColorScheme.SELECTION_HANDLE,
+                                        EditorColorScheme.SELECTION_INSERT,
+                                        EditorColorScheme.BLOCK_LINE,
+                                        EditorColorScheme.BLOCK_LINE_CURRENT,
+                                        HIGHLIGHTED_DELIMITERS_FOREGROUND
+                                    )
 
 //                            setColors(
 //                                transparentPrimary,
@@ -251,69 +268,67 @@ fun CodeEditor(
 //                                COMPLETION_WND_ITEM_CURRENT
 //                            )
 
+                                }
+                            }
+
+
+
+                            scope.launch{
+                                state.updateLock.withLock{
+                                    setText(state.content)
+                                }
+                            }
+
+                            subscribeAlways(ContentChangeEvent::class.java) {
+                                if (!state.updateLock.isLocked){
+                                    state.isDirty = true
+                                    updateUndoRedo()
+                                }
+                            }
+
+                            subscribeAlways(EditorKeyEvent::class.java) { event ->
+                                onKeyEvent.invoke(event)
                             }
                         }
 
-
-
-                        scope.launch{
-                            state.updateLock.withLock{
-                                setText(state.content)
-                            }
+                        val horizontalScrollView = HorizontalScrollView(ctx).apply {
+                            id = horizontalScrollViewId
+                            visibility = View.VISIBLE
+                            layoutParams = ConstraintLayout.LayoutParams(
+                                ConstraintLayout.LayoutParams.MATCH_PARENT,
+                                ConstraintLayout.LayoutParams.WRAP_CONTENT
+                            )
+                            isHorizontalScrollBarEnabled = false
+                            isSaveEnabled = false
+                            addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
                         }
 
-                        subscribeAlways(ContentChangeEvent::class.java) {
-                            if (!state.updateLock.isLocked){
-                                state.isDirty = true
-                                updateUndoRedo()
-                            }
+                        addView(editor)
+                        addView(horizontalScrollView)
+
+                        with(constraintSet) {
+                            clone(this@apply)
+
+                            connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                            connect(editor.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
+
+
+                            connect(horizontalScrollView.id, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
+                            connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+
+                            connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                            connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                            connect(horizontalScrollView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                            connect(horizontalScrollView.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+
+                            applyTo(this@apply)
                         }
-
-                        subscribeAlways(EditorKeyEvent::class.java) { event ->
-                            onKeyEvent.invoke(event)
-                        }
+                        setRoot(this)
                     }
-
-                    val horizontalScrollView = HorizontalScrollView(ctx).apply {
-                        id = horizontalScrollViewId
-                        visibility = View.VISIBLE
-                        layoutParams = ConstraintLayout.LayoutParams(
-                            ConstraintLayout.LayoutParams.MATCH_PARENT,
-                            ConstraintLayout.LayoutParams.WRAP_CONTENT
-                        )
-                        isHorizontalScrollBarEnabled = false
-                        isSaveEnabled = false
-                        addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
-                    }
-
-                    addView(editor)
-                    addView(horizontalScrollView)
-
-                    with(constraintSet) {
-                        clone(this@apply)
-
-                        connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                        connect(editor.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
-
-
-                        connect(horizontalScrollView.id, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                        connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-
-                        connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                        connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                        connect(horizontalScrollView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                        connect(horizontalScrollView.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-
-                        applyTo(this@apply)
-                    }
+                }else{
+                    root
                 }
             },
-            onRelease = { constraintLayout ->
-                constraintLayout.children
-                    .filterIsInstance<KarbonEditor>()
-                    .firstOrNull()
-                    ?.release()
-            }
         )
     }
 }
