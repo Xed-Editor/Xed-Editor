@@ -22,6 +22,7 @@ import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 object ShellBasedRunners{
     val runners = mutableStateListOf<ShellBasedRunner>()
@@ -93,6 +94,10 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
 
     override fun getName(): String {
         return name
+    }
+
+    fun getScript():File{
+        return runnerDir().child("${getName()}.sh").createFileIfNot()
     }
 
     override fun getIcon(context: Context): Drawable? {

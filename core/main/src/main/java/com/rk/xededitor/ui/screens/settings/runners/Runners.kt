@@ -26,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -38,6 +39,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.ShellBasedRunner
 import com.rk.runner.ShellBasedRunners
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.InfoBlock
 import com.rk.xededitor.ui.components.SettingsToggle
 import kotlinx.coroutines.launch
@@ -146,7 +148,13 @@ fun Runners(modifier: Modifier = Modifier) {
                             description = null,
                             default = false,
                             sideEffect = { _ ->
-                                toast(strings.tab_opened)
+                                MainActivity.instance?.let {
+                                    it.lifecycleScope.launch{
+                                        it.viewModel.newEditorTab(FileWrapper(runner.getScript()))
+                                        toast(strings.tab_opened)
+                                    }
+                                }
+
                             },
                             showSwitch = false,
                             endWidget = {
