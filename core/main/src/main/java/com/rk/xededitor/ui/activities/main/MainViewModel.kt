@@ -88,7 +88,7 @@ class MainViewModel : ViewModel() {
     val currentTab: Tab?
         get() = tabs.getOrNull(currentTabIndex)
 
-    suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = true): Boolean = withContext(
+    suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
         Dispatchers.IO) {
         if (checkDuplicate && tabs.any { it is EditorTab && it.file == file }) {
             return@withContext false
@@ -100,7 +100,7 @@ class MainViewModel : ViewModel() {
 
                     tabs.add(editorTab)
                     if (switchToTab){
-                        delay(50)
+                        delay(150)
                         currentTabIndex = tabs.lastIndex
                     }
                 }
