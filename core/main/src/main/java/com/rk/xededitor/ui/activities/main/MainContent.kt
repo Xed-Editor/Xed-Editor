@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.rk.compose.filetree.currentProject
 import com.rk.file.FileObject
+import com.rk.libcommons.dialog
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.components.FileActionDialog
 import kotlinx.coroutines.launch
@@ -103,7 +105,16 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         text = { Text(stringResource(strings.close_this)) },
                                         onClick = {
                                             showTabMenu = false
-                                            viewModel.removeTab(index)
+
+                                            val tab = viewModel.tabs[index]
+                                            if (tab is EditorTab && tab.editorState.isDirty){
+                                                dialog(title = strings.file_unsaved.getString(), msg = strings.ask_unsaved.getString(), onOk = {
+                                                    viewModel.removeTab(index)
+                                                }, okString = strings.close)
+                                            }else{
+                                                viewModel.removeTab(index)
+                                            }
+
                                         }
                                     )
 

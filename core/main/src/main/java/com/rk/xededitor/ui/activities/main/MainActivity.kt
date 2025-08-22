@@ -47,8 +47,11 @@ import com.rk.extension.internal.loadAllExtensions
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.UriWrapper
+import com.rk.libcommons.dialog
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.toast
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.theme.KarbonTheme
@@ -155,6 +158,21 @@ class MainActivity : AppCompatActivity() {
                             extensionManager.loadAllExtensions()
                         }
 
+                        BackHandler {
+                            if (drawerState.isOpen) {
+                                scope.launch {
+                                    drawerState.close()
+                                }
+                            }else if (viewModel.tabs.isNotEmpty()){
+                                dialog(title = strings.attention.getString(), msg = strings.confirm_exit.getString(), onCancel = {}, onOk = {
+                                    finish()
+                                }, okString = strings.exit)
+                            }else{
+                                finish()
+                            }
+
+                        }
+
                         ModalNavigationDrawer(
                             modifier = Modifier
                                 .imePadding()
@@ -169,13 +187,6 @@ class MainActivity : AppCompatActivity() {
                                     drawerShape = RectangleShape
                                     //drawerTonalElevation = 0.dp
                                 ) {
-                                    BackHandler {
-                                        if (drawerState.isOpen) {
-                                            scope.launch {
-                                                drawerState.close()
-                                            }
-                                        }
-                                    }
 
                                     LaunchedEffect(Unit) {
                                         isLoading = true

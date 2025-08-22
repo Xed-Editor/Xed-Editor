@@ -210,7 +210,6 @@
     <string name="kill_on_exit_desc">Terminate all processes when exiting terminal</string>
     <string name="u_err">Unknown Error</string>
     <string name="is_null">InputStream is null</string>
-    <string name="press_again_exit">Press back again to exit</string>
     <string name="wait_pkg">Please wait while the packages are being downloaded.</string>
     <string name="unsupported_aarch">Unsupported Platform, Use Fail Safe</string>
     <string name="pkg_download_failed">Package download failed</string>
@@ -464,4 +463,5 @@
     <string name="theme_settings">Theme Settings</string>
     <string name="add_theme">Add Theme</string>
     <string name="unsupported_feature">This feature is not supported on your device</string>
+    <string name="confirm_exit">Are you sure you want to exit?</string>
 </resources>
