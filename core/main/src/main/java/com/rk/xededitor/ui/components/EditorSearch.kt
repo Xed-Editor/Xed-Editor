@@ -40,9 +40,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.rk.DefaultScope
 import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.main.CodeEditorState
 import io.github.rosemoe.sora.widget.EditorSearcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.regex.PatternSyntaxException
 
 
@@ -51,13 +57,13 @@ fun SearchPanel(
     editorState: CodeEditorState,
     modifier: Modifier = Modifier,
 ) {
-    val focusRequester = remember { FocusRequester() }
     val editor = editorState.editor
 
-    var matchCount by remember { mutableIntStateOf(-1) }
+    val focusRequester = remember { FocusRequester() }
 
     // Search error state
     var hasSearchError by remember { mutableStateOf(false) }
+    var isSearchingInternal by remember { mutableStateOf(false) }
 
     // Search execution logic
     fun tryCommitSearch() {
@@ -67,8 +73,10 @@ fun SearchPanel(
                 val searchOptions = getSearchOptions(editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord)
                 editor?.searcher?.search(query, searchOptions)
                 hasSearchError = false
+                isSearchingInternal = true
             } catch (e: PatternSyntaxException) {
                 hasSearchError = true
+                isSearchingInternal = false
             }
         } else {
             editor?.searcher?.stopSearch()
@@ -204,16 +212,7 @@ fun SearchPanel(
                             value = editorState.searchKeyword,
                             onValueChange = {
                                 editorState.searchKeyword = it
-
-                                matchCount = if (it.isEmpty()) {
-                                    0
-                                } else if (editor?.searcher?.hasQuery() == true) {
-                                    editor?.searcher?.matchedPositionCount ?: -1
-                                }else{
-                                    0
-                                }
-
-
+                                tryCommitSearch()
                             },
                             placeholder = { Text(stringResource(strings.search)) },
                             keyboardOptions = KeyboardOptions(
@@ -275,31 +274,34 @@ fun SearchPanel(
                     .padding(horizontal = 8.dp)
                     .fillMaxWidth(),
             ) {
-                TextButton(onClick = {
+                IconButton(enabled = isSearchingInternal, onClick = {
                     editor?.searcher?.gotoPrevious()
                 }) {
                     Text(stringResource(strings.go_prev).uppercase())
                 }
 
-                TextButton(onClick = {
+                TextButton(enabled = isSearchingInternal,onClick = {
                     editor?.searcher?.gotoNext()
                 }) {
                     Text(stringResource(strings.go_next).uppercase())
                 }
 
-                TextButton(enabled = matchCount > 0,
-                    onClick = {
-                        editor?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
-                    }) {
-                    Text(stringResource(strings.replace).uppercase())
+                if (editorState.isReplaceShown){
+                    TextButton(enabled = isSearchingInternal,
+                        onClick = {
+                            editor?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
+                        }) {
+                        Text(stringResource(strings.replace).uppercase())
+                    }
+
+                    TextButton(enabled = isSearchingInternal,
+                        onClick = {
+                            editor?.searcher?.replaceAll(editorState.replaceKeyword)
+                        }) {
+                        Text(stringResource(strings.replaceall).uppercase())
+                    }
                 }
 
-                TextButton(enabled = matchCount > 0,
-                    onClick = {
-                        editor?.searcher?.replaceAll(editorState.replaceKeyword)
-                    }) {
-                    Text(stringResource(strings.replaceall).uppercase())
-                }
             }
         }
 

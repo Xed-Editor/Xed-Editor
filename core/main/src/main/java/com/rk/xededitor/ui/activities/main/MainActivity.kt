@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity() {
                                         onFileSelected = { file ->
                                             scope.launch {
                                                 if (file.isFile()) {
-                                                    viewModel.newEditorTab(file)
+                                                    viewModel.newEditorTab(file, switchToTab = true)
                                                 }
 
                                                 delay(60)
