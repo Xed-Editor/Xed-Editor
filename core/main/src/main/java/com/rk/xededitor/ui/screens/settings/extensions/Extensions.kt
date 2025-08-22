@@ -58,6 +58,7 @@ import com.rk.file.UriWrapper
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.openUrl
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -130,8 +131,6 @@ fun Extensions(modifier: Modifier = Modifier) {
             )
         }
     ) { innerPadding ->
-        var showPluginOptionSheet by remember { mutableStateOf(false) }
-
         val extensions by remember {
             derivedStateOf {
                 extensionManager.localExtensions + extensionManager.storeExtension
@@ -174,12 +173,7 @@ fun Extensions(modifier: Modifier = Modifier) {
         ) {
             InfoBlock(
                 modifier = Modifier.clickable {
-                    context.startActivity(
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            "https://github.com/Xed-Editor/pluginTemplate".toUri()
-                        )
-                    )
+                    openUrl("https://github.com/Xed-Editor/pluginTemplate")
                 },
                 icon = {
                     Icon(
@@ -275,10 +269,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                                     installState = InstallState.Idle
                                 },
                                 onLongPress = {
-                                    if (extension != null) {
-                                        selectedPlugin = extension
-                                        showPluginOptionSheet = true
-                                    }
+
                                 }
                             )
                         }
@@ -305,53 +296,6 @@ fun Extensions(modifier: Modifier = Modifier) {
                             text = stringResource(strings.no_ext),
                             modifier = Modifier.padding(16.dp)
                         )
-                    }
-                }
-            }
-
-            val bottomSheetState = rememberModalBottomSheetState()
-
-            if (showPluginOptionSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showPluginOptionSheet = false },
-                    sheetState = bottomSheetState
-                ) {
-                    BottomSheetContent(buttons = {}) {
-                        PreferenceGroup {
-                            PreferenceTemplate(
-                                modifier = modifier.clickable {
-                                    showPluginOptionSheet = false
-                                    DefaultScope.launch(Dispatchers.Main) {
-                                        val loading = LoadingPopup(context as Activity, null).show()
-
-                                        withContext(Dispatchers.Default) {
-                                            selectedPlugin?.let {
-                                                extensionManager
-                                                    .uninstallExtension(it.id)
-                                                    .onSuccess {
-                                                        toast("Uninstalled")
-                                                        extensionManager.indexLocalExtensions()
-                                                    }
-                                            }
-                                        }
-
-                                        selectedPlugin = null
-                                        delay(300)
-                                        loading.hide()
-                                    }
-                                },
-                                contentModifier = Modifier.fillMaxHeight(),
-                                title = { Text(text = stringResource(strings.delete)) },
-                                enabled = true,
-                                applyPaddings = true,
-                                startWidget = {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Delete,
-                                        contentDescription = stringResource(strings.delete)
-                                    )
-                                },
-                            )
-                        }
                     }
                 }
             }

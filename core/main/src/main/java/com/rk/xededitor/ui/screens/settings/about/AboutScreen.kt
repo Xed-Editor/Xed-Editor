@@ -25,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.pm.PackageInfoCompat
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
@@ -63,12 +65,19 @@ fun AboutScreen() {
                 showSwitch = false,
                 startWidget = {
                     AsyncImage(
-                        model = "https://github.com/RohitKushvaha01.png",
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data("https://github.com/RohitKushvaha01.png")
+                            .crossfade(true)
+                            .diskCachePolicy(CachePolicy.ENABLED)
+                            .memoryCachePolicy(CachePolicy.ENABLED)
+                            .build(),
                         contentDescription = "GitHub Avatar",
-                        modifier = Modifier.padding(start = 16.dp)
+                        modifier = Modifier
+                            .padding(start = 16.dp)
                             .size(26.dp)
                             .clip(CircleShape)
                     )
+
                 },
                 endWidget = {
                     Icon(

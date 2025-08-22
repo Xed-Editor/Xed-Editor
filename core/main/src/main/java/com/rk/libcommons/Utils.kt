@@ -141,6 +141,14 @@ fun DialogContent(
     }
 }
 
+fun openUrl(url: String) {
+    val intent = android.content.Intent(
+        android.content.Intent.ACTION_VIEW,
+        android.net.Uri.parse(url)
+    )
+   application!!.startActivity(intent)
+}
+
 fun dialog(
     context: Activity? = MainActivity.instance,
     title: String,
