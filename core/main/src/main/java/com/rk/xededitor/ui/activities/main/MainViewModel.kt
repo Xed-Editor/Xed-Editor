@@ -67,6 +67,11 @@ object TabCache {
 class MainViewModel : ViewModel() {
     val tabs = mutableStateListOf<Tab>()
     val mutex = Mutex()
+    var currentTabIndex by mutableIntStateOf(0)
+
+    val currentTab: Tab?
+        get() = tabs.getOrNull(currentTabIndex)
+
 
     init {
         if (Settings.restore_sessions){
@@ -81,12 +86,6 @@ class MainViewModel : ViewModel() {
             }
         }
     }
-
-
-    var currentTabIndex by mutableIntStateOf(0)
-
-    val currentTab: Tab?
-        get() = tabs.getOrNull(currentTabIndex)
 
     suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
         Dispatchers.IO) {

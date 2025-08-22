@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import androidx.lifecycle.ViewModel
 import com.rk.file.FileObject
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
@@ -140,7 +142,8 @@ class EditorTab(
         }
     }
 
-    override val content: @Composable (() -> Unit) get() = {
+    @Composable
+    override fun content(){
             Column {
                 val language = file.let {
                     textmateSources[it.getName().substringAfterLast('.', "").trim()]
@@ -153,6 +156,9 @@ class EditorTab(
                 }
 
                 SearchPanel(editorState = editorState)
+                if (editorState.isSearching){
+                    HorizontalDivider()
+                }
 
                 CodeEditor(
                     modifier = Modifier,
@@ -176,8 +182,13 @@ class EditorTab(
 
     }
 
-    override val actions: @Composable (RowScope.() -> Unit) get() = {
-        EditorActions(modifier = Modifier, tab = this@EditorTab, editorScope = scope, viewModel = viewModel)
+    @Composable
+    override fun RowScope.actions(){
+        EditorActions(
+            modifier = Modifier,
+            tab = this@EditorTab,
+            viewModel = viewModel
+        )
     }
 
 }

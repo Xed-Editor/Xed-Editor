@@ -66,7 +66,7 @@ data class EditorAction(
     val id: String,
     val type: ActionType,
     @StringRes val labelRes: Int,
-    val action: () -> Unit,
+    val action: (EditorTab, CodeEditorState) -> Unit,
     val isEnabled: Boolean = true,
     val visible: Boolean = true
 )
@@ -82,18 +82,23 @@ fun CodeEditor.updateUndoRedo(){
 @OptIn(DelicateCoroutinesApi::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorScope: CoroutineScope,viewModel: MainViewModel) {
-    val resources = LocalContext.current.resources
-    var expanded by remember { mutableStateOf(false) }
-    val activity = LocalActivity.current
+fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewModel: MainViewModel) {
 
+    var expanded by remember { mutableStateOf(false) }
     var editable by remember(tab) { mutableStateOf(tab.file.canWrite()) }
-    var isRunnable by remember { mutableStateOf(false) }
+    var isRunnable by remember(tab) { mutableStateOf(false) }
+
+    val resources = LocalContext.current.resources
+
+    val activity = LocalActivity.current
+    val editorState = tab.editorState
+
 
     val scope = rememberCoroutineScope()
+
     SideEffect {
         scope.launch{
-            editable = tab.editorState.editor?.editable == true
+            editable = editorState.editor?.editable == true
             isRunnable = Runner.isRunnable(tab.file)
         }
     }
@@ -105,11 +110,11 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 id = "save",
                 type = ActionType.PainterAction(drawables.save),
                 labelRes = strings.save,
-                action = {
+                action = { tab,editorState ->
                     GlobalScope.launch{
                         tab.save()
                     }
-                    tab.editorState.editor!!.updateUndoRedo()
+                    editorState.editor!!.updateUndoRedo()
                 }
             ),
             EditorAction(
@@ -117,13 +122,13 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 type = ActionType.PainterAction(drawables.undo),
                 labelRes = strings.undo,
                 isEnabled = canUndo.value,
-                action = {
-                    tab.editorState.editor?.apply {
+                action = { tab,editorState ->
+                    editorState.editor?.apply {
                         if (canUndo()){
                             undo()
                         }
                     }
-                    tab.editorState.editor!!.updateUndoRedo()
+                    editorState.editor!!.updateUndoRedo()
                 }
             ),
             EditorAction(
@@ -131,13 +136,13 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 type = ActionType.PainterAction(drawables.redo),
                 labelRes = strings.redo,
                 isEnabled = canRedo.value,
-                action = {
-                    tab.editorState.editor?.apply {
+                action = { tab,editorState ->
+                    editorState.editor?.apply {
                         if (canRedo()){
                             redo()
                         }
                     }
-                    tab.editorState.editor!!.updateUndoRedo()
+                    editorState.editor!!.updateUndoRedo()
                 }
             ),
             EditorAction(
@@ -145,7 +150,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 type = ActionType.PainterAction(drawables.run),
                 labelRes = strings.run,
                 visible = isRunnable,
-                action = {
+                action = { tab,editorState ->
                     DefaultScope.launch{
                         Runner.run(activity!!,tab.file)
                     }
@@ -155,7 +160,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 id = "add",
                 type = ActionType.VectorAction(imageVector = Icons.Outlined.Add),
                 labelRes = strings.add,
-                action = {
+                action = { tab,editorState ->
                     addDialog = true
                 }
             ),
@@ -163,16 +168,16 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 id = "refresh",
                 type = ActionType.PainterAction(drawables.refresh),
                 labelRes = strings.refresh,
-                action = {
-                    editorScope.launch(Dispatchers.IO){
+                action = { tab,editorState ->
+                    scope.launch(Dispatchers.IO){
                         val content = tab.file.getInputStream().use {
                             ContentIO.createFrom(it)
                         }
-                        tab.editorState.content = content
+                        editorState.content = content
                         withContext(Dispatchers.Main){
-                            tab.editorState.updateLock.withLock{
-                                tab.editorState.editor?.setText(content)
-                                tab.editorState.editor!!.updateUndoRedo()
+                            editorState.updateLock.withLock{
+                                editorState.editor?.setText(content)
+                                editorState.editor!!.updateUndoRedo()
                             }
                         }
                     }
@@ -182,7 +187,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 id = "search",
                 type = ActionType.PainterAction(drawables.search),
                 labelRes = strings.search,
-                action = {
+                action = { tab,editorState ->
                     tab.editorState.isSearching = true
                 }
             ),
@@ -198,16 +203,16 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 }else{
                     strings.edit_mode
                 },
-                action = {
+                action = { tab,editorState ->
                     editable = editable.not()
-                    tab.editorState.editor?.editable = editable
+                    editorState.editor?.editable = editable
                 }
             ),
             EditorAction(
                 id = "terminal",
                 type = ActionType.PainterAction(drawables.terminal),
                 labelRes = strings.terminal,
-                action = {
+                action = { tab,editorState ->
                     activity!!.startActivity(Intent(activity, Terminal::class.java))
                 }
             ),
@@ -215,7 +220,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                 id = "settings",
                 type = ActionType.VectorAction(Icons.Outlined.Settings),
                 labelRes = strings.settings,
-                action = {
+                action = { tab,editorState ->
                     activity!!.startActivity(Intent(activity, SettingsActivity::class.java))
                 }
             )
@@ -242,7 +247,10 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
         ) {
             toolbarActions.forEach { action ->
                 IconButton(
-                    onClick = action.action,
+                    onClick = {
+                        val tab = viewModel.tabs[viewModel.currentTabIndex] as EditorTab
+                        action.action(tab,tab.editorState)
+                    },
                     modifier = Modifier.size(48.dp),
                     enabled = action.isEnabled
                 ) {
@@ -279,7 +287,8 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier,tab: EditorTab,editorSc
                                 enabled = action.isEnabled,
                                 text = { Text(stringResource(action.labelRes)) },
                                 onClick = {
-                                    action.action()
+                                    val tab = viewModel.tabs[viewModel.currentTabIndex] as EditorTab
+                                    action.action(tab,tab.editorState)
                                     expanded = false
                                 },
                                 leadingIcon = {

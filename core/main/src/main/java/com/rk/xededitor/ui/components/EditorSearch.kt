@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -274,7 +275,7 @@ fun SearchPanel(
                     .padding(horizontal = 8.dp)
                     .fillMaxWidth(),
             ) {
-                IconButton(enabled = isSearchingInternal, onClick = {
+                TextButton(enabled = isSearchingInternal, onClick = {
                     editor?.searcher?.gotoPrevious()
                 }) {
                     Text(stringResource(strings.go_prev).uppercase())
