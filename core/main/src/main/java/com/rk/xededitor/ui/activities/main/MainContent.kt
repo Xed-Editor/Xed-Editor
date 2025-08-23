@@ -1,5 +1,9 @@
 package com.rk.xededitor.ui.activities.main
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -38,10 +44,12 @@ import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.ui.components.FileActionDialog
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewModel: MainViewModel,drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
@@ -67,6 +75,26 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 }
             }
         } else {
+            val pagerState = rememberPagerState(pageCount = { viewModel.tabs.size })
+
+            // Sync pager state with viewModel.currentTabIndex
+            LaunchedEffect(viewModel.currentTabIndex) {
+                if (pagerState.currentPage != viewModel.currentTabIndex) {
+                    if (Settings.smooth_tabs){
+                        pagerState.scrollToPage(viewModel.currentTabIndex)
+                    }else{
+                        pagerState.animateScrollToPage(viewModel.currentTabIndex)
+                    }
+                }
+            }
+
+            // Sync viewModel.currentTabIndex with pager state
+            LaunchedEffect(pagerState.currentPage) {
+                if (viewModel.currentTabIndex != pagerState.currentPage) {
+                    viewModel.currentTabIndex = pagerState.currentPage
+                }
+            }
+
             ScrollableTabRow(
                 selectedTabIndex = if (viewModel.currentTabIndex < viewModel.tabs.size) viewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),
@@ -77,6 +105,11 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                     key(tabState) {
                         var showTabMenu by remember { mutableStateOf(false) }
                         Tab(
+                            modifier = Modifier.combinedClickable(onLongClick = {
+                                if (viewModel.currentTabIndex == index) {
+                                    showTabMenu = true
+                                }
+                            }, onClick = {}),
                             selected = viewModel.currentTabIndex == index,
                             onClick = {
                                 if (viewModel.currentTabIndex == index) {
@@ -114,7 +147,6 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                             }else{
                                                 viewModel.removeTab(index)
                                             }
-
                                         }
                                     )
 
@@ -122,7 +154,6 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         text = { Text(stringResource(strings.close_others)) },
                                         onClick = {
                                             showTabMenu = false
-                                            // Set the current tab to the one we're closing others from
                                             viewModel.setCurrentTabIndex(index)
                                             viewModel.removeOtherTabs()
                                         }
@@ -140,13 +171,12 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         DropdownMenuItem(
                                             text = { Text(stringResource(strings.more)) },
                                             onClick = {
+                                                showTabMenu = false
                                                 fileActionDialog = tabState.file
                                             }
                                         )
                                     }
-
                                 }
-
                             }
                         )
                     }
@@ -155,21 +185,26 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
 
             HorizontalDivider()
 
-            viewModel.currentTab?.let { tab ->
-                key(tab) {
-                    tab.content()
-                }
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount = viewModel.tabs.size+1,
+                userScrollEnabled = false
+            ) { page ->
+                viewModel.tabs[page].content()
             }
 
             if (fileActionDialog != null && currentProject != null){
-                FileActionDialog(modifier = Modifier, file = fileActionDialog!!, root = currentProject!!, onDismissRequest = {
-                    fileActionDialog = null
-                },fileTreeContext = false)
+                FileActionDialog(
+                    modifier = Modifier,
+                    file = fileActionDialog!!,
+                    root = currentProject!!,
+                    onDismissRequest = {
+                        fileActionDialog = null
+                    },
+                    fileTreeContext = false
+                )
             }
-
-
-
         }
-
     }
 }

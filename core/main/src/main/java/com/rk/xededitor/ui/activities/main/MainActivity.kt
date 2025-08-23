@@ -55,6 +55,9 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.amoled
+import com.rk.xededitor.ui.theme.currentTheme
+import com.rk.xededitor.ui.theme.dynamicTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -120,8 +123,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    val editors = mutableMapOf<Tab, ConstraintLayout?>()
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
@@ -136,13 +137,6 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             KarbonTheme {
-
-                SideEffect {
-                    editors.forEach{
-                        it.value?.children?.filterIsInstance<KarbonEditor>()?.firstOrNull()?.release()
-                        editors[it.key] = null
-                    }
-                }
 
                 ProvideExtensionManager {
                     Surface(

@@ -1,6 +1,6 @@
 package com.rk.xededitor.ui.activities.main
 
-import android.graphics.Color
+import androidx.compose.ui.graphics.Color
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -109,11 +109,6 @@ class EditorTab(
 
     override fun onTabRemoved() {
         editorState.editor?.release()
-        MainActivity.instance?.editors?.apply {
-            if (containsKey(this@EditorTab)){
-                remove(this@EditorTab)
-            }
-        }
     }
 
     init {
@@ -148,11 +143,6 @@ class EditorTab(
     override fun release() {
         scope.cancel()
         editorState.editor?.release()
-        MainActivity.instance?.editors?.apply {
-            if (containsKey(this@EditorTab)){
-                remove(this@EditorTab)
-            }
-        }
     }
 
     override fun shouldOpenForFile(fileObject: FileObject): Boolean {
@@ -181,10 +171,6 @@ class EditorTab(
                     modifier = Modifier,
                     state = editorState,
                     textmateScope = language,
-                    root = MainActivity.instance?.editors[this@EditorTab],
-                    setRoot = {
-                        MainActivity.instance?.editors[this@EditorTab] = it
-                    },
                     onKeyEvent = { event ->
                         if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
                             scope.launch(Dispatchers.IO) {
@@ -210,6 +196,9 @@ class EditorTab(
 
 }
 
+fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
+    keys.forEach { setColor(it, color) }
+}
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -217,78 +206,54 @@ fun CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     textmateScope: String? = null,
-    root: ConstraintLayout? = null,
-    setRoot:(ConstraintLayout)-> Unit,
     onKeyEvent:(EditorKeyEvent)-> Unit
 ) {
+
+    val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+    val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    val realSurface = MaterialTheme.colorScheme.surface
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+
     AnimatedVisibility(visible = true) {
         val constraintSet = remember { ConstraintSet() }
         val scope = rememberCoroutineScope()
 
-        val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
-        val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
-        val realSurface = MaterialTheme.colorScheme.surface
-        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-
         AndroidView(
             modifier = modifier.fillMaxSize(),
-            factory = { ctx ->
-                if (root == null){
-                    ConstraintLayout(ctx).apply {
-                        layoutParams = ViewGroup.LayoutParams(
-                            ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT
-                        )
+            onRelease = {
+                it.children.filterIsInstance<KarbonEditor>().firstOrNull()?.release()
+            },
+            update = {
+                it.children.filterIsInstance<KarbonEditor>().firstOrNull()?.apply {
+                    updateColors { colors ->
+                        with(colors){
+                            setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, android.graphics.Color.TRANSPARENT)
 
-
-                        val horizontalScrollViewId = View.generateViewId()
-                        val editor = KarbonEditor(ctx).apply {
-                            id = View.generateViewId()
-                            layoutParams = ConstraintLayout.LayoutParams(
-                                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                                0
+                            setColors(
+                                onSurfaceColor.toArgb(),
+                                TEXT_ACTION_WINDOW_ICON_COLOR,
+                                COMPLETION_WND_TEXT_PRIMARY,
+                                COMPLETION_WND_TEXT_SECONDARY
                             )
-                            fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
-                                keys.forEach { setColor(it, color) }
-                            }
 
-                            colorScheme.setColors(surfaceColor.toArgb(),WHOLE_BACKGROUND,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
+                            setColors(
+                                surfaceColor.toArgb(),
+                                WHOLE_BACKGROUND,
+                                LINE_NUMBER_BACKGROUND
+                            )
 
-                            state.editor = this
-                            textmateScope?.let { langScope ->
-                                scope.launch(Dispatchers.IO) {
-                                    setLanguage(langScope)
-                                }
-                            }
-                            updateColors { colors ->
-                                with(colors){
-                                    setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+                            setColors(surfaceContainer.toArgb(),
+                                TEXT_ACTION_WINDOW_BACKGROUND,
+                                COMPLETION_WND_BACKGROUND)
 
-                                    setColors(
-                                        onSurfaceColor.toArgb(),
-                                        TEXT_ACTION_WINDOW_ICON_COLOR,
-                                        COMPLETION_WND_TEXT_PRIMARY,
-                                        COMPLETION_WND_TEXT_SECONDARY
-                                    )
-
-                                    setColors(
-                                        surfaceColor.toArgb(),
-                                        WHOLE_BACKGROUND,
-                                        LINE_NUMBER_BACKGROUND
-                                    )
-
-                                    setColors(surfaceContainer.toArgb(),
-                                        TEXT_ACTION_WINDOW_BACKGROUND,
-                                        COMPLETION_WND_BACKGROUND)
-
-                                    setColors(
-                                        onSurfaceColor.toArgb(),
-                                        EditorColorScheme.SELECTION_HANDLE,
-                                        EditorColorScheme.SELECTION_INSERT,
-                                        EditorColorScheme.BLOCK_LINE,
-                                        EditorColorScheme.BLOCK_LINE_CURRENT,
-                                        HIGHLIGHTED_DELIMITERS_FOREGROUND
-                                    )
+                            setColors(
+                                onSurfaceColor.toArgb(),
+                                EditorColorScheme.SELECTION_HANDLE,
+                                EditorColorScheme.SELECTION_INSERT,
+                                EditorColorScheme.BLOCK_LINE,
+                                EditorColorScheme.BLOCK_LINE_CURRENT,
+                                HIGHLIGHTED_DELIMITERS_FOREGROUND
+                            )
 
 //                            setColors(
 //                                transparentPrimary,
@@ -296,65 +261,125 @@ fun CodeEditor(
 //                                COMPLETION_WND_ITEM_CURRENT
 //                            )
 
-                                }
-                            }
-
-
-
-                            scope.launch{
-                                state.updateLock.withLock{
-                                    setText(state.content)
-                                }
-                            }
-
-                            subscribeAlways(ContentChangeEvent::class.java) {
-                                if (!state.updateLock.isLocked){
-                                    state.isDirty = true
-                                    updateUndoRedo()
-                                }
-                            }
-
-                            subscribeAlways(EditorKeyEvent::class.java) { event ->
-                                onKeyEvent.invoke(event)
-                            }
                         }
-
-                        val horizontalScrollView = HorizontalScrollView(ctx).apply {
-                            id = horizontalScrollViewId
-                            visibility = View.VISIBLE
-                            layoutParams = ConstraintLayout.LayoutParams(
-                                ConstraintLayout.LayoutParams.MATCH_PARENT,
-                                ConstraintLayout.LayoutParams.WRAP_CONTENT
-                            )
-                            isHorizontalScrollBarEnabled = false
-                            isSaveEnabled = false
-                            addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
-                        }
-
-                        addView(editor)
-                        addView(horizontalScrollView)
-
-                        with(constraintSet) {
-                            clone(this@apply)
-
-                            connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                            connect(editor.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
-
-
-                            connect(horizontalScrollView.id, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                            connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
-
-                            connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                            connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                            connect(horizontalScrollView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                            connect(horizontalScrollView.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-
-                            applyTo(this@apply)
-                        }
-                        setRoot(this)
                     }
-                }else{
-                    root
+                }
+            },
+            factory = { ctx ->
+                ConstraintLayout(ctx).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+
+
+                    val horizontalScrollViewId = View.generateViewId()
+                    val editor = KarbonEditor(ctx).apply {
+                        id = View.generateViewId()
+                        layoutParams = ConstraintLayout.LayoutParams(
+                            ConstraintLayout.LayoutParams.MATCH_PARENT,
+                            0
+                        )
+
+                        colorScheme.setColors(surfaceColor.toArgb(),WHOLE_BACKGROUND,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
+
+                        state.editor = this
+                        textmateScope?.let { langScope ->
+                            scope.launch(Dispatchers.IO) {
+                                setLanguage(langScope)
+                            }
+                        }
+                        updateColors { colors ->
+                            with(colors){
+                                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, android.graphics.Color.TRANSPARENT)
+
+                                setColors(
+                                    onSurfaceColor.toArgb(),
+                                    TEXT_ACTION_WINDOW_ICON_COLOR,
+                                    COMPLETION_WND_TEXT_PRIMARY,
+                                    COMPLETION_WND_TEXT_SECONDARY
+                                )
+
+                                setColors(
+                                    surfaceColor.toArgb(),
+                                    WHOLE_BACKGROUND,
+                                    LINE_NUMBER_BACKGROUND
+                                )
+
+                                setColors(surfaceContainer.toArgb(),
+                                    TEXT_ACTION_WINDOW_BACKGROUND,
+                                    COMPLETION_WND_BACKGROUND)
+
+                                setColors(
+                                    onSurfaceColor.toArgb(),
+                                    EditorColorScheme.SELECTION_HANDLE,
+                                    EditorColorScheme.SELECTION_INSERT,
+                                    EditorColorScheme.BLOCK_LINE,
+                                    EditorColorScheme.BLOCK_LINE_CURRENT,
+                                    HIGHLIGHTED_DELIMITERS_FOREGROUND
+                                )
+
+//                            setColors(
+//                                transparentPrimary,
+//                                SELECTED_TEXT_BACKGROUND,
+//                                COMPLETION_WND_ITEM_CURRENT
+//                            )
+
+                            }
+                        }
+
+
+
+                        scope.launch{
+                            state.updateLock.withLock{
+                                setText(state.content)
+                            }
+                        }
+
+                        subscribeAlways(ContentChangeEvent::class.java) {
+                            if (!state.updateLock.isLocked){
+                                state.isDirty = true
+                                updateUndoRedo()
+                            }
+                        }
+
+                        subscribeAlways(EditorKeyEvent::class.java) { event ->
+                            onKeyEvent.invoke(event)
+                        }
+                    }
+
+                    val horizontalScrollView = HorizontalScrollView(ctx).apply {
+                        id = horizontalScrollViewId
+                        visibility = View.VISIBLE
+                        layoutParams = ConstraintLayout.LayoutParams(
+                            ConstraintLayout.LayoutParams.MATCH_PARENT,
+                            ConstraintLayout.LayoutParams.WRAP_CONTENT
+                        )
+                        isHorizontalScrollBarEnabled = false
+                        isSaveEnabled = false
+                        addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
+                    }
+
+                    addView(editor)
+                    addView(horizontalScrollView)
+
+                    with(constraintSet) {
+                        clone(this@apply)
+
+                        connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                        connect(editor.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
+
+
+                        connect(horizontalScrollView.id, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
+                        connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+
+                        connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                        connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                        connect(horizontalScrollView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                        connect(horizontalScrollView.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+
+                        applyTo(this@apply)
+                    }
                 }
             },
         )
