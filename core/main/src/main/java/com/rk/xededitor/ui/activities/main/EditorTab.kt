@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -32,6 +35,7 @@ import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isMainThread
 import com.rk.libcommons.toast
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.components.EditorActions
 import com.rk.xededitor.ui.components.SearchPanel
@@ -90,7 +94,16 @@ class EditorTab(
     var file: FileObject,
     val viewModel: MainViewModel,
 ) : Tab() {
-    override var title: MutableState<String> = mutableStateOf(file.getName())
+
+    override val icon: ImageVector
+        get() = Icons.Outlined.Edit
+
+    override val name: String
+        get() = strings.editor.getString()
+
+    override var tabTitle: MutableState<String> = mutableStateOf(file.getName())
+
+
     val scope = CoroutineScope(Dispatchers.Default)
     val editorState by mutableStateOf(CodeEditorState())
 
@@ -140,6 +153,10 @@ class EditorTab(
                 remove(this@EditorTab)
             }
         }
+    }
+
+    override fun shouldOpenForFile(fileObject: FileObject): Boolean {
+        return true
     }
 
     @Composable

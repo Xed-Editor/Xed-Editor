@@ -274,7 +274,7 @@ fun FileActionDialog(
                                 val targetTab = viewModel.tabs.
                                 find { it is EditorTab && it.file == file } as? EditorTab
 
-                                targetTab?.title?.value = newName
+                                targetTab?.tabTitle?.value = newName
                                 targetTab?.file = parentFile.getChildForName(newName)
                             }
                         }

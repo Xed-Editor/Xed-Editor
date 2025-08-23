@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
             val uri = intent.data!!
             val file = UriWrapper(uri, false)
-            viewModel.newEditorTab(file)
+            viewModel.newTab(file)
             setIntent(Intent())
         }
     }
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                                         onFileSelected = { file ->
                                             scope.launch {
                                                 if (file.isFile()) {
-                                                    viewModel.newEditorTab(file, switchToTab = true)
+                                                    viewModel.newTab(file, switchToTab = true)
                                                 }
 
                                                 delay(60)

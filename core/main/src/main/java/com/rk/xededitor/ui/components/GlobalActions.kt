@@ -73,7 +73,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
             DividerColumn {
                 AddDialogItem(icon = drawables.file, title = stringResource(strings.tempFile)) {
                     DefaultScope.launch{
-                        viewModel.newEditorTab(FileWrapper(sandboxHomeDir().child("temp").createFileIfNot()),checkDuplicate = true,switchToTab = true)
+                        viewModel.newTab(FileWrapper(sandboxHomeDir().child("temp").createFileIfNot()),checkDuplicate = true,switchToTab = true)
                     }
                     addDialog = false
                 }
@@ -96,7 +96,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                             fileManager.createNewFile(mimeType = "*/*", title = "newfile.txt"){
                                 if (it != null){
                                     lifecycleScope.launch{
-                                        viewModel.newEditorTab(it,checkDuplicate = true,switchToTab = true)
+                                        viewModel.newTab(it,checkDuplicate = true,switchToTab = true)
                                     }
                                 }
                             }
@@ -111,7 +111,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                         fileManager.requestOpenFile(mimeType = "*/*"){
                             if (it != null){
                                 lifecycleScope.launch{
-                                    viewModel.newEditorTab(UriWrapper(it,false),checkDuplicate = true,switchToTab = true)
+                                    viewModel.newTab(UriWrapper(it,false),checkDuplicate = true,switchToTab = true)
                                 }
                             }
                         }

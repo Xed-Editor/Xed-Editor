@@ -59,7 +59,7 @@ object ActionHandler {
 
                     MainActivity.instance?.apply {
                         lifecycleScope.launch(Dispatchers.Main) {
-                            viewModel.newEditorTab(FileWrapper(file))
+                            viewModel.newTab(FileWrapper(file))
                         }
                     }
                 }

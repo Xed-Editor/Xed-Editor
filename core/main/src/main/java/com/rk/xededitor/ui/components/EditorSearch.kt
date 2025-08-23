@@ -86,8 +86,10 @@ fun SearchPanel(
     }
 
     // Execute search when keyword changes
-    LaunchedEffect(editorState.searchKeyword, editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord) {
-        tryCommitSearch()
+    LaunchedEffect(editorState.isSearching,editorState.searchKeyword, editorState.ignoreCase, editorState.searchRegex, editorState.searchWholeWord) {
+        if (editorState.isSearching){
+            tryCommitSearch()
+        }
     }
 
     LaunchedEffect(editorState.isSearching) {
@@ -231,8 +233,6 @@ fun SearchPanel(
 
                         IconButton(onClick = {
                             editorState.isSearching = false
-                            editorState.searchKeyword = ""
-                            editorState.replaceKeyword = ""
                             editor?.searcher?.stopSearch()
                         }) {
                             Icon(imageVector = Icons.Outlined.Close, null)

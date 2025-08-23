@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.libcommons.application
@@ -87,7 +88,23 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
+    suspend fun newTab(fileObject: FileObject,checkDuplicate: Boolean = true,switchToTab: Boolean = false) = withContext(Dispatchers.IO){
+        val tabs = mutableListOf<Tab>()
+
+        Hooks.Editor.tabs.forEach{
+            if (it.value.shouldOpenForFile(fileObject)){
+                tabs.add(it.value)
+            }
+        }
+
+        if (tabs.isEmpty()){
+            newEditorTab(fileObject,checkDuplicate = checkDuplicate,switchToTab = switchToTab)
+        }else{
+            newTab(tabs.first())
+        }
+    }
+
+    private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
         Dispatchers.IO) {
         if (checkDuplicate && tabs.any { it is EditorTab && it.file == file }) {
             return@withContext false
@@ -107,6 +124,14 @@ class MainViewModel : ViewModel() {
                 true
             }
 
+    }
+
+    suspend fun newTab(tab: Tab){
+        mutex.withLock{
+            tabs.add(tab)
+            delay(70)
+            currentTabIndex = tabs.lastIndex
+        }
     }
 
     fun removeTab(index: Int): Boolean {

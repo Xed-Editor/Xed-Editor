@@ -88,9 +88,9 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                             text = {
                                 Text(
                                     text = if (tabState is EditorTab && tabState.editorState.isDirty) {
-                                        "*${tabState.title.value}"
+                                        "*${tabState.tabTitle.value}"
                                     } else {
-                                        tabState.title.value
+                                        tabState.tabTitle.value
                                     },
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis

@@ -150,7 +150,7 @@ fun Runners(modifier: Modifier = Modifier) {
                             sideEffect = { _ ->
                                 MainActivity.instance?.let {
                                     it.lifecycleScope.launch{
-                                        it.viewModel.newEditorTab(FileWrapper(runner.getScript()))
+                                        it.viewModel.newTab(FileWrapper(runner.getScript()))
                                         toast(strings.tab_opened)
                                     }
                                 }
