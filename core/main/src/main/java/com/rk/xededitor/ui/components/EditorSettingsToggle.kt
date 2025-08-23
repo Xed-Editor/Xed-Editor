@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
+import com.rk.xededitor.ui.activities.main.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +39,13 @@ fun EditorSettingsToggle(
             DefaultScope.launch(Dispatchers.Main) {
                 sideEffect?.invoke(it)
                 if (showSwitch){
-                    //updateEditorSettings()
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.forEach{
+                            if (it is EditorTab){
+                                it.editorState.editor?.applySettings()
+                            }
+                        }
+                    }
                 }
             }
         },

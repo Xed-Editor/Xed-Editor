@@ -43,7 +43,7 @@ suspend fun ThemeConfig.installTheme()= withContext(Dispatchers.IO){
 
 fun updateThemes(){
     themes.clear()
-    themes.add(defaultTheme)
+    themes.addAll(inbuiltThemes)
     loadThemes()
 }
 

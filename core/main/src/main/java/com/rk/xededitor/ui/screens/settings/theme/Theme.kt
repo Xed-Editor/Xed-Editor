@@ -49,9 +49,10 @@ import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.theme.Theme
 import com.rk.xededitor.ui.theme.amoled
+import com.rk.xededitor.ui.theme.blueberry
 import com.rk.xededitor.ui.theme.currentTheme
-import com.rk.xededitor.ui.theme.defaultTheme
 import com.rk.xededitor.ui.theme.dynamicTheme
+import com.rk.xededitor.ui.theme.inbuiltThemes
 import com.rk.xededitor.ui.theme.installFromFile
 import com.rk.xededitor.ui.theme.updateThemes
 import kotlinx.coroutines.GlobalScope
@@ -136,11 +137,12 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                         currentTheme.value = theme
                         Settings.theme = theme.id
                     }, endWidget = {
-                        if (theme != defaultTheme){
+
+                        if (!inbuiltThemes.contains(theme)){
                             IconButton(onClick = {
                                 themeDir().child(theme.name).delete()
-                                currentTheme.value = defaultTheme
-                                Settings.theme = defaultTheme.id
+                                currentTheme.value = blueberry
+                                Settings.theme = blueberry.id
                                 themes.remove(theme)
                             }) {
                                 Icon(imageVector = Icons.Outlined.Delete,null)

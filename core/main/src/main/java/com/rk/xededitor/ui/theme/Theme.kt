@@ -63,9 +63,9 @@ fun KarbonTheme(
                 toast("No theme selected")
             }
             if (darkTheme){
-                defaultTheme.darkScheme
+                blueberry.darkScheme
             }else{
-                defaultTheme.lightScheme
+                blueberry.lightScheme
             }
         }else{
             theme

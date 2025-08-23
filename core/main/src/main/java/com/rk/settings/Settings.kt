@@ -6,7 +6,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.application
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.ui.theme.defaultTheme
+import com.rk.xededitor.ui.theme.blueberry
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
@@ -58,7 +58,7 @@ object Settings {
     // String settings
     var selectedProject by CachedPreference("selected_project", "")
     var font_gson by CachedPreference("selected_font", "")
-    var theme by CachedPreference("theme", defaultTheme.id)
+    var theme by CachedPreference("theme", blueberry.id)
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding by CachedPreference("encoding", Charset.defaultCharset().name())
 
