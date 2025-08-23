@@ -7,13 +7,14 @@ import com.rk.xededitor.ui.activities.main.ControlItem
 import com.rk.xededitor.ui.activities.main.Tab
 
 object Hooks {
+
+    //root.(file)
     data class FileAction(
         val id: String,
-        val shouldAttach: FileObject.(FileObject) -> Unit,
+        val shouldAttach: FileObject?.(FileObject) -> Boolean,
         val icon: ImageVector,
         val title: String,
-        val description: String? = null,
-        val onClick: FileObject.(FileObject) -> Unit
+        val onClick: FileObject?.(FileObject) -> Unit
     ) {
         companion object {
             val actions = mutableStateMapOf<String, FileAction>()

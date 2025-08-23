@@ -33,6 +33,7 @@ import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
+import com.rk.extension.Hooks
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -85,31 +86,6 @@ private fun Categories(navController: NavController) {
             onNavigate = { navController.navigate(SettingsRoutes.Runners.route) },
         )
     }
-
-    /*
-    PreferenceTemplate(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clip(MaterialTheme.shapes.large)
-        .clickable { navController.navigate(SettingsRoutes.Misc.route)  }
-        .background(Color.Transparent),
-        verticalPadding = 14.dp,
-        title = {
-            Text(stringResource(id = strings.misc))
-        },
-        description = {
-            Text(stringResource(id = strings.misc_desc))
-        },
-        startWidget = {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                Icon(
-                    imageVector = Icons.Outlined.Menu,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        }
-    ) */
 
     if (InbuiltFeatures.extensions.state.value) {
         PreferenceCategory(
@@ -171,6 +147,27 @@ private fun Categories(navController: NavController) {
             HeartbeatIcon()
         }
     )
+
+    Hooks.Settings.screens.values.forEach{ entry ->
+        PreferenceTemplate(modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .clip(MaterialTheme.shapes.large)
+            .clickable { navController.navigate(entry.route) }
+            .background(Color.Transparent),
+            verticalPadding = 14.dp,
+            title = {
+                Text(entry.label)
+            },
+            description = {
+                Text(entry.description)
+            },
+            startWidget = {
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+                    entry.icon()
+                }
+            }
+        )
+    }
 }
 
 

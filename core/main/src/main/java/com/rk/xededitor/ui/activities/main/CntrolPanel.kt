@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.DefaultScope
+import com.rk.extension.Hooks
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
 import com.rk.xededitor.ui.activities.main.MainActivity
@@ -37,7 +38,6 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
             ControlItem(
                 item = ControlItem(
                     label = "Save",
-                    keyBind = "CTRL+S",
                     sideEffect = {
                         showControlPanel = false
                         viewModel.currentTab?.let {
@@ -65,12 +65,16 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
                     })
             )
 
+
+            Hooks.ControlItems.items.values.forEach{ item ->
+                ControlItem(item = item)
+            }
+
+
             Mutators.mutators.forEach { mut ->
                 ControlItem(
                     item = ControlItem(
                         label = mut.name,
-                        description = "Mutator",
-                        keyBind = null,
                         sideEffect = {
                             showControlPanel = false
                             DefaultScope.launch {
@@ -93,8 +97,6 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
 
 data class ControlItem(
     val label: String,
-    val description: String? = null,
-    val keyBind: String? = null,
     val sideEffect: () -> Unit,
 )
 
@@ -104,16 +106,7 @@ fun ControlItem(modifier: Modifier = Modifier, item: ControlItem) {
         modifier = Modifier.clickable(enabled = true, onClick = {
             item.sideEffect()
         }),
-        description = {
-            if (item.description != null) {
-                Text(text = item.description)
-            }
-        },
         title = {
             Text(text = item.label)
-        }, endWidget = {
-            if (item.keyBind != null) {
-                Text(text = item.keyBind)
-            }
         })
 }
