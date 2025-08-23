@@ -16,6 +16,7 @@ import com.rk.xededitor.ui.screens.terminal.MkSession
 import com.termux.terminal.TerminalSession
 import com.termux.terminal.TerminalSessionClient
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -83,6 +84,7 @@ class SessionService : Service() {
         super.onDestroy()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
@@ -92,7 +94,7 @@ class SessionService : Service() {
 
         if (deamonRunning.not()){
             GlobalScope.launch {
-                Bridge.startServer(ActionHandler.handler)
+                Bridge.startServer(ActionHandler::onAction)
                 deamonRunning = true
             }
         }

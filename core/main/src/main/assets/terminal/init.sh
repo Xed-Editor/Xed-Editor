@@ -78,7 +78,7 @@ if [[ -f ~/.bashrc ]]; then
 fi
 
 
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$PREFIX/local/bin
 
 export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] # "
 
@@ -86,5 +86,7 @@ alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
+alias editor="xed edit"
+alias edit="xed edit"
 
 cd "$WKDIR" || { error "Failed to change directory to $WKDIR"; exit 1; }

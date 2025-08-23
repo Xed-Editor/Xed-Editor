@@ -21,7 +21,7 @@ object Bridge {
         const val ERR = "err"
     }
 
-    suspend fun startServer(handler: (String) -> String): Unit = withContext(Dispatchers.IO) {
+    suspend fun startServer(handler: suspend (String) -> String): Unit = withContext(Dispatchers.IO) {
         try {
             if (isRunning){
                 return@withContext
@@ -38,7 +38,7 @@ object Bridge {
 
     }
 
-    private suspend fun listenForClients(handler: (String) -> String) = withContext(Dispatchers.IO) {
+    private suspend fun listenForClients(handler: suspend (String) -> String) = withContext(Dispatchers.IO) {
         val server = serverSocket ?: return@withContext
         while (isRunning) {
             try {
@@ -59,14 +59,13 @@ object Bridge {
         }
     }
 
-    private fun handleClient(clientSocket: LocalSocket, handler: (String) -> String) {
-        Thread {
+    private suspend fun handleClient(clientSocket: LocalSocket, handler: suspend (String) -> String) {
+        withContext(Dispatchers.IO){
             try {
                 BufferedReader(InputStreamReader(clientSocket.inputStream)).use { input ->
                     BufferedWriter(OutputStreamWriter(clientSocket.outputStream)).use { output ->
                         var line: String?
                         while (input.readLine().also { line = it } != null && isRunning && clientSocket.isConnected) {
-                            println("Received from client: $line")
                             val result = handler(line!!)
                             output.write(result)
                             output.newLine()
@@ -82,7 +81,7 @@ object Bridge {
                     e.printStackTrace()
                 }
             }
-        }.start()
+        }
     }
 
     fun close(){

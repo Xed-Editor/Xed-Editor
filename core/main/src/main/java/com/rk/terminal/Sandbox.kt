@@ -7,6 +7,7 @@ import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
 import com.rk.terminal.bind
 import com.rk.xededitor.BuildConfig
@@ -49,6 +50,7 @@ fun getDefaultBindings(): List<Binding>{
     val list = mutableListOf<Binding>()
 
     with(list){
+        bind(sandboxHomeDir().absolutePath,"/home")
         bind("/sdcard")
         bind("/storage")
         bind("/data")
