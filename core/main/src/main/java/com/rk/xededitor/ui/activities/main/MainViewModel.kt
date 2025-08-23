@@ -99,7 +99,7 @@ class MainViewModel : ViewModel() {
 
                     tabs.add(editorTab)
                     if (switchToTab){
-                        delay(150)
+                        delay(70)
                         currentTabIndex = tabs.lastIndex
                     }
                 }

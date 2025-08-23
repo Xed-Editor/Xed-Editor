@@ -231,6 +231,8 @@ fun SearchPanel(
 
                         IconButton(onClick = {
                             editorState.isSearching = false
+                            editorState.searchKeyword = ""
+                            editorState.replaceKeyword = ""
                             editor?.searcher?.stopSearch()
                         }) {
                             Icon(imageVector = Icons.Outlined.Close, null)
