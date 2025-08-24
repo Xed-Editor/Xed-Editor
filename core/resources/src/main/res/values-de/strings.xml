@@ -206,4 +206,5 @@
     <string name="smooth_tabs">Sanfter Reiterwechsel</string>
     <string name="theme_settings">Themeneinstellungen</string>
     <string name="add_theme">Thema hinzufügen</string>
+    <string name="monet_desc">Gerätethema in App verwenden</string>
 </resources>
