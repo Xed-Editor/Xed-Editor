@@ -28,7 +28,6 @@ object Settings {
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
-    var use_sora_search by CachedPreference("sora_search", true)
     var is_selected_font_assest by CachedPreference("is_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
     var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
@@ -40,7 +39,6 @@ object Settings {
     var anr_watchdog by CachedPreference("anr", false)
     var strict_mode by CachedPreference("strictMode", false)
     var expose_home_dir by CachedPreference("expose_home_dir", false)
-    var auto_complete by CachedPreference("auto_complete", true)
     var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var donated by CachedPreference("donated", false)
@@ -49,7 +47,6 @@ object Settings {
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)
     var editor_text_size by CachedPreference("textsize", 14)
-    var auto_save_interval by CachedPreference("auto_save_interval", 10000)
     var default_night_mode by CachedPreference(
         "default_night_mode",
         AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM

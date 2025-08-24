@@ -198,7 +198,10 @@ class MainActivity : AppCompatActivity() {
                                                 }
 
                                                 delay(60)
-                                                drawerState.close()
+                                                if (Settings.keep_drawer_locked.not()){
+                                                    drawerState.close()
+                                                }
+
                                             }
                                         }
                                     )

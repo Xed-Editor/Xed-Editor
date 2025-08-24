@@ -1,6 +1,5 @@
 package com.rk.xededitor.ui.activities.main
 
-import androidx.compose.ui.graphics.Color
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -10,33 +9,24 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
-import androidx.lifecycle.ViewModel
 import com.rk.file.FileObject
-import com.rk.libcommons.application
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
-import com.rk.libcommons.hasHardwareKeyboard
-import com.rk.libcommons.isMainThread
-import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -49,27 +39,25 @@ import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_ITEM_CURRENT
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SELECTED_TEXT_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.nio.charset.Charset
 
 data class CodeEditorState(
     val initialContent: Content? = null,
@@ -80,7 +68,6 @@ data class CodeEditorState(
     var isDirty by mutableStateOf(false)
     var editable by mutableStateOf(Settings.readOnlyByDefault.not())
     val updateLock = Mutex()
-
 
     var isSearching by mutableStateOf(false)
     var isReplaceShown by mutableStateOf(false)
@@ -99,6 +86,8 @@ class EditorTab(
     var file: FileObject,
     val viewModel: MainViewModel,
 ) : Tab() {
+
+    private val charset = Charset.forName(Settings.encoding)
 
     override val icon: ImageVector
         get() = Icons.Outlined.Edit
@@ -121,7 +110,7 @@ class EditorTab(
             scope.launch(Dispatchers.IO){
                 runCatching {
                     editorState.content = file.getInputStream().use {
-                        ContentIO.createFrom(it)
+                        ContentIO.createFrom(it, charset)
                     }
                     editorState.updateLock.withLock{
                         editorState.editor?.setText(editorState.content)
@@ -135,14 +124,19 @@ class EditorTab(
         }
     }
 
+    private val saveMutex = Mutex()
+
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun save() = withContext(Dispatchers.IO){
-        runCatching {
-            file.writeText(editorState.content.toString())
-            editorState.isDirty = false
-        }.onFailure {
-            errorDialog(it)
+        saveMutex.withLock{
+            runCatching {
+                file.writeText(editorState.content.toString(),charset)
+                editorState.isDirty = false
+            }.onFailure {
+                errorDialog(it)
+            }
         }
+
     }
 
     override fun release() {
@@ -176,6 +170,16 @@ class EditorTab(
                     modifier = Modifier,
                     state = editorState,
                     textmateScope = language,
+                    onTextChange = {
+                        if (Settings.auto_save){
+                            scope.launch(Dispatchers.IO){
+                                save()
+                                saveMutex.lock()
+                                delay(400)
+                                saveMutex.unlock()
+                            }
+                        }
+                    },
                     onKeyEvent = { event ->
                         if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
                             scope.launch(Dispatchers.IO) {
@@ -211,7 +215,8 @@ fun CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     textmateScope: String? = null,
-    onKeyEvent:(EditorKeyEvent)-> Unit
+    onKeyEvent:(EditorKeyEvent)-> Unit,
+    onTextChange:()-> Unit
 ) {
 
     val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
@@ -338,6 +343,7 @@ fun CodeEditor(
                             if (!state.updateLock.isLocked){
                                 state.isDirty = true
                                 updateUndoRedo()
+                                onTextChange.invoke()
                             }
                         }
 

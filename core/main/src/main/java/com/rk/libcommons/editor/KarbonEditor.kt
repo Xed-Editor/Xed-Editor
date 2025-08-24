@@ -229,15 +229,13 @@ class KarbonEditor : CodeEditor {
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
         while (!isInit && isActive) delay(50)
 
-        val language = TextMateLanguage.create(languageScopeName, Settings.auto_complete).apply {
-            if (Settings.auto_complete) {
-                context.assets.open("textmate/keywords.json").use {
-                    JsonParser.parseReader(InputStreamReader(it))
-                        .asJsonObject[languageScopeName]?.asJsonArray
-                        ?.map { el -> el.asString }
-                        ?.toTypedArray()
-                        ?.let(::setCompleterKeywords)
-                }
+        val language = TextMateLanguage.create(languageScopeName, true).apply {
+            context.assets.open("textmate/keywords.json").use {
+                JsonParser.parseReader(InputStreamReader(it))
+                    .asJsonObject[languageScopeName]?.asJsonArray
+                    ?.map { el -> el.asString }
+                    ?.toTypedArray()
+                    ?.let(::setCompleterKeywords)
             }
         }
 

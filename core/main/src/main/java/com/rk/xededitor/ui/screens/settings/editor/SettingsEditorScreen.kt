@@ -36,10 +36,8 @@ fun SettingsEditorScreen(navController: NavController) {
     PreferenceLayout(label = stringResource(id = strings.editor), backArrowVisible = true) {
         val context = LocalContext.current
 
-        var showAutoSaveDialog by remember { mutableStateOf(false) }
         var showTextSizeDialog by remember { mutableStateOf(false) }
         var showTabSizeDialog by remember { mutableStateOf(false) }
-        var autoSaveTimeValue by remember { mutableStateOf(Settings.auto_save_interval.toString()) }
         var textSizeValue by remember { mutableStateOf(Settings.editor_text_size.toString()) }
         var tabSizeValue by remember { mutableStateOf(Settings.tab_size.toString()) }
         var showLineSpacingDialog by remember { mutableStateOf(false) }
@@ -101,16 +99,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.hide_soft_keyboard_if_hardware,
                 sideEffect = {
                     Settings.hide_soft_keyboard_if_hardware = it
-                }
-            )
-
-            SettingsToggle(
-                label = stringResource(strings.auto_complete),
-                description = stringResource(strings.auto_complete),
-                default = Settings.auto_complete,
-                sideEffect = {
-                    Settings.auto_complete = it
-                    toast(strings.restart_required)
                 }
             )
 
@@ -205,37 +193,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.auto_save,
                 sideEffect = {
                     Settings.auto_save = it
-                    DefaultScope.launch(Dispatchers.Main) {
-                        delay(200)
-                        if (it) {
-                            MaterialAlertDialogBuilder(context).apply {
-                                setTitle(strings.experimental_feature.getString())
-                                setMessage(strings.experimental_session_restore_warning.getString())
-                                setPositiveButton(strings.ok, null)
-                                show()
-                            }
-                        }
-                    }
                 }
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(strings.sora_s),
-                description = stringResource(strings.sora_s_desc),
-                default = Settings.use_sora_search,
-                sideEffect = {
-                    Settings.use_sora_search = it
-                }
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.auto_save_time),
-                description = stringResource(id = strings.auto_save_time_desc),
-                sideEffect = {
-                    showAutoSaveDialog = true
-                },
-                default = false,
-                showSwitch = false,
             )
 
             EditorSettingsToggle(label = stringResource(id = strings.tab_size),
@@ -274,31 +232,6 @@ fun SettingsEditorScreen(navController: NavController) {
             )
         }
 
-        if (showAutoSaveDialog) {
-            InputDialog(
-                title = stringResource(id = strings.auto_save_time),
-                inputLabel = stringResource(id = strings.intervalinMs),
-                inputValue = autoSaveTimeValue.toString(),
-                onInputValueChange = {
-                    autoSaveTimeValue = it
-                },
-                onConfirm = {
-                    if (autoSaveTimeValue.toIntOrNull() == null) {
-                        toast(strings.inavalid_v)
-                        autoSaveTimeValue = Settings.auto_save_interval.toString()
-                    } else if (autoSaveTimeValue.toInt() < 3000) {
-                        toast(context.getString(strings.v_small))
-                        autoSaveTimeValue = Settings.auto_save_interval.toString()
-                    } else {
-                        Settings.auto_save_interval = autoSaveTimeValue.toInt()
-                        showAutoSaveDialog = false
-                    }
-
-                },
-                onDismiss = { showAutoSaveDialog = false },
-            )
-        }
-
         if (showTextSizeDialog) {
             InputDialog(
                 title = stringResource(id = strings.text_size),
@@ -318,7 +251,15 @@ fun SettingsEditorScreen(navController: NavController) {
                         toast(context.getString(strings.v_small))
                         textSizeValue = Settings.editor_text_size.toString()
                     } else {
+                        Settings.editor_text_size = textSizeValue.toInt()
 
+                        MainActivity.instance?.apply {
+                            viewModel.tabs.forEach {
+                                if (it is EditorTab) {
+                                    it.editorState.editor?.applySettings()
+                                }
+                            }
+                        }
                     }
 
                 },
@@ -345,6 +286,14 @@ fun SettingsEditorScreen(navController: NavController) {
                         tabSizeValue = Settings.tab_size.toString()
                     } else {
                         Settings.tab_size = tabSizeValue.toInt()
+
+                        MainActivity.instance?.apply {
+                            viewModel.tabs.forEach {
+                                if (it is EditorTab) {
+                                    it.editorState.editor?.applySettings()
+                                }
+                            }
+                        }
 
                         showTabSizeDialog = false
                     }
