@@ -354,7 +354,7 @@
     <string name="email">Courriel</string>
     <string name="info_mutators">Les mutateurs sont de petits scripts utilisés pour modifier l’éditeur de texte. Créez un mutateur et cliquez dessus pour l’ouvrir dans l’éditeur.</string>
     <string name="mutator_name">Nom du mutateur</string>
-    <string name="update_files_cleared">App mise à jour : données vidées</string>
+    <string name="update_files_cleared">App mise à jour : données vidées</string>
     <string name="file_err">Le fichier ne peut pas être enregistré, essayez de le fermer puis le rouvrir</string>
     <string name="file_not_loaded">Le fichier n\'est pas encore chargé.</string>
     <string name="file_not_exist">Le fichier n\'existe plus</string>
