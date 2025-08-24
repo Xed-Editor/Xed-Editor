@@ -56,17 +56,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
-            /* EditorSettingsToggle(label = stringResource(strings.scroll_to_bottom),
-                 description = stringResource(strings.scroll_to_bottom_desc),
-                 default = false,
-                 key = PreferencesKeys.SCROLL_TO_BOTTOM,
-                 sideEffect = {
-                     if (it) {
-                         toast(strings.ni.getString())
-                     }
-                 }) */
-
-
             EditorSettingsToggle(label = stringResource(id = strings.ww),
                 description = stringResource(id = strings.ww_desc),
                 default = Settings.wordwrap,
@@ -81,6 +70,14 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     Settings.word_wrap_for_text = it
 
+                }
+            )
+
+            EditorSettingsToggle(label = stringResource(strings.read_mode),
+                description = stringResource(strings.read_mode_desc),
+                default = Settings.readOnlyByDefault,
+                sideEffect = {
+                    Settings.readOnlyByDefault = it
                 }
             )
         }

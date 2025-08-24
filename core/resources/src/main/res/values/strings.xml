@@ -460,4 +460,5 @@
     <string name="confirm_exit">Are you sure you want to exit?</string>
     <string name="controlpanel">ControlPanel</string>
     <string name="newtab_oom">Not enough memory is available to open this tab. Opening it may cause Xed-Editor to crash. Do you want to continue anyway?</string>
+    <string name="read_mode_desc">Enable read mode by default</string>
 </resources>

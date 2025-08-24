@@ -96,7 +96,7 @@ fun CodeEditor.updateUndoRedo(){
 fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewModel: MainViewModel) {
 
     var expanded by remember { mutableStateOf(false) }
-    var editable by remember(tab) { mutableStateOf(tab.file.canWrite()) }
+    var editable by remember(tab) { mutableStateOf(tab.file.canWrite() && tab.editorState.editable) }
     var isRunnable by remember(tab) { mutableStateOf(false) }
 
     val resources = LocalContext.current.resources

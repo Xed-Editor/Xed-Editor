@@ -78,6 +78,7 @@ data class CodeEditorState(
     var arrowKeys: HorizontalScrollView? = null
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
+    var editable by mutableStateOf(Settings.readOnlyByDefault.not())
     val updateLock = Mutex()
 
 
@@ -277,6 +278,7 @@ fun CodeEditor(
 
                     val horizontalScrollViewId = View.generateViewId()
                     val editor = KarbonEditor(ctx).apply {
+                        editable = state.editable
                         id = View.generateViewId()
                         layoutParams = ConstraintLayout.LayoutParams(
                             ConstraintLayout.LayoutParams.MATCH_PARENT,
