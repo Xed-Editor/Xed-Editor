@@ -5,8 +5,11 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import com.rk.file.FileObject
+import com.rk.libcommons.errorDialog
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
 
@@ -37,7 +40,13 @@ class HtmlRunner() : RunnerImpl() {
 
     override fun run(context: Context,file: FileObject) {
         stop()
-        httpServer = HttpServer(PORT, file.getParentFile()!!)
+        val parent = file.getParentFile()
+        if (parent == null){
+            errorDialog(strings.preview_err.getString())
+            return
+        }
+
+        httpServer = HttpServer(PORT, parent)
         val url = "http://localhost:$PORT/${file.getName()}"
         CustomTabsIntent.Builder().apply {
             setShowTitle(true)
