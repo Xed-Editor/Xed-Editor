@@ -8,8 +8,12 @@ import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.libcommons.application
+import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.expectOOM
 import com.rk.libcommons.toast
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -89,23 +93,38 @@ class MainViewModel : ViewModel() {
     }
 
     suspend fun newTab(fileObject: FileObject,checkDuplicate: Boolean = true,switchToTab: Boolean = false) = withContext(Dispatchers.IO){
-        val tabs = mutableListOf<Tab>()
+        val function = suspend {
+            val tabs = mutableListOf<Tab>()
 
-        Hooks.Editor.tabs.forEach{
-            if (it.value.shouldOpenForFile(fileObject)){
-                tabs.add(it.value)
+            Hooks.Editor.tabs.forEach{
+                if (it.value.shouldOpenForFile(fileObject)){
+                    tabs.add(it.value)
+                }
+            }
+
+            if (tabs.isEmpty()){
+                newEditorTab(fileObject,checkDuplicate = checkDuplicate,switchToTab = switchToTab)
+            }else{
+                newTab(tabs.first())
             }
         }
 
-        if (tabs.isEmpty()){
-            newEditorTab(fileObject,checkDuplicate = checkDuplicate,switchToTab = switchToTab)
+        val coroutineScope = this
+        if (expectOOM(fileObject.length())){
+            dialog(title = strings.attention.getString(), msg = strings.newtab_oom.getString(), onOk = {
+                coroutineScope.launch{
+                    function.invoke()
+                }
+            })
         }else{
-            newTab(tabs.first())
+            function.invoke()
         }
+
     }
 
     private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
         Dispatchers.IO) {
+
         if (checkDuplicate && tabs.any { it is EditorTab && it.file == file }) {
             return@withContext false
         }
@@ -137,12 +156,10 @@ class MainViewModel : ViewModel() {
     fun removeTab(index: Int): Boolean {
         if (index !in tabs.indices) return false
 
-        // Close tab resources if needed
         (tabs[index] as? EditorTab)?.onTabRemoved()
 
         tabs.removeAt(index)
 
-        // More robust index adjustment
         currentTabIndex = when {
             tabs.isEmpty() -> 0
             index <= currentTabIndex -> maxOf(0, currentTabIndex - 1)
@@ -161,7 +178,7 @@ class MainViewModel : ViewModel() {
         }
 
         if (tabs.size <= 1) {
-            return false // No other tabs to remove
+            return false
         }
 
         val currentTab = tabs[currentTabIndex]

@@ -8,6 +8,7 @@ import com.rk.file.FileObject
 
 
 abstract class Tab() {
+    var refreshKey: Int = 0
     abstract val name: String
     abstract val icon: ImageVector
 

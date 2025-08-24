@@ -81,18 +81,10 @@ inline fun isMainThread(): Boolean {
 @OptIn(DelicateCoroutinesApi::class)
 fun <K> x(m: MutableCollection<K>, c: Int) {
     GlobalScope.launch(Dispatchers.IO) {
-        runCatching {
-            for (y in m.shuffled().take(c)) {
-                m.remove(y)
-            }
-        }
+        runCatching { for (y in m.shuffled().take(c)) { m.remove(y) } }
     }
 }
 
-@Composable
-fun dialogCompose() {
-    TODO()
-}
 
 @Composable
 fun DialogContent(
@@ -147,6 +139,11 @@ fun openUrl(url: String) {
         android.net.Uri.parse(url)
     )
    application!!.startActivity(intent)
+}
+
+fun hasHardwareKeyboard(context: Context): Boolean {
+    val configuration = context.resources.configuration
+    return configuration.keyboard != Configuration.KEYBOARD_NOKEYS
 }
 
 fun dialog(

@@ -202,12 +202,6 @@
     <string name="Lshell_desc">Executed when the terminal is launched.</string>
     <string name="terminal_text_size">Terminal text size</string>
     <string name="terminal_text_size_desc">Set terminal text size</string>
-    <string name="sim_hard_links">Simulate hard links</string>
-    <string name="sim_hard_links_desc">Create a symlink where a hardlink should be created</string>
-    <string name="sim_ashmem">Simulate Ashmemfd on Android</string>
-    <string name="sysvipc">Handle System V IPC syscall</string>
-    <string name="kill_on_exit">Kill on exit</string>
-    <string name="kill_on_exit_desc">Terminate all processes when exiting terminal</string>
     <string name="u_err">Unknown Error</string>
     <string name="is_null">InputStream is null</string>
     <string name="wait_pkg">Please wait while the packages are being downloaded.</string>
@@ -464,4 +458,6 @@
     <string name="add_theme">Add Theme</string>
     <string name="unsupported_feature">This feature is not supported on your device</string>
     <string name="confirm_exit">Are you sure you want to exit?</string>
+    <string name="controlpanel">ControlPanel</string>
+    <string name="newtab_oom">Not enough memory is available to open this tab. Opening it may cause Xed-Editor to crash. Do you want to continue anyway?</string>
 </resources>

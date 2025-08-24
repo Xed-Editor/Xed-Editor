@@ -49,6 +49,7 @@ import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.application
+import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -201,7 +202,6 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
             Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxSize()) {
                 val scope = rememberCoroutineScope()
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
-                var showPrivateWarningDialog by remember { mutableStateOf<(()->Unit)?>(null) }
                 var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
                 var closeProjectDialog by remember { mutableStateOf<FileObject?>(null) }
 
@@ -290,8 +290,10 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                         onAddProject = { fileObject ->
                             scope.launch { addProject(fileObject, true) }
                         },
-                        showPrivateFileWarning = {
-                            showPrivateWarningDialog = it
+                        showPrivateFileWarning = { callback ->
+                            dialog(title = strings.attention.getString(), msg = strings.warning_private_dir.getString(), onOk = {
+                                callback.invoke()
+                            })
                         }
                     )
                 }
@@ -300,28 +302,6 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                     FileActionDialog(modifier = Modifier, file = fileActionDialog!!, root = currentProject!!, onDismissRequest = {
                         fileActionDialog = null
                     })
-                }
-
-                if (showPrivateWarningDialog != null){
-                    AlertDialog(
-                        onDismissRequest = {
-                           showPrivateWarningDialog = null
-                        },
-                        title = {
-                            Text(text = stringResource(strings.warning))
-                        },
-                        text = {
-                            Text(text = stringResource(strings.warning_private_dir))
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                showPrivateWarningDialog?.invoke()
-                                showPrivateWarningDialog = null
-                            }) {
-                                Text(text = strings.ok.getString())
-                            }
-                        },
-                    )
                 }
 
                 if (closeProjectDialog != null){
@@ -441,7 +421,7 @@ private fun AddProjectDialog(
                 onClick = {
                     if (!Settings.has_shown_terminal_dir_warning) {
                         showPrivateFileWarning{
-                            Settings.has_shown_private_data_dir_warning = true
+                            Settings.has_shown_terminal_dir_warning = true
                             lifecycleScope.launch {
                                 onAddProject(FileWrapper(sandboxHomeDir()))
                             }

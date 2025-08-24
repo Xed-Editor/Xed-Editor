@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.application
+import com.rk.libcommons.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.ui.theme.blueberry
 import java.lang.ref.WeakReference
@@ -20,7 +21,7 @@ object Settings {
     var restore_sessions by CachedPreference("restore_sessions", true)
     var word_wrap_for_text by CachedPreference("ww_txt", true)
     var cursor_animation by CachedPreference("cursor_animation", false)
-    var show_arrow_keys by CachedPreference("arrow_keys", true)
+    var show_arrow_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!))
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var auto_save by CachedPreference("auto_save", false)

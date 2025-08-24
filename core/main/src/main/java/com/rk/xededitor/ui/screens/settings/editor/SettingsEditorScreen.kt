@@ -1,5 +1,7 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
+import android.view.View
+import android.widget.HorizontalScrollView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +18,8 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.xededitor.ui.activities.main.EditorTab
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.EditorSettingsToggle
 import com.rk.xededitor.ui.components.InputDialog
@@ -25,6 +29,7 @@ import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.sequences.filterIsInstance
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -175,8 +180,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.show_arrow_keys,
                 sideEffect = {
                     Settings.show_arrow_keys = it
-
-
                 })
 
             NextScreenCard(
@@ -190,7 +193,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.smooth_tabs,
                 sideEffect = {
                     Settings.smooth_tabs = it
-                    //smoothTabs = it
                 })
             EditorSettingsToggle(
                 label = stringResource(id = strings.keepdl),

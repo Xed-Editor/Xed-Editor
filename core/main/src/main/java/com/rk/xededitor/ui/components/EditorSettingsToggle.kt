@@ -1,10 +1,12 @@
 package com.rk.xededitor.ui.components
 
+import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
+import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.main.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +45,7 @@ fun EditorSettingsToggle(
                         viewModel.tabs.forEach{
                             if (it is EditorTab){
                                 it.editorState.editor?.applySettings()
+                                it.editorState.arrowKeys?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
                             }
                         }
                     }

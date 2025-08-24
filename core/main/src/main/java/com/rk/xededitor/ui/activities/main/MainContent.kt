@@ -81,9 +81,9 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
             LaunchedEffect(viewModel.currentTabIndex) {
                 if (pagerState.currentPage != viewModel.currentTabIndex) {
                     if (Settings.smooth_tabs){
-                        pagerState.scrollToPage(viewModel.currentTabIndex)
-                    }else{
                         pagerState.animateScrollToPage(viewModel.currentTabIndex)
+                    }else{
+                        pagerState.scrollToPage(viewModel.currentTabIndex)
                     }
                 }
             }
@@ -188,11 +188,15 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-                beyondViewportPageCount = viewModel.tabs.size+1,
+                beyondViewportPageCount = viewModel.tabs.size + 1,
                 userScrollEnabled = false
             ) { page ->
-                viewModel.tabs[page].content()
+                val refreshKey = viewModel.tabs[page].refreshKey
+                key(refreshKey) {
+                    viewModel.tabs[page].content()
+                }
             }
+
 
             if (fileActionDialog != null && currentProject != null){
                 FileActionDialog(

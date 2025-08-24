@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.rk.DefaultScope
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
@@ -30,6 +31,10 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.libcommons.errorDialog
+import com.rk.xededitor.ui.activities.main.EditorTab
+import com.rk.xededitor.ui.activities.main.MainActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 
@@ -96,9 +101,18 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                         //onCLick
                         Settings.selected_font_path = font.pathOrAsset
                         Settings.is_selected_font_assest = font.isAsset
-
-
                         selectedFontCompose.value = font
+
+                        DefaultScope.launch(Dispatchers.Main) {
+                            MainActivity.instance?.apply {
+                                viewModel.tabs.forEach{
+                                    if (it is EditorTab){
+                                        it.editorState.editor?.applyFont()
+                                    }
+                                }
+                            }
+                        }
+
                     },
                     contentModifier = Modifier
                         .fillMaxHeight(),

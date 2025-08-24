@@ -29,14 +29,17 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import androidx.lifecycle.ViewModel
 import com.rk.file.FileObject
+import com.rk.libcommons.application
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.hasHardwareKeyboard
 import com.rk.libcommons.isMainThread
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Settings
 import com.rk.xededitor.ui.components.EditorActions
 import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
@@ -69,9 +72,10 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 data class CodeEditorState(
-    val initialContent: Content? = null
+    val initialContent: Content? = null,
 ) {
     var editor: KarbonEditor? = null
+    var arrowKeys: HorizontalScrollView? = null
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
     val updateLock = Mutex()
@@ -224,43 +228,41 @@ fun CodeEditor(
                 it.children.filterIsInstance<KarbonEditor>().firstOrNull()?.release()
             },
             update = {
-                it.children.filterIsInstance<KarbonEditor>().firstOrNull()?.apply {
-                    updateColors { colors ->
-                        with(colors){
-                            setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, android.graphics.Color.TRANSPARENT)
+                it.children.apply {
+                    filterIsInstance<HorizontalScrollView>().firstOrNull()?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
 
-                            setColors(
-                                onSurfaceColor.toArgb(),
-                                TEXT_ACTION_WINDOW_ICON_COLOR,
-                                COMPLETION_WND_TEXT_PRIMARY,
-                                COMPLETION_WND_TEXT_SECONDARY
-                            )
+                    filterIsInstance<KarbonEditor>().firstOrNull()?.apply {
+                        updateColors { colors ->
+                            with(colors){
+                                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, android.graphics.Color.TRANSPARENT)
 
-                            setColors(
-                                surfaceColor.toArgb(),
-                                WHOLE_BACKGROUND,
-                                LINE_NUMBER_BACKGROUND
-                            )
+                                setColors(
+                                    onSurfaceColor.toArgb(),
+                                    TEXT_ACTION_WINDOW_ICON_COLOR,
+                                    COMPLETION_WND_TEXT_PRIMARY,
+                                    COMPLETION_WND_TEXT_SECONDARY
+                                )
 
-                            setColors(surfaceContainer.toArgb(),
-                                TEXT_ACTION_WINDOW_BACKGROUND,
-                                COMPLETION_WND_BACKGROUND)
+                                setColors(
+                                    surfaceColor.toArgb(),
+                                    WHOLE_BACKGROUND,
+                                    LINE_NUMBER_BACKGROUND
+                                )
 
-                            setColors(
-                                onSurfaceColor.toArgb(),
-                                EditorColorScheme.SELECTION_HANDLE,
-                                EditorColorScheme.SELECTION_INSERT,
-                                EditorColorScheme.BLOCK_LINE,
-                                EditorColorScheme.BLOCK_LINE_CURRENT,
-                                HIGHLIGHTED_DELIMITERS_FOREGROUND
-                            )
+                                setColors(surfaceContainer.toArgb(),
+                                    TEXT_ACTION_WINDOW_BACKGROUND,
+                                    COMPLETION_WND_BACKGROUND)
 
-//                            setColors(
-//                                transparentPrimary,
-//                                SELECTED_TEXT_BACKGROUND,
-//                                COMPLETION_WND_ITEM_CURRENT
-//                            )
+                                setColors(
+                                    onSurfaceColor.toArgb(),
+                                    EditorColorScheme.SELECTION_HANDLE,
+                                    EditorColorScheme.SELECTION_INSERT,
+                                    EditorColorScheme.BLOCK_LINE,
+                                    EditorColorScheme.BLOCK_LINE_CURRENT,
+                                    HIGHLIGHTED_DELIMITERS_FOREGROUND
+                                )
 
+                            }
                         }
                     }
                 }
@@ -319,12 +321,6 @@ fun CodeEditor(
                                     HIGHLIGHTED_DELIMITERS_FOREGROUND
                                 )
 
-//                            setColors(
-//                                transparentPrimary,
-//                                SELECTED_TEXT_BACKGROUND,
-//                                COMPLETION_WND_ITEM_CURRENT
-//                            )
-
                             }
                         }
 
@@ -349,8 +345,11 @@ fun CodeEditor(
                     }
 
                     val horizontalScrollView = HorizontalScrollView(ctx).apply {
+                        state.arrowKeys = this
                         id = horizontalScrollViewId
-                        visibility = View.VISIBLE
+
+                        visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
+
                         layoutParams = ConstraintLayout.LayoutParams(
                             ConstraintLayout.LayoutParams.MATCH_PARENT,
                             ConstraintLayout.LayoutParams.WRAP_CONTENT

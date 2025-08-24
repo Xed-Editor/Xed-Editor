@@ -43,6 +43,7 @@ import com.rk.file.themeDir
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.xededitor.ui.activities.main.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent
@@ -57,6 +58,8 @@ import com.rk.xededitor.ui.theme.installFromFile
 import com.rk.xededitor.ui.theme.updateThemes
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlin.random.Random
+import kotlin.random.Random.Default.nextInt
 
 val themes = mutableStateListOf<Theme>()
 
@@ -132,20 +135,47 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
                             selected = currentTheme.value?.id == theme.id, onClick = {
                             currentTheme.value = theme
                             Settings.theme = theme.id
+                                MainActivity.instance?.apply {
+                                    viewModel.tabs.forEach {
+                                        if (it is EditorTab){
+                                            it.refreshKey = nextInt()
+                                        }
+
+                                    }
+                                }
                         })
                     }, sideEffect = {
                         currentTheme.value = theme
                         Settings.theme = theme.id
-                    }, endWidget = {
+                            MainActivity.instance?.apply {
+                                viewModel.tabs.forEach {
+                                    if (it is EditorTab){
+                                        it.refreshKey = nextInt()
+                                    }
 
+                                }
+                            }
+                    }, endWidget = {
                         if (!inbuiltThemes.contains(theme)){
                             IconButton(onClick = {
+                                if (currentTheme.value == theme){
+                                    currentTheme.value = blueberry
+                                    Settings.theme = blueberry.id
+
+                                    MainActivity.instance?.apply {
+                                        viewModel.tabs.forEach {
+                                            if (it is EditorTab){
+                                                it.refreshKey = nextInt()
+                                            }
+
+                                        }
+                                    }
+                                }
+
                                 themeDir().child(theme.name).delete()
-                                currentTheme.value = blueberry
-                                Settings.theme = blueberry.id
                                 themes.remove(theme)
                             }) {
-                                Icon(imageVector = Icons.Outlined.Delete,null)
+                                 Icon(imageVector = Icons.Outlined.Delete,null)
                             }
                         }
 
