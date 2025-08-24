@@ -47,7 +47,7 @@
     <string name="file_saved">Datei gespeichert</string>
     <string name="settings">Einstellungen</string>
     <string name="close_search">Suche schließen</string>
-    <string name="go_prev">Gehe vor.</string>
+    <string name="go_prev">Zurück</string>
     <string name="rename">Umbenennen</string>
     <string name="close_others">Andere schließen</string>
     <string name="new_file_1">Neue Datei</string>
@@ -116,7 +116,7 @@
     <string name="close_current_project">Aktuelles Projekt schließen</string>
     <string name="rename_descript">Benennen Sie das Dokument um</string>
     <string name="open_with_other">Ausgewählte Datei in anderen Apps öffnen</string>
-    <string name="delete_descript">Dokument löschen</string>
+    <string name="delete_descript">Dokument endgültig löschen</string>
     <string name="data_clear">App-Daten wurden gelöscht</string>
     <string name="ok">OK</string>
     <string name="action_done">Aktion abgeschlossen</string>
@@ -129,7 +129,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in Ihrem Speicher zu bearbeiten. Bitte erlauben Sie den Zugriff in den nächsten Systemeinstellungen.</string>
     <string name="close_this">Schließen Sie dies</string>
     <string name="canthandle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Möchten Sie wirklich löschen</string>
+    <string name="ask_del">Sind Sie sicher, dass Sie endgültig löschen möchten?</string>
     <string name="redir">Bitte wählen Sie das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Registerkarte 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
@@ -183,7 +183,7 @@
     <string name="pin_line_number">Zeilennummern anheften</string>
     <string name="auto_save">Automatisch speichern</string>
     <string name="auto_save_desc">Datei automatisch speichern</string>
-    <string name="auto_save_time">Zeiteinstellung automatisches speichern</string>
+    <string name="auto_save_time">Zeit automatisch speichern</string>
     <string name="inavalid_v">Ungültiger Wert</string>
     <string name="tab_size">Tab-Größe</string>
     <string name="tab_size_desc">Tab-Größe festlegen</string>
@@ -204,4 +204,6 @@
     <string name="Lshell">Shell starten</string>
     <string name="terminal_text_size">Textgröße im Terminal</string>
     <string name="smooth_tabs">Sanfter Reiterwechsel</string>
+    <string name="theme_settings">Themeneinstellungen</string>
+    <string name="add_theme">Thema hinzufügen</string>
 </resources>
