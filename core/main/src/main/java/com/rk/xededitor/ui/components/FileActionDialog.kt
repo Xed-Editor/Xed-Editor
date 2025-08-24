@@ -292,8 +292,6 @@ fun FileActionDialog(
                                 targetTab?.file = parentFile.getChildForName(newName)
                             }
                         }
-                    } else {
-                        toast(context.getString(strings.failed))
                     }
                 }
                 showRenameDialog = false
@@ -317,8 +315,6 @@ fun FileActionDialog(
                     if (success) {
                         fileTreeViewModel?.updateCache(file.getParentFile()!!)
                         toast(context.getString(strings.success))
-                    } else {
-                        toast(context.getString(strings.failed))
                     }
                 }
                 showDeleteDialog = false
