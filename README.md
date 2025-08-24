@@ -47,6 +47,7 @@
 > [!TIP]
 Join the Xed-Editor community to stay updated and engage with other users:
 - [Telegram](https://t.me/XedEditor)
+- [Discord](https://discord.gg/Gh65JMWN)
 
 <br>
 
