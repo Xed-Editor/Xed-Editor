@@ -296,4 +296,5 @@
     <string name="name_used">Name bereits verwendet</string>
     <string name="script_showing_dialog">Dialog anzeigen</string>
     <string name="installing">Wird installiert…</string>
+    <string name="u_err">Unbekannter Fehler</string>
 </resources>
