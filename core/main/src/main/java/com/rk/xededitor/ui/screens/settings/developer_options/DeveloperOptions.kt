@@ -4,17 +4,11 @@ package com.rk.xededitor.ui.screens.settings.developer_options
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -42,6 +36,7 @@ import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
+import com.rk.xededitor.ui.activities.main.lsp_connections
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
 
@@ -179,6 +174,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                             toast("Invalid port")
                             return@PortAndExtensionDialog
                         }
+
+                        port.toIntOrNull()?.let { lsp_connections[extension] = it }
                         //lspPort = port.toIntOrNull()
                         //lspExt = extension
                     }

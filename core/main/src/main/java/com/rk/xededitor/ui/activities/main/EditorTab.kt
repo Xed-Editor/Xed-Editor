@@ -23,6 +23,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.file.FileObject
+import com.rk.libcommons.editor.BaseLspConnector
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.editor.textmateSources
@@ -51,6 +52,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -81,6 +83,8 @@ data class CodeEditorState(
 
 var showControlPanel by mutableStateOf(false)
 
+val lsp_connections = mutableMapOf<String, Int>()
+
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(
     var file: FileObject,
@@ -88,6 +92,7 @@ class EditorTab(
 ) : Tab() {
 
     private val charset = Charset.forName(Settings.encoding)
+    private var baseLspConnector: BaseLspConnector? = null
 
     override val icon: ImageVector
         get() = Icons.Outlined.Edit
@@ -103,6 +108,9 @@ class EditorTab(
 
     override fun onTabRemoved() {
         editorState.editor?.release()
+        GlobalScope.launch{
+            baseLspConnector?.disconnect()
+        }
     }
 
     init {
@@ -142,12 +150,12 @@ class EditorTab(
     override fun release() {
         scope.cancel()
         editorState.editor?.release()
+        GlobalScope.launch{
+            baseLspConnector?.disconnect()
+        }
     }
 
-    override fun shouldOpenForFile(fileObject: FileObject): Boolean {
-        return true
-    }
-
+    override fun shouldOpenForFile(fileObject: FileObject): Boolean = true
     @Composable
     override fun content(){
             Column {
@@ -188,6 +196,18 @@ class EditorTab(
                         }
                     }
                 )
+
+                LaunchedEffect(Unit) {
+                    val ext = file.getName().substringAfterLast(".").toString().trim()
+                    if (lsp_connections.contains(ext)){
+                        baseLspConnector = BaseLspConnector(ext,lsp_connections[ext]!!)
+                        file.getParentFile()?.let { parent ->
+                            baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
+                        }
+                    }
+                }
+
+
             }
 
 
@@ -282,6 +302,7 @@ fun CodeEditor(
 
 
                     val horizontalScrollViewId = View.generateViewId()
+
                     val editor = KarbonEditor(ctx).apply {
                         editable = state.editable
                         id = View.generateViewId()
