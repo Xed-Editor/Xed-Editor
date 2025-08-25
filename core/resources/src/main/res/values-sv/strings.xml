@@ -90,7 +90,6 @@
     <string name="file_exist_not">Filen finns inte längre</string>
     <string name="gitKeyExample">t.ex. SuperKek:ghp_…</string>
     <string name="file_saved">Fil sparad</string>
-    <string name="title_activity_main"></string>
     <string name="gituserexample">t.ex. UserDev:example@email.com</string>
     <string name="apply">Tillämpa</string>
     <string name="userdata">Användardata</string>
