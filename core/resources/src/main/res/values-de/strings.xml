@@ -167,7 +167,7 @@
     <string name="change_theme">Thema ändern</string>
     <string name="editor">Editor</string>
     <string name="invalidpath">Ungültiger Pfad</string>
-    <string name="clone_err">Das Repository ist privat. oder Überprüfe deine Anmeldeinformationen</string>
+    <string name="clone_err">Das Repository ist privat, oder überprüfe deine Anmeldeinformationen</string>
     <string name="fetch_failed">Abrufanforderung hat null zurückgegeben</string>
     <string name="clone_repo_desc">Repository mit Git klonen</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
@@ -223,7 +223,7 @@
     <string name="editor_font">Editor Schriftart</string>
     <string name="editor_font_desc">Editor Schriftart auswählen</string>
     <string name="force_desktop">Desktop-Modus erzwingen</string>
-    <string name="force_desktop_desc">Desktop-Layout auf kleineren Geräten erzwingen</string>
+    <string name="force_desktop_desc">Desktop-Layout auf kleineren Bildschirmen erzwingen</string>
     <string name="light_mode">Hell</string>
     <string name="dark_mode">Dunkel</string>
     <string name="auto_mode">Auto</string>
@@ -279,8 +279,8 @@
     <string name="mutator_desc">Benutzerskripte erstellen</string>
     <string name="restore_sessions">Sitzung wiederherstellen</string>
     <string name="restore_sessions_desc">Vorherige Tabs wiederherstellen</string>
-    <string name="terminal_home">Terminal Startverzeichnis</string>
-    <string name="terminal_home_desc">Standard-Startverzeichnis des Terminals</string>
+    <string name="terminal_home">Terminal Home-Verzeichnis</string>
+    <string name="terminal_home_desc">Standard-Home-Verzeichnis des Terminals</string>
     <string name="sessions">Sitzungen</string>
     <string name="add_session">Sitzung hinzufügen</string>
     <string name="terminal_runtime">Terminal-Laufzeit</string>
@@ -391,5 +391,27 @@
     <string name="unsupported_feature">Diese Funktion wird auf Ihrem Gerät nicht unterstützt</string>
     <string name="newtab_oom">Zum Öffnen dieses Tabs ist nicht genügend Arbeitsspeicher verfügbar. Das Öffnen kann zum Absturz des Xed-Editors führen. Möchtest du trotzdem fortfahren?</string>
     <string name="preview_err">Die Vorschau dieser Datei ist nicht möglich. Es ist kein übergeordnetes Verzeichnis verfügbar. Verschiebe die Datei gegebenenfalls an einen anderen Ort.</string>
-    <string name="force_normal_desc">Normalen Modus auf großen Bildschirmen erzwingen</string>
+    <string name="force_normal_desc">Normalmodus auf großen Bildschirmen erzwingen</string>
+    <string name="force_char">Zeichen erzwingen</string>
+    <string name="force_char_desc">Zeichenbasierte Eingabe im Terminal erzwingen</string>
+    <string name="useCtrlWorkaround">Strg-Workaround verwenden</string>
+    <string name="useCtrlWorkaround_desc">Strg-Leertaste-Workaround verwenden</string>
+    <string name="force_normal">Normalmodus erzwingen</string>
+    <string name="theme_mode">Thema-Modus</string>
+    <string name="cannot_be_empty">Es darf nicht leer sein.</string>
+    <string name="script_api_info">Überprüfe die Klasse ImplApi im Quellcode von Xed-Editor unter PROJECT/core/main/ui/screens/mutators/ImplApi für weitere Informationen</string>
+    <string name="read_only_file">Datei ist schreibgeschützt</string>
+    <string name="expose_saf">Home-Verzeichnis freigeben</string>
+    <string name="expose_saf_desc">Home-Verzeichnis über den System-Dateiauswahldialog (SAF) für externe Apps zugänglich machen</string>
+    <string name="saf_expose_warning">Durch das Freigeben des Home-Verzeichnisses könnten bösartige Apps sensible Informationen einsehen, darunter Git-Tokens, Passwörter, Benutzernamen und andere Dateien in Ihrem Terminal-Home-Verzeichnis. Möchtest du fortfahren?</string>
+    <string name="indian">Indisch</string>
+    <string name="runners">Runner</string>
+    <string name="runners_desc">Shell-Runner</string>
+    <string name="no_runners">Keine Runner</string>
+    <string name="new_runner">Neuer Runner</string>
+    <string name="runner_name">Runner-Name</string>
+    <string name="runner_name_exists">Runner-Name existiert bereits</string>
+    <string name="edit_runner">Runner bearbeiten</string>
+    <string name="info_runners">Runner sind kleine Bash-Skripte, die verwendet werden, um eine Datei oder ein Projekt auszuführen. Erstelle einen Runner und klicke darauf, um ihn im Editor zu öffnen.</string>
+    <string name="controlpanel">Bedienfeld</string>
 </resources>
