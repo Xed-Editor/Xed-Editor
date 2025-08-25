@@ -407,4 +407,8 @@
     <string name="logcat_service">خدمة Logcat</string>
     <string name="capture_logcat_desc">التقاط السجلات في الخلفية للتصحيح</string>
     <string name="capture_logcat">التقاط Logcat</string>
+    <string name="manage_storage_desc">‌إدارة أذونات التخزين</string>
+    <string name="lang">لغة</string>
+    <string name="lang_desc">إعدادات اللغة</string>
+    <string name="indian">هندي</string>
 </resources>
