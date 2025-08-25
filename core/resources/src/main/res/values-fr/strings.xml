@@ -93,7 +93,7 @@
     <string name="close_current_project">Fermer le projet courant</string>
     <string name="rename_descript">Renommer le document</string>
     <string name="open_with_other">Ouvrir le fichier sélectionné dans d’autres apps</string>
-    <string name="delete_descript">Supprimer le document</string>
+    <string name="delete_descript">Supprimer le document définitivement</string>
     <string name="add_file_desc">Sélectionner un nouveau fichier à ajouter</string>
     <string name="create_new_file_desc">Créer un nouveau fichier dans le dossier sélectionné</string>
     <string name="paste_desc">Coller le document</string>
@@ -303,8 +303,8 @@
     <string name="mutators">Mutateurs</string>
     <string name="update_disable">Vérification des mises-à-jour désactivée</string>
     <string name="launch_termux">Lancer Termux ?</string>
-    <string name="launch_termux_explanation">Termux est arrêté, donc xed-editor ne peut pas y exécuter de commande. Voulez-vous le démarrer ?</string>
-    <string name="mutator_desc">Créer des micro-outils</string>
+    <string name="launch_termux_explanation">Termux est arrêté, donc Xed-Editor ne peut pas y exécuter de commande. Voulez-vous le démarrer ?</string>
+    <string name="mutator_desc">Créer des scripts utilisateur</string>
     <string name="restore_sessions">Restaurer sessions</string>
     <string name="restore_sessions_desc">Restaurer les onglets antérieurs</string>
     <string name="terminal_home">Accueil du terminal</string>
@@ -323,7 +323,7 @@
     <string name="no_ext">Aucune extension installée.</string>
     <string name="loading">Chargement…</string>
     <string name="initializing">Initialisation…</string>
-    <string name="network_err">Erreur réseau</string>
+    <string name="network_err">Erreur réseau. Vérifiez que votre connexion internet fonctionne correctement.</string>
     <string name="git_auth">Jeton Github</string>
     <string name="invalid_email">Courriel invalide</string>
     <string name="invalid_user">Nom d’utilisateur invalide</string>
@@ -343,7 +343,7 @@
     <string name="encoding_warning">Modifier l’encodage par défaut est fortement déconseillé, car cela peut provoquer des corruptions de fichiers. Il est fortement recommandé d’utiliser UTF-8 à moins d’en maitriser les implications et de disposer de sauvegardes.</string>
     <string name="line_spacing_multiplier">Multiplicateur d’interlignes</string>
     <string name="ignore">Ignorer</string>
-    <string name="info_ext">Les extensions sont utilisées pour modifier le comportement et les fonctionnalités de xed-editor. Pour découvrir comment créer un greffon, cliquer ici</string>
+    <string name="info_ext">Les extensions sont utilisées pour modifier le comportement et les fonctionnalités de xed-editor. Pour découvrir comment créer un greffon, cliquer ici.</string>
     <string name="script_network">réseau</string>
     <string name="custom_git_url">Url git personnalisée</string>
     <string name="launch">Lancer</string>
@@ -354,7 +354,7 @@
     <string name="email">Courriel</string>
     <string name="info_mutators">Les mutateurs sont de petits scripts utilisés pour modifier l’éditeur de texte. Créez un mutateur et cliquez dessus pour l’ouvrir dans l’éditeur.</string>
     <string name="mutator_name">Nom du mutateur</string>
-    <string name="update_files_cleared">App mise à jour : données vidées</string>
+    <string name="update_files_cleared">App mise à jour : données supprimées</string>
     <string name="file_err">Le fichier ne peut pas être enregistré, essayez de le fermer puis le rouvrir</string>
     <string name="file_not_loaded">Le fichier n\'est pas encore chargé.</string>
     <string name="file_not_exist">Le fichier n\'existe plus</string>
@@ -367,7 +367,7 @@
     <string name="warning_private_dir">Le contenu de ce dossier sera supprimé si vous videz mes données ou désinstallez Xed-editor</string>
     <string name="highlighting">Coloration syntaxique</string>
     <string name="unrestricted_file">Ouvrir des fichiers de toute taille</string>
-    <string name="unrestricted_file_desc">Autorise l\'ouverture de fichiers de toute taille. Peut provoquer des plantges</string>
+    <string name="unrestricted_file_desc">Autoriser l\'ouverture de fichiers de toute taille. Peut provoquer des plantages.</string>
     <string name="suggest_clear_app_data">Il est recommandé de vider le cache</string>
     <string name="toggle_ww">Retour automatique à la ligne</string>
     <string name="success">Succès</string>
@@ -416,12 +416,12 @@
     <string name="no_runners">Pas de lanceurs</string>
     <string name="new_runner">Nouveau lanceur</string>
     <string name="runner_name">Nom du lanceur</string>
-    <string name="regex_pattern">Profil de Regex</string>
+    <string name="regex_pattern">Motif de Regex</string>
     <string name="invalid_runner_name">Seuls des lettres, des chiffres, des soulignements et des tirets sont permis</string>
-    <string name="invalid_regex">Profil de Regex invalide</string>
+    <string name="invalid_regex">Motif de Regex invalide</string>
     <string name="runner_name_exists">Nom de lanceur déjà existant</string>
     <string name="edit_runner">Modifier le lanceur</string>
-    <string name="info_runners">Les lanceurs sont de petits scripts bash qui sont utilisés pour lancer un fichier/projet. Créer un raccourci et cliquer dessus pour l\'ouvrir dans l\'éditeur</string>
+    <string name="info_runners">Les lanceurs sont de petits scripts bash qui sont utilisés pour lancer un fichier/projet. Créer un raccourci et cliquer dessus pour l\'ouvrir dans l\'éditeur.</string>
     <string name="redo">Refaire</string>
     <string name="read_mode">Mode lecture</string>
     <string name="edit_mode">Mode édition</string>
