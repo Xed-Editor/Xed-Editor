@@ -253,7 +253,7 @@
     <string name="restore_sessions">Obnovit Relace</string>
     <string name="soft_keyboard_always">Vždy ukázat klávesnici</string>
     <string name="soft_keyboard_always_desc">Vždy ukáže klávesnici zařízení i když je připojená fyzická klávesnice</string>
-    <string name="unrestricted_file_desc">Povolí otevřít soubory jakékoliv velikosti. může způsobit havárii</string>
+    <string name="unrestricted_file_desc">Povolí otevřít soubory jakékoliv velikosti. Může způsobit havárii.</string>
     <string name="tab_size_desc">Nastavit velikost tabulátoru (počet mezer)</string>
     <string name="tab_size">Velikost Tabulátoru</string>
     <string name="restore_sessions_desc">Obnovit minule otevřené karty</string>
