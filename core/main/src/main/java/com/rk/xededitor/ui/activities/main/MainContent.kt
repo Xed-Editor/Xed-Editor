@@ -79,7 +79,9 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
 
             // Sync pager state with viewModel.currentTabIndex
             LaunchedEffect(viewModel.currentTabIndex) {
-                if (pagerState.currentPage != viewModel.currentTabIndex) {
+                if (viewModel.tabs.isNotEmpty() &&
+                    viewModel.currentTabIndex < viewModel.tabs.size &&
+                    pagerState.currentPage != viewModel.currentTabIndex) {
                     if (Settings.smooth_tabs){
                         pagerState.animateScrollToPage(viewModel.currentTabIndex)
                     }else{
@@ -90,8 +92,16 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
 
             // Sync viewModel.currentTabIndex with pager state
             LaunchedEffect(pagerState.currentPage) {
-                if (viewModel.currentTabIndex != pagerState.currentPage) {
+                if (viewModel.tabs.isNotEmpty() &&
+                    pagerState.currentPage < viewModel.tabs.size &&
+                    viewModel.currentTabIndex != pagerState.currentPage) {
                     viewModel.currentTabIndex = pagerState.currentPage
+                }
+            }
+
+            LaunchedEffect(viewModel.tabs) {
+                if (viewModel.tabs.size != pagerState.pageCount) {
+                    pagerState.scrollToPage(viewModel.currentTabIndex)
                 }
             }
 
@@ -138,14 +148,20 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                         text = { Text(stringResource(strings.close_this)) },
                                         onClick = {
                                             showTabMenu = false
+                                            val tabToClose = tabState
+                                            val tabIndex = viewModel.tabs.indexOf(tabToClose)
 
-                                            val tab = viewModel.tabs[index]
-                                            if (tab is EditorTab && tab.editorState.isDirty){
-                                                dialog(title = strings.file_unsaved.getString(), msg = strings.ask_unsaved.getString(), onOk = {
-                                                    viewModel.removeTab(index)
-                                                }, okString = strings.close)
-                                            }else{
-                                                viewModel.removeTab(index)
+                                            if (tabIndex != -1) {
+                                                if (tabToClose is EditorTab && tabToClose.editorState.isDirty){
+                                                    dialog(
+                                                        title = strings.file_unsaved.getString(),
+                                                        msg = strings.ask_unsaved.getString(),
+                                                        onOk = { viewModel.removeTab(tabIndex) },
+                                                        okString = strings.close
+                                                    )
+                                                } else {
+                                                    viewModel.removeTab(tabIndex)
+                                                }
                                             }
                                         }
                                     )
@@ -188,15 +204,16 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-                beyondViewportPageCount = viewModel.tabs.size + 1,
+                beyondViewportPageCount = viewModel.tabs.size,
                 userScrollEnabled = false
             ) { page ->
-                val refreshKey = viewModel.tabs[page].refreshKey
-                key(refreshKey) {
-                    viewModel.tabs[page].content()
+                if (page < viewModel.tabs.size) {
+                    val tab = viewModel.tabs[page]
+                    key(tab.refreshKey) {
+                        viewModel.tabs[page].Content()
+                    }
                 }
             }
-
 
             if (fileActionDialog != null && currentProject != null){
                 FileActionDialog(

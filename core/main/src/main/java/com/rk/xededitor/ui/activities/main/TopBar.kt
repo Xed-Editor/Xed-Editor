@@ -36,7 +36,7 @@ fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel:
 
             if (viewModel.tabs.isNotEmpty()){
                 viewModel.tabs[viewModel.currentTabIndex].apply {
-                    actions()
+                    Actions()
                 }
             }
 

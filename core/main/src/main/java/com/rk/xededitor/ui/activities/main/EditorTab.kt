@@ -107,6 +107,10 @@ class EditorTab(
     val editorState by mutableStateOf(CodeEditorState())
 
     override fun onTabRemoved() {
+        scope.cancel()
+        editorState.content = null
+        editorState.arrowKeys = null
+        editorState.editor?.setText("")
         editorState.editor?.release()
         GlobalScope.launch{
             baseLspConnector?.disconnect()
@@ -147,17 +151,9 @@ class EditorTab(
 
     }
 
-    override fun release() {
-        scope.cancel()
-        editorState.editor?.release()
-        GlobalScope.launch{
-            baseLspConnector?.disconnect()
-        }
-    }
-
     override fun shouldOpenForFile(fileObject: FileObject): Boolean = true
     @Composable
-    override fun content(){
+    override fun Content(){
             Column {
                 val language = file.let {
                     textmateSources[it.getName().substringAfterLast('.', "").trim()]
@@ -215,7 +211,7 @@ class EditorTab(
     }
 
     @Composable
-    override fun RowScope.actions(){
+    override fun RowScope.Actions(){
         EditorActions(
             modifier = Modifier,
             tab = this@EditorTab,

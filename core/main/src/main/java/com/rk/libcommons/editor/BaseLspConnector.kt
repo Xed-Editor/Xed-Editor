@@ -41,7 +41,7 @@ class BaseLspConnector(
             project!!.addServerDefinition(serverDefinition!!)
 
             lspEditor = withContext(Dispatchers.Main) {
-                project!!.createEditor(fileObject.toUri().toString()).apply {
+                project!!.createEditor(fileObject.getAbsolutePath()).apply {
                     wrapperLanguage = TextMateLanguage.create(textmateSources[ext], false)
                     editor = karbonEditor
                 }
@@ -53,7 +53,7 @@ class BaseLspConnector(
                     event = WorkspaceFoldersChangeEvent().apply {
                         added = listOf(
                             WorkspaceFolder(
-                                projectFile.toUri().toString(),
+                                projectFile.getAbsolutePath(),
                                 projectFile.getName()
                             )
                         )
