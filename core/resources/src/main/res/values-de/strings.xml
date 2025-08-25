@@ -391,4 +391,5 @@
     <string name="unsupported_feature">Diese Funktion wird auf Ihrem Gerät nicht unterstützt</string>
     <string name="newtab_oom">Zum Öffnen dieses Tabs ist nicht genügend Arbeitsspeicher verfügbar. Das Öffnen kann zum Absturz des Xed-Editors führen. Möchtest du trotzdem fortfahren?</string>
     <string name="preview_err">Die Vorschau dieser Datei ist nicht möglich. Es ist kein übergeordnetes Verzeichnis verfügbar. Verschiebe die Datei gegebenenfalls an einen anderen Ort.</string>
+    <string name="force_normal_desc">Normalen Modus auf großen Bildschirmen erzwingen</string>
 </resources>
