@@ -411,4 +411,6 @@
     <string name="newtab_oom">Not enough memory is available to open this tab. Opening it may cause Xed-Editor to crash. Do you want to continue anyway?</string>
     <string name="read_mode_desc">Enable read mode by default</string>
     <string name="preview_err">Unable to preview this file. No parent directory is available. Consider moving this file somewhere else.</string>
+    <string name="acquire_wakelock">Acquire wakelock</string>
+    <string name="release_wakelock">Release wakelock</string>
 </resources>

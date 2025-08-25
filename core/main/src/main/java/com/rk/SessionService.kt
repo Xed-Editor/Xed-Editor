@@ -1,9 +1,12 @@
 package com.rk
 
+import android.annotation.SuppressLint
 import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.NotificationCompat
@@ -81,6 +84,9 @@ class SessionService : Service() {
         sessions.forEach { s -> s.value.finishIfRunning() }
         Bridge.close()
         deamonRunning = false
+        if (wakeLock?.isHeld == true){
+            wakeLock?.release()
+        }
         super.onDestroy()
     }
 
@@ -99,8 +105,18 @@ class SessionService : Service() {
             }
         }
 
+        if (wakeLock == null){
+            wakeLock = (getSystemService(POWER_SERVICE) as PowerManager).newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                "${strings.app_name.getString()}::${this::class.java.simpleName}"
+            )
+        }
+
     }
 
+    var wakeLock: PowerManager.WakeLock? = null
+
+    @SuppressLint("WakelockTimeout", "Wakelock")
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_EXIT" -> {
@@ -110,7 +126,15 @@ class SessionService : Service() {
                     deamonRunning = false
                 }
                 stopSelf()
+            }
 
+            "ACTION_WAKE_LOCK" -> {
+                if (wakeLock?.isHeld == true){
+                    wakeLock?.release()
+                }else{
+                    wakeLock?.acquire()
+                }
+                updateNotification()
             }
         }
         return super.onStartCommand(intent, flags, startId)
@@ -124,22 +148,41 @@ class SessionService : Service() {
         val exitIntent = Intent(this, SessionService::class.java).apply {
             action = "ACTION_EXIT"
         }
+        val wakeLockIntent = Intent(this, SessionService::class.java).apply {
+            action = "ACTION_WAKE_LOCK"
+        }
+
         val exitPendingIntent = PendingIntent.getService(
             this, 1, exitIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+        val wakelockPendingIntent = PendingIntent.getService(
+            this, 1, wakeLockIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("${strings.app_name.getString()} Terminal")
-            .setContentText(getNotificationContentText())
+            .setContentTitle("${strings.app_name.getString()} ${strings.terminal.getString()}")
+            .setContentText(getNotificationContentText(wakeLock?.isHeld == true))
             .setSmallIcon(drawables.terminal)
             .setContentIntent(pendingIntent)
             .addAction(
                 NotificationCompat.Action.Builder(
                     null,
-                    "EXIT",
+                    strings.exit.getString(),
                     exitPendingIntent
                 ).build()
             )
+            .addAction(
+                NotificationCompat.Action.Builder(
+                    null,
+                    if (wakeLock?.isHeld == true){
+                        strings.release_wakelock.getString()
+                    }else{
+                        strings.acquire_wakelock.getString()
+                    },
+                    wakelockPendingIntent
+                ).build()
+            )
+
             .setOngoing(true)
             .build()
     }
@@ -158,12 +201,14 @@ class SessionService : Service() {
     }
 
     private fun updateNotification() {
-        val notification = createNotification()
-        notificationManager.notify(1, notification)
+        runCatching {
+            val notification = createNotification()
+            notificationManager.notify(1, notification)
+        }.onFailure { it.printStackTrace() }
     }
 
-    private fun getNotificationContentText(): String {
+    private fun getNotificationContentText(wakelock: Boolean): String {
         val count = sessions.size
-        return "$count sessions running"
+        return "$count sessions running ${if (wakelock){"(wake lock held)"}else{""}}"
     }
 }
