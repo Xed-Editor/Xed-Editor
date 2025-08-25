@@ -43,7 +43,7 @@ import com.rk.file.themeDir
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.ui.activities.main.EditorTab
+import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.BottomSheetContent

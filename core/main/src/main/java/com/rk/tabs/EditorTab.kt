@@ -1,5 +1,7 @@
-package com.rk.xededitor.ui.activities.main
+package com.rk.tabs
 
+import com.rk.xededitor.ui.activities.main.ControlPanel
+import com.rk.xededitor.ui.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -151,60 +153,59 @@ class EditorTab(
 
     }
 
-    override fun shouldOpenForFile(fileObject: FileObject): Boolean = true
     @Composable
     override fun Content(){
-            Column {
-                val language = file.let {
-                    textmateSources[it.getName().substringAfterLast('.', "").trim()]
-                }
-
-                if (showControlPanel){
-                    ControlPanel(onDismissRequest = {
-                        showControlPanel = false
-                    }, viewModel = viewModel)
-                }
-
-                SearchPanel(editorState = editorState)
-                if (editorState.isSearching){
-                    HorizontalDivider()
-                }
-
-                CodeEditor(
-                    modifier = Modifier,
-                    state = editorState,
-                    textmateScope = language,
-                    onTextChange = {
-                        if (Settings.auto_save){
-                            scope.launch(Dispatchers.IO){
-                                save()
-                                saveMutex.lock()
-                                delay(400)
-                                saveMutex.unlock()
-                            }
-                        }
-                    },
-                    onKeyEvent = { event ->
-                        if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
-                            scope.launch(Dispatchers.IO) {
-                                save()
-                            }
-                        }
-                    }
-                )
-
-                LaunchedEffect(Unit) {
-                    val ext = file.getName().substringAfterLast(".").toString().trim()
-                    if (lsp_connections.contains(ext)){
-                        baseLspConnector = BaseLspConnector(ext,lsp_connections[ext]!!)
-                        file.getParentFile()?.let { parent ->
-                            baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
-                        }
-                    }
-                }
-
-
+        Column {
+            val language = file.let {
+                textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
+
+            if (showControlPanel){
+                ControlPanel(onDismissRequest = {
+                    showControlPanel = false
+                }, viewModel = viewModel)
+            }
+
+            SearchPanel(editorState = editorState)
+            if (editorState.isSearching){
+                HorizontalDivider()
+            }
+
+            CodeEditor(
+                modifier = Modifier,
+                state = editorState,
+                textmateScope = language,
+                onTextChange = {
+                    if (Settings.auto_save){
+                        scope.launch(Dispatchers.IO){
+                            save()
+                            saveMutex.lock()
+                            delay(400)
+                            saveMutex.unlock()
+                        }
+                    }
+                },
+                onKeyEvent = { event ->
+                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                        scope.launch(Dispatchers.IO) {
+                            save()
+                        }
+                    }
+                }
+            )
+
+            LaunchedEffect(Unit) {
+                val ext = file.getName().substringAfterLast(".").toString().trim()
+                if (lsp_connections.contains(ext)){
+                    baseLspConnector = BaseLspConnector(ext,lsp_connections[ext]!!)
+                    file.getParentFile()?.let { parent ->
+                        baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
+                    }
+                }
+            }
+
+
+        }
 
 
 

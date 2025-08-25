@@ -1,4 +1,4 @@
-package com.rk
+package com.rk.terminal
 
 import androidx.lifecycle.lifecycleScope
 import com.rk.extension.ExtensionManager
@@ -6,7 +6,6 @@ import com.rk.file.FileWrapper
 import com.rk.file.sandboxDir
 import com.rk.libcommons.application
 import com.rk.terminal.bridge.Bridge
-import com.rk.terminal.getDefaultBindings
 import com.rk.xededitor.ui.activities.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,6 +30,11 @@ object ActionHandler {
                 insidePath = insidePath.replaceFirst(it.inside, it.outside)
             }
         }
+
+        if (insidePath.startsWith("/")){
+            insidePath = insidePath.replaceFirst("/","${sandboxDir().absolutePath}/")
+        }
+
 
         return File(insidePath)
     }

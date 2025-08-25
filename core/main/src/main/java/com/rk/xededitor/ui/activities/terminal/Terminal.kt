@@ -284,6 +284,7 @@ class Terminal : AppCompatActivity() {
         val url: String, val outputPath: String
     )
 
+    @OptIn(DelicateCoroutinesApi::class)
     private suspend fun setupEnvironment(
         context: Context,
         filesToDownload: List<DownloadFile>,
@@ -325,11 +326,17 @@ class Terminal : AppCompatActivity() {
                     }.onFailure { it.printStackTrace() }
                 }
 
-                progressText = "Getting everything ready..."
+                progressText = strings.getting_ready.getString()
                 isSettingUp = true
                 setupRootfs(this@Terminal,onComplete = {
                     if (!it.isNullOrBlank()){
                         errorDialog(it)
+                        finish()
+
+                        GlobalScope.launch(Dispatchers.IO){
+                            sandboxDir().deleteRecursively()
+                            localBinDir().deleteRecursively()
+                        }
                     }
 
                     runOnUiThread {

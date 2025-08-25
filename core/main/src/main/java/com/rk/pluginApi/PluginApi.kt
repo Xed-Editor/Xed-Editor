@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.lifecycleScope
+import com.rk.extension.CustomTab
 import com.rk.extension.Extension
 import com.rk.xededitor.ui.activities.main.ControlItem
 import com.rk.extension.Hooks
@@ -14,7 +15,7 @@ import com.rk.file.FileObject
 import com.rk.libcommons.errorDialog
 import com.rk.runner.RunnerImpl
 import com.rk.xededitor.ui.activities.main.MainActivity
-import com.rk.xededitor.ui.activities.main.Tab
+import com.rk.tabs.Tab
 import kotlinx.coroutines.launch
 import java.io.InputStream
 
@@ -29,7 +30,7 @@ import java.io.InputStream
  */
 object PluginApi {
 
-    fun registerTab(id: String,tab: Tab) {
+    fun registerTab(id: String,tab: CustomTab) {
         Hooks.Editor.tabs[id] = tab
     }
 
@@ -45,7 +46,7 @@ object PluginApi {
 
         MainActivity.instance?.apply {
             lifecycleScope.launch{
-                viewModel.newTab(Hooks.Editor.tabs[id]!!)
+                viewModel.newTab(Hooks.Editor.tabs[id]!!.tab)
             }
         }
 

@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.settings.Settings
-import com.rk.xededitor.ui.activities.main.EditorTab
+import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

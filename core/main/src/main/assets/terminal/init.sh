@@ -37,8 +37,9 @@ if [ -d "$ALPINE_DIR" ]; then
     if confirm "Do you want to migrate your home data from Alpine to Ubuntu?"; then
       info "Migrating data..."
       mkdir -p "/home/alpine-data"
-      mv "$ALPINE_DIR/root" "/home/alpine-data/" 2>/dev/null
-      mv "$ALPINE_DIR/home" "/home/alpine-data/" 2>/dev/null
+      cp -r "$ALPINE_DIR/root" "/home/alpine-data/" 2>/dev/null
+      cp -r "$ALPINE_DIR/home" "/home/alpine-data/" 2>/dev/null
+
       info "Data migration completed."
     else
       warn "Skipped data migration."
@@ -46,7 +47,7 @@ if [ -d "$ALPINE_DIR" ]; then
 
     if confirm "Do you want to delete the Alpine installation to free up space?"; then
       info "Deleting Alpine installation..."
-      rm -rf "$ALPINE_DIR"
+      xed rm -rf "$ALPINE_DIR"
       info "Alpine has been removed."
     else
       warn "Alpine installation retained."
@@ -77,6 +78,8 @@ if [[ -f ~/.bashrc ]]; then
     source ~/.bashrc
 fi
 
+bridge="$NATIVE_LIB_DIR/libbridge.so"
+[ -f "$bridge" ] && rm -f "$PREFIX/local/bin/xed" && ln -s "$bridge" "$PREFIX/local/bin/xed"
 
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$PREFIX/local/bin
 

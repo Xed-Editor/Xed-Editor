@@ -17,6 +17,8 @@ import com.rk.DefaultScope
 import com.rk.extension.Hooks
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
+import com.rk.tabs.EditorTab
+import com.rk.tabs.showControlPanel
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI

@@ -1,4 +1,4 @@
-package com.rk.xededitor.ui.activities.main
+package com.rk.tabs
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
@@ -15,7 +15,6 @@ abstract class Tab() {
 
     abstract var tabTitle: MutableState<String>
     abstract fun onTabRemoved()
-    abstract fun shouldOpenForFile(fileObject: FileObject): Boolean
 
     @Composable
     abstract fun Content()

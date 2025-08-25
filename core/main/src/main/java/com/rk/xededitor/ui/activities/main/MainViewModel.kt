@@ -15,6 +15,9 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.tabs.EditorTab
+import com.rk.tabs.Tab
+import com.rk.tabs.TabRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -94,18 +97,12 @@ class MainViewModel : ViewModel() {
 
     suspend fun newTab(fileObject: FileObject,checkDuplicate: Boolean = true,switchToTab: Boolean = false) = withContext(Dispatchers.IO){
         val function = suspend {
-            val tabs = mutableListOf<Tab>()
-
-            Hooks.Editor.tabs.forEach{
-                if (it.value.shouldOpenForFile(fileObject)){
-                    tabs.add(it.value)
+            TabRegistry.getTab(fileObject){
+                if (it == null){
+                    newEditorTab(fileObject,checkDuplicate = checkDuplicate,switchToTab = switchToTab)
+                }else{
+                    newTab(it)
                 }
-            }
-
-            if (tabs.isEmpty()){
-                newEditorTab(fileObject,checkDuplicate = checkDuplicate,switchToTab = switchToTab)
-            }else{
-                newTab(tabs.first())
             }
         }
 

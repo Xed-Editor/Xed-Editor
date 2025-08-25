@@ -115,21 +115,6 @@ class App : Application() {
                 }
             }
 
-            //AutoSaver.start()
-
-            launch {
-                runCatching {
-                    val bridge = File(applicationInfo.nativeLibraryDir).child("libbridge.so")
-                    if (bridge.exists()) {
-                        Files.deleteIfExists(localBinDir().child("xed").toPath())
-                        Os.symlink(bridge.absolutePath, localBinDir().child("xed").absolutePath)
-                    }
-                }.onFailure {
-                    it.printStackTrace()
-                }
-            }
-
-
             launch {
                 runCatching { UpdateChecker.checkForUpdates("dev") }
             }

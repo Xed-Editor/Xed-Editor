@@ -4,7 +4,9 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rk.file.FileObject
 import com.rk.xededitor.ui.activities.main.ControlItem
-import com.rk.xededitor.ui.activities.main.Tab
+import com.rk.tabs.Tab
+
+data class CustomTab(val shouldOpenForFile:(fileObject: FileObject)->Boolean,val tab: Tab)
 
 object Hooks {
 
@@ -22,7 +24,7 @@ object Hooks {
     }
 
     object Editor {
-        val tabs = mutableStateMapOf<String, Tab>()
+        val tabs = mutableStateMapOf<String, CustomTab>()
     }
 
     object ControlItems{

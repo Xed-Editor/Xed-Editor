@@ -413,4 +413,5 @@
     <string name="preview_err">Unable to preview this file. No parent directory is available. Consider moving this file somewhere else.</string>
     <string name="acquire_wakelock">Acquire wakelock</string>
     <string name="release_wakelock">Release wakelock</string>
+    <string name="getting_ready">Getting everything ready…</string>
 </resources>

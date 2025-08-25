@@ -45,7 +45,7 @@ import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
-import com.rk.xededitor.ui.activities.main.EditorTab
+import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers

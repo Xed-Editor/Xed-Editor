@@ -46,10 +46,10 @@ import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.Settings
-import com.rk.xededitor.ui.activities.main.CodeEditorState
-import com.rk.xededitor.ui.activities.main.EditorTab
+import com.rk.tabs.CodeEditorState
+import com.rk.tabs.EditorTab
+import com.rk.tabs.showControlPanel
 import com.rk.xededitor.ui.activities.main.MainViewModel
-import com.rk.xededitor.ui.activities.main.showControlPanel
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.terminal.isV

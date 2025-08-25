@@ -43,7 +43,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.resources.strings
-import com.rk.xededitor.ui.activities.main.CodeEditorState
+import com.rk.tabs.CodeEditorState
 import io.github.rosemoe.sora.widget.EditorSearcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay

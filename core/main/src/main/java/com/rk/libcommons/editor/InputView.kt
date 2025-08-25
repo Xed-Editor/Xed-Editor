@@ -3,7 +3,7 @@ package com.rk.libcommons.editor
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View.OnClickListener
-import com.rk.xededitor.ui.activities.main.showControlPanel
+import com.rk.tabs.showControlPanel
 import io.github.rosemoe.sora.widget.CodeEditor
 
 

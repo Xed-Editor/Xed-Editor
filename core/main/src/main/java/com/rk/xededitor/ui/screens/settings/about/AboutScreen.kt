@@ -2,6 +2,8 @@ package com.rk.xededitor.ui.screens.settings.about
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -31,6 +33,7 @@ import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.libcommons.copyToClipboard
 import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -42,6 +45,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AboutScreen() {
     val packageInfo =
@@ -92,6 +96,9 @@ fun AboutScreen() {
 
         PreferenceGroup(heading = "BuildInfo") {
             PreferenceTemplate(
+                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
+                    copyToClipboard(versionName.toString())
+                }),
                 title = {
                     Text(
                         text = stringResource(id = strings.version),
@@ -104,6 +111,9 @@ fun AboutScreen() {
             )
 
             PreferenceTemplate(
+                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
+                    copyToClipboard(versionCode.toString())
+                }),
                 title = {
                     Text(
                         text = stringResource(id = strings.version_code),
@@ -117,6 +127,9 @@ fun AboutScreen() {
 
 
             PreferenceTemplate(
+                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
+                    copyToClipboard(BuildConfig.GIT_SHORT_COMMIT_HASH)
+                }),
                 title = {
                     Text(
                         text = stringResource(id = strings.git_commit),
@@ -132,6 +145,9 @@ fun AboutScreen() {
             )
 
             PreferenceTemplate(
+                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
+                    copyToClipboard(if (App.isFDroid) "FDroid" else "PlayStore")
+                }),
                 title = {
                     Text(
                         text = stringResource(strings.flavor),

@@ -36,7 +36,7 @@ import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.ui.activities.main.lsp_connections
+import com.rk.tabs.lsp_connections
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
 

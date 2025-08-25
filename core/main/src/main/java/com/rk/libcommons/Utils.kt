@@ -1,6 +1,8 @@
 package com.rk.libcommons
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
@@ -278,6 +280,19 @@ fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instanc
     }
 
     errorDialog(msg = message.toString(), activity = activity)
+}
+
+fun copyToClipboard(label: String, text: String,showToast: Boolean = true) {
+    val clipboard = application!!.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText(label, text)
+    clipboard.setPrimaryClip(clip)
+    if (showToast){
+        toast(strings.copied)
+    }
+}
+
+fun copyToClipboard(text: String,showToast: Boolean = true) {
+    copyToClipboard(label = "xed-editor",text, showToast = showToast)
 }
 
 fun errorDialog(exception: Exception) {
