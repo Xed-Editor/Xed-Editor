@@ -44,21 +44,26 @@ fun KarbonTheme(
             else -> dynamicLightColorScheme(context)
         }
     }else{
-        if (currentTheme.value == null){
-            currentTheme.value = themes.find { it.id == Settings.theme }
+        if (currentTheme.value == null) {
+            currentTheme.value = themes.find { it.id == Settings.theme } ?: blueberry
         }
 
-        val theme = if (darkTheme){
-            if (highContrastDarkTheme){
-                currentTheme.value?.darkScheme?.copy(background = Color.Black, surface = Color.Black,surfaceDim = Color.Black)
-            }else{
-                currentTheme.value?.darkScheme
+        val theme = if (darkTheme) {
+            if (highContrastDarkTheme) {
+                currentTheme.value!!.darkScheme.copy(
+                    background = Color.Black,
+                    surface = Color.Black,
+                    surfaceDim = Color.Black
+                )
+            } else {
+                currentTheme.value!!.darkScheme
             }
-        }else{
-            currentTheme.value?.lightScheme
+        } else {
+            currentTheme.value!!.lightScheme
         }
 
-        if (theme == null){
+
+        if (currentTheme.value == null){
             LaunchedEffect(theme) {
                 toast("No theme selected")
             }
