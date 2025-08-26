@@ -440,4 +440,7 @@
     <string name="newtab_oom">Sem memória suficiente para abrir essa aba, Abri-la pode causar o travamento do Xed-Editor. Você quer continuar mesmo assim?</string>
     <string name="read_mode_desc">Ativar modo de leitira por padrão</string>
     <string name="preview_err">Não é possível visualizar este arquivo. Nenhum diretório pai está disponível. Considere mover este arquivo para outro lugar.</string>
+    <string name="acquire_wakelock">Obter wakelock</string>
+    <string name="release_wakelock">Liberar wakelock</string>
+    <string name="getting_ready">Deixando tudo pronto…</string>
 </resources>
