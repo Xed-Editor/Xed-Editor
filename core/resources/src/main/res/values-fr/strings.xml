@@ -438,4 +438,7 @@
     <string name="newtab_oom">Il n\'y a pas assez de mémoire disponible pour ouvrir cet onglet. L\'ouvrir pourrait causer le crash de Xed-Editor. Voulez-vous quand même continuer ?</string>
     <string name="read_mode_desc">Activer par défaut le mode lecture</string>
     <string name="preview_err">Impossible de pré-afficher ce fichier. Aucun répertoire parent n\'est disponible. Considérez déplacer ce fichier ailleurs.</string>
+    <string name="getting_ready">En train de tout préparer…</string>
+    <string name="acquire_wakelock">Contrôle du réveil de l\'écran</string>
+    <string name="release_wakelock">Libération du réveil de l\'écran</string>
 </resources>
