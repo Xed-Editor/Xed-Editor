@@ -385,4 +385,7 @@
     <string name="info_mutators">Mutátory jsou malé skripty, které se používají pro upravování textu v editoru. Vytvořte mutátor a klepněte na ho pro otevření v editoru.</string>
     <string name="use_github_url">Použít výchozí doménu git</string>
     <string name="flavor">Varianta</string>
+    <string name="getting_ready">Všechno se připravuje…</string>
+    <string name="preview_err">Tento soubor nelze zobrazit. Žádná mateřská složka je dostupná. Prosím přesuňte tento soubor někde jinde.</string>
+    <string name="newtab_oom">Není dostatek prostředků pro otevření této karty. Otevření této karty může způsobit havarii Xed-Editoru. Chcete i tak pokračkovat?</string>
 </resources>
