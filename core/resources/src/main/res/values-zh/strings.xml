@@ -70,8 +70,8 @@
     <string name="old_android">不支持的 Android 版本</string>
     <string name="open_drawer">打开</string>
     <string name="print">打印</string>
-    <string name="go_next">转到下一个</string>
-    <string name="go_prev">转到上一个</string>
+    <string name="go_next">下一个</string>
+    <string name="go_prev">上一个</string>
     <string name="replace">替换</string>
     <string name="git_commit_msg">提交信息</string>
     <string name="push">推送</string>
@@ -126,7 +126,7 @@
     <string name="reload_file_tree">重新加载文件</string>
     <string name="rename_descript">重命名文件</string>
     <string name="open_with_other">在其它应用中打开所选文件</string>
-    <string name="delete_descript">删除选中的文件/文件夹</string>
+    <string name="delete_descript">永久删除选中的文件/文件夹</string>
     <string name="add_file_desc">选择要添加至此的新文件</string>
     <string name="paste_desc">粘贴选中的文件/文件夹</string>
     <string name="clipboard_empty">文件剪贴板为空</string>
@@ -240,7 +240,7 @@
     <string name="force_desktop_desc">强制在小屏幕设备上使用桌面布局</string>
     <string name="force_normal">强制正常模式</string>
     <string name="select_theme_mode">选择主题模式</string>
-    <string name="theme_mode">主题</string>
+    <string name="theme_mode">主题模式</string>
     <string name="show_virtual_keyboard">显示虚拟键盘</string>
     <string name="check_for_updates">检查更新</string>
     <string name="sora_s_desc">使用 Sora Editor 的文本搜索</string>
@@ -315,7 +315,7 @@
     <string name="no_ext">未安装扩展。</string>
     <string name="not_plugin_err">所选文件不是 .apk 格式</string>
     <string name="install_from_storage">从内部存储安装</string>
-    <string name="network_err">网络错误</string>
+    <string name="network_err">网络错误。请检查您的网络连接是否正常工作。</string>
     <string name="email">邮箱</string>
     <string name="git_auth">GitHub 访问令牌</string>
     <string name="invalid_email">无效邮箱</string>
@@ -328,7 +328,7 @@
     <string name="terminal_runtime">终端运行环境</string>
     <string name="installing">安装中…</string>
     <string name="downloading">下载中…</string>
-    <string name="mutator_desc">管理 Mulator 脚本</string>
+    <string name="mutator_desc">创建用户脚本</string>
     <string name="restore_sessions">恢复会话</string>
     <string name="restore_sessions_desc">恢复之前的标签页</string>
     <string name="terminal_home">终端主页</string>
@@ -362,7 +362,7 @@
     <string name="scroll_to_bottom">滚动到底部</string>
     <string name="highlighting">语法高亮</string>
     <string name="info_ext">扩展可用来自定义 Xed-Editor 的行为和功能。要了解如何构建扩展，请单击此处</string>
-    <string name="file_not_exist">文件不再存在</string>
+    <string name="file_not_exist">文件已不存在</string>
     <string name="info_mutators">Mutator 是用来批量修改编辑器文本的脚本。创建 Mutator 脚本后并点击即可在编辑器中打开。</string>
     <string name="scroll_to_bottom_desc">打开文件时滚动到底部</string>
     <string name="soft_keyboard_always">始终显示键盘</string>
@@ -407,4 +407,14 @@
     <string name="capture_logcat_desc">在后台抓取日志以进行调试</string>
     <string name="logcat_service">Logcat 日志服务</string>
     <string name="logcat_service_desc">正在后台抓取日志</string>
+    <string name="manage_storage_desc">管理存储权限</string>
+    <string name="lang">语言</string>
+    <string name="lang_desc">语言设置</string>
+    <string name="indian">印度</string>
+    <string name="runners">运行器</string>
+    <string name="runners_desc">Shell 运行器</string>
+    <string name="no_runners">没有运行器</string>
+    <string name="new_runner">新建运行器</string>
+    <string name="runner_name">运行器名称</string>
+    <string name="regex_pattern">正则表达式</string>
 </resources>
