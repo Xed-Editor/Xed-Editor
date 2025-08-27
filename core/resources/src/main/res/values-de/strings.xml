@@ -414,4 +414,7 @@
     <string name="edit_runner">Runner bearbeiten</string>
     <string name="info_runners">Runner sind kleine Bash-Skripte, die verwendet werden, um eine Datei oder ein Projekt auszuführen. Erstelle einen Runner und klicke darauf, um ihn im Editor zu öffnen.</string>
     <string name="controlpanel">Bedienfeld</string>
+    <string name="acquire_wakelock">Wakelock aktivieren</string>
+    <string name="release_wakelock">Wakelock freigeben</string>
+    <string name="getting_ready">Vorbereitung läuft…</string>
 </resources>
