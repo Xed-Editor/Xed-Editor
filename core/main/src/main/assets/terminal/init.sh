@@ -47,7 +47,7 @@ if [ -d "$ALPINE_DIR" ]; then
 
     if confirm "Do you want to delete the Alpine installation to free up space?"; then
       info "Deleting Alpine installation..."
-      xed rm -rf "$ALPINE_DIR"
+      xed exec rm -rf "$ALPINE_DIR"
       info "Alpine has been removed."
     else
       warn "Alpine installation retained."

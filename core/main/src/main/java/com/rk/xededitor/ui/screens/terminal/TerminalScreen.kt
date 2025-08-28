@@ -93,7 +93,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
         composable("terminal") {
-            TerminalScreenX(terminalActivity = terminalActivity, navController = navController)
+            TerminalScreenInternal(terminalActivity = terminalActivity, navController = navController)
         }
         composable("terminal_settings") {
             SettingsTerminalScreen()
@@ -103,7 +103,7 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TerminalScreenX(
+fun TerminalScreenInternal(
     modifier: Modifier = Modifier,
     terminalActivity: Terminal,
     navController: NavController

@@ -36,8 +36,6 @@ object MkSession {
                 "PATH" to System.getenv("PATH")?.toString()+":${localBinDir().absolutePath}"
             )
 
-
-
             fun getPwd(): String?{
                 if (pendingCommand?.workingDir != null){
                     return pendingCommand?.workingDir
@@ -94,12 +92,13 @@ object MkSession {
                 "PREFIX=${filesDir.parentFile!!.path}",
                 "LD_LIBRARY_PATH=${localLibDir().absolutePath}",
                 "EXT_HOME=${sandboxHomeDir()}",
-                "HOME=/home",
+                "HOME=${if (Settings.sandbox){ "/home"} else{ sandboxHomeDir()}}",
                 "PROMPT_DIRTRIM=2",
                 "LINKER=${if(File("/system/bin/linker64").exists()){"/system/bin/linker64"}else{"/system/bin/linker"}}",
                 "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
                 "FDROID=${App.isFDroid}",
-                "SANDBOX=${Settings.sandbox}"
+                "SANDBOX=${Settings.sandbox}",
+                "TMP_DIR=${getTempDir()}"
             )
 
             if (!App.isFDroid){
@@ -117,13 +116,14 @@ object MkSession {
 
             setupTerminalFiles()
 
-            val sanboxSH = localBinDir().child("sandbox")
+            val sandboxSH = localBinDir().child("sandbox")
+            val setupSH = localBinDir().child("setup")
 
             val args: Array<String>
 
             val shell = if (pendingCommand == null) {
                 args = if (Settings.sandbox) {
-                    arrayOf("-c", sanboxSH.absolutePath)
+                    arrayOf("-c", sandboxSH.absolutePath)
                 } else {
                     arrayOf()
                 }
@@ -133,7 +133,7 @@ object MkSession {
                 pendingCommand!!.exe
             } else {
                 args = mutableListOf(
-                    "-c", sanboxSH.absolutePath, pendingCommand!!.exe
+                    "-c", sandboxSH.absolutePath, pendingCommand!!.exe
                 ).also<MutableList<String>> {
                     it.addAll(pendingCommand!!.args)
                 }.toTypedArray<String>()
@@ -141,11 +141,20 @@ object MkSession {
                 "/system/bin/sh"
             }
 
+            val actualShell: String
+            val actualArgs: Array<String> = if (installNextStage != null && installNextStage == NEXT_STAGE.EXTRACTION){
+                actualShell = "/system/bin/sh"
+                mutableListOf("-c", setupSH.absolutePath,shell).also { it.addAll(args) }.toTypedArray()
+            }else{
+                actualShell = shell
+                args
+            }
+
             pendingCommand = null
             return TerminalSession(
-                shell,
+                actualShell,
                 localDir().absolutePath,
-                args,
+                actualArgs,
                 env.toTypedArray(),
                 TerminalEmulator.DEFAULT_TERMINAL_TRANSCRIPT_ROWS,
                 sessionClient,

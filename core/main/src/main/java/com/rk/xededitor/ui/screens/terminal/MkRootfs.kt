@@ -12,11 +12,21 @@ import com.rk.terminal.getDefaultBindings
 import com.rk.terminal.newSandbox
 import com.rk.terminal.readStderr
 import com.rk.terminal.readStdout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.lang.Runtime.getRuntime
 import kotlin.invoke
 
-suspend fun setupRootfs(context: Context, onComplete: (String?) -> Unit){
+enum class NEXT_STAGE{
+    NONE,
+    EXTRACTION
+}
+
+suspend fun CoroutineScope.getNextStage(context: Context): NEXT_STAGE{
     if (isMainThread()) {
         throw RuntimeException("IO operation on the main thread")
     }
@@ -29,35 +39,9 @@ suspend fun setupRootfs(context: Context, onComplete: (String?) -> Unit){
     } ?: emptyList()
 
 
-    if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
-        onComplete.invoke(null)
+    return if (sandboxFile.exists().not() || rootfsFiles.isEmpty().not()) {
+        NEXT_STAGE.NONE
     } else {
-
-        val excludes = mutableListOf<String>()
-        getDefaultBindings().forEach{
-            if (it.outside.contains(context.filesDir.parentFile!!.absolutePath).not()){
-                excludes.add("--exclude")
-                excludes.add(it.outside)
-            }
-        }
-
-        val error: String
-        val process = newSandbox(excludeMounts = listOf(), root = File("/"), workingDir = "/","tar",*(excludes.toTypedArray()),"-xf", sandboxFile.absolutePath,"-C",sandboxDir().absolutePath).apply {
-            Log.i("TERMINAL",readStdout())
-
-            error = readStderr()
-            Log.e("TERMINAL",error)
-        }
-
-        process.waitFor()
-        sandboxFile.delete()
-
-        with(sandboxDir()) {
-            child("etc/hostname").writeText("Xed-Editor")
-            child("etc/resolv.conf").also { it.createFileIfNot(); it.writeText(nameserver) }
-            child("etc/hosts").writeText(hosts)
-        }
-
-        onComplete.invoke(error)
+        NEXT_STAGE.EXTRACTION
     }
 }

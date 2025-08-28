@@ -7,7 +7,6 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,15 +36,15 @@ import com.rk.App.Companion.getTempDir
 import com.rk.SessionService
 import com.rk.file.child
 import com.rk.file.localBinDir
-import com.rk.file.localDir
 import com.rk.file.sandboxDir
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.FPSBooster
+import com.rk.xededitor.ui.screens.terminal.NEXT_STAGE
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
-import com.rk.xededitor.ui.screens.terminal.setupRootfs
+import com.rk.xededitor.ui.screens.terminal.getNextStage
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -109,13 +107,12 @@ class Terminal : AppCompatActivity() {
     }
 
     var progressText by mutableStateOf(strings.installing.getString())
-    var isSettingUp by mutableStateOf(false)
+    var installNextStage by mutableStateOf<NEXT_STAGE?>(null)
 
     @OptIn(DelicateCoroutinesApi::class)
     @Composable
     fun TerminalScreenHost(context: Context) {
         var progress by remember { mutableFloatStateOf(0f) }
-        var isSetupComplete by remember { mutableStateOf(false) }
         var needsDownload by remember { mutableStateOf(false) }
         var currentFileName by remember { mutableStateOf("") }
         var downloadedBytes by remember { mutableLongStateOf(0L) }
@@ -197,7 +194,7 @@ class Terminal : AppCompatActivity() {
                         }
                     },
                     onComplete = {
-                        isSetupComplete = true
+                        installNextStage = it
                     },
                     onError = { error,file ->
                         if (error is UnknownHostException) {
@@ -238,7 +235,7 @@ class Terminal : AppCompatActivity() {
         Box(
             modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
         ) {
-            if (!isSetupComplete) {
+            if (installNextStage == null) {
                 if (needsDownload) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -249,24 +246,18 @@ class Terminal : AppCompatActivity() {
                         )
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        if (isSettingUp){
-                            LinearProgressIndicator(
-                                modifier = Modifier.fillMaxWidth(0.8f),
+                        LinearProgressIndicator(
+                            progress = { progress },
+                            modifier = Modifier.fillMaxWidth(0.8f),
+                        )
+                        if (totalBytes > 0) {
+                            val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
+                            progress = (downloadedBytes.toFloat() / totalBytes * 1)
+                            Text(
+                                text = "${percent}%",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 8.dp)
                             )
-                        }else{
-                            LinearProgressIndicator(
-                                progress = { progress },
-                                modifier = Modifier.fillMaxWidth(0.8f),
-                            )
-                            if (totalBytes > 0) {
-                                val percent = (downloadedBytes.toFloat() / totalBytes * 100).toInt()
-                                progress = (downloadedBytes.toFloat() / totalBytes * 1)
-                                Text(
-                                    text = "${percent}%",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
                         }
 
 
@@ -289,7 +280,7 @@ class Terminal : AppCompatActivity() {
         context: Context,
         filesToDownload: List<DownloadFile>,
         onProgress: (fileName: String, downloadedBytes: Long, totalBytes: Long) -> Unit,
-        onComplete: () -> Unit,
+        onComplete: (NEXT_STAGE) -> Unit,
         onError: (Exception, File?) -> Unit
     ) {
         var currentFile: File? = null
@@ -317,40 +308,22 @@ class Terminal : AppCompatActivity() {
                         onProgress(file.outputPath.substringAfterLast("/"), outputFile.length(), outputFile.length())
                     }
                     completedFiles++
-//                    withContext(Dispatchers.Main) {
-//                        onProgress(completedFiles, totalFiles, totalProgress)
-//                    }
 
                     runCatching {
                         outputFile.setExecutable(true)
                     }.onFailure { it.printStackTrace() }
                 }
 
-                progressText = strings.getting_ready.getString()
-                isSettingUp = true
-                setupRootfs(this@Terminal,onComplete = {
-                    if (!it.isNullOrBlank()){
-                        errorDialog(it)
-                        finish()
-
-                        GlobalScope.launch(Dispatchers.IO){
-                            sandboxDir().deleteRecursively()
-                            localBinDir().deleteRecursively()
-                        }
-                    }
-
-                    runOnUiThread {
-                        isSettingUp = false
-                        onComplete()
-                    }
-
-                })
+                val stage = getNextStage(this@Terminal)
+                onComplete(stage)
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                localDir().deleteRecursively()
                 withContext(Dispatchers.Main) {
                     onError(e,currentFile)
+                }
+                if (currentFile?.exists() == true){
+                    currentFile.delete()
                 }
             }
         }

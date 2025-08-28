@@ -2,11 +2,13 @@ package com.rk.runner
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.FileObject
+import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
-import com.rk.resources.strings
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
+import com.rk.xededitor.ui.components.SettingsToggle
 import java.lang.ref.WeakReference
 import kotlin.text.Regex
 
@@ -87,15 +89,24 @@ object Runner {
         if (availableRunners.size == 1){
             availableRunners[0].run(context,fileObject)
         }else{
-            showRunnerSelectionDialog(availableRunners)
+            showRunnerSelectionDialog(availableRunners,context,fileObject)
         }
-
 
     }
 
 
-    private suspend fun showRunnerSelectionDialog(runners: List<RunnerImpl>) {
-        errorDialog("Multi runner support not implemented yet")
+    private suspend fun showRunnerSelectionDialog(runners: List<RunnerImpl>,context: Context,fileObject: FileObject) {
+        composeDialog{ dialog ->
+            DividerColumn {
+                runners.forEach{ runner ->
+                    SettingsToggle(label = runner.getName(), showSwitch = false,default = false, sideEffect = {
+                        currentRunner = WeakReference(runner)
+                        runner.run(context,fileObject)
+                        dialog?.dismiss()
+                    })
+                }
+            }
+        }
     }
 
     suspend fun onMainActivityResumed(){
