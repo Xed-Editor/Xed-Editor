@@ -6,6 +6,8 @@ import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.FileObject
 import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
+import com.rk.runner.runners.Shell
+import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import com.rk.xededitor.ui.components.SettingsToggle
@@ -36,6 +38,7 @@ object Runner {
         runnerBuilders.apply {
             add(object : RunnerBuilder(regex = Regex(".*\\.html$"), clazz = HtmlRunner::class.java){})
             add(object : RunnerBuilder(regex = Regex(".*\\.md$"), clazz = MarkDownRunner::class.java){})
+            add(object : RunnerBuilder(regex = Regex(".*\\.(py|js|ts|java|kt|rs|rb|php|c|cpp|cc|cxx|cs|sh|bash|zsh|fish|pl|lua|r|R|hs|f90|f95|f03|f08|pas|tcl|elm|fsx|fs)$"), clazz = UniversalRunner::class.java){})
         }
     }
 

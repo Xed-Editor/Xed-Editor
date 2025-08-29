@@ -124,7 +124,7 @@ object ActionHandler {
                 }
 
                 else -> {
-                    return "Unknown action : $action, use help to see available actions"
+                    return "Unknown action : $action, use 'xed help' to see available actions"
                 }
             }
 

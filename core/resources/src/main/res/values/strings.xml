@@ -414,4 +414,5 @@
     <string name="acquire_wakelock">Acquire wakelock</string>
     <string name="release_wakelock">Release wakelock</string>
     <string name="getting_ready">Getting everything ready…</string>
+    <string name="native_runner">This runner only works on native files, consider moving it to terminal home directory</string>
 </resources>
