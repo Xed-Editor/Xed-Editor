@@ -9,14 +9,24 @@ import java.io.File
 object FontCache {
     private val cachedFonts = mutableMapOf<String, Typeface>()
 
-    fun loadFont(context: Context, path: String, isAsset: Boolean){
-        val font = if (isAsset) {
-            Typeface.createFromAsset(context.assets, path)
-        } else {
-            Typeface.createFromFile(File(path))
+    fun loadFont(context: Context, path: String, isAsset: Boolean) {
+        try {
+            val font = if (isAsset) {
+                context.assets.open(path).close()
+                Typeface.createFromAsset(context.assets, path)
+            } else {
+                val file = File(path)
+                if (!file.exists()) {
+                    return
+                }
+                Typeface.createFromFile(file)
+            }
+            cachedFonts[path] = font
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-        cachedFonts[path] = font
     }
+
 
     fun getFont(context: Context, path: String, isAsset: Boolean): Typeface? {
         return if (cachedFonts.containsKey(path)){
