@@ -6,6 +6,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.net.UnknownHostException
 
 private const val BASE_URL =
     "https://api.github.com/repos/Xed-Editor/Xed-Editor-Plugins-Registry/contents"
@@ -21,25 +22,30 @@ object GitHubApi {
      * @throws GitHubApiException If the GitHub API request fails.
      */
     suspend fun fetchContents(path: String): Array<FileContent> = withContext(Dispatchers.IO) {
-        val url = "$BASE_URL/$path"
+        try {
+            val url = "$BASE_URL/$path"
 
-        val request = Request.Builder()
-            .url(url)
-            .build()
+            val request = Request.Builder()
+                .url(url)
+                .build()
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) {
-                throw GitHubApiException("Failed to fetch contents from GitHub", response.code, response.message)
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    throw GitHubApiException("Failed to fetch contents from GitHub", response.code, response.message)
+                }
+
+                val body = response.body?.string() ?: return@withContext emptyArray()
+
+                return@withContext if (body.trim().startsWith("[")) {
+                    gson.fromJson(body, Array<FileContent>::class.java)
+                } else {
+                    arrayOf(gson.fromJson(body, FileContent::class.java))
+                }
             }
-
-            val body = response.body?.string() ?: return@withContext emptyArray()
-
-            if (body.trim().startsWith("[")) {
-                gson.fromJson(body, Array<FileContent>::class.java)
-            } else {
-                arrayOf(gson.fromJson(body, FileContent::class.java))
-            }
+        }catch (e: Exception){
+            return@withContext arrayOf()
         }
+
     }
 
     internal suspend fun downloadDir(path: String, targetDir: File) {
