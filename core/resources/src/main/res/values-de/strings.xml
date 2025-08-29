@@ -417,4 +417,5 @@
     <string name="acquire_wakelock">Wakelock aktivieren</string>
     <string name="release_wakelock">Wakelock freigeben</string>
     <string name="getting_ready">Vorbereitung läuft…</string>
+    <string name="native_runner">Dieser Runner funktioniert nur mit nativen Dateien, verschiebe ihn gegebenenfalls in das Terminal Home-Verzeichnis</string>
 </resources>
