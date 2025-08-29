@@ -36,22 +36,29 @@ object TabCache {
 
 
 
-    suspend fun preloadTabs() = mutex.withLock{
+    suspend fun preloadTabs() = mutex.withLock {
         runCatching {
             val file = application!!.cacheDir.child("tabs")
             if (file.exists() && file.canRead()) {
                 ObjectInputStream(FileInputStream(file)).use { ois ->
                     val files = ois.readObject() as List<FileObject>
                     preloadedTabs.clear()
-                    preloadedTabs.addAll(files.filter {
-                        it.exists() && it.canRead() && it.canWrite() && it.isFile()
-                    })
+                    files.forEach { f ->
+                        runCatching {
+                            if (f.exists() && f.canRead() && f.canWrite() && f.isFile()) {
+                                preloadedTabs.add(f)
+                            }
+                        }.onFailure { e ->
+                            e.printStackTrace()
+                        }
+                    }
                 }
             }
         }.onFailure {
-            errorDialog(it)
+            it.printStackTrace()
         }
     }
+
 
     suspend fun saveFileTabs(tabs: List<Tab>) = withContext(Dispatchers.IO){
         mutex.withLock {
