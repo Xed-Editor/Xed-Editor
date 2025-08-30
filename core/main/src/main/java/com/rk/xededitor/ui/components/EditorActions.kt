@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
 import com.rk.libcommons.application
+import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.libcommons.x
 import com.rk.resources.drawables
@@ -224,7 +225,9 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.terminal),
                 labelRes = strings.terminal,
                 action = { tab,editorState ->
-                    activity!!.startActivity(Intent(activity, Terminal::class.java))
+                    showTerminalNotice(activity!!){
+                        activity.startActivity(Intent(activity, Terminal::class.java))
+                    }
                 }
             ),
             EditorAction(

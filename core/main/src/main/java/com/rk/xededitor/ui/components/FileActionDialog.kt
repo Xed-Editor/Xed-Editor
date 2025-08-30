@@ -42,6 +42,7 @@ import com.rk.file.UriWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -111,10 +112,12 @@ fun FileActionDialog(
                         title = stringResource(strings.open_in_terminal),
                         //description = stringResource(strings.open_in_terminal),
                         onClick = {
-                            val intent = Intent(context,Terminal::class.java)
-                            intent.putExtra("cwd",file.getAbsolutePath())
-                            context.startActivity(intent)
-                            onDismissRequest()
+                            showTerminalNotice(activity = MainActivity.instance!!){
+                                val intent = Intent(context,Terminal::class.java)
+                                intent.putExtra("cwd",file.getAbsolutePath())
+                                context.startActivity(intent)
+                                onDismissRequest()
+                            }
                         }
                     )
                     

@@ -43,6 +43,7 @@ object Settings {
     var project_as_pwd by CachedPreference("project_as_pwd", true)
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
+    var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

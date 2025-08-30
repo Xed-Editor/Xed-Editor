@@ -18,6 +18,7 @@ import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
+import com.rk.terminal.launchInternalTerminal
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -81,15 +82,6 @@ data class ShellBasedRunner(private val name: String,val regex: String): RunnerI
             args = arrayOf(script.absolutePath,fileObject.getAbsolutePath()),
             id = name,
         ))
-    }
-
-    private fun launchInternalTerminal(context: Context, terminalCommand: TerminalCommand) {
-        pendingCommand = terminalCommand
-        context.startActivity(
-            Intent(
-                context, Terminal::class.java
-            )
-        )
     }
 
     override fun getName(): String {

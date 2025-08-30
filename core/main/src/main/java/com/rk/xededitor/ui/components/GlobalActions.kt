@@ -28,6 +28,7 @@ import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
+import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.getString
@@ -52,8 +53,10 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
         }
 
         IconButton(onClick = {
-            val intent = Intent(context, Terminal::class.java)
-            context.startActivity(intent)
+            showTerminalNotice(MainActivity.instance!!){
+                val intent = Intent(context, Terminal::class.java)
+                context.startActivity(intent)
+            }
         }) {
             Icon(painter = painterResource(drawables.terminal),contentDescription = null)
         }

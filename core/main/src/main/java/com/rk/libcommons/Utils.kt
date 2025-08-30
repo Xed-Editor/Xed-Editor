@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -46,6 +47,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -98,7 +100,7 @@ fun DialogContent(
     @StringRes cancelString: Int,
     @StringRes okString: Int,
     onOk: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -127,14 +129,16 @@ fun DialogContent(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = {
-                alertDialog?.dismiss()
-                onCancel()
-            }) {
-                Text(stringResource(cancelString))
-            }
+            if (onCancel != null){
+                TextButton(onClick = {
+                    alertDialog?.dismiss()
+                    onCancel()
+                }) {
+                    Text(stringResource(cancelString))
+                }
 
-            Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+            }
 
             TextButton(onClick = {
                 alertDialog?.dismiss()
@@ -167,7 +171,7 @@ fun dialog(
     @StringRes okString: Int = strings.ok,
     onDialog: (AlertDialog?) -> Unit = {},
     onOk: (AlertDialog?) -> Unit = {},
-    onCancel: (AlertDialog?) -> Unit = {},
+    onCancel: ((AlertDialog?) -> Unit)? = null,
     cancelable: Boolean = true
 ) {
     if (context == null) {
@@ -185,9 +189,9 @@ fun dialog(
             onOk = {
                 onOk(alertDialog)
             },
-            onCancel = {
-                onCancel(alertDialog)
-            }
+            onCancel = if (onCancel == null){null}else{{
+                onCancel.invoke(alertDialog)
+            }}
         )
     }
 }
@@ -352,4 +356,44 @@ fun Activity.askInput(
 
 }
 
+fun isChinaDevice(context: Context): Boolean {
+    val manufacturer = Build.MANUFACTURER.lowercase()
+
+    if (manufacturer.contains("huawei") ||
+        manufacturer.contains("xiaomi") ||
+        manufacturer.contains("oppo") ||
+        manufacturer.contains("vivo") ||
+        manufacturer.contains("realme") ||
+        manufacturer.contains("oneplus"))
+    {
+        return true
+    }
+
+
+    val localeCountry = Locale.getDefault().country
+    if (localeCountry.equals("CN", ignoreCase = true)) return true
+
+    val tm = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+    val simCountry = tm.simCountryIso
+    return simCountry.equals("cn", ignoreCase = true)
+}
+
+fun showTerminalNotice(activity: Activity,onOk: () -> Unit){
+    if (isChinaDevice(activity) && !Settings.terminalVirusNotice){
+        dialog(
+            context = activity,
+            title = strings.attention.getString(),
+            msg = strings.terminal_virus_notice.getString(),
+            onOk = {
+                Settings.terminalVirusNotice = true
+                it?.dismiss()
+                onOk()
+            },
+            onCancel = {},
+            cancelable = false,
+        )
+    }else{
+        onOk()
+    }
+}
 

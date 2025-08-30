@@ -42,6 +42,7 @@ import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.FPSBooster
+import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.terminal.NEXT_STAGE
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.screens.terminal.getNextStage

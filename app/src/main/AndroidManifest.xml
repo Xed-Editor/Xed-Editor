@@ -91,6 +91,7 @@
             android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize|stateVisible" />
     </application>
 
