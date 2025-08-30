@@ -45,11 +45,6 @@ import com.rk.DefaultScope
 import com.rk.resources.strings
 import com.rk.tabs.CodeEditorState
 import io.github.rosemoe.sora.widget.EditorSearcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.regex.PatternSyntaxException
 
 
@@ -82,6 +77,7 @@ fun SearchPanel(
         } else {
             editor?.searcher?.stopSearch()
             hasSearchError = false
+            isSearchingInternal = false
         }
     }
 

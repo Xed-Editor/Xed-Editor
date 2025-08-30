@@ -39,7 +39,7 @@ object ShellBasedRunners{
                 withContext(Dispatchers.Main) {
                     runners.add(runner)
                 }
-                runnerDir().child("${runner.getName()}.sh").createFileIfNot().writeText("echo \"This runner is empty\"")
+                runnerDir().child("${runner.getName()}.sh").createFileIfNot().writeText("echo \"This runner has no implementation. Click the runner and add your own script.\"")
                 saveRunners()
                 true
             } else {
