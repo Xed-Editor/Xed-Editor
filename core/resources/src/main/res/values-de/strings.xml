@@ -418,4 +418,5 @@
     <string name="release_wakelock">Wakelock freigeben</string>
     <string name="getting_ready">Vorbereitung läuft…</string>
     <string name="native_runner">Dieser Runner funktioniert nur mit nativen Dateien, verschiebe ihn gegebenenfalls in das Terminal Home-Verzeichnis</string>
+    <string name="terminal_virus_notice">Auf manchen Geräten, insbesondere bei bestimmten Modellen aus China, siehst du eventuell eine System-Sicherheitswarnung, wenn viele Prozesse im Terminal ausgeführt werden (zum Beispiel während \'apt update\' oder \'apt upgrade\'). Dies ist ein Fehlalarm und weist nicht auf einen echten Virus hin.</string>
 </resources>
