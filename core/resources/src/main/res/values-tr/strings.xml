@@ -39,7 +39,7 @@
     <string name="new_folder">Yeni Klasör</string>
     <string name="new_file_1">Yeni dosya</string>
     <string name="rename">Yeniden isimlendirmek</string>
-    <string name="open_with">Birlikte aç:</string>
+    <string name="open_with">Birlikte aç…</string>
     <string name="save_as">Farklı Kaydet</string>
     <string name="paste">Yapıştır</string>
     <string name="delete">Sil</string>
@@ -67,7 +67,7 @@
     <string name="dir_example">Klasör adı örn. Test</string>
     <string name="create">Oluştur</string>
     <string name="ask_enter_name">Lütfen bir ad girin</string>
-    <string name="already_exists">Bu adda bir dosya zaten mevcut</string>
+    <string name="already_exists">Bu isimde bir belge zaten mevcut</string>
     <string name="attention">Dikkat</string>
     <string name="ask_del">Kalıcı olarak silmek istediğinizden emin misiniz</string>
     <string name="redir">Lütfen dizini yeniden seçin</string>
@@ -86,7 +86,7 @@
     <string name="title">Başlık</string>
     <string name="description">Açıklama</string>
     <string name="plugin_icon">Eklenti simgesi</string>
-    <string name="download">indirmek</string>
+    <string name="download">İndir</string>
     <string name="git">Git</string>
     <string name="cred">Kimlik bilgileri</string>
     <string name="inavalid_git_cred">Kimlik bilgileri geçerli değil. Bunları ayarlarda değiştirin</string>
@@ -109,7 +109,7 @@
     <string name="close_current_project">Mevcut projeyi kapat</string>
     <string name="rename_descript">Yeniden Adlandır</string>
     <string name="open_with_other">Seçilen dosyayı diğer uygulamalarda aç</string>
-    <string name="delete_descript">Dosyayı sil</string>
+    <string name="delete_descript">Belgeyi Kalıcı Olarak Sil</string>
     <string name="add_file_desc">Buraya eklenecek yeni bir dosya seçin</string>
     <string name="create_new_file_desc">Seçilen dizin altında yeni bir dosya oluştur</string>
     <string name="paste_desc">Dosyayı yapıştır</string>
@@ -163,7 +163,7 @@
     <string name="available">Mevcut</string>
     <string name="already_installed">Zaten yüklü</string>
     <string name="download_sure">İndirmek istediğinizden emin misiniz?</string>
-    <string name="yes">Ve</string>
+    <string name="yes">Evet</string>
     <string name="downloading_plugin">Şu anda eklenti indiriliyor</string>
     <string name="download_done">Başarıyla indirildi.</string>
     <string name="plugin_download_failed">Eklenti indirilemiyor</string>
@@ -250,7 +250,7 @@
     <string name="theme_mode">Tema Modu</string>
     <string name="theme_mode_desc">Renk temasını değiştir</string>
     <string name="no_plugins_available">Kullanılabilir eklenti yok</string>
-    <string name="show_suggestions">Önerileri göster</string>
+    <string name="show_suggestions">Klavye Önerilerini Göster</string>
     <string name="about">Üzerinde</string>
     <string name="about_desc">Hakkında</string>
     <string name="version">Sürüm</string>
@@ -301,7 +301,7 @@
     <string name="encoding_warning">Dosya bozulmasına yol açabileceğinden, varsayılan kodlamanın değiştirilmesi kesinlikle önerilmez. Etkilerini tam olarak anlamadığınız ve uygun yedeklemeler oluşturmadığınız sürece UTF-8 kullanmanız şiddetle tavsiye edilir.</string>
     <string name="line_spacing">Satır Aralığı</string>
     <string name="line_spacing_multiplier">Satır Aralığı Çarpanı</string>
-    <string name="mutator_desc">Mikro araç oluştur</string>
+    <string name="mutator_desc">Kullanıcı komut dosyaları oluştur</string>
     <string name="restore_sessions">Oturumu yeniden yükle</string>
     <string name="enable_ext">Uzantılar</string>
     <string name="ext">Uzantılar</string>
@@ -317,8 +317,8 @@
     <string name="tab_opened">Sekme açıldı</string>
     <string name="mutator_name">Değiştirici ismi</string>
     <string name="script_text">bu metin editörde yazılacak</string>
-    <string name="script_api_info">Daha fazla bilgi için Xed-Editor\'ün kaynak kodundan ImplApi sınıfını (PROJECT/core/main/ui/screens/mutators/ImplApi) kontrol edin.</string>
-    <string name="network_err">Ağ Hatası</string>
+    <string name="script_api_info">Daha fazla bilgi için Xed-Editor\'ün kaynak kodundan ImplApi sınıfını (PROJECT/core/main/ui/screens/mutators/ImplApi) kontrol edin</string>
+    <string name="network_err">Ağ hatası. Lütfen internet bağlantınızın düzgün çalışıp çalışmadığını kontrol edin.</string>
     <string name="invalid_user">Geçersiz kullanıcı adı</string>
     <string name="custom_git_url">Özel Git URL\'si</string>
     <string name="git_auth">Github Token</string>
@@ -332,7 +332,7 @@
     <string name="experimental_session_restore_warning">Bu özellik deneyseldir, bazen veri kaybına neden olabilir</string>
     <string name="err_no_termux">Termux yüklü değil</string>
     <string name="err_termux_incompatible">Termux uyumlu değil</string>
-    <string name="unrestricted_file_desc">Herhangi boyutta dosya açmaya izin ver, dikkat et çökmelere neden olabilir</string>
+    <string name="unrestricted_file_desc">Herhangi bir boyuttaki dosyaların açılmasına izin verin. Çökmelere yol açabilir.</string>
     <string name="suggest_clear_app_data">Uygulama verilerini temizlemek önerilir</string>
     <string name="update_files_cleared">Uygulama güncellendi: Veriler temizlendi</string>
     <string name="folder">Klasör</string>
@@ -342,9 +342,9 @@
     <string name="ext_desc">Uzantıları yönet</string>
     <string name="info_mutators">Değiştiriciler editor metnini değiştiren küçük yazılımlardır. Bir değiştirici oluştur ve açmak için üzerine tıkla.</string>
     <string name="script_showing_dialog">Dialog gösterme</string>
-    <string name="not_plugin_err">Seçilen dosya .apk dosyası değildir.</string>
+    <string name="not_plugin_err">Seçilen dosya .apk dosyası değildir</string>
     <string name="install_from_storage">Dahili depolamadan kur</string>
-    <string name="info_ext">Uzantılar Xed-Editor\'ün davranışlarını ve özelliklerini değiştirebilir. Nasıl birini yapacağınızı öğrenmek için buraya tıklayın</string>
+    <string name="info_ext">Uzantılar Xed-Editor\'ün davranışlarını ve özelliklerini değiştirebilir. Nasıl birini yapacağınızı öğrenmek için buraya tıklayın.</string>
     <string name="downloading">İndiriliyor…</string>
     <string name="warning_private_dir">Bu klasörün içeriği uygulamayı silerseniz veya verileri temizlerseniz kaybolur</string>
     <string name="feature_toggles">Özellik aç/kapa</string>
@@ -440,4 +440,5 @@
     <string name="runner_name">Çalıştırıcı Adı</string>
     <string name="regex_pattern">Regex Deseni</string>
     <string name="redo">Tekrar</string>
+    <string name="terminal_virus_notice">Bazı cihazlarda, özellikle Çin menşeli belirli modellerde, terminalde çok sayıda işlem çalıştığında (örneğin \'apt update\' veya \'apt upgrade\' sırasında) bir sistem güvenlik uyarısı görebilirsiniz. Bu yanlış bir alarmdır ve gerçek bir virüs olduğu anlamına gelmez.</string>
 </resources>
