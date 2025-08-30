@@ -366,7 +366,7 @@
     <string name="highlighting">Destaque de Sintaxe</string>
     <string name="err_no_termux">O Termux não está instalado</string>
     <string name="err_termux_incompatible">O Termux não é compatível</string>
-    <string name="unrestricted_file_desc">Permitir abrir arquivos de qualquer tamanho. Pode causar problemas</string>
+    <string name="unrestricted_file_desc">Permitir abrir arquivos de qualquer tamanho. Pode causar problemas.</string>
     <string name="update_files_cleared">App atualizado: dados limpos</string>
     <string name="new_document">Novo documento</string>
     <string name="sponsor">Patrocinador</string>
