@@ -45,7 +45,7 @@
     <string name="add">Přidat</string>
     <string name="already_opened">Soubor je už otevřen</string>
     <string name="files">Soubory</string>
-    <string name="show_line_number">Ukázat Čísla Řádků</string>
+    <string name="show_line_number">Ukázat Čísla řádků</string>
     <string name="extra_keys">Extra Klávesy</string>
     <string name="restart_app">Prosím restartněte aplikaci.</string>
     <string name="editor_font_desc">Vyberte font</string>
@@ -54,7 +54,7 @@
     <string name="new_document_desc">Nový soubor nebo složka</string>
     <string name="file">Soubor</string>
     <string name="sponsor_desc">Podpořit Vývoj</string>
-    <string name="read_only_file">Soubor je pro čtení</string>
+    <string name="read_only_file">Soubor je jenom pro čtení</string>
     <string name="new_document">Nový</string>
     <string name="folder">Složka</string>
     <string name="backup">Zálohovat</string>
@@ -67,7 +67,7 @@
     <string name="file_too_large">Soubor je příliš velký pro otevření</string>
     <string name="initializing">Inicializace…</string>
     <string name="downloading">Stažení…</string>
-    <string name="network_err">Chyba Sítě</string>
+    <string name="network_err">Chyba Sítě. Prosím zkontrolujte zda vaše připojení funguje správně.</string>
     <string name="user">Uživatel</string>
     <string name="email">Email</string>
     <string name="file_not_exist">Soubor už neexistuje</string>
@@ -85,7 +85,7 @@
     <string name="reselect">Znovu Vybrat</string>
     <string name="old_android">Nepodporovaná Android verze</string>
     <string name="loading">Načítání…</string>
-    <string name="invalid_user">Neplatné Uživatelské Jméno</string>
+    <string name="invalid_user">Neplatné Uživatelské jméno</string>
     <string name="settings">Nastavení</string>
     <string name="print">Tisk</string>
     <string name="search">Hledat</string>
@@ -97,7 +97,7 @@
     <string name="themes">Téma</string>
     <string name="change_theme">Změnit Téma</string>
     <string name="auto_save_desc">Automaticky uložit soubor</string>
-    <string name="auto_save_time">Čas na Automatické Ukládání</string>
+    <string name="auto_save_time">Čas na Automatické ukládání</string>
     <string name="text_size">Velikost Textu</string>
     <string name="text_size_desc">Nastavit velikost textu</string>
     <string name="terminal_text_size">Velikost textu v Terminálu</string>
@@ -139,7 +139,7 @@
     <string name="dir_example">Jméno (např. Test)</string>
     <string name="create">Vytvořit</string>
     <string name="already_exists">Soubor už existuje s tímto jménem</string>
-    <string name="add_file">Přidat Externí Soubor</string>
+    <string name="add_file">Přidat Externí soubor</string>
     <string name="keyword_regex">Klíčové slovo (Regex)</string>
     <string name="replacement">Nahrazení</string>
     <string name="replaceall">Nahradit Vše</string>
@@ -147,7 +147,7 @@
     <string name="file_saved">Soubor Uložen</string>
     <string name="open_with_other">Otevřít soubor ve jinačích aplikací</string>
     <string name="rename_descript">Přejmenovat soubor</string>
-    <string name="delete_descript">Odstranit soubor</string>
+    <string name="delete_descript">Nenávratně odstranit soubor</string>
     <string name="add_file_desc">Vyberte nový soubor ke přidání</string>
     <string name="exists">už existuje!</string>
     <string name="private_files">Soukromé Soubory</string>
@@ -155,7 +155,7 @@
     <string name="open_dir_desc">Otevřít složku pomocí SAF (Storage Access Framework)</string>
     <string name="open_file_desc">Vyberte soubor ke upravění</string>
     <string name="yes">Ano</string>
-    <string name="auto_save">Automatické Ukládání</string>
+    <string name="auto_save">Automatické ukládání</string>
     <string name="monet">Dynamické Barvy</string>
     <string name="editor_font">Font</string>
     <string name="light_mode">Světlé</string>
@@ -179,7 +179,7 @@
     <string name="manage_storage_reason">Xed-Editor potřebuje přístup ke souborům v uložišti. Prosím udělte oprávnění ve náschedujícím nastavením systému.</string>
     <string name="ok">OK</string>
     <string name="invalid_path">Umístění neexistuje</string>
-    <string name="action_done">Akce Dokončena</string>
+    <string name="action_done">Akce dokončena</string>
     <string name="download_sure">Opravdu chcete stáhnout</string>
     <string name="cursor_anim">Animace Kurzoru</string>
     <string name="file_name">Jméno souboru</string>
@@ -269,7 +269,7 @@
     <string name="ext_desc">Spravovat Doplňky</string>
     <string name="custom_git_url">Vlastní Git URL</string>
     <string name="ext">Doplňky</string>
-    <string name="enable_ext_desc">Načíst doplňky ze třetích stranách</string>
+    <string name="enable_ext_desc">Načíst doplňky ze třetích stran</string>
     <string name="content">Obsah</string>
     <string name="discard">Zahodit</string>
     <string name="tools">Nástroje</string>
@@ -283,15 +283,15 @@
     <string name="userdatagit">Uživatelská data pro git</string>
     <string name="file_open_denied">Otevřít tento soubor jinými aplikacemi není povoleno</string>
     <string name="close_current_project">Zavřít aktuální projekt</string>
-    <string name="git_branch">Větev. Příklad: hlavní</string>
+    <string name="git_branch">Větev. Příklad: main</string>
     <string name="clone_repo">Klonovat repozitář</string>
     <string name="clone_repo_desc">Klonovat repozitář pomocí Git</string>
     <string name="kill_on_exit">Zabít při odchodu</string>
     <string name="kill_on_exit_desc">Ukončit všechny procesy při opuštění terminálu</string>
     <string name="sim_hard_links_desc">Vytvořit měkký odkaz, kde by měl být vytvořen tvrdý odkaz</string>
-    <string name="force_desktop">Vynutit stolní mód</string>
-    <string name="force_desktop_desc">Vynutit stolní mód na zařízeních s menší obrazovkou</string>
-    <string name="force_normal">Vynutit normální mód</string>
+    <string name="force_desktop">Vynutit stolní rozhraní</string>
+    <string name="force_desktop_desc">Vynutit stolní rozhraní na zařízeních s menší obrazovkou</string>
+    <string name="force_normal">Vynutit normální rozhraní</string>
     <string name="sim_hard_links">Simulovat tvrdé odkazy</string>
     <string name="press_again_exit">Pro odchod stiskněte znovu zpět</string>
     <string name="unsupported_aarch">Nepodporovaná platforma, Použij Pojistku</string>
@@ -318,10 +318,10 @@
     <string name="available">Dostupný</string>
     <string name="fetch_failed">požadavek o natažení vrátil null</string>
     <string name="useCtrlWorkaround">Obejít pomocí Ctrl</string>
-    <string name="force_normal_desc">Vynutit normální mód na zařízeních s velkou obrazovkou</string>
+    <string name="force_normal_desc">Vynutit normální rozhraní na zařízeních s velkou obrazovkou</string>
     <string name="useCtrlWorkaround_desc">Obejít pomocí Ctrl Mezerník</string>
     <string name="show_virtual_keyboard">Zobrazit virtuální klávesnici</string>
-    <string name="clone_err">Repozitář je soukromý. nebo Zkontrolujte své přihlašovací údaje</string>
+    <string name="clone_err">Repozitář je soukromý nebo zkontrolujte své přihlašovací údaje</string>
     <string name="show_virtual_keyboard_desc">Zobrazit virtuální klávesnici i když je připojena fyzická klávesnice</string>
     <string name="encoding_warning">Změna výchozího kódování je velmi nedoporučována, může vést k poškození souborů. Důrazně doporučujeme použít UTF-8, dokud plně nepochopíte důsledky a nevytvoříte správnou zálohu.</string>
     <string name="toggle_ww">Přepnout Zalamování slov</string>
