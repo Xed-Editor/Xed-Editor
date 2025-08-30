@@ -443,4 +443,6 @@
     <string name="acquire_wakelock">Obter wakelock</string>
     <string name="release_wakelock">Liberar wakelock</string>
     <string name="getting_ready">Deixando tudo pronto…</string>
+    <string name="native_runner">Este executável só funciona em arquivos nativos. Considere movê-lo para o diretório inicial do terminal</string>
+    <string name="terminal_virus_notice">Em alguns dispositivos, especialmente em determinados modelos da China, você poderá ver um aviso de segurança do sistema quando muitos processos estiverem em execução no terminal (por exemplo, durante o “apt update” ou “apt upgrade”). Trata-se de um falso positivo e não indica a presença de um vírus real.</string>
 </resources>
