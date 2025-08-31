@@ -1,0 +1,18 @@
+Xed-Editor v3.1.6 (62)
+
+This is a major breaking update. A clean install is highly recommended.
+
+- Migrated UI codebase from XML layouts to Jetpack Compose for improved performance and maintainability.
+- Completely redesigned the user interface for a modern experience.
+- Reduced memory usage, resulting in smoother operation especially on low-resource devices.
+- Replaced the integrated terminal with Ubuntu (previously Alpine).
+- Added support for custom themes using JSON.
+- Introduced new built-in theme options.
+- Fixed issues with theming and visual inconsistencies.
+- Added the ability to change the language of Xed-Editor independently from the device’s language.
+- Introduced shell-based runners, allowing users to add and use custom script runners.
+- Added a range of built-in runners for expanded use cases.
+- Improved search panel for faster and more accurate results.
+- Added a toggle for read-only mode.
+- Fixed numerous bugs and enhanced overall stability.
+- Improved overall user experience with extensive polish and optimization.
