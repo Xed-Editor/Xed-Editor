@@ -106,29 +106,28 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     Settings.check_for_update = it
                 })
 
-            SettingsToggle(
-                label = stringResource(strings.manage_storage),
-                description = stringResource(strings.manage_storage_desc),
-                isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
-                showSwitch = false,
-                default = false,
-                endWidget = {
-                    Icon(
-                        modifier = Modifier.padding(16.dp),
-                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                        contentDescription = null
-                    )
-                },
-                sideEffect = {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                SettingsToggle(
+                    label = stringResource(strings.manage_storage),
+                    description = stringResource(strings.manage_storage_desc),
+                    isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                    showSwitch = false,
+                    default = false,
+                    endWidget = {
+                        Icon(
+                            modifier = Modifier.padding(16.dp),
+                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                            contentDescription = null
+                        )
+                    },
+                    sideEffect = {
                         val intent =
                             Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
                         intent.data = Uri.parse("package:${context.packageName}")
                         context.startActivity(intent)
                     }
-                }
-            )
-
+                )
+            }
 
         }
 
