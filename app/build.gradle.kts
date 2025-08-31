@@ -96,13 +96,12 @@ android {
         applicationId = "com.rk.xededitor"
         minSdk = 26
 
-        //needed for running proot
         //noinspection ExpiredTargetSdkVersion
         targetSdk = 28
 
         //versioning
-        versionCode = 61
-        versionName = "3.1.6"
+        versionCode = 62
+        versionName = "3.1.6-hotfix"
         vectorDrawables {
             useSupportLibrary = true
         }
