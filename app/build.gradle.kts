@@ -101,7 +101,7 @@ android {
 
         //versioning
         versionCode = 62
-        versionName = "3.1.6-hotfix"
+        versionName = "3.1.7"
         vectorDrawables {
             useSupportLibrary = true
         }
