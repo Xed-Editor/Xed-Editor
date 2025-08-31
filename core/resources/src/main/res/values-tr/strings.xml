@@ -38,7 +38,7 @@
     <string name="openfile">Dosya aç</string>
     <string name="new_folder">Yeni Klasör</string>
     <string name="new_file_1">Yeni dosya</string>
-    <string name="rename">Yeniden isimlendirmek</string>
+    <string name="rename">Yeniden isimlendir</string>
     <string name="open_with">Birlikte aç…</string>
     <string name="save_as">Farklı Kaydet</string>
     <string name="paste">Yapıştır</string>
@@ -107,7 +107,7 @@
     <string name="file_open_denied">Bu dosyanın başka programlarla açılmasına izin verilmiyor</string>
     <string name="reload_file_tree">Dosyaları Yenile</string>
     <string name="close_current_project">Mevcut projeyi kapat</string>
-    <string name="rename_descript">Yeniden Adlandır</string>
+    <string name="rename_descript">Belgeyi yeniden isimlendir</string>
     <string name="open_with_other">Seçilen dosyayı diğer uygulamalarda aç</string>
     <string name="delete_descript">Belgeyi Kalıcı Olarak Sil</string>
     <string name="add_file_desc">Buraya eklenecek yeni bir dosya seçin</string>
