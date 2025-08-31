@@ -55,8 +55,8 @@
     <string name="undo">Annulla</string>
     <string name="settings">Impostazioni</string>
     <string name="search">Cerca</string>
-    <string name="go_next">Vai al Successivo</string>
-    <string name="go_prev">Vai al Precedente</string>
+    <string name="go_next">Successivo</string>
+    <string name="go_prev">Precedente</string>
     <string name="close_search">Chiudi la Ricerca</string>
     <string name="replace">Sostituisci</string>
     <string name="share">Condividi</string>
@@ -119,7 +119,7 @@
     <string name="file_open_denied">Non è consentito aprire questo file con altre app</string>
     <string name="close_current_project">Chiudi il progetto corrente</string>
     <string name="open_with_other">Apri il file selezionato in altre app</string>
-    <string name="delete_descript">Elimina documento</string>
+    <string name="delete_descript">Elimina definitivamente il documento</string>
     <string name="add_file_desc">Seleziona un nuovo file da aggiungere qui</string>
     <string name="paste_desc">Incolla documento</string>
     <string name="clipboard_empty">Non ci sono file copiati in memoria</string>
@@ -306,7 +306,7 @@
     <string name="content">Contenuto</string>
     <string name="force_desktop_desc">Forza il layout desktop nei dispositivi con schermo più piccolo</string>
     <string name="light_mode">Chiaro</string>
-    <string name="theme_mode">Tema</string>
+    <string name="theme_mode">Modalità Tema</string>
     <string name="encoding_warning">La modifica della codifica predefinita è altamente sconsigliata, in quanto può causare la corruzione dei file. Si raccomanda vivamente di utilizzare UTF-8, a meno che non si comprendano appieno le implicazioni e non si siano creati backup adeguati.</string>
     <string name="font_added">Font aggiunto con Successo</string>
     <string name="restore_sessions_desc">Ripristina schede precedenti</string>
@@ -335,13 +335,13 @@
     <string name="tab_opened">Schede Aperte</string>
     <string name="enable_ext_desc">Carica Estensioni di terze parti</string>
     <string name="ext_desc">Gestisci Estensioni</string>
-    <string name="mutator_desc">Crea strumenti micro</string>
+    <string name="mutator_desc">Crea script utente</string>
     <string name="restore_sessions">Ripristina Sessioni</string>
     <string name="sessions">Sessioni</string>
     <string name="no_ext">Nessuna Estensione installata.</string>
     <string name="downloading">Scaricamento…</string>
     <string name="initializing">Inizializzazione…</string>
-    <string name="network_err">Errore di rete</string>
+    <string name="network_err">Errore di rete. Verifica che la tua connessione internet stia funzionando correttamente.</string>
     <string name="user">Utente</string>
     <string name="email">Email</string>
     <string name="git_auth">Token GitHub</string>
@@ -355,7 +355,7 @@
     <string name="file_not_exist">Il File non esiste più</string>
     <string name="soft_keyboard_always">Mostra sempre la tastiera</string>
     <string name="soft_keyboard_always_desc">Mostra sempre la tastiera virtuale anche quando una tastiera fisica è connessa</string>
-    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di xed-editor. Per imparare come costruire un plugin, clicca qui</string>
+    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di xed-editor. Per imparare come costruire un plugin, clicca qui.</string>
     <string name="scroll_to_bottom">Scorri in Basso</string>
     <string name="loading">Caricamento…</string>
     <string name="scroll_to_bottom_desc">Scorri in Basso all\'apertura di un file</string>
@@ -365,8 +365,8 @@
     <string name="err_no_termux">Termux non è installato</string>
     <string name="err_termux_incompatible">Termux non è compatibile</string>
     <string name="suggest_clear_app_data">Si consiglia la cancellazione dei dati dell\'app</string>
-    <string name="update_files_cleared">App aggiornata : Dati Cancellati</string>
-    <string name="unrestricted_file_desc">Consenti l\'apertura di file di qualsiasi dimensione. Può causare crash</string>
+    <string name="update_files_cleared">App aggiornata: Dati Cancellati</string>
+    <string name="unrestricted_file_desc">Consenti l\'apertura di file di qualsiasi dimensione. Può causare crash.</string>
     <string name="unrestricted_file">Apri file di qualsiasi dimensione</string>
     <string name="toggle_ww">Attiva/Disattiva Parola a Capo</string>
     <string name="warning_private_dir">Il contenuto di questa directory verrà eliminato se si cancellano i dati o si elimina Xed-Editor</string>
@@ -400,11 +400,15 @@
     <string name="flavor">Variante</string>
     <string name="cant_undo">Questa azione non può essere annullata</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">Disabilita tastiera virtuale</string>
-    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Disabilita la tastiera virtuale se è Disponibile la Tastiera fisica</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Disabilita la tastiera virtuale se è disponibile la tastiera fisica</string>
     <string name="auto_complete">Completamento Automatico dell\'Editor</string>
     <string name="logcat_service">Servizio Logcat</string>
     <string name="logcat_service_desc">Acquisizione log in background</string>
     <string name="capture_logcat_desc">Acquisisci i log in background per il debug</string>
     <string name="capture_logcat">Acquisisci Logcat</string>
     <string name="tempFile">File Temporaneo</string>
+    <string name="manage_storage_desc">Gestisci Autorizzazione di Archiviazione</string>
+    <string name="lang">Lingua</string>
+    <string name="lang_desc">Imposizioni lingua</string>
+    <string name="indian">Indiano</string>
 </resources>
