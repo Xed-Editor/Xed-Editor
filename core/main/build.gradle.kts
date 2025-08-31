@@ -111,6 +111,7 @@ val runPrecompileScript by tasks.registering {
             locale?.let { locales.add(it) }
         }
 
+        locales.sort()
         // Write JSON array to file
         outputFile.writeText(
             JsonOutput.prettyPrint(JsonOutput.toJson(locales))
