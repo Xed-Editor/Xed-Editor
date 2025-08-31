@@ -442,5 +442,5 @@
     <string name="release_wakelock">关闭屏幕常亮</string>
     <string name="getting_ready">正在初始化…</string>
     <string name="native_runner">此运行器仅适用于本地文件，建议将其移动到终端主目录</string>
-    <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中在运行许多进程时（比如正在 apt update 或 apt upgrade），你可能会看到系统的安全警告。这是一个虚警，不代表真的有病毒。</string>
+    <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中运行大量进程时（例如执行 apt update 或 apt upgrade），你可能会看到系统显示安全警告。这是误报，并不代表真的有病毒。</string>
 </resources>
