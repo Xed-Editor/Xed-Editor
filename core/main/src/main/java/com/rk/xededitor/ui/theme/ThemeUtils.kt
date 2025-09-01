@@ -53,13 +53,18 @@ fun loadThemes(){
         return
     }
 
-    themeDir.listFiles()?.forEach {
-        ObjectInputStream(FileInputStream(it)).use { input ->
-            val config = input.readObject() as? ThemeConfig
-            if (config != null){
-                themes.add(config.build())
-            }
+    themeDir.listFiles()?.forEach { file ->
+        runCatching {
+            ObjectInputStream(FileInputStream(file)).use { input ->
+                val config = input.readObject() as? ThemeConfig
+                if (config != null){
+                    themes.add(config.build())
+                }
 
+            }
+        }.onFailure {
+            it.printStackTrace()
+            file.delete()
         }
     }
 }
