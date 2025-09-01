@@ -112,14 +112,14 @@ class TerminalBackEnd(val terminal: TerminalView, val activity: Terminal) : Term
 
     override fun onKeyDown(keyCode: Int, e: KeyEvent, session: TerminalSession): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && !session.isRunning) {
-            activity.sessionBinder.get()
-                ?.terminateSession(activity.sessionBinder.get()!!.getService().currentSession.value)
-            if (activity.sessionBinder.get()!!.getService().sessionList.isEmpty()) {
+            activity.sessionBinder?.get()
+                ?.terminateSession(activity.sessionBinder?.get()!!.getService().currentSession.value)
+            if (activity.sessionBinder?.get()!!.getService().sessionList.isEmpty()) {
                 activity.finish()
             } else {
                 changeSession(
                     activity,
-                    activity.sessionBinder.get()!!.getService().sessionList.first()
+                    activity.sessionBinder?.get()!!.getService().sessionList.first()
                 )
             }
             return true

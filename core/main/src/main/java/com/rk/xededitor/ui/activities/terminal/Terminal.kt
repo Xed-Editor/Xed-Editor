@@ -61,7 +61,8 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
 class Terminal : AppCompatActivity() {
-    var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
+    //var sessionBinder = WeakReference<SessionService.SessionBinder?>(null)
+    var sessionBinder by mutableStateOf<WeakReference<SessionService.SessionBinder>?>(null)
     var isBound = false
 
 
@@ -69,13 +70,13 @@ class Terminal : AppCompatActivity() {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as SessionService.SessionBinder
             sessionBinder = WeakReference(binder)
+            //sessionBinder = WeakReference(binder)
             isBound = true
-
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             isBound = false
-            sessionBinder = WeakReference(null)
+            sessionBinder = null
         }
     }
 
@@ -101,7 +102,13 @@ class Terminal : AppCompatActivity() {
         setContent {
             KarbonTheme {
                 Surface {
-                    TerminalScreenHost(this)
+                    if (sessionBinder != null) {
+                        TerminalScreenHost(this)
+                    }else{
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                            Text("No service connection")
+                        }
+                    }
                 }
             }
         }

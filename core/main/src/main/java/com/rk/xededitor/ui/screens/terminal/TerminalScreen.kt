@@ -162,9 +162,9 @@ fun TerminalScreenInternal(
                                     terminalView.get()
                                         ?.let {
                                             val client = TerminalBackEnd(it, terminalActivity)
-                                            terminalActivity.sessionBinder.get()!!.createSession(
+                                            terminalActivity.sessionBinder?.get()!!.createSession(
                                                 generateUniqueString(
-                                                    terminalActivity.sessionBinder.get()!!
+                                                    terminalActivity.sessionBinder?.get()!!
                                                         .getService().sessionList
                                                 ),
                                                 client,
@@ -191,11 +191,11 @@ fun TerminalScreenInternal(
 
                         }
 
-                        terminalActivity.sessionBinder.get()?.getService()?.sessionList?.let {
+                        terminalActivity.sessionBinder?.get()?.getService()?.sessionList?.let {
                             LazyColumn {
                                 items(it) { session_id ->
                                     SelectableCard(
-                                        selected = session_id == terminalActivity.sessionBinder.get()
+                                        selected = session_id == terminalActivity.sessionBinder?.get()
                                             ?.getService()?.currentSession?.value,
                                         onSelect = { changeSession(terminalActivity, session_id) },
                                         modifier = Modifier
@@ -211,7 +211,7 @@ fun TerminalScreenInternal(
                                                 style = MaterialTheme.typography.bodyLarge
                                             )
 
-                                            if (session_id != terminalActivity.sessionBinder.get()
+                                            if (session_id != terminalActivity.sessionBinder?.get()
                                                     ?.getService()?.currentSession?.value
                                             ) {
                                                 Spacer(modifier = Modifier.weight(1f))
@@ -219,7 +219,7 @@ fun TerminalScreenInternal(
                                                 IconButton(
                                                     onClick = {
                                                         println(session_id)
-                                                        terminalActivity.sessionBinder.get()
+                                                        terminalActivity.sessionBinder?.get()
                                                             ?.terminateSession(session_id)
                                                     },
                                                     modifier = Modifier.size(24.dp)
@@ -270,22 +270,22 @@ fun TerminalScreenInternal(
                                     val client = TerminalBackEnd(this, terminalActivity)
 
                                     val session = if (pendingCommand != null) {
-                                        terminalActivity.sessionBinder.get()!!
+                                        terminalActivity.sessionBinder?.get()!!
                                             .getService().currentSession.value = pendingCommand!!.id
-                                        terminalActivity.sessionBinder.get()!!
+                                        terminalActivity.sessionBinder?.get()!!
                                             .getSession(pendingCommand!!.id)
-                                            ?: terminalActivity.sessionBinder.get()!!.createSession(
+                                            ?: terminalActivity.sessionBinder?.get()!!.createSession(
                                                 pendingCommand!!.id,
                                                 client,
                                                 terminalActivity
                                             )
                                     } else {
-                                        terminalActivity.sessionBinder.get()!!.getSession(
-                                            terminalActivity.sessionBinder.get()!!
+                                        terminalActivity.sessionBinder?.get()!!.getSession(
+                                            terminalActivity.sessionBinder?.get()!!
                                                 .getService().currentSession.value
                                         )
-                                            ?: terminalActivity.sessionBinder.get()!!.createSession(
-                                                terminalActivity.sessionBinder.get()!!
+                                            ?: terminalActivity.sessionBinder?.get()!!.createSession(
+                                                terminalActivity.sessionBinder?.get()!!
                                                     .getService().currentSession.value,
                                                 client,
                                                 terminalActivity
@@ -500,8 +500,8 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
     terminalView.get()?.apply {
         val client = TerminalBackEnd(this, terminalActivity)
         val session =
-            terminalActivity.sessionBinder.get()!!.getSession(session_id)
-                ?: terminalActivity.sessionBinder.get()!!.createSession(
+            terminalActivity.sessionBinder?.get()!!.getSession(session_id)
+                ?: terminalActivity.sessionBinder?.get()!!.createSession(
                     session_id,
                     client,
                     terminalActivity
@@ -532,7 +532,7 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
         }
 
     }
-    terminalActivity.sessionBinder.get()!!.getService().currentSession.value = session_id
+    terminalActivity.sessionBinder?.get()!!.getService().currentSession.value = session_id
 
 }
 
