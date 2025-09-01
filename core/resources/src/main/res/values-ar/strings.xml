@@ -411,4 +411,9 @@
     <string name="lang">لغة</string>
     <string name="lang_desc">إعدادات اللغة</string>
     <string name="indian">هندي</string>
+    <string name="terminal_virus_notice">في بعض الأجهزة، وخاصةً بعض الطرز من الصين، قد ترى تحذيرًا أمنيًا للنظام عند تشغيل العديد من العمليات في الجهاز الطرفي (على سبيل المثال أثناء \"apt update\" أو \"apt upgrade\"). هذه نتيجة إيجابية خاطئة ولا تشير إلى وجود فيروس حقيقي.</string>
+    <string name="native_runner">يعمل هذا المشغل فقط على الملفات الأصلية، فكر في نقله إلى دليل الجهاز الرئيسي</string>
+    <string name="acquire_wakelock">الحصول على قفل الاستيقاظ</string>
+    <string name="release_wakelock">إصدار قفل الإيقاظ</string>
+    <string name="getting_ready">تجهيز كل شيء…</string>
 </resources>
