@@ -58,7 +58,7 @@
     <string name="create">作成</string>
     <string name="ask_enter_name">名前を入力してください</string>
     <string name="attention">注意</string>
-    <string name="ask_del">削除してもよろしいですか</string>
+    <string name="ask_del">完全に削除してもよろしいですか</string>
     <string name="redir">ディレクトリを再選択してください</string>
     <string name="clipboardempty">クリップボードは空です</string>
     <string name="keyword_regex">キーワード (正規表現)</string>
@@ -77,7 +77,7 @@
     <string name="file_open_denied">他のアプリでこのファイルを開くことは許可されていません</string>
     <string name="reload_file_tree">ファイルを再読み込み</string>
     <string name="rename_descript">選択されたドキュメントの名前を変更</string>
-    <string name="delete_descript">選択されたドキュメントを削除</string>
+    <string name="delete_descript">ドキュメントを完全に削除</string>
     <string name="add_file_desc">追加するファイルを選択</string>
     <string name="paste_desc">選択されたドキュメントを貼り付け</string>
     <string name="clipboard_empty">ファイルのクリップボードは空です</string>
@@ -246,7 +246,7 @@
     <string name="select_theme_mode">テーマモードを選択</string>
     <string name="cannot_be_empty">空欄にすることはできません。</string>
     <string name="theme_mode_desc">アプリケーションのカラーテーマを変更する</string>
-    <string name="show_suggestions">候補を表示</string>
+    <string name="show_suggestions">キーボード候補を表示</string>
     <string name="version_code">バージョンコード</string>
     <string name="github">GitHub</string>
     <string name="github_desc">Githubでスターを付ける🤩</string>
@@ -281,7 +281,7 @@
     <string name="update">アップデート</string>
     <string name="ignore">無視</string>
     <string name="launch">起動</string>
-    <string name="mutator_desc">ちょっとしたツールを作成</string>
+    <string name="mutator_desc">ユーザースクリプトを作成</string>
     <string name="restore_sessions">セッションの復元</string>
     <string name="restore_sessions_desc">前回のタブを復元</string>
     <string name="sessions">セッション</string>
@@ -302,7 +302,7 @@
     <string name="installing">インストール中…</string>
     <string name="not_plugin_err">選択されたファイルは.apkファイルではありません</string>
     <string name="loading">読み込み中…</string>
-    <string name="network_err">ネットワークエラー</string>
+    <string name="network_err">ネットワークエラーです。インターネットに接続できているかご確認ください。</string>
     <string name="git_auth">Githubトークン</string>
     <string name="invalid_email">無効なEメール</string>
     <string name="invalid_user">無効なユーザー名</string>
@@ -332,9 +332,9 @@
     <string name="use_github_url">デフォルトのGitドメインを使用</string>
     <string name="txt_ww">テキストファイルのワードラップ</string>
     <string name="txt_ww_desc">テキストファイルを自動的にワードラップする</string>
-    <string name="info_ext">拡張機能を使用することで、xed-editorの動作や機能を変更することができます。プラグインの作り方については、ここをクリックしてください</string>
+    <string name="info_ext">拡張機能を使用することで、xed-editorの動作や機能を変更することができます。プラグインの作り方については、ここをクリックしてください。</string>
     <string name="dark_mode">ダーク</string>
-    <string name="theme_mode">テーマ</string>
+    <string name="theme_mode">テーマモード</string>
     <string name="initializing">初期化中…</string>
     <string name="user">ユーザー</string>
     <string name="show_virtual_keyboard">画面上のキーボードを表示</string>
@@ -355,7 +355,7 @@
     <string name="scroll_to_bottom_desc">ファイルを開いたときに下までスクロールする</string>
     <string name="launch_termux">Termuxを起動しますか？</string>
     <string name="name_empty_err">名前は空白にできません</string>
-    <string name="launch_termux_explanation">Termuxが停止しているため、xed-editorはコマンドを実行できません。起動しますか？</string>
+    <string name="launch_termux_explanation">Termuxが停止しているため、Xed-Editorはコマンドを実行できません。起動しますか？</string>
     <string name="terminal_home">ターミナルのホーム</string>
     <string name="soft_keyboard_always">キーボードを常に表示</string>
     <string name="script_api_info">詳しくは、xed-editorsソースコードのPROJECT/core/main/ui/screens/mutators/ImplApiにあるImplApiクラスをチェックしてください</string>
@@ -397,4 +397,5 @@
     <string name="file_info">ファイル情報</string>
     <string name="misc">その他</string>
     <string name="misc_desc">その他の設定</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">仮想キーボードの無効化</string>
 </resources>
