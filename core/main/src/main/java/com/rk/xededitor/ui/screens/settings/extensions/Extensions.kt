@@ -173,7 +173,7 @@ fun Extensions(modifier: Modifier = Modifier) {
         ) {
             InfoBlock(
                 modifier = Modifier.clickable {
-                    openUrl("https://github.com/Xed-Editor/pluginTemplate")
+                    activity?.openUrl("https://github.com/Xed-Editor/pluginTemplate")
                 },
                 icon = {
                     Icon(

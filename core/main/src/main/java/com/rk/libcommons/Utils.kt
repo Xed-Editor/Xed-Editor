@@ -150,12 +150,12 @@ fun DialogContent(
     }
 }
 
-fun openUrl(url: String) {
+fun Activity.openUrl(url: String) {
     val intent = android.content.Intent(
         android.content.Intent.ACTION_VIEW,
         android.net.Uri.parse(url)
     )
-   application!!.startActivity(intent)
+   startActivity(intent)
 }
 
 fun hasHardwareKeyboard(context: Context): Boolean {

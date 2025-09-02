@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,8 +47,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val file = drawables.file
-private val folder = drawables.folder
+private val ic_file = drawables.file
+private val folder = drawables.baseline_folder_24
 private val unknown = drawables.unknown_document
 private val fileSymlink = drawables.file_symlink
 private val java = drawables.java
@@ -80,9 +81,10 @@ private val go = drawables.golang
 private val lisp = drawables.lisp
 private val sql = drawables.sql
 
-private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: String): Int {
-    return if (isFile) {
-        when (name) {
+@Composable
+private fun FileIcon(file: FileObject) {
+    val icon = if (file.isFile()) {
+        when (file.getName()) {
             "contract.sol",
             "LICENSE",
             "NOTICE",
@@ -91,7 +93,7 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
             "gradlew" -> bash
 
             else ->
-                when (name.substringAfterLast('.', "")) {
+                when (file.getName().substringAfterLast('.', "")) {
                     "java",
                     "bsh", "gradle" -> java
 
@@ -163,16 +165,23 @@ private fun getIcon(isFile: Boolean, isSymlink: Boolean, isDir: Boolean, name: S
                     "plugin" -> plugin
                     "properties", "pro", "package.json" -> prop
                     "go" -> go
-                    else -> file
+                    else -> ic_file
                 }
         }
-    } else if (isDir) {
+    } else if (file.isDirectory()) {
         folder
-    } else if (isSymlink) {
+    } else if (file.isSymlink()) {
         fileSymlink
     } else {
         unknown
     }
+
+    Icon(
+        painter = painterResource(icon),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.secondary,
+        modifier = Modifier.size(20.dp)
+    )
 
 }
 
@@ -446,18 +455,8 @@ private fun FileTreeNodeItem(
 
             }
 
-            val iconId = getIcon(
-                isFile = node.isFile,
-                isDir = node.isDirectory,
-                isSymlink = node.file.isSymlink(),
-                name = node.name
-            )
-            Icon(
-                painter = painterResource(iconId),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                modifier = Modifier.size(20.dp)
-            )
+            FileIcon(node.file)
+
 
             Spacer(modifier = Modifier.width(8.dp))
 
