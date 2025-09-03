@@ -363,7 +363,7 @@
     <string name="http_git_url">Http git ドメイン</string>
     <string name="scroll_to_bottom">下までスクロール</string>
     <string name="experimental_session_restore_warning">この機能は試験的なもので、データが失われる可能性があります</string>
-    <string name="update_files_cleared">アプリがアップデートされました : データがクリアされました</string>
+    <string name="update_files_cleared">アプリがアップデートされました: データがクリアされました</string>
     <string name="unrestricted_file">サイズによらずファイルを開く</string>
     <string name="suggest_clear_app_data">アプリのデータをクリアすることを推奨します</string>
     <string name="unrestricted_file_desc">どのようなサイズのファイルでも開くようにする(クラッシュの可能性あり)</string>
@@ -398,4 +398,9 @@
     <string name="misc">その他</string>
     <string name="misc_desc">その他の設定</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">仮想キーボードの無効化</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">物理キーボードが有効な場合に仮想キーボードを無効化する</string>
+    <string name="cant_undo">この操作は取り消しできません</string>
+    <string name="auto_complete">エディターの自動補完</string>
+    <string name="capture_logcat">Logcatをキャプチャー</string>
+    <string name="capture_logcat_desc">デバッグ用にログをバックグラウンドでキャプチャーする</string>
 </resources>
