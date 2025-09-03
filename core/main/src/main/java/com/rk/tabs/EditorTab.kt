@@ -17,11 +17,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -247,6 +249,8 @@ fun CodeEditor(
     val handleColor = selectionColors.handleColor
     val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
 
+    val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+    val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
 
     AnimatedVisibility(visible = true) {
@@ -273,7 +277,9 @@ fun CodeEditor(
                             colorSecondary = colorSecondary.toArgb(),
                             secondaryContainer = secondaryContainer.toArgb(),
                             selectionBg = selectionBackground.toArgb(),
-                            handleColor = handleColor.toArgb()
+                            handleColor = handleColor.toArgb(),
+                            gutterColor = gutterColor.toArgb(),
+                            currentLine = currentLineColor.toArgb()
                         )
                     }
                 }
@@ -306,7 +312,9 @@ fun CodeEditor(
                             colorSecondary = colorSecondary.toArgb(),
                             secondaryContainer = secondaryContainer.toArgb(),
                             selectionBg = selectionBackground.toArgb(),
-                            handleColor = handleColor.toArgb()
+                            handleColor = handleColor.toArgb(),
+                            gutterColor = gutterColor.toArgb(),
+                            currentLine = currentLineColor.toArgb()
                         )
 
                         state.editor = this

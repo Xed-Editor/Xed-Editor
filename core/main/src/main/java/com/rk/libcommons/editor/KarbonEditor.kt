@@ -42,7 +42,10 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.CURRENT_LINE
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_CURRENT
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_PANEL_TEXT
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB_PRESSED
@@ -93,7 +96,9 @@ class KarbonEditor : CodeEditor {
                        colorSecondary: Int,
                        secondaryContainer: Int,
                        selectionBg: Int,
-                       handleColor: Int) {
+                       handleColor: Int,
+                       gutterColor: Int,
+                       currentLine: Int) {
         updateColors { colors ->
             with(colors){
                 setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
@@ -112,7 +117,12 @@ class KarbonEditor : CodeEditor {
                 setColors(
                     editorSurface,
                     WHOLE_BACKGROUND,
+                    LINE_DIVIDER
                 )
+
+                setColors(onSurface,LINE_NUMBER,LINE_NUMBER_CURRENT)
+
+
 
                 setColors(surfaceContainer,
                     TEXT_ACTION_WINDOW_BACKGROUND,
@@ -133,8 +143,8 @@ class KarbonEditor : CodeEditor {
                 setColors(setAlpha(onSurface,0.5f),SCROLL_BAR_THUMB)
                 setColors(setAlpha(onSurface,0.3f),SCROLL_BAR_THUMB_PRESSED)
 
-                setColors(secondaryContainer,CURRENT_LINE)
-                //setColors(secondaryContainer,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
+                setColors(currentLine,CURRENT_LINE)
+                setColors(gutterColor,LINE_NUMBER_BACKGROUND)
 
             }
         }
