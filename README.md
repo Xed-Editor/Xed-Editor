@@ -35,10 +35,12 @@
   - [x] Print text documents
   - [x] AMOLED Theme
   - [ ] Keybindings
-  - [x] Built-in Terminal (Alpine Linux)
-  - [x] Termux Interoperability
+  - [x] Built-in Terminal (Ubuntu arm64)
   - [x] Run Python,Html,C/C++, Node.js, etc.
   - [x] Git (Plugin)
+  - [x] Custom runners (Bash scripts)
+  - [x] Experimental LSP support
+  - [x] Extensions
 
 
 <br>
