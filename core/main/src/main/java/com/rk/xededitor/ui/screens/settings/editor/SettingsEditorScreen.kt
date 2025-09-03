@@ -141,6 +141,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+
             NextScreenCard(
                 label = stringResource(strings.manage_editor_font),
                 description = stringResource(strings.manage_editor_font),
@@ -154,6 +155,15 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     showTextSizeDialog = true
                 })
+
+            SettingsToggle(label = stringResource(strings.textMateSuggestion),
+                description = stringResource(strings.textMateSuggestion_desc),
+                default = Settings.textMateSuggestion,
+                sideEffect = {
+                    Settings.textMateSuggestion = it
+                    toast(strings.rr)
+                }
+            )
 
         }
 

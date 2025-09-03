@@ -243,7 +243,6 @@
     <string name="click_open">Click here to open file</string>
     <string name="no">No</string>
     <string name="file_too_large">File is too big to open</string>
-    <string name="toggle_suggestion">Toggle Suggestion</string>
     <string name="run">Run</string>
     <string name="txt_ww">Wrap txt files</string>
     <string name="txt_ww_desc">Automatically wrap text files</string>
@@ -416,4 +415,6 @@
     <string name="getting_ready">Getting everything ready…</string>
     <string name="native_runner">This runner only works on native files, consider moving it to terminal home directory</string>
     <string name="terminal_virus_notice">On some devices, especially certain models from China, you may see a system security warning when many processes are running in the terminal (for example during \'apt update\' or \'apt upgrade\'). This is a false positive and does not indicate a real virus.</string>
+    <string name="textMateSuggestion">TextMate AutoCompletion</string>
+    <string name="textMateSuggestion_desc">Suggest predefined keywords</string>
 </resources>
