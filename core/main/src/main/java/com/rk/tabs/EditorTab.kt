@@ -1,5 +1,6 @@
 package com.rk.tabs
 
+import android.graphics.Color
 import com.rk.xededitor.ui.activities.main.ControlPanel
 import com.rk.xededitor.ui.activities.main.MainViewModel
 import android.view.KeyEvent
@@ -11,6 +12,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.HorizontalDivider
@@ -222,9 +224,6 @@ class EditorTab(
 
 }
 
-fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
-    keys.forEach { setColor(it, color) }
-}
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -238,8 +237,17 @@ fun CodeEditor(
 
     val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    val selectionColors = LocalTextSelectionColors.current
     val realSurface = MaterialTheme.colorScheme.surface
+    val selectionBackground = selectionColors.backgroundColor
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    var colorPrimary = MaterialTheme.colorScheme.primary
+    val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val colorSecondary = MaterialTheme.colorScheme.secondary
+    val handleColor = selectionColors.handleColor
+    val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
+
+
 
     AnimatedVisibility(visible = true) {
         val constraintSet = remember { ConstraintSet() }
@@ -255,38 +263,18 @@ fun CodeEditor(
                     filterIsInstance<HorizontalScrollView>().firstOrNull()?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
 
                     filterIsInstance<KarbonEditor>().firstOrNull()?.apply {
-                        updateColors { colors ->
-                            with(colors){
-                                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, android.graphics.Color.TRANSPARENT)
-
-                                setColors(
-                                    onSurfaceColor.toArgb(),
-                                    TEXT_ACTION_WINDOW_ICON_COLOR,
-                                    COMPLETION_WND_TEXT_PRIMARY,
-                                    COMPLETION_WND_TEXT_SECONDARY
-                                )
-
-                                setColors(
-                                    surfaceColor.toArgb(),
-                                    WHOLE_BACKGROUND,
-                                    LINE_NUMBER_BACKGROUND
-                                )
-
-                                setColors(surfaceContainer.toArgb(),
-                                    TEXT_ACTION_WINDOW_BACKGROUND,
-                                    COMPLETION_WND_BACKGROUND)
-
-                                setColors(
-                                    onSurfaceColor.toArgb(),
-                                    EditorColorScheme.SELECTION_HANDLE,
-                                    EditorColorScheme.SELECTION_INSERT,
-                                    EditorColorScheme.BLOCK_LINE,
-                                    EditorColorScheme.BLOCK_LINE_CURRENT,
-                                    HIGHLIGHTED_DELIMITERS_FOREGROUND
-                                )
-
-                            }
-                        }
+                        setThemeColors(
+                            editorSurface = surfaceColor.toArgb(),
+                            surfaceContainer = surfaceContainer.toArgb(),
+                            surface = realSurface.toArgb(),
+                            onSurface = onSurfaceColor.toArgb(),
+                            colorPrimary = colorPrimary.toArgb(),
+                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                            colorSecondary = colorSecondary.toArgb(),
+                            secondaryContainer = secondaryContainer.toArgb(),
+                            selectionBg = selectionBackground.toArgb(),
+                            handleColor = handleColor.toArgb()
+                        )
                     }
                 }
             },
@@ -308,7 +296,18 @@ fun CodeEditor(
                             0
                         )
 
-                        colorScheme.setColors(surfaceColor.toArgb(),WHOLE_BACKGROUND,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
+                        setThemeColors(
+                            editorSurface = surfaceColor.toArgb(),
+                            surfaceContainer = surfaceContainer.toArgb(),
+                            surface = realSurface.toArgb(),
+                            onSurface = onSurfaceColor.toArgb(),
+                            colorPrimary = colorPrimary.toArgb(),
+                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                            colorSecondary = colorSecondary.toArgb(),
+                            secondaryContainer = secondaryContainer.toArgb(),
+                            selectionBg = selectionBackground.toArgb(),
+                            handleColor = handleColor.toArgb()
+                        )
 
                         state.editor = this
                         textmateScope?.let { langScope ->
@@ -316,39 +315,6 @@ fun CodeEditor(
                                 setLanguage(langScope)
                             }
                         }
-                        updateColors { colors ->
-                            with(colors){
-                                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, android.graphics.Color.TRANSPARENT)
-
-                                setColors(
-                                    onSurfaceColor.toArgb(),
-                                    TEXT_ACTION_WINDOW_ICON_COLOR,
-                                    COMPLETION_WND_TEXT_PRIMARY,
-                                    COMPLETION_WND_TEXT_SECONDARY
-                                )
-
-                                setColors(
-                                    surfaceColor.toArgb(),
-                                    WHOLE_BACKGROUND,
-                                    LINE_NUMBER_BACKGROUND
-                                )
-
-                                setColors(surfaceContainer.toArgb(),
-                                    TEXT_ACTION_WINDOW_BACKGROUND,
-                                    COMPLETION_WND_BACKGROUND)
-
-                                setColors(
-                                    onSurfaceColor.toArgb(),
-                                    EditorColorScheme.SELECTION_HANDLE,
-                                    EditorColorScheme.SELECTION_INSERT,
-                                    EditorColorScheme.BLOCK_LINE,
-                                    EditorColorScheme.BLOCK_LINE_CURRENT,
-                                    HIGHLIGHTED_DELIMITERS_FOREGROUND
-                                )
-
-                            }
-                        }
-
 
 
                         scope.launch{

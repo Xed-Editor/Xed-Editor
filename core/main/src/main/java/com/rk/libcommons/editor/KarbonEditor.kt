@@ -38,12 +38,18 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BA
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_ITEM_CURRENT
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.CURRENT_LINE
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB_PRESSED
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SELECTED_TEXT_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -62,8 +68,6 @@ import java.nio.charset.Charset
 @Suppress("NOTHING_TO_INLINE")
 class KarbonEditor : CodeEditor {
     constructor(context: Context) : super(context)
-    constructor(context: Context,postColor:()-> Unit) : super(context)
-
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     constructor(
@@ -81,7 +85,75 @@ class KarbonEditor : CodeEditor {
     }
 
 
-    fun updateColors(postColor:(EditorColorScheme)-> Unit){
+
+    fun setThemeColors(editorSurface: Int,surfaceContainer:Int,
+                       surface: Int,onSurface: Int,
+                       colorPrimary: Int,
+                       colorPrimaryContainer: Int,
+                       colorSecondary: Int,
+                       secondaryContainer: Int,
+                       selectionBg: Int,
+                       handleColor: Int) {
+        updateColors { colors ->
+            with(colors){
+                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+
+                fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
+                    keys.forEach { setColor(it, color) }
+                }
+
+                setColors(
+                    onSurface,
+                    TEXT_ACTION_WINDOW_ICON_COLOR,
+                    COMPLETION_WND_TEXT_PRIMARY,
+                    COMPLETION_WND_TEXT_SECONDARY
+                )
+
+                setColors(
+                    editorSurface,
+                    WHOLE_BACKGROUND,
+                )
+
+                setColors(surfaceContainer,
+                    TEXT_ACTION_WINDOW_BACKGROUND,
+                    COMPLETION_WND_BACKGROUND)
+
+
+                setColors(handleColor,EditorColorScheme.SELECTION_HANDLE)
+                setColors(selectionBg,EditorColorScheme.SELECTION_INSERT,MATCHED_TEXT_BACKGROUND,SELECTED_TEXT_BACKGROUND)
+                setColors(colorPrimary,HIGHLIGHTED_DELIMITERS_FOREGROUND)
+
+                setColors(
+                    colorPrimary,
+                    EditorColorScheme.BLOCK_LINE,
+                    EditorColorScheme.BLOCK_LINE_CURRENT,
+                )
+
+
+                setColors(setAlpha(onSurface,0.5f),SCROLL_BAR_THUMB)
+                setColors(setAlpha(onSurface,0.3f),SCROLL_BAR_THUMB_PRESSED)
+
+                setColors(secondaryContainer,CURRENT_LINE)
+                //setColors(secondaryContainer,LINE_NUMBER_BACKGROUND,LINE_DIVIDER)
+
+            }
+        }
+    }
+
+
+    private fun setAlpha(color: Int, factor: Float): Int {
+        val a = Color.alpha(color)
+        val r = Color.red(color)
+        val g = Color.green(color)
+        val b = Color.blue(color)
+
+        val newAlpha = (a * factor).toInt().coerceIn(0, 255)
+        return Color.argb(newAlpha, r, g, b)
+    }
+
+
+    private fun updateColors(postAndPreColor:(EditorColorScheme)-> Unit){
+        postAndPreColor.invoke(colorScheme)
         scope.launch(Dispatchers.IO) {
             val cacheKey = getCacheKey(context)
             val cachedScheme = colorSchemeCache[cacheKey]
@@ -90,7 +162,7 @@ class KarbonEditor : CodeEditor {
                 // Use cached scheme if available
                 withContext(Dispatchers.Main) {
                     setColorScheme(cachedScheme)
-                    postColor(colorScheme)
+                    postAndPreColor(colorScheme)
                 }
             } else {
                 // Load and cache the scheme if not available
@@ -122,7 +194,7 @@ class KarbonEditor : CodeEditor {
 
                 withContext(Dispatchers.Main) {
                     setColorScheme(colors)
-                    postColor(colorScheme)
+                    postAndPreColor(colorScheme)
                 }
             }
         }
