@@ -243,6 +243,7 @@
     <string name="click_open">Click here to open file</string>
     <string name="no">No</string>
     <string name="file_too_large">File is too big to open</string>
+    <string name="toggle_suggestion">Toggle Suggestion</string>
     <string name="run">Run</string>
     <string name="txt_ww">Wrap txt files</string>
     <string name="txt_ww_desc">Automatically wrap text files</string>
