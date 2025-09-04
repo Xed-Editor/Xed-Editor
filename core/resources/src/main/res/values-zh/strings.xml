@@ -79,7 +79,7 @@
     <string name="plugin_download_failed">无法下载插件</string>
     <string name="fetch_failed">请求获取的数据为空</string>
     <string name="app">应用程序</string>
-    <string name="oled_desc">适用于支持 AMOLED 设备的纯黑主题</string>
+    <string name="oled_desc">在支持 AMOLED 的设备上启用纯黑主题</string>
     <string name="downloading_plugin">下载插件中</string>
     <string name="text_size_desc">设置字体大小</string>
     <string name="tab_size">标签大小</string>
@@ -363,7 +363,7 @@
     <string name="highlighting">语法高亮</string>
     <string name="info_ext">扩展可用来自定义 Xed-Editor 的行为和功能。要了解如何构建扩展，请单击此处。</string>
     <string name="file_not_exist">文件已不存在</string>
-    <string name="info_mutators">Mutator 是用来批量修改编辑器文本的脚本。创建 Mutator 脚本后并点击即可在编辑器中打开。</string>
+    <string name="info_mutators">Mutator 是用于批量修改编辑器文本的小脚本。创建后并点击即可在编辑器中打开。</string>
     <string name="scroll_to_bottom_desc">打开文件时滚动到底部</string>
     <string name="soft_keyboard_always">始终显示键盘</string>
     <string name="soft_keyboard_always_desc">始终显示软键盘，即使连接了物理键盘</string>
@@ -396,8 +396,8 @@
     <string name="copied">已复制</string>
     <string name="cant_undo">此操作无法撤消</string>
     <string name="info">属性</string>
-    <string name="saf_expose_warning">让主目录在文件管理中显示可能会向恶意应用程序泄露敏感信息，包括 Git 令牌、密码、用户名和存储在终端主目录中的其他文件。你想继续吗？</string>
-    <string name="expose_saf_desc">让主目录在文件管理中显示以供其他应用程序访问（通过 SAF 的方法）</string>
+    <string name="saf_expose_warning">让终端主目录在系统文件管理器中显示可能会向恶意应用程序泄露敏感信息，包括 Git 令牌、密码、用户名以及存储在主目录中的其他文件。你想继续吗？</string>
+    <string name="expose_saf_desc">在系统文件管理器中显示终端主目录，以供应用程序访问（通过 SAF 的方式）</string>
     <string name="flavor">版本</string>
     <string name="tempFile">临时文件</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">显示虚拟键盘</string>
@@ -442,7 +442,7 @@
     <string name="release_wakelock">关闭屏幕常亮</string>
     <string name="getting_ready">正在初始化…</string>
     <string name="native_runner">此运行器仅适用于本地文件，建议将其移动到终端主目录</string>
-    <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中运行大量进程时（例如执行 apt update 或 apt upgrade），你可能会看到系统显示安全警告。这是误报，并不代表真的有病毒。</string>
+    <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中运行大量进程（例如执行 apt update 或 apt upgrade 时），你可能会看到系统显示安全警告。这是系统误报，并不代表真的有病毒。</string>
     <string name="textMateSuggestion">TextMate 自动补全</string>
     <string name="textMateSuggestion_desc">预设提示关键词</string>
     <string name="dont_ask_again">不再询问</string>
