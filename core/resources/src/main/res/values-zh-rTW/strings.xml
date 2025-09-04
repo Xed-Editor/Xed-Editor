@@ -415,4 +415,6 @@
     <string name="getting_ready">正在初始化…</string>
     <string name="native_runner">此執行器僅適用於原生檔案，請考慮將其移動到終端機主目錄</string>
     <string name="terminal_virus_notice">在某些裝置上，特別是部分中國製的型號，當終端機中執行許多程序時（例如執行 apt update 或 apt upgrade），你可能會看到系統安全性警告。這是誤報，並不代表真的有病毒。</string>
+    <string name="textMateSuggestion">TextMate 自動補全</string>
+    <string name="textMateSuggestion_desc">建議預先定義的關鍵字</string>
 </resources>
