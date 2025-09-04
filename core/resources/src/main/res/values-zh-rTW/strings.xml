@@ -417,4 +417,8 @@
     <string name="terminal_virus_notice">在某些裝置上，特別是部分中國製的型號，當終端機中執行許多程序時（例如執行 apt update 或 apt upgrade），你可能會看到系統安全性警告。這是誤報，並不代表真的有病毒。</string>
     <string name="textMateSuggestion">TextMate 自動補全</string>
     <string name="textMateSuggestion_desc">建議預先定義的關鍵字</string>
+    <string name="dont_ask_again">不再詢問</string>
+    <string name="install">安裝</string>
+    <string name="ask_lsp_install">是否要安裝 %s 語言伺服器？</string>
+    <string name="terminal_not_installed">終端機尚未安裝，是否要先設定終端機？</string>
 </resources>
