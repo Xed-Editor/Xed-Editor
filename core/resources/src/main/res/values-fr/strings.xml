@@ -443,4 +443,6 @@
     <string name="release_wakelock">Libération du réveil de l\'écran</string>
     <string name="native_runner">Ce lanceur ne fonctionnera qu\'avec les fichiers originaux. Envisagez de les déplacer dans le répertoire par défaut de votre terminal</string>
     <string name="terminal_virus_notice">Sur certains appareils, en particulier des modèles chinois, vous pourriez avoir un message de sécurité du système quand de nombreux processus tournent dans le terminal (par ex. lors d\'un \'apt update\' ou \'apt upgrade\'). C\'est un faux positif et n\'indique donc pas un vrai virus.</string>
+    <string name="textMateSuggestion_desc">Suggérer des mots-clefs prédéfinis</string>
+    <string name="textMateSuggestion">Autocomplétion TextMate</string>
 </resources>
