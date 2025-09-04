@@ -445,4 +445,8 @@
     <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中运行大量进程时（例如执行 apt update 或 apt upgrade），你可能会看到系统显示安全警告。这是误报，并不代表真的有病毒。</string>
     <string name="textMateSuggestion">TextMate 自动补全</string>
     <string name="textMateSuggestion_desc">预设提示关键词</string>
+    <string name="dont_ask_again">不再询问</string>
+    <string name="install">安装</string>
+    <string name="ask_lsp_install">是否安装 %s 语言服务器？</string>
+    <string name="terminal_not_installed">终端环境未安装，是否要先初始化终端？</string>
 </resources>
