@@ -445,4 +445,8 @@
     <string name="terminal_virus_notice">Sur certains appareils, en particulier des modèles chinois, vous pourriez avoir un message de sécurité du système quand de nombreux processus tournent dans le terminal (par ex. lors d\'un \'apt update\' ou \'apt upgrade\'). C\'est un faux positif et n\'indique donc pas un vrai virus.</string>
     <string name="textMateSuggestion_desc">Suggérer des mots-clefs prédéfinis</string>
     <string name="textMateSuggestion">Autocomplétion TextMate</string>
+    <string name="dont_ask_again">Ne plus demander</string>
+    <string name="install">Installer</string>
+    <string name="ask_lsp_install">Voulez-vous installer le serveur de langue %s?</string>
+    <string name="terminal_not_installed">Le terminal n\'est pas installé. Voulez-vous commencer la configuration du terminal ?</string>
 </resources>
