@@ -13,6 +13,7 @@ val textmateSources = mapOf(
     "groovy" to "source.groovy",
     "nim" to "source.nim",
     "xml" to "text.xml",
+    "svg" to "text.xml",
     "go" to "source.go",
     "js" to "source.js",
     "ts" to "source.ts",
