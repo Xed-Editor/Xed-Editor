@@ -112,6 +112,7 @@ class CrashActivity : AppCompatActivity() {
             sb.append("Modified : ").append(isModified()).appendLine()
             sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8))
                 .appendLine()
+            sb.append("PackageName : ").append(application!!.packageName).appendLine()
             sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
             sb.append("Origin : ").append(origin()).appendLine()
             sb.append("Unix Time : ").append(System.currentTimeMillis()).appendLine()

@@ -57,3 +57,5 @@ val textmateSources = mapOf(
     "lisp" to "source.lisp",
     "sql" to "source.sql"
 )
+
+val lspRegistry = mapOf<String, LspServer>("py" to PyLspServer())

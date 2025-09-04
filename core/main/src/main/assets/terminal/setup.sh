@@ -119,5 +119,5 @@ done
 
 rm "$TMP_DIR"/sandbox.tar.gz
 
-
+clear
 sh "$PREFIX"/local/bin/sandbox

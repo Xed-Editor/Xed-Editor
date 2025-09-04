@@ -1,5 +1,6 @@
 package com.rk.tabs
 
+import android.app.Activity
 import android.graphics.Color
 import com.rk.xededitor.ui.activities.main.ControlPanel
 import com.rk.xededitor.ui.activities.main.MainViewModel
@@ -29,14 +30,18 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.file.FileObject
+import com.rk.libcommons.dialog
 import com.rk.libcommons.editor.BaseLspConnector
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
+import com.rk.libcommons.editor.lspRegistry
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.settings.Preference
 import com.rk.settings.Settings
+import com.rk.terminal.ProcessConnection
 import com.rk.xededitor.ui.components.EditorActions
 import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
@@ -66,6 +71,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
+
 
 data class CodeEditorState(
     val initialContent: Content? = null,
@@ -98,7 +104,7 @@ class EditorTab(
 ) : Tab() {
 
     private val charset = Charset.forName(Settings.encoding)
-    private var baseLspConnector: BaseLspConnector? = null
+    var baseLspConnector: BaseLspConnector? = null
 
     override val icon: ImageVector
         get() = Icons.Outlined.Edit
@@ -150,6 +156,7 @@ class EditorTab(
             runCatching {
                 file.writeText(editorState.content.toString(),charset)
                 editorState.isDirty = false
+                baseLspConnector?.notifySave(charset)
             }.onFailure {
                 errorDialog(it)
             }
@@ -198,16 +205,6 @@ class EditorTab(
                 }
             )
 
-            LaunchedEffect(Unit) {
-                val ext = file.getName().substringAfterLast(".").toString().trim()
-                if (lsp_connections.contains(ext)){
-                    baseLspConnector = BaseLspConnector(ext,lsp_connections[ext]!!)
-                    file.getParentFile()?.let { parent ->
-                        baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
-                    }
-                }
-            }
-
 
         }
 
@@ -229,7 +226,7 @@ class EditorTab(
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun CodeEditor(
+private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     textmateScope: String? = null,
@@ -320,7 +317,33 @@ fun CodeEditor(
                         state.editor = this
                         textmateScope?.let { langScope ->
                             scope.launch(Dispatchers.IO) {
-                                setLanguage(langScope)
+                                val ext = file.getName().substringAfterLast(".").toString().trim()
+
+                                if (lspRegistry.containsKey(ext)){
+                                    val server = lspRegistry[ext]!!
+                                    if (server.isInstalled(context)){
+                                        baseLspConnector = BaseLspConnector(ext, connectionProvider = ProcessConnection(server.command()))
+                                        file.getParentFile()?.let { parent ->
+                                            baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
+                                        }
+                                    }else{
+                                        setLanguage(langScope)
+                                        if (!Preference.getBoolean("has_blocked_install_ask_${server.id}",false)){
+                                            dialog(context = context as Activity, title = strings.attention.getString(), msg = String.format(strings.ask_lsp_install.getString(), "python"), cancelString = strings.dont_ask_again, okString = strings.install, onOk = {
+                                                server.install(context)
+                                            }, onCancel = {
+                                                Preference.setBoolean("has_blocked_install_ask_${server.id}",true)
+                                            })
+                                        }
+                                    }
+                                }else if (lsp_connections.contains(ext)){
+                                    baseLspConnector = BaseLspConnector(ext,lsp_connections[ext]!!)
+                                    file.getParentFile()?.let { parent ->
+                                        baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
+                                    }
+                                }else{
+                                    setLanguage(langScope)
+                                }
                             }
                         }
 

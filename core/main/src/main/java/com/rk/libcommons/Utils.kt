@@ -252,38 +252,45 @@ fun Context.getColorFromAttr(attr: Int): Int {
 }
 
 fun errorDialog(msg: String, activity: Activity? = MainActivity.instance) {
-    if (msg.isBlank()) {
-        Log.w("ERROR_DIALOG", "Message is blank")
-        return
-    }
-    if (msg.contains("Job was cancelled")) {
-        Log.w("ERROR_DIALOG", msg)
-        return
-    }
+    runOnUiThread{
+        if (msg.isBlank()) {
+            Log.w("ERROR_DIALOG", "Message is blank")
+            return@runOnUiThread
+        }
+        if (msg.contains("Job was cancelled")) {
+            Log.w("ERROR_DIALOG", msg)
+            return@runOnUiThread
+        }
 
-    dialog(context = activity, title = strings.err.getString(), msg = msg, onOk = {})
+        dialog(context = activity, title = strings.err.getString(), msg = msg, onOk = {})
+    }
 }
 
 fun errorDialog(@StringRes msgRes: Int) {
-    errorDialog(msg = msgRes.getString())
+    runOnUiThread{
+        errorDialog(msg = msgRes.getString())
+    }
 }
 
 
 //todo handle multple function call fro same throwable
 fun errorDialog(throwable: Throwable, activity: Activity? = MainActivity.instance) {
-    if (throwable.message.toString().contains("Job was cancelled")) {
-        Log.w("ERROR_DIALOG", throwable.message.toString())
-        return
-    }
-    var message = StringBuilder()
-    throwable.let {
-        message.append(it.message).append("\n")
-        if (Settings.verbose_error) {
-            message.append(it.stackTraceToString()).append("\n")
+    runOnUiThread{
+        if (throwable.message.toString().contains("Job was cancelled")) {
+            Log.w("ERROR_DIALOG", throwable.message.toString())
+            return@runOnUiThread
         }
+        var message = StringBuilder()
+        throwable.let {
+            message.append(it.message).append("\n")
+            if (Settings.verbose_error) {
+                message.append(it.stackTraceToString()).append("\n")
+            }
+        }
+
+        errorDialog(msg = message.toString(), activity = activity)
     }
 
-    errorDialog(msg = message.toString(), activity = activity)
 }
 
 fun copyToClipboard(label: String, text: String,showToast: Boolean = true) {

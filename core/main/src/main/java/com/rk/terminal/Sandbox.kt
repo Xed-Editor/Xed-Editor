@@ -78,9 +78,7 @@ fun getDefaultBindings(): List<Binding>{
 
 suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File = sandboxDir(), workingDir: String? = null, command: MutableList<String>): Process = withContext(
     Dispatchers.IO){
-    if (BuildConfig.DEBUG){
-        Log.i("SANDBOX",command.toString())
-    }
+
     if (!root.exists()) throw NoSuchFileException(root)
 
     val randomInt = Random.nextInt()
@@ -112,6 +110,10 @@ suspend fun newSandbox(excludeMounts:List<String> = listOf<String>(), root: File
         add("-r")
         add(root.absolutePath)
         addAll(command)
+    }
+
+    if (BuildConfig.DEBUG){
+        Log.i("SANDBOX", args.toList().toString())
     }
 
     val processBuilder = ProcessBuilder(linker, *args.toTypedArray())

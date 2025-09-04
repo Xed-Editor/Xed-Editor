@@ -177,6 +177,31 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 }
             ),
             EditorAction(
+                id = "editable",
+                type = ActionType.VectorAction(if (editable){
+                    Icons.Outlined.Lock
+                }else{
+                    Icons.Outlined.Edit
+                }),
+                labelRes = if (editable){
+                    strings.read_mode
+                }else{
+                    strings.edit_mode
+                },
+                action = { tab,editorState ->
+                    editable = editable.not()
+                    editorState.editor?.editable = editable
+                }
+            ),
+            EditorAction(
+                id = "search",
+                type = ActionType.PainterAction(drawables.search),
+                labelRes = strings.search,
+                action = { tab,editorState ->
+                    tab.editorState.isSearching = true
+                }
+            ),
+            EditorAction(
                 id = "refresh",
                 type = ActionType.PainterAction(drawables.refresh),
                 labelRes = strings.refresh,
@@ -193,31 +218,6 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                             }
                         }
                     }
-                }
-            ),
-            EditorAction(
-                id = "search",
-                type = ActionType.PainterAction(drawables.search),
-                labelRes = strings.search,
-                action = { tab,editorState ->
-                    tab.editorState.isSearching = true
-                }
-            ),
-            EditorAction(
-                id = "editable",
-                type = ActionType.VectorAction(if (editable){
-                    Icons.Outlined.Lock
-                }else{
-                    Icons.Outlined.Edit
-                }),
-                labelRes = if (editable){
-                    strings.read_mode
-                }else{
-                    strings.edit_mode
-                },
-                action = { tab,editorState ->
-                    editable = editable.not()
-                    editorState.editor?.editable = editable
                 }
             ),
             EditorAction(

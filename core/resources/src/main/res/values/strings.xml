@@ -418,4 +418,8 @@
     <string name="terminal_virus_notice">On some devices, especially certain models from China, you may see a system security warning when many processes are running in the terminal (for example during \'apt update\' or \'apt upgrade\'). This is a false positive and does not indicate a real virus.</string>
     <string name="textMateSuggestion">TextMate AutoCompletion</string>
     <string name="textMateSuggestion_desc">Suggest predefined keywords</string>
+    <string name="dont_ask_again">Don\'t ask again</string>
+    <string name="install">Install</string>
+    <string name="ask_lsp_install">Do you like to install %s language server?</string>
+    <string name="terminal_not_installed">Terminal is not installed, Do you like to setup terminal first?</string>
 </resources>

@@ -93,3 +93,13 @@ alias editor="xed edit"
 alias edit="xed edit"
 
 cd "$WKDIR" || { error "Failed to change directory to $WKDIR"; exit 1; }
+
+
+
+
+if [[ -f /initrc ]]; then
+    # shellcheck disable=SC1090
+    source /initrc
+fi
+
+
