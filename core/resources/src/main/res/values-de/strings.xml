@@ -236,7 +236,7 @@
     <string name="show_virtual_keyboard_desc">Virtuelle Tastatur anzeigen, wenn physische Tastatur verbunden ist</string>
     <string name="git_commit">Git Commit Hash</string>
     <string name="check_for_updates_desc">Regelmäßig auf Updates überprüfen</string>
-    <string name="click_open">Hier klicken, um die Datei zu öffnen</string>
+    <string name="click_open">Hier klicken, um eine Datei zu öffnen</string>
     <string name="no">Nein</string>
     <string name="file_too_large">Datei ist zu groß zum Öffnen</string>
     <string name="toggle_suggestion">Vorschlag umschalten</string>
@@ -419,4 +419,9 @@
     <string name="getting_ready">Vorbereitung läuft…</string>
     <string name="native_runner">Dieser Runner funktioniert nur mit nativen Dateien, verschiebe ihn gegebenenfalls in das Terminal Home-Verzeichnis</string>
     <string name="terminal_virus_notice">Auf manchen Geräten, insbesondere bei bestimmten Modellen aus China, siehst du eventuell eine System-Sicherheitswarnung, wenn viele Prozesse im Terminal ausgeführt werden (zum Beispiel während \'apt update\' oder \'apt upgrade\'). Dies ist ein Fehlalarm und weist nicht auf einen echten Virus hin.</string>
+    <string name="textMateSuggestion">TextMate Autovervollständigung</string>
+    <string name="textMateSuggestion_desc">Vordefinierte Schlüsselwörter vorschlagen</string>
+    <string name="dont_ask_again">Nicht nochmal fragen</string>
+    <string name="install">Installieren</string>
+    <string name="ask_lsp_install">Möchtest du den %s Language Server installieren?</string>
 </resources>
