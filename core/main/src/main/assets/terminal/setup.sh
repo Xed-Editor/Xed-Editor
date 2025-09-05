@@ -1,5 +1,19 @@
 set -e
 
+info() {
+  printf '\033[34;1m[*] \033[0m%s\n' "$1"
+}
+
+warn() {
+  printf '\033[33;1m[!] \033[0m%s\n' "$1"
+}
+
+error() {
+  printf '\033[31;1m[x] \033[0m%s\n' "$1"
+}
+
+info "Extracting the Ubuntu container…"
+
 ARGS="--kill-on-exit"
 ARGS="$ARGS -w /"
 
@@ -49,7 +63,7 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-COMMAND="tar -xvf $TMP_DIR/sandbox.tar.gz -C $PREFIX/local/sandbox"
+COMMAND="tar -xf $TMP_DIR/sandbox.tar.gz -C $PREFIX/local/sandbox"
 
 if [ "$FDROID" = false ]; then
     $LINKER "$PREFIX"/local/bin/proot $ARGS /system/bin/sh -c "$COMMAND"
@@ -59,6 +73,8 @@ fi
 
 
 SANDBOX_DIR="$PREFIX/local/sandbox"
+
+info "Setting up the Ubuntu container…"
 
 # values you want written
 nameserver="nameserver 8.8.8.8
@@ -119,5 +135,9 @@ done
 
 rm "$TMP_DIR"/sandbox.tar.gz
 
-clear
-sh "$PREFIX"/local/bin/sandbox
+if [ $# -gt 0 ]; then
+    sh $@
+else
+    clear
+    sh "$PREFIX"/local/bin/sandbox
+fi

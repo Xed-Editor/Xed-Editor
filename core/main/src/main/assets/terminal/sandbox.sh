@@ -1,3 +1,5 @@
+force_color_prompt=yes
+
 ARGS="--kill-on-exit"
 ARGS="$ARGS -w /"
 

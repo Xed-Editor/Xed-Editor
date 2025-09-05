@@ -3,6 +3,9 @@ package com.rk.terminal
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import com.rk.file.child
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.pendingCommand
@@ -16,6 +19,16 @@ import java.io.OutputStream
 import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
+
+fun isTerminalInstalled(): Boolean{
+    val rootfs = sandboxDir().listFiles()?.filter {
+        it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
+            "tmp"
+        ).absolutePath
+    } ?: emptyList()
+
+    return rootfs.isNotEmpty()
+}
 
 fun launchInternalTerminal(context: Context, terminalCommand: TerminalCommand) {
     showTerminalNotice(activity = MainActivity.instance!!){

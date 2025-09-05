@@ -32,6 +32,7 @@ import androidx.core.view.children
 import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.editor.BaseLspConnector
+import com.rk.libcommons.editor.BaseLspServer
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.editor.lspRegistry
@@ -47,6 +48,7 @@ import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
+import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
@@ -104,6 +106,7 @@ class EditorTab(
 ) : Tab() {
 
     private val charset = Charset.forName(Settings.encoding)
+    var lspConnection: StreamConnectionProvider? = null
     var baseLspConnector: BaseLspConnector? = null
 
     override val icon: ImageVector
@@ -126,6 +129,7 @@ class EditorTab(
         editorState.editor?.release()
         GlobalScope.launch{
             baseLspConnector?.disconnect()
+            lspConnection?.close()
         }
     }
 
@@ -321,8 +325,9 @@ private fun EditorTab.CodeEditor(
 
                                 if (lspRegistry.containsKey(ext)){
                                     val server = lspRegistry[ext]!!
+                                    lspConnection = ProcessConnection(server.command())
                                     if (server.isInstalled(context)){
-                                        baseLspConnector = BaseLspConnector(ext, connectionProvider = ProcessConnection(server.command()))
+                                        baseLspConnector = BaseLspConnector(ext, connectionProvider = lspConnection!!)
                                         file.getParentFile()?.let { parent ->
                                             baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
                                         }

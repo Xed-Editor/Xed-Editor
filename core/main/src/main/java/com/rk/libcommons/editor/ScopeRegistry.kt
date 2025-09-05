@@ -1,5 +1,7 @@
 package com.rk.libcommons.editor
 
+import com.rk.libcommons.editor.lspServers.Python
+
 val textmateSources = mapOf(
     "pro" to "source.shell",
     "java" to "source.java",
@@ -58,4 +60,4 @@ val textmateSources = mapOf(
     "sql" to "source.sql"
 )
 
-val lspRegistry = mapOf<String, LspServer>("py" to PyLspServer())
+val lspRegistry = mapOf<String, BaseLspServer>("py" to Python())

@@ -128,7 +128,7 @@ object MkSession {
 
             val shell = if (pendingCommand == null) {
                 args = if (Settings.sandbox) {
-                    arrayOf("-c", sandboxSH.absolutePath)
+                    arrayOf(sandboxSH.absolutePath)
                 } else {
                     arrayOf()
                 }
@@ -137,8 +137,7 @@ object MkSession {
                 args = pendingCommand!!.args
                 pendingCommand!!.exe
             } else {
-                args = mutableListOf(
-                    "-c", sandboxSH.absolutePath, pendingCommand!!.exe,*pendingCommand!!.args
+                args = mutableListOf(sandboxSH.absolutePath, pendingCommand!!.exe,*pendingCommand!!.args
                 ).toTypedArray<String>()
 
                 "/system/bin/sh"
@@ -147,11 +146,12 @@ object MkSession {
             val actualShell: String
             val actualArgs: Array<String> = if (installNextStage != null && installNextStage == NEXT_STAGE.EXTRACTION){
                 actualShell = "/system/bin/sh"
-                mutableListOf("-c", setupSH.absolutePath,shell,*args).toTypedArray()
+                mutableListOf("-c", setupSH.absolutePath,*args).toTypedArray()
             }else{
                 actualShell = shell
-                args
+                arrayOf("-c",*args)
             }
+
 
             pendingCommand = null
             return TerminalSession(

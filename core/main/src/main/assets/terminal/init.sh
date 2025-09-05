@@ -14,16 +14,6 @@ error() {
   printf '\033[31;1m[x] \033[0m%s\n' "$1"
 }
 
-confirm() {
-  # $1 = prompt message
-  printf '%s [y/N]: ' "$1"
-  read -r reply
-  case "$reply" in
-    [yY]|[yY][eE][sS]) return 0 ;;
-    *) return 1 ;;
-  esac
-}
-
 ALPINE_DIR="$PREFIX/local/alpine"
 RETAINED_FILE="$ALPINE_DIR/.retained"
 
@@ -56,6 +46,28 @@ if [ -d "$ALPINE_DIR" ]; then
   fi
 fi
 
+
+if [[ -f ~/.bashrc ]]; then
+    # shellcheck disable=SC1090
+    source ~/.bashrc
+fi
+
+bridge="$NATIVE_LIB_DIR/libbridge.so"
+[ -f "$bridge" ] && rm -f "$PREFIX/local/bin/xed" && ln -s "$bridge" "$PREFIX/local/bin/xed"
+
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$PREFIX/local/bin:$PATH
+export SHELL="bash"
+export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] # "
+
+# ensure command-not-found is installed
+if ! dpkg -s command-not-found >/dev/null 2>&1; then
+     info "Updating... please wait."
+     DEBIAN_FRONTEND=noninteractive
+     apt update -y && apt upgrade -y && apt install -y command-not-found sudo
+     # initialize database (important for first time use)
+     apt update
+fi
+
 if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-not-found ]; then
 	function command_not_found_handle {
 	        # check because c-n-f could've been removed in the meantime
@@ -73,18 +85,6 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 fi
 
 
-if [[ -f ~/.bashrc ]]; then
-    # shellcheck disable=SC1090
-    source ~/.bashrc
-fi
-
-bridge="$NATIVE_LIB_DIR/libbridge.so"
-[ -f "$bridge" ] && rm -f "$PREFIX/local/bin/xed" && ln -s "$bridge" "$PREFIX/local/bin/xed"
-
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/games:/usr/local/bin:/usr/local/sbin:$PREFIX/local/bin
-
-export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] # "
-
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
@@ -92,9 +92,8 @@ alias fgrep='fgrep --color=auto'
 alias editor="xed edit"
 alias edit="xed edit"
 
+
 cd "$WKDIR" || { error "Failed to change directory to $WKDIR"; exit 1; }
-
-
 
 
 if [[ -f /initrc ]]; then

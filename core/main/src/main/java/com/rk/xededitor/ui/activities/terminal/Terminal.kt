@@ -41,6 +41,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
+import com.rk.terminal.isTerminalInstalled
 import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.terminal.NEXT_STAGE
@@ -162,12 +163,7 @@ class Terminal : AppCompatActivity() {
                 ).toMutableList()
 
 
-                val rootfsFiles = sandboxDir().listFiles()?.filter {
-                    it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
-                        "tmp"
-                    ).absolutePath
-                } ?: emptyList()
-                if (rootfsFiles.isEmpty()) {
+                if (isTerminalInstalled().not()) {
                     filesToDownload.add(
                         DownloadFile(
                             url = if (abi.contains("x86_64")) {
