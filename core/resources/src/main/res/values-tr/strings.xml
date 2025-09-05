@@ -12,7 +12,7 @@
     <string name="save_label">Kaydet</string>
     <string name="ww_wait">Lütfen sözcük kaydırmanın tamamlanmasını bekleyin</string>
     <string name="open_file_or_folder">Dosya veya klasörü aç</string>
-    <string name="open_file">Dosya aç</string>
+    <string name="open_file">Bir Dosya aç</string>
     <string name="open_directory">Bir dizin aç</string>
     <string name="new_file">Yeni dosya</string>
     <string name="newFile_hint">Ad ör. Test.txt</string>
@@ -77,10 +77,10 @@
     <string name="add_file">Harici Dosya Ekle</string>
     <string name="keyword_regex">anahtar kelime (Regex)</string>
     <string name="replaceall">Tümünü değiştir</string>
-    <string name="add_new_replacement_batch">Yeni yedek parti ekle</string>
-    <string name="remove_a_search_batch">bir aramayı kaldır</string>
+    <string name="add_new_replacement_batch">Yeni yedek grup ekle</string>
+    <string name="remove_a_search_batch">arama grubunu sil</string>
     <string name="replacement">değiştirme</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">AnaArayüz</string>
     <string name="tab_text_1">Sekme 1</string>
     <string name="tab_text_2">Sekme 2</string>
     <string name="title">Başlık</string>
@@ -162,7 +162,7 @@
     <string name="installed">Yüklendi</string>
     <string name="available">Mevcut</string>
     <string name="already_installed">Zaten yüklü</string>
-    <string name="download_sure">İndirmek istediğinizden emin misiniz?</string>
+    <string name="download_sure">İndirmek istediğinizden emin misiniz</string>
     <string name="yes">Evet</string>
     <string name="downloading_plugin">Şu anda eklenti indiriliyor</string>
     <string name="download_done">Başarıyla indirildi.</string>
@@ -256,9 +256,9 @@
     <string name="version">Sürüm</string>
     <string name="version_code">Sürüm kodu</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Github\'da projeye yıldız verin 🤩</string>
+    <string name="github_desc">Github\'da Yıldızla 🤩</string>
     <string name="telegram">Telegram Grubu</string>
-    <string name="telegram_desc">Hata veya istek bildir</string>
+    <string name="telegram_desc">Sorunları, özellik isteklerini vb. bildirin.</string>
     <string name="join">Katılın</string>
     <string name="show_virtual_keyboard">Sanal klavyeyi göster</string>
     <string name="show_virtual_keyboard_desc">Fiziksel klavye bağlandığında sanal klavyeyi göster</string>
@@ -359,7 +359,7 @@
     <string name="file">Dosya</string>
     <string name="ignore">Göz ardı et</string>
     <string name="restore_sessions_desc">Önceki sekmeleri yeniden yükle</string>
-    <string name="update_av">Yeni bir sürüm mevcut</string>
+    <string name="update_av">Yeni Güncellemeler Mevcut</string>
     <string name="update">Güncelle</string>
     <string name="terminal_home_desc">Varsayılan terminal home klasörü</string>
     <string name="add_session">Yeni oturum</string>
@@ -370,7 +370,7 @@
     <string name="name_used">İsim zaten kullanımda</string>
     <string name="script_set_text">metni ayarla</string>
     <string name="launch_termux">Termux\'u başlat?</string>
-    <string name="launch_termux_explanation">Termux aktif değil, Xed-Editor\'ün komutları çalıştırabilmesi için Termux\'u başlatmak ister misiniz?</string>
+    <string name="launch_termux_explanation">Termux durduruldu, bu nedenle Xed-Editor içinde komut çalıştıramıyor. Başlatmak ister misiniz?</string>
     <string name="launch">Başlat</string>
     <string name="terminal_home">Terminal Home</string>
     <string name="sessions">Oturumlar</string>
@@ -406,12 +406,12 @@
     <string name="newtab_oom">Bu sekmeyi açmak için yeterli bellek mevcut değil. Açmak Xed-Editor\'ün çökmesine neden olabilir. Yine de devam etmek istiyor musunuz?</string>
     <string name="read_mode_desc">Okuma modunu varsayılan olarak etkinleştirin</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">Sanal klavyeyi devre dışı bırak</string>
-    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Donanım klavyesi mevcutsa sanal klavyeyi devre dışı bırakma</string>
-    <string name="expose_saf">Ev Dizinini Göster</string>
-    <string name="expose_saf_desc">Sistem dosya seçicisi (SAF) aracılığıyla ev dizinini harici uygulamalar için erişilebilir hale getirin</string>
-    <string name="saf_expose_warning">Ev dizininin açığa çıkarılması, kötü niyetli uygulamalara Git token\'ları, şifreler, kullanıcı adları ve terminal ev dizininizde saklanan diğer dosyalar dahil olmak üzere hassas bilgileri açığa çıkarabilir. Devam etmek istiyor musunuz?</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Donanım klavyesi mevcutsa sanal klavyeyi devre dışı bırakın</string>
+    <string name="expose_saf">Ana Dizini Göster</string>
+    <string name="expose_saf_desc">Ana dizini sistem dosya seçicisi (SAF) aracılığıyla harici uygulamalara erişilebilir hale getirin</string>
+    <string name="saf_expose_warning">Giriş dizinini açığa çıkarmak, Git belirteçleri, parolalar, kullanıcı adları ve terminal giriş dizininizde depolanan diğer dosyalar dahil olmak üzere hassas bilgileri kötü amaçlı uygulamalara ifşa edebilir. Devam etmek istiyor musunuz?</string>
     <string name="info">Bilgi</string>
-    <string name="file_info">Dosya Bilgisi</string>
+    <string name="file_info">Dosya Bilgileri</string>
     <string name="file_size">Dosya Boyutu</string>
     <string name="cant_undo">Bu eylem geri alınamaz</string>
     <string name="auto_complete">Editör Otomatik Tamamlama</string>
@@ -429,9 +429,9 @@
     <string name="edit_runner">Çalıştırıcıyı Düzenle</string>
     <string name="info_runners">Çalıştırıcılar, bir dosyayı/projeyi çalıştırmak için kullanılan küçük bash betikleridir. Bir runner oluşturun ve editörde açmak için üzerine tıklayın.</string>
     <string name="read_mode">Okuma Modu</string>
-    <string name="can_read">Oku</string>
-    <string name="can_write">Yaz</string>
-    <string name="isfile">Dosya?</string>
+    <string name="can_read">Okuyabilir</string>
+    <string name="can_write">Yazabilir</string>
+    <string name="isfile">Dosya</string>
     <string name="copied">Kopyalandı</string>
     <string name="runners">Çalıştırıcılar</string>
     <string name="runners_desc">Shell çalıştırıcıları</string>
@@ -441,4 +441,12 @@
     <string name="regex_pattern">Regex Deseni</string>
     <string name="redo">Tekrar</string>
     <string name="terminal_virus_notice">Bazı cihazlarda, özellikle Çin menşeli belirli modellerde, terminalde çok sayıda işlem çalıştığında (örneğin \'apt update\' veya \'apt upgrade\' sırasında) bir sistem güvenlik uyarısı görebilirsiniz. Bu yanlış bir alarmdır ve gerçek bir virüs olduğu anlamına gelmez.</string>
+    <string name="textMateSuggestion_desc">Önceden tanımlanmış anahtar kelimeler öner</string>
+    <string name="dont_ask_again">Bir daha sorma</string>
+    <string name="install">Yükle</string>
+    <string name="ask_lsp_install">%s dil sunucusunu yüklemek ister misiniz?</string>
+    <string name="terminal_not_installed">Terminal yüklü değil, önce terminali kurmak ister misiniz?</string>
+    <string name="textMateSuggestion">TextMate OtomatikTamamlama</string>
+    <string name="flavor">Yazılım</string>
+    <string name="indian">Hint</string>
 </resources>
