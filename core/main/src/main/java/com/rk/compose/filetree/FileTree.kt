@@ -155,7 +155,7 @@ private fun FileIcon(file: FileObject) {
                     "jpeg",
                     "png",
                     "gif",
-                    "bmp" -> image
+                    "bmp","svg" -> image
 
                     "rs" -> rust
                     "lisp","clisp" -> lisp
