@@ -98,7 +98,8 @@ class KarbonEditor : CodeEditor {
                        selectionBg: Int,
                        handleColor: Int,
                        gutterColor: Int,
-                       currentLine: Int) {
+                       currentLine: Int,
+                       dividerColor:Int) {
         updateColors { colors ->
             with(colors){
                 setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
@@ -117,11 +118,9 @@ class KarbonEditor : CodeEditor {
                 setColors(
                     editorSurface,
                     WHOLE_BACKGROUND,
-                    LINE_DIVIDER
                 )
 
                 setColors(onSurface,LINE_NUMBER,LINE_NUMBER_CURRENT)
-
 
 
                 setColors(surfaceContainer,
@@ -145,6 +144,8 @@ class KarbonEditor : CodeEditor {
 
                 setColors(currentLine,CURRENT_LINE)
                 setColors(gutterColor,LINE_NUMBER_BACKGROUND)
+                setColors(dividerColor,LINE_DIVIDER)
+
 
             }
         }

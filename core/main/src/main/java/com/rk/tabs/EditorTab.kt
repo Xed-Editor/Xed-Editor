@@ -253,6 +253,8 @@ private fun EditorTab.CodeEditor(
     val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
+    val divider = MaterialTheme.colorScheme.outlineVariant
+
 
     AnimatedVisibility(visible = true) {
         val constraintSet = remember { ConstraintSet() }
@@ -280,7 +282,8 @@ private fun EditorTab.CodeEditor(
                             selectionBg = selectionBackground.toArgb(),
                             handleColor = handleColor.toArgb(),
                             gutterColor = gutterColor.toArgb(),
-                            currentLine = currentLineColor.toArgb()
+                            currentLine = currentLineColor.toArgb(),
+                            dividerColor = divider.toArgb()
                         )
                     }
                 }
@@ -315,7 +318,8 @@ private fun EditorTab.CodeEditor(
                             selectionBg = selectionBackground.toArgb(),
                             handleColor = handleColor.toArgb(),
                             gutterColor = gutterColor.toArgb(),
-                            currentLine = currentLineColor.toArgb()
+                            currentLine = currentLineColor.toArgb(),
+                            dividerColor = divider.toArgb()
                         )
 
                         state.editor = this
