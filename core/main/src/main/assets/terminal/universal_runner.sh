@@ -9,17 +9,32 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+run_code(){
+    echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
+    chmod +x "$1"
+        if [ -x "$TARGET_FILE" ]; then
+            "$1"
+            rm $1
+        else
+            mv "$1" /tmp/a.out
+            chmod +x /tmp/a.out
+            /tmp/a.out
+            rm /tmp/a.out
+        fi
+}
+
 install_package() {
   local packages="$1"
-  echo "Installing $packages..."
-  apt-get update -qq
-  apt-get install -y $packages
+  info "Installing $packages..."
+  apt update -qq
+  apt install -y --color=always "$packages"
 }
+
 
 install_nodejs() {
   echo "Installing Node.js LTS..."
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-  apt-get install -y nodejs npm
+  apt install -y nodejs npm
 }
 
 install_rust() {
@@ -35,8 +50,8 @@ install_dotnet() {
   wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
   dpkg -i packages-microsoft-prod.deb
   rm packages-microsoft-prod.deb
-  apt-get update -qq
-  apt-get install -y dotnet-sdk-8.0
+  apt update -qq
+  apt install -y dotnet-sdk-8.0
 }
 
 install_kotlin() {
@@ -118,8 +133,8 @@ case "$file" in
     if ! command_exists rustc; then
       install_rust
     fi
-    rustc "$file" -o temp.out && ./temp.out
-    rm -f temp.out
+    rustc "$file" -o temp.out
+    run_code ./temp.out
     ;;
 
   *.rb)
@@ -140,16 +155,16 @@ case "$file" in
     if ! command_exists gcc; then
       install_package "build-essential"
     fi
-    gcc "$file" -o temp.out && ./temp.out
-    rm -f temp.out
+    gcc "$file" -o temp.out
+    run_code ./temp.out
     ;;
 
   *.cpp|*.cc|*.cxx)
     if ! command_exists g++; then
       install_package "build-essential"
     fi
-    g++ "$file" -o temp.out && ./temp.out
-    rm -f temp.out
+    g++ "$file" -o temp.out
+    run_code ./temp.out
     ;;
 
   *.cs)
@@ -208,20 +223,12 @@ case "$file" in
     Rscript "$file"
     ;;
 
-  *.hs)
-    if ! command_exists ghc; then
-      install_package "ghc"
-    fi
-    ghc -o temp.out "$file" && ./temp.out
-    rm -f temp.out *.hi *.o
-    ;;
-
   *.f90|*.f95|*.f03|*.f08)
     if ! command_exists gfortran; then
       install_package "gfortran"
     fi
-    gfortran "$file" -o temp.out && ./temp.out
-    rm -f temp.out
+    gfortran "$file" -o temp.out
+    run_code ./temp.out
     ;;
 
   *.pas)
