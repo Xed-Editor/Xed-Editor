@@ -15,8 +15,8 @@
     <string name="open_file">Bir Dosya aç</string>
     <string name="open_directory">Bir dizin aç</string>
     <string name="new_file">Yeni dosya</string>
-    <string name="newFile_hint">Ad ör. Test.txt</string>
-    <string name="mime">MimeType bv. metin/plain</string>
+    <string name="newFile_hint">İsim ör. Test.txt</string>
+    <string name="mime">MimeType örn. metin/plain</string>
     <string name="rep">Yenisiyle değiştirme</string>
     <string name="searck_keyword">Anahtar kelimeyi ara</string>
     <string name="cs">Harfe duyarlı</string>
@@ -64,7 +64,7 @@
     <string name="ap">Mevcut eklentiler</string>
     <string name="nip">Yüklü eklenti yok</string>
     <string name="refresh">Yenile</string>
-    <string name="dir_example">Klasör adı örn. Test</string>
+    <string name="dir_example">İsim örn. Test</string>
     <string name="create">Oluştur</string>
     <string name="ask_enter_name">Lütfen bir ad girin</string>
     <string name="already_exists">Bu isimde bir belge zaten mevcut</string>
@@ -97,7 +97,7 @@
     <string name="file_exist_not">Dosya artık mevcut değil</string>
     <string name="gitKeyExample">örneğin SüperKek:ghp_…</string>
     <string name="file_saved">Dosya kaydedildi</string>
-    <string name="gituserexample">örn. Kullanici:ornek@eposta.com</string>
+    <string name="gituserexample">örn. Kullanici:ornek@email.com</string>
     <string name="apply">Uygula</string>
     <string name="userdata">Kullanıcı Verileri</string>
     <string name="inavalid_userdata">Kullanıcı verileri geçerli değil. Ayarlardan değiştirin</string>
@@ -449,4 +449,10 @@
     <string name="textMateSuggestion">TextMate OtomatikTamamlama</string>
     <string name="flavor">Yazılım</string>
     <string name="indian">Hint</string>
+    <string name="uninstall_terminal_warning">Ubuntu kalıcı olarak kaldırılsın mı? Bu işlem geri alınamaz.</string>
+    <string name="uninstall">Kaldır</string>
+    <string name="uninstall_terminal">Terminali Kaldır</string>
+    <string name="project_as_wk">Proje’yi çalışma dizini olarak kullan</string>
+    <string name="project_as_wk_desc">Terminalde proje dizinini çalışma dizini olarak kullan</string>
+    <string name="seccomp_desc">Bazı cihazlarda görülen \"function not implemented\" hatasını düzelt</string>
 </resources>
