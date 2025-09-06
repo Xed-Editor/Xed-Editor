@@ -15,8 +15,8 @@
     <string name="open_file">Open a File</string>
     <string name="open_directory">Open a Directory</string>
     <string name="new_file">New File</string>
-    <string name="newFile_hint">Name eg. Test.txt</string>
-    <string name="mime">MimeType eg. text/plain</string>
+    <string name="newFile_hint">Name e.g. Test.txt</string>
+    <string name="mime">MimeType e.g. text/plain</string>
     <string name="rep">Replacement</string>
     <string name="searck_keyword">Search Keyword</string>
     <string name="cs">Case Sensitive</string>
@@ -60,7 +60,7 @@
     <string name="keepdl">Keep Drawer Locked</string>
     <string name="restart">Restart</string>
     <string name="refresh">Reload</string>
-    <string name="dir_example">Name eg. Test</string>
+    <string name="dir_example">Name e.g. Test</string>
     <string name="create">Create</string>
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
@@ -90,9 +90,9 @@
     <string name="clone_dir">Folder for cloning repositories</string>
     <string name="dir_exist_not">Folder does not exists</string>
     <string name="file_exist_not">File no longer exists</string>
-    <string name="gitKeyExample">eg. SuperKek:ghp_…</string>
+    <string name="gitKeyExample">e.g. SuperKek:ghp_…</string>
     <string name="file_saved">File Saved</string>
-    <string name="gituserexample">eg. UserDev:example@email.com</string>
+    <string name="gituserexample">e.g. UserDev:example@email.com</string>
     <string name="apply">Apply</string>
     <string name="userdata">User data</string>
     <string name="inavalid_userdata">User data is not valid. Change it in settings</string>
@@ -420,11 +420,11 @@
     <string name="textMateSuggestion_desc">Suggest predefined keywords</string>
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
-    <string name="ask_lsp_install">Do you like to install %s language server?</string>
+    <string name="ask_lsp_install">Would you like to install %s language server?</string>
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall Terminal</string>
     <string name="project_as_wk">Use Project as working directory</string>
     <string name="project_as_wk_desc">Use Project as working directory in terminal</string>
-    <string name="seccomp_desc">Fix function not implemented error on some devices</string>
+    <string name="seccomp_desc">Fix \"function not implemented\" error on some devices</string>
 </resources>
