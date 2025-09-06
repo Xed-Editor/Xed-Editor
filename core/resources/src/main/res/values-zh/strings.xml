@@ -449,4 +449,10 @@
     <string name="install">安装</string>
     <string name="ask_lsp_install">是否安装 %s 语言服务器？</string>
     <string name="terminal_not_installed">终端环境未安装，是否要先初始化终端？</string>
+    <string name="uninstall_terminal_warning">确定要卸载 Ubuntu 吗？此操作不可恢复。</string>
+    <string name="uninstall">卸载</string>
+    <string name="uninstall_terminal">卸载终端</string>
+    <string name="project_as_wk">将项目作为工作目录</string>
+    <string name="project_as_wk_desc">将项目作为终端的工作目录</string>
+    <string name="seccomp_desc">修复在部分设备上的方法未实现的错误</string>
 </resources>
