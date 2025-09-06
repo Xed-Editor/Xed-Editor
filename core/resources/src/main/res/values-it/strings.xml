@@ -411,4 +411,10 @@
     <string name="lang">Lingua</string>
     <string name="lang_desc">Imposizioni lingua</string>
     <string name="indian">Indiano</string>
+    <string name="runners">Esecutori</string>
+    <string name="runners_desc">Esecutori shell</string>
+    <string name="no_runners">Nessun esecutore</string>
+    <string name="new_runner">Nuovo Esecutore</string>
+    <string name="runner_name">Nome Esecutore</string>
+    <string name="regex_pattern">Modello Regex</string>
 </resources>
