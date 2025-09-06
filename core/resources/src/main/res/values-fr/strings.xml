@@ -439,14 +439,20 @@
     <string name="read_mode_desc">Activer par défaut le mode lecture</string>
     <string name="preview_err">Impossible de pré-afficher ce fichier. Aucun répertoire parent n\'est disponible. Considérez déplacer ce fichier ailleurs.</string>
     <string name="getting_ready">En train de tout préparer…</string>
-    <string name="acquire_wakelock">Contrôle du réveil de l\'écran</string>
-    <string name="release_wakelock">Libération du réveil de l\'écran</string>
-    <string name="native_runner">Ce lanceur ne fonctionnera qu\'avec les fichiers originaux. Envisagez de les déplacer dans le répertoire par défaut de votre terminal</string>
-    <string name="terminal_virus_notice">Sur certains appareils, en particulier des modèles chinois, vous pourriez avoir un message de sécurité du système quand de nombreux processus tournent dans le terminal (par ex. lors d\'un \'apt update\' ou \'apt upgrade\'). C\'est un faux positif et n\'indique donc pas un vrai virus.</string>
-    <string name="textMateSuggestion_desc">Suggérer des mots-clefs prédéfinis</string>
+    <string name="acquire_wakelock">Activer le wakelock</string>
+    <string name="release_wakelock">Désactiver le wakelock</string>
+    <string name="native_runner">Ce lanceur ne fonctionne qu\'avec les fichiers originaux, envisagez de les déplacer dans le répertoire par défaut de votre terminal</string>
+    <string name="terminal_virus_notice">Sur certains appareils, en particulier des modèles chinois, vous pourriez avoir un avertissement de sécurité du système quand de nombreux processus tournent dans le terminal (par ex. lors d\'un \'apt update\' ou \'apt upgrade\'). C\'est un faux positif et n\'indique donc pas un vrai virus.</string>
+    <string name="textMateSuggestion_desc">Suggérer des mots-clés prédéfinis</string>
     <string name="textMateSuggestion">Autocomplétion TextMate</string>
     <string name="dont_ask_again">Ne plus demander</string>
     <string name="install">Installer</string>
     <string name="ask_lsp_install">Voulez-vous installer le serveur de langue %s?</string>
     <string name="terminal_not_installed">Le terminal n\'est pas installé. Voulez-vous commencer la configuration du terminal ?</string>
+    <string name="uninstall_terminal_warning">Désinstaller Ubuntu de manière permanente ? Vous ne pourrez plus revenir en arrière.</string>
+    <string name="uninstall">Désinstaller</string>
+    <string name="uninstall_terminal">Désinstaller le Terminal</string>
+    <string name="project_as_wk">Utiliser le Projet comme dossier de travail</string>
+    <string name="project_as_wk_desc">Utiliser le Projet comme dossier de travail dans le terminal</string>
+    <string name="seccomp_desc">Corriger l’erreur \"function not implemented\" sur certains appareils</string>
 </resources>
