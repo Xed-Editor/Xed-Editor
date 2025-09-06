@@ -448,7 +448,13 @@
     <string name="textMateSuggestion_desc">Sugerir palavras-chave predefinidas</string>
     <string name="dont_ask_again">Não pergunte novamente</string>
     <string name="install">Instalar</string>
-    <string name="ask_lsp_install">Deseja instalar o servidor de idioma %s?</string>
+    <string name="ask_lsp_install">Deseja instalar o servidor da linguagem %s?</string>
     <string name="terminal_not_installed">O terminal não está instalado. Deseja configurar o terminal primeiro?</string>
     <string name="textMateSuggestion">Autocompletar TextMate</string>
+    <string name="uninstall_terminal_warning">Deletar Ubuntu permanentemente? Essa ação não pode ser revertida.</string>
+    <string name="uninstall">Desinstalar</string>
+    <string name="uninstall_terminal">Desinstalar Terminal</string>
+    <string name="project_as_wk">Usar project como diretório de trabalho</string>
+    <string name="project_as_wk_desc">Usar o projeto como diretório de trabalho no terminal</string>
+    <string name="seccomp_desc">Resolver erro \"Função não Implementada\" em alguns dispositivos</string>
 </resources>
