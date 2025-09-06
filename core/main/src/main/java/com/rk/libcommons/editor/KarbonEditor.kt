@@ -66,6 +66,7 @@ import org.eclipse.tm4e.core.registry.IThemeSource
 import java.io.File
 import java.io.InputStreamReader
 import java.nio.charset.Charset
+import kotlin.math.max
 
 
 @Suppress("NOTHING_TO_INLINE")
@@ -85,6 +86,7 @@ class KarbonEditor : CodeEditor {
     init {
         applyFont()
         applySettings()
+        lineNumberMarginLeft = 9f
     }
 
 

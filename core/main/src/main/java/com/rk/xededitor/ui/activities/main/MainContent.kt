@@ -107,6 +107,8 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 }
             }
 
+            //HorizontalDivider()
+
             ScrollableTabRow(
                 selectedTabIndex = if (viewModel.currentTabIndex < viewModel.tabs.size) viewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),

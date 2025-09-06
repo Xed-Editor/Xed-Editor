@@ -31,6 +31,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.file.FileObject
 import com.rk.libcommons.dialog
+import com.rk.libcommons.dpToPx
 import com.rk.libcommons.editor.BaseLspConnector
 import com.rk.libcommons.editor.BaseLspServer
 import com.rk.libcommons.editor.KarbonEditor
@@ -297,6 +298,7 @@ private fun EditorTab.CodeEditor(
 
 
                     val horizontalScrollViewId = View.generateViewId()
+                    val dividerId = View.generateViewId()
 
                     val editor = KarbonEditor(ctx).apply {
                         editable = state.editable
@@ -391,23 +393,38 @@ private fun EditorTab.CodeEditor(
                         addView(getInputView(editor,realSurface.toArgb(),onSurfaceColor.toArgb()))
                     }
 
+                    val divider = View(ctx).apply {
+                        id = dividerId
+                        layoutParams = ConstraintLayout.LayoutParams(
+                            ConstraintLayout.LayoutParams.MATCH_PARENT,
+                            dpToPx(1f,ctx)
+                        ).apply {
+                            setBackgroundColor(divider.toArgb())
+                        }
+                    }
+
                     addView(editor)
+                    addView(divider)
                     addView(horizontalScrollView)
 
                     with(constraintSet) {
                         clone(this@apply)
 
                         connect(editor.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-                        connect(editor.id, ConstraintSet.BOTTOM, horizontalScrollView.id, ConstraintSet.TOP)
+                        connect(editor.id, ConstraintSet.BOTTOM, dividerId, ConstraintSet.TOP) // Connect to divider top
 
+                        connect(dividerId, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
+                        connect(dividerId, ConstraintSet.BOTTOM, horizontalScrollViewId, ConstraintSet.TOP)
+                        connect(dividerId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                        connect(dividerId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
 
-                        connect(horizontalScrollView.id, ConstraintSet.TOP, editor.id, ConstraintSet.BOTTOM)
-                        connect(horizontalScrollView.id, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+                        connect(horizontalScrollViewId, ConstraintSet.TOP, dividerId, ConstraintSet.BOTTOM)
+                        connect(horizontalScrollViewId, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
 
                         connect(editor.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
                         connect(editor.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
-                        connect(horizontalScrollView.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
-                        connect(horizontalScrollView.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                        connect(horizontalScrollViewId, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                        connect(horizontalScrollViewId, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
 
                         applyTo(this@apply)
                     }
