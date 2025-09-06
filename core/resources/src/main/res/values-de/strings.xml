@@ -424,4 +424,10 @@
     <string name="dont_ask_again">Nicht nochmal fragen</string>
     <string name="install">Installieren</string>
     <string name="ask_lsp_install">Möchtest du den %s Language Server installieren?</string>
+    <string name="uninstall_terminal_warning">Ubuntu dauerhaft deinstallieren? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="uninstall">Deinstallieren</string>
+    <string name="uninstall_terminal">Terminal deinstallieren</string>
+    <string name="project_as_wk">Projekt als Arbeitsverzeichnis verwenden</string>
+    <string name="project_as_wk_desc">Projekt als Arbeitsverzeichnis im Terminal verwenden</string>
+    <string name="seccomp_desc">Fehler „Funktion nicht implementiert“ auf einigen Geräten beheben</string>
 </resources>
