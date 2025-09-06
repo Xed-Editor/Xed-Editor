@@ -3,7 +3,7 @@ apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 35
-    ndkVersion = "27.2.12479018"
+    ndkVersion = "28.0.13004108"
     namespace = "com.termux.terminal"
 
     defaultConfig {

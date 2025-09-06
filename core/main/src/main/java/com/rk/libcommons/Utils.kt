@@ -155,7 +155,7 @@ fun Activity.openUrl(url: String) {
         android.content.Intent.ACTION_VIEW,
         android.net.Uri.parse(url)
     )
-   startActivity(intent)
+    startActivity(intent)
 }
 
 fun hasHardwareKeyboard(context: Context): Boolean {

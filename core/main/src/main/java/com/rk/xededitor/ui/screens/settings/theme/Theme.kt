@@ -74,8 +74,10 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
         ExtendedFloatingActionButton(onClick = {
             SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json"){
                 DefaultScope.launch{
-                    installFromFile(UriWrapper(it!!,false))
-                    updateThemes()
+                    if (it != null){
+                        installFromFile(UriWrapper(it!!,false))
+                        updateThemes()
+                    }
                 }
             }
         }, icon = {
