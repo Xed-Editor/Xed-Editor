@@ -421,4 +421,10 @@
     <string name="install">安裝</string>
     <string name="ask_lsp_install">是否要安裝 %s 語言伺服器？</string>
     <string name="terminal_not_installed">終端機尚未安裝，是否要先設定終端機？</string>
+    <string name="uninstall_terminal_warning">要永久解除安裝 Ubuntu 嗎？此操作將無法復原。</string>
+    <string name="uninstall">解除安裝</string>
+    <string name="uninstall_terminal">解除安裝終端機</string>
+    <string name="project_as_wk">將專案設為工作目錄</string>
+    <string name="project_as_wk_desc">在終端機中將專案設為工作目錄</string>
+    <string name="seccomp_desc">修正部分裝置上功能未實作的錯誤</string>
 </resources>
