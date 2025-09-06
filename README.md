@@ -19,30 +19,6 @@
 
 > **We are looking for contributors/maintainers to help keep the project alive and speed up the development. You can help by fixing bugs, implementing & improving features, etc.**
 
-## Features
-  - [x] File editing
-  - [x] Open Multiple Projects
-  - [x] Edit Multiple files
-  - [x] Word Wrap
-  - [X] Different/Custom Fonts
-  - [x] Undo-Redo functionality
-  - [x] Syntax Highlighting
-  - [x] Search and Batch Replacement
-  - [x] Integrated File Browser
-  - [x] Operability With Android's Storage Access Framework (SAF)
-  - [x] Create, Rename, Copy, and Delete Files/Folders
-  - [x] Check Files/Folders Info
-  - [x] Print text documents
-  - [x] AMOLED Theme
-  - [ ] Keybindings
-  - [x] Built-in Terminal (Ubuntu arm64)
-  - [x] Run Python,Html,C/C++, Node.js, etc.
-  - [x] Git (Plugin)
-  - [x] Custom runners (Bash scripts)
-  - [x] Experimental LSP support
-  - [x] Extensions
-
-
 <br>
 
 ## Community
