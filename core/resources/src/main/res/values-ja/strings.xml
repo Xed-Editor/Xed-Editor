@@ -421,8 +421,8 @@
     <string name="edit_runner">ランナーを編集</string>
     <string name="info_runners">ランナーは、ファイルやプロジェクトを実行するための小さなbashスクリプトです。ランナーを作成し、それをクリックしてエディターで開けます。</string>
     <string name="redo">やり直し</string>
-    <string name="read_mode">モードを読む</string>
-    <string name="edit_mode">モードを編集</string>
+    <string name="read_mode">読み取りモード</string>
+    <string name="edit_mode">編集モード</string>
     <string name="no_folder_opened">開かれたフォルダはありません</string>
     <string name="cut">切り取り</string>
     <string name="cut_desc">ドキュメントを移動</string>
@@ -442,4 +442,5 @@
     <string name="native_runner">このランナーはネイティブファイルでのみ動作します。端末のホームディレクトリに移動することを検討してください</string>
     <string name="terminal_virus_notice">一部のデバイス、特に中国製の特定のモデルでは、ターミナルで多くのプロセスが実行されているとき (たとえば「apt update」や「apt upgrade」の実行中)、システムセキュリティの警告が表示されることがあります。これは誤検知であり、本物のウイルスを示すものではありません。</string>
     <string name="indian">インド</string>
+    <string name="terminal_not_installed">ターミナルがインストールされていません。先にターミナルをセットアップしますか？</string>
 </resources>
