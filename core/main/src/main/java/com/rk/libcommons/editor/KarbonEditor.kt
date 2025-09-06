@@ -139,8 +139,8 @@ class KarbonEditor : CodeEditor {
                 )
 
 
-                setColors(setAlpha(onSurface,0.5f),SCROLL_BAR_THUMB)
-                setColors(setAlpha(onSurface,0.3f),SCROLL_BAR_THUMB_PRESSED)
+                setColors(setAlpha(onSurface,0.3f),SCROLL_BAR_THUMB)
+                setColors(setAlpha(onSurface,0.2f),SCROLL_BAR_THUMB_PRESSED)
 
                 setColors(currentLine,CURRENT_LINE)
                 setColors(gutterColor,LINE_NUMBER_BACKGROUND)

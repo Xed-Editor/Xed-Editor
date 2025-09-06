@@ -45,6 +45,7 @@ object Settings {
     var sandbox by CachedPreference("sandbox", true)
     var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
     var textMateSuggestion by CachedPreference("textMateSuggestion", true)
+    var seccomp by CachedPreference("seccomp", false)
 
     // Int settings
     var tab_size by CachedPreference("tabsize", 4)

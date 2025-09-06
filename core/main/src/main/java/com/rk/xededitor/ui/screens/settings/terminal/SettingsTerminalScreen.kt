@@ -1,8 +1,5 @@
 package com.rk.xededitor.ui.screens.settings.terminal
 
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,8 +22,11 @@ import com.rk.file.child
 import com.rk.file.sandboxDir
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
+import com.rk.libcommons.askInput
+import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.toast
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.R
@@ -50,6 +50,7 @@ import java.lang.Runtime.getRuntime
 fun SettingsTerminalScreen() {
     PreferenceLayout(label = stringResource(id = strings.terminal), backArrowVisible = true) {
         val context = LocalContext.current
+        val activity = LocalActivity.current
 
         PreferenceGroup {
             SettingsToggle(label = "FailSafe Mode", description = "Start terminal in maintenance mode", default = !Settings.sandbox, sideEffect = {
@@ -70,8 +71,18 @@ fun SettingsTerminalScreen() {
         )
 
         PreferenceGroup {
-            val context = LocalContext.current
-            val activity = LocalActivity.current
+            var seccomp by remember { mutableStateOf(Settings.seccomp) }
+
+            SettingsToggle(
+                label = "SECCOMP",
+                default = seccomp,
+                description = stringResource(strings.seccomp_desc),
+                sideEffect = {
+                    Settings.seccomp = it
+                    seccomp = it
+                },
+                showSwitch = true,
+            )
 
             val restore = rememberLauncherForActivityResult(
                 ActivityResultContracts.GetContent()
@@ -208,35 +219,47 @@ fun SettingsTerminalScreen() {
                     restore.launch("application/gzip")
                 }
             )
+
+            SettingsToggle(
+                label = stringResource(strings.uninstall),
+                default = false,
+                description = stringResource(strings.uninstall_terminal),
+                showSwitch = false,
+                sideEffect = {
+                    dialog(context = activity, title = strings.attention.getString(), msg = strings.uninstall_terminal_warning.getString(), onCancel = {}, okString = strings.delete, onOk = {
+                        GlobalScope.launch(Dispatchers.IO){
+                            val loading = LoadingPopup(context, null)
+                            loading.show()
+                            runCatching {
+                                sandboxDir().deleteRecursively()
+                            }
+                            loading.hide()
+                        }
+                    })
+                },
+            )
         }
+
 
         PreferenceGroup {
             SettingsToggle(
-                label = "Use Project as working directory", description = "Use Project as working directory in terminal",
+                label = stringResource(strings.project_as_wk), description = stringResource(strings.project_as_wk_desc),
                 default = Settings.project_as_pwd,
                 sideEffect = {
                     Settings.project_as_pwd = it
                 },
                 showSwitch = true,
             )
-        }
 
 
-        PreferenceGroup {
             var state by remember { mutableStateOf(Settings.expose_home_dir) }
             val sideEffect: (Boolean) -> Unit = {
                 if (it) {
-                    MaterialAlertDialogBuilder(context).apply {
-                        setTitle(strings.attention)
-                        setMessage(strings.saf_expose_warning)
-                        setPositiveButton(strings.ok) { _, _ ->
-                            Settings.expose_home_dir = true
-                            DocumentProvider.setDocumentProviderEnabled(context, true)
-                            state = true
-                        }
-                        setNegativeButton(strings.cancel, null)
-                        show()
-                    }
+                    dialog(context = activity, title = strings.attention.getString(), msg = strings.saf_expose_warning.getString(), onCancel = {}, onOk = {
+                        Settings.expose_home_dir = true
+                        DocumentProvider.setDocumentProviderEnabled(context, true)
+                        state = true
+                    })
                 } else {
                     Settings.expose_home_dir = false
                     state = false

@@ -113,6 +113,10 @@ object MkSession {
                 }
             }
 
+            if (Settings.seccomp){
+                env.add("SECCOMP=1")
+            }
+
             env.addAll(envVariables.map { "${it.key}=${it.value}" })
 
             pendingCommand?.env?.let {

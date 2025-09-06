@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.xededitor.ui.activities.main.MainActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +72,7 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                     PreferenceTemplate(modifier = modifier.clickable {
                         DefaultScope.launch {
                             withContext(Dispatchers.Main) {
+                                MainActivity.instance?.viewModel?.newTab(fileObject = FileWrapper(mut.file))
                                 toast(strings.tab_opened.getString())
                             }
 

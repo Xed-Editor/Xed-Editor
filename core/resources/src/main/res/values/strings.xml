@@ -421,5 +421,10 @@
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
     <string name="ask_lsp_install">Do you like to install %s language server?</string>
-    <string name="terminal_not_installed">Terminal is not installed, Do you like to setup terminal first?</string>
+    <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="uninstall_terminal">Uninstall Terminal</string>
+    <string name="project_as_wk">Use Project as working directory</string>
+    <string name="project_as_wk_desc">Use Project as working directory in terminal</string>
+    <string name="seccomp_desc">Fix function not implemented error on some devices</string>
 </resources>
