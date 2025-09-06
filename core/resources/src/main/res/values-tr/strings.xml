@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="open_drawer">açık</string>
-    <string name="close_drawer">Kapat</string>
+    <string name="close_drawer">kapat</string>
     <string name="title_activity_batch_replacement">Toplu Değiştirme</string>
     <string name="ni">Bu özellik uygulanmadı</string>
     <string name="unsupported_contnt">Desteklenmeyen içerik</string>
