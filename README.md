@@ -15,7 +15,7 @@
 </div>
 
 
-**Xed-Editor** is a powerful text editor designed for developers, programmers, and power users on Android. It offers advanced features like syntax highlighting and robust customization
+**Xed-Editor** is a versatile text editor for Android, offering advanced functionality such as syntax highlighting, extensive customization options, and a streamlined interface for efficient editing.
 
 > **We are looking for contributors/maintainers to help keep the project alive and speed up the development. You can help by fixing bugs, implementing & improving features, etc.**
 
