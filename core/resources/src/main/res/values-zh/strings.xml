@@ -455,4 +455,6 @@
     <string name="project_as_wk">将项目作为工作目录</string>
     <string name="project_as_wk_desc">将项目作为终端的工作目录</string>
     <string name="seccomp_desc">修复在部分设备上的方法未实现的错误</string>
+    <string name="non_native_filetype">此目录不支持运行代码。请将你的文件移动到终端主目录后再运行。</string>
+    <string name="sdcard_filetype">不推荐在此目录运行代码。建议将文件移动到终端主目录。</string>
 </resources>
