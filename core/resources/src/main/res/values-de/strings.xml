@@ -108,8 +108,8 @@
     <string name="inavalid_git_cred">Die Anmeldeinformationen sind ungültig. Ändere sie in den Einstellungen</string>
     <string name="dir_exist_not">Ordner existiert nicht</string>
     <string name="file_exist_not">Datei existiert nicht mehr</string>
-    <string name="gitKeyExample">zB. SuperKek:ghp_…</string>
-    <string name="gituserexample">zB. UserDev:beispiel@email.com</string>
+    <string name="gitKeyExample">z.B. SuperKek:ghp_…</string>
+    <string name="gituserexample">z.B. UserDev:beispiel@email.com</string>
     <string name="file_open_denied">Das Öffnen dieser Datei mit anderen Apps ist nicht zulässig</string>
     <string name="gitcred">Anmeldeinformation für git</string>
     <string name="reload_file_tree">Dateien neu laden</string>
