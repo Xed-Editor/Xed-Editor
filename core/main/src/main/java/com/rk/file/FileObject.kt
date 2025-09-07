@@ -3,6 +3,8 @@ package com.rk.file
 import android.content.Context
 import android.net.Uri
 import com.rk.App
+import com.rk.libcommons.PathUtils
+import com.rk.libcommons.PathUtils.toPath
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -50,4 +52,19 @@ fun FileObject.copyToTempDir() = run {
     }
 
     file
+}
+
+fun Uri.toFileObject(isFile: Boolean): FileObject{
+    val file = File(this.toPath())
+    var shouldUseUri = true
+    if (file.exists() && file.canRead() && file.canWrite()){
+        if (isFile == file.isFile){
+             shouldUseUri = false
+        }
+    }
+    return if (shouldUseUri){
+        UriWrapper(this,isFile.not())
+    }else{
+        FileWrapper(file)
+    }
 }

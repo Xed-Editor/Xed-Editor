@@ -20,6 +20,7 @@ import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.file.UriWrapper
 import com.rk.file.child
 import com.rk.file.sandboxDir
+import com.rk.file.toFileObject
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.PathUtils.toPath
 import com.rk.libcommons.askInput
@@ -92,7 +93,7 @@ fun SettingsTerminalScreen() {
                     return@rememberLauncherForActivityResult
                 }
 
-                val fileObject = UriWrapper(uri,false)
+                val fileObject = uri.toFileObject(isFile = true)
 
                 val tempFile = App.getTempDir().child("terminal-backup.tar.gz")
 

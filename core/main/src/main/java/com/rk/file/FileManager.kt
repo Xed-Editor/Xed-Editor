@@ -96,7 +96,8 @@ class FileManager(private val activity: ComponentActivity) {
         }) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
-                val fileObject = uri?.let { UriWrapper(DocumentFile.fromSingleUri(activity, it)!!) }
+
+                val fileObject = uri?.toFileObject(isFile = true)
                 callback(fileObject)
             } else {
                 callback(null)
@@ -160,7 +161,7 @@ class FileManager(private val activity: ComponentActivity) {
             }
 
             try {
-                val fileObject = UriWrapper(DocumentFile.fromTreeUri(activity, uri)!!)
+                val fileObject = uri.toFileObject(isFile = true)
                 if (fileObject.hasChild(fileName)) {
                     toast("File with name $fileName already exists")
                     callback(null)

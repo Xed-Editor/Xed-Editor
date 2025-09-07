@@ -47,6 +47,7 @@ import com.rk.extension.internal.loadAllExtensions
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
 import com.rk.file.UriWrapper
+import com.rk.file.toFileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.toast
@@ -116,7 +117,7 @@ class MainActivity : AppCompatActivity() {
     suspend fun handleIntent(intent: Intent) {
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
             val uri = intent.data!!
-            val file = UriWrapper(uri, false)
+            val file = uri.toFileObject(isFile = true)
             viewModel.newTab(file)
             setIntent(Intent())
         }

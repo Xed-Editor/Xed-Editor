@@ -40,6 +40,7 @@ import com.rk.file.FileManager
 import com.rk.file.UriWrapper
 import com.rk.file.child
 import com.rk.file.themeDir
+import com.rk.file.toFileObject
 import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -75,7 +76,7 @@ fun ThemeScreen(modifier: Modifier = Modifier) {
             SettingsActivity.instance?.fileManager?.requestOpenFile(mimeType = "application/json"){
                 DefaultScope.launch{
                     if (it != null){
-                        installFromFile(UriWrapper(it!!,false))
+                        installFromFile(it.toFileObject(isFile = true))
                         updateThemes()
                     }
                 }

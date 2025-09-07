@@ -55,6 +55,7 @@ import com.rk.extension.github.GitHubApiException
 import com.rk.extension.internal.installExtension
 import com.rk.extension.internal.load
 import com.rk.file.UriWrapper
+import com.rk.file.toFileObject
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
@@ -89,7 +90,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                 return@runCatching
             }
 
-            val fileObject = UriWrapper(DocumentFile.fromSingleUri(context, uri)!!)
+            val fileObject = uri.toFileObject(isFile = true)
             val exists = fileObject.exists()
             val canRead = fileObject.canRead()
             val isZip = fileObject.getName().endsWith(".zip")

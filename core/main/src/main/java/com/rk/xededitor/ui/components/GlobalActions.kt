@@ -24,6 +24,7 @@ import com.rk.file.UriWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.sandboxHomeDir
+import com.rk.file.toFileObject
 import com.rk.libcommons.application
 import com.rk.libcommons.askInput
 import com.rk.libcommons.composeDialog
@@ -114,7 +115,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                         fileManager.requestOpenFile(mimeType = "*/*"){
                             if (it != null){
                                 lifecycleScope.launch{
-                                    viewModel.newTab(UriWrapper(it,false),checkDuplicate = true,switchToTab = true)
+                                    viewModel.newTab(it.toFileObject(isFile = true),checkDuplicate = true,switchToTab = true)
                                 }
                             }
                         }

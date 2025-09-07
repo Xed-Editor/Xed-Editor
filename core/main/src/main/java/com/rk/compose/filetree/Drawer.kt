@@ -48,6 +48,7 @@ import com.rk.DefaultScope
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
+import com.rk.file.toFileObject
 import com.rk.libcommons.application
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
@@ -188,9 +189,8 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }.onFailure { it.printStackTrace() }
-
-                addProject(UriWrapper(it,isTree = true))
-
+                
+                addProject(it.toFileObject(isFile = false))
             }
         }
     )
