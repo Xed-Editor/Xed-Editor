@@ -5,5 +5,5 @@
   ],
   "automerge": false,
   "forkProcessing": "enabled",
-  "baseBranches": ["dev"]
+  "baseBranches": ["main"]
 }
