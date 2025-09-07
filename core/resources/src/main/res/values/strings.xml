@@ -427,4 +427,6 @@
     <string name="project_as_wk">Use Project as working directory</string>
     <string name="project_as_wk_desc">Use Project as working directory in terminal</string>
     <string name="seccomp_desc">Fix \"function not implemented\" error on some devices</string>
+    <string name="non_native_filetype">Running code is not supported in this location. Consider moving your file to the terminal\'s home directory to run it.</string>
+    <string name="sdcard_filetype">Running code is not recommended in this location. Consider moving your file to the terminal\'s home directory.</string>
 </resources>
