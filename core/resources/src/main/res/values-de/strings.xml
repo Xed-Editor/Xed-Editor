@@ -430,4 +430,6 @@
     <string name="project_as_wk">Projekt als Arbeitsverzeichnis verwenden</string>
     <string name="project_as_wk_desc">Projekt als Arbeitsverzeichnis im Terminal verwenden</string>
     <string name="seccomp_desc">Fehler „Funktion nicht implementiert“ auf einigen Geräten beheben</string>
+    <string name="non_native_filetype">Das Ausführen von Code wird an diesem Speicherort nicht unterstützt. Verschiebe die Datei zum Ausführen gegebenenfalls in das Home-Verzeichnis des Terminals.</string>
+    <string name="sdcard_filetype">Das Ausführen von Code an diesem Speicherort wird nicht empfohlen. Verschiebe die Datei gegebenenfalls in das Home-Verzeichnis des Terminals.</string>
 </resources>
