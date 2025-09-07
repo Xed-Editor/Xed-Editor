@@ -455,4 +455,6 @@
     <string name="project_as_wk">Utiliser le Projet comme dossier de travail</string>
     <string name="project_as_wk_desc">Utiliser le Projet comme dossier de travail dans le terminal</string>
     <string name="seccomp_desc">Corriger l’erreur \"function not implemented\" sur certains appareils</string>
+    <string name="non_native_filetype">Il n\'est pas possible d\'exécuter un code à cet endroit. Veuillez déplacer votre fichier dans le répertoire par défaut du terminal pour l\'exécuter.</string>
+    <string name="sdcard_filetype">Il n\'est pas recommandé d\'exécuter un code à cet endroit. Veuillez déplacer votre fichier dans le répertoire par défaut du terminal.</string>
 </resources>
