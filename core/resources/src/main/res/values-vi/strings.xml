@@ -11,7 +11,7 @@
     <string name="open_file_or_folder">Mở tệp hoặc thư mục</string>
     <string name="open_directory">Mở thư mục</string>
     <string name="new_file">Tệp mới</string>
-    <string name="newFile_hint">Nhập tên tệp, vd: Test.txt</string>
+    <string name="newFile_hint">Tên e.g Test.txt</string>
     <string name="mime">Nhập MimeType, vd: text/plain</string>
     <string name="rep">Thay thế</string>
     <string name="searck_keyword">Tìm kiếm từ khóa</string>
@@ -25,7 +25,7 @@
     <string name="print">In</string>
     <string name="search">Tìm kiếm</string>
     <string name="copy">Chép</string>
-    <string name="go_prev">Về sau.</string>
+    <string name="go_prev">Trước đó</string>
     <string name="close_search">Đóng tìm kiếm</string>
     <string name="replace">Thay thế</string>
     <string name="share">Chia sẻ</string>
@@ -82,7 +82,7 @@
     <string name="null_contnt">Lỗi: Nội dung trống (null)</string>
     <string name="restart_required">Yêu cầu khởi động lại</string>
     <string name="title">Tiêu đề</string>
-    <string name="go_next">Tiến tới</string>
+    <string name="go_next">Tiếp theo</string>
     <string name="inavalid_git_cred">Chứng chỉ không hợp lệ. Hãy thay đổi trong cài đặt</string>
     <string name="close">Đóng</string>
     <string name="rapply">Vui lòng khởi động lại để áp dụng cài đặt</string>
@@ -114,4 +114,23 @@
     <string name="git">Git</string>
     <string name="file_saved">Tệp đã lưu</string>
     <string name="gituserexample">vd. UserDev:example@email.com</string>
+    <string name="open_with_other">Mở tệp được chọn trong ứng dụng khác</string>
+    <string name="delete_descript">Vĩnh viễn Xoá tài liệu</string>
+    <string name="add_file_desc">Chọn một tệp mới sẽ được thêm vào đây</string>
+    <string name="create_new_file_desc">Tạo một tệp mới bên dưới thư mục được chọn</string>
+    <string name="paste_desc">Dán tài liệu</string>
+    <string name="clipboard_empty">Bảng nhớ tạm Tệp trống</string>
+    <string name="save_desc">Lưu tệp được chọn ở nơi khác</string>
+    <string name="copy_desc">Sao chép tài liệu</string>
+    <string name="failed_move">Không thể di chuyển tệp</string>
+    <string name="file_name">Tên tệp</string>
+    <string name="ff_path">Tệp hoặc đường dẫn thư mục</string>
+    <string name="path">Đường dẫn</string>
+    <string name="open">Mở</string>
+    <string name="enter_path">Vui lòng nhập một đường dẫn</string>
+    <string name="invalid_path">Đường dẫn không tồn tại</string>
+    <string name="permission_denied">Quyền Đã Bị Từ Chối</string>
+    <string name="wait_download">Vui lòng đợi khi tệp đang được tải xuống.</string>
+    <string name="done">Thành công</string>
+    <string name="git_branch">Nhánh. Ví dụ: main</string>
 </resources>
