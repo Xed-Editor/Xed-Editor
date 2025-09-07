@@ -19,6 +19,8 @@ import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
 import com.rk.file.UriWrapper
 import com.rk.file.child
+import com.rk.file.localBinDir
+import com.rk.file.localLibDir
 import com.rk.file.sandboxDir
 import com.rk.file.toFileObject
 import com.rk.libcommons.LoadingPopup
@@ -232,6 +234,8 @@ fun SettingsTerminalScreen() {
                             val loading = LoadingPopup(context, null)
                             loading.show()
                             runCatching {
+                                localBinDir().deleteRecursively()
+                                localLibDir().deleteRecursively()
                                 sandboxDir().deleteRecursively()
                             }
                             loading.hide()

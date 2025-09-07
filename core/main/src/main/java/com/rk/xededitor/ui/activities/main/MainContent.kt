@@ -20,6 +20,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -79,7 +81,6 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
         } else {
             val pagerState = rememberPagerState(pageCount = { viewModel.tabs.size })
 
-            // Sync pager state with viewModel.currentTabIndex
             LaunchedEffect(viewModel.currentTabIndex) {
                 if (viewModel.tabs.isNotEmpty() &&
                     viewModel.currentTabIndex < viewModel.tabs.size &&
@@ -92,20 +93,29 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 }
             }
 
-            // Sync viewModel.currentTabIndex with pager state
-            LaunchedEffect(pagerState.currentPage) {
-                if (viewModel.tabs.isNotEmpty() &&
-                    pagerState.currentPage < viewModel.tabs.size &&
-                    viewModel.currentTabIndex != pagerState.currentPage) {
-                    viewModel.currentTabIndex = pagerState.currentPage
+            LaunchedEffect(viewModel.tabs) {
+                if (viewModel.tabs.size != pagerState.pageCount) {
+                    if (Settings.smooth_tabs){
+                        pagerState.animateScrollToPage(viewModel.currentTabIndex)
+                    }else{
+                        pagerState.scrollToPage(viewModel.currentTabIndex)
+                    }
                 }
             }
 
-            LaunchedEffect(viewModel.tabs) {
-                if (viewModel.tabs.size != pagerState.pageCount) {
-                    pagerState.scrollToPage(viewModel.currentTabIndex)
-                }
+            LaunchedEffect(pagerState) {
+                snapshotFlow { pagerState.settledPage }
+                    .collect { settledPage ->
+                        if (viewModel.tabs.isNotEmpty() &&
+                            settledPage < viewModel.tabs.size &&
+                            viewModel.currentTabIndex != settledPage
+                        ) {
+                            viewModel.currentTabIndex = settledPage
+                        }
+                    }
             }
+
+
 
             //HorizontalDivider()
 

@@ -174,7 +174,7 @@ dependencies {
 
     //debug libs these libs doesnt get added when creating release builds
     debugApi(libs.bsh)
-    debugApi(libs.leakcanary.android)
+    //debugApi(libs.leakcanary.android)
 
     api(platform("io.github.Rosemoe.sora-editor:bom:0.23.6"))
     api("io.github.Rosemoe.sora-editor:editor")
