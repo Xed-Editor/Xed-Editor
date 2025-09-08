@@ -69,6 +69,9 @@ jobs:
             echo "VERSION_CHANGED=false" >> $GITHUB_ENV
           fi
 
+      - name: Clone submodules
+        run: git submodule update --init --recursive
+
       - name: Build with Gradle
         run: ./gradlew assembleFdroidRelease && mv app/build/outputs/apk/Fdroid/release/*.apk app/xed-editor-${{ env.COMMIT_HASH }}.apk
         env:
