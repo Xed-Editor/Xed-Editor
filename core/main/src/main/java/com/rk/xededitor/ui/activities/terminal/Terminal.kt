@@ -42,7 +42,6 @@ import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.terminal.isTerminalInstalled
-import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.terminal.NEXT_STAGE
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
@@ -98,7 +97,6 @@ class Terminal : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        FPSBooster(this)
         enableEdgeToEdge()
         setContent {
             KarbonTheme {

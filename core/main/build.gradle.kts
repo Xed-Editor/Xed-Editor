@@ -179,6 +179,7 @@ dependencies {
     api(project(":editor"))
     api(project(":editor-lsp"))
     api(project(":language-textmate"))
+    //api(libs.accompanist.drawablepainter)
 
     api(libs.lsp4j)
     //api(project(":core:editor"))

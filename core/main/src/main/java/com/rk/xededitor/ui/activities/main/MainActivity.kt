@@ -54,7 +54,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.theme.KarbonTheme
 import com.rk.xededitor.ui.theme.amoled
 import com.rk.xededitor.ui.theme.currentTheme
@@ -128,7 +127,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(Settings.default_night_mode)
         super.onCreate(savedInstanceState)
-        FPSBooster(this)
         FilePermission.verifyStoragePermission(this)
 
         enableEdgeToEdge()

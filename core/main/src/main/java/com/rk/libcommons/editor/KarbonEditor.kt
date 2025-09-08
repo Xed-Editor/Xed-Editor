@@ -7,18 +7,18 @@ import android.graphics.drawable.ColorDrawable
 import android.text.InputType
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.graphics.toArgb
-import com.google.android.material.color.MaterialColors
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
-import com.rk.file.FileObject
 import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isDarkMode
-import com.rk.libcommons.isMainThread
-import com.rk.libcommons.toast
 import com.rk.settings.Settings
 import com.rk.xededitor.R
 import io.github.rosemoe.sora.lang.Language
@@ -29,23 +29,25 @@ import io.github.rosemoe.sora.langs.textmate.registry.GrammarRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
-import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
+import io.github.rosemoe.sora.widget.component.EditorCompletionAdapter
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_ITEM_CURRENT
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.CURRENT_LINE
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_CURRENT
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_PANEL_TEXT
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB_PRESSED
@@ -54,20 +56,52 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDO
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.tm4e.core.registry.IThemeSource
-import java.io.File
 import java.io.InputStreamReader
-import java.nio.charset.Charset
-import kotlin.math.max
+import kotlin.math.roundToInt
 
+class AutoCompletionLayoutAdapter(private val density: Density) : EditorCompletionAdapter() {
+    override fun getItemHeight() = with(density) { 45.dp.toPx().roundToInt() }
+
+    override fun getView(
+        position: Int,
+        convertView: View?,
+        parent: ViewGroup?,
+        isCurrentCursorPosition: Boolean
+    ): View {
+        val item = getItem(position)
+        val view = LayoutInflater.from(context).inflate(R.layout.completion, parent, false)
+
+        val label: TextView = view.findViewById(R.id.result_item_label)
+        label.text = item.label
+        label.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY))
+
+        val desc: TextView = view.findViewById(R.id.result_item_desc)
+        desc.text = item.desc
+        desc.setTextColor(getThemeColor(EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY))
+        desc.visibility = if (item.desc.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+        view.tag = position
+
+        if (isCurrentCursorPosition) {
+            view.setBackgroundColor(getThemeColor(EditorColorScheme.COMPLETION_WND_ITEM_CURRENT))
+        } else {
+            view.setBackgroundColor(0)
+        }
+
+        val iv = view.findViewById<ImageView?>(R.id.result_item_image)
+        iv?.setImageDrawable(item.icon)
+
+        return view
+    }
+
+}
 
 @Suppress("NOTHING_TO_INLINE")
 class KarbonEditor : CodeEditor {
@@ -87,6 +121,18 @@ class KarbonEditor : CodeEditor {
         applyFont()
         applySettings()
         lineNumberMarginLeft = 9f
+
+        getComponent<EditorAutoCompletion>(EditorAutoCompletion::class.java).apply {
+            val metrics = context.resources.displayMetrics
+            val density = Density(
+                density = metrics.density,
+                fontScale = context.resources.configuration.fontScale
+            )
+
+            setAdapter(AutoCompletionLayoutAdapter(density))
+            setEnabledAnimation(true)
+        }
+
     }
 
 
@@ -114,7 +160,9 @@ class KarbonEditor : CodeEditor {
                     onSurface,
                     TEXT_ACTION_WINDOW_ICON_COLOR,
                     COMPLETION_WND_TEXT_PRIMARY,
-                    COMPLETION_WND_TEXT_SECONDARY
+                    COMPLETION_WND_TEXT_SECONDARY,
+                    DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
+                    DIAGNOSTIC_TOOLTIP_DETAILED_MSG
                 )
 
                 setColors(
@@ -127,7 +175,7 @@ class KarbonEditor : CodeEditor {
 
                 setColors(surfaceContainer,
                     TEXT_ACTION_WINDOW_BACKGROUND,
-                    COMPLETION_WND_BACKGROUND)
+                    COMPLETION_WND_BACKGROUND,DIAGNOSTIC_TOOLTIP_BACKGROUND)
 
 
                 setColors(handleColor,EditorColorScheme.SELECTION_HANDLE)
@@ -138,6 +186,7 @@ class KarbonEditor : CodeEditor {
                     colorPrimary,
                     EditorColorScheme.BLOCK_LINE,
                     EditorColorScheme.BLOCK_LINE_CURRENT,
+                    DIAGNOSTIC_TOOLTIP_ACTION
                 )
 
 

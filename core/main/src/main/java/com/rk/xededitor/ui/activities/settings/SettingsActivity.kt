@@ -11,7 +11,6 @@ import com.rk.extension.ProvideExtensionManager
 import com.rk.file.FileManager
 import com.rk.libcommons.toast
 import com.rk.resources.strings
-import com.rk.xededitor.ui.FPSBooster
 import com.rk.xededitor.ui.theme.KarbonTheme
 import java.lang.ref.WeakReference
 
@@ -33,7 +32,6 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         instance = this
-        FPSBooster(this)
         enableEdgeToEdge()
         setContent {
             KarbonTheme {
