@@ -391,4 +391,14 @@
     <string name="read_mode_desc">Výchoze zapnout čtecí režim</string>
     <string name="mutator_desc">Vytvářejte uživatelské skripty</string>
     <string name="info_ext">Doplňky mohou být použity pro změnění chování a funkce Xed-Editoru. K naučení jak se sestavuje plugin, klepněte zde.</string>
+    <string name="ask_lsp_install">Chtěli byste nainstalovat %s jazykový server?</string>
+    <string name="dont_ask_again">Neptat se znova</string>
+    <string name="install">Instalovat</string>
+    <string name="uninstall_terminal_warning">Nenávratně odinstalovat Ubuntu? Táto akce nemůže být vrácena zpět.</string>
+    <string name="uninstall">Odinstalovat</string>
+    <string name="uninstall_terminal">Odinstalovat Terminál</string>
+    <string name="project_as_wk">Používat složku projektu jako pracovní složku</string>
+    <string name="project_as_wk_desc">Používat složku projektu jako pracovní složku v terninálu</string>
+    <string name="non_native_filetype">Spouštění zdrojového kódu není podporováno v tomto umístění. Váhejte na přesun vašeho souboru do domovské složky terminálu pro jeho spuštění.</string>
+    <string name="sdcard_filetype">Spouštění zdrojového kódu není doporučené v tomto umístění. Váhejte na přesun vašeho souboru do domovské složky terminálu.</string>
 </resources>
