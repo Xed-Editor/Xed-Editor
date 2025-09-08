@@ -95,7 +95,7 @@
     <string name="clone_dir">Repoyu klonlamak için klasör</string>
     <string name="dir_exist_not">Dizin mevcut değil</string>
     <string name="file_exist_not">Dosya artık mevcut değil</string>
-    <string name="gitKeyExample">örneğin SüperKek:ghp_…</string>
+    <string name="gitKeyExample">örn. SüperKek:ghp_…</string>
     <string name="file_saved">Dosya kaydedildi</string>
     <string name="gituserexample">örn. Kullanici:ornek@email.com</string>
     <string name="apply">Uygula</string>
@@ -455,4 +455,6 @@
     <string name="project_as_wk">Proje’yi çalışma dizini olarak kullan</string>
     <string name="project_as_wk_desc">Terminalde proje dizinini çalışma dizini olarak kullan</string>
     <string name="seccomp_desc">Bazı cihazlarda görülen \"function not implemented\" hatasını düzelt</string>
+    <string name="non_native_filetype">Bu konumda kod çalıştırma desteklenmiyor. Çalıştırmak için dosyanızı terminalin ana dizinine taşımayı düşünün.</string>
+    <string name="sdcard_filetype">Bu konumda kod çalıştırmanız tavsiye edilmez. Dosyanızı terminalin ana dizinine taşımanız önerilir.</string>
 </resources>
