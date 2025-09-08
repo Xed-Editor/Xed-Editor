@@ -385,4 +385,21 @@
     <string name="invalidpath">Неверный путь</string>
     <string name="backup">Резервное копирование</string>
     <string name="unknown_err">Что-то пошло не так</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable">Отключить виртуальную клавиатуру</string>
+    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Отключить виртуальную клавиатуру, если доступна физическая клавиатура</string>
+    <string name="misc">Разное</string>
+    <string name="misc_desc">Разные настройки</string>
+    <string name="expose_saf_desc">Сделать домашний каталог доступным для внешних приложений через системное средство выбора файлов (SAF)</string>
+    <string name="saf_expose_warning">Открытие доступа к домашнему каталогу может раскрыть конфиденциальную информацию вредоносным приложениям, включая токены Git, пароли, имена пользователей и другие файлы, хранящиеся в домашнем каталоге вашего терминала. Хотите продолжить?</string>
+    <string name="info">Информация</string>
+    <string name="file_info">Информация о файле</string>
+    <string name="file_size">Размер файла</string>
+    <string name="copied">Скопировано</string>
+    <string name="cant_undo">Это действие не может быть отменено</string>
+    <string name="tempFile">Временный файл</string>
+    <string name="lang">Язык</string>
+    <string name="lang_desc">Настройки языка</string>
+    <string name="indian">Индийский</string>
+    <string name="invalid_runner_name">Разрешены только буквы, цифры, подчеркивания и тире</string>
+    <string name="invalid_regex">Неверный шаблон регулярного выражения</string>
 </resources>
