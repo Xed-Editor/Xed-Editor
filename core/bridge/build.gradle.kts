@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.rk.terminal.bridge"
     compileSdk = 34
-    ndkVersion = "27.2.12479018"
+    ndkVersion = "28.0.13004108"
 
     defaultConfig {
         minSdk = 26

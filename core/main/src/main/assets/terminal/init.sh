@@ -63,7 +63,7 @@ export PS1="\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] # "
 if ! dpkg -s command-not-found >/dev/null 2>&1; then
      info "Updating... please wait."
      DEBIAN_FRONTEND=noninteractive
-     apt update -y && apt upgrade -y && apt install -y command-not-found sudo
+     apt update -y && apt install -y command-not-found sudo
      # initialize database (important for first time use)
      apt update
 fi

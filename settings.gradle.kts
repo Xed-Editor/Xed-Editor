@@ -43,7 +43,22 @@ include(":core:terminal-view")
 include(":core:terminal-emulator")
 include(":core:extension")
 
-includeBuild("soraX")
+val soraX = file("soraX")
+
+if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
+    throw GradleException(
+        """
+        The 'soraX' submodule is missing or empty.
+        
+        Please run:
+        
+            git submodule update --init --recursive
+        """.trimIndent()
+    )
+}
+
+
+//includeBuild("soraX")
 include(":editor")
 project(":editor").projectDir = file("soraX/editor")
 
