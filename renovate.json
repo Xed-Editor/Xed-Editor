@@ -3,7 +3,7 @@
   "extends": [
     "config:recommended"
   ],
-  "automerge": false,
+  "automerge": true,
   "forkProcessing": "enabled",
   "baseBranchPatterns": [
     "main"
