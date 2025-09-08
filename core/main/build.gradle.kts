@@ -176,10 +176,10 @@ dependencies {
     debugApi(libs.bsh)
     //debugApi(libs.leakcanary.android)
 
-    api(platform("io.github.Rosemoe.sora-editor:bom:0.23.6"))
-    api("io.github.Rosemoe.sora-editor:editor")
-    api("io.github.Rosemoe.sora-editor:editor-lsp")
-    api("io.github.Rosemoe.sora-editor:language-textmate")
+    api(project(":editor"))
+    api(project(":editor-lsp"))
+    api(project(":language-textmate"))
+
     api(libs.lsp4j)
     //api(project(":core:editor"))
     //api(project(":core:language-textmate"))

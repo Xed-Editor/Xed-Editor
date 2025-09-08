@@ -61,5 +61,5 @@ val textmateSources = mapOf(
 )
 
 val lspRegistry = mapOf<String, BaseLspServer>(
-    //"py" to Python()
+    "py" to Python()
 )

@@ -1,12 +1,6 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
         maven { url = uri("https://jitpack.io") }
@@ -15,6 +9,8 @@ pluginManagement {
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
+
+        maven("https://repo.eclipse.org/content/groups/releases/")
     }
     plugins {
         kotlin("jvm") version "2.1.10"
@@ -31,6 +27,8 @@ dependencyResolutionManagement {
         }
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
+
+        maven("https://repo.eclipse.org/content/groups/releases/")
     }
 }
 
@@ -44,3 +42,14 @@ include(":core:bridge")
 include(":core:terminal-view")
 include(":core:terminal-emulator")
 include(":core:extension")
+
+includeBuild("soraX")
+include(":editor")
+project(":editor").projectDir = file("soraX/editor")
+
+include(":editor-lsp")
+project(":editor-lsp").projectDir = file("soraX/editor-lsp")
+
+include(":language-textmate")
+project(":language-textmate").projectDir = file("soraX/language-textmate")
+

@@ -18,6 +18,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
@@ -53,7 +54,7 @@ import com.rk.xededitor.ui.components.FileActionDialog
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewModel: MainViewModel,drawerState: DrawerState) {
     val scope = rememberCoroutineScope()
@@ -115,11 +116,9 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                     }
             }
 
-
-
             //HorizontalDivider()
 
-            ScrollableTabRow(
+            PrimaryScrollableTabRow(
                 selectedTabIndex = if (viewModel.currentTabIndex < viewModel.tabs.size) viewModel.currentTabIndex else 0,
                 modifier = Modifier.fillMaxWidth(),
                 edgePadding = 0.dp,
