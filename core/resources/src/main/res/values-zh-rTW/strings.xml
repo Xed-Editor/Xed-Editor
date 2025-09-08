@@ -427,4 +427,6 @@
     <string name="project_as_wk">將專案設為工作目錄</string>
     <string name="project_as_wk_desc">在終端機中將專案設為工作目錄</string>
     <string name="seccomp_desc">修正部分裝置上功能未實作的錯誤</string>
+    <string name="non_native_filetype">此位置不支援執行程式碼。請考慮將檔案移至終端機的主目錄後再執行。</string>
+    <string name="sdcard_filetype">不建議在此位置執行程式碼。請考慮將檔案移至終端機的主目錄。</string>
 </resources>
