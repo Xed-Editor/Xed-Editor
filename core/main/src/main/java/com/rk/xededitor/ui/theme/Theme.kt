@@ -16,8 +16,9 @@ import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.toast
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.screens.settings.theme.themes
+import java.util.Properties
 
-data class Theme(val id: String,val name: String, val lightScheme: ColorScheme, val darkScheme: ColorScheme)
+data class Theme(val id: String,val name: String, val lightScheme: ColorScheme, val darkScheme: ColorScheme,val lightTerminalColors: Properties,val darkTerminalColors: Properties)
 
 val currentTheme = mutableStateOf<Theme?>(null)
 val dynamicTheme = mutableStateOf(Settings.monet)

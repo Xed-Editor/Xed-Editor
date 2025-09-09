@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
+import com.rk.ActivityCache
 import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
@@ -73,6 +74,8 @@ fun getDrawerWidth(): Dp {
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
+    val cache: ActivityCache by viewModels()
+
     val fileManager = FileManager(this)
 
 

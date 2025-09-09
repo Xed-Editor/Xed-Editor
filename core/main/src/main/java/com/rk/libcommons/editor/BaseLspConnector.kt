@@ -4,6 +4,7 @@ import android.util.Log
 import com.rk.file.FileObject
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
+import com.rk.xededitor.ui.activities.main.MainActivity
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.connection.SocketStreamConnectionProvider
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
@@ -19,6 +20,7 @@ import java.nio.charset.Charset
 
 class BaseLspConnector(
     private val ext: String,
+    private val textMateScope: String,
     private val port: Int? = null,
     private val connectionProvider: StreamConnectionProvider = SocketStreamConnectionProvider(port!!),
 ) {
@@ -54,7 +56,7 @@ class BaseLspConnector(
 
             lspEditor = withContext(Dispatchers.Main) {
                 project!!.createEditor(fileObject.getAbsolutePath()).apply {
-                    wrapperLanguage = TextMateLanguage.create(textmateSources[ext], false)
+                    wrapperLanguage = TextMateLanguage.create(textMateScope, false)
                     editor = karbonEditor
                 }
             }
@@ -75,6 +77,9 @@ class BaseLspConnector(
             )
             lspEditor!!.openDocument()
         }.onFailure {
+            karbonEditor.setLanguage(
+                languageScopeName = textMateScope,
+            )
             isConnected = false
             it.printStackTrace()
             toast("Failed to connect to lsp server ${it.message}")

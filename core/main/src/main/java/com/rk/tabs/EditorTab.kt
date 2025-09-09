@@ -44,6 +44,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.terminal.ProcessConnection
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.EditorActions
 import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
@@ -333,7 +334,7 @@ private fun EditorTab.CodeEditor(
                                     val server = lspRegistry[ext]!!
                                     lspConnection = ProcessConnection(server.command())
                                     if (server.isInstalled(context)){
-                                        baseLspConnector = BaseLspConnector(ext, connectionProvider = lspConnection!!)
+                                        baseLspConnector = BaseLspConnector(ext, textMateScope = textmateSources[ext]!!, connectionProvider = lspConnection!!)
                                         file.getParentFile()?.let { parent ->
                                             baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
                                         }
@@ -348,7 +349,7 @@ private fun EditorTab.CodeEditor(
                                         }
                                     }
                                 }else if (lsp_connections.contains(ext)){
-                                    baseLspConnector = BaseLspConnector(ext,lsp_connections[ext]!!)
+                                    baseLspConnector = BaseLspConnector(ext, textMateScope = textmateSources[ext]!!, port = lsp_connections[ext]!!)
                                     file.getParentFile()?.let { parent ->
                                         baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
                                     }

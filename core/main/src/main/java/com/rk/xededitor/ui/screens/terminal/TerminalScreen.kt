@@ -52,6 +52,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -64,6 +65,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.SessionService
 import com.rk.libcommons.dpToPx
+import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.pendingCommand
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -74,6 +76,8 @@ import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysView
+import com.rk.xededitor.ui.theme.currentTheme
+import com.termux.terminal.TerminalColors
 import com.termux.view.TerminalView
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -101,6 +105,8 @@ fun TerminalScreen(modifier: Modifier = Modifier, terminalActivity: Terminal) {
     }
 }
 
+
+private var onSurfaceColor: Int? = null
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TerminalScreenInternal(
@@ -108,8 +114,14 @@ fun TerminalScreenInternal(
     terminalActivity: Terminal,
     navController: NavController
 ) {
-
     val context = LocalContext.current
+    val terminalColors = if (isDarkMode(context)){
+        currentTheme.value?.darkTerminalColors
+    }else{
+        currentTheme.value?.lightTerminalColors
+    }
+    onSurfaceColor = MaterialTheme.colorScheme.onSurface.toArgb()
+
     LaunchedEffect("terminal") {
         context.startService(Intent(context, SessionService::class.java))
     }
@@ -125,6 +137,8 @@ fun TerminalScreenInternal(
                 drawerState.close()
             }
         }
+
+
 
         ModalNavigationDrawer(
             drawerState = drawerState,
@@ -257,6 +271,7 @@ fun TerminalScreenInternal(
                         })
                 }) { paddingValues ->
                     Column(modifier = Modifier.padding(paddingValues)) {
+
                         AndroidView(
                             factory = { context ->
                                 TerminalView(context, null).apply {
@@ -303,20 +318,14 @@ fun TerminalScreenInternal(
                                     )
 
                                     post {
-                                        val typedValue = TypedValue()
-
-                                        context.theme.resolveAttribute(
-                                            com.google.android.material.R.attr.colorOnSurface,
-                                            typedValue,
-                                            true
-                                        )
                                         keepScreenOn = true
                                         requestFocus()
                                         isFocusableInTouchMode = true
 
+                                        TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
                                         mEmulator?.mColors?.mCurrentColors?.apply {
-                                            set(256, typedValue.data)
-                                            set(258, typedValue.data)
+                                            set(256, onSurfaceColor!!)
+                                            set(258, onSurfaceColor!!)
                                         }
                                     }
                                 }
@@ -327,17 +336,10 @@ fun TerminalScreenInternal(
                             update = { terminalView ->
                                 terminalView.onScreenUpdated();
 
-                                val typedValue = TypedValue()
-
-                                context.theme.resolveAttribute(
-                                    com.google.android.material.R.attr.colorOnSurface,
-                                    typedValue,
-                                    true
-                                )
-
+                                TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
                                 terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
-                                    set(256, typedValue.data)
-                                    set(258, typedValue.data)
+                                    set(256, onSurfaceColor!!)
+                                    set(258, onSurfaceColor!!)
                                 }
                             },
                         )
@@ -357,14 +359,6 @@ fun TerminalScreenInternal(
                                         factory = { context ->
                                             VirtualKeysView(context, null).apply {
                                                 virtualKeysView = WeakReference(this)
-                                                val typedValue = TypedValue()
-                                                context.theme.resolveAttribute(
-                                                    com.google.android.material.R.attr.colorOnSurface,
-                                                    typedValue,
-                                                    true
-                                                )
-
-
                                                 virtualKeysViewClient =
                                                     terminalView.get()?.mTermSession?.let {
                                                         VirtualKeysListener(
@@ -372,7 +366,7 @@ fun TerminalScreenInternal(
                                                         )
                                                     }
 
-                                                buttonTextColor = typedValue.data
+                                                buttonTextColor = onSurfaceColor!!
 
                                                 reload(
                                                     VirtualKeysInfo(
@@ -510,20 +504,28 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
         attachSession(session)
         setTerminalViewClient(client)
         post {
-            val typedValue = TypedValue()
-
-            context.theme.resolveAttribute(
-                com.google.android.material.R.attr.colorOnSurface,
-                typedValue,
-                true
-            )
             keepScreenOn = true
             requestFocus()
             setFocusableInTouchMode(true)
 
+            val terminalColors = if (isDarkMode(context)){
+                currentTheme.value?.darkTerminalColors
+            }else{
+                currentTheme.value?.lightTerminalColors
+            }
+            TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+
+            if (onSurfaceColor == null){
+                onSurfaceColor = if (isDarkMode(context)){
+                    currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                }else{
+                    currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                }
+            }
+
             mEmulator?.mColors?.mCurrentColors?.apply {
-                set(256, typedValue.data)
-                set(258, typedValue.data)
+                set(256, onSurfaceColor!!)
+                set(258, onSurfaceColor!!)
             }
         }
         virtualKeysView.get()?.apply {

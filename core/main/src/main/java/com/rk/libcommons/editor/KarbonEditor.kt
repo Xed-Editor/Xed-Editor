@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.google.gson.JsonParser
+import com.rk.ActivityCache
 import com.rk.libcommons.application
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.isDarkMode
@@ -57,6 +58,7 @@ import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDO
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -268,18 +270,6 @@ class KarbonEditor : CodeEditor {
     }
 
     fun applySettings() {
-        getComponent(EditorAutoCompletion::class.java).setLayout(object :
-            DefaultCompletionLayout() {
-            override fun onApplyColorScheme(colorScheme: EditorColorScheme) {
-                val typedValue = TypedValue()
-                context.theme.resolveAttribute(
-                    com.google.android.material.R.attr.colorSurface, typedValue, true
-                )
-                val colorSurface = typedValue.data
-                (completionList.parent as? ViewGroup)?.background = ColorDrawable(colorSurface)
-            }
-        })
-
         val tabSize = Settings.tab_size
         val pinLineNumber = Settings.pin_line_number
         val showLineNumber = Settings.show_line_numbers
@@ -314,11 +304,7 @@ class KarbonEditor : CodeEditor {
                 FontCache.getFont(context, "fonts/Default.ttf", true)
             }
 
-            typefaceText = if (font == null){
-                Typeface.DEFAULT
-            }else{
-                font
-            }
+            typefaceText = font ?: Typeface.DEFAULT
         }.onFailure {
             errorDialog(it)
         }
@@ -338,7 +324,8 @@ class KarbonEditor : CodeEditor {
     companion object{
         private var isInit = false
 
-        private val colorSchemeCache = mutableMapOf<String, TextMateColorScheme>()
+        private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
+        private val highlightingCache = hashMapOf<String, TextMateLanguage>()
 
         private fun getCacheKey(context: Context): String {
             val darkTheme = when (Settings.default_night_mode) {
@@ -355,22 +342,35 @@ class KarbonEditor : CodeEditor {
                     .addFileProvider(AssetsFileResolver(application!!.assets))
                 GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
                 isInit = true
+
+                textmateSources.values.toSet().forEach {
+                    launch(Dispatchers.IO) {
+                        val start = System.currentTimeMillis()
+                        val language = TextMateLanguage.create(it, Settings.textMateSuggestion)
+                        highlightingCache[it] = language
+                    }
+                }
             }
         }
     }
 
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
-        while (!isInit && isActive) delay(50)
+        while (!isInit && isActive) delay(10)
+        if (!isActive){
+            return@withContext
+        }
 
-        val language = TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
-            if (Settings.textMateSuggestion){
-                context.assets.open("textmate/keywords.json").use {
-                    JsonParser.parseReader(InputStreamReader(it))
-                        .asJsonObject[languageScopeName]?.asJsonArray
-                        ?.map { el -> el.asString }
-                        ?.toTypedArray()
-                        ?.let(::setCompleterKeywords)
+        val language = highlightingCache.getOrPut(languageScopeName){
+            TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
+                if (Settings.textMateSuggestion){
+                    context.assets.open("textmate/keywords.json").use {
+                        JsonParser.parseReader(InputStreamReader(it))
+                            .asJsonObject[languageScopeName]?.asJsonArray
+                            ?.map { el -> el.asString }
+                            ?.toTypedArray()
+                            ?.let(::setCompleterKeywords)
+                    }
                 }
             }
         }

@@ -33,9 +33,6 @@ import java.io.ObjectOutputStream
 object TabCache {
     val mutex = Mutex()
     val preloadedTabs = mutableListOf<FileObject>()
-
-
-
     suspend fun preloadTabs() = mutex.withLock {
         runCatching {
             val file = application!!.cacheDir.child("tabs")

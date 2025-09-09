@@ -1,6 +1,7 @@
 package com.rk.xededitor.ui.theme
 
 import java.io.Serializable
+import java.util.Properties
 
 data class ThemePalette(
     val primary: String? = null,
@@ -31,8 +32,8 @@ data class ThemePalette(
     val inversePrimary: String? = null,
     val surfaceTint: String? = null,
     val outlineVariant: String? = null,
-    val scrim: String? = null
-
+    val scrim: String? = null,
+    val terminalColors: Map<String, String>? = null
 ) : Serializable
 
 data class ThemeConfig(

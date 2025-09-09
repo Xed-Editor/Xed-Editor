@@ -18,6 +18,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.util.Properties
 
 
 suspend fun installFromFile(file: FileObject){
@@ -79,7 +80,19 @@ fun String.toColor(): Color {
 }
 
 fun ThemeConfig.build(): Theme{
-    return Theme(id = id, name = name, lightScheme = this.light.build(isDarkTheme = false), darkScheme = this.dark.build(isDarkTheme = true))
+    fun Map<String, String>.toProperties(): Properties {
+        val props = Properties()
+        for ((k, v) in this) props[k] = v
+        return props
+    }
+
+    return Theme(id = id,
+        name = name,
+        lightScheme = this.light.build(isDarkTheme = false),
+        darkScheme = this.dark.build(isDarkTheme = true),
+        lightTerminalColors = light.terminalColors?.toProperties()!!,
+        darkTerminalColors = dark.terminalColors?.toProperties()!!
+    )
 }
 
 fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {

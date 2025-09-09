@@ -3,6 +3,16 @@ package com.rk.xededitor.ui.theme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import java.util.Properties
+
+fun Color.toHex(): String {
+    val intColor = this.value.toLong().toInt()
+    val r = (intColor shr 16) and 0xFF
+    val g = (intColor shr 8) and 0xFF
+    val b = intColor and 0xFF
+
+    return String.format("#%02X%02X%02X", r, g, b)
+}
 
 
 val blueberry = Theme(
@@ -67,7 +77,76 @@ val blueberry = Theme(
         inversePrimary = Color(0xFF445E91),
         surfaceTint = Color(0xFFD8E2FF),
         outlineVariant = Color(0xFF44474F),
-        scrim = Color(0xFF000000)))
+        scrim = Color(0xFF000000)
+    ),
+    lightTerminalColors = Properties().also {
+        it["foreground"] = Color(0xFF1A1B20).toHex()
+        it["background"] = Color(0xFFF9F9FF).toHex()
+        it["cursor"] = "#373b41"
+
+        it["color0"] = "#1d1f21"
+        it["color1"] = "#CC342B"
+        it["color2"] = "#198844"
+        it["color3"] = "#FBA922"
+        it["color4"] = "#3971ED"
+        it["color5"] = "#A36AC7"
+        it["color6"] = "#3971ED"
+        it["color7"] = "#c5c8c6"
+        it["color8"] = "#969896"
+        it["color9"] = "#CC342B"
+        it["color10"] = "#198844"
+        it["color11"] = "#FBA922"
+        it["color12"] = "#3971ED"
+        it["color13"] = "#A36AC7"
+        it["color14"] = "#3971ED"
+        it["color15"] = "#ffffff"
+
+        it["color16"] = "#F96A38"
+        it["color17"] = "#3971ED"
+        it["color18"] = "#282a2e"
+        it["color19"] = "#373b41"
+        it["color20"] = "#b4b7b4"
+        it["color21"] = "#e0e0e0"
+    },
+    darkTerminalColors = Properties().also {
+        it["background"] = Color(0xFF111318).toHex()
+        it["foreground"] = Color(0xFFE2E2E9).toHex()
+        it["cursor"] = "#6e6a86"
+
+        // black
+        it["color0"] = "#393552"
+        it["color8"] = "#6e6a86"
+
+        // red
+        it["color1"] = "#eb6f92"
+        it["color9"] = "#eb6f92"
+
+        // green
+        it["color2"] = "#3e8fb0"
+        it["color10"] = "#3e8fb0"
+
+        // yellow
+        it["color3"] = "#f6c177"
+        it["color11"] = "#f6c177"
+
+        // blue
+        it["color4"] = "#9ccfd8"
+        it["color12"] = "#9ccfd8"
+
+        // magenta
+        it["color5"] = "#c4a7e7"
+        it["color13"] = "#c4a7e7"
+
+        // cyan
+        it["color6"] = "#ea9a97"
+        it["color14"] = "#ea9a97"
+
+        // white
+        it["color7"] = "#e0def4"
+        it["color15"] = "#e0def4"
+    }
+)
+
 
 
 val leaves = Theme(
@@ -148,7 +227,73 @@ val leaves = Theme(
         surfaceContainer = Color(0xFF1E201A),
         surfaceContainerHigh = Color(0xFF282B24),
         surfaceContainerHighest = Color(0xFF33362E)
-    )
+    ),
+    lightTerminalColors = Properties().also {
+        it["foreground"] = Color(0xFF1A1C16).toHex()
+        it["background"] = Color(0xFFF9FAEF).toHex()
+        it["cursor"] = "#373b41"
+
+        it["color0"] = "#1d1f21"
+        it["color1"] = "#CC342B"
+        it["color2"] = "#198844"
+        it["color3"] = "#FBA922"
+        it["color4"] = "#3971ED"
+        it["color5"] = "#A36AC7"
+        it["color6"] = "#3971ED"
+        it["color7"] = "#c5c8c6"
+        it["color8"] = "#969896"
+        it["color9"] = "#CC342B"
+        it["color10"] = "#198844"
+        it["color11"] = "#FBA922"
+        it["color12"] = "#3971ED"
+        it["color13"] = "#A36AC7"
+        it["color14"] = "#3971ED"
+        it["color15"] = "#ffffff"
+
+        it["color16"] = "#F96A38"
+        it["color17"] = "#3971ED"
+        it["color18"] = "#282a2e"
+        it["color19"] = "#373b41"
+        it["color20"] = "#b4b7b4"
+        it["color21"] = "#e0e0e0"
+    },
+    darkTerminalColors = Properties().also {
+        it["background"] = Color(0xFF12140E).toHex()
+        it["foreground"] = Color(0xFFE2E3D8).toHex()
+        it["cursor"] = "#6e6a86"
+
+        // black
+        it["color0"] = "#393552"
+        it["color8"] = "#6e6a86"
+
+        // red
+        it["color1"] = "#eb6f92"
+        it["color9"] = "#eb6f92"
+
+        // green
+        it["color2"] = "#3e8fb0"
+        it["color10"] = "#3e8fb0"
+
+        // yellow
+        it["color3"] = "#f6c177"
+        it["color11"] = "#f6c177"
+
+        // blue
+        it["color4"] = "#9ccfd8"
+        it["color12"] = "#9ccfd8"
+
+        // magenta
+        it["color5"] = "#c4a7e7"
+        it["color13"] = "#c4a7e7"
+
+        // cyan
+        it["color6"] = "#ea9a97"
+        it["color14"] = "#ea9a97"
+
+        // white
+        it["color7"] = "#e0def4"
+        it["color15"] = "#e0def4"
+    }
 )
 
 val inbuiltThemes = listOf<Theme>(blueberry,leaves)
