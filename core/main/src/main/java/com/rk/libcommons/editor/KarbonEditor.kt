@@ -33,8 +33,28 @@ import io.github.rosemoe.sora.widget.CodeEditor
 import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.EditorCompletionAdapter
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.*
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.CURRENT_LINE
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_CURRENT
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB_PRESSED
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SELECTED_TEXT_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
+import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -329,47 +349,32 @@ class KarbonEditor : CodeEditor {
             return "${if (darkTheme) "dark" else "light"}_${Settings.amoled}"
         }
 
-        suspend fun preloadKeywords(context: Context) = withContext(Dispatchers.IO) {
-            context.assets.open("textmate/keywords.json").use {
-                val json = JsonParser.parseReader(InputStreamReader(it)).asJsonObject
-                json.entrySet().forEach { entry ->
-                    completerKeywordsCache[entry.key] = entry.value.asJsonArray
-                        .map { el -> el.asString }
-                        .toTypedArray()
-                }
-            }
-        }
-
         suspend fun initGrammarRegistry() = withContext(Dispatchers.IO) {
             if (!isInit) {
                 FileProviderRegistry.getInstance()
                     .addFileProvider(AssetsFileResolver(application!!.assets))
                 GrammarRegistry.getInstance().loadGrammars("textmate/languages.json")
-
-                preloadKeywords(application!!)
                 isInit = true
             }
         }
-        private val languageCache = mutableMapOf<String, TextMateLanguage>()
-        private val completerKeywordsCache = mutableMapOf<String, Array<String>>()
-
     }
 
 
+    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
+        while (!isInit && isActive) delay(50)
 
-    suspend fun CoroutineScope.setLanguage(languageScopeName: String) {
-        while (!isInit && isActive) delay(10)
-
-        val language = languageCache.getOrPut(languageScopeName) {
-            TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
-                if (Settings.textMateSuggestion) {
-                    completerKeywordsCache[languageScopeName]?.let(::setCompleterKeywords)
+        val language = TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
+            if (Settings.textMateSuggestion){
+                context.assets.open("textmate/keywords.json").use {
+                    JsonParser.parseReader(InputStreamReader(it))
+                        .asJsonObject[languageScopeName]?.asJsonArray
+                        ?.map { el -> el.asString }
+                        ?.toTypedArray()
+                        ?.let(::setCompleterKeywords)
                 }
             }
         }
 
-
-        withContext(Dispatchers.Main) { setEditorLanguage(language) }
+        withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
     }
-
 }
