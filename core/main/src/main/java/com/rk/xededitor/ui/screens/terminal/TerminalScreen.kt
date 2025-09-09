@@ -348,10 +348,12 @@ fun TerminalScreenInternal(
                                         mEmulator?.mColors?.reset()
                                         TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
-                                        val onSurfaceColor = if (isDarkMode(context)){
-                                            currentTheme.value?.darkScheme?.onSurface?.toArgb()
-                                        }else{
-                                            currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                        if(onSurfaceColor == null){
+                                            onSurfaceColor = if (isDarkMode(context)){
+                                                currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                            }else{
+                                                currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                            }
                                         }
 
                                         mEmulator?.mColors?.mCurrentColors?.apply {
@@ -384,10 +386,12 @@ fun TerminalScreenInternal(
                                 terminalView.mEmulator?.mColors?.reset()
                                 TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
-                                val onSurfaceColor = if (isDarkMode(context)){
-                                    currentTheme.value?.darkScheme?.onSurface?.toArgb()
-                                }else{
-                                    currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                if(onSurfaceColor == null){
+                                    onSurfaceColor = if (isDarkMode(context)){
+                                        currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                    }else{
+                                        currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                    }
                                 }
 
                                 terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
@@ -420,10 +424,12 @@ fun TerminalScreenInternal(
                                 view.mEmulator?.mColors?.reset()
                                 TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
-                                val onSurfaceColor = if (isDarkMode(context)) {
-                                    currentTheme.value?.darkScheme?.onSurface?.toArgb()
-                                } else {
-                                    currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                if(onSurfaceColor == null){
+                                    onSurfaceColor = if (isDarkMode(context)){
+                                        currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                    }else{
+                                        currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                    }
                                 }
 
                                 view.mEmulator?.mColors?.mCurrentColors?.apply {
@@ -612,10 +618,12 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
         mEmulator?.mColors?.reset()
         TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
-        val onSurfaceColor = if (isDarkMode(context)){
-            currentTheme.value?.darkScheme?.onSurface?.toArgb()
-        }else{
-            currentTheme.value?.lightScheme?.onSurface?.toArgb()
+        if(onSurfaceColor == null){
+            onSurfaceColor = if (isDarkMode(context)){
+                currentTheme.value?.darkScheme?.onSurface?.toArgb()
+            }else{
+                currentTheme.value?.lightScheme?.onSurface?.toArgb()
+            }
         }
 
 
