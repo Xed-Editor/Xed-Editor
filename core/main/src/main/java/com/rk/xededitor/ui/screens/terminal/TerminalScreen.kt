@@ -64,6 +64,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rk.SessionService
+import com.rk.file.child
+import com.rk.file.sandboxDir
+import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.pendingCommand
@@ -310,12 +313,18 @@ fun TerminalScreenInternal(
                                     session.updateTerminalSessionClient(client)
                                     attachSession(session)
                                     setTerminalViewClient(client)
-                                    setTypeface(
-                                        Typeface.createFromAsset(
-                                            context.assets,
-                                            "fonts/Default.ttf"
+
+                                    val fontFile = sandboxDir().child("etc/font.ttf")
+                                    if (fontFile.exists()){
+                                        setTypeface(Typeface.createFromFile(fontFile))
+                                    }else{
+                                        setTypeface(
+                                            Typeface.createFromAsset(
+                                                context.assets,
+                                                "fonts/Default.ttf"
+                                            )
                                         )
-                                    )
+                                    }
 
                                     post {
                                         keepScreenOn = true
