@@ -8,6 +8,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -331,7 +332,20 @@ fun TerminalScreenInternal(
                                         requestFocus()
                                         isFocusableInTouchMode = true
 
+                                        val terminalColors = if (isDarkMode(context)){
+                                            currentTheme.value?.darkTerminalColors
+                                        }else{
+                                            currentTheme.value?.lightTerminalColors
+                                        }
+                                        mEmulator?.mColors?.reset()
                                         TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+
+                                        val onSurfaceColor = if (isDarkMode(context)){
+                                            currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                        }else{
+                                            currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                        }
+
                                         mEmulator?.mColors?.mCurrentColors?.apply {
                                             set(256, onSurfaceColor!!)
                                             set(258, onSurfaceColor!!)
@@ -345,13 +359,58 @@ fun TerminalScreenInternal(
                             update = { terminalView ->
                                 terminalView.onScreenUpdated();
 
+                                val terminalColors = if (isDarkMode(context)){
+                                    currentTheme.value?.darkTerminalColors
+                                }else{
+                                    currentTheme.value?.lightTerminalColors
+                                }
+                                terminalView.mEmulator?.mColors?.reset()
                                 TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+
+                                val onSurfaceColor = if (isDarkMode(context)){
+                                    currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                }else{
+                                    currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                }
+
                                 terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
                                     set(256, onSurfaceColor!!)
                                     set(258, onSurfaceColor!!)
                                 }
                             },
                         )
+
+
+                        val darkMode = isSystemInDarkTheme()
+                        LaunchedEffect(currentTheme.value,darkMode) {
+                            val view = terminalView.get()
+                            if (view != null) {
+                                val terminalColors = if (darkMode) {
+                                    currentTheme.value?.darkTerminalColors
+                                } else {
+                                    currentTheme.value?.lightTerminalColors
+                                }
+
+                                println(terminalColors.toString())
+
+                                view.mEmulator?.mColors?.reset()
+                                TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+
+                                val onSurfaceColor = if (isDarkMode(context)) {
+                                    currentTheme.value?.darkScheme?.onSurface?.toArgb()
+                                } else {
+                                    currentTheme.value?.lightScheme?.onSurface?.toArgb()
+                                }
+
+                                view.mEmulator?.mColors?.mCurrentColors?.apply {
+                                    set(256, onSurfaceColor!!)
+                                    set(258, onSurfaceColor!!)
+                                }
+                                view.invalidate()
+                                view.requestLayout()
+                            }
+                        }
+
 
                         val pagerState = rememberPagerState(pageCount = { 2 })
                         HorizontalPager(
@@ -512,30 +571,31 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
         session.updateTerminalSessionClient(client)
         attachSession(session)
         setTerminalViewClient(client)
+
+        val terminalColors = if (isDarkMode(context)){
+            currentTheme.value?.darkTerminalColors
+        }else{
+            currentTheme.value?.lightTerminalColors
+        }
+        mEmulator?.mColors?.reset()
+        TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
+
+        val onSurfaceColor = if (isDarkMode(context)){
+            currentTheme.value?.darkScheme?.onSurface?.toArgb()
+        }else{
+            currentTheme.value?.lightScheme?.onSurface?.toArgb()
+        }
+
+
+        mEmulator?.mColors?.mCurrentColors?.apply {
+            set(256, onSurfaceColor!!)
+            set(258, onSurfaceColor!!)
+        }
+
         post {
             keepScreenOn = true
             requestFocus()
             setFocusableInTouchMode(true)
-
-            val terminalColors = if (isDarkMode(context)){
-                currentTheme.value?.darkTerminalColors
-            }else{
-                currentTheme.value?.lightTerminalColors
-            }
-            TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
-
-            if (onSurfaceColor == null){
-                onSurfaceColor = if (isDarkMode(context)){
-                    currentTheme.value?.darkScheme?.onSurface?.toArgb()
-                }else{
-                    currentTheme.value?.lightScheme?.onSurface?.toArgb()
-                }
-            }
-
-            mEmulator?.mColors?.mCurrentColors?.apply {
-                set(256, onSurfaceColor!!)
-                set(258, onSurfaceColor!!)
-            }
         }
         virtualKeysView.get()?.apply {
             virtualKeysViewClient =
