@@ -80,6 +80,7 @@ import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysConstants
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysInfo
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysListener
 import com.rk.xededitor.ui.screens.terminal.virtualkeys.VirtualKeysView
+import com.rk.xededitor.ui.theme.blueberry
 import com.rk.xededitor.ui.theme.currentTheme
 import com.termux.terminal.TerminalColors
 import com.termux.view.TerminalView
@@ -332,10 +333,17 @@ fun TerminalScreenInternal(
                                         requestFocus()
                                         isFocusableInTouchMode = true
 
-                                        val terminalColors = if (isDarkMode(context)){
+                                        var terminalColors = if (isDarkMode(context)) {
                                             currentTheme.value?.darkTerminalColors
-                                        }else{
+                                        } else {
                                             currentTheme.value?.lightTerminalColors
+                                        }
+                                        if (terminalColors == null){
+                                            terminalColors = if (isDarkMode(context)){
+                                                blueberry.darkTerminalColors
+                                            }else{
+                                                blueberry.lightTerminalColors
+                                            }
                                         }
                                         mEmulator?.mColors?.reset()
                                         TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
@@ -359,11 +367,20 @@ fun TerminalScreenInternal(
                             update = { terminalView ->
                                 terminalView.onScreenUpdated();
 
-                                val terminalColors = if (isDarkMode(context)){
+                                var terminalColors = if (isDarkMode(context)){
                                     currentTheme.value?.darkTerminalColors
                                 }else{
                                     currentTheme.value?.lightTerminalColors
                                 }
+
+                                if (terminalColors == null){
+                                    terminalColors = if (isDarkMode(context)){
+                                        blueberry.darkTerminalColors
+                                    }else{
+                                        blueberry.lightTerminalColors
+                                    }
+                                }
+
                                 terminalView.mEmulator?.mColors?.reset()
                                 TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
@@ -385,13 +402,20 @@ fun TerminalScreenInternal(
                         LaunchedEffect(currentTheme.value,darkMode) {
                             val view = terminalView.get()
                             if (view != null) {
-                                val terminalColors = if (darkMode) {
+                                var terminalColors = if (isDarkMode(context)) {
                                     currentTheme.value?.darkTerminalColors
                                 } else {
                                     currentTheme.value?.lightTerminalColors
                                 }
+                                if (terminalColors == null){
+                                    terminalColors = if (isDarkMode(context)){
+                                        blueberry.darkTerminalColors
+                                    }else{
+                                        blueberry.lightTerminalColors
+                                    }
+                                }
 
-                                println(terminalColors.toString())
+
 
                                 view.mEmulator?.mColors?.reset()
                                 TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
@@ -572,11 +596,19 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
         attachSession(session)
         setTerminalViewClient(client)
 
-        val terminalColors = if (isDarkMode(context)){
+        var terminalColors = if (isDarkMode(context)) {
             currentTheme.value?.darkTerminalColors
-        }else{
+        } else {
             currentTheme.value?.lightTerminalColors
         }
+        if (terminalColors == null){
+            terminalColors = if (isDarkMode(context)){
+                blueberry.darkTerminalColors
+            }else{
+                blueberry.lightTerminalColors
+            }
+        }
+
         mEmulator?.mColors?.reset()
         TerminalColors.COLOR_SCHEME.updateWith(terminalColors!!)
 
