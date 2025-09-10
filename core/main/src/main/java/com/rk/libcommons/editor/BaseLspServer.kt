@@ -7,4 +7,5 @@ abstract class BaseLspServer {
     abstract fun install(context: Context)
     abstract fun command(): Array<String>
     abstract val id: String
+    abstract val languageName: String
 }

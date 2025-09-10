@@ -15,6 +15,7 @@ import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
 import com.rk.xededitor.ui.screens.settings.developer_options.DeveloperOptions
 import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
 import com.rk.xededitor.ui.screens.settings.editor.EditorFontScreen
+import com.rk.xededitor.ui.screens.settings.editor.LspSettings
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
 import com.rk.xededitor.ui.screens.settings.extensions.Extensions
 import com.rk.xededitor.ui.screens.settings.language.LanguageScreen
@@ -34,6 +35,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         popEnterTransition = { NavigationAnimationTransitions.popEnterTransition },
         popExitTransition = { NavigationAnimationTransitions.popExitTransition },
     ) {
+
         composable(SettingsRoutes.Settings.route) { SettingsScreen(navController) }
         composable(SettingsRoutes.AppSettings.route) { SettingsAppScreen(activity,navController) }
         composable(SettingsRoutes.EditorSettings.route) { SettingsEditorScreen(navController) }
@@ -48,9 +50,8 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.Support.route){ Support() }
         composable(SettingsRoutes.LanguageScreen.route){ LanguageScreen() }
         composable(SettingsRoutes.Runners.route){ Runners() }
-        composable(SettingsRoutes.Themes.route) {
-            ThemeScreen()
-        }
+        composable(SettingsRoutes.LspSettings.route){ LspSettings() }
+        composable(SettingsRoutes.Themes.route) { ThemeScreen() }
 
         Hooks.Settings.screens.values.forEach{ entry ->
             composable(entry.route){

@@ -23,5 +23,6 @@ class Bash() : BaseLspServer() {
     }
 
     override val id: String = "bash-lsp"
+    override val languageName: String = "Bash"
 
 }

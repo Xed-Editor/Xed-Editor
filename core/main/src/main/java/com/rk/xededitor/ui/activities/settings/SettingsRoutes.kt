@@ -16,4 +16,5 @@ sealed class SettingsRoutes(val route: String) {
     data object LanguageScreen : SettingsRoutes("language")
     data object Runners : SettingsRoutes("runners")
     data object Themes : SettingsRoutes("theme")
+    data object LspSettings : SettingsRoutes("lspSettings")
 }

@@ -53,17 +53,6 @@ import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
 import io.github.rosemoe.sora.text.Content
 import io.github.rosemoe.sora.text.ContentIO
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -329,29 +318,34 @@ private fun EditorTab.CodeEditor(
                             scope.launch(Dispatchers.IO) {
                                 val ext = file.getName().substringAfterLast(".").toString().trim()
 
-                                if (lspRegistry.containsKey(ext)){
-                                    val server = lspRegistry[ext]!!
-                                    lspConnection = ProcessConnection(server.command())
-                                    if (server.isInstalled(context)){
-                                        baseLspConnector = BaseLspConnector(ext, textMateScope = textmateSources[ext]!!, connectionProvider = lspConnection!!)
-                                        file.getParentFile()?.let { parent ->
-                                            baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
-                                        }
-                                    }else{
-                                        setLanguage(langScope)
-                                        if (!Preference.getBoolean("has_blocked_install_ask_${server.id}",false)){
-                                            dialog(context = context as Activity, title = strings.attention.getString(), msg = String.format(strings.ask_lsp_install.getString(), "python"), cancelString = strings.dont_ask_again, okString = strings.install, onOk = {
-                                                server.install(context)
-                                            }, onCancel = {
-                                                Preference.setBoolean("has_blocked_install_ask_${server.id}",true)
-                                            })
-                                        }
-                                    }
-                                }else if (lsp_connections.contains(ext)){
+                                if (lsp_connections.contains(ext)){
                                     baseLspConnector = BaseLspConnector(ext, textMateScope = textmateSources[ext]!!, port = lsp_connections[ext]!!)
                                     file.getParentFile()?.let { parent ->
                                         baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
                                     }
+                                }else if (lspRegistry.containsKey(ext)){
+                                    val server = lspRegistry[ext]!!
+                                    if (Preference.getBoolean("lsp_${server.id}",true)){
+                                        lspConnection = ProcessConnection(server.command())
+                                        if (server.isInstalled(context)){
+                                            baseLspConnector = BaseLspConnector(ext, textMateScope = textmateSources[ext]!!, connectionProvider = lspConnection!!)
+                                            file.getParentFile()?.let { parent ->
+                                                baseLspConnector?.connect(parent, fileObject = file, karbonEditor = editorState.editor!!)
+                                            }
+                                        }else{
+                                            setLanguage(langScope)
+                                            if (!Preference.getBoolean("lsp_${server.id}",true)){
+                                                dialog(context = context as Activity, title = strings.attention.getString(), msg = String.format(strings.ask_lsp_install.getString(), "python"), cancelString = strings.dont_ask_again, okString = strings.install, onOk = {
+                                                    server.install(context)
+                                                }, onCancel = {
+                                                    Preference.setBoolean("lsp_${server.id}",true)
+                                                })
+                                            }
+                                        }
+                                    }else{
+                                        setLanguage(langScope)
+                                    }
+
                                 }else{
                                     setLanguage(langScope)
                                 }

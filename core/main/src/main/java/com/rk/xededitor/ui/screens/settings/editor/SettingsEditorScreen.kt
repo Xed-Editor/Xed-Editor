@@ -43,7 +43,9 @@ fun SettingsEditorScreen(navController: NavController) {
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
 
-
+        PreferenceGroup {
+            NextScreenCard(navController = navController, label = "Lsp settings", description = "Language server settings", route = SettingsRoutes.LspSettings)
+        }
 
         PreferenceGroup(heading = stringResource(strings.content)) {
             if (InbuiltFeatures.mutators.state.value) {

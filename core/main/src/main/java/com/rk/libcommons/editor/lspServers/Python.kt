@@ -9,8 +9,11 @@ import com.rk.libcommons.editor.BaseLspServer
 import com.rk.terminal.isTerminalInstalled
 import com.rk.terminal.launchInternalTerminal
 
-class Python : BaseLspServer() {
+class Python() : BaseLspServer() {
     override val id: String = "python-lsp"
+    override val languageName: String = "Python"
+
+
 
     override fun isInstalled(context: Context): Boolean {
         if (isTerminalInstalled().not()){
