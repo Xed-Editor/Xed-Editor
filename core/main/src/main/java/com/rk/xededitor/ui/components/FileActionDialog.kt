@@ -76,7 +76,9 @@ fun FileActionDialog(
 
     if (showXedDialog){
         XedDialog(onDismissRequest = onDismissRequest) {
-            DividerColumn(modifier = Modifier.padding(0.dp).verticalScroll(rememberScrollState())) {
+            DividerColumn(modifier = Modifier
+                .padding(0.dp)
+                .verticalScroll(rememberScrollState())) {
 
                 if (fileTreeContext && root != null){
                     AddDialogItem(
@@ -416,7 +418,7 @@ fun RenameDialog(
     XedDialog(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "Rename File",
+                text = stringResource(strings.rename_file),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
@@ -424,7 +426,7 @@ fun RenameDialog(
             OutlinedTextField(
                 value = newName,
                 onValueChange = { newName = it },
-                label = { Text("New name") },
+                label = { Text(stringResource(strings.new_name)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
@@ -435,14 +437,14 @@ fun RenameDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(strings.cancel))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 TextButton(
                     onClick = { onConfirm(newName) },
                     enabled = newName.isNotBlank() && newName != currentName
                 ) {
-                    Text("Rename")
+                    Text(stringResource((strings.rename)))
                 }
             }
         }
@@ -518,7 +520,7 @@ fun DeleteConfirmationDialog(
             )
 
             Text(
-                text = "Are you sure you want to delete \"$fileName\"?",
+                text = String.format(stringResource(strings.ask_del), fileName),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -527,7 +529,7 @@ fun DeleteConfirmationDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+                    Text(stringResource(strings.cancel))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 TextButton(
@@ -536,7 +538,7 @@ fun DeleteConfirmationDialog(
                         contentColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete")
+                    Text(stringResource(strings.delete))
                 }
             }
         }
@@ -552,21 +554,21 @@ fun FileInfoDialog(
     XedDialog(onDismissRequest = onDismiss) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = "File Information",
+                text = stringResource(strings.file_info),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            InfoRow("Name", file.getName())
+            InfoRow(stringResource(strings.name), file.getName())
             if (file.isFile()){
-                InfoRow("Size", formatFileSize(file.length()))
+                InfoRow(stringResource(strings.file_size), formatFileSize(file.length()))
             }
-            InfoRow("Type", if (file.isDirectory()) "Directory" else "File")
-            InfoRow("Readable", if (file.canRead()) "Yes" else "No")
-            InfoRow("Writable", if (file.canWrite()) "Yes" else "No")
+            InfoRow(stringResource(strings.type), if (file.isDirectory()) stringResource(strings.folder) else stringResource(strings.file))
+            InfoRow(stringResource(strings.can_read), if (file.canRead()) stringResource(strings.yes) else stringResource(strings.no))
+            InfoRow(stringResource(strings.can_write), if (file.canWrite()) stringResource(strings.yes) else stringResource(strings.no))
 
-            InfoRow("FileType", file.javaClass.simpleName)
-            InfoRow("Path", file.getAbsolutePath())
+            InfoRow(stringResource(strings.file_type), file.javaClass.simpleName)
+            InfoRow(stringResource(strings.path), file.getAbsolutePath())
 
             Row(
                 modifier = Modifier
@@ -575,7 +577,7 @@ fun FileInfoDialog(
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = onDismiss) {
-                    Text("Close")
+                    Text(stringResource(strings.close))
                 }
             }
         }

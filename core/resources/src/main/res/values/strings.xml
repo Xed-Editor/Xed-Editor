@@ -65,7 +65,7 @@
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to permanently delete</string>
+    <string name="ask_del">Are you sure you want to permanently delete %s?</string>
     <string name="redir">Please reselect the directory</string>
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
@@ -429,4 +429,9 @@
     <string name="seccomp_desc">Fix \"function not implemented\" error on some devices</string>
     <string name="non_native_filetype">Running code is not supported in this location. Consider moving your file to the terminal\'s home directory to run it.</string>
     <string name="sdcard_filetype">Running code is not recommended in this location. Consider moving your file to the terminal\'s home directory.</string>
+    <string name="rename_file">Rename File</string>
+    <string name="new_name">New name</string>
+    <string name="file_type">FileType</string>
+    <string name="type">Type</string>
+    <string name="name">Name</string>
 </resources>
