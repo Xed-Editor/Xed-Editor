@@ -58,7 +58,7 @@
     <string name="create">作成</string>
     <string name="ask_enter_name">名前を入力してください</string>
     <string name="attention">注意</string>
-    <string name="ask_del">完全に削除してもよろしいですか</string>
+    <string name="ask_del">%sを完全に削除してもよろしいですか？</string>
     <string name="redir">ディレクトリを再選択してください</string>
     <string name="clipboardempty">クリップボードは空です</string>
     <string name="keyword_regex">キーワード (正規表現)</string>
@@ -202,7 +202,7 @@
     <string name="gitcred">gitの認証情報</string>
     <string name="downloading_plugin">プラグインをダウンロード中</string>
     <string name="open_dir_in_terminal">ディレクトリをターミナル開く</string>
-    <string name="close_current_project">現在のプロジェクトを閉じる</string>
+    <string name="close_current_project">閉じてもよろしいですか: 現在のプロジェクト</string>
     <string name="enable_plugins">プラグインを有効にする</string>
     <string name="enter_path">パスを入力してください</string>
     <string name="auto_save_desc">ファイルを自動的に保存する</string>
@@ -443,4 +443,22 @@
     <string name="terminal_virus_notice">一部のデバイス、特に中国製の特定のモデルでは、ターミナルで多くのプロセスが実行されているとき (たとえば「apt update」や「apt upgrade」の実行中)、システムセキュリティの警告が表示されることがあります。これは誤検知であり、本物のウイルスを示すものではありません。</string>
     <string name="indian">インド</string>
     <string name="terminal_not_installed">ターミナルがインストールされていません。先にターミナルをセットアップしますか？</string>
+    <string name="textMateSuggestion">TextMate 自動補完</string>
+    <string name="textMateSuggestion_desc">事前定義されたキーワードを提案する</string>
+    <string name="dont_ask_again">再度表示しない</string>
+    <string name="install">インストール</string>
+    <string name="ask_lsp_install">%s言語サーバーをインストールしますか？</string>
+    <string name="uninstall_terminal_warning">Ubuntuを完全にアンインストールしますか？ この操作は元に戻せません。</string>
+    <string name="uninstall">アンインストール</string>
+    <string name="uninstall_terminal">ターミナルをアンインストール</string>
+    <string name="project_as_wk">プロジェクトを作業ディレクトリとして使用する</string>
+    <string name="project_as_wk_desc">ターミナルで、プロジェクトを作業ディレクトリとして使用する</string>
+    <string name="seccomp_desc">一部のデバイスで発生する「関数が実装されていません」エラーを修正する</string>
+    <string name="non_native_filetype">この場所ではコードの実行はサポートされていません。実行するには、ファイルをターミナルのホームディレクトリに移動することを検討してください。</string>
+    <string name="sdcard_filetype">この場所でのコードの実行は推奨されません。ファイルをターミナルのホームディレクトリに移動することを検討してください。</string>
+    <string name="rename_file">ファイルの名前を変更</string>
+    <string name="new_name">新しい名前</string>
+    <string name="file_type">ファイルの種類</string>
+    <string name="type">種類</string>
+    <string name="name">名前</string>
 </resources>
