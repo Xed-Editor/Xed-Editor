@@ -3,9 +3,9 @@ package com.rk.libcommons.editor
 import android.util.Pair
 import android.view.KeyEvent
 import android.view.View.OnClickListener
-import com.rk.tabs.showControlPanel
+import com.rk.tabs.EditorTab
+import com.rk.xededitor.ui.activities.main.MainActivity
 import io.github.rosemoe.sora.widget.CodeEditor
-
 
 private typealias onClick = OnClickListener
 
@@ -24,7 +24,11 @@ fun getInputView(editor: CodeEditor,surfaceColor: Int,onSurfaceColor: Int): Symb
             }))
 
             add(Pair("⌘", onClick {
-                showControlPanel = true
+                MainActivity.instance?.viewModel?.currentTab?.let {
+                    if (it is EditorTab){
+                        it.editorState.showControlPanel = true
+                    }
+                }
             }))
 
             add(Pair("←", onClick {

@@ -88,6 +88,7 @@ data class CodeEditorState(
     val updateLock = Mutex()
 
     var isSearching by mutableStateOf(false)
+    var showControlPanel by mutableStateOf(false)
     var isReplaceShown by mutableStateOf(false)
     var ignoreCase by mutableStateOf(true)
     var searchRegex by mutableStateOf(false)
@@ -96,8 +97,6 @@ data class CodeEditorState(
     var searchKeyword by mutableStateOf("")
     var replaceKeyword by mutableStateOf("")
 }
-
-var showControlPanel by mutableStateOf(false)
 
 val lsp_connections = mutableMapOf<String, Int>()
 
@@ -177,9 +176,9 @@ class EditorTab(
                 textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
 
-            if (showControlPanel){
+            if (editorState.showControlPanel){
                 ControlPanel(onDismissRequest = {
-                    showControlPanel = false
+                    editorState.showControlPanel = false
                 }, viewModel = viewModel)
             }
 

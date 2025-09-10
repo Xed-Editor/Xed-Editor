@@ -49,7 +49,7 @@ import com.rk.runner.Runner
 import com.rk.settings.Settings
 import com.rk.tabs.CodeEditorState
 import com.rk.tabs.EditorTab
-import com.rk.tabs.showControlPanel
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.main.MainViewModel
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
@@ -249,7 +249,11 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 },
                 labelRes = strings.controlpanel,
                 action = { tab,editorState ->
-                    showControlPanel = true
+                    MainActivity.instance?.viewModel?.currentTab?.let {
+                        if (it is EditorTab){
+                            it.editorState.showControlPanel = true
+                        }
+                    }
                 }
             )
         )

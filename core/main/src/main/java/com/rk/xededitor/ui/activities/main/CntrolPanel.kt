@@ -18,7 +18,6 @@ import com.rk.extension.Hooks
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
 import com.rk.tabs.EditorTab
-import com.rk.tabs.showControlPanel
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
@@ -41,7 +40,11 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
                 item = ControlItem(
                     label = "Save",
                     sideEffect = {
-                        showControlPanel = false
+                        MainActivity.instance?.viewModel?.currentTab?.let {
+                            if (it is EditorTab){
+                                it.editorState.showControlPanel = true
+                            }
+                        }
                         viewModel.currentTab?.let {
                             if (it is EditorTab){
                                 GlobalScope.launch{
@@ -56,7 +59,11 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
                 item = ControlItem(
                     label = "Save All",
                     sideEffect = {
-                        showControlPanel = false
+                        MainActivity.instance?.viewModel?.currentTab?.let {
+                            if (it is EditorTab){
+                                it.editorState.showControlPanel = true
+                            }
+                        }
                         viewModel.tabs.forEach{
                             if (it is EditorTab){
                                 GlobalScope.launch{
@@ -78,7 +85,11 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
                     item = ControlItem(
                         label = mut.name,
                         sideEffect = {
-                            showControlPanel = false
+                            MainActivity.instance?.viewModel?.currentTab?.let {
+                                if (it is EditorTab){
+                                    it.editorState.showControlPanel = true
+                                }
+                            }
                             DefaultScope.launch {
                                 Engine(
                                     mut.script,
