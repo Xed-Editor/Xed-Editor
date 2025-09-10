@@ -129,7 +129,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in Ihrem Speicher zu bearbeiten. Bitte erlaube den Zugriff in den nächsten Systemeinstellungen.</string>
     <string name="close_this">Dies schließen</string>
     <string name="canthandle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Bist du sicher, dass du endgültig löschen möchtest?</string>
+    <string name="ask_del">Bist du sicher, dass du %s endgültig löschen möchtest?</string>
     <string name="redir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Registerkarte 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
@@ -432,4 +432,8 @@
     <string name="seccomp_desc">Fehler „Funktion nicht implementiert“ auf einigen Geräten beheben</string>
     <string name="non_native_filetype">Das Ausführen von Code wird an diesem Speicherort nicht unterstützt. Verschiebe die Datei zum Ausführen gegebenenfalls in das Home-Verzeichnis des Terminals.</string>
     <string name="sdcard_filetype">Das Ausführen von Code an diesem Speicherort wird nicht empfohlen. Verschiebe die Datei gegebenenfalls in das Home-Verzeichnis des Terminals.</string>
+    <string name="rename_file">Datei umbenennen</string>
+    <string name="new_name">Neuer Name</string>
+    <string name="type">Typ</string>
+    <string name="name">Name</string>
 </resources>
