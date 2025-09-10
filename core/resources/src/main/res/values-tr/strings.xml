@@ -69,7 +69,7 @@
     <string name="ask_enter_name">Lütfen bir ad girin</string>
     <string name="already_exists">Bu isimde bir belge zaten mevcut</string>
     <string name="attention">Dikkat</string>
-    <string name="ask_del">Kalıcı olarak silmek istediğinizden emin misiniz</string>
+    <string name="ask_del">Şunu kalıcı olarak silmek istediğinizden emin misiniz: %s?</string>
     <string name="redir">Lütfen dizini yeniden seçin</string>
     <string name="canthandle">Dosyayı işleyecek uygulama bulunamadı</string>
     <string name="clipboardempty">Pano boş</string>
@@ -457,4 +457,9 @@
     <string name="seccomp_desc">Bazı cihazlarda görülen \"function not implemented\" hatasını düzelt</string>
     <string name="non_native_filetype">Bu konumda kod çalıştırma desteklenmiyor. Çalıştırmak için dosyanızı terminalin ana dizinine taşımayı düşünün.</string>
     <string name="sdcard_filetype">Bu konumda kod çalıştırmanız tavsiye edilmez. Dosyanızı terminalin ana dizinine taşımanız önerilir.</string>
+    <string name="rename_file">Dosyayı Yeniden Adlandır</string>
+    <string name="new_name">Yeni İsim</string>
+    <string name="file_type">DosyaTürü</string>
+    <string name="type">Tür</string>
+    <string name="name">İsim</string>
 </resources>
