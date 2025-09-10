@@ -2,19 +2,27 @@ package com.rk.runner.runners.web
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.rk.xededitor.databinding.ActivityMarkdownBinding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.view.WindowCompat
+import com.rk.xededitor.ui.theme.KarbonTheme
 
-abstract class WebActivity : AppCompatActivity() {
-    var binding: ActivityMarkdownBinding? = null
+@OptIn(ExperimentalMaterial3Api::class)
+abstract class WebActivity : ComponentActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     fun setupWebView(webView: WebView) {
@@ -23,33 +31,36 @@ abstract class WebActivity : AppCompatActivity() {
         webSettings.databaseEnabled = true
         webSettings.domStorageEnabled = true
         webSettings.javaScriptCanOpenWindowsAutomatically = true
-        //webSettings.allowContentAccess = true
-        //webSettings.allowFileAccess = true
         webSettings.loadWithOverviewMode = true
         webSettings.useWideViewPort = true
         webSettings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        webView.setWebChromeClient(WebChromeClient())
+        webView.webChromeClient = WebChromeClient()
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMarkdownBinding.inflate(layoutInflater)
-
-        setContentView(binding!!.root)
-
-        setSupportActionBar(binding!!.toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.setDisplayShowTitleEnabled(true)
-
-        setupWebView(binding!!.webview)
-
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById<View>(android.R.id.content)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        setContent {
+            KarbonTheme {
+                WebScreen(
+                    title = "WebView",
+                    onBackPressed = { handleBackPressed() },
+                    setupWebView = { setupWebView(it) }
+                )
+            }
+
+        }
+    }
+
+    private fun handleBackPressed() {
+        val webView = findViewById<WebView>(android.R.id.content).findViewById<WebView>(0)
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack()
+        } else {
+            finish()
         }
     }
 
@@ -61,26 +72,40 @@ abstract class WebActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        binding = null
         System.gc()
     }
+}
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            // Handle the back arrow click here
-            onBackPressed()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WebScreen(
+    title: String,
+    onBackPressed: () -> Unit,
+    setupWebView: (WebView) -> Unit
+) {
+    var webView: WebView? by remember { mutableStateOf(null) }
 
-    override fun onBackPressed() {
-        if (binding!!.webview.canGoBack()) {
-            binding!!.webview.goBack()
-        } else {
-            super.onBackPressed()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(title) },
+                navigationIcon = {
+                    IconButton(onClick = onBackPressed) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
+    ) { padding ->
+        AndroidView(
+            factory = { context ->
+                WebView(context).apply {
+                    setupWebView(this)
+                    webView = this
+                }
+            },
+            modifier = Modifier.fillMaxSize().padding(padding),
+            update = { }
+        )
     }
 }

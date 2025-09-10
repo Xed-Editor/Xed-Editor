@@ -338,31 +338,6 @@ fun expectOOM(requiredMEMBytes: Long): Boolean {
 }
 
 
-fun Activity.askInput(
-    title: String? = null,
-    input: String? = null,
-    hint: String,
-    onResult: (String) -> Unit
-) {
-    val popupView: View = LayoutInflater.from(this).inflate(R.layout.popup_new, null)
-    val editText = popupView.findViewById<EditText>(R.id.name)
-    editText.hint = hint
-
-    MaterialAlertDialogBuilder(this).apply {
-        title?.let { setTitle(it) }
-        input?.let { editText.setText(it) }
-        setView(popupView)
-        var dialog: AlertDialog? = null
-        setNegativeButton(strings.cancel, null)
-        setPositiveButton(strings.ok) { _, _ ->
-            dialog?.dismiss()
-            onResult.invoke(editText.text.toString())
-        }
-        dialog = show()
-    }
-
-}
-
 fun isChinaDevice(context: Context): Boolean {
     val manufacturer = Build.MANUFACTURER.lowercase()
 

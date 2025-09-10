@@ -4,19 +4,40 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.pm.PackageInfoCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.rk.App
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.origin
@@ -25,9 +46,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
 import com.rk.xededitor.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.lang.System
+import com.rk.xededitor.ui.theme.KarbonTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -36,9 +55,9 @@ import java.security.cert.X509Certificate
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.system.exitProcess
+import androidx.core.net.toUri
 
-class CrashActivity : AppCompatActivity() {
-    private lateinit var editor: KarbonEditor
+class CrashActivity : ComponentActivity() {
 
     companion object {
         fun Context.isModified(): Boolean {
@@ -48,11 +67,11 @@ class CrashActivity : AppCompatActivity() {
             val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageManager.getPackageInfo(
                     packageName,
-                    PackageManager.GET_SIGNING_CERTIFICATES
+                    android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
                 ).signingInfo?.apkContentsSigners
             } else {
                 @Suppress("DEPRECATION")
-                packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+                packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNATURES).signatures
             }
 
             if (signatures == null) {
@@ -77,127 +96,158 @@ class CrashActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         runCatching {
             enableEdgeToEdge()
-            setContentView(R.layout.activity_error)
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-                insets
-            }
+            val crashText = buildCrashReport()
 
-            val toolbar = findViewById<Toolbar>(R.id.toolbar)
-            toolbar.setTitle(strings.err.getString())
-            setSupportActionBar(toolbar)
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setDisplayShowTitleEnabled(true)
-            editor = findViewById(R.id.error_editor)
-            editor.setTextSize(10f)
+            setContent {
+                val context = LocalContext.current
 
-            val packageInfo = packageManager.getPackageInfo(packageName, 0)
-            val versionName = packageInfo.versionName
-            val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
+                KarbonTheme {
+                    Scaffold(
+                        topBar = {
+                            Column {
+                                TopAppBar(
+                                    navigationIcon = {
+                                        IconButton(onClick = { onBackPressedDispatcher.onBackPressed() }) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                                contentDescription = "Back"
+                                            )
+                                        }
+                                    },
+                                    title = { Text(strings.err.getString()) },
+                                    actions = {
+                                        TextButton(onClick = {
+                                            runCatching {
+                                                copyToClipboard(context, crashText)
+                                                toast(strings.copied.getString())
+                                            }.onFailure { logErrorOrExit(it) }
+                                        }) {
+                                            Text(stringResource(strings.copy))
+                                        }
 
+                                        TextButton(onClick = {
+                                            runCatching {
+                                                val url =
+                                                    "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
+                                                            URLEncoder.encode("``` \n$crashText\n ```", StandardCharsets.UTF_8.toString())
+                                                val browserIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+                                                context.startActivity(browserIntent)
+                                            }.onFailure { logErrorOrExit(it) }
+                                        }) {
+                                            Text(stringResource(strings.report_issue))
+                                        }
+                                    }
+                                )
+                                HorizontalDivider()
+                            }
+                        },
+                    ) { paddingValues ->
 
-            val sb = StringBuilder()
+                        val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+                        val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+                        val selectionColors = LocalTextSelectionColors.current
+                        val realSurface = MaterialTheme.colorScheme.surface
+                        val selectionBackground = selectionColors.backgroundColor
+                        val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+                        val colorPrimary = MaterialTheme.colorScheme.primary
+                        val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
+                        val colorSecondary = MaterialTheme.colorScheme.secondary
+                        val handleColor = selectionColors.handleColor
+                        val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
 
-            sb.append("Unexpected Crash occurred").appendLine().appendLine()
+                        val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+                        val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
-            sb.append("Thread : ").append(intent.getStringExtra("thread")).appendLine()
-            sb.append("App Version : ").append(versionName).appendLine()
-            sb.append("Version Code : ").append(versionCode).appendLine()
-            sb.append("Modified : ").append(isModified()).appendLine()
-            sb.append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8))
-                .appendLine()
-            sb.append("PackageName : ").append(application!!.packageName).appendLine()
-            sb.append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
-            sb.append("Origin : ").append(origin()).appendLine()
-            sb.append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
-            sb.append("LocalTime : ").append(
-                SimpleDateFormat.getDateTimeInstance().format(Date(System.currentTimeMillis()))
-            ).appendLine()
-            sb.append("Android Version : ").append(Build.VERSION.RELEASE).appendLine()
-            sb.append("SDK Version : ").append(Build.VERSION.SDK_INT).appendLine()
-            sb.append("Brand : ").append(Build.BRAND).appendLine()
-            sb.append("Manufacturer : ").append(Build.MANUFACTURER).appendLine()
-            sb.append("Target Sdk : ")
-                .append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
-            sb.append("Flavour : ").append(
-                if (App.isFDroid) {
-                    "FDroid"
-                } else {
-                    "PlayStore"
+                        val divider = MaterialTheme.colorScheme.outlineVariant
+
+                        AndroidView(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues),
+                            factory = { context ->
+                                KarbonEditor(context).apply {
+                                    setTextSize(10f)
+                                    setText(crashText)
+                                    editable = false
+                                    isWordwrap = false
+                                    setThemeColors(
+                                        editorSurface = surfaceColor.toArgb(),
+                                        surfaceContainer = surfaceContainer.toArgb(),
+                                        surface = realSurface.toArgb(),
+                                        onSurface = onSurfaceColor.toArgb(),
+                                        colorPrimary = colorPrimary.toArgb(),
+                                        colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                                        colorSecondary = colorSecondary.toArgb(),
+                                        secondaryContainer = secondaryContainer.toArgb(),
+                                        selectionBg = selectionBackground.toArgb(),
+                                        handleColor = handleColor.toArgb(),
+                                        gutterColor = gutterColor.toArgb(),
+                                        currentLine = currentLineColor.toArgb(),
+                                        dividerColor = divider.toArgb()
+                                    )
+                                }
+                            },
+                            update = { editor ->
+                                editor.setText(crashText)
+                            }
+                        )
+
+                    }
                 }
-            ).appendLine()
-            sb.append("Model : ").append(Build.MODEL).appendLine().appendLine()
-
-            sb.append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
-            sb.append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
-            sb.append("Error StackTrace : ").appendLine()
-                .append(intent.getStringExtra("stacktrace"))
-
-
-            editor.setText(sb.toString())
-            editor.editable = false
-
-            editor.isWordwrap = false
+            }
         }.onFailure {
             logErrorOrExit(it)
             it.printStackTrace()
             runCatching { finishAffinity() }
             exitProcess(1)
         }
-
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.crash_menu, menu)
-        return true
-    }
+    private fun buildCrashReport(): String {
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        val versionName = packageInfo.versionName
+        val versionCode = PackageInfoCompat.getLongVersionCode(packageInfo)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
+        val runtime = Runtime.getRuntime()
+        val usedMem = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024) // MB
+        val maxMem = runtime.maxMemory() / (1024 * 1024)
 
-        when (id) {
-            android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()
-                return true
-            }
+        return buildString {
+            append("Unexpected Crash occurred").appendLine().appendLine()
 
-            R.id.copy_error -> {
-                runCatching {
-                    copyToClipboard(this, editor.text.toString())
-                    toast(strings.copied.getString())
-                }.onFailure {
-                    logErrorOrExit(it)
-                }
-            }
+            append("Thread : ").append(intent.getStringExtra("thread")).appendLine()
+            append("App Version : ").append(versionName).appendLine()
+            append("Version Code : ").append(versionCode).appendLine()
+            append("Modified : ").append(isModified()).appendLine()
+            append("Commit hash : ").append(BuildConfig.GIT_COMMIT_HASH.substring(0, 8)).appendLine()
+            append("PackageName : ").append(application!!.packageName).appendLine()
+            append("Commit date : ").append(BuildConfig.GIT_COMMIT_DATE).appendLine()
+            append("Origin : ").append(origin()).appendLine()
+            append("Unix Time : ").append(System.currentTimeMillis()).appendLine()
+            append("LocalTime : ").append(SimpleDateFormat.getDateTimeInstance().format(Date())).appendLine()
+            append("Android Version : ").append(Build.VERSION.RELEASE).appendLine()
+            append("SDK Version : ").append(Build.VERSION.SDK_INT).appendLine()
+            append("Brand : ").append(Build.BRAND).appendLine()
+            append("Manufacturer : ").append(Build.MANUFACTURER).appendLine()
+            append("Target Sdk : ").append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
+            append("Flavour : ").append(if (App.isFDroid) "FDroid" else "PlayStore").appendLine()
+            append("Model : ").append(Build.MODEL).appendLine()
+            append("Used Memory: ").append(usedMem).append("MB").appendLine()
+            append("Max Memory: ").append(maxMem).append("MB").appendLine()
 
-            R.id.report_issue -> {
-                runCatching {
-                    val browserIntent =
-                        Intent(
-                            Intent.ACTION_VIEW,
-                            Uri.parse(
-                                "https://github.com/Xed-Editor/Xed-Editor/issues/new?title=Crash%20Report&body=" +
-                                        URLEncoder.encode(
-                                            "``` \n${editor.text}\n ```",
-                                            StandardCharsets.UTF_8.toString(),
-                                        )
-                            ),
-                        )
-                    startActivity(browserIntent)
-                }.onFailure {
-                    logErrorOrExit(it)
-                }
+            appendLine()
 
-            }
+            append("Error Message : ").append(intent.getStringExtra("msg")).appendLine()
+            append("Error Cause : ").append(intent.getStringExtra("error_cause")).appendLine()
+            append("Error StackTrace : ").appendLine()
+                .append(intent.getStringExtra("stacktrace"))
         }
-
-        return super.onOptionsItemSelected(item)
     }
 
     private fun copyToClipboard(context: Context, text: String) {

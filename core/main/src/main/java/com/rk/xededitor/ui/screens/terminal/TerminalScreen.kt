@@ -358,7 +358,7 @@ fun TerminalScreenInternal(
 
                                         mEmulator?.mColors?.mCurrentColors?.apply {
                                             set(256, onSurfaceColor!!)
-                                            set(258, onSurfaceColor!!)
+                                            //set(258, onSurfaceColor!!)
                                         }
                                     }
                                 }
@@ -396,7 +396,7 @@ fun TerminalScreenInternal(
 
                                 terminalView.mEmulator?.mColors?.mCurrentColors?.apply {
                                     set(256, onSurfaceColor!!)
-                                    set(258, onSurfaceColor!!)
+                                    //set(258, onSurfaceColor!!)
                                 }
                             },
                         )
@@ -434,7 +434,7 @@ fun TerminalScreenInternal(
 
                                 view.mEmulator?.mColors?.mCurrentColors?.apply {
                                     set(256, onSurfaceColor!!)
-                                    set(258, onSurfaceColor!!)
+                                    //set(258, onSurfaceColor!!)
                                 }
                                 view.invalidate()
                                 view.requestLayout()
@@ -629,7 +629,7 @@ fun changeSession(terminalActivity: Terminal, session_id: String) {
 
         mEmulator?.mColors?.mCurrentColors?.apply {
             set(256, onSurfaceColor!!)
-            set(258, onSurfaceColor!!)
+            //set(258, onSurfaceColor!!)
         }
 
         post {

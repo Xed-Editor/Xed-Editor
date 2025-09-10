@@ -1,34 +1,24 @@
 package com.rk.file
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
-import androidx.documentfile.provider.DocumentFile
-import androidx.lifecycle.lifecycleScope
-import com.rk.compose.filetree.addProject
-import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.DefaultScope
+import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.libcommons.application
-import com.rk.libcommons.askInput
-import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.getString
-import com.rk.resources.strings
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
-import java.io.File
-import androidx.activity.ComponentActivity
-import com.rk.xededitor.ui.activities.main.MainActivity
 
 var to_save_file: FileObject? = null
 class FileManager(private val activity: ComponentActivity) {
