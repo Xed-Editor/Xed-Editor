@@ -3,11 +3,11 @@
     <string name="already_exists">この名前のドキュメントが既に存在します</string>
     <string name="file_exist_not">ファイルは既に存在しません</string>
     <string name="open_drawer">開く</string>
-    <string name="unsupported_contnt">非対応の内容です</string>
+    <string name="unsupported_content">非対応の内容です</string>
     <string name="mp">プラグインを管理</string>
     <string name="new_file_1">新規ファイル</string>
     <string name="open_with">他で開く</string>
-    <string name="inavalid_git_cred">認証情報が有効ではありません。設定で変更してください</string>
+    <string name="invalid_git_cred">認証情報が有効ではありません。設定で変更してください</string>
     <string name="file_saved">ファイルを保存しました</string>
     <string name="create_new_file_desc">選択されたフォルダ内に新規ファイルを作成</string>
     <string name="dir_exist_not">フォルダが存在しません</string>
@@ -16,7 +16,7 @@
     <string name="title">タイトル</string>
     <string name="open_in_terminal">ターミナルで開く</string>
     <string name="close_drawer">閉じる</string>
-    <string name="null_contnt">エラー: 内容がnullです</string>
+    <string name="null_content">エラー: 内容がnullです</string>
     <string name="restart_required">再起動が必要です</string>
     <string name="save">ファイルを保存しました</string>
     <string name="save_label">保存</string>
@@ -26,7 +26,7 @@
     <string name="newFile_hint">名前 例: Test.txt</string>
     <string name="mime">Mimeタイプ 例: text/plain</string>
     <string name="rep">置換</string>
-    <string name="searck_keyword">語を検索</string>
+    <string name="search_keyword">語を検索</string>
     <string name="copy">コピー</string>
     <string name="save_all">全て保存</string>
     <string name="save_1">保存</string>
@@ -76,7 +76,7 @@
     <string name="userdata">ユーザーデータ</string>
     <string name="file_open_denied">他のアプリでこのファイルを開くことは許可されていません</string>
     <string name="reload_file_tree">ファイルを再読み込み</string>
-    <string name="rename_descript">選択されたドキュメントの名前を変更</string>
+    <string name="rename_desc">選択されたドキュメントの名前を変更</string>
     <string name="delete_descript">ドキュメントを完全に削除</string>
     <string name="add_file_desc">追加するファイルを選択</string>
     <string name="paste_desc">選択されたドキュメントを貼り付け</string>
@@ -132,7 +132,7 @@
     <string name="auto_save">自動保存</string>
     <string name="auto_save_time_desc">指定時間後にファイルを自動保存する</string>
     <string name="intervalinMs">間隔(ミリ秒)</string>
-    <string name="inavalid_v">無効な値です</string>
+    <string name="invalid_v">無効な値です</string>
     <string name="v_small">値が小さすぎます</string>
     <string name="v_large">値が大きすぎます</string>
     <string name="text_size">文字サイズ</string>
@@ -196,7 +196,7 @@
     <string name="open_with_other">選択されたファイルを他のアプリで開く</string>
     <string name="terminal">ターミナル</string>
     <string name="download_done">ダウンロード成功しました。</string>
-    <string name="inavalid_userdata">ユーザーデータが有効ではありません。設定で変更してください</string>
+    <string name="invalid_userdata">ユーザーデータが有効ではありません。設定で変更してください</string>
     <string name="download">ダウンロード</string>
     <string name="cred">認証情報</string>
     <string name="gitcred">gitの認証情報</string>

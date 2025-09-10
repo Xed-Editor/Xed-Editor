@@ -3,8 +3,8 @@
     <string name="open_drawer">öppna</string>
     <string name="close_drawer">stäng</string>
     <string name="ni">Den här funktionen är inte implementerad</string>
-    <string name="unsupported_contnt">Innehållet stöds ej</string>
-    <string name="null_contnt">Fel: Innehållet är null</string>
+    <string name="unsupported_content">Innehållet stöds ej</string>
+    <string name="null_content">Fel: Innehållet är null</string>
     <string name="restart_required">Omstart krävs</string>
     <string name="save">Fil sparad</string>
     <string name="saveAll">alla filer sparade</string>
@@ -17,7 +17,7 @@
     <string name="newFile_hint">Namn t.ex. Test.txt</string>
     <string name="mime">MimeType t.ex. text/plain</string>
     <string name="rep">Ersättning</string>
-    <string name="searck_keyword">Sök nyckelord</string>
+    <string name="search_keyword">Sök nyckelord</string>
     <string name="cs">Skiftlägeskänslig</string>
     <string name="wait">Vänligen vänta…</string>
     <string name="report_issue">Rapportera problem</string>
@@ -82,7 +82,7 @@
     <string name="download">Nerladdning</string>
     <string name="git">Git</string>
     <string name="cred">Referenser</string>
-    <string name="inavalid_git_cred">Referenser är inte giltiga. Byt i inställningar</string>
+    <string name="invalid_git_cred">Referenser är inte giltiga. Byt i inställningar</string>
     <string name="gitcred">Referenser för git</string>
     <string name="repo_dir">Repository katalog</string>
     <string name="clone_dir">Katalog för klonade repositories</string>
@@ -93,14 +93,14 @@
     <string name="gituserexample">t.ex. UserDev:example@email.com</string>
     <string name="apply">Tillämpa</string>
     <string name="userdata">Användardata</string>
-    <string name="inavalid_userdata">Användardata är ej korrekt. Ändra i inställningar</string>
+    <string name="invalid_userdata">Användardata är ej korrekt. Ändra i inställningar</string>
     <string name="userdatagit">Användardata för git</string>
     <string name="open_in_terminal">Öppna i terminal</string>
     <string name="open_dir_in_terminal">Öppna katalog i terminal</string>
     <string name="file_open_denied">Öppna den här filen med andra appar är inte tillåtet</string>
     <string name="reload_file_tree">Ladda om filträd</string>
     <string name="close_current_project">Stäng projektet</string>
-    <string name="rename_descript">Byt namn på dokumentet</string>
+    <string name="rename_desc">Byt namn på dokumentet</string>
     <string name="open_with_other">Öppna vald fil i annan app</string>
     <string name="delete_descript">Ta bort dokument permanent</string>
     <string name="add_file_desc">Välj en ny fil att lägga till här</string>
@@ -178,7 +178,7 @@
     <string name="auto_save_time">Autospar tid</string>
     <string name="auto_save_time_desc">Spara filen automatiskt efter angiven tid</string>
     <string name="intervalinMs">Intervall i millisekunder</string>
-    <string name="inavalid_v">Ogiltigt värde</string>
+    <string name="invalid_v">Ogiltigt värde</string>
     <string name="v_small">Värde för litet</string>
     <string name="v_large">Värde för stort</string>
     <string name="text_size">Textstorlek</string>

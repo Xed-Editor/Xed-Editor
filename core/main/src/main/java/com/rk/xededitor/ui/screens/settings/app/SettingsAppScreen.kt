@@ -65,14 +65,14 @@ object InbuiltFeatures {
     val extensions =
         Feature(name = strings.enable_ext.getString(), key = "enable_extension", default = false)
     val terminal = Feature(
-        name = strings.terminal.getString() + " + Runners",
+        name = strings.terminal.getString() + " + " + strings.runners.getString(),
         key = "feature_terminal",
         default = true
     )
     val mutators =
         Feature(name = strings.mutators.getString(), key = "feature_mutators", default = true)
     val developerOptions =
-        Feature(name = "Debug Options", key = "developerOptions", default = false)
+        Feature(name = strings.debug_options.getString(), key = "developerOptions", default = false)
 }
 
 @Composable

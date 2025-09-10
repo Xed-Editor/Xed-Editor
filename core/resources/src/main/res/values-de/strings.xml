@@ -65,10 +65,10 @@
     <string name="github_desc">Stern auf GitHub vergeben 🤩</string>
     <string name="telegram">Telegram-Gruppe</string>
     <string name="close_drawer">schließen</string>
-    <string name="unsupported_contnt">Nicht unterstützter Inhalt</string>
-    <string name="null_contnt">Fehler: Inhalt ist null</string>
+    <string name="unsupported_content">Nicht unterstützter Inhalt</string>
+    <string name="null_content">Fehler: Inhalt ist null</string>
     <string name="rep">Ersatz</string>
-    <string name="searck_keyword">Schlüsselwort suchen</string>
+    <string name="search_keyword">Schlüsselwort suchen</string>
     <string name="copy">Kopieren</string>
     <string name="exit">Beenden</string>
     <string name="attention">Achtung</string>
@@ -79,7 +79,7 @@
     <string name="experimental_session_restore_warning">Diese Funktion ist experimentell und kann zu Datenverlust führen</string>
     <string name="highlighting">Syntaxhervorhebung</string>
     <string name="add_new_replacement_batch">Neue Ersatzcharge hinzufügen</string>
-    <string name="inavalid_userdata">Die Benutzerdaten sind ungültig. Ändere sie in den Einstellungen</string>
+    <string name="invalid_userdata">Die Benutzerdaten sind ungültig. Ändere sie in den Einstellungen</string>
     <string name="userdatagit">Benutzerdaten für Git</string>
     <string name="add_file_desc">Wähle hier eine neue Datei aus, die hinzugefügt werden soll</string>
     <string name="copy_desc">Dokument kopieren</string>
@@ -105,7 +105,7 @@
     <string name="git">Git</string>
     <string name="cred">Danksagung</string>
     <string name="clone_dir">Ordner um Repositories zu klonen</string>
-    <string name="inavalid_git_cred">Die Anmeldeinformationen sind ungültig. Ändere sie in den Einstellungen</string>
+    <string name="invalid_git_cred">Die Anmeldeinformationen sind ungültig. Ändere sie in den Einstellungen</string>
     <string name="dir_exist_not">Ordner existiert nicht</string>
     <string name="file_exist_not">Datei existiert nicht mehr</string>
     <string name="gitKeyExample">z.B. SuperKek:ghp_…</string>
@@ -114,7 +114,7 @@
     <string name="gitcred">Anmeldeinformation für git</string>
     <string name="reload_file_tree">Dateien neu laden</string>
     <string name="close_current_project">Aktuelles Projekt schließen</string>
-    <string name="rename_descript">Benenne das Dokument um</string>
+    <string name="rename_desc">Benenne das Dokument um</string>
     <string name="open_with_other">Ausgewählte Datei in anderen Apps öffnen</string>
     <string name="delete_descript">Dokument endgültig löschen</string>
     <string name="data_clear">App-Daten wurden gelöscht</string>
@@ -184,7 +184,7 @@
     <string name="auto_save">Automatisch speichern</string>
     <string name="auto_save_desc">Datei automatisch speichern</string>
     <string name="auto_save_time">Zeit automatisch speichern</string>
-    <string name="inavalid_v">Ungültiger Wert</string>
+    <string name="invalid_v">Ungültiger Wert</string>
     <string name="tab_size">Tab-Größe</string>
     <string name="tab_size_desc">Tab-Größe festlegen</string>
     <string name="auto_save_time_desc">Datei nach einer bestimmten Zeit automatisch speichern</string>

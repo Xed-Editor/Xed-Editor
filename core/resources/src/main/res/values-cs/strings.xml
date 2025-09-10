@@ -3,8 +3,8 @@
     <string name="open_drawer">Otevřít</string>
     <string name="close_drawer">zavřít</string>
     <string name="ni">Táto funkce nebyla ještě přidaná</string>
-    <string name="unsupported_contnt">Nepodporovaný obsah</string>
-    <string name="null_contnt">Chyba: Obsah je null (prázdný)</string>
+    <string name="unsupported_content">Nepodporovaný obsah</string>
+    <string name="null_content">Chyba: Obsah je null (prázdný)</string>
     <string name="save">Soubor uložen</string>
     <string name="saveAll">Všechny soubory uloženy</string>
     <string name="save_label">Uložit</string>
@@ -109,7 +109,7 @@
     <string name="git_auth">Token Githubu</string>
     <string name="invalid_email">Neplatný Email</string>
     <string name="restart_required">Restart aplikace je požadovaný</string>
-    <string name="searck_keyword">Hledat Klíčové slovo</string>
+    <string name="search_keyword">Hledat Klíčové slovo</string>
     <string name="wait">Vičkejte prosím…</string>
     <string name="report_issue">Nahlásit Problém</string>
     <string name="copy">Kopírovat</string>
@@ -146,7 +146,7 @@
     <string name="description">Popis</string>
     <string name="file_saved">Soubor Uložen</string>
     <string name="open_with_other">Otevřít soubor ve jinačích aplikací</string>
-    <string name="rename_descript">Přejmenovat soubor</string>
+    <string name="rename_desc">Přejmenovat soubor</string>
     <string name="delete_descript">Nenávratně odstranit soubor</string>
     <string name="add_file_desc">Vyberte nový soubor ke přidání</string>
     <string name="exists">už existuje!</string>
@@ -227,7 +227,7 @@
     <string name="editor_desc">Nastavení editoru</string>
     <string name="fill_both">Prosím vyplňte obě pole</string>
     <string name="extra_keys_desc">Ukázat více kláves v editoru</string>
-    <string name="inavalid_v">Neplatná hodnota</string>
+    <string name="invalid_v">Neplatná hodnota</string>
     <string name="v_small">Hodnota příliš malá</string>
     <string name="v_large">Hodnota příliš velká</string>
     <string name="intervalinMs">Interval ve milisekundách</string>
@@ -275,7 +275,7 @@
     <string name="tools">Nástroje</string>
     <string name="telegram">Telegram Skupina</string>
     <string name="title_activity_main">HlavníAktivita</string>
-    <string name="inavalid_git_cred">Přihlašovací údaje jsou neplatné. Změňte je v nastavení</string>
+    <string name="invalid_git_cred">Přihlašovací údaje jsou neplatné. Změňte je v nastavení</string>
     <string name="gitcred">Přihlašovací údaje pro git</string>
     <string name="repo_dir">Složka repozitáře</string>
     <string name="clone_dir">Složka pro klonování repozitářů</string>
@@ -306,7 +306,7 @@
     <string name="cred">Přihlašovací údaje</string>
     <string name="gituserexample">např. UserDev:example@email.com</string>
     <string name="gitKeyExample">např. SuperKek:ghp_…</string>
-    <string name="inavalid_userdata">Uživatelelská data jsou neplatná. Změňte v nastavení</string>
+    <string name="invalid_userdata">Uživatelelská data jsou neplatná. Změňte v nastavení</string>
     <string name="push">Poslat</string>
     <string name="pull">Stáhnout</string>
     <string name="commit_push">Změnit a poslat</string>

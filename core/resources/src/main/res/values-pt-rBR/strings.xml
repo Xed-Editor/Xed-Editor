@@ -4,8 +4,8 @@
     <string name="close_drawer">fechar</string>
     <string name="title_activity_batch_replacement">Substituição em Lote</string>
     <string name="ni">Este recurso não está implementado</string>
-    <string name="unsupported_contnt">Conteúdo não suportado</string>
-    <string name="null_contnt">Erro: O conteúdo é nulo</string>
+    <string name="unsupported_content">Conteúdo não suportado</string>
+    <string name="null_content">Erro: O conteúdo é nulo</string>
     <string name="restart_required">Reinicialização necessária</string>
     <string name="save">Arquivo salvo</string>
     <string name="saveAll">Todos os arquivos foram salvos</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">Nome, por exemplo, Test.txt</string>
     <string name="mime">MimeType, por exemplo, texto/simples</string>
     <string name="rep">Substituição</string>
-    <string name="searck_keyword">Pesquisar Palavra-Chave</string>
+    <string name="search_keyword">Pesquisar Palavra-Chave</string>
     <string name="cs">Sensível a Capitalização</string>
     <string name="wait">Por favor, aguarde…</string>
     <string name="report_issue">Reportar problema</string>
@@ -90,7 +90,7 @@
     <string name="download">Baixar</string>
     <string name="git">Git</string>
     <string name="cred">Credenciais</string>
-    <string name="inavalid_git_cred">Credenciais inválidas. Altere-as nas configurações</string>
+    <string name="invalid_git_cred">Credenciais inválidas. Altere-as nas configurações</string>
     <string name="gitcred">Credenciais do git</string>
     <string name="repo_dir">Pasta do repositório</string>
     <string name="clone_dir">Pasta para clonar repositórios</string>
@@ -101,14 +101,14 @@
     <string name="gituserexample">ex. UserDev:example@email.com</string>
     <string name="apply">Aplicar</string>
     <string name="userdata">Dados do usuário</string>
-    <string name="inavalid_userdata">Dados do usuário inválidos. Altere-os nas configurações</string>
+    <string name="invalid_userdata">Dados do usuário inválidos. Altere-os nas configurações</string>
     <string name="userdatagit">Dados do usuário para git</string>
     <string name="open_in_terminal">Abrir no Terminal</string>
     <string name="open_dir_in_terminal">Abrir Pasta no Terminal</string>
     <string name="file_open_denied">Abrir este arquivo em outros aplicativos não é permitido</string>
     <string name="reload_file_tree">Recarregar Arquivos</string>
     <string name="close_current_project">Fechar projeto atual</string>
-    <string name="rename_descript">Renomear o documento selecionado</string>
+    <string name="rename_desc">Renomear o documento selecionado</string>
     <string name="open_with_other">Abrir arquivo selecionado em outros aplicativos</string>
     <string name="delete_descript">Excluir documento permanentemente</string>
     <string name="add_file_desc">Selecione um novo arquivo para ser adicionado aqui</string>
@@ -191,7 +191,7 @@
     <string name="auto_save_time">Tempo do salvamento automático</string>
     <string name="auto_save_time_desc">Salvar arquivo automaticamente após o tempo especificado</string>
     <string name="intervalinMs">Intervalo em milissegundos</string>
-    <string name="inavalid_v">Valor inválido</string>
+    <string name="invalid_v">Valor inválido</string>
     <string name="v_small">Valor muito pequeno</string>
     <string name="v_large">Valor muito grande</string>
     <string name="text_size">Tamanho do texto</string>

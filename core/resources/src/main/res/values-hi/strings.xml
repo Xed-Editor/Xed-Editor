@@ -4,8 +4,8 @@
     <string name="open_drawer">ड्रॉअर खोलें</string>
     <string name="close_drawer">ड्रॉअर बंद करें</string>
     <string name="ni">यह सुविधा उपलब्ध नहीं</string>
-    <string name="unsupported_contnt">असमर्थित कंटेंट</string>
-    <string name="null_contnt">त्रुटि: कंटेंट खाली है</string>
+    <string name="unsupported_content">असमर्थित कंटेंट</string>
+    <string name="null_content">त्रुटि: कंटेंट खाली है</string>
     <string name="restart_required">रिस्टार्ट जरूरी</string>
     <string name="save">फ़ाइल सेव हुई</string>
     <string name="saveAll">सभी फ़ाइलें सेव हुईं</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">नाम जैसे Test.txt</string>
     <string name="mime">MimeType जैसे text/plain</string>
     <string name="rep">रिप्लेसमेंट</string>
-    <string name="searck_keyword">खोज शब्द</string>
+    <string name="search_keyword">खोज शब्द</string>
     <string name="cs">केस सेंसिटिव</string>
     <string name="wait">कृपया प्रतीक्षा करें…</string>
     <string name="report_issue">समस्या रिपोर्ट करें</string>
@@ -84,7 +84,7 @@
     <string name="download">डाउनलोड</string>
     <string name="git">Git</string>
     <string name="cred">क्रेडेंशियल्स</string>
-    <string name="inavalid_git_cred">क्रेडेंशियल्स अमान्य हैं. सेटिंग्स में बदलें</string>
+    <string name="invalid_git_cred">क्रेडेंशियल्स अमान्य हैं. सेटिंग्स में बदलें</string>
     <string name="gitcred">Git के लिए क्रेडेंशियल्स</string>
     <string name="repo_dir">रिपॉजिटरी फ़ोल्डर</string>
     <string name="clone_dir">क्लोनिंग के लिए फ़ोल्डर</string>
@@ -95,14 +95,14 @@
     <string name="gituserexample">जैसे UserDev:example@email.com</string>
     <string name="apply">लागू करें</string>
     <string name="userdata">यूज़र डेटा</string>
-    <string name="inavalid_userdata">यूज़र डेटा अमान्य है. सेटिंग्स में बदलें</string>
+    <string name="invalid_userdata">यूज़र डेटा अमान्य है. सेटिंग्स में बदलें</string>
     <string name="userdatagit">User data for git</string>
     <string name="open_in_terminal">टर्मिनल में खोलें</string>
     <string name="open_dir_in_terminal">टर्मिनल में डायरेक्टरी खोलें</string>
     <string name="file_open_denied">इस फ़ाइल को अन्य ऐप्स के साथ खोलने की अनुमति नहीं है</string>
     <string name="reload_file_tree">फ़ाइलें फिर से लोड करें</string>
     <string name="close_current_project">वर्तमान प्रोजेक्ट बंद करें</string>
-    <string name="rename_descript">दस्तावेज़ का नाम बदलें</string>
+    <string name="rename_desc">दस्तावेज़ का नाम बदलें</string>
     <string name="open_with_other">चयनित फ़ाइल को अन्य ऐप्स में खोलें</string>
     <string name="delete_descript">दस्तावेज़ को स्थायी रूप से डिलीट करें</string>
     <string name="add_file_desc">यहाँ जोड़ने के लिए एक नई फ़ाइल चुनें</string>
@@ -180,7 +180,7 @@
     <string name="auto_save_time">ऑटो सेव समय</string>
     <string name="auto_save_time_desc">निर्दिष्ट समय के बाद फ़ाइल स्वचालित रूप से सेव करें</string>
     <string name="intervalinMs">मिलीसेकंड में अंतराल</string>
-    <string name="inavalid_v">अमान्य मान</string>
+    <string name="invalid_v">अमान्य मान</string>
     <string name="v_small">मान बहुत छोटा</string>
     <string name="v_large">मान बहुत बड़ा</string>
     <string name="text_size">टेक्स्ट साइज़</string>

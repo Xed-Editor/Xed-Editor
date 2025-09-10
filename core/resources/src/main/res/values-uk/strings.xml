@@ -4,8 +4,8 @@
     <string name="close_drawer">Закрити</string>
     <string name="title_activity_batch_replacement">Пакетна заміна</string>
     <string name="ni">Ця функція не реалізована</string>
-    <string name="unsupported_contnt">Непідтримуваний вміст</string>
-    <string name="null_contnt">Помилка: вмісту немає</string>
+    <string name="unsupported_content">Непідтримуваний вміст</string>
+    <string name="null_content">Помилка: вмісту немає</string>
     <string name="restart_required">Потрібен перезапуск</string>
     <string name="save">Файл збережено</string>
     <string name="saveAll">зберіг усі файли</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">Назва, напр. «Test.txt»</string>
     <string name="mime">MimeType bv. текс/прост</string>
     <string name="rep">Заміна</string>
-    <string name="searck_keyword">Ключове слово для пошуку</string>
+    <string name="search_keyword">Ключове слово для пошуку</string>
     <string name="cs">Враховувати регістр</string>
     <string name="wait">Будь ласка, зачекайте...</string>
     <string name="report_issue">Повідомити про проблему</string>
@@ -89,7 +89,7 @@
     <string name="download">Завантажити</string>
     <string name="git">Git</string>
     <string name="cred">Облікові дані</string>
-    <string name="inavalid_git_cred">Облікові дані недійсні. Змініть їх у налаштуваннях</string>
+    <string name="invalid_git_cred">Облікові дані недійсні. Змініть їх у налаштуваннях</string>
     <string name="gitcred">Облікові дані для git</string>
     <string name="repo_dir">Зберегти теку</string>
     <string name="clone_dir">Керівництво по репозиторіям клонування</string>
@@ -100,14 +100,14 @@
     <string name="gituserexample">наприклад, UserDev:example@e-pos.com</string>
     <string name="apply">Застосувати</string>
     <string name="userdata">Дані користувача</string>
-    <string name="inavalid_userdata">Дані користувача недійсні. Змініть це в налаштуваннях</string>
+    <string name="invalid_userdata">Дані користувача недійсні. Змініть це в налаштуваннях</string>
     <string name="userdatagit">Дані користувача для git</string>
     <string name="open_in_terminal">Відкрити в терміналі</string>
     <string name="open_dir_in_terminal">Відкрити теку в терміналі</string>
     <string name="file_open_denied">Відкривати цей файл іншими програмами заборонено</string>
     <string name="reload_file_tree">Перезавантажити файл</string>
     <string name="close_current_project">Закрити поточний проєкт</string>
-    <string name="rename_descript">Перейменувати вибраний файл / теку</string>
+    <string name="rename_desc">Перейменувати вибраний файл / теку</string>
     <string name="open_with_other">Відкрити вибраний файл в інших програмах</string>
     <string name="delete_descript">Видалити вибраний файл/папку</string>
     <string name="add_file_desc">Виберіть новий файл, який потрібно додати сюди</string>
@@ -190,7 +190,7 @@
     <string name="auto_save_time">Інтервал автозбереження</string>
     <string name="auto_save_time_desc">Автоматично зберігати файл після вказаного часу</string>
     <string name="intervalinMs">Інтервал у мілісекундах</string>
-    <string name="inavalid_v">Недійсне значення</string>
+    <string name="invalid_v">Недійсне значення</string>
     <string name="v_small">Замале значення</string>
     <string name="v_large">Завелике значення</string>
     <string name="text_size">Розмір тексту</string>

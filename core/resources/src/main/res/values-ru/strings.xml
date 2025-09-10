@@ -4,8 +4,8 @@
     <string name="close_drawer">Закрыть</string>
     <string name="title_activity_batch_replacement">Пакетная замена</string>
     <string name="ni">Эта функция не реализована</string>
-    <string name="unsupported_contnt">Неподдерживаемый контент</string>
-    <string name="null_contnt">Ошибка: нет содержимого</string>
+    <string name="unsupported_content">Неподдерживаемый контент</string>
+    <string name="null_content">Ошибка: нет содержимого</string>
     <string name="restart_required">Требуется перезапуск</string>
     <string name="save">Файл сохранён</string>
     <string name="saveAll">Все файлы сохранены</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">Имя, например Тест.txt</string>
     <string name="mime">MimeType bv. teks/plain</string>
     <string name="rep">Замена</string>
-    <string name="searck_keyword">Ключевое слово для поиска</string>
+    <string name="search_keyword">Ключевое слово для поиска</string>
     <string name="cs">С учетом регистра</string>
     <string name="wait">Пожалуйста, подождите…</string>
     <string name="report_issue">Сообщить о проблеме</string>
@@ -89,7 +89,7 @@
     <string name="download">Скачать</string>
     <string name="git">Git</string>
     <string name="cred">Данные для входа</string>
-    <string name="inavalid_git_cred">Учетные данные недействительны. Измените их в настройках</string>
+    <string name="invalid_git_cred">Учетные данные недействительны. Измените их в настройках</string>
     <string name="gitcred">Учетные данные для git</string>
     <string name="repo_dir">Папка репозитория</string>
     <string name="clone_dir">Папка для клонируемых репозиториев</string>
@@ -100,14 +100,14 @@
     <string name="gituserexample">Например UserDev:example@email.com</string>
     <string name="apply">Применить</string>
     <string name="userdata">Данные пользователя</string>
-    <string name="inavalid_userdata">Данные пользователя недействительны. Измените это в настройках</string>
+    <string name="invalid_userdata">Данные пользователя недействительны. Измените это в настройках</string>
     <string name="userdatagit">Данные пользователя для git</string>
     <string name="open_in_terminal">Открыть в терминале</string>
     <string name="open_dir_in_terminal">Открыть папку в терминале</string>
     <string name="file_open_denied">Открытие этого файла другими программами запрещено</string>
     <string name="reload_file_tree">Перезагрузить файлы</string>
     <string name="close_current_project">Закрыть текущий проект</string>
-    <string name="rename_descript">Переименовать документ</string>
+    <string name="rename_desc">Переименовать документ</string>
     <string name="open_with_other">Открыть выбранный файл в других приложениях</string>
     <string name="delete_descript">Удалить документ</string>
     <string name="add_file_desc">Выберите новый файл, который будет добавлен сюда</string>
@@ -190,7 +190,7 @@
     <string name="auto_save_time">Интервал автоматического сохранения</string>
     <string name="auto_save_time_desc">Автоматически сохранять файл через указанное время</string>
     <string name="intervalinMs">Интервал в миллисекундах</string>
-    <string name="inavalid_v">Недопустимое значение</string>
+    <string name="invalid_v">Недопустимое значение</string>
     <string name="v_small">Слишком маленькое значение</string>
     <string name="v_large">Слишком большое значение</string>
     <string name="text_size">Размер текста</string>

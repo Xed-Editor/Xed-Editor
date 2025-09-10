@@ -4,8 +4,8 @@
     <string name="close_drawer">kapat</string>
     <string name="title_activity_batch_replacement">Toplu Değiştirme</string>
     <string name="ni">Bu özellik uygulanmadı</string>
-    <string name="unsupported_contnt">Desteklenmeyen içerik</string>
-    <string name="null_contnt">Hata: İçerik sıfır</string>
+    <string name="unsupported_content">Desteklenmeyen içerik</string>
+    <string name="null_content">Hata: İçerik sıfır</string>
     <string name="restart_required">Yeniden başlatma gerekli</string>
     <string name="save">Dosya kaydedildi</string>
     <string name="saveAll">tüm dosyaları kaydedildi</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">İsim ör. Test.txt</string>
     <string name="mime">MimeType örn. metin/plain</string>
     <string name="rep">Yenisiyle değiştirme</string>
-    <string name="searck_keyword">Anahtar kelimeyi ara</string>
+    <string name="search_keyword">Anahtar kelimeyi ara</string>
     <string name="cs">Harfe duyarlı</string>
     <string name="wait">Lütfen bekleyin…</string>
     <string name="report_issue">Sorunu bildir</string>
@@ -89,7 +89,7 @@
     <string name="download">İndir</string>
     <string name="git">Git</string>
     <string name="cred">Kimlik bilgileri</string>
-    <string name="inavalid_git_cred">Kimlik bilgileri geçerli değil. Bunları ayarlarda değiştirin</string>
+    <string name="invalid_git_cred">Kimlik bilgileri geçerli değil. Bunları ayarlarda değiştirin</string>
     <string name="gitcred">Git için kimlik bilgileri</string>
     <string name="repo_dir">Repo klasörü</string>
     <string name="clone_dir">Repoyu klonlamak için klasör</string>
@@ -100,14 +100,14 @@
     <string name="gituserexample">örn. Kullanici:ornek@email.com</string>
     <string name="apply">Uygula</string>
     <string name="userdata">Kullanıcı Verileri</string>
-    <string name="inavalid_userdata">Kullanıcı verileri geçerli değil. Ayarlardan değiştirin</string>
+    <string name="invalid_userdata">Kullanıcı verileri geçerli değil. Ayarlardan değiştirin</string>
     <string name="userdatagit">Git için kullanıcı verileri</string>
     <string name="open_in_terminal">Terminalde aç</string>
     <string name="open_dir_in_terminal">Klasörü terminalde aç</string>
     <string name="file_open_denied">Bu dosyanın başka programlarla açılmasına izin verilmiyor</string>
     <string name="reload_file_tree">Dosyaları Yenile</string>
     <string name="close_current_project">Mevcut projeyi kapat</string>
-    <string name="rename_descript">Belgeyi yeniden isimlendir</string>
+    <string name="rename_desc">Belgeyi yeniden isimlendir</string>
     <string name="open_with_other">Seçilen dosyayı diğer uygulamalarda aç</string>
     <string name="delete_descript">Belgeyi Kalıcı Olarak Sil</string>
     <string name="add_file_desc">Buraya eklenecek yeni bir dosya seçin</string>
@@ -190,7 +190,7 @@
     <string name="auto_save_time">Otomatik zaman kazandırır</string>
     <string name="auto_save_time_desc">Belirtilen süre sonunda dosyayı otomatik olarak kaydet</string>
     <string name="intervalinMs">Milisaniye cinsinden aralık</string>
-    <string name="inavalid_v">Geçersiz değer</string>
+    <string name="invalid_v">Geçersiz değer</string>
     <string name="v_small">Değer çok küçük</string>
     <string name="v_large">Değer çok büyük</string>
     <string name="text_size">Metin boyutu</string>
