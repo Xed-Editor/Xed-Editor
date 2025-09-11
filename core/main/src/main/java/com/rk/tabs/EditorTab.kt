@@ -312,13 +312,11 @@ private fun EditorTab.CodeEditor(
                                             }
                                         }else{
                                             setLanguage(langScope)
-                                            if (!Preference.getBoolean("lsp_${server.id}",true)){
-                                                dialog(context = context as Activity, title = strings.attention.getString(), msg = String.format(strings.ask_lsp_install.getString(), "python"), cancelString = strings.dont_ask_again, okString = strings.install, onOk = {
-                                                    server.install(context)
-                                                }, onCancel = {
-                                                    Preference.setBoolean("lsp_${server.id}",true)
-                                                })
-                                            }
+                                            dialog(context = context as Activity, title = strings.attention.getString(), msg = String.format(strings.ask_lsp_install.getString(), "python"), cancelString = strings.dont_ask_again, okString = strings.install, onOk = {
+                                                server.install(context)
+                                            }, onCancel = {
+                                                Preference.setBoolean("lsp_${server.id}",false)
+                                            })
                                         }
                                     }else{
                                         setLanguage(langScope)
