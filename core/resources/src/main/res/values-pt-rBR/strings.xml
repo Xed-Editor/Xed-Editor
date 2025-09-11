@@ -70,7 +70,7 @@
     <string name="ask_enter_name">Por favor, insira um nome</string>
     <string name="already_exists">Já existe um documento com este nome</string>
     <string name="attention">Atenção</string>
-    <string name="ask_del">Tem certeza de que deseja excluir permanentemente?</string>
+    <string name="ask_del">Tem certeza de que deseja excluir %s permanentemente?</string>
     <string name="redir">Por favor, selecione novamente o diretório</string>
     <string name="canthandle">Nenhum app encontrado para abrir o arquivo</string>
     <string name="clipboardempty">A Área de Transferência está vazia</string>
@@ -96,7 +96,7 @@
     <string name="clone_dir">Pasta para clonar repositórios</string>
     <string name="dir_exist_not">Pasta não existe</string>
     <string name="file_exist_not">O arquivo não existe mais</string>
-    <string name="gitKeyExample">ex. SuperKek:ghp_…</string>
+    <string name="gitKeyExample">exemplo: SuperKek:ghp_…</string>
     <string name="file_saved">Arquivo salvo</string>
     <string name="gituserexample">ex. UserDev:example@email.com</string>
     <string name="apply">Aplicar</string>
@@ -457,4 +457,14 @@
     <string name="project_as_wk">Usar project como diretório de trabalho</string>
     <string name="project_as_wk_desc">Usar o projeto como diretório de trabalho no terminal</string>
     <string name="seccomp_desc">Resolver erro \"Função não Implementada\" em alguns dispositivos</string>
+    <string name="non_native_filetype">A execução de código não é suportada neste local. Considere mover seu arquivo para o diretório inicial do terminal para executá-lo.</string>
+    <string name="sdcard_filetype">Não é recomendável executar código neste local. Considere mover seu arquivo para o diretório inicial do terminal.</string>
+    <string name="rename_file">Renomear Arquivo</string>
+    <string name="new_name">Novo nome</string>
+    <string name="file_type">Tipo de Arquivo</string>
+    <string name="type">Tipo</string>
+    <string name="name">Nome</string>
+    <string name="discord">Comunidade Discord</string>
+    <string name="use_tabs">Inserir Caractere de Tabulação</string>
+    <string name="use_tabs_desc">Usar uma tabulação real (\\t) em vez de espaços para recuo</string>
 </resources>
