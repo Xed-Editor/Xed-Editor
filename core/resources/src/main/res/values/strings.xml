@@ -435,4 +435,6 @@
     <string name="type">Type</string>
     <string name="name">Name</string>
     <string name="discord">Discord Community</string>
+    <string name="use_tabs">Insert Tab Character</string>
+    <string name="use_tabs_desc">"Use a real tab (\\t) instead of spaces for indentation"</string>
 </resources>

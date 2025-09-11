@@ -375,6 +375,8 @@ class KarbonEditor : CodeEditor {
             }
         }
 
+        language.useTab(Settings.actual_tabs)
+
         withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
     }
 }

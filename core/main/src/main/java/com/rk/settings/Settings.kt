@@ -30,6 +30,7 @@ object Settings {
     var check_for_update by CachedPreference("check_update", false)
     var is_selected_font_assest by CachedPreference("is_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
+    var actual_tabs by CachedPreference("actual_tab", false)
     var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
     var hide_soft_keyboard_if_hardware by CachedPreference("always_show_soft_keyboard", true)
     var ignore_storage_permission by CachedPreference("ignore_storage_permission", false)

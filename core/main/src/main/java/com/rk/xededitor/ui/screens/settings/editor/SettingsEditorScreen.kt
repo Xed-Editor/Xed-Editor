@@ -26,6 +26,7 @@ import com.rk.xededitor.ui.components.InputDialog
 import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
+import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -185,12 +186,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.DefaultEncoding
             )
 
-            EditorSettingsToggle(label = stringResource(id = strings.smooth_tabs),
-                description = stringResource(id = strings.smooth_tab_desc),
-                default = Settings.smooth_tabs,
-                sideEffect = {
-                    Settings.smooth_tabs = it
-                })
             EditorSettingsToggle(
                 label = stringResource(id = strings.keepdl),
                 description = stringResource(id = strings.drawer_lock_desc),
@@ -208,6 +203,13 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            EditorSettingsToggle(label = stringResource(id = strings.smooth_tabs),
+                description = stringResource(id = strings.smooth_tab_desc),
+                default = Settings.smooth_tabs,
+                sideEffect = {
+                    Settings.smooth_tabs = it
+                })
+
             EditorSettingsToggle(label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,
@@ -215,6 +217,25 @@ fun SettingsEditorScreen(navController: NavController) {
                 sideEffect = {
                     showTabSizeDialog = true
                 })
+
+            EditorSettingsToggle(
+                label = stringResource(strings.use_tabs),
+                description = stringResource(strings.use_tabs_desc),
+                default = Settings.actual_tabs,
+                sideEffect = {
+                    Settings.actual_tabs = it
+
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.forEach { tab ->
+                            if (tab is EditorTab) {
+                                (tab.editorState.editor?.editorLanguage as? TextMateLanguage)?.useTab(it)
+                            }
+                        }
+                    }
+
+                }
+            )
+
 
         }
 
