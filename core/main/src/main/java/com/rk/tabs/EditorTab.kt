@@ -109,9 +109,15 @@ class EditorTab(
 
     override var tabTitle: MutableState<String> = mutableStateOf(file.getName()).also {
         scope.launch{
+            delay(100)
             val parent = file.getParentFile()
             if (viewModel.tabs.any { it.tabTitle.value == tabTitle.value && it != this@EditorTab } && parent != null){
-                tabTitle.value = "${parent.getName()}/${tabTitle.value}"
+
+                val title = "${parent.getName()}/${tabTitle.value}"
+                withContext(Dispatchers.Main){
+                    tabTitle.value = title
+                }
+
             }
         }
     }

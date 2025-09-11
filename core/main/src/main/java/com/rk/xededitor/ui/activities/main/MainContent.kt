@@ -34,6 +34,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -217,7 +218,7 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
 
             HorizontalDivider()
 
-            var cachedTabSize by remember { mutableIntStateOf(1) }
+            var cachedTabSize by rememberSaveable { mutableIntStateOf(1) }
 
             LaunchedEffect(Unit) {
                 delay(500)

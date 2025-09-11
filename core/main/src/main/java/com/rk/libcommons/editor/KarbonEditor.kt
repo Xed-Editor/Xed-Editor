@@ -132,7 +132,6 @@ class KarbonEditor : CodeEditor {
             )
 
             setAdapter(AutoCompletionLayoutAdapter(density))
-            setEnabledAnimation(true)
         }
 
     }
@@ -355,7 +354,7 @@ class KarbonEditor : CodeEditor {
     }
 
 
-    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
+    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
         while (!isInit && isActive) delay(5)
         if (!isActive){
             return@withContext
@@ -364,12 +363,14 @@ class KarbonEditor : CodeEditor {
         val language = highlightingCache.getOrPut(languageScopeName){
             TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
                 if (Settings.textMateSuggestion){
-                    context.assets.open("textmate/keywords.json").use {
-                        JsonParser.parseReader(InputStreamReader(it))
-                            .asJsonObject[languageScopeName]?.asJsonArray
-                            ?.map { el -> el.asString }
-                            ?.toTypedArray()
-                            ?.let(::setCompleterKeywords)
+                    launch {
+                        context.assets.open("textmate/keywords.json").use {
+                            JsonParser.parseReader(InputStreamReader(it))
+                                .asJsonObject[languageScopeName]?.asJsonArray
+                                ?.map { el -> el.asString }
+                                ?.toTypedArray()
+                                ?.let(::setCompleterKeywords)
+                        }
                     }
                 }
             }
