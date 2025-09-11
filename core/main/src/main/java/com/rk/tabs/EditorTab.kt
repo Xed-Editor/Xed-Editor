@@ -105,10 +105,19 @@ class EditorTab(
     override val name: String
         get() = strings.editor.getString()
 
-    override var tabTitle: MutableState<String> = mutableStateOf(file.getName())
-
-
     val scope = CoroutineScope(Dispatchers.Default)
+
+    override var tabTitle: MutableState<String> = mutableStateOf(file.getName()).also {
+        scope.launch{
+            val parent = file.getParentFile()
+            if (viewModel.tabs.any { it.tabTitle.value == tabTitle.value } && parent != null){
+                tabTitle.value = "${parent.getName()}/${tabTitle.value}"
+            }
+        }
+    }
+
+
+
     val editorState by mutableStateOf(CodeEditorState())
 
     override fun onTabRemoved() {
