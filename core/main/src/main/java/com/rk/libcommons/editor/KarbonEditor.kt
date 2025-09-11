@@ -132,7 +132,6 @@ class KarbonEditor : CodeEditor {
             )
 
             setAdapter(AutoCompletionLayoutAdapter(density))
-            setEnabledAnimation(true)
         }
 
     }
@@ -322,7 +321,7 @@ class KarbonEditor : CodeEditor {
 
 
     companion object{
-        private var isInit = false
+        var isInit = false
 
         private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
         private val highlightingCache = hashMapOf<String, TextMateLanguage>()
@@ -355,8 +354,8 @@ class KarbonEditor : CodeEditor {
     }
 
 
-    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
-        while (!isInit && isActive) delay(10)
+    suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.Default) {
+        while (!isInit && isActive) delay(5)
         if (!isActive){
             return@withContext
         }
@@ -364,16 +363,20 @@ class KarbonEditor : CodeEditor {
         val language = highlightingCache.getOrPut(languageScopeName){
             TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
                 if (Settings.textMateSuggestion){
-                    context.assets.open("textmate/keywords.json").use {
-                        JsonParser.parseReader(InputStreamReader(it))
-                            .asJsonObject[languageScopeName]?.asJsonArray
-                            ?.map { el -> el.asString }
-                            ?.toTypedArray()
-                            ?.let(::setCompleterKeywords)
+                    launch {
+                        context.assets.open("textmate/keywords.json").use {
+                            JsonParser.parseReader(InputStreamReader(it))
+                                .asJsonObject[languageScopeName]?.asJsonArray
+                                ?.map { el -> el.asString }
+                                ?.toTypedArray()
+                                ?.let(::setCompleterKeywords)
+                        }
                     }
                 }
             }
         }
+
+        language.useTab(Settings.actual_tabs)
 
         withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
     }

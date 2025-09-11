@@ -458,4 +458,7 @@
     <string name="file_ext_example">File extension (e.g. py)</string>
     <string name="logcat_saved">File saved in %s as logcat.txt</string>
     <string name="stop_logcat">Stop logcat</string>
+    <string name="discord">Discord Community</string>
+    <string name="use_tabs">Insert Tab Character</string>
+    <string name="use_tabs_desc">"Use a real tab (\\t) instead of spaces for indentation"</string>
 </resources>

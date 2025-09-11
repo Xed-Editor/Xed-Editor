@@ -35,6 +35,7 @@ import org.intellij.lang.annotations.Language
 import org.json.JSONObject
 import java.util.Locale
 import com.google.gson.reflect.TypeToken
+import com.rk.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -160,9 +161,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
 fun setAppLanguage(locale: Locale) {
     val appLocale = LocaleListCompat.create(locale)
     AppCompatDelegate.setApplicationLocales(appLocale)
+    Settings.currentLang = locale.language
 }
 
-fun readAssetFile(context: Context, fileName: String): String {
-    return context.assets.open(fileName).bufferedReader().use { it.readText() }
-}
 

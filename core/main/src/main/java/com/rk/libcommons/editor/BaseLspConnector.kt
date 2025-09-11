@@ -2,9 +2,11 @@ package com.rk.libcommons.editor
 
 import android.util.Log
 import com.rk.file.FileObject
+import com.rk.libcommons.editor.KarbonEditor.Companion.isInit
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
 import com.rk.xededitor.ui.activities.main.MainActivity
+import io.github.rosemoe.sora.lang.EmptyLanguage
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.connection.SocketStreamConnectionProvider
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
@@ -12,6 +14,8 @@ import io.github.rosemoe.sora.lsp.client.languageserver.serverdefinition.CustomL
 import io.github.rosemoe.sora.lsp.editor.LspEditor
 import io.github.rosemoe.sora.lsp.editor.LspProject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.lsp4j.DidChangeWorkspaceFoldersParams
 import org.eclipse.lsp4j.WorkspaceFolder
@@ -43,14 +47,18 @@ class BaseLspConnector(
             return@withContext
         }
 
+        while (!isInit && isActive) delay(5)
+        if (!isActive){
+            return@withContext
+        }
+
         this@BaseLspConnector.fileObject = fileObject
 
         runCatching {
+            project = LspProject(projectFile.getAbsolutePath())
             serverDefinition = object : CustomLanguageServerDefinition(ext, ServerConnectProvider {
                 connectionProvider
             }) {}
-
-            project = LspProject(projectFile.getAbsolutePath())
 
             project!!.addServerDefinition(serverDefinition!!)
 

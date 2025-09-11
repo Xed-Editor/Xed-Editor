@@ -44,6 +44,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -198,7 +199,7 @@ fun AboutScreen() {
             PreferenceTemplate(
                 title = {
                     Text(
-                        text = "Github StarGazers",
+                        text = "Github Stars",
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
@@ -225,7 +226,7 @@ fun AboutScreen() {
                 },
                 sideEffect = {
                     val url = "https://github.com/Xed-Editor/Xed-Editor"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
                 }
             )
@@ -245,10 +246,31 @@ fun AboutScreen() {
                 },
                 sideEffect = {
                     val url = "https://t.me/XedEditor"
-                    val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse(url) }
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
                     context.startActivity(intent)
                 }
             )
+
+            SettingsToggle(
+                label = stringResource(id = strings.discord),
+                description = stringResource(id = strings.telegram_desc),
+                isEnabled = true,
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+                sideEffect = {
+                    val url = "https://discord.gg/6bKzcQRuef"
+                    val intent = Intent(Intent.ACTION_VIEW).apply { data = url.toUri() }
+                    context.startActivity(intent)
+                }
+            )
+
         }
     }
 }

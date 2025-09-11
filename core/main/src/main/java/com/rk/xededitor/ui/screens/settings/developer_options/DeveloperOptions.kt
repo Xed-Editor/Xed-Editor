@@ -39,24 +39,28 @@ import com.rk.xededitor.BuildConfig
 import com.rk.tabs.lsp_connections
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.SettingsToggle
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 
-
-private fun getMemoryUsage(context: Context): Int {
-    val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-    val memoryInfo = activityManager.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()))
-    //total memory in mb
-    return memoryInfo[0].totalPss / 1024
-}
 
 @Composable
 fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    val memoryUsage = remember { mutableIntStateOf(-1) }
+    val memoryUsage = remember { mutableStateOf("Unknown") }
 
-    LaunchedEffect(Unit) {
-        memoryUsage.intValue = getMemoryUsage(context)
+    LaunchedEffect("DebugOptions") {
+        withContext(Dispatchers.IO){
+            while (isActive){
+                delay(700)
+                val runtime = Runtime.getRuntime()
+                val usedMem = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
+                memoryUsage.value = "${usedMem}/${runtime.maxMemory() / (1024 * 1024)}MB"
+            }
+        }
     }
 
     PreferenceLayout(label = stringResource(strings.debug_options)) {
@@ -83,12 +87,9 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
             SettingsToggle(
                 label = stringResource(strings.memory_usage),
-                description = "${memoryUsage.intValue} MB",
+                description = memoryUsage.value,
                 showSwitch = false,
                 default = false,
-                sideEffect = {
-                    memoryUsage.intValue = getMemoryUsage(context)
-                }
             )
 
             var state by remember {
