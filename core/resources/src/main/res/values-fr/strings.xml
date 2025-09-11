@@ -54,7 +54,7 @@
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer définitivement</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>
     <string name="redir">Re-sélectionnez à nouveau le dossier</string>
     <string name="canthandle">Aucune app trouvée pour gérer le fichier</string>
     <string name="clipboardempty">Le presse-papiers est vide</string>
