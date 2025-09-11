@@ -322,7 +322,7 @@ class KarbonEditor : CodeEditor {
 
 
     companion object{
-        private var isInit = false
+        var isInit = false
 
         private val colorSchemeCache = hashMapOf<String, TextMateColorScheme>()
         private val highlightingCache = hashMapOf<String, TextMateLanguage>()
@@ -356,7 +356,7 @@ class KarbonEditor : CodeEditor {
 
 
     suspend fun setLanguage(languageScopeName: String) = withContext(Dispatchers.IO) {
-        while (!isInit && isActive) delay(10)
+        while (!isInit && isActive) delay(5)
         if (!isActive){
             return@withContext
         }

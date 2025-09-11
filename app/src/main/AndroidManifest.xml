@@ -33,6 +33,9 @@
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="false"
         android:theme="@style/Theme.Karbon"
+        android:appCategory="productivity"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
         tools:targetApi="tiramisu">
 
         <activity

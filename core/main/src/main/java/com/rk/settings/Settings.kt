@@ -64,6 +64,9 @@ object Settings {
     var selected_font_path by CachedPreference("selected_font_path", "")
     var encoding by CachedPreference("encoding", Charset.defaultCharset().name())
 
+
+    var currentLang by CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
+
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
     var lastVersionCode by CachedPreference("last_version_code", -1L)

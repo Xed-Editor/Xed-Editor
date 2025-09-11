@@ -4,6 +4,8 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import android.system.Os
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.internal.ExtensionAPIManager
@@ -24,6 +26,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
 import java.nio.file.Files
+import java.util.Locale
 import java.util.concurrent.Executors
 
 @OptIn(DelicateCoroutinesApi::class)
@@ -49,6 +52,7 @@ class App : Application() {
     init {
         application = this
         Res.application = this
+        Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
         GlobalScope.launch(Dispatchers.IO) {
             TabCache.preloadTabs()
         }
@@ -58,7 +62,10 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Thread.setDefaultUncaughtExceptionHandler(CrashHandler)
+        val currentLocale = Locale.forLanguageTag(Settings.currentLang)
+        val appLocale = LocaleListCompat.create(currentLocale)
+        AppCompatDelegate.setApplicationLocales(appLocale)
+
 
         updateThemes()
 

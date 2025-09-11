@@ -234,7 +234,7 @@ private fun EditorTab.CodeEditor(
     val realSurface = MaterialTheme.colorScheme.surface
     val selectionBackground = selectionColors.backgroundColor
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
-    var colorPrimary = MaterialTheme.colorScheme.primary
+    val colorPrimary = MaterialTheme.colorScheme.primary
     val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
     val colorSecondary = MaterialTheme.colorScheme.secondary
     val handleColor = selectionColors.handleColor
@@ -255,36 +255,13 @@ private fun EditorTab.CodeEditor(
             onRelease = {
                 it.children.filterIsInstance<KarbonEditor>().firstOrNull()?.release()
             },
-            update = {
-                it.children.apply {
-                    filterIsInstance<HorizontalScrollView>().firstOrNull()?.visibility = if (Settings.show_arrow_keys){View.VISIBLE}else{ View.GONE}
-
-                    filterIsInstance<KarbonEditor>().firstOrNull()?.apply {
-                        setThemeColors(
-                            editorSurface = surfaceColor.toArgb(),
-                            surfaceContainer = surfaceContainer.toArgb(),
-                            surface = realSurface.toArgb(),
-                            onSurface = onSurfaceColor.toArgb(),
-                            colorPrimary = colorPrimary.toArgb(),
-                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                            colorSecondary = colorSecondary.toArgb(),
-                            secondaryContainer = secondaryContainer.toArgb(),
-                            selectionBg = selectionBackground.toArgb(),
-                            handleColor = handleColor.toArgb(),
-                            gutterColor = gutterColor.toArgb(),
-                            currentLine = currentLineColor.toArgb(),
-                            dividerColor = divider.toArgb()
-                        )
-                    }
-                }
-            },
+            update = {},
             factory = { ctx ->
                 ConstraintLayout(ctx).apply {
                     layoutParams = ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT
                     )
-
 
                     val horizontalScrollViewId = View.generateViewId()
                     val dividerId = View.generateViewId()
@@ -314,6 +291,7 @@ private fun EditorTab.CodeEditor(
                         )
 
                         state.editor = this
+
                         textmateScope?.let { langScope ->
                             scope.launch(Dispatchers.IO) {
                                 val ext = file.getName().substringAfterLast(".").toString().trim()
@@ -345,7 +323,6 @@ private fun EditorTab.CodeEditor(
                                     }else{
                                         setLanguage(langScope)
                                     }
-
                                 }else{
                                     setLanguage(langScope)
                                 }
@@ -353,9 +330,11 @@ private fun EditorTab.CodeEditor(
                         }
 
 
-                        scope.launch{
+                        scope.launch(Dispatchers.IO){
                             state.updateLock.withLock{
-                                setText(state.content)
+                                withContext(Dispatchers.Main){
+                                    setText(state.content)
+                                }
                             }
                         }
 

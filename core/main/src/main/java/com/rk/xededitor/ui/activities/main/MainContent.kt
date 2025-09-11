@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,6 +52,7 @@ import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.components.FileActionDialog
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 
@@ -215,17 +217,23 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
 
             HorizontalDivider()
 
+            var cachedTabSize by remember { mutableIntStateOf(1) }
+
+            LaunchedEffect(Unit) {
+                delay(500)
+                cachedTabSize = viewModel.tabs.size
+            }
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize().clipToBounds(),
-                beyondViewportPageCount = viewModel.tabs.size,
-                userScrollEnabled = false
+                beyondViewportPageCount = cachedTabSize,
+                userScrollEnabled = false,
+                key = { index -> viewModel.tabs[index].refreshKey }
             ) { page ->
                 if (page < viewModel.tabs.size) {
                     val tab = viewModel.tabs[page]
-                    key(tab.refreshKey) {
-                        viewModel.tabs[page].Content()
-                    }
+                    viewModel.tabs[page].Content()
                 }
             }
 
