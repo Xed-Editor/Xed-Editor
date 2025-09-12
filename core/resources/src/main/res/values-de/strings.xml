@@ -436,4 +436,6 @@
     <string name="new_name">Neuer Name</string>
     <string name="type">Typ</string>
     <string name="name">Name</string>
+    <string name="view_github_profile">Github-Profil anzeigen</string>
+    <string name="debug_options">Debug-Optionen</string>
 </resources>
