@@ -69,12 +69,17 @@ android {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
             resValue("string", "app_name", "Xed-Debug")
+        }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
         }
     }
 
@@ -135,23 +140,6 @@ android {
 
 }
 
-//androidComponents {
-//    beforeVariants { variantBuilder ->
-//        if (variantBuilder.flavorName == "playStore") {
-//            variantBuilder.enable = true
-//        }
-//    }
-//
-//    onVariants { variant ->
-//        if (variant.productFlavors.any { it.second == "PlayStore" }) {
-//            dependencies {
-//                add(variant.name + "Implementation", project(":core:xed"))
-//            }
-//        }
-//    }
-//}
-
-
 fun downloadFile(localUrl: String, remoteUrl: String, expectedChecksum: String) {
     val digest = MessageDigest.getInstance("SHA-256")
 
@@ -208,7 +196,6 @@ tasks.register("downloadPrebuilt") {
 }
 
 tasks.register("removeProotLoaders"){
-    return@register
     fun rm(path:String){
         val file = File(projectDir,path)
 
@@ -228,7 +215,6 @@ tasks.register("removeProotLoaders"){
 }
 
 afterEvaluate {
-    return@afterEvaluate
     android.applicationVariants.all { variant ->
         if (variant.flavorName == "PlayStore") {
             variant.javaCompileProvider.dependsOn("downloadPrebuilt")

@@ -11,32 +11,35 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <queries>
         <package android:name="com.github.android" />
+
         <intent>
             <action android:name="android.support.customtabs.action.CustomTabsService" />
         </intent>
     </queries>
 
-
     <application
         android:name="com.rk.App"
         android:allowBackup="true"
+        android:appCategory="productivity"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:largeHeap="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="false"
         android:theme="@style/Theme.Karbon"
-        android:appCategory="productivity"
-        android:hardwareAccelerated="true"
-        android:largeHeap="true"
         tools:targetApi="tiramisu">
+        <profileable
+            android:shell="true"
+            tools:targetApi="29" />
 
         <activity
             android:name="com.rk.xededitor.ui.activities.main.MainActivity"
@@ -48,24 +51,28 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.EDIT" />
+
                 <category android:name="android.intent.category.DEFAULT" />
 
-                <data android:scheme="file" android:mimeType="*/*" />
-                <data android:scheme="content" android:mimeType="*/*" />
+                <data
+                    android:mimeType="*/*"
+                    android:scheme="file" />
+                <data
+                    android:mimeType="*/*"
+                    android:scheme="content" />
             </intent-filter>
-
         </activity>
 
         <service
             android:name="com.rk.SessionService"
             android:foregroundServiceType="specialUse" />
         <service android:name="com.rk.LogcatService" />
-
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -80,18 +87,15 @@
         <activity
             android:name="com.rk.crashhandler.CrashActivity"
             android:exported="false" />
-
         <activity
             android:name="com.rk.xededitor.ui.activities.settings.SettingsActivity"
             android:exported="false" />
-
         <activity
             android:name="com.rk.runner.runners.web.markdown.MDViewer"
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.WebActivity"
             android:exported="false" />
-
         <activity
             android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
             android:exported="true"

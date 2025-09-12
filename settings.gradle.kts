@@ -69,3 +69,5 @@ include(":language-textmate")
 project(":language-textmate").projectDir = file("soraX/language-textmate")
 
 include(":baselineprofile")
+include(":benchmark")
+include(":benchmark2")

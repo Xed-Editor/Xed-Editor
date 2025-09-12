@@ -68,6 +68,9 @@ uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.4.1"
 baselineprofile = "1.4.1"
 profileinstaller = "1.4.1"
+benchmark = "1.2.4"
+runner = "1.5.2"
+benchmarkJunit4 = "1.2.4"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
@@ -183,6 +186,8 @@ tests-robolectric = { module = "org.robolectric:robolectric", version = "4.15.1"
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
+androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+androidx-benchmark-junit4 = { group = "androidx.benchmark", name = "benchmark-junit4", version.ref = "benchmarkJunit4" }
 
 
 
@@ -198,4 +203,5 @@ kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 publish = { id = "com.vanniktech.maven.publish.base", version = "0.34.0" }
 android-test = { id = "com.android.test", version.ref = "agp" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
+benchmark = { id = "androidx.benchmark", version.ref = "benchmark" }
 
