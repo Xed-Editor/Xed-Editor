@@ -9,6 +9,7 @@ import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
@@ -69,7 +70,7 @@ class LogcatService : Service(),
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_DONE" -> {
-                toast(String.format(strings.logcat_saved.getString(), strings.terminal_home.getString()))
+                toast(String.format(strings.logcat_saved.getFilledString(mapOf("terminal_home" to strings.terminal_home.getString()))))
                 stopSelf()
             }
         }
