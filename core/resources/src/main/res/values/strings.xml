@@ -65,7 +65,7 @@
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to permanently delete %s?</string>
+    <string name="ask_del">Are you sure you want to permanently delete %(file_name)?</string>
     <string name="redir">Please reselect the directory</string>
     <string name="canthandle">No app found to handle the file</string>
     <string name="clipboardempty">Clipboard is empty</string>
@@ -420,7 +420,7 @@
     <string name="textMateSuggestion_desc">Suggest predefined keywords</string>
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
-    <string name="ask_lsp_install">Would you like to install %s language server?</string>
+    <string name="ask_lsp_install">Would you like to install %(language_name) language server?</string>
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall Terminal</string>
@@ -436,7 +436,7 @@
     <string name="name">Name</string>
     <string name="view_github_profile">View github profile</string>
     <string name="debug_options">Debug Options</string>
-    <string name="debug_options_desc">Debugging options for %s</string>
+    <string name="debug_options_desc">Debugging options for %(app_name)</string>
     <string name="force_crash">Force Crash</string>
     <string name="force_crash_desc">"Throw a runtime exception</string>
     <string name="force_crash_confirm">Do you want to force crash the app? The app may freeze.</string>
@@ -453,10 +453,10 @@
     <string name="unsupported_file_ext">Unsupported file extension</string>
     <string name="invalid_port">Invalid port</string>
     <string name="lsp_desc">Connect to external lsp server</string>
-    <string name="lsp_header">Enter Port &amp; Extension</string>
+    <string name="lsp_header">Enter Port and Extension</string>
     <string name="port_number">Port number</string>
     <string name="file_ext_example">File extension (e.g. py)</string>
-    <string name="logcat_saved">File saved in %s as logcat.txt</string>
+    <string name="logcat_saved">File saved in %(terminal_home) as logcat.txt</string>
     <string name="stop_logcat">Stop logcat</string>
     <string name="discord">Discord Community</string>
     <string name="use_tabs">Insert Tab Character</string>
