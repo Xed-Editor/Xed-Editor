@@ -63,13 +63,13 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             isCrunchPngs = false
-            isShrinkResources = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -128,6 +128,8 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
