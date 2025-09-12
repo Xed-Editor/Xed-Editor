@@ -487,6 +487,7 @@
     <string name="logcat_saved">Dosya %s konumuna logcat.txt olarak kaydedildi</string>
     <string name="stop_logcat">Logcat’i durdur</string>
     <string name="discord">Discord Topluluğu</string>
-    <string name="use_tabs">Tab karakteri ekle</string>
-    <string name="use_tabs_desc">Girintileme için boşluk yerine gerçek bir tab (\\t) kullanın</string>
+    <string name="use_tabs">Sekme karakteri ekle</string>
+    <string name="use_tabs_desc">Girintileme için boşluk yerine gerçek bir sekme (\\t) kullanın</string>
+    <string name="delete_desc">Belgeyi Kalıcı Olarak Sil</string>
 </resources>
