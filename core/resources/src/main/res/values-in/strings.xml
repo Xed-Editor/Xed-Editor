@@ -70,7 +70,7 @@
     <string name="ask_enter_name">Silakan masukkan nama</string>
     <string name="already_exists">Dokumen dengan nama ini sudah ada</string>
     <string name="attention">Perhatian</string>
-    <string name="ask_del">Apakah anda yakin ingin menghapus secara permanen</string>
+    <string name="ask_del">Apakah anda yakin ingin menghapus secara permanen %s?</string>
     <string name="redir">Pilih kembali direktori tersebut</string>
     <string name="canthandle">Tidak ada aplikasi yang ditemukan untuk menangani berkas tersebut</string>
     <string name="clipboardempty">Papan klip kosong</string>
@@ -456,4 +456,12 @@
     <string name="seccomp_desc">Perbaiki kesalahan \"fungsi tidak diimplementasikan\" pada beberapa perangkat</string>
     <string name="non_native_filetype">Menjalankan kode tidak didukung di lokasi ini. Pertimbangkan untuk memindahkan file Anda ke direktori home terminal untuk menjalankannya.</string>
     <string name="sdcard_filetype">Menjalankan kode tidak disarankan di lokasi ini. Pertimbangkan untuk memindahkan file Anda ke direktori home terminal.</string>
+    <string name="rename_file">Ubah nama berkas</string>
+    <string name="new_name">Nama baru</string>
+    <string name="file_type">JenisBerkas</string>
+    <string name="type">Jenis</string>
+    <string name="name">Nama</string>
+    <string name="discord">Komunitas Discord</string>
+    <string name="use_tabs">Sisipkan Karakter Tab</string>
+    <string name="use_tabs_desc">Gunakan tab nyata (\\t) daripada spasi untuk indentasi</string>
 </resources>
