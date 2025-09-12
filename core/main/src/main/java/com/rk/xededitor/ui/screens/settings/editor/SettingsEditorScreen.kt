@@ -1,7 +1,5 @@
 package com.rk.xededitor.ui.screens.settings.editor
 
-import android.view.View
-import android.widget.HorizontalScrollView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,12 +8,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.DefaultScope
 import com.rk.libcommons.toast
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.tabs.EditorTab
@@ -249,7 +244,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     if (lineSpacingValue.toFloatOrNull() == null) {
-                        toast(strings.inavalid_v)
+                        toast(strings.invalid_v)
                         lineSpacingValue = Settings.line_spacing.toString()
                     } else if (lineSpacingValue.toFloat() < 0) {
                         toast(context.getString(strings.v_small))
@@ -275,7 +270,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     if (textSizeValue.toIntOrNull() == null) {
-                        toast(strings.inavalid_v)
+                        toast(strings.invalid_v)
                         textSizeValue = Settings.editor_text_size.toString()
                     } else if (textSizeValue.toInt() > 32) {
                         toast(context.getString(strings.v_large))
@@ -309,7 +304,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     if (tabSizeValue.toIntOrNull() == null) {
-                        toast(strings.inavalid_v)
+                        toast(strings.invalid_v)
                         tabSizeValue = Settings.tab_size.toString()
                     } else if (tabSizeValue.toInt() > 16) {
                         toast(context.getString(strings.v_large))

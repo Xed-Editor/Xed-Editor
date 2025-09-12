@@ -4,8 +4,8 @@
     <string name="close_drawer">Tutup</string>
     <string name="title_activity_batch_replacement">Ganti semua</string>
     <string name="ni">Fitur ini tidak diterapkan</string>
-    <string name="unsupported_contnt">Konten tidak didukung</string>
-    <string name="null_contnt">Terjadi kesalahan: Konten null</string>
+    <string name="unsupported_content">Konten tidak didukung</string>
+    <string name="null_content">Terjadi kesalahan: Konten null</string>
     <string name="restart_required">Muat ulang diperlukan</string>
     <string name="save">Berkas disimpan</string>
     <string name="saveAll">Simpan semua berkas</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">Nama misal. Test.txt</string>
     <string name="mime">MimeType misal. text/plain</string>
     <string name="rep">Penggantian</string>
-    <string name="searck_keyword">Cari Kata Kunci</string>
+    <string name="search_keyword">Cari Kata Kunci</string>
     <string name="cs">Peka Terhadap Huruf</string>
     <string name="report_issue">Laporkan Masalah</string>
     <string name="save_all">Simpan Semua</string>
@@ -89,7 +89,7 @@
     <string name="plugin_icon">Ikon plugin</string>
     <string name="download">Unduh</string>
     <string name="cred">Kredensial</string>
-    <string name="inavalid_git_cred">Kredensial tidak sah. Ubah di pengaturan</string>
+    <string name="invalid_git_cred">Kredensial tidak sah. Ubah di pengaturan</string>
     <string name="gitcred">Kredensial untuk git</string>
     <string name="repo_dir">Folder repositori</string>
     <string name="clone_dir">Folder untuk repositori kloning</string>
@@ -100,14 +100,14 @@
     <string name="gituserexample">Misal. UserDev:contoh@email.com</string>
     <string name="apply">Terapkan</string>
     <string name="userdata">Data pengguna</string>
-    <string name="inavalid_userdata">Data pengguna tidak sah. Ubah di pengaturan</string>
+    <string name="invalid_userdata">Data pengguna tidak sah. Ubah di pengaturan</string>
     <string name="userdatagit">Data pengguna untuk git</string>
     <string name="open_in_terminal">Buka di Terminal</string>
     <string name="open_dir_in_terminal">Buka Direktori di Terminal</string>
     <string name="file_open_denied">Membuka berkas ini dengan aplikasi lain tidak diizinkan</string>
     <string name="reload_file_tree">Muat Ulang Berkas</string>
     <string name="close_current_project">Tutup proyek saat ini</string>
-    <string name="rename_descript">Ubah nama dokumen</string>
+    <string name="rename_desc">Ubah nama dokumen</string>
     <string name="open_with_other">Buka berkas yang dipilih di aplikasi lain</string>
     <string name="delete_descript">Hapus Dokumen secara permanen</string>
     <string name="add_file_desc">Pilih berkas baru yang akan ditambahkan di sini</string>
@@ -179,7 +179,7 @@
     <string name="auto_save_desc">Simpan berkas secara otomatis</string>
     <string name="auto_save_time">Waktu Simpan Otomatis</string>
     <string name="intervalinMs">Interval dalam milidetik</string>
-    <string name="inavalid_v">Nilai tidak sah</string>
+    <string name="invalid_v">Nilai tidak sah</string>
     <string name="v_small">Nilai terlalu kecil</string>
     <string name="v_large">Nilai terlalu besar</string>
     <string name="text_size">Ukuran Teks</string>

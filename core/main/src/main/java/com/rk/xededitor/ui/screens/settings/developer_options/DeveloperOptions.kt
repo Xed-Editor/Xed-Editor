@@ -63,17 +63,17 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
         }
     }
 
-    PreferenceLayout(label = "Debug Options") {
+    PreferenceLayout(label = stringResource(strings.debug_options)) {
         PreferenceGroup {
             SettingsToggle(
-                label = "Force Crash",
-                description = "Throw a runtime exception",
+                label = stringResource(strings.force_crash),
+                description = stringResource(strings.force_crash_desc),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
                     MaterialAlertDialogBuilder(context).apply {
-                        setTitle("Force Crash")
-                        setMessage("Force Crash the app? app may freeze")
+                        setTitle(strings.force_crash)
+                        setMessage(strings.force_crash_confirm)
                         setNegativeButton(strings.cancel, null)
                         setPositiveButton(strings.ok) { _, _ ->
                             Thread {
@@ -86,7 +86,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
             SettingsToggle(
-                label = "Memory Usage",
+                label = stringResource(strings.memory_usage),
                 description = memoryUsage.value,
                 showSwitch = false,
                 default = false,
@@ -100,8 +100,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     state = it || BuildConfig.DEBUG
                     Settings.strict_mode = state
                 },
-                label = "Strict Mode",
-                description = "Detect disk or network access on the main thread",
+                label = stringResource(strings.strict_mode),
+                description = stringResource(strings.strict_mode_desc),
                 modifier = modifier,
                 onClick = {
                     state = !state || BuildConfig.DEBUG
@@ -117,8 +117,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     state1 = it || BuildConfig.DEBUG
                     Settings.anr_watchdog = state1
                 },
-                label = "ANR Watchdog",
-                description = "Terminate Xed-Editor if it becomes unresponsive for more than 5 seconds",
+                label = stringResource(strings.anr_watchdog),
+                description = stringResource(strings.anr_watchdog_desc),
                 modifier = modifier,
                 onClick = {
                     state1 = !state1 || BuildConfig.DEBUG
@@ -127,8 +127,8 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 
 
             SettingsToggle(
-                label = "Verbose Errors",
-                description = "Include stacktrace in error dialogs",
+                label = stringResource(strings.verbose_errors),
+                description = stringResource(strings.verbose_errors_desc),
                 showSwitch = true,
                 default = Settings.verbose_error,
                 sideEffect = {
@@ -137,7 +137,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
             )
 
             SettingsToggle(
-                label = "Debugger",
+                label = stringResource(strings.debugger),
                 description = "Beanshell",
                 showSwitch = false,
                 default = false,
@@ -145,7 +145,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     if (BuildConfig.DEBUG) {
                         navController.navigate(SettingsRoutes.BeanshellREPL.route)
                     } else {
-                        toast("Debugger is not allowed on release builds")
+                        toast(strings.debugger_not_allowed)
                     }
                 }
             )
@@ -158,7 +158,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 default = false,
                 sideEffect = {
                     context.startService(Intent(context, LogcatService::class.java))
-                    toast("capturing logcat")
+                    toast(strings.capturing_logcat)
                 }
             )
 
@@ -168,11 +168,11 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                     onDismiss = { showDialog = false },
                     onConfirm = { port, extension ->
                        if (textmateSources[extension] == null){
-                           toast("Unsupported file extension")
+                           toast(strings.unsupported_file_ext)
                            return@PortAndExtensionDialog
                        }
                         if (port.toIntOrNull() == null){
-                            toast("Invalid port")
+                            toast(strings.invalid_port)
                             return@PortAndExtensionDialog
                         }
 
@@ -185,7 +185,7 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
 
             SettingsToggle(
                 label = "LSP",
-                description = "Connect to external lsp server",
+                description = stringResource(strings.lsp_desc),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -209,13 +209,13 @@ fun PortAndExtensionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Enter Port & Extension") },
+        title = { Text(stringResource(strings.lsp_header)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = port,
                     onValueChange = { port = it },
-                    label = { Text("Port number") },
+                    label = { Text(stringResource(strings.port_number)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -223,7 +223,7 @@ fun PortAndExtensionDialog(
                 OutlinedTextField(
                     value = extension,
                     onValueChange = { extension = it },
-                    label = { Text("File extension (e.g. py)") },
+                    label = { Text(stringResource(strings.file_ext_example)) },
                     singleLine = true
                 )
             }
@@ -233,12 +233,12 @@ fun PortAndExtensionDialog(
                 onConfirm(port, extension)
                 onDismiss()
             }) {
-                Text("OK")
+                Text(stringResource(strings.ok))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(strings.cancel))
             }
         }
     )

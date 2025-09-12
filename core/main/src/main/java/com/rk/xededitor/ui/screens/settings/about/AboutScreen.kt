@@ -60,7 +60,7 @@ fun AboutScreen() {
         PreferenceGroup(heading = "Developer") {
             SettingsToggle(
                 label = "RohitKushvaha01",
-                description = "View github profile",
+                description = stringResource(strings.view_github_profile),
                 default = false,
                 sideEffect = {
                     val url = "https://github.com/RohitKushvaha01"

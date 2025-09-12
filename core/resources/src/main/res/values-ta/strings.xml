@@ -12,7 +12,7 @@
     <string name="replaceall">Followeall</string>
     <string name="apply">இடு</string>
     <string name="userdata">பயனர் தரவு</string>
-    <string name="inavalid_userdata">பயனர் தரவு செல்லுபடியாகாது. அமைப்புகளில் மாற்றவும்</string>
+    <string name="invalid_userdata">பயனர் தரவு செல்லுபடியாகாது. அமைப்புகளில் மாற்றவும்</string>
     <string name="userdatagit">GIT க்கான பயனர் தரவு</string>
     <string name="yes">ஆம்</string>
     <string name="show_line_number">வரி எண்களைக் காட்டு</string>
@@ -31,12 +31,12 @@
     <string name="restore">மீட்டமை</string>
     <string name="success">செய்</string>
     <string name="failed">தோல்வியுற்றது</string>
-    <string name="searck_keyword">முக்கிய சொல்லைத் தேடுங்கள்</string>
+    <string name="search_keyword">முக்கிய சொல்லைத் தேடுங்கள்</string>
     <string name="open_drawer">திற</string>
     <string name="close_drawer">மூடு</string>
     <string name="ni">இந்த நற்பொருத்தம் செயல்படுத்தப்படவில்லை</string>
-    <string name="unsupported_contnt">ஆதரிக்கப்படாத உள்ளடக்கம்</string>
-    <string name="null_contnt">பிழை: உள்ளடக்கம் பூச்யமானது</string>
+    <string name="unsupported_content">ஆதரிக்கப்படாத உள்ளடக்கம்</string>
+    <string name="null_content">பிழை: உள்ளடக்கம் பூச்யமானது</string>
     <string name="saveAll">எல்லா கோப்புகளையும் சேமித்தது</string>
     <string name="save_label">சேமி</string>
     <string name="ww_wait">சொல் மடக்கு முடிவடையும் வரை காத்திருங்கள்</string>
@@ -104,7 +104,7 @@
     <string name="download">பதிவிறக்கம்</string>
     <string name="git">அறிவிலி</string>
     <string name="cred">நற்சான்றிதழ்கள்</string>
-    <string name="inavalid_git_cred">நற்சான்றிதழ்கள் செல்லுபடியாகாது. அமைப்புகளில் அவற்றை மாற்றவும்</string>
+    <string name="invalid_git_cred">நற்சான்றிதழ்கள் செல்லுபடியாகாது. அமைப்புகளில் அவற்றை மாற்றவும்</string>
     <string name="gitcred">Git க்கான நற்சான்றிதழ்கள்</string>
     <string name="repo_dir">களஞ்சிய கோப்புறை</string>
     <string name="clone_dir">குளோனிங் களஞ்சியங்களுக்கான கோப்புறை</string>
@@ -118,7 +118,7 @@
     <string name="open_dir_in_terminal">முனையத்தில் திறந்த அடைவு</string>
     <string name="file_open_denied">இந்த கோப்பை மற்ற பயன்பாடுகளுடன் திறக்க அனுமதிக்கப்படாது</string>
     <string name="reload_file_tree">கோப்புகளை மீண்டும் ஏற்றவும்</string>
-    <string name="rename_descript">ஆவணத்தை மறுபெயரிடுங்கள்</string>
+    <string name="rename_desc">ஆவணத்தை மறுபெயரிடுங்கள்</string>
     <string name="open_with_other">தேர்ந்தெடுக்கப்பட்ட கோப்பை மற்ற பயன்பாடுகளில் திறக்கவும்</string>
     <string name="delete_descript">ஆவணத்தை நிரந்தரமாக நீக்கு</string>
     <string name="add_file_desc">இங்கே சேர்க்க புதிய கோப்பைத் தேர்ந்தெடுக்கவும்</string>
@@ -191,7 +191,7 @@
     <string name="auto_save">தானியங்கு சேமிப்பு</string>
     <string name="auto_save_desc">கோப்பை தானாக சேமிக்கவும்</string>
     <string name="intervalinMs">மில்லி விநாடிகளில் இடைவெளி</string>
-    <string name="inavalid_v">தவறான மதிப்பு</string>
+    <string name="invalid_v">தவறான மதிப்பு</string>
     <string name="v_small">மதிப்பு மிகவும் சிறியது</string>
     <string name="v_large">மதிப்பு மிகப் பெரியது</string>
     <string name="text_size">உரை அளவு</string>

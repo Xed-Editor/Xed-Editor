@@ -141,7 +141,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = Icons.Outlined.Edit,
                     title = stringResource(strings.rename),
-                    //description = stringResource(strings.rename_descript),
+                    //description = stringResource(strings.rename_desc),
                     onClick = {
                         showXedDialog = false
                         showRenameDialog = true
@@ -152,7 +152,7 @@ fun FileActionDialog(
                 AddDialogItem(
                     icon = Icons.Outlined.Delete,
                     title = stringResource(strings.delete),
-                    //description = stringResource(strings.delete_descript),
+                    //description = stringResource(strings.delete_desc),
                     onClick = {
                         showXedDialog = false
                         showDeleteDialog = true

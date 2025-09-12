@@ -3,8 +3,8 @@
     <string name="open_drawer">開啟</string>
     <string name="close_drawer">關閉</string>
     <string name="ni">此功能尚未實現</string>
-    <string name="unsupported_contnt">不支援的內容</string>
-    <string name="null_contnt">錯誤：內容為空</string>
+    <string name="unsupported_content">不支援的內容</string>
+    <string name="null_content">錯誤：內容為空</string>
     <string name="restart_required">需要重新啟動</string>
     <string name="save">檔案已儲存</string>
     <string name="saveAll">已儲存所有檔案</string>
@@ -17,7 +17,7 @@
     <string name="newFile_hint">名稱，例如： 測試.txt</string>
     <string name="mime">MIME 類型，例如： text/plain</string>
     <string name="rep">取代</string>
-    <string name="searck_keyword">搜尋關鍵字</string>
+    <string name="search_keyword">搜尋關鍵字</string>
     <string name="cs">區分大小寫</string>
     <string name="wait">請稍候…</string>
     <string name="report_issue">回報問題</string>
@@ -83,7 +83,7 @@
     <string name="download">下載</string>
     <string name="git">Git</string>
     <string name="cred">憑證</string>
-    <string name="inavalid_git_cred">此認證無效。請在設定中變更</string>
+    <string name="invalid_git_cred">此認證無效。請在設定中變更</string>
     <string name="gitcred">Git 憑證</string>
     <string name="repo_dir">儲存庫資料夾</string>
     <string name="clone_dir">用於複製儲存庫的資料夾</string>
@@ -94,14 +94,14 @@
     <string name="gituserexample">例如：UserDev:example@email.com</string>
     <string name="apply">套用</string>
     <string name="userdata">使用者資料</string>
-    <string name="inavalid_userdata">使用者資料無效。請在設定中變更</string>
+    <string name="invalid_userdata">使用者資料無效。請在設定中變更</string>
     <string name="userdatagit">Git 使用者資料</string>
     <string name="open_in_terminal">在終端機開啟</string>
     <string name="open_dir_in_terminal">在終端機開啟資料夾</string>
     <string name="file_open_denied">無法使用其他應用程式開啟此檔案</string>
     <string name="reload_file_tree">重新載入檔案</string>
     <string name="close_current_project">關閉目前的專案</string>
-    <string name="rename_descript">重新命名文件</string>
+    <string name="rename_desc">重新命名文件</string>
     <string name="open_with_other">在其他應用程式中開啟所選檔案</string>
     <string name="delete_descript">永久刪除選中的檔案/資料夾</string>
     <string name="add_file_desc">選取要在此新增的新檔案</string>
@@ -179,7 +179,7 @@
     <string name="auto_save_time">自動儲存時間</string>
     <string name="auto_save_time_desc">在指定時間後自動儲存檔案</string>
     <string name="intervalinMs">間隔（毫秒）</string>
-    <string name="inavalid_v">無效值</string>
+    <string name="invalid_v">無效值</string>
     <string name="v_small">數值太小</string>
     <string name="v_large">數值太大</string>
     <string name="text_size">文字大小</string>

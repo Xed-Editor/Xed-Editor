@@ -11,8 +11,8 @@
     <string name="app_desc">Ajustes generales de la aplicación</string>
     <string name="sim_hard_links">Simular enlaces duros</string>
     <string name="close_drawer">cerrar</string>
-    <string name="unsupported_contnt">Contenido no soportado</string>
-    <string name="null_contnt">Error: el contenido es nulo</string>
+    <string name="unsupported_content">Contenido no soportado</string>
+    <string name="null_content">Error: el contenido es nulo</string>
     <string name="restart_required">Se requiere un reinicio</string>
     <string name="save">Archivo guardado</string>
     <string name="saveAll">Se guardaron todos los archivos</string>
@@ -22,7 +22,7 @@
     <string name="newFile_hint">Nombre (por ejemplo: juanito.txt)</string>
     <string name="mime">Tipo MIME (por ejemplo: text/plain)</string>
     <string name="rep">Reemplazar</string>
-    <string name="searck_keyword">Buscar palabra clave</string>
+    <string name="search_keyword">Buscar palabra clave</string>
     <string name="wait">Por favor espera…</string>
     <string name="report_issue">Reportar un problema</string>
     <string name="copy">Copiar</string>
@@ -88,7 +88,7 @@
     <string name="download">Descargar</string>
     <string name="git">Git</string>
     <string name="cred">Credenciales</string>
-    <string name="inavalid_git_cred">Las credenciales proporcionadas no son válidas y deben ser cambiadas</string>
+    <string name="invalid_git_cred">Las credenciales proporcionadas no son válidas y deben ser cambiadas</string>
     <string name="gitcred">Credenciales git</string>
     <string name="repo_dir">Carpeta del repositorio</string>
     <string name="clone_dir">Carpeta para clonar repositorios</string>
@@ -97,12 +97,12 @@
     <string name="gitKeyExample">ej. SuperKek:ghp_…</string>
     <string name="gituserexample">ej. UserDev:ejemplo@email.com</string>
     <string name="userdata">Datos de usuario</string>
-    <string name="inavalid_userdata">Los datos del usuario no son válidos y deben cambiarse</string>
+    <string name="invalid_userdata">Los datos del usuario no son válidos y deben cambiarse</string>
     <string name="open_in_terminal">Abrir en un terminal</string>
     <string name="open_dir_in_terminal">Abrir carpeta en un terminal</string>
     <string name="file_open_denied">Abrir este archivo con otras aplicaciones no está permitido</string>
     <string name="close_current_project">Cerrar proyecto actual</string>
-    <string name="rename_descript">Cambiar nombre del documento</string>
+    <string name="rename_desc">Cambiar nombre del documento</string>
     <string name="open_with_other">Abrir el archivo seleccionado en otra aplicación</string>
     <string name="delete_descript">Eliminar documento</string>
     <string name="add_file_desc">Seleccionar un nuevo archivo para añadir</string>
@@ -168,7 +168,7 @@
     <string name="auto_save_desc">Guardar el archivo automáticamente</string>
     <string name="auto_save_time">Periodo de guardado automático</string>
     <string name="intervalinMs">Intervalo en milisegundos</string>
-    <string name="inavalid_v">Valor inválido</string>
+    <string name="invalid_v">Valor inválido</string>
     <string name="v_large">Valor demasiado alto</string>
     <string name="v_small">Valor demasiado bajo</string>
     <string name="text_size">Tamaño del texto</string>

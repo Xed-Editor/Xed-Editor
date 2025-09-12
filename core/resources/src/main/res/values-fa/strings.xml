@@ -3,8 +3,8 @@
     <string name="open_drawer">باز کردن</string>
     <string name="close_drawer">بستن</string>
     <string name="ni">این قابلیت پیاده سازی نشده است</string>
-    <string name="unsupported_contnt">محتوای پشتیبانی نشده</string>
-    <string name="null_contnt">خطا: محتوا تهی است</string>
+    <string name="unsupported_content">محتوای پشتیبانی نشده</string>
+    <string name="null_content">خطا: محتوا تهی است</string>
     <string name="restart_required">نیاز به ری استارت</string>
     <string name="save">فایل ذخیره شد</string>
     <string name="saveAll">همه فایل ها ذخیره شدند</string>
@@ -17,7 +17,7 @@
     <string name="newFile_hint">اسم؛ برای مثال Test.txt</string>
     <string name="mime">نوع رسانه؛ برای مثال text/plain</string>
     <string name="rep">جایگزین</string>
-    <string name="searck_keyword">جستجوی کلمه</string>
+    <string name="search_keyword">جستجوی کلمه</string>
     <string name="cs">حساس به حروف بزرگ و کوچک</string>
     <string name="wait">لطفا صبر کنید…</string>
     <string name="report_issue">گزارش مشکل</string>

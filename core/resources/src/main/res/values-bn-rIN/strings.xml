@@ -4,7 +4,7 @@
     <string name="restart_required">পুনরারম্ভ করা প্রয়োজনীয়</string>
     <string name="save">নথিপত্র সংরক্ষণ করা হয়েছে</string>
     <string name="ni">এই সুবিধাটি উপলব্ধ নয়</string>
-    <string name="unsupported_contnt">অসমর্থিত দ্রব্য</string>
+    <string name="unsupported_content">অসমর্থিত দ্রব্য</string>
     <string name="close_drawer">নিকটবর্তি</string>
     <string name="title_activity_batch_replacement">শ্রেণীবদ্ধ প্রতিস্থাপন</string>
     <string name="save_label">সংরক্ষণ</string>
@@ -14,7 +14,7 @@
     <string name="new_file">নতুন ফাইল</string>
     <string name="newFile_hint">নাম যেমন Test.txt</string>
     <string name="mime">MimeType যেমন text/plain</string>
-    <string name="searck_keyword">Keyword খুঁজুন</string>
+    <string name="search_keyword">Keyword খুঁজুন</string>
     <string name="cs">Case সংবেদনশীল</string>
     <string name="wait">অপেক্ষা করুন…</string>
     <string name="copy">প্রতিলিপি</string>
@@ -49,7 +49,7 @@
     <string name="saveAll">সমস্ত নথিপত্র সংরক্ষণ করা হয়েছে</string>
     <string name="ww_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
     <string name="rep">প্রতিস্থাপন</string>
-    <string name="null_contnt">ত্রুটি: শূন্য বিষয়বস্তুসমূহ</string>
+    <string name="null_content">ত্রুটি: শূন্য বিষয়বস্তুসমূহ</string>
     <string name="print">মুদ্রণ</string>
     <string name="report_issue">সমস্যার বিবরণ দিন</string>
     <string name="close_search">খোঁজা বন্ধ করুন</string>
@@ -88,6 +88,6 @@
     <string name="plugin_icon">প্লাগইনের আইকন</string>
     <string name="download">ডাউনলোড করুন</string>
     <string name="git">গিট্</string>
-    <string name="inavalid_git_cred">শংসাপত্রগুলি বৈধ নয়৷ সেটিংসে এগুলি পরিবর্তন করুন</string>
+    <string name="invalid_git_cred">শংসাপত্রগুলি বৈধ নয়৷ সেটিংসে এগুলি পরিবর্তন করুন</string>
     <string name="gitcred">গিটে্র জন্য শংসাপত্র</string>
 </resources>

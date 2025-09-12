@@ -4,8 +4,8 @@
     <string name="close_drawer">إغلاق</string>
     <string name="title_activity_batch_replacement">استبدال الدفعة</string>
     <string name="ni">هذه الميزة غير منجزة</string>
-    <string name="unsupported_contnt">محتوى غير مدعوم</string>
-    <string name="null_contnt">خطأ: المحتوى فارغ</string>
+    <string name="unsupported_content">محتوى غير مدعوم</string>
+    <string name="null_content">خطأ: المحتوى فارغ</string>
     <string name="restart_required"> إعادة التشغيل مطلوبة</string>
     <string name="save">تم حفظ الملف</string>
     <string name="saveAll">تم حفظ جميع الملفات</string>
@@ -18,7 +18,7 @@
     <string name="newFile_hint">الاسم مثلا text.txt</string>
     <string name="mime">MimeType eg. text/plain</string>
     <string name="rep">استبدال</string>
-    <string name="searck_keyword">البحث عن كلمة</string>
+    <string name="search_keyword">البحث عن كلمة</string>
     <string name="cs">حساسية الموضوع</string>
     <string name="wait">انتظر من فضلك…</string>
     <string name="report_issue">الإبلاغ عن مشكلة</string>
@@ -89,7 +89,7 @@
     <string name="download">تحميل</string>
     <string name="git">جيت</string>
     <string name="cred">أوراق اعتماد</string>
-    <string name="inavalid_git_cred">بيانات الاعتماد غير صالحة. يرجى تغييرها في الإعدادات</string>
+    <string name="invalid_git_cred">بيانات الاعتماد غير صالحة. يرجى تغييرها في الإعدادات</string>
     <string name="gitcred">بيانات الاعتماد لجيت</string>
     <string name="repo_dir">مجلد المستودع</string>
     <string name="clone_dir">مجلد للمستودعات المستنسخة</string>
@@ -100,14 +100,14 @@
     <string name="gituserexample">على سبيل المثال، UserDev:example@e-pos.com</string>
     <string name="apply">تطبيق</string>
     <string name="userdata">بيانات المستخدم</string>
-    <string name="inavalid_userdata">بيانات المستخدم غير صالحة.يرجى تغييره في الإعدادات</string>
+    <string name="invalid_userdata">بيانات المستخدم غير صالحة.يرجى تغييره في الإعدادات</string>
     <string name="userdatagit">بيانات المستخدم لـ git</string>
     <string name="open_in_terminal">فتح في موجه الأوامر</string>
     <string name="open_dir_in_terminal">افتح المجلد في موجه الأوامر</string>
     <string name="file_open_denied">لا يجوز فتح هذا الملف مع برامج أخرى</string>
     <string name="reload_file_tree">إعادة تحميل الملف</string>
     <string name="close_current_project">إغلاق المشروع الحالي</string>
-    <string name="rename_descript">إعادة تسمية المستند</string>
+    <string name="rename_desc">إعادة تسمية المستند</string>
     <string name="open_with_other">فتح الملف المحدد في التطبيقات الأخرى</string>
     <string name="delete_descript">حذف المستند</string>
     <string name="add_file_desc">حدد ملفًا جديدًا لإضافته هنا</string>
@@ -190,7 +190,7 @@
     <string name="auto_save_time">حفظ الملف تلقائيا بعد وقت معين</string>
     <string name="auto_save_time_desc">حفظ الملف تلقائيا بعد الوقت المحدد</string>
     <string name="intervalinMs">الفاصل الزمني بالمللي ثانية</string>
-    <string name="inavalid_v">القيمة غير صالحة</string>
+    <string name="invalid_v">القيمة غير صالحة</string>
     <string name="v_small">القيمة صغيرة جدًا</string>
     <string name="v_large">القيمة كبيرة جدًا</string>
     <string name="text_size">حجم النص</string>

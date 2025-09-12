@@ -5,8 +5,8 @@
     <string name="restart_required">Redémarrage requis</string>
     <string name="close_drawer">fermer</string>
     <string name="ni">Cette fonctionnalité n\'est pas implémentée</string>
-    <string name="unsupported_contnt">Contenu non supporté</string>
-    <string name="null_contnt">Erreur : le contenu est null</string>
+    <string name="unsupported_content">Contenu non supporté</string>
+    <string name="null_content">Erreur : le contenu est null</string>
     <string name="save">Fichier enregistré</string>
     <string name="saveAll">tous les fichiers ont été enregistrés</string>
     <string name="save_label">Enregistrer</string>
@@ -22,7 +22,7 @@
     <string name="save_all">Enregistrer tout</string>
     <string name="open_directory">Ouvrir un dossier</string>
     <string name="new_file">Nouveau fichier</string>
-    <string name="searck_keyword">Chercher mot-clé</string>
+    <string name="search_keyword">Chercher mot-clé</string>
     <string name="cs">Sensible à la casse</string>
     <string name="print">Imprimer</string>
     <string name="search">Chercher</string>
@@ -73,7 +73,7 @@
     <string name="download">Télécharger</string>
     <string name="git">Git</string>
     <string name="cred">Identifiants</string>
-    <string name="inavalid_git_cred">Identifiants invalides. Modifiez-les dans les paramètres</string>
+    <string name="invalid_git_cred">Identifiants invalides. Modifiez-les dans les paramètres</string>
     <string name="gitcred">Identifiants pour git</string>
     <string name="repo_dir">Dossier du dépôt</string>
     <string name="clone_dir">Dossier pour cloner les dépôts</string>
@@ -84,14 +84,14 @@
     <string name="gituserexample">par ex. UserDev:example@email.com</string>
     <string name="apply">Appliquer</string>
     <string name="userdata">Données utilisateur</string>
-    <string name="inavalid_userdata">Les données utilisateurs invalides. Modifiez-les dans les paramètres</string>
+    <string name="invalid_userdata">Les données utilisateurs invalides. Modifiez-les dans les paramètres</string>
     <string name="userdatagit">Données utilisateur pour git</string>
     <string name="open_in_terminal">Ouvrir dans le terminal</string>
     <string name="open_dir_in_terminal">Ouvrir le dossier dans le terminal</string>
     <string name="file_open_denied">Ouvrir ce fichier avec d’autres apps n’est pas autorisé</string>
     <string name="reload_file_tree">Recharger fichiers</string>
     <string name="close_current_project">Fermer le projet courant</string>
-    <string name="rename_descript">Renommer le document</string>
+    <string name="rename_desc">Renommer le document</string>
     <string name="open_with_other">Ouvrir le fichier sélectionné dans d’autres apps</string>
     <string name="delete_descript">Supprimer le document définitivement</string>
     <string name="add_file_desc">Sélectionner un nouveau fichier à ajouter</string>
@@ -276,7 +276,7 @@
     <string name="show_virtual_keyboard">Montrer le clavier virtuel</string>
     <string name="download_sure">Voulez-vous vraiment télécharger</string>
     <string name="auto_save_time_desc">Enregistrement auto. après l’intervalle donné</string>
-    <string name="inavalid_v">Valeur invalide</string>
+    <string name="invalid_v">Valeur invalide</string>
     <string name="app_desc">Paramètres généraux de l’application</string>
     <string name="failsafe_desc">Utiilser le shell android au lieu de termux</string>
     <string name="show_suggestions">Montrer les suggestions clavier</string>

@@ -69,7 +69,7 @@ class LogcatService : Service(),
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_DONE" -> {
-                toast("File saved in ${strings.terminal_home.getString()} as logcat.txt")
+                toast(String.format(strings.logcat_saved.getString(), strings.terminal_home.getString()))
                 stopSelf()
             }
         }
@@ -96,7 +96,7 @@ class LogcatService : Service(),
             .addAction(
                 NotificationCompat.Action.Builder(
                     null,
-                    "DONE",
+                    strings.stop_logcat.getString(),
                     exitPendingIntent
                 ).build()
             )
@@ -104,7 +104,7 @@ class LogcatService : Service(),
             .build()
     }
 
-    private val CHANNEL_ID = "logact_service_channel"
+    private val CHANNEL_ID = "logcat_service_channel"
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
@@ -112,7 +112,7 @@ class LogcatService : Service(),
             strings.logcat_service.getString(),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
-            description = "Notification for Logact Service"
+            description = "Notification for Logcat Service"
         }
         notificationManager.createNotificationChannel(channel)
     }
