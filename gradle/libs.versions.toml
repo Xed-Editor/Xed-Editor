@@ -64,6 +64,10 @@ runtimeAndroid = "1.7.8"
 tsBinding = "4.3.1"
 lsp4j = "0.24.0"
 androidxAnnotation = "1.9.1"
+uiautomator = "2.3.0"
+benchmarkMacroJunit4 = "1.4.1"
+baselineprofile = "1.4.1"
+profileinstaller = "1.4.1"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
@@ -176,6 +180,9 @@ regex-re2j = { module = "io.github.dingyi222666.regex-lib:regex-lib-re2j", versi
 
 tests-google-truth = { module = "com.google.truth:truth", version = "1.4.4" }
 tests-robolectric = { module = "org.robolectric:robolectric", version = "4.15.1" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
+androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 
 
 
@@ -189,4 +196,6 @@ kotlinParcelize = { id = "org.jetbrains.kotlin.plugin.parcelize",  version.ref =
 
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 publish = { id = "com.vanniktech.maven.publish.base", version = "0.34.0" }
+android-test = { id = "com.android.test", version.ref = "agp" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 

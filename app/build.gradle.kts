@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.baselineprofile)
 }
 
 
@@ -207,6 +208,7 @@ tasks.register("downloadPrebuilt") {
 }
 
 tasks.register("removeProotLoaders"){
+    return@register
     fun rm(path:String){
         val file = File(projectDir,path)
 
@@ -226,6 +228,7 @@ tasks.register("removeProotLoaders"){
 }
 
 afterEvaluate {
+    return@afterEvaluate
     android.applicationVariants.all { variant ->
         if (variant.flavorName == "PlayStore") {
             variant.javaCompileProvider.dependsOn("downloadPrebuilt")
@@ -240,6 +243,8 @@ afterEvaluate {
 
 
 dependencies {
+    implementation(libs.androidx.profileinstaller)
+    "baselineProfile"(project(":baselineprofile"))
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":core:main"))
 }
