@@ -40,7 +40,7 @@
     <string name="ask_enter_name">请输入一个名称</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你确定要永久删除吗</string>
+    <string name="ask_del">你确定要永久删除 %s 吗？</string>
     <string name="redir">请重新选择目录</string>
     <string name="canthandle">未找到能处理此文件的应用</string>
     <string name="clipboardempty">剪贴板为空</string>
@@ -457,4 +457,15 @@
     <string name="seccomp_desc">修复在部分设备上的方法未实现的错误</string>
     <string name="non_native_filetype">此目录不支持运行代码。请将你的文件移动到终端主目录后再运行。</string>
     <string name="sdcard_filetype">不推荐在此目录运行代码。建议将文件移动到终端主目录。</string>
+    <string name="delete_desc">永久删除文件</string>
+    <string name="rename_file">重命名文件</string>
+    <string name="new_name">新名称</string>
+    <string name="file_type">文件类型</string>
+    <string name="type">类型</string>
+    <string name="name">名称</string>
+    <string name="view_github_profile">查看 GitHub 个人资料</string>
+    <string name="debug_options">调试选项</string>
+    <string name="debug_options_desc">%s 的调试选项</string>
+    <string name="force_crash">强制崩溃</string>
+    <string name="force_crash_desc">抛出一个 Runtime Exception 错误</string>
 </resources>
