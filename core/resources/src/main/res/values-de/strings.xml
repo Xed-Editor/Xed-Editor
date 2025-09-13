@@ -173,7 +173,7 @@
     <string name="open_cant">Kann nicht mehr öffnen als</string>
     <string name="download_sure">Möchtest du wirklich herunterladen</string>
     <string name="oled_desc">Verwende ein rein schwarzes Farbthema für AMOLED-Geräte</string>
-    <string name="open_dir_desc">Öffne ein Verzeichnis mit SAF</string>
+    <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
     <string name="diagonal_scroll">Diagonales Scrollen</string>
     <string name="diagonal_scroll_desc">Diagonales Scrollen im Dateibaum aktivieren</string>
@@ -360,7 +360,7 @@
     <string name="theme_mode_desc">App Farbthema verändern</string>
     <string name="show_suggestions">Tastaturvorchläge anzeigen</string>
     <string name="txt_ww">TXT-Dateien umbrechen</string>
-    <string name="txt_ww_desc">Textdateien automatisch umbrechen</string>
+    <string name="txt_ww_desc">TXT-Dateien automatisch umbrechen</string>
     <string name="ask_unsaved">Bist du sicher, dass du dieses ungespeicherte Dokument verwerfen möchtest?</string>
     <string name="encoding_warning">Es wird dringend davon abgeraten, die Standardkodierung zu ändern, da dies zu Dateibeschädigungen führen kann. Es wird dringend empfohlen, UTF-8 zu verwenden, es sei denn, du bist dich der Auswirkungen vollständig bewusst und hast entsprechende Sicherungskopien erstellt.</string>
     <string name="info_mutators">Mutatoren sind kleine Skripte, die verwendet werden, um den Text im Editor zu verändern. Erstelle einen Mutator und klicke auf ihn, um ihn im Editor zu öffnen.</string>
