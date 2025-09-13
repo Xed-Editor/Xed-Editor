@@ -137,7 +137,7 @@
     <string name="yes">Yes</string>
     <string name="fetch_failed">fetch request returned null</string>
     <string name="app">Application</string>
-    <string name="oled_desc">Use a pure black theme for AMOLED devices</string>
+    <string name="oled_desc">Black Theme (#000)</string>
     <string name="themes">Themes</string>
     <string name="change_theme">Change Theme</string>
     <string name="editor">Editor</string>
@@ -386,7 +386,7 @@
     <string name="file_type">FileType</string>
     <string name="type">Type</string>
     <string name="name">Name</string>
-    <string name="view_github_profile">View github profile</string>
+    <string name="view_github_profile">View Github profile</string>
     <string name="debug_options">Debug Options</string>
     <string name="debug_options_desc">Debugging options for %s</string>
     <string name="force_crash">Force Crash</string>

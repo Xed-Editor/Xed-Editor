@@ -7,6 +7,12 @@
       "languageConfiguration": "textmate/dart/Dart.config.json"
     },
     {
+      "grammar": "textmate/pascal/Pascal.tmLanguage.json",
+      "name": "Pascal",
+      "scopeName": "source.pascal",
+      "languageConfiguration": "textmate/pascal/pascal.config.json"
+    },
+    {
       "grammar": "textmate/toml/toml.tmLanguage.json",
       "name": "toml",
       "scopeName": "source.toml",

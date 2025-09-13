@@ -57,7 +57,9 @@ val textmateSources = mapOf(
     "toml" to "source.toml",
     "dart" to "source.dart",
     "lisp" to "source.lisp",
-    "sql" to "source.sql"
+    "sql" to "source.sql",
+    "p" to "source.pascal",
+    "pas" to "source.pascal"
 )
 
 val lspRegistry = mapOf<String, BaseLspServer>(
