@@ -79,7 +79,7 @@
     <string name="plugin_download_failed">无法下载插件</string>
     <string name="fetch_failed">请求获取的数据为空</string>
     <string name="app">应用程序</string>
-    <string name="oled_desc">在支持 AMOLED 的设备上启用纯黑主题</string>
+    <string name="oled_desc">纯黑主题（#000）</string>
     <string name="downloading_plugin">下载插件中</string>
     <string name="text_size_desc">设置字体大小</string>
     <string name="tab_size">标签大小</string>
@@ -160,7 +160,7 @@
     <string name="available">可用</string>
     <string name="already_installed">已完成安装</string>
     <string name="download_sure">你确定要下载吗</string>
-    <string name="yes">是的</string>
+    <string name="yes">是</string>
     <string name="change_theme">更改主题</string>
     <string name="editor">编辑器</string>
     <string name="smooth_tabs">平滑标签页</string>
@@ -421,7 +421,7 @@
     <string name="invalid_regex">无效的正则表达式</string>
     <string name="runner_name_exists">运行器名称已存在</string>
     <string name="edit_runner">编辑运行器</string>
-    <string name="info_runners">运行器是用来执行文件/项目的 Bash 脚本。创建运行器并点击即可在编辑器中打开。</string>
+    <string name="info_runners">运行器是用来执行文件或项目的 Bash 脚本。创建运行器并点击即可在编辑器中打开。</string>
     <string name="redo">重做</string>
     <string name="read_mode">只读模式</string>
     <string name="edit_mode">编辑模式</string>
@@ -472,10 +472,10 @@
     <string name="lsp_header">输入端口和扩展名</string>
     <string name="port_number">端口号</string>
     <string name="file_ext_example">文件类型（比如 .py）</string>
-    <string name="force_crash_confirm">确定要手动触发崩溃吗？这么做可能会导致应用无响应的。</string>
+    <string name="force_crash_confirm">确定要触发应用崩溃吗？可能会导致应用无响应。</string>
     <string name="memory_usage">获取已用内存</string>
-    <string name="anr_watchdog_desc">如果发现Xed‐Editor处在未响应状态并持续5秒钟，就终止其运行</string>
-    <string name="anr_watchdog">监视应用是否 ANR</string>
+    <string name="anr_watchdog_desc">如果发现 Xed‐Editor 处在未响应状态并持续 5 秒钟，就终止其运行</string>
+    <string name="anr_watchdog">ANR Watchdog</string>
     <string name="debugger_not_allowed">调试器在正式发布版本不可用</string>
     <string name="capturing_logcat">抓取 Logcat 中…</string>
     <string name="logcat_saved">logcat.txt 已保存在 %s</string>
@@ -484,10 +484,10 @@
     <string name="use_tabs">插入 Tab 字符</string>
     <string name="use_tabs_desc">使用制表符 \\t 代替空格进行缩进</string>
     <string name="invalid_port">端口号无效</string>
-    <string name="unsupported_file_ext">不支持这种类型的文件</string>
+    <string name="unsupported_file_ext">不支持的文件类型</string>
     <string name="strict_mode">严格模式</string>
-    <string name="strict_mode_desc">检测到在主线程访问磁盘或网络</string>
+    <string name="strict_mode_desc">检测主线程的磁盘或网络访问</string>
     <string name="verbose_errors">详细错误</string>
-    <string name="verbose_errors_desc">在报错对话框中显示堆栈跟踪信息</string>
+    <string name="verbose_errors_desc">在对话框中显示详细堆栈跟踪信息</string>
     <string name="debugger">调试器</string>
 </resources>
