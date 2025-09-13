@@ -176,9 +176,7 @@
     <string name="extra_keys">Extra Keys</string>
     <string name="extra_keys_desc">Show extra keys in the editor</string>
     <string name="auto_save">Auto Save</string>
-    <string name="auto_save_desc">automatically save file</string>
-    <string name="auto_save_time">Auto Save Time</string>
-    <string name="auto_save_time_desc">Automatically save file after specified time</string>
+    <string name="auto_save_desc">Automatically save file</string>
     <string name="intervalinMs">Interval in milliseconds</string>
     <string name="invalid_v">Invalid value</string>
     <string name="v_small">Value too small</string>
