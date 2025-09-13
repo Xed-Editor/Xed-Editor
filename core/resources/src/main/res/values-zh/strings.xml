@@ -297,8 +297,8 @@
     <string name="file_too_large">打开的文件过大</string>
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
-    <string name="txt_ww">自动换行 TXT 文件</string>
-    <string name="txt_ww_desc">文本文件自动换行</string>
+    <string name="txt_ww">仅对 TXT 文件自动换行</string>
+    <string name="txt_ww_desc">仅对无标签和语法的纯文本文件执行自动换行</string>
     <string name="sora_s">Sora Editor 文本搜索</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
