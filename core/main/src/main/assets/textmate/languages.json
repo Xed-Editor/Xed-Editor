@@ -19,6 +19,12 @@
       "languageConfiguration": "textmate/toml/toml.language-configuration.json"
     },
     {
+      "grammar": "textmate/zig/Zig.tmLanguage.json",
+      "name": "Zig",
+      "scopeName": "source.zig",
+      "languageConfiguration": "textmate/zig/Zig.config.json"
+    },
+    {
       "grammar": "textmate/java/syntaxes/java.tmLanguage.json",
       "name": "java",
       "scopeName": "source.java",
