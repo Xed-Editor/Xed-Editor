@@ -34,7 +34,7 @@
     <string name="mp">管理插件</string>
     <string name="ap">可用插件</string>
     <string name="nip">未安装插件</string>
-    <string name="refresh">刷新</string>
+    <string name="refresh">重载</string>
     <string name="dir_example">名称，例如：测试</string>
     <string name="create">创建</string>
     <string name="ask_enter_name">请输入一个名称</string>
@@ -468,4 +468,21 @@
     <string name="debug_options_desc">%s 的调试选项</string>
     <string name="force_crash">强制崩溃</string>
     <string name="force_crash_desc">抛出一个 Runtime Exception 错误</string>
+    <string name="lsp_desc">连接外部的LSP语言服务器</string>
+    <string name="lsp_header">需要给出语言服务器的端口和针对的文件类型</string>
+    <string name="port_number">端口号</string>
+    <string name="file_ext_example">文件类型（比如 .py）</string>
+    <string name="force_crash_confirm">确定要手动触发崩溃吗？这么做可能会导致应用无响应的。</string>
+    <string name="memory_usage">获取已用内存</string>
+    <string name="anr_watchdog_desc">如果发现Xed‐Editor处在未响应状态并持续5秒钟，就终止其运行</string>
+    <string name="anr_watchdog">监视应用是否 ANR</string>
+    <string name="debugger_not_allowed">此程序是发行版，不让用 Debugger 哦</string>
+    <string name="capturing_logcat">抓取 Logcat 中…</string>
+    <string name="logcat_saved">logcat.txt 已保存在 %s</string>
+    <string name="stop_logcat">终止 Logcat</string>
+    <string name="discord">Discord 社区</string>
+    <string name="use_tabs">插入 Tab 字符</string>
+    <string name="use_tabs_desc">行首将使用 Tab 的转义字符 \\t 而不是一堆空格</string>
+    <string name="invalid_port">不存在的端口</string>
+    <string name="unsupported_file_ext">不支持这种类型的文件</string>
 </resources>
