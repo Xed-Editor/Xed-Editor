@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">Xed-Editor</string>
     <string name="open_drawer">ड्रॉअर खोलें</string>
     <string name="close_drawer">ड्रॉअर बंद करें</string>
-    <string name="ni">यह सुविधा उपलब्ध नहीं</string>
+    <string name="not_implemented">यह सुविधा उपलब्ध नहीं</string>
     <string name="unsupported_content">असमर्थित कंटेंट</string>
     <string name="null_content">त्रुटि: कंटेंट खाली है</string>
     <string name="restart_required">रिस्टार्ट जरूरी</string>
@@ -12,7 +12,6 @@
     <string name="save_label">सेव करें</string>
     <string name="ww_wait">वर्ड रैप पूरा होने तक प्रतीक्षा करें</string>
     <string name="open_file_or_folder">फ़ाइल या फ़ोल्डर खोलें</string>
-    <string name="open_file">फ़ाइल खोलें</string>
     <string name="open_directory">डायरेक्टरी खोलें</string>
     <string name="new_file">नई फ़ाइल</string>
     <string name="newFile_hint">नाम जैसे Test.txt</string>
@@ -35,7 +34,7 @@
     <string name="replace">रिप्लेस करें</string>
     <string name="share">शेयर करें</string>
     <string name="reselect">फिर से चुनें</string>
-    <string name="openfile">फ़ाइल खोलें</string>
+    <string name="open_file">फ़ाइल खोलें</string>
     <string name="new_folder">नया फ़ोल्डर</string>
     <string name="new_file_1">नई फ़ाइल</string>
     <string name="rename">नाम बदलें</string>
@@ -46,18 +45,18 @@
     <string name="close_this">यह बंद करें</string>
     <string name="close_others">बाकी बंद करें</string>
     <string name="close_all">सब बंद करें</string>
-    <string name="insertdate">तारीख डालें</string>
+    <string name="insert_date">तारीख डालें</string>
     <string name="close">बंद करें</string>
     <string name="unsaved">अनसेव्ड फ़ाइलें</string>
-    <string name="unsavedfiles">आपकी कुछ फ़ाइलें सेव नहीं हुईं!</string>
+    <string name="unsaved_files">आपकी कुछ फ़ाइलें सेव नहीं हुईं!</string>
     <string name="cancel">कैंसिल</string>
-    <string name="saveexit">सेव करके बाहर निकलें</string>
+    <string name="save_exit">सेव करके बाहर निकलें</string>
     <string name="exit">बाहर निकलें</string>
     <string name="rr">रिस्टार्ट जरूरी</string>
-    <string name="rapply">सेटिंग्स लागू करने के लिए रिस्टार्ट करें</string>
+    <string name="restart_to_apply">सेटिंग्स लागू करने के लिए रिस्टार्ट करें</string>
     <string name="oled">ब्लैक थीम</string>
     <string name="ww">वर्ड रैप</string>
-    <string name="keepdl">ड्रॉअर लॉक रखें</string>
+    <string name="keep_drawer_locked">ड्रॉअर लॉक रखें</string>
     <string name="restart">रिस्टार्ट करें</string>
     <string name="refresh">रीलोड करें</string>
     <string name="dir_example">नाम जैसे Test</string>
@@ -66,13 +65,13 @@
     <string name="already_exists">इस नाम से पहले से मौजूद है</string>
     <string name="attention">ध्यान दें</string>
     <string name="ask_del">क्या आप स्थायी रूप से डिलीट करना चाहते हैं?</string>
-    <string name="redir">कृपया डायरेक्टरी फिर से चुनें</string>
-    <string name="canthandle">इस फ़ाइल को खोलने वाला ऐप नहीं मिला</string>
+    <string name="reselect_dir">कृपया डायरेक्टरी फिर से चुनें</string>
+    <string name="cant_handle">इस फ़ाइल को खोलने वाला ऐप नहीं मिला</string>
     <string name="clipboardempty">क्लिपबोर्ड खाली है</string>
     <string name="terminal">टर्मिनल</string>
     <string name="add_file">बाहरी फ़ाइल जोड़ें</string>
     <string name="keyword_regex">कीवर्ड (रेजेक्स)</string>
-    <string name="replaceall">सभी रिप्लेस करें</string>
+    <string name="replace_all">सभी रिप्लेस करें</string>
     <string name="add_new_replacement_batch">नया रिप्लेसमेंट बैच जोड़ें</string>
     <string name="remove_a_search_batch">खोज बैच हटाएँ</string>
     <string name="replacement">रिप्लेसमेंट</string>
@@ -179,7 +178,7 @@
     <string name="auto_save_desc">फ़ाइल को स्वचालित रूप से सेव करें</string>
     <string name="auto_save_time">ऑटो सेव समय</string>
     <string name="auto_save_time_desc">निर्दिष्ट समय के बाद फ़ाइल स्वचालित रूप से सेव करें</string>
-    <string name="intervalinMs">मिलीसेकंड में अंतराल</string>
+    <string name="interval_in_ms">मिलीसेकंड में अंतराल</string>
     <string name="invalid_v">अमान्य मान</string>
     <string name="v_small">मान बहुत छोटा</string>
     <string name="v_large">मान बहुत बड़ा</string>
@@ -378,7 +377,7 @@
     <string name="file_size">फ़ाइल साइज़</string>
     <string name="can_read">पढ़ सकते हैं</string>
     <string name="can_write">लिख सकते हैं</string>
-    <string name="isfile">फ़ाइल है</string>
+    <string name="is_file">फ़ाइल है</string>
     <string name="copied">कॉपी किया गया</string>
     <string name="flavor">फ्लेवर</string>
     <string name="cant_undo">इस एक्शन को अंडू नहीं किया जा सकता</string>

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_file">Mở tệp</string>
     <string name="open_drawer">mở</string>
-    <string name="ni">Tính năng này chưa được triển khai</string>
+    <string name="not_implemented">Tính năng này chưa được triển khai</string>
     <string name="unsupported_content">Nội dung không được hỗ trợ</string>
     <string name="save">Đã lưu tệp</string>
     <string name="saveAll">đã lưu tất cả các tệp</string>
@@ -30,7 +29,7 @@
     <string name="replace">Thay thế</string>
     <string name="share">Chia sẻ</string>
     <string name="reselect">Chọn lại</string>
-    <string name="openfile">Mở tệp</string>
+    <string name="open_file">Mở tệp</string>
     <string name="new_folder">Thư mục mới</string>
     <string name="new_file_1">Tệp mới</string>
     <string name="rename">Đổi tên</string>
@@ -41,11 +40,11 @@
     <string name="close_this">Đóng</string>
     <string name="close_others">Đóng các tệp khác</string>
     <string name="close_all">Đóng tất cả</string>
-    <string name="insertdate">Chèn ngày</string>
+    <string name="insert_date">Chèn ngày</string>
     <string name="unsaved">Tệp chưa được lưu</string>
-    <string name="unsavedfiles">Có tệp chưa được lưu!</string>
+    <string name="unsaved_files">Có tệp chưa được lưu!</string>
     <string name="cancel">Hủy</string>
-    <string name="saveexit">Lưu và thoát</string>
+    <string name="save_exit">Lưu và thoát</string>
     <string name="exit">Thoát</string>
     <string name="rr">Yêu cầu khởi động lại</string>
     <string name="oled">Chủ đề Tối</string>
@@ -59,12 +58,12 @@
     <string name="ask_enter_name">Vui lòng nhập tên</string>
     <string name="already_exists">Có tập tin/thư mục trùng tên</string>
     <string name="ask_del">Bạn có chắc chắn muốn xóa</string>
-    <string name="redir">Vui lòng chọn lại thư mục</string>
-    <string name="canthandle">Không tìm thấy ứng dụng phù hợp để mở tệp</string>
+    <string name="reselect_dir">Vui lòng chọn lại thư mục</string>
+    <string name="cant_handle">Không tìm thấy ứng dụng phù hợp để mở tệp</string>
     <string name="clipboardempty">Clipboard trống</string>
     <string name="add_file">Thêm tệp</string>
     <string name="keyword_regex">từ khóa (hỗ trợ biểu thức chính quy)</string>
-    <string name="replaceall">Thay thế tất cả</string>
+    <string name="replace_all">Thay thế tất cả</string>
     <string name="remove_a_search_batch">xóa kịch bản tìm kiếm</string>
     <string name="description">Mô tả</string>
     <string name="download">Tải xuống</string>
@@ -85,7 +84,7 @@
     <string name="go_next">Tiếp theo</string>
     <string name="invalid_git_cred">Chứng chỉ không hợp lệ. Hãy thay đổi trong cài đặt</string>
     <string name="close">Đóng</string>
-    <string name="rapply">Vui lòng khởi động lại để áp dụng cài đặt</string>
+    <string name="restart_to_apply">Vui lòng khởi động lại để áp dụng cài đặt</string>
     <string name="replacement">thay thế</string>
     <string name="nip">Không có plugin nào được cài đặt</string>
     <string name="create">Tạo</string>
@@ -109,7 +108,7 @@
     <string name="repo_dir">Thư mục lưu trữ</string>
     <string name="userdatagit">Dữ liệu người dùng cho git</string>
     <string name="dir_exist_not">Thư mục không tồn tại</string>
-    <string name="keepdl">Giữ ngăn kéo bị khoá</string>
+    <string name="keep_drawer_locked">Giữ ngăn kéo bị khoá</string>
     <string name="tab_text_2">Thẻ 2</string>
     <string name="git">Git</string>
     <string name="file_saved">Tệp đã lưu</string>

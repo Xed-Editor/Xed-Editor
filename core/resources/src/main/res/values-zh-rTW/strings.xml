@@ -2,7 +2,7 @@
 <resources>
     <string name="open_drawer">開啟</string>
     <string name="close_drawer">關閉</string>
-    <string name="ni">此功能尚未實現</string>
+    <string name="not_implemented">此功能尚未實現</string>
     <string name="unsupported_content">不支援的內容</string>
     <string name="null_content">錯誤：內容為空</string>
     <string name="restart_required">需要重新啟動</string>
@@ -11,7 +11,6 @@
     <string name="save_label">儲存</string>
     <string name="ww_wait">請等待換行完成</string>
     <string name="open_file_or_folder">開啟檔案或資料夾</string>
-    <string name="open_file">開啟檔案</string>
     <string name="open_directory">開啟資料夾</string>
     <string name="new_file">新增檔案</string>
     <string name="newFile_hint">名稱，例如： 測試.txt</string>
@@ -34,7 +33,7 @@
     <string name="replace">取代</string>
     <string name="share">分享</string>
     <string name="reselect">重新選取</string>
-    <string name="openfile">開啟檔案</string>
+    <string name="open_file">開啟檔案</string>
     <string name="new_folder">新增資料夾</string>
     <string name="new_file_1">新增檔案</string>
     <string name="rename">重新命名</string>
@@ -45,18 +44,18 @@
     <string name="close_this">關閉此項</string>
     <string name="close_others">關閉其他</string>
     <string name="close_all">關閉全部</string>
-    <string name="insertdate">插入日期</string>
+    <string name="insert_date">插入日期</string>
     <string name="close">關閉</string>
     <string name="unsaved">未儲存的檔案</string>
-    <string name="unsavedfiles">你有未儲存的檔案！</string>
+    <string name="unsaved_files">你有未儲存的檔案！</string>
     <string name="cancel">取消</string>
-    <string name="saveexit">儲存並退出</string>
+    <string name="save_exit">儲存並退出</string>
     <string name="exit">退出</string>
     <string name="rr">需要重新啟動以生效</string>
-    <string name="rapply">請重新啟動以套用設定</string>
+    <string name="restart_to_apply">請重新啟動以套用設定</string>
     <string name="oled">純黑主題</string>
     <string name="ww">自動換行</string>
-    <string name="keepdl">保持側滑欄狀態</string>
+    <string name="keep_drawer_locked">保持側滑欄狀態</string>
     <string name="restart">重新啟動</string>
     <string name="refresh">重新載入</string>
     <string name="dir_example">名稱，例如：測試</string>
@@ -65,13 +64,13 @@
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
     <string name="ask_del">你確定要永久刪除嗎</string>
-    <string name="redir">請重新選取資料夾</string>
-    <string name="canthandle">找不到可處理此檔案的應用程式</string>
+    <string name="reselect_dir">請重新選取資料夾</string>
+    <string name="cant_handle">找不到可處理此檔案的應用程式</string>
     <string name="clipboardempty">剪貼簿為空</string>
     <string name="terminal">終端機</string>
     <string name="add_file">新增外部檔案</string>
     <string name="keyword_regex">關鍵字（正則表達式）</string>
-    <string name="replaceall">取代全部</string>
+    <string name="replace_all">取代全部</string>
     <string name="add_new_replacement_batch">新增取代批次</string>
     <string name="remove_a_search_batch">移除搜尋批次</string>
     <string name="replacement">取代</string>
@@ -178,7 +177,7 @@
     <string name="auto_save_desc">自動儲存檔案</string>
     <string name="auto_save_time">自動儲存時間</string>
     <string name="auto_save_time_desc">在指定時間後自動儲存檔案</string>
-    <string name="intervalinMs">間隔（毫秒）</string>
+    <string name="interval_in_ms">間隔（毫秒）</string>
     <string name="invalid_v">無效值</string>
     <string name="v_small">數值太小</string>
     <string name="v_large">數值太大</string>
@@ -369,7 +368,7 @@
     <string name="file_info">檔案資訊</string>
     <string name="can_read">可讀取</string>
     <string name="can_write">可寫入</string>
-    <string name="isfile">是檔案</string>
+    <string name="is_file">是檔案</string>
     <string name="copied">已複製</string>
     <string name="flavor">版本</string>
     <string name="cant_undo">此操作無法撤銷</string>
@@ -406,7 +405,7 @@
     <string name="timeout">下載因逾時已取消。請確保你的網路連線穩定</string>
     <string name="unsupported_feature">你的裝置不支援此功能</string>
     <string name="confirm_exit">您確定要退出嗎？</string>
-    <string name="controlpanel">控制面板</string>
+    <string name="control_panel">控制面板</string>
     <string name="read_mode_desc">預設開啟只讀模式</string>
     <string name="newtab_oom">可用記憶體不足，無法開啟此分頁。開啟可能導致 Xed-Editor 當機。你仍要繼續嗎？</string>
     <string name="preview_err">無法預覽此檔案。沒有可用的上層目錄。請考慮將此檔案移動到其他位置。</string>

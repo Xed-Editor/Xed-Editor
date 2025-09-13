@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="save_all">Minden mentése</string>
-    <string name="canthandle">Nem található a fájl kezelésére alkalmas app</string>
+    <string name="cant_handle">Nem található a fájl kezelésére alkalmas app</string>
     <string name="reselect">Újra kiválasztás</string>
     <string name="open_with">Megnyitás…</string>
-    <string name="saveexit">Mentés és kilépés</string>
-    <string name="insertdate">Dátum beillesztése</string>
+    <string name="save_exit">Mentés és kilépés</string>
+    <string name="insert_date">Dátum beillesztése</string>
     <string name="attention">Figyelem</string>
     <string name="close_others">Többi bezárása</string>
     <string name="refresh">Frissítés</string>
-    <string name="rapply">Indítsd újra a változtatások érvénybe lépéséhez</string>
+    <string name="restart_to_apply">Indítsd újra a változtatások érvénybe lépéséhez</string>
     <string name="restart_required">Újraindítás szükséges</string>
     <string name="close_this">Jelenlegi fájl bezárása</string>
     <string name="unsaved">Mentetlen fájlok</string>
@@ -17,7 +17,7 @@
     <string name="rename">Átnevezés</string>
     <string name="add_file">Külső fájl hozzáadása</string>
     <string name="new_file_1">Új Fájl</string>
-    <string name="replaceall">MindCseréje</string>
+    <string name="replace_all">MindCseréje</string>
     <string name="save">Fájl mentve</string>
     <string name="print">Nyomtatás</string>
     <string name="save_label">Mentés</string>
@@ -35,9 +35,9 @@
     <string name="dir_example">Név pl.: Teszt</string>
     <string name="already_exists">Már van dokumentum ilyen néven</string>
     <string name="create">Elkészítés</string>
-    <string name="redir">Kérlek válaszd ki újra a mappát</string>
+    <string name="reselect_dir">Kérlek válaszd ki újra a mappát</string>
     <string name="clipboardempty">Üres a vágólap</string>
-    <string name="openfile">Fájl Megnyitása</string>
+    <string name="open_file">Fájl Megnyitása</string>
     <string name="new_folder">Új Mappa</string>
     <string name="close">Bezárás</string>
     <string name="cancel">Mégse</string>
@@ -46,7 +46,6 @@
     <string name="null_content">Hiba: A tartalom null</string>
     <string name="ww_wait">Várj amíg a sortörés befejeződik</string>
     <string name="open_file_or_folder">Fájl vagy mappa megnyitása</string>
-    <string name="open_file">Fájl megnyitása</string>
     <string name="open_directory">Mappa megnyitása</string>
     <string name="new_file">Új Fájl</string>
     <string name="newFile_hint">Név pl.: teszt.txt</string>
@@ -60,7 +59,7 @@
     <string name="save_as">Mentés másként</string>
     <string name="paste">Beillesztés</string>
     <string name="delete">Törlés</string>
-    <string name="keepdl">Polc zárva tartása</string>
+    <string name="keep_drawer_locked">Polc zárva tartása</string>
     <string name="restart">Újraindítás</string>
     <string name="add_new_replacement_batch">Új cseretétel hozzáadása</string>
     <string name="remove_a_search_batch">keresési cseretétel eltávolítása</string>
@@ -79,10 +78,10 @@
     <string name="gituserexample">pl.: UserDev:pelda@email.com</string>
     <string name="apply">Megerősítés</string>
     <string name="userdata">Felhasználói adatok</string>
-    <string name="ni">Ez a funkció még nem elérhető</string>
+    <string name="not_implemented">Ez a funkció még nem elérhető</string>
     <string name="settings">Beállítások</string>
     <string name="search">Keresés</string>
-    <string name="unsavedfiles">Mentetlen fájljaid vannak!</string>
+    <string name="unsaved_files">Mentetlen fájljaid vannak!</string>
     <string name="oled">Éjfekete téma</string>
     <string name="close_search">Keresés bezárása</string>
     <string name="keyword_regex">kulcsszó (Regex)</string>
@@ -146,7 +145,7 @@
     <string name="auto_save_desc">fájlok automatikus elmentése</string>
     <string name="auto_save_time">Automentés frekvenciája</string>
     <string name="auto_save_time_desc">A fájl automatikus mentése meghatározott időközönként</string>
-    <string name="intervalinMs">Intervallum milliszekundumokban megadva</string>
+    <string name="interval_in_ms">Intervallum milliszekundumokban megadva</string>
     <string name="invalid_v">Invalid érték</string>
     <string name="v_small">A megadott érték túl alacsony</string>
     <string name="v_large">A megadott érték túl nagy</string>

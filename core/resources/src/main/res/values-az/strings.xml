@@ -3,8 +3,7 @@
     <string name="null_content">Xəta: Məznun etibarsızdır</string>
     <string name="open_file_or_folder">Fayl və ya Qovluğu aç</string>
     <string name="restart_required">Yenidən başlatmaq lazımdır</string>
-    <string name="open_file">Faylı aç</string>
-    <string name="ni">Bu xüsusiyyət tətbiq edilmir</string>
+    <string name="not_implemented">Bu xüsusiyyət tətbiq edilmir</string>
     <string name="unsupported_content">Dəstəklənməyən məznun</string>
     <string name="saveAll">bütün fayllar yadda saxlanıldı</string>
     <string name="save_label">Yadda saxla</string>
@@ -12,7 +11,7 @@
     <string name="close_drawer">bağla</string>
     <string name="save">Fayl yadda saxlanıldı</string>
     <string name="share">Paylaş</string>
-    <string name="openfile">Faylı aç</string>
+    <string name="open_file">Faylı aç</string>
     <string name="open_with">Bununla aç:</string>
     <string name="save_1">Yadda saxla</string>
     <string name="undo">Geri qaytar</string>
@@ -32,10 +31,10 @@
     <string name="close_this">Bunu bağla</string>
     <string name="close_others">Digərlərini bağla</string>
     <string name="close_all">Hamısını bağla</string>
-    <string name="insertdate">Tarixi daxil et</string>
+    <string name="insert_date">Tarixi daxil et</string>
     <string name="close">Bağla</string>
     <string name="unsaved">Yadda Saxlanılmamış Fayllar</string>
-    <string name="unsavedfiles">Sizin yadda saxlanılmamış fayllarınız var!</string>
+    <string name="unsaved_files">Sizin yadda saxlanılmamış fayllarınız var!</string>
     <string name="cancel">Ləğv et</string>
     <string name="title">Başlıq</string>
     <string name="file_exist_not">Fayl artıq mövcud deyil</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="refresh">טעינה מחדש</string>
-    <string name="ni">תכונה זו אינה מיושמת עדיין</string>
+    <string name="not_implemented">תכונה זו אינה מיושמת עדיין</string>
     <string name="repo_dir">תיקיית מאגר</string>
     <string name="change_theme">שינוי העיצוב</string>
     <string name="gituserexample">דוגמא: UserDev:example@email.com</string>
@@ -35,7 +35,7 @@
     <string name="replace">החלף</string>
     <string name="share">שיתוף</string>
     <string name="reselect">בחירה מחדש</string>
-    <string name="openfile">פתח קובץ</string>
+    <string name="open_file">פתח קובץ</string>
     <string name="new_folder">תיקיה חדשה</string>
     <string name="new_file_1">קובץ חדש</string>
     <string name="rename">שינוי שם</string>
@@ -45,14 +45,14 @@
     <string name="delete">מחיקה</string>
     <string name="close_others">סגור אחרים</string>
     <string name="close_all">סגור הכל</string>
-    <string name="insertdate">הכנס תאריך</string>
+    <string name="insert_date">הכנס תאריך</string>
     <string name="close">סגור</string>
     <string name="unsaved">קבצים של נשמרו</string>
     <string name="cancel">ביטול</string>
-    <string name="saveexit">שמור וצא</string>
+    <string name="save_exit">שמור וצא</string>
     <string name="exit">יציאה</string>
     <string name="rr">נדרש הפעלה מחדש</string>
-    <string name="rapply">אנא הפעל מחדש כדי להחיל את ההגדרות</string>
+    <string name="restart_to_apply">אנא הפעל מחדש כדי להחיל את ההגדרות</string>
     <string name="oled">עיצוב שחור</string>
     <string name="ww">גלישת טקסט</string>
     <string name="close_this">סגור את זה</string>
@@ -64,7 +64,7 @@
     <string name="attention">שים לב</string>
     <string name="clipboardempty">לוח העתקה ריק</string>
     <string name="add_file">הוסף קובץ חיצוני</string>
-    <string name="replaceall">החלף הכל</string>
+    <string name="replace_all">החלף הכל</string>
     <string name="title">כותרת</string>
     <string name="download">הורדה</string>
     <string name="git">גיט</string>
@@ -79,8 +79,8 @@
     <string name="rename_desc">שנה את שם המסמך</string>
     <string name="delete_descript">מחק מסמך</string>
     <string name="clipboard_empty">לוח הקבצים ריק</string>
-    <string name="keepdl">שמור על מגירה נעולה</string>
-    <string name="redir">אנא בחר מחדש את התיקייה</string>
+    <string name="keep_drawer_locked">שמור על מגירה נעולה</string>
+    <string name="reselect_dir">אנא בחר מחדש את התיקייה</string>
     <string name="add_new_replacement_batch">הוסף קבוצה חלופית חדשה</string>
     <string name="replacement">חלופה</string>
     <string name="tab_text_1">טאב 1</string>
@@ -189,7 +189,7 @@
     <string name="ask_del">האם אתה בטוח שאתה רוצה למחוק לצמיתות?</string>
     <string name="save_desc">שמור את הקובץ שנבחר במקום אחר</string>
     <string name="fetch_failed">בקשת האחזור החזירה null</string>
-    <string name="unsavedfiles">יש לך קבצים שלא נשמרו!</string>
+    <string name="unsaved_files">יש לך קבצים שלא נשמרו!</string>
     <string name="report_issue">דיווח על בעיה</string>
     <string name="undo">בטל</string>
     <string name="apply">החל</string>
@@ -197,7 +197,6 @@
     <string name="restart_required">‫נדרש הפעלה מחדש</string>
     <string name="force_normal">כפה מצב רגיל</string>
     <string name="file_too_large">הקובץ גדול מידי לפתיחה</string>
-    <string name="open_file">פתח קובץ</string>
     <string name="settings">הגדרות</string>
     <string name="open_with_other">פתח את הקובץ שנבחר באפליקציות אחרות</string>
     <string name="description">תיאור</string>
@@ -207,7 +206,7 @@
     <string name="theme_mode">עיצוב</string>
     <string name="invalid_path">נתיב לא קיים</string>
     <string name="manage_storage">ניהול אחסון</string>
-    <string name="canthandle">לא נמצאה אפליקציה לטיפול בקובץ</string>
+    <string name="cant_handle">לא נמצאה אפליקציה לטיפול בקובץ</string>
     <string name="add">הוספה</string>
     <string name="app_desc">הגדרות כלליות של האפליקציה</string>
     <string name="err">שגיאה</string>
@@ -231,7 +230,7 @@
     <string name="auto_save_desc">שמירת קבצים אוטומטית</string>
     <string name="auto_save_time">זמן שמירה אוטומטי</string>
     <string name="auto_save_time_desc">שמור קובץ אוטומטית לאחר זמן מוגדר</string>
-    <string name="intervalinMs">מרווח באלפיות שניות</string>
+    <string name="interval_in_ms">מרווח באלפיות שניות</string>
     <string name="Lshell">פתח מעטפת (Shell)</string>
     <string name="Lshell_desc">יבוצע כאשר המסוף נפתח.</string>
     <string name="terminal_text_size">גודל טקסט במסוף</string>
@@ -360,7 +359,7 @@
     <string name="file_size">גודל הקובץ</string>
     <string name="can_read">ניתן לקריאה</string>
     <string name="can_write">ניתן לכתיבה</string>
-    <string name="isfile">זה קובץ</string>
+    <string name="is_file">זה קובץ</string>
     <string name="copied">הועתק</string>
     <string name="flavor">מהדורה</string>
     <string name="cant_undo">לא ניתן לבטל פעולה זו</string>

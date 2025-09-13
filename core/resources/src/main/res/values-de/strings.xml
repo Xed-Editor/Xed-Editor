@@ -16,11 +16,11 @@
     <string name="replace">Ersetzen</string>
     <string name="save_as">Speichern als</string>
     <string name="close_all">Alle schließen</string>
-    <string name="insertdate">Datum einfügen</string>
-    <string name="unsavedfiles">Es gibt ungespeicherte Dateien!</string>
+    <string name="insert_date">Datum einfügen</string>
+    <string name="unsaved_files">Es gibt ungespeicherte Dateien!</string>
     <string name="cancel">Abbrechen</string>
     <string name="rr">Neustart erforderlich</string>
-    <string name="rapply">Bitte neu starten um die Einstellungen anzuwenden</string>
+    <string name="restart_to_apply">Bitte neu starten um die Einstellungen anzuwenden</string>
     <string name="oled">Schwarzes Thema</string>
     <string name="ww">Zeilenumbruch</string>
     <string name="restart">Neustart</string>
@@ -37,7 +37,6 @@
     <string name="restart_required">Neustart erforderlich</string>
     <string name="save_label">Speichern</string>
     <string name="new_file">Neue Datei</string>
-    <string name="open_file">Eine Datei öffnen</string>
     <string name="mime">MimeType z.B. text/plain</string>
     <string name="new_folder">Neuer Ordner</string>
     <string name="save_1">Speichern</string>
@@ -56,7 +55,7 @@
     <string name="telegram_desc">Melde Probleme, Funktionswünsche usw.</string>
     <string name="open_with">Öffnen mit …</string>
     <string name="close">Schließen</string>
-    <string name="saveexit">Speichern und schließen</string>
+    <string name="save_exit">Speichern und schließen</string>
     <string name="nip">Keine installierten Plugins</string>
     <string name="title">Titel</string>
     <string name="github">GitHub</string>
@@ -74,7 +73,7 @@
     <string name="attention">Achtung</string>
     <string name="open_drawer">öffnen</string>
     <string name="add_file">Externe Datei hinzufügen</string>
-    <string name="ni">Diese Funktion ist nicht implementiert</string>
+    <string name="not_implemented">Diese Funktion ist nicht implementiert</string>
     <string name="experimental_feature">Experimentelle Funktion</string>
     <string name="experimental_session_restore_warning">Diese Funktion ist experimentell und kann zu Datenverlust führen</string>
     <string name="highlighting">Syntaxhervorhebung</string>
@@ -88,13 +87,13 @@
     <string name="fill_both">Bitte fülle beide Felder aus</string>
     <string name="manage_storage">Speicher verwalten</string>
     <string name="reselect">Erneut auswählen</string>
-    <string name="openfile">Datei öffnen</string>
+    <string name="open_file">Datei öffnen</string>
     <string name="apply">Annehmen</string>
     <string name="exists">existiert bereits!</string>
     <string name="cloning">Klone Repository…</string>
     <string name="keyword_regex">Schlüsselwort (Regex)</string>
-    <string name="replaceall">Alles ersetzen</string>
-    <string name="keepdl">Drawer verschlossen halten</string>
+    <string name="replace_all">Alles ersetzen</string>
+    <string name="keep_drawer_locked">Drawer verschlossen halten</string>
     <string name="replacement">ersetzen</string>
     <string name="remove_a_search_batch">Entfernen eines Suchbatches</string>
     <string name="title_activity_main">MainActivity</string>
@@ -128,9 +127,9 @@
     <string name="private_files_desc">Private Dateien von Xed-Editor</string>
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in Ihrem Speicher zu bearbeiten. Bitte erlaube den Zugriff in den nächsten Systemeinstellungen.</string>
     <string name="close_this">Dies schließen</string>
-    <string name="canthandle">Keine App zum Verarbeiten der Datei gefunden</string>
+    <string name="cant_handle">Keine App zum Verarbeiten der Datei gefunden</string>
     <string name="ask_del">Bist du sicher, dass du %s endgültig löschen möchtest?</string>
-    <string name="redir">Bitte wähle das Verzeichnis erneut aus</string>
+    <string name="reselect_dir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Registerkarte 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
     <string name="paste_desc">Dokument einfügen</string>
@@ -190,7 +189,7 @@
     <string name="auto_save_time_desc">Datei nach einer bestimmten Zeit automatisch speichern</string>
     <string name="v_small">Wert zu klein</string>
     <string name="text_size">Textgröße</string>
-    <string name="intervalinMs">Intervall in Millisekunden</string>
+    <string name="interval_in_ms">Intervall in Millisekunden</string>
     <string name="text_size_desc">Textgröße festlegen</string>
     <string name="v_large">Wert zu groß</string>
     <string name="monet">Dynamische Farben</string>
@@ -383,7 +382,7 @@
     <string name="warning_private_dir">Der Inhalt dieses Verzeichnisses wird gelöscht, wenn du die Daten löscht oder Xed-Editor deinstallierst</string>
     <string name="can_read">Kann lesen</string>
     <string name="can_write">Kann schreiben</string>
-    <string name="isfile">Ist Datei</string>
+    <string name="is_file">Ist Datei</string>
     <string name="regex_pattern">Regex-Ausdruck</string>
     <string name="invalid_runner_name">Nur Buchstaben, Zahlen, Unterstriche und Bindestriche erlaubt</string>
     <string name="invalid_regex">Ungültiger Regex-Ausdruck</string>
@@ -413,7 +412,7 @@
     <string name="runner_name_exists">Runner-Name existiert bereits</string>
     <string name="edit_runner">Runner bearbeiten</string>
     <string name="info_runners">Runner sind kleine Bash-Skripte, die verwendet werden, um eine Datei oder ein Projekt auszuführen. Erstelle einen Runner und klicke darauf, um ihn im Editor zu öffnen.</string>
-    <string name="controlpanel">Bedienfeld</string>
+    <string name="control_panel">Bedienfeld</string>
     <string name="acquire_wakelock">Wakelock aktivieren</string>
     <string name="release_wakelock">Wakelock freigeben</string>
     <string name="getting_ready">Vorbereitung läuft…</string>

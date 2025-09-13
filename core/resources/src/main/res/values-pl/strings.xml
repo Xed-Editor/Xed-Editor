@@ -2,7 +2,7 @@
 <resources>
     <string name="open_drawer">otwórz</string>
     <string name="close_drawer">zamknij</string>
-    <string name="ni">Ta funkcja nie jest zaimplementowana</string>
+    <string name="not_implemented">Ta funkcja nie jest zaimplementowana</string>
     <string name="unsupported_content">Niewspierana zawartość</string>
     <string name="null_content">Błąd: Brak treści</string>
     <string name="restart_required">Wymagane ponowne uruchomienie</string>
@@ -11,7 +11,6 @@
     <string name="save_label">Zapisz</string>
     <string name="ww_wait">Proszę zaczekać na zawinięcie tekstu</string>
     <string name="open_file_or_folder">Otwórz plik lub folder</string>
-    <string name="open_file">Otwórz plik</string>
     <string name="open_directory">Otwórz ścieżkę</string>
     <string name="new_file">Nowy plik</string>
     <string name="newFile_hint">Nazwa np. Test.txt</string>
@@ -34,7 +33,7 @@
     <string name="replace">Zamień</string>
     <string name="share">Udostępnij</string>
     <string name="reselect">Zaznacz ponownie</string>
-    <string name="openfile">Otwórz Plik</string>
+    <string name="open_file">Otwórz Plik</string>
     <string name="new_folder">Nowy Folder</string>
     <string name="new_file_1">Nowy Plik</string>
     <string name="rename">Zmień nazwę</string>
@@ -45,18 +44,18 @@
     <string name="close_this">Zamknij obecny</string>
     <string name="close_others">Zamknij inne</string>
     <string name="close_all">Zamknij wszystkie</string>
-    <string name="insertdate">Wstaw datę</string>
+    <string name="insert_date">Wstaw datę</string>
     <string name="close">Zamknij</string>
     <string name="unsaved">Niezapisane Pliki</string>
-    <string name="unsavedfiles">Masz niezapisane pliki!</string>
+    <string name="unsaved_files">Masz niezapisane pliki!</string>
     <string name="cancel">Anuluj</string>
-    <string name="saveexit">Zapisz i Wyjdź</string>
+    <string name="save_exit">Zapisz i Wyjdź</string>
     <string name="exit">Wyjdź</string>
     <string name="rr">Wymagane ponowne uruchomienie</string>
-    <string name="rapply">Proszę uruchomić ponownie aby zastosować zmiany</string>
+    <string name="restart_to_apply">Proszę uruchomić ponownie aby zastosować zmiany</string>
     <string name="oled">Czarny Motyw</string>
     <string name="ww">Zawijanie Tekstu</string>
-    <string name="keepdl">Zablokuj szufladę</string>
+    <string name="keep_drawer_locked">Zablokuj szufladę</string>
     <string name="restart">Uruchom ponownie</string>
     <string name="refresh">Przeładuj</string>
     <string name="dir_example">Nazwa np. Test</string>
@@ -65,13 +64,13 @@
     <string name="already_exists">Plik z wprowadzoną nazwą już istnieje</string>
     <string name="attention">Uwaga</string>
     <string name="ask_del">Czy napewno chcesz trwale usunąć %s?</string>
-    <string name="redir">Proszę wybierz ponownie ściezkę</string>
-    <string name="canthandle">Nie znaleziono aplikacji do obsługi pliku</string>
+    <string name="reselect_dir">Proszę wybierz ponownie ściezkę</string>
+    <string name="cant_handle">Nie znaleziono aplikacji do obsługi pliku</string>
     <string name="clipboardempty">Schowek jest pusty</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Dodaj zewnętrzny plik</string>
     <string name="keyword_regex">Słowo Klucz (Regex)</string>
-    <string name="replaceall">Zamień Wszystkie</string>
+    <string name="replace_all">Zamień Wszystkie</string>
     <string name="add_new_replacement_batch">Dodaj nową partię zastępczą</string>
     <string name="remove_a_search_batch">Usuń wyszukiwaną partię</string>
     <string name="replacement">Zamiennik</string>
@@ -95,7 +94,7 @@
     <string name="auto_save_desc">Automatyczne zapisywanie pliku</string>
     <string name="auto_save_time">Czas automatycznego zapisu</string>
     <string name="auto_save_time_desc">Automatyczne zapisywanie pliku po ustalonym czasie</string>
-    <string name="intervalinMs">Interwał w milisekundach</string>
+    <string name="interval_in_ms">Interwał w milisekundach</string>
     <string name="invalid_v">Nieprawidłowa wartość</string>
     <string name="v_small">Wartość zbyt niska</string>
     <string name="v_large">Wartość zbyt wysoka</string>

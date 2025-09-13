@@ -22,10 +22,6 @@ import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.sequences.filterIsInstance
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -182,7 +178,7 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.keepdl),
+                label = stringResource(id = strings.keep_drawer_locked),
                 description = stringResource(id = strings.drawer_lock_desc),
                 default = Settings.keep_drawer_locked,
                 sideEffect = {

@@ -2,7 +2,7 @@
 <resources>
     <string name="open_drawer">Otevřít</string>
     <string name="close_drawer">zavřít</string>
-    <string name="ni">Táto funkce nebyla ještě přidaná</string>
+    <string name="not_implemented">Táto funkce nebyla ještě přidaná</string>
     <string name="unsupported_content">Nepodporovaný obsah</string>
     <string name="null_content">Chyba: Obsah je null (prázdný)</string>
     <string name="save">Soubor uložen</string>
@@ -10,7 +10,6 @@
     <string name="save_label">Uložit</string>
     <string name="ww_wait">Vičkejte prosím než zalamování slov bude dokončeno</string>
     <string name="open_file_or_folder">Otevřít Soubor nebo Složku</string>
-    <string name="open_file">Otevřít Soubor</string>
     <string name="open_directory">Otevřít Složku</string>
     <string name="new_file">Nový Soubor</string>
     <string name="newFile_hint">Jméno (např. Test.txt)</string>
@@ -21,7 +20,7 @@
     <string name="ww">Zalamování Slov</string>
     <string name="check_for_updates">Kontrolovat pro Aktualizace</string>
     <string name="check_for_updates_desc">Pravidelné kontrolování aktualizacích</string>
-    <string name="unsavedfiles">Vy máte neuložené soubory!</string>
+    <string name="unsaved_files">Vy máte neuložené soubory!</string>
     <string name="exit">Ukončit</string>
     <string name="close">Zavřít</string>
     <string name="download">Stáhnout</string>
@@ -118,22 +117,22 @@
     <string name="rep">Nahrazení</string>
     <string name="undo">Vrátit zpět</string>
     <string name="new_folder">Nová Složka</string>
-    <string name="openfile">Otevřít Soubor</string>
+    <string name="open_file">Otevřít Soubor</string>
     <string name="new_file_1">Nový Soubor</string>
     <string name="rename">Přejmenovat</string>
     <string name="open_with">Otevřít pomocí…</string>
     <string name="save_as">Uložit Jako</string>
     <string name="paste">Vložit</string>
-    <string name="insertdate">Vložit Datum</string>
+    <string name="insert_date">Vložit Datum</string>
     <string name="close_this">Zavřít toto</string>
     <string name="delete">Odstranit</string>
     <string name="close_others">Zavřít ostatní</string>
     <string name="close_all">Zavřít všechno</string>
     <string name="unsaved">Neuložené Soubory</string>
     <string name="cancel">Zrušit</string>
-    <string name="saveexit">Uložit a Ukončit</string>
+    <string name="save_exit">Uložit a Ukončit</string>
     <string name="rr">Restart aplikace je požadovaný</string>
-    <string name="rapply">Prosím restartněte aplikaci pro použití nových nastavení</string>
+    <string name="restart_to_apply">Prosím restartněte aplikaci pro použití nových nastavení</string>
     <string name="restart">Restart</string>
     <string name="refresh">Načíst</string>
     <string name="dir_example">Jméno (např. Test)</string>
@@ -142,7 +141,7 @@
     <string name="add_file">Přidat Externí soubor</string>
     <string name="keyword_regex">Klíčové slovo (Regex)</string>
     <string name="replacement">Nahrazení</string>
-    <string name="replaceall">Nahradit Vše</string>
+    <string name="replace_all">Nahradit Vše</string>
     <string name="description">Popis</string>
     <string name="file_saved">Soubor Uložen</string>
     <string name="open_with_other">Otevřít soubor v jiných aplikacích</string>
@@ -216,7 +215,7 @@
     <string name="sessions">Relace</string>
     <string name="scroll_to_bottom">Sjet dolů</string>
     <string name="scroll_to_bottom_desc">Sjet dolů při otevření souboru</string>
-    <string name="redir">Prosím vyberte složku znovu</string>
+    <string name="reselect_dir">Prosím vyberte složku znovu</string>
     <string name="wait_download">Vičkejte než se soubory stáhnou.</string>
     <string name="open_cant">Nelze otevřít více než</string>
     <string name="sim_ashmem">Simulovat Ashmemfd na Androidu</string>
@@ -230,7 +229,7 @@
     <string name="invalid_v">Neplatná hodnota</string>
     <string name="v_small">Hodnota příliš malá</string>
     <string name="v_large">Hodnota příliš velká</string>
-    <string name="intervalinMs">Interval ve milisekundách</string>
+    <string name="interval_in_ms">Interval ve milisekundách</string>
     <string name="editor">Editor</string>
     <string name="oled_desc">Použít čistě-černé téma pro AMOLED zařízení</string>
     <string name="invalid_file_type">Neplatný typ souboru, ZIP soubor očekáván</string>
@@ -332,7 +331,7 @@
     <string name="info">Informace</string>
     <string name="file_info">Informace o Souboru</string>
     <string name="copied">Kopírováno</string>
-    <string name="isfile">Je Soubor</string>
+    <string name="is_file">Je Soubor</string>
     <string name="can_write">Lze Zapisovat</string>
     <string name="can_read">Lze Číst</string>
     <string name="file_size">Velikost Souboru</string>
@@ -346,7 +345,7 @@
     <string name="tab_opened">Karta Otevřena</string>
     <string name="name_used">Jméno už použito</string>
     <string name="tempFile">Dočasný Soubor</string>
-    <string name="canthandle">Žádná aplikace nenalezena pro typ tohoto souboru</string>
+    <string name="cant_handle">Žádná aplikace nenalezena pro typ tohoto souboru</string>
     <string name="mutator_name">Jméno Mutátora</string>
     <string name="no_ext">Žádné Doplňky Nainstalované.</string>
     <string name="mutators">Mutátory</string>
@@ -380,7 +379,7 @@
     <string name="add_theme">Přidat Téma</string>
     <string name="unsupported_feature">Táto funkce není podporována na vašem zařízení</string>
     <string name="confirm_exit">Jste si jist, že chcete ukončit aplikaci?</string>
-    <string name="controlpanel">OvládacíPanel</string>
+    <string name="control_panel">OvládacíPanel</string>
     <string name="is_null">InputStream je null (prázdný)</string>
     <string name="info_mutators">Mutátory jsou malé skripty, které se používají pro upravování textu v editoru. Vytvořte mutátor a klepněte na ho pro otevření v editoru.</string>
     <string name="use_github_url">Použít výchozí doménu git</string>

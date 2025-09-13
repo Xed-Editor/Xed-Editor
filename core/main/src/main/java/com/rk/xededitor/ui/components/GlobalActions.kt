@@ -103,7 +103,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
 
                 }
 
-                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.openfile)) {
+                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.open_file)) {
                     addDialog = false
                     MainActivity.instance?.apply {
                         fileManager.requestOpenFile(mimeType = "*/*"){

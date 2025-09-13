@@ -2,7 +2,7 @@
 <resources>
     <string name="open_drawer">öppna</string>
     <string name="close_drawer">stäng</string>
-    <string name="ni">Den här funktionen är inte implementerad</string>
+    <string name="not_implemented">Den här funktionen är inte implementerad</string>
     <string name="unsupported_content">Innehållet stöds ej</string>
     <string name="null_content">Fel: Innehållet är null</string>
     <string name="restart_required">Omstart krävs</string>
@@ -11,7 +11,6 @@
     <string name="save_label">Spara</string>
     <string name="ww_wait">Vänta tills radbryt är klar</string>
     <string name="open_file_or_folder">Öppna fil eller katalog</string>
-    <string name="open_file">Öppna en fil</string>
     <string name="open_directory">Öppna katalog</string>
     <string name="new_file">Ny fil</string>
     <string name="newFile_hint">Namn t.ex. Test.txt</string>
@@ -34,7 +33,7 @@
     <string name="replace">Ersätt</string>
     <string name="share">Dela</string>
     <string name="reselect">Välj igen</string>
-    <string name="openfile">Öppna fil</string>
+    <string name="open_file">Öppna fil</string>
     <string name="new_folder">Ny katalog</string>
     <string name="new_file_1">Ny fil</string>
     <string name="rename">Byt namn</string>
@@ -45,18 +44,18 @@
     <string name="close_this">Stäng den här</string>
     <string name="close_others">Stäng andra</string>
     <string name="close_all">Stäng alla</string>
-    <string name="insertdate">Infoga datum</string>
+    <string name="insert_date">Infoga datum</string>
     <string name="close">Stäng</string>
     <string name="unsaved">Osparade filer</string>
-    <string name="unsavedfiles">Du har osparade filer!</string>
+    <string name="unsaved_files">Du har osparade filer!</string>
     <string name="cancel">Avbryt</string>
-    <string name="saveexit">Spara och stäng</string>
+    <string name="save_exit">Spara och stäng</string>
     <string name="exit">Avsluta</string>
     <string name="rr">Omstart krävs</string>
-    <string name="rapply">Vänligen starta om för att applicera ändringar</string>
+    <string name="restart_to_apply">Vänligen starta om för att applicera ändringar</string>
     <string name="oled">Mörkt tema</string>
     <string name="ww">Radbryt</string>
-    <string name="keepdl">Håll sidomeny stängd</string>
+    <string name="keep_drawer_locked">Håll sidomeny stängd</string>
     <string name="restart">Omstart</string>
     <string name="refresh">Ladda om</string>
     <string name="dir_example">Namn t.ex. Test</string>
@@ -65,13 +64,13 @@
     <string name="already_exists">Dokument med samma namn existerar redan</string>
     <string name="attention">Uppmärksamhet</string>
     <string name="ask_del">Är du säker på att du vill ta bort permanent</string>
-    <string name="redir">Vänligen välj katalog igen</string>
-    <string name="canthandle">Hittar ingen app som hanterar filen</string>
+    <string name="reselect_dir">Vänligen välj katalog igen</string>
+    <string name="cant_handle">Hittar ingen app som hanterar filen</string>
     <string name="clipboardempty">Urklipp är tomt</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Lägg till extern fil</string>
     <string name="keyword_regex">nyckelord (Regex)</string>
-    <string name="replaceall">Ersätt allt</string>
+    <string name="replace_all">Ersätt allt</string>
     <string name="add_new_replacement_batch">Lägg till ny ersättningskörning</string>
     <string name="remove_a_search_batch">ta bort en sökningskörning</string>
     <string name="replacement">ersättning</string>
@@ -177,7 +176,7 @@
     <string name="auto_save_desc">spara fil automatiskt</string>
     <string name="auto_save_time">Autospar tid</string>
     <string name="auto_save_time_desc">Spara filen automatiskt efter angiven tid</string>
-    <string name="intervalinMs">Intervall i millisekunder</string>
+    <string name="interval_in_ms">Intervall i millisekunder</string>
     <string name="invalid_v">Ogiltigt värde</string>
     <string name="v_small">Värde för litet</string>
     <string name="v_large">Värde för stort</string>
