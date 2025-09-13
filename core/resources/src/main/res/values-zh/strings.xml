@@ -149,10 +149,10 @@
     <string name="data_clear">应用数据已清除</string>
     <string name="action_done">操作已完成</string>
     <string name="clone_repo">克隆存储库</string>
-    <string name="open_dir_desc">打开文件夹（通过 SAF 的方式）</string>
+    <string name="open_dir_desc">打开文件夹（通过系统文件选择器）</string>
     <string name="open_file_desc">选择一个文件并直接编辑它</string>
     <string name="open_path">内部储存</string>
-    <string name="open_path_desc">打开内部储存</string>
+    <string name="open_path_desc">打开内部储存文件夹</string>
     <string name="clone_repo_desc">使用 Git 克隆存储库</string>
     <string name="already_opened">文件已打开</string>
     <string name="open_cant">无法打开多于</string>
@@ -298,7 +298,7 @@
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
     <string name="txt_ww">仅对 TXT 文件自动换行</string>
-    <string name="txt_ww_desc">对纯文本文件自动换行</string>
+    <string name="txt_ww_desc">对 .txt 文件自动换行</string>
     <string name="sora_s">Sora Editor 文本搜索</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
@@ -396,8 +396,8 @@
     <string name="copied">已复制</string>
     <string name="cant_undo">此操作无法撤消</string>
     <string name="info">属性</string>
-    <string name="saf_expose_warning">让终端主目录在系统文件管理器中显示可能会向恶意应用程序泄露敏感信息，包括 Git 令牌、密码、用户名以及存储在主目录中的其他文件。你想继续吗？</string>
-    <string name="expose_saf_desc">在系统文件管理器中显示终端主目录，以供应用程序访问（通过 SAF 的方式）</string>
+    <string name="saf_expose_warning">让终端主目录在系统文件管理器中显示可能会让恶意应用程序获取敏感信息，包括 Git 令牌、密码、用户名以及存储在主目录中的其他文件。你想继续吗？</string>
+    <string name="expose_saf_desc">通过系统文件选择器（SAF）允许外部应用访问终端主目录</string>
     <string name="flavor">版本</string>
     <string name="tempFile">临时文件</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">显示虚拟键盘</string>
@@ -453,8 +453,8 @@
     <string name="uninstall">卸载</string>
     <string name="uninstall_terminal">卸载终端</string>
     <string name="project_as_wk">将项目作为工作目录</string>
-    <string name="project_as_wk_desc">将项目作为终端的工作目录</string>
-    <string name="seccomp_desc">修复在部分设备上的方法未实现的错误</string>
+    <string name="project_as_wk_desc">在终端中使用项目作为工作目录</string>
+    <string name="seccomp_desc">修复在部分设备上显示方法未实现的错误</string>
     <string name="non_native_filetype">此目录不支持运行代码。请将你的文件移动到终端主目录后再运行。</string>
     <string name="sdcard_filetype">不推荐在此目录运行代码。建议将文件移动到终端主目录。</string>
     <string name="delete_desc">永久删除文件</string>
@@ -468,8 +468,8 @@
     <string name="debug_options_desc">%s 的调试选项</string>
     <string name="force_crash">强制崩溃</string>
     <string name="force_crash_desc">抛出一个 Runtime Exception 错误</string>
-    <string name="lsp_desc">连接外部的LSP语言服务器</string>
-    <string name="lsp_header">需要给出语言服务器的端口和针对的文件类型</string>
+    <string name="lsp_desc">连接外部的 LSP 语言服务器</string>
+    <string name="lsp_header">输入端口和扩展名</string>
     <string name="port_number">端口号</string>
     <string name="file_ext_example">文件类型（比如 .py）</string>
     <string name="force_crash_confirm">确定要手动触发崩溃吗？这么做可能会导致应用无响应的。</string>
@@ -482,8 +482,8 @@
     <string name="stop_logcat">终止 Logcat</string>
     <string name="discord">Discord 社区</string>
     <string name="use_tabs">插入 Tab 字符</string>
-    <string name="use_tabs_desc">行首将使用 Tab 的转义字符 \\t 而不是多个空格</string>
-    <string name="invalid_port">不存在的端口</string>
+    <string name="use_tabs_desc">使用制表符 \\t 代替空格进行缩进</string>
+    <string name="invalid_port">端口号无效</string>
     <string name="unsupported_file_ext">不支持这种类型的文件</string>
     <string name="strict_mode">严格模式</string>
     <string name="strict_mode_desc">检测到在主线程访问磁盘或网络</string>
