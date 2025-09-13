@@ -6,14 +6,13 @@
     <string name="unsupported_content">محتوای پشتیبانی نشده</string>
     <string name="null_content">خطا: محتوا تهی است</string>
     <string name="restart_required">نیاز به ری استارت</string>
-    <string name="save">فایل ذخیره شد</string>
-    <string name="saveAll">همه فایل ها ذخیره شدند</string>
+    <string name="saved_all">همه فایل ها ذخیره شدند</string>
     <string name="save_label">ذخیره</string>
     <string name="ww_wait">لطفا صبر کنید تا قرارگیری واژه ها تمام شود</string>
     <string name="open_file_or_folder">باز کردن فایل یا پوشه</string>
     <string name="open_directory">باز کردن پوشه</string>
     <string name="new_file">فایل جدید</string>
-    <string name="newFile_hint">اسم؛ برای مثال Test.txt</string>
+    <string name="new_file_hint">اسم؛ برای مثال Test.txt</string>
     <string name="mime">نوع رسانه؛ برای مثال text/plain</string>
     <string name="rep">جایگزین</string>
     <string name="search_keyword">جستجوی کلمه</string>
@@ -22,7 +21,6 @@
     <string name="report_issue">گزارش مشکل</string>
     <string name="copy">کپی</string>
     <string name="save_all">ذخیره همه</string>
-    <string name="save_1">ذخیره</string>
     <string name="undo">برگرداندن به حالت قبل</string>
     <string name="settings">تنظیمات</string>
     <string name="print">چاپ</string>
@@ -35,7 +33,6 @@
     <string name="reselect">دوباره-انتخاب کردن</string>
     <string name="open_file">باز کردن فایل</string>
     <string name="new_folder">پوشه جدید</string>
-    <string name="new_file_1">فایل جدید</string>
     <string name="rename">تغییر نام</string>
     <string name="open_with">باز کردن با…</string>
     <string name="save_as">ذخیره به عنوان</string>

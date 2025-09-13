@@ -113,7 +113,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
             EditorAction(
                 id = "save",
                 type = ActionType.PainterAction(drawables.save),
-                labelRes = strings.save,
+                labelRes = strings.saved,
                 action = { tab,editorState ->
                     GlobalScope.launch{
                         tab.save()

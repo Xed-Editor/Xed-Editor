@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close_drawer">mdel</string>
-    <string name="save_1">Sekles</string>
     <string name="err">Tuccḍa</string>
     <string name="yes">Ih</string>
     <string name="print">Siggez</string>
@@ -14,7 +13,6 @@
     <string name="download">Sider</string>
     <string name="cancel">Sefsex</string>
     <string name="restart">Ales asenker</string>
-    <string name="plugin">Iseɣzaf</string>
     <string name="settings">Iɣewwaren</string>
     <string name="search">Nadi</string>
     <string name="share">Bḍu</string>
@@ -28,7 +26,6 @@
     <string name="open_drawer">ldi</string>
     <string name="create">Snulfu-d</string>
     <string name="description">Aglam</string>
-    <string name="git">Git</string>
     <string name="themes">Isental</string>
     <string name="ok">Ih</string>
     <string name="files">Ifuyla</string>
@@ -41,12 +38,10 @@
     <string name="wait">Ttxil-k arǧu…</string>
     <string name="save_all">Sekles-iten akk</string>
     <string name="close_search">Mdel anadi</string>
-    <string name="new_file_1">Afaylu amaynut</string>
     <string name="open_with">Ldi s…</string>
     <string name="save_as">Sekles am</string>
     <string name="close_others">Mdel wiyaḍ</string>
     <string name="add_file">Rnu afaylu</string>
-    <string name="repo_dir">Akaram n ukufi</string>
     <string name="file_name">Isem n ufaylu</string>
     <string name="installed">Yettwasbedd</string>
     <string name="dark_mode">Ubrik</string>
@@ -64,20 +59,15 @@
     <string name="about">Ɣef</string>
     <string name="github">GitHub</string>
     <string name="close_all">Mdel-iten akk</string>
-    <string name="tools">Ifecka</string>
     <string name="sessions">Tiɣimiyin</string>
     <string name="ext">Isiɣzaf</string>
     <string name="installing">Asbeddi…</string>
     <string name="loading">Aɛebbi…</string>
-    <string name="user">Aseqdac</string>
-    <string name="email">Imayl</string>
     <string name="enable_ext">Isiɣzaf</string>
     <string name="downloading">Azdam…</string>
     <string name="file">Afaylu</string>
     <string name="folder">Akaram</string>
-    <string name="done">Yedda</string>
     <string name="script_network">aẓeṭṭa</string>
-    <string name="save">Yettwasekles ufaylu</string>
     <string name="open_file">Ldi afaylu</string>
     <string name="fonts">Tisefsa</string>
 </resources>

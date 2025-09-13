@@ -7,14 +7,14 @@
     <string name="unsupported_content">Unsupported content</string>
     <string name="null_content">Error: content is null</string>
     <string name="restart_required">Restart required</string>
-    <string name="save">File saved</string>
-    <string name="saveAll">Saved all files</string>
+    <string name="saved">File saved</string>
+    <string name="saved_all">Saved all files</string>
     <string name="save_label">Save</string>
     <string name="ww_wait">Please wait for word wrap to complete</string>
     <string name="open_file_or_folder">Open file or folder</string>
     <string name="open_directory">Open a directory</string>
     <string name="new_file">New file</string>
-    <string name="newFile_hint">Name e.g. Test.txt</string>
+    <string name="new_file_hint">Name e.g. Test.txt</string>
     <string name="mime">MIME type e.g. text/plain</string>
     <string name="rep">Replacement</string>
     <string name="search_keyword">Search keyword</string>
@@ -23,7 +23,6 @@
     <string name="report_issue">Report issue</string>
     <string name="copy">Copy</string>
     <string name="save_all">Save all</string>
-    <string name="save_1">Save</string>
     <string name="undo">Undo</string>
     <string name="settings">Settings</string>
     <string name="print">Print</string>
@@ -36,7 +35,6 @@
     <string name="reselect">Reselect</string>
     <string name="open_file">Open file</string>
     <string name="new_folder">New folder</string>
-    <string name="new_file_1">New file</string>
     <string name="rename">Rename</string>
     <string name="open_with">Open with…</string>
     <string name="save_as">Save as</string>
@@ -118,7 +116,6 @@
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>
-    <string name="clone_err">Repository is private. or Check your credentials</string>
     <string name="err">Error</string>
     <string name="open_dir_desc">Open a directory via system file picker</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
@@ -182,8 +179,8 @@
     <string name="choose_file">Choose file</string>
     <string name="force_char">Force char</string>
     <string name="force_char_desc">Force char based input in Terminal</string>
-    <string name="useCtrlWorkaround">Use Ctrl workaround</string>
-    <string name="useCtrlWorkaround_desc">Use Ctrl+Space workaround</string>
+    <string name="use_ctrl_workaround">Use Ctrl workaround</string>
+    <string name="use_ctrl_workaround_desc">Use Ctrl+Space workaround</string>
     <string name="editor_font">Editor font</string>
     <string name="editor_font_desc">Select editor font</string>
     <string name="force_desktop">Force desktop mode</string>
@@ -207,7 +204,7 @@
     <string name="telegram_desc">Report issues, feature requests etc.</string>
     <string name="join">Join</string>
     <string name="show_virtual_keyboard">Show virtual keyboard</string>
-    <string name="show_virtual_keyboard_desc">Show virtual keyboard when Physical keyboard is connected</string>
+    <string name="show_virtual_keyboard_desc">Show virtual keyboard when physical keyboard is connected</string>
     <string name="git_commit">Git commit hash</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="check_for_updates_desc">Periodically check for updates</string>
@@ -227,8 +224,7 @@
     <string name="font_added">Font successfully added</string>
     <string name="delete_font">Delete font</string>
     <string name="add_font">Add new font</string>
-    <string name="add_font_desc">Choose a ttf font from storage</string>
-    <string name="Save_as">Save as</string>
+    <string name="add_font_desc">Choose a TTF font from storage</string>
     <string name="file_not_saved">Some files are not saved</string>
     <string name="file_unsaved">File unsaved</string>
     <string name="ask_unsaved">Are you sure you want to discard this unsaved document?</string>
@@ -254,9 +250,9 @@
     <string name="terminal_runtime">Terminal runtime</string>
     <string name="terminal_runtime_desc">Select terminal runtime</string>
     <string name="enable_ext">Extensions</string>
-    <string name="enable_ext_desc">Load third party Extensions</string>
+    <string name="enable_ext_desc">Load third party extensions</string>
     <string name="ext">Extensions</string>
-    <string name="ext_desc">Manage Extensions</string>
+    <string name="ext_desc">Manage extensions</string>
     <string name="info_mutators">Mutators are small scripts that are used to modify the editor text. Create a mutator and click on it to open it in the editor.</string>
     <string name="no_mutators">No mutators</string>
     <string name="tab_opened">Tab opened</string>
@@ -284,8 +280,8 @@
     <string name="file_err">File cannot be saved, try closing and reopening the file</string>
     <string name="file_not_loaded">File isn\'t loaded yet.</string>
     <string name="file_not_exist">File no longer exists</string>
-    <string name="isDisableSoftKbdIfHardKbdAvailable">Disable virtual keyboard</string>
-    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Disable virtual keyboard if hardware keyboard is available</string>
+    <string name="disable_virtual_kbd">Disable virtual keyboard</string>
+    <string name="disable_virtual_kbd_desc">Disable virtual keyboard if hardware keyboard is available</string>
     <string name="experimental_feature">Experimental feature</string>
     <string name="experimental_session_restore_warning">This feature is experimental and known to sometimes cause loss of data</string>
     <string name="highlighting">Syntax highlighting</string>
@@ -328,7 +324,7 @@
     <string name="capture_logcat_desc">Capture logs in background for debugging</string>
     <string name="logcat_service">Logcat service</string>
     <string name="logcat_service_desc">Capturing logs in background</string>
-    <string name="tempFile">Temp file</string>
+    <string name="temp_file">Temp file</string>
     <string name="manage_storage_desc">Manage storage permission</string>
     <string name="lang">Language</string>
     <string name="lang_desc">Language settings</string>
@@ -357,7 +353,7 @@
     <string name="unsupported_feature">This feature is not supported on your device</string>
     <string name="confirm_exit">Are you sure you want to exit?</string>
     <string name="control_panel">Control panel</string>
-    <string name="newtab_oom">Not enough memory is available to open this tab. Opening it may cause Xed-Editor to crash. Do you want to continue anyway?</string>
+    <string name="tab_memory_warning">Not enough memory is available to open this tab. Opening it may cause Xed-Editor to crash. Do you want to continue anyway?</string>
     <string name="read_mode_desc">Enable read mode by default</string>
     <string name="preview_err">Unable to preview this file. No parent directory is available. Consider moving this file somewhere else.</string>
     <string name="acquire_wakelock">Acquire wakelock</string>
@@ -365,8 +361,8 @@
     <string name="getting_ready">Getting everything ready…</string>
     <string name="native_runner">This runner only works on native files, consider moving it to terminal home directory</string>
     <string name="terminal_virus_notice">On some devices, especially certain models from China, you may see a system security warning when many processes are running in the terminal (for example during \'apt update\' or \'apt upgrade\'). This is a false positive and does not indicate a real virus.</string>
-    <string name="textMateSuggestion">TextMate AutoCompletion</string>
-    <string name="textMateSuggestion_desc">Suggest predefined keywords</string>
+    <string name="text_mate_suggestion">TextMate auto-completion</string>
+    <string name="text_mate_suggestion_desc">Suggest predefined keywords</string>
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
     <string name="ask_lsp_install">Would you like to install %s language server?</string>

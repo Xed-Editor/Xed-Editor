@@ -6,14 +6,13 @@
     <string name="unsupported_content">Niewspierana zawartość</string>
     <string name="null_content">Błąd: Brak treści</string>
     <string name="restart_required">Wymagane ponowne uruchomienie</string>
-    <string name="save">Plik zapisany</string>
-    <string name="saveAll">Zapisano wszystkie pliki</string>
+    <string name="saved_all">Zapisano wszystkie pliki</string>
     <string name="save_label">Zapisz</string>
     <string name="ww_wait">Proszę zaczekać na zawinięcie tekstu</string>
     <string name="open_file_or_folder">Otwórz plik lub folder</string>
     <string name="open_directory">Otwórz ścieżkę</string>
     <string name="new_file">Nowy plik</string>
-    <string name="newFile_hint">Nazwa np. Test.txt</string>
+    <string name="new_file_hint">Nazwa np. Test.txt</string>
     <string name="mime">Typ Mime np. tekst/zwykły</string>
     <string name="rep">Zamiennik</string>
     <string name="search_keyword">Szukaj Słowa klucza</string>
@@ -22,7 +21,6 @@
     <string name="report_issue">Zgłoś problem</string>
     <string name="copy">Kopiuj</string>
     <string name="save_all">Zapisz wszystkie</string>
-    <string name="save_1">Zapisz</string>
     <string name="undo">Cofnij</string>
     <string name="settings">Ustawienia</string>
     <string name="print">Drukuj</string>
@@ -35,7 +33,6 @@
     <string name="reselect">Zaznacz ponownie</string>
     <string name="open_file">Otwórz Plik</string>
     <string name="new_folder">Nowy Folder</string>
-    <string name="new_file_1">Nowy Plik</string>
     <string name="rename">Zmień nazwę</string>
     <string name="open_with">Otwórz za pomocą</string>
     <string name="save_as">Zapisz jako</string>
@@ -66,7 +63,6 @@
     <string name="ask_del">Czy napewno chcesz trwale usunąć %s?</string>
     <string name="reselect_dir">Proszę wybierz ponownie ściezkę</string>
     <string name="cant_handle">Nie znaleziono aplikacji do obsługi pliku</string>
-    <string name="clipboardempty">Schowek jest pusty</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Dodaj zewnętrzny plik</string>
     <string name="keyword_regex">Słowo Klucz (Regex)</string>
@@ -80,8 +76,6 @@
     <string name="title">Tytuł</string>
     <string name="description">Opis</string>
     <string name="download">Pobrane</string>
-    <string name="git">Git</string>
-    <string name="cred">Referencje</string>
     <string name="diagonal_scroll">Przewijanie po przekątnej</string>
     <string name="diagonal_scroll_desc">Włącz przewijanie po przekątnej w drzewie plików</string>
     <string name="cursor_anim">Animacja kursora</string>
@@ -92,8 +86,6 @@
     <string name="extra_keys_desc">Pokaż dodatkowe klawisze w edytorze</string>
     <string name="auto_save">Automatyczny zapis</string>
     <string name="auto_save_desc">Automatyczne zapisywanie pliku</string>
-    <string name="auto_save_time">Czas automatycznego zapisu</string>
-    <string name="auto_save_time_desc">Automatyczne zapisywanie pliku po ustalonym czasie</string>
     <string name="interval_in_ms">Interwał w milisekundach</string>
     <string name="invalid_v">Nieprawidłowa wartość</string>
     <string name="v_small">Wartość zbyt niska</string>
@@ -109,9 +101,6 @@
     <string name="app_desc">Ogólne ustawienia aplikacji</string>
     <string name="editor_desc">Ogólne ustawienia edytora</string>
     <string name="terminal_desc">Ogólne ustawienia terminalu</string>
-    <string name="git_desc">Ogólne ustawienia Git</string>
-    <string name="Lshell">Uruchom powlokę</string>
-    <string name="Lshell_desc">Wykonywane podczas uruchomienia terminalu.</string>
     <string name="terminal_text_size">Rozmiar textu terminalu</string>
     <string name="terminal_text_size_desc">Ustaw rozmiar tekstu w terminalu</string>
     <string name="u_err">Nieznany bład</string>
@@ -126,8 +115,8 @@
     <string name="choose_file">Wybierz plik</string>
     <string name="force_char">Wymuś znak</string>
     <string name="force_char_desc">Wprowadzanie do twrminalu bazujące na wymuszonych znakach</string>
-    <string name="useCtrlWorkaround">Obejście używania Ctrl</string>
-    <string name="useCtrlWorkaround_desc">Obejście użyj Ctrl Spacja</string>
+    <string name="use_ctrl_workaround">Obejście używania Ctrl</string>
+    <string name="use_ctrl_workaround_desc">Obejście użyj Ctrl Spacja</string>
     <string name="editor_font">Czcionka edytora</string>
     <string name="editor_font_desc">Wybrana czcionka edytora</string>
     <string name="force_desktop">Wymuś tryb komputerowy</string>
@@ -165,13 +154,11 @@
     <string name="no_ext">Brak zainstalowanych rozszerzeń.</string>
     <string name="loading">Ładuje…</string>
     <string name="file_not_exist">Plik nie istnieje</string>
-    <string name="isDisableSoftKbdIfHardKbdAvailable">Wyłącz wirtualną klawiaturę</string>
-    <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Wyłącz wirtualną klawiaturę jeśli klawiatura fizyczna jest dostępna</string>
+    <string name="disable_virtual_kbd">Wyłącz wirtualną klawiaturę</string>
+    <string name="disable_virtual_kbd_desc">Wyłącz wirtualną klawiaturę jeśli klawiatura fizyczna jest dostępna</string>
     <string name="experimental_feature">Funkcja eksperymentalna</string>
     <string name="experimental_session_restore_warning">Funkcja jest eksperymentalna, czasami może spowodować utrate danych</string>
     <string name="highlighting">Podświetlenie składni</string>
-    <string name="err_no_termux">Termux nie jest zainstalowany</string>
-    <string name="err_termux_incompatible">Termux nie jest kompatybilny</string>
     <string name="unrestricted_file">Otwiera pliki każdego rozmiaru</string>
     <string name="unrestricted_file_desc">Pozwala otwierać pliki każdego rozmiaru. Może powodować awarię.</string>
     <string name="suggest_clear_app_data">Zalecane czyszczenie danych aplikacji</string>
@@ -191,7 +178,6 @@
     <string name="restore">Przywróć</string>
     <string name="success">Sukces</string>
     <string name="failed">Porażka</string>
-    <string name="invalidpath">Niewłaściwa ścieżka</string>
     <string name="unknown_err">Coś poszło nie tak</string>
     <string name="misc">Różne</string>
     <string name="misc_desc">Różne ustawienia</string>
