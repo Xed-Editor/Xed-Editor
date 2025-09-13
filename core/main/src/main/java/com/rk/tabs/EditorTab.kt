@@ -1,7 +1,6 @@
 package com.rk.tabs
 
 import android.app.Activity
-import android.graphics.Color
 import com.rk.xededitor.ui.activities.main.ControlPanel
 import com.rk.xededitor.ui.activities.main.MainViewModel
 import android.view.KeyEvent
@@ -33,18 +32,17 @@ import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.editor.BaseLspConnector
-import com.rk.libcommons.editor.BaseLspServer
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.editor.lspRegistry
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.errorDialog
+import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.terminal.ProcessConnection
-import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.EditorActions
 import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
@@ -327,11 +325,14 @@ private fun EditorTab.CodeEditor(
                                             }
                                         }else{
                                             setLanguage(langScope)
-                                            dialog(context = context as Activity, title = strings.attention.getString(), msg = String.format(strings.ask_lsp_install.getString(), "python"), cancelString = strings.dont_ask_again, okString = strings.install, onOk = {
-                                                server.install(context)
-                                            }, onCancel = {
-                                                Preference.setBoolean("lsp_${server.id}",false)
-                                            })
+                                            dialog(
+                                                context = context as Activity,
+                                                title = strings.attention.getString(),
+                                                msg = strings.ask_lsp_install.getFilledString(mapOf("language_name" to "python")),
+                                                cancelString = strings.dont_ask_again, okString = strings.install,
+                                                onOk = { server.install(context) },
+                                                onCancel = { Preference.setBoolean("lsp_${server.id}",false) }
+                                            )
                                         }
                                     }else{
                                         setLanguage(langScope)

@@ -21,7 +21,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -38,13 +37,13 @@ import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
 import com.rk.libcommons.errorDialog
 import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
@@ -520,7 +519,7 @@ fun DeleteConfirmationDialog(
             )
 
             Text(
-                text = String.format(stringResource(strings.ask_del), fileName),
+                text = stringResource(strings.ask_del).fillPlaceholders(mapOf("file_name" to fileName)),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 

@@ -33,6 +33,7 @@ import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
 import com.rk.extension.Hooks
 import com.rk.resources.drawables
+import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -98,7 +99,7 @@ private fun Categories(navController: NavController) {
     if (App.isFDroid && InbuiltFeatures.developerOptions.state.value) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
-            description = String.format(strings.debug_options_desc.getString(), strings.app_name.getString()),
+            description = strings.debug_options_desc.getFilledString(mapOf("app_name" to strings.app_name.getString())),
             iconResource = drawables.build,
             onNavigate = { navController.navigate(SettingsRoutes.DeveloperOptions.route) },
         )
