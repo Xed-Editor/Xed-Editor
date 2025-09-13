@@ -41,6 +41,7 @@ val textmateSources = mapOf(
     "cmd" to "source.batchfile",
     "sh" to "source.shell",
     "bash" to "source.shell",
+    "zsh" to "source.shell",
     "htm" to "text.html.basic",
     "rs" to "source.rust",
     "lua" to "source.lua",
