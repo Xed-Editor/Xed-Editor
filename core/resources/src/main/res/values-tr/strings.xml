@@ -149,7 +149,7 @@
     <string name="cloning">Klon Deposu…</string>
     <string name="clone_err">Depolama özeldir. veya Kimlik bilgilerinizi kontrol edin</string>
     <string name="err">Yanlış</string>
-    <string name="open_dir_desc">Klasör aç [SAF]</string>
+    <string name="open_dir_desc">Sistem dosya seçicisinden bir klasör aç</string>
     <string name="open_file_desc">Doğrudan düzenlemek için bir dosya seçin</string>
     <string name="open_path">Dahili kurtarma</string>
     <string name="open_path_desc">Dahili depolamayı aç</string>
@@ -169,7 +169,7 @@
     <string name="plugin_download_failed">Eklenti indirilemiyor</string>
     <string name="fetch_failed">getirme isteği null döndürdü</string>
     <string name="app">Uygulama</string>
-    <string name="oled_desc">AMOLED cihazlar için saf bir koyu tema kullan</string>
+    <string name="oled_desc">Karanlık Tema (#000)</string>
     <string name="themes">Temalar</string>
     <string name="change_theme">Temayı Değiştir</string>
     <string name="editor">Editör</string>
@@ -186,7 +186,7 @@
     <string name="extra_keys">Ekstra anahtarlar</string>
     <string name="extra_keys_desc">Düzenleyicide ekstra anahtarları göster</string>
     <string name="auto_save">Otomatik kaydetme</string>
-    <string name="auto_save_desc">dosyayı otomatik olarak kaydet</string>
+    <string name="auto_save_desc">Dosyayı otomatik kaydet</string>
     <string name="auto_save_time">Otomatik zaman kazandırır</string>
     <string name="auto_save_time_desc">Belirtilen süre sonunda dosyayı otomatik olarak kaydet</string>
     <string name="intervalinMs">Milisaniye cinsinden aralık</string>
@@ -271,7 +271,7 @@
     <string name="toggle_suggestion">Teklifi değiştir</string>
     <string name="run">Çalıştır</string>
     <string name="txt_ww">Txt dosyalarını sarın</string>
-    <string name="txt_ww_desc">Metin dosyalarını otomatik olarak kaydır</string>
+    <string name="txt_ww_desc">.txt dosyalarında satırları otomatik kaydır</string>
     <string name="sora_s">Sora metin araması</string>
     <string name="sora_s_desc">Sora metin aramasını kullanma</string>
     <string name="manage_editor_font">Editörün Yazı Tiplerini Yönet</string>
