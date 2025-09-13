@@ -485,4 +485,9 @@
     <string name="use_tabs_desc">行首将使用 Tab 的转义字符 \\t 而不是一堆空格</string>
     <string name="invalid_port">不存在的端口</string>
     <string name="unsupported_file_ext">不支持这种类型的文件</string>
+    <string name="strict_mode">严格模式</string>
+    <string name="strict_mode_desc">检测到在主线程访问磁盘或网络</string>
+    <string name="verbose_errors">详细错误</string>
+    <string name="verbose_errors_desc">在报错对话框中显示堆栈跟踪信息</string>
+    <string name="debugger">调试器</string>
 </resources>
