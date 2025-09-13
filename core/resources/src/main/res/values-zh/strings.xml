@@ -298,7 +298,7 @@
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
     <string name="txt_ww">仅对 TXT 文件自动换行</string>
-    <string name="txt_ww_desc">仅对无标签和语法的纯文本文件执行自动换行</string>
+    <string name="txt_ww_desc">对纯文本文件自动换行</string>
     <string name="sora_s">Sora Editor 文本搜索</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
@@ -476,13 +476,13 @@
     <string name="memory_usage">获取已用内存</string>
     <string name="anr_watchdog_desc">如果发现Xed‐Editor处在未响应状态并持续5秒钟，就终止其运行</string>
     <string name="anr_watchdog">监视应用是否 ANR</string>
-    <string name="debugger_not_allowed">此程序是发行版，不让用 Debugger 哦</string>
+    <string name="debugger_not_allowed">调试器在正式发布版本不可用</string>
     <string name="capturing_logcat">抓取 Logcat 中…</string>
     <string name="logcat_saved">logcat.txt 已保存在 %s</string>
     <string name="stop_logcat">终止 Logcat</string>
     <string name="discord">Discord 社区</string>
     <string name="use_tabs">插入 Tab 字符</string>
-    <string name="use_tabs_desc">行首将使用 Tab 的转义字符 \\t 而不是一堆空格</string>
+    <string name="use_tabs_desc">行首将使用 Tab 的转义字符 \\t 而不是多个空格</string>
     <string name="invalid_port">不存在的端口</string>
     <string name="unsupported_file_ext">不支持这种类型的文件</string>
     <string name="strict_mode">严格模式</string>
