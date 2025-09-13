@@ -242,7 +242,7 @@
     <string name="force_desktop_desc">Daha küçük ekranlı cihazlarda masaüstü düzenini zorunlu kılın</string>
     <string name="force_normal">Normal modu zorunlu kıl</string>
     <string name="force_normal_desc">Büyük ekranlı cihazlarda normal düzeni zorla</string>
-    <string name="light_mode">Açık</string>
+    <string name="light_mode">Aydınlık</string>
     <string name="dark_mode">Karanlık</string>
     <string name="auto_mode">Otomatik</string>
     <string name="select_theme_mode">\@string/theme_mode</string>
@@ -403,7 +403,7 @@
     <string name="unsupported_feature">Bu özellik cihazınızda desteklenmiyor</string>
     <string name="confirm_exit">Çıkmak istediğinizden emin misiniz?</string>
     <string name="controlpanel">KontrolPaneli</string>
-    <string name="newtab_oom">Bu sekmeyi açmak için yeterli bellek mevcut değil. Açmak Xed-Editor\'ün çökmesine neden olabilir. Yine de devam etmek istiyor musunuz?</string>
+    <string name="newtab_oom">Bu sekmeyi açmak için yeterli bellek yok. Açılması Xed-Editor’un çökmesine neden olabilir. Yine de devam etmek istiyor musunuz?</string>
     <string name="read_mode_desc">Okuma modunu varsayılan olarak etkinleştirin</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable">Sanal klavyeyi devre dışı bırak</string>
     <string name="isDisableSoftKbdIfHardKbdAvailable_desc">Donanım klavyesi mevcutsa sanal klavyeyi devre dışı bırakın</string>
