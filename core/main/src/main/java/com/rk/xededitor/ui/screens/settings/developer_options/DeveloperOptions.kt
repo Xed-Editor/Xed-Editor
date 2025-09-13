@@ -4,6 +4,7 @@ package com.rk.xededitor.ui.screens.settings.developer_options
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -31,8 +32,10 @@ import com.rk.LogcatService
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.switch.PreferenceSwitch
+import com.rk.libcommons.dialog
 import com.rk.libcommons.editor.textmateSources
 import com.rk.libcommons.toast
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
@@ -47,8 +50,8 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController) {
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val activity = LocalActivity.current
 
     val memoryUsage = remember { mutableStateOf("Unknown") }
 
@@ -71,18 +74,11 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    MaterialAlertDialogBuilder(context).apply {
-                        setTitle(strings.force_crash)
-                        setMessage(strings.force_crash_confirm)
-                        setNegativeButton(strings.cancel, null)
-                        setPositiveButton(strings.ok) { _, _ ->
-                            Thread {
-                                throw RuntimeException("Force Crash")
-                            }.start()
-                        }
-                        show()
-                    }
-
+                    dialog(context = activity, title = strings.force_crash.getString(), msg = strings.force_crash_confirm.getString(), onCancel = {}, onOk = {
+                        Thread {
+                            throw RuntimeException("Force Crash")
+                        }.start()
+                    })
                 }
             )
             SettingsToggle(
