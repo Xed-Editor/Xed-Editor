@@ -122,7 +122,7 @@
     <string name="cloning">Cloning repository…</string>
     <string name="clone_err">Repository is private. or Check your credentials</string>
     <string name="err">Error</string>
-    <string name="open_dir_desc">Open a directory using SAF</string>
+    <string name="open_dir_desc">Open a directory via system file picker</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
     <string name="open_path">Internal Storage</string>
     <string name="open_path_desc">Open internal storage</string>
