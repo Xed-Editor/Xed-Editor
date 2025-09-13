@@ -22,10 +22,6 @@ import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.sequences.filterIsInstance
 
 @Composable
 fun SettingsEditorScreen(navController: NavController) {
@@ -92,8 +88,8 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(strings.isDisableSoftKbdIfHardKbdAvailable),
-                description = stringResource(strings.isDisableSoftKbdIfHardKbdAvailable_desc),
+                label = stringResource(strings.disable_virtual_kbd),
+                description = stringResource(strings.disable_virtual_kbd_desc),
                 default = Settings.hide_soft_keyboard_if_hardware,
                 sideEffect = {
                     Settings.hide_soft_keyboard_if_hardware = it
@@ -154,8 +150,8 @@ fun SettingsEditorScreen(navController: NavController) {
                     showTextSizeDialog = true
                 })
 
-            SettingsToggle(label = stringResource(strings.textMateSuggestion),
-                description = stringResource(strings.textMateSuggestion_desc),
+            SettingsToggle(label = stringResource(strings.text_mate_suggestion),
+                description = stringResource(strings.text_mate_suggestion_desc),
                 default = Settings.textMateSuggestion,
                 sideEffect = {
                     Settings.textMateSuggestion = it
@@ -182,7 +178,7 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
-                label = stringResource(id = strings.keepdl),
+                label = stringResource(id = strings.keep_drawer_locked),
                 description = stringResource(id = strings.drawer_lock_desc),
                 default = Settings.keep_drawer_locked,
                 sideEffect = {

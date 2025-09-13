@@ -11,7 +11,7 @@
 
     <item
         android:id="@+id/openFile"
-        android:title="@string/openfile"
+        android:title="@string/open_file"
         android:visible="false" />
 
     <item
@@ -20,12 +20,12 @@
         android:visible="false" />
 
     <item
-        android:id="@+id/ceateFolder"
+        android:id="@+id/createFolder"
         android:title="@string/new_folder"
         android:visible="false" />
     <item
         android:id="@+id/createFile"
-        android:title="@string/new_file_1"
+        android:title="@string/new_file"
         android:visible="false" />
     <item
         android:id="@+id/rename"

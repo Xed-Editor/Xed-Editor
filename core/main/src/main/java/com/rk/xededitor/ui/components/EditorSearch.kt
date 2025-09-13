@@ -23,7 +23,6 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -41,7 +40,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.rk.DefaultScope
 import com.rk.resources.strings
 import com.rk.tabs.CodeEditorState
 import io.github.rosemoe.sora.widget.EditorSearcher
@@ -297,7 +295,7 @@ fun SearchPanel(
                         onClick = {
                             editor?.searcher?.replaceAll(editorState.replaceKeyword)
                         }) {
-                        Text(stringResource(strings.replaceall).uppercase())
+                        Text(stringResource(strings.replace_all).uppercase())
                     }
                 }
 

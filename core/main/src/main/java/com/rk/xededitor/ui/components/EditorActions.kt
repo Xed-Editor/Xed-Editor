@@ -1,6 +1,5 @@
 package com.rk.xededitor.ui.components
 
-import android.R.attr.maxWidth
 import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.activity.compose.LocalActivity
@@ -26,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,12 +34,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
-import com.rk.libcommons.application
 import com.rk.libcommons.showTerminalNotice
-import com.rk.libcommons.toast
 import com.rk.libcommons.x
 import com.rk.resources.drawables
 import com.rk.resources.strings
@@ -56,7 +51,6 @@ import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.terminal.isV
 import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -64,9 +58,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.math.min
-import kotlin.random.Random.Default.nextInt
 import kotlin.ranges.random
-import kotlin.system.exitProcess
 
 sealed class ActionType {
     data class PainterAction(@DrawableRes val iconRes: Int) : ActionType()
@@ -121,7 +113,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
             EditorAction(
                 id = "save",
                 type = ActionType.PainterAction(drawables.save),
-                labelRes = strings.save,
+                labelRes = strings.saved,
                 action = { tab,editorState ->
                     GlobalScope.launch{
                         tab.save()
@@ -247,7 +239,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                             modifier = Modifier.fillMaxSize())
                     }
                 },
-                labelRes = strings.controlpanel,
+                labelRes = strings.control_panel,
                 action = { tab,editorState ->
                     MainActivity.instance?.viewModel?.currentTab?.let {
                         if (it is EditorTab){

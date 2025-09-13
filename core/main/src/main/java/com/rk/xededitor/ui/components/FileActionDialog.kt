@@ -21,7 +21,6 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -38,7 +37,6 @@ import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
-import com.rk.file.UriWrapper
 import com.rk.file.openWith
 import com.rk.file.to_save_file
 import com.rk.libcommons.errorDialog
@@ -470,7 +468,7 @@ fun NewDocumentDialog(
             OutlinedTextField(
                 value = value,
                 onValueChange = { value = it },
-                label = { Text(stringResource(strings.newFile_hint)) },
+                label = { Text(stringResource(strings.new_file_hint)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
