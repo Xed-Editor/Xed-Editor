@@ -29,7 +29,7 @@ android {
 
         implementation project(":terminal-view")
 
-        implementation "com.termux:termux-am-library:v2.0.0"
+        implementation "com.termux:termux-am-library:1.0"
     }
 
     defaultConfig {
