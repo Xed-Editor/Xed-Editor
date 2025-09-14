@@ -277,6 +277,7 @@ class KarbonEditor : CodeEditor {
         val wordWrap = Settings.wordwrap
         val keyboardSuggestion = Settings.show_suggestions
         val lineSpacing = Settings.line_spacing
+        val renderWhitespace = Settings.render_whitespace
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
@@ -291,6 +292,14 @@ class KarbonEditor : CodeEditor {
         isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
         showSuggestions(keyboardSuggestion)
 
+        if (renderWhitespace) {
+            nonPrintablePaintingFlags = FLAG_DRAW_LINE_SEPARATOR or
+                                        FLAG_DRAW_WHITESPACE_LEADING or
+                                        FLAG_DRAW_WHITESPACE_INNER or
+                                        FLAG_DRAW_WHITESPACE_TRAILING or
+                                        FLAG_DRAW_WHITESPACE_FOR_EMPTY_LINE or
+                                        FLAG_DRAW_WHITESPACE_IN_SELECTION
+        }
     }
 
 
