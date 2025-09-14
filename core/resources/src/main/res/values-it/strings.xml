@@ -6,7 +6,6 @@
     <string name="wait">Attendi per favore…</string>
     <string name="print">Stampa</string>
     <string name="close">Chiudi</string>
-    <string name="title_activity_main">AttivitàPrincipale</string>
     <string name="invalid_path">Il percorso non esiste</string>
     <string name="permission_denied">Permesso Negato</string>
     <string name="path">Percorso</string>

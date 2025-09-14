@@ -50,7 +50,7 @@ fun SettingsTerminalScreen() {
         val activity = LocalActivity.current
 
         PreferenceGroup {
-            SettingsToggle(label = "FailSafe Mode", description = "Start terminal in maintenance mode", default = !Settings.sandbox, sideEffect = {
+            SettingsToggle(label = stringResource(strings.failsafe_mode), description = stringResource(strings.failsafe_mode_desc), default = !Settings.sandbox, sideEffect = {
                 Settings.sandbox = !it
             })
         }

@@ -50,7 +50,7 @@ fun Support(modifier: Modifier = Modifier) {
 
         PreferenceGroup {
             SettingsToggle(
-                label = "GitHub Sponsor",
+                label = "GitHub Sponsors",
                 description = null,
                 isEnabled = true,
                 showSwitch = false,
