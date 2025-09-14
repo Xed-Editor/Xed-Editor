@@ -299,6 +299,8 @@ class KarbonEditor : CodeEditor {
                                         FLAG_DRAW_WHITESPACE_TRAILING or
                                         FLAG_DRAW_WHITESPACE_FOR_EMPTY_LINE or
                                         FLAG_DRAW_WHITESPACE_IN_SELECTION
+        } else {
+            nonPrintablePaintingFlags = 0
         }
     }
 
