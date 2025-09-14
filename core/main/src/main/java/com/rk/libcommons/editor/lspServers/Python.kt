@@ -20,7 +20,7 @@ class Python() : BaseLspServer() {
             return false
         }
 
-        return sandboxDir().child("bin/pylsp").exists()
+        return sandboxHomeDir().child(".local/share/pipx/venvs/python-lsp-server/bin/pylsp").exists()
     }
 
     override fun install(context: Context) {
@@ -28,7 +28,7 @@ class Python() : BaseLspServer() {
             context = context,
             terminalCommand = TerminalCommand(exe = "/bin/bash",
                 args = arrayOf("-c",
-                    "\"apt update -y && apt install python3-pylsp -y && clear && echo 'Successfully installed close all tabs and reopen.' \""
+                    "\"apt update && apt upgrade -y && apt install -y pipx && pipx install 'python-lsp-server[all]' && clear && echo 'Successfully installed close all tabs and reopen.' \""
                 ),
                 id = "python-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
@@ -37,6 +37,6 @@ class Python() : BaseLspServer() {
     }
 
     override fun command(): Array<String> {
-        return arrayOf("/bin/pylsp")
+        return arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp")
     }
 }
