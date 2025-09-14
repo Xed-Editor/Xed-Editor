@@ -44,15 +44,9 @@ class MDViewer : WebActivity() {
             if (it.isAlive) it.stop()
         }
 
-        val parent = file.getParentFile()
-        if (parent == null) {
-            errorDialog(strings.preview_err.getString())
-            finish()
-            return
-        }
 
         // start markdown-serving server
-        httpServer = HttpServer(PORT, parent) { md, session ->
+        httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
             val parameters = session.parameters
             val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
             if (parameters.containsKey("textmd")) {
