@@ -12,6 +12,8 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.runner.runners.web.HttpServer
+import androidx.core.net.toUri
+import com.rk.libcommons.toast
 
 
 class HtmlRunner() : RunnerImpl() {
@@ -40,13 +42,10 @@ class HtmlRunner() : RunnerImpl() {
 
     override fun run(context: Context,file: FileObject) {
         stop()
-        val parent = file.getParentFile()
-        if (parent == null){
-            errorDialog(strings.preview_err.getString())
-            return
-        }
+        httpServer = HttpServer(PORT, file.getParentFile() ?: file)
 
-        httpServer = HttpServer(PORT, parent)
+        toast("Serving at: http://localhost:$PORT")
+
         val url = "http://localhost:$PORT/${file.getName()}"
         CustomTabsIntent.Builder().apply {
             setShowTitle(true)
@@ -57,7 +56,7 @@ class HtmlRunner() : RunnerImpl() {
 //            )
 //
 //            addMenuItem("Dev Tools",pendingIntent)
-        }.build().launchUrl(context, Uri.parse(url))
+        }.build().launchUrl(context, url.toUri())
     }
 
     override fun getName(): String {

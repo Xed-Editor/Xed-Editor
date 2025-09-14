@@ -7,10 +7,22 @@
       "languageConfiguration": "textmate/dart/Dart.config.json"
     },
     {
+      "grammar": "textmate/pascal/Pascal.tmLanguage.json",
+      "name": "Pascal",
+      "scopeName": "source.pascal",
+      "languageConfiguration": "textmate/pascal/pascal.config.json"
+    },
+    {
       "grammar": "textmate/toml/toml.tmLanguage.json",
       "name": "toml",
       "scopeName": "source.toml",
       "languageConfiguration": "textmate/toml/toml.language-configuration.json"
+    },
+    {
+      "grammar": "textmate/zig/Zig.tmLanguage.json",
+      "name": "Zig",
+      "scopeName": "source.zig",
+      "languageConfiguration": "textmate/zig/Zig.config.json"
     },
     {
       "grammar": "textmate/java/syntaxes/java.tmLanguage.json",

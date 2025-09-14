@@ -41,6 +41,13 @@ val textmateSources = mapOf(
     "cmd" to "source.batchfile",
     "sh" to "source.shell",
     "bash" to "source.shell",
+    "bashrc" to "source.shell",
+    "bash_profile" to "source.shell",
+    "bash_login" to "source.shell",
+    "profile" to "source.shell",
+    "bash_logout" to "source.shell",
+    ".textmate_init" to "source.shell",
+    "zsh" to "source.shell",
     "htm" to "text.html.basic",
     "rs" to "source.rust",
     "lua" to "source.lua",
@@ -57,7 +64,10 @@ val textmateSources = mapOf(
     "toml" to "source.toml",
     "dart" to "source.dart",
     "lisp" to "source.lisp",
-    "sql" to "source.sql"
+    "sql" to "source.sql",
+    "p" to "source.pascal",
+    "pas" to "source.pascal",
+    "zig" to "source.zig"
 )
 
 val lspRegistry = mapOf<String, BaseLspServer>(

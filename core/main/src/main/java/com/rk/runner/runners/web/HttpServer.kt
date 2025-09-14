@@ -8,50 +8,83 @@ import java.util.Date
 
 class HttpServer(
     port: Int,
-    val rootDir: FileObject,
+    val root: FileObject,
     val serveHook: ((FileObject, IHTTPSession) -> Response?)? = null
 ) : NanoHTTPD(port) {
     init {
-        if (rootDir.isDirectory().not()) {
-            throw RuntimeException("Expected a directory but got file")
-        }
         start()
     }
 
     override fun serve(session: IHTTPSession?): Response {
         val uri = session!!.uri
-        var file = rootDir.getChildForName(uri)
+
+        if (root.isFile()) {
+            if (!root.exists()) {
+                return newFixedLengthResponse(
+                    Status.NOT_FOUND,
+                    "text/plain",
+                    "404 not found ${Date()}",
+                )
+            }
+
+            return try {
+                newFixedLengthResponse(
+                    Status.OK,
+                    URLConnection.guessContentTypeFromName(root.getName()) ?: "application/octet-stream",
+                    root.getInputStream(),
+                    root.length(),
+                )
+            } catch (e: SecurityException) {
+                newFixedLengthResponse(
+                    Status.FORBIDDEN,
+                    "text/plain",
+                    "403 forbidden: cannot read file ${root.getName()}",
+                )
+            } catch (e: Exception) {
+                newFixedLengthResponse(
+                    Status.INTERNAL_ERROR,
+                    "text/plain",
+                    "500 internal error: ${e.message ?: "unknown"}",
+                )
+            }
+        }
+
+        var file = root.getChildForName(uri)
         if (file.isDirectory()) {
             file = file.getChildForName("index.html")
         }
 
-        if (serveHook != null) {
-            val response = serveHook.invoke(file, session)
-            if (response != null) {
-                return response
-            }
-        }
+        // Hook override
+        serveHook?.invoke(file, session)?.let { return it }
 
-        if (file.exists().not()) {
+        if (!file.exists()) {
             return newFixedLengthResponse(
                 Status.NOT_FOUND,
                 "text/plain",
-                "404 not found " + Date().toString(),
+                "404 not found ${Date()}",
             )
         }
 
-
-        try {
-
-            return newFixedLengthResponse(
+        return try {
+            newFixedLengthResponse(
                 Status.OK,
-                URLConnection.guessContentTypeFromName(file.getName()),
+                URLConnection.guessContentTypeFromName(file.getName()) ?: "application/octet-stream",
                 file.getInputStream(),
                 file.length(),
             )
+        } catch (e: SecurityException) {
+            newFixedLengthResponse(
+                Status.FORBIDDEN,
+                "text/plain",
+                "403 forbidden: cannot read ${file.getName()}",
+            )
         } catch (e: Exception) {
-            e.printStackTrace()
+            newFixedLengthResponse(
+                Status.INTERNAL_ERROR,
+                "text/plain",
+                "500 internal error: ${e.message ?: "unknown"}",
+            )
         }
-        return super.serve(session)
     }
+
 }

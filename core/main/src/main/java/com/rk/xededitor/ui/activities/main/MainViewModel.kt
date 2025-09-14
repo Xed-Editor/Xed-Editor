@@ -4,12 +4,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.libcommons.application
 import com.rk.libcommons.dialog
-import com.rk.libcommons.errorDialog
 import com.rk.libcommons.expectOOM
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -112,7 +110,7 @@ class MainViewModel : ViewModel() {
 
         val coroutineScope = this
         if (expectOOM(fileObject.length())){
-            dialog(title = strings.attention.getString(), msg = strings.newtab_oom.getString(), onOk = {
+            dialog(title = strings.attention.getString(), msg = strings.tab_memory_warning.getString(), onOk = {
                 coroutineScope.launch{
                     function.invoke()
                 }

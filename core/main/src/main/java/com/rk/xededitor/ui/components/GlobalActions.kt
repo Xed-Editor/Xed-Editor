@@ -69,7 +69,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
             addDialog = false
         }) {
             DividerColumn {
-                AddDialogItem(icon = drawables.file, title = stringResource(strings.tempFile)) {
+                AddDialogItem(icon = drawables.file, title = stringResource(strings.temp_file)) {
                     DefaultScope.launch{
                         viewModel.newTab(FileWrapper(sandboxHomeDir().child("temp").createFileIfNot()),checkDuplicate = true,switchToTab = true)
                     }
@@ -103,7 +103,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
 
                 }
 
-                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.openfile)) {
+                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.open_file)) {
                     addDialog = false
                     MainActivity.instance?.apply {
                         fileManager.requestOpenFile(mimeType = "*/*"){

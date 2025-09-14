@@ -34,7 +34,7 @@ install_package() {
 install_nodejs() {
   echo "Installing Node.js LTS..."
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-  apt install -y nodejs npm
+  apt install -y nodejs
 }
 
 install_rust() {

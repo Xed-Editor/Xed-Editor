@@ -469,7 +469,7 @@ fun NewDocumentDialog(
             OutlinedTextField(
                 value = value,
                 onValueChange = { value = it },
-                label = { Text(stringResource(strings.newFile_hint)) },
+                label = { Text(stringResource(strings.new_file_hint)) },
                 modifier = Modifier.fillMaxWidth()
             )
 
