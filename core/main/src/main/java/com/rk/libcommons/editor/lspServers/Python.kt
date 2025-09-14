@@ -14,7 +14,6 @@ class Python() : BaseLspServer() {
     override val languageName: String = "Python"
 
 
-
     override fun isInstalled(context: Context): Boolean {
         if (isTerminalInstalled().not()){
             return false
