@@ -352,4 +352,6 @@
     <string name="unsupported_feature">Questa funzionalità non è supportata dal tuo dispositivo</string>
     <string name="confirm_exit">Sei sicuro di voler uscire?</string>
     <string name="control_panel">Pannello di controllo</string>
+    <string name="tab_memory_warning">Memoria insufficiente per aprire questa scheda. Aprirla potrebbe causare il crash di Xed-Editor. Vuoi procedere comunque?</string>
+    <string name="read_mode_desc">Abilita modalità lettura per impostazione predefinita</string>
 </resources>
