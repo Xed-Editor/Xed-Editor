@@ -33,7 +33,7 @@
     <string name="restart_required">Neustart erforderlich</string>
     <string name="save_label">Speichern</string>
     <string name="new_file">Neue Datei</string>
-    <string name="mime">MimeType z.B. text/plain</string>
+    <string name="mime">MIME-Typ z.B. text/plain</string>
     <string name="new_folder">Neuer Ordner</string>
     <string name="print">Drucken</string>
     <string name="paste">Einfügen</string>
@@ -46,7 +46,7 @@
     <string name="share">Teilen</string>
     <string name="unsaved">Nicht gespeicherte Dateien</string>
     <string name="telegram_desc">Melde Probleme, Funktionswünsche usw.</string>
-    <string name="open_with">Öffnen mit …</string>
+    <string name="open_with">Öffnen mit…</string>
     <string name="close">Schließen</string>
     <string name="save_exit">Speichern und schließen</string>
     <string name="title">Titel</string>
@@ -55,7 +55,7 @@
     <string name="terminal">Terminal</string>
     <string name="github_desc">Stern auf GitHub vergeben 🤩</string>
     <string name="telegram">Telegram-Gruppe</string>
-    <string name="close_drawer">schließen</string>
+    <string name="close_drawer">Schließen</string>
     <string name="unsupported_content">Nicht unterstützter Inhalt</string>
     <string name="null_content">Fehler: Inhalt ist null</string>
     <string name="rep">Ersatz</string>
@@ -63,7 +63,7 @@
     <string name="copy">Kopieren</string>
     <string name="exit">Beenden</string>
     <string name="attention">Achtung</string>
-    <string name="open_drawer">öffnen</string>
+    <string name="open_drawer">Öffnen</string>
     <string name="add_file">Externe Datei hinzufügen</string>
     <string name="not_implemented">Diese Funktion ist nicht implementiert</string>
     <string name="experimental_feature">Experimentelle Funktion</string>
@@ -79,12 +79,12 @@
     <string name="reselect">Erneut auswählen</string>
     <string name="open_file">Datei öffnen</string>
     <string name="apply">Annehmen</string>
-    <string name="exists">existiert bereits!</string>
+    <string name="exists">Existiert bereits!</string>
     <string name="cloning">Klone Repository…</string>
     <string name="keyword_regex">Schlüsselwort (Regex)</string>
     <string name="replace_all">Alles ersetzen</string>
     <string name="keep_drawer_locked">Drawer verschlossen halten</string>
-    <string name="replacement">ersetzen</string>
+    <string name="replacement">Ersetzung</string>
     <string name="remove_a_search_batch">Entfernen eines Suchbatches</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="tab_text_1">Registerkarte 1</string>
@@ -113,7 +113,7 @@
     <string name="tab_text_2">Registerkarte 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
     <string name="paste_desc">Dokument einfügen</string>
-    <string name="clipboard_empty">Die Dateizwischenablage ist leer</string>
+    <string name="clipboard_empty">Dateizwischenablage ist leer</string>
     <string name="save_desc">Die ausgewählte Datei an einem anderen Ort speichern</string>
     <string name="open">Öffnen</string>
     <string name="path">Dateipfad</string>
@@ -135,10 +135,10 @@
     <string name="app">Anwendung</string>
     <string name="change_theme">Thema ändern</string>
     <string name="editor">Editor</string>
-    <string name="fetch_failed">Abrufanforderung hat null zurückgegeben</string>
+    <string name="fetch_failed">Fetch-Request hat null zurückgegeben</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
     <string name="download_sure">Möchtest du wirklich herunterladen</string>
-    <string name="oled_desc">Verwende ein rein schwarzes Farbthema für AMOLED-Geräte</string>
+    <string name="oled_desc">Schwarzes Thema (#000)</string>
     <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
     <string name="diagonal_scroll">Diagonales Scrollen</string>
@@ -150,7 +150,7 @@
     <string name="auto_save">Automatisch speichern</string>
     <string name="auto_save_desc">Datei automatisch speichern</string>
     <string name="invalid_v">Ungültiger Wert</string>
-    <string name="tab_size">Tab-Größe</string>
+    <string name="tab_size">Tabgröße</string>
     <string name="tab_size_desc">Tab-Größe festlegen</string>
     <string name="v_small">Wert zu klein</string>
     <string name="text_size">Textgröße</string>
@@ -232,8 +232,8 @@
     <string name="terminal_home_desc">Standard-Home-Verzeichnis des Terminals</string>
     <string name="sessions">Sitzungen</string>
     <string name="add_session">Sitzung hinzufügen</string>
-    <string name="terminal_runtime">Terminal-Laufzeit</string>
-    <string name="terminal_runtime_desc">Terminal-Laufzeit auswählen</string>
+    <string name="terminal_runtime">Terminal-Runtime</string>
+    <string name="terminal_runtime_desc">Terminal-Runtime auswählen</string>
     <string name="enable_ext">Erweiterungen</string>
     <string name="enable_ext_desc">Drittanbieter-Erweiterungen laden</string>
     <string name="ext">Erweiterungen</string>
@@ -295,7 +295,7 @@
     <string name="logcat_service_desc">Logs werden im Hintergrund aufgezeichnet</string>
     <string name="flavor">Variante</string>
     <string name="drawer_lock_desc">Drawer beim Öffnen einer Datei verschlossen halten</string>
-    <string name="unsupported_aarch">Nicht unterstütze Plattform, Failsafe verwenden</string>
+    <string name="unsupported_aarch">Nicht unterstützte Plattform, Failsafe verwenden</string>
     <string name="theme_mode_desc">App Farbthema verändern</string>
     <string name="show_suggestions">Tastaturvorchläge anzeigen</string>
     <string name="txt_ww">TXT-Dateien umbrechen</string>
@@ -307,7 +307,7 @@
     <string name="script_show_toast">Toast anzeigen</string>
     <string name="script_network">Netzwerk</string>
     <string name="script_set_text">Text setzen</string>
-    <string name="script_text">Dieser Text wird im Editor geschrieben sein</string>
+    <string name="script_text">Dieser Text wird im Editor geschrieben</string>
     <string name="info_ext">Erweiterungen können verwendet werden, um das Verhalten und die Funktionen des Xed-Editors zu verändern. Um zu erfahren, wie man ein Plugin erstellt, klicke hier.</string>
     <string name="network_err">Netzwerkfehler. Bitte überprüfe, ob deine Internetverbindung ordnungsgemäß funktioniert.</string>
     <string name="file_err">Datei kann nicht gespeichert werden. Versuche die Datei zu schließen und erneut zu öffnen</string>
@@ -383,7 +383,7 @@
     <string name="force_crash_desc">Runtime-Exception werfen</string>
     <string name="force_crash_confirm">Möchtest du einen Absturz der App erzwingen? Die App kann einfrieren.</string>
     <string name="memory_usage">Arbeitsspeicher-Nutzung</string>
-    <string name="strict_mode">Strict Mode</string>
+    <string name="strict_mode">Strikter Modus</string>
     <string name="strict_mode_desc">Festplatten- oder Netzwerkzugriff im Hauptthread erkennen</string>
     <string name="anr_watchdog">ANR-Überwachung</string>
     <string name="anr_watchdog_desc">Xed-Editor beenden, wenn er länger als 5 Sekunden nicht reagiert</string>
@@ -395,7 +395,7 @@
     <string name="unsupported_file_ext">Nicht unterstützte Dateierweiterung</string>
     <string name="invalid_port">Ungültiger Port</string>
     <string name="lsp_desc">Mit externem LSP-Server verbinden</string>
-    <string name="lsp_header">Port &amp; Dateierweiterung eingeben</string>
+    <string name="lsp_header">Port und Dateierweiterung eingeben</string>
     <string name="port_number">Port-Nummer</string>
     <string name="file_ext_example">Dateierweiterung (z.B. py)</string>
     <string name="logcat_saved">Datei im %s als logcat.txt gespeichert</string>
@@ -403,4 +403,5 @@
     <string name="discord">Discord Community</string>
     <string name="use_tabs">Tab-Zeichen einfügen</string>
     <string name="use_tabs_desc">Einen echten Tab (\\t) statt Leerzeichen für Einrückungen verwenden</string>
+    <string name="saved">Datei gespeichert</string>
 </resources>
