@@ -5,7 +5,7 @@
     <string name="close_drawer">fermer</string>
     <string name="not_implemented">Cette fonctionnalité n\'est pas implémentée</string>
     <string name="unsupported_content">Contenu non supporté</string>
-    <string name="null_content">Erreur : le contenu est null</string>
+    <string name="null_content">Erreur : le contenu est null</string>
     <string name="saved_all">tous les fichiers ont été enregistrés</string>
     <string name="save_label">Enregistrer</string>
     <string name="ww_wait">Attendez que le retour à la ligne soit terminé</string>
@@ -94,7 +94,7 @@
     <string name="data_clear">Données de l’app supprimées</string>
     <string name="action_done">Action complétée</string>
     <string name="clone_repo">Cloner le dépôt</string>
-    <string name="exists">existe déjà !</string>
+    <string name="exists">existe déjà !</string>
     <string name="private_files">Fichiers privés</string>
     <string name="private_files_desc">Fichiers privés de Xed-Editor</string>
     <string name="cloning">Dépôt en cours de clonage…</string>
@@ -274,7 +274,7 @@
     <string name="not_plugin_err">Le fichier sélectionné n’est pas un fichier apk</string>
     <string name="info_mutators">Les mutateurs sont de petits scripts utilisés pour modifier l’éditeur de texte. Créez un mutateur et cliquez dessus pour l’ouvrir dans l’éditeur.</string>
     <string name="mutator_name">Nom du mutateur</string>
-    <string name="update_files_cleared">App mise à jour : données supprimées</string>
+    <string name="update_files_cleared">App mise à jour : données supprimées</string>
     <string name="file_err">Le fichier ne peut pas être enregistré, essayez de le fermer puis le rouvrir</string>
     <string name="file_not_loaded">Le fichier n\'est pas encore chargé.</string>
     <string name="file_not_exist">Le fichier n\'existe plus</string>
