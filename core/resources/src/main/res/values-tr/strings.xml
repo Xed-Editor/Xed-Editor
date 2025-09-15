@@ -135,7 +135,7 @@
     <string name="editor">Editör</string>
     <string name="smooth_tabs">Pürüzsüz sekmeler</string>
     <string name="smooth_tab_desc">Sekmeler arasında sorunsuz geçiş yapın</string>
-    <string name="ww_desc">Tüm düzenleyicilerde Word Wrap"ı etkinleştirin</string>
+    <string name="ww_desc">Tüm düzenleyicilerde Word Wrap\"ı etkinleştirin</string>
     <string name="drawer_lock_desc">Dosyayı açarken çekmeceyi kapalı tutun</string>
     <string name="diagonal_scroll">Çapraz kaydırma</string>
     <string name="diagonal_scroll_desc">Dosya ağacında çapraz kaydırmayı etkinleştir</string>
@@ -168,7 +168,7 @@
     <string name="saved">Saklandı</string>
     <string name="is_null">Giriş Akışı sıfırdır</string>
     <string name="wait_pkg">Paketler indirilirken lütfen bekleyin.</string>
-    <string name="unsupported_aarch">Desteklenmeyen platform, Fail Safe"i kullanın</string>
+    <string name="unsupported_aarch">Desteklenmeyen platform, Fail Safe\"i kullanın</string>
     <string name="pkg_download_failed">Paket indirme işlemi başarısız oldu</string>
     <string name="copy_failed">Dosya kopyalanamadı</string>
     <string name="install_done">Başarıyla kuruldu</string>
