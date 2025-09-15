@@ -20,7 +20,7 @@ android {
 
         // Do not increment version higher than 1.0.0-alpha09 since it will break ViewUtils and needs to be looked into
         // noinspection GradleDependency
-        implementation "androidx.window:window:1.0.0-alpha09"
+        implementation "androidx.window:window:1.4.0"
 
         // Do not increment version higher than 2.5 or there
         // will be runtime exceptions on android < 8
