@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 35
+    compileSdkVersion 36
     ndkVersion = "28.0.13004108"
     namespace = "com.termux.shared"
 

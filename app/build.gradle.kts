@@ -125,9 +125,6 @@ android {
         buildConfig = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
 
     composeOptions {

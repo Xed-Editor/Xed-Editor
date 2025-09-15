@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.rk.terminal.bridge"
-    compileSdk = 34
+    compileSdk = 36
     ndkVersion = "28.0.13004108"
 
     defaultConfig {
@@ -37,9 +37,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }
 
