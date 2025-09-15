@@ -6,7 +6,7 @@ android {
     namespace = "com.termux.view"
 
     dependencies {
-        implementation "androidx.annotation:annotation:1.3.0"
+        implementation "androidx.annotation:annotation:1.9.1"
         api project(":core:terminal-emulator")
     }
 
