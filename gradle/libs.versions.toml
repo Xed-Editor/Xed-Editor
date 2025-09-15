@@ -182,7 +182,7 @@ regex-onig = { module = "io.github.dingyi222666.regex-lib:regex-lib-oniguruma", 
 regex-re2j = { module = "io.github.dingyi222666.regex-lib:regex-lib-re2j", version = "1.0.2" }
 
 tests-google-truth = { module = "com.google.truth:truth", version = "1.4.4" }
-tests-robolectric = { module = "org.robolectric:robolectric", version = "4.15.1" }
+tests-robolectric = { module = "org.robolectric:robolectric", version = "4.16" }
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
