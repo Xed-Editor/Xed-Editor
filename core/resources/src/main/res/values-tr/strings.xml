@@ -135,7 +135,7 @@
     <string name="editor">Editör</string>
     <string name="smooth_tabs">Akıcı sekmeler</string>
     <string name="smooth_tab_desc">Sekmeler arasında sorunsuz geçiş yapın</string>
-    <string name="ww_desc">Tüm düzenleyicilerde kelime kaydırmayı etkinleştir</string>
+    <string name="ww_desc">Tüm düzenleyicilerde satır kaydırmayı etkinleştir</string>
     <string name="drawer_lock_desc">Dosyayı açarken çekmeceyi kapalı tutun</string>
     <string name="diagonal_scroll">Çapraz kaydırma</string>
     <string name="diagonal_scroll_desc">Dosya ağacında çapraz kaydırmayı etkinleştir</string>
@@ -302,7 +302,7 @@
     <string name="misc">Çeşitli</string>
     <string name="misc_desc">Çeşitli ayarlar</string>
     <string name="unrestricted_file">Herhangi boyutta dosya açmaya izin ver</string>
-    <string name="toggle_ww">Kelime kaydırmayı aç/kapa</string>
+    <string name="toggle_ww">Satır kaydırmayı aç/kapa</string>
     <string name="native_runner">Bu çalıştırıcı yalnızca yerel dosyalar üzerinde çalışır, terminal ana dizinine taşımayı düşünün</string>
     <string name="getting_ready">Her şey hazırlanıyor…</string>
     <string name="release_wakelock">Wakelock\'u serbest bırakın</string>
@@ -361,7 +361,7 @@
     <string name="dont_ask_again">Bir daha sorma</string>
     <string name="install">Yükle</string>
     <string name="ask_lsp_install">%s dil sunucusunu yüklemek ister misiniz?</string>
-    <string name="text_mate_suggestion">TextMate OtomatikTamamlama</string>
+    <string name="text_mate_suggestion">TextMate otomatik tamamlama</string>
     <string name="flavor">Yazılım</string>
     <string name="indian">Hint</string>
     <string name="uninstall_terminal_warning">Ubuntu kalıcı olarak kaldırılsın mı? Bu işlem geri alınamaz.</string>
