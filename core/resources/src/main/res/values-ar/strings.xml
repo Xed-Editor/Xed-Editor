@@ -5,7 +5,7 @@
     <string name="not_implemented">هذه الميزة غير منجزة</string>
     <string name="unsupported_content">محتوى غير مدعوم</string>
     <string name="null_content">خطأ: المحتوى فارغ</string>
-    <string name="restart_required"> إعادة التشغيل مطلوبة</string>
+    <string name="restart_required">إعادة التشغيل مطلوبة</string>
     <string name="saved_all">تم حفظ جميع الملفات</string>
     <string name="save_label">حفظ</string>
     <string name="ww_wait">يرجى الانتظار حتى يكتمل ألتفاف النص</string>
