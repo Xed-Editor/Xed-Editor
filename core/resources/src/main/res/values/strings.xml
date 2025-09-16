@@ -62,7 +62,7 @@
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to permanently delete %s?</string>
+    <string name="ask_del">Are you sure you want to permanently delete %(file_name)?</string>
     <string name="reselect_dir">Please reselect the directory</string>
     <string name="cant_handle">No app found to handle the file</string>
     <string name="terminal">Terminal</string>
@@ -364,7 +364,7 @@
     <string name="text_mate_suggestion_desc">Suggest predefined keywords</string>
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
-    <string name="ask_lsp_install">Would you like to install %s language server?</string>
+    <string name="ask_lsp_install">Would you like to install %(language_name) language server?</string>
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall terminal</string>
@@ -380,7 +380,7 @@
     <string name="name">Name</string>
     <string name="view_github_profile">View Github profile</string>
     <string name="debug_options">Debug options</string>
-    <string name="debug_options_desc">Debugging options for %s</string>
+    <string name="debug_options_desc">Debugging options for %(app_name)</string>
     <string name="force_crash">Force crash</string>
     <string name="force_crash_desc">Throw a runtime exception</string>
     <string name="force_crash_confirm">Do you want to force crash the app? The app may freeze.</string>
@@ -400,7 +400,7 @@
     <string name="lsp_header">Enter port and extension</string>
     <string name="port_number">Port number</string>
     <string name="file_ext_example">File extension (e.g. py)</string>
-    <string name="logcat_saved">File saved in %s as logcat.txt</string>
+    <string name="logcat_saved">File saved in %(terminal_home) as logcat.txt</string>
     <string name="stop_logcat">Stop logcat</string>
     <string name="discord">Discord community</string>
     <string name="use_tabs">Insert tab character</string>

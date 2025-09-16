@@ -43,6 +43,7 @@ import com.rk.libcommons.errorDialog
 import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
+import com.rk.resources.fillPlaceholders
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
@@ -518,7 +519,7 @@ fun DeleteConfirmationDialog(
             )
 
             Text(
-                text = String.format(stringResource(strings.ask_del), fileName),
+                text = stringResource(strings.ask_del).fillPlaceholders(mapOf("file_name" to fileName)),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
