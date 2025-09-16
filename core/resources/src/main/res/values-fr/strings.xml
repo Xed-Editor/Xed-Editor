@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">ouvrir</string>
+    <string name="open_drawer">Ouvrir</string>
     <string name="restart_required">Redémarrage requis</string>
-    <string name="close_drawer">fermer</string>
+    <string name="close_drawer">Fermer</string>
     <string name="not_implemented">Cette fonctionnalité n\'est pas implémentée</string>
     <string name="unsupported_content">Contenu non supporté</string>
-    <string name="null_content">Erreur : le contenu est null</string>
+    <string name="null_content">Erreur : le contenu est nul</string>
     <string name="saved_all">tous les fichiers ont été enregistrés</string>
     <string name="save_label">Enregistrer</string>
     <string name="ww_wait">Attendez que le retour à la ligne soit terminé</string>
