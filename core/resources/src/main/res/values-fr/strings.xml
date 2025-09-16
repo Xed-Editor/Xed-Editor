@@ -47,7 +47,7 @@
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>
     <string name="reselect_dir">Re-sélectionnez à nouveau le dossier</string>
     <string name="cant_handle">Aucune app trouvée pour gérer le fichier</string>
     <string name="add_file">Ajouter un fichier externe</string>
