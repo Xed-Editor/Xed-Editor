@@ -405,4 +405,6 @@
     <string name="stop_logcat">Arrêter logcat</string>
     <string name="discord">Communauté Discord</string>
     <string name="use_tabs">Insérer un caractère de tabulation</string>
+    <string name="render_whitespace">Afficher les espaces</string>
+    <string name="render_whitespace_desc">Affiche les espaces, les tabulations et les sauts de ligne avec des symboles visibles</string>
 </resources>
