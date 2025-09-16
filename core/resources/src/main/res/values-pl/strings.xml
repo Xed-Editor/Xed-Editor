@@ -147,7 +147,7 @@
     <string name="script_showing_dialog">Pokazuje dialog</string>
     <string name="script_set_text">Ustaw tekst</string>
     <string name="script_text">Tekst będzie użyty w edytorze</string>
-    <string name="script_api_info">Sprawdź klasę ImplApi w kodzie źródłowym xed-editor na PROJECT/core/main/ui/screens/mutators/ImplApi aby uzyskać więcej informacji</string>
+    <string name="script_api_info">Sprawdź klasę ImplApi w kodzie źródłowym Xed-Editor\'a na PROJECT/core/main/ui/screens/mutators/ImplApi aby uzyskać więcej informacji</string>
     <string name="installing">Instaluje…</string>
     <string name="not_plugin_err">Wybrany plik nie jest plikiem .apk</string>
     <string name="install_from_storage">Instaluj z pamięci</string>
@@ -162,22 +162,22 @@
     <string name="unrestricted_file">Otwiera pliki każdego rozmiaru</string>
     <string name="unrestricted_file_desc">Pozwala otwierać pliki każdego rozmiaru. Może powodować awarię.</string>
     <string name="suggest_clear_app_data">Zalecane czyszczenie danych aplikacji</string>
-    <string name="update_files_cleared">Aplikacja zaktualizowana: Dane wyczyszczone</string>
+    <string name="update_files_cleared">Aplikacja zaktualizowana: dane wyczyszczone</string>
     <string name="toggle_ww">Włącz zawijanie słów</string>
-    <string name="warning_private_dir">Zawartość tej ścieżki zostanie usunięta jeśli wyczyścisz dane lub usuniesz xed-editor</string>
+    <string name="warning_private_dir">Zawartość tej ścieżki zostanie usunięta jeśli wyczyścisz dane lub usuniesz Xed-Editor</string>
     <string name="read_only_file">Plik tylko do odczytu</string>
     <string name="new_document">Nowy dokument</string>
     <string name="new_document_desc">Nowy plik lub folder</string>
     <string name="file">Plik</string>
     <string name="folder">Folder</string>
     <string name="sponsor">Zasponsoruj</string>
-    <string name="sponsor_desc">Wspomóż rozwój</string>
+    <string name="sponsor_desc">Wsparcie rozwoju</string>
     <string name="feature_toggles">Przełączniki funkcji</string>
     <string name="feature_toggles_desc">Włącz lub wyłącz funkcje</string>
     <string name="backup">Kopia zapasowa</string>
     <string name="restore">Przywróć</string>
     <string name="success">Sukces</string>
-    <string name="failed">Porażka</string>
+    <string name="failed">Niepowodzenie</string>
     <string name="unknown_err">Coś poszło nie tak</string>
     <string name="misc">Różne</string>
     <string name="misc_desc">Różne ustawienia</string>
@@ -304,7 +304,7 @@
     <string name="strict_mode">Tryb ścisły</string>
     <string name="copied">Skopiowane</string>
     <string name="flavor">Wariant</string>
-    <string name="cant_undo">Tej akcji nie da się cofnąć</string>
+    <string name="cant_undo">Akcji nie da się cofnąć</string>
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
     <string name="available">Dostępne</string>
     <string name="already_installed">Już zainstalowano</string>
@@ -331,7 +331,7 @@
     <string name="action_done">Akcja ukończona</string>
     <string name="clone_repo">Klonuj repozytorium</string>
     <string name="edit_runner">Edytuj program uruchamiający</string>
-    <string name="info">Informacja</string>
+    <string name="info">Informacje</string>
     <string name="file_info">Informacje o pliku</string>
     <string name="file_size">Rozmiar pliku</string>
     <string name="can_read">Można czytać</string>
@@ -342,7 +342,7 @@
     <string name="oled_desc">Czarny motyw (#000)</string>
     <string name="scroll_to_bottom">Skroluj na dół</string>
     <string name="scroll_to_bottom_desc">Skroluj na dół przy otwarciu pliku</string>
-    <string name="file_err">Plik nie może zostać zapisany, spróbuj zamknąć i otworzyć ponownie</string>
+    <string name="file_err">Plik nie może zostać zapisany, spróbuj zamknąć i otworzyć ponownie plik</string>
     <string name="file_not_loaded">Plik nie został wczytany</string>
     <string name="fetch_failed">Żądanie pobrania zwróciło pusta wartość</string>
     <string name="anr_watchdog">Mechanizm zabiezpieczający ANR</string>
@@ -377,4 +377,10 @@
     <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w lini jako widoczne symbole</string>
     <string name="manage_storage_reason">Xed-Editor wymaga dostępu aby edytować pliki w twojej pamięci. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
+    <string name="info_ext">Rozszerzeń można używać aby modyfikować zachowanie oraz funkcje Xed-Editor\'a. Naucz się jak zbudować wtyczkę klikając tutaj.</string>
+    <string name="initializing">Inicjowanie…</string>
+    <string name="network_err">Bład sieci. Proszę sprawdź czy połączenie z internetem działa prawidłowo.</string>
+    <string name="expose_saf_desc">Spraw aby ścieżka domowa byla dostępna dla aplikac}i zewnętrznych uzywając systemowego menadżera plików (SAF)</string>
+    <string name="saf_expose_warning">Eksponując ścieżkę domową możesz odkryć wrażliwe informacje złośliwym aplikacjom, włączając tokeny Git, hasła, nazwy użytkownika oraz inne pliki przechowywane w twojej ścieżce domowej terminalu. Czy chcesz kontynuować?</string>
+    <string name="capture_logcat">Przechwycenie dziennika zdarzeń</string>
 </resources>
