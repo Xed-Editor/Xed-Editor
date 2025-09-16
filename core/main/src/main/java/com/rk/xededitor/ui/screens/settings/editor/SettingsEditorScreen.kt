@@ -121,6 +121,15 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.show_line_numbers = it
                 }
             )
+
+            EditorSettingsToggle(label = stringResource(id = strings.render_whitespace),
+                description = stringResource(id = strings.render_whitespace_desc),
+                default = Settings.render_whitespace,
+                sideEffect = {
+                    Settings.render_whitespace = it
+                }
+            )
+
             EditorSettingsToggle(label = stringResource(id = strings.show_suggestions),
                 description = stringResource(id = strings.show_suggestions),
                 default = Settings.show_suggestions,

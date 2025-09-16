@@ -25,6 +25,7 @@ object Settings {
     var show_arrow_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
+    var render_whitespace by CachedPreference("render_whitespace", false)
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
