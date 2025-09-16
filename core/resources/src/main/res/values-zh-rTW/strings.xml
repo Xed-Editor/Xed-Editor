@@ -405,4 +405,6 @@
     <string name="discord">Discord 社群</string>
     <string name="use_tabs">插入 Tab 字元</string>
     <string name="use_tabs_desc">使用制表符 \\t 取代空格進行縮排</string>
+    <string name="render_whitespace">呈現空白字元</string>
+    <string name="render_whitespace_desc">將空白、定位字元與換行符號呈現為可見符號</string>
 </resources>
