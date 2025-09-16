@@ -5,7 +5,7 @@
     <string name="close_drawer">Fermer</string>
     <string name="not_implemented">Cette fonctionnalité n\'est pas implémentée</string>
     <string name="unsupported_content">Contenu non supporté</string>
-    <string name="null_content">Erreur : le contenu est nul</string>
+    <string name="null_content">Erreur : le contenu est vide</string>
     <string name="saved_all">tous les fichiers ont été enregistrés</string>
     <string name="save_label">Enregistrer</string>
     <string name="ww_wait">Attendez que le retour à la ligne soit terminé</string>
@@ -111,7 +111,7 @@
     <string name="available">Disponible</string>
     <string name="already_installed">Déjà installé</string>
     <string name="yes">Oui</string>
-    <string name="fetch_failed">la requête de téléchargement n’a rien renvoyé</string>
+    <string name="fetch_failed">La requête de téléchargement n’a rien renvoyé</string>
     <string name="app">Application</string>
     <string name="change_theme">Modifier l’apparence</string>
     <string name="oled_desc">Apparence Noir profond pour écrans AMOLED</string>
