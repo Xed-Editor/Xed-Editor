@@ -411,6 +411,6 @@
     <string name="community">Community</string>
     <string name="failsafe_mode">Failsafe mode</string>
     <string name="failsafe_mode_desc">Start terminal in maintenance mode</string>
-    <string  whitespace</string>
+    <string name="render_whitespace">Render whitespace</string>
     <string name="render_whitespace_desc">Render spaces, tabs, and line breaks as visible symbols</string>
 </resources>
