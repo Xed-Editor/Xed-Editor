@@ -413,4 +413,7 @@
     <string name="community">社区</string>
     <string name="failsafe_mode">安全模式</string>
     <string name="failsafe_mode_desc">以维护模式启动终端</string>
+    <string name="ask_refresh">你确定要重新载入此文档吗？所有未保存的更改将会丢失。</string>
+    <string name="docs">文档</string>
+    <string name="docs_desc">访问文档页面。</string>
 </resources>
