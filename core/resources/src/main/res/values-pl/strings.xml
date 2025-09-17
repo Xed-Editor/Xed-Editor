@@ -175,7 +175,7 @@
     <string name="feature_toggles_desc">Włącz lub wyłącz funkcje</string>
     <string name="backup">Kopia zapasowa</string>
     <string name="restore">Przywróć</string>
-    <string name="success">Sukces</string>
+    <string name="success">Powodzenie</string>
     <string name="failed">Niepowodzenie</string>
     <string name="unknown_err">Coś poszło nie tak</string>
     <string name="misc">Różne</string>
@@ -288,7 +288,7 @@
     <string name="redo">Ponów</string>
     <string name="read_mode">Tryb czytania</string>
     <string name="edit_mode">Tryb edycji</string>
-    <string name="no_folder_opened">Brak otwartych folderów</string>
+    <string name="no_folder_opened">Brak otwartych katalogów</string>
     <string name="cut">Wytnij</string>
     <string name="cut_desc">Przenieś dokument</string>
     <string name="themes">Motywy</string>
@@ -303,14 +303,14 @@
     <string name="strict_mode">Tryb ścisły</string>
     <string name="copied">Skopiowane</string>
     <string name="flavor">Wariant</string>
-    <string name="cant_undo">Akcji nie da się cofnąć</string>
+    <string name="cant_undo">Akcji nie da się odwrócić</string>
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
     <string name="available">Dostępne</string>
     <string name="already_installed">Już zainstalowano</string>
     <string name="download_sure">Czy napewno chcesz pobrać</string>
     <string name="yes">Tak</string>
     <string name="err">Błąd</string>
-    <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików</string>
+    <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
     <string name="open_file_desc">Wybierz plik aby edytować go bezpośrednio</string>
     <string name="open_path">Pamięć wewnętrzna</string>
     <string name="open_path_desc">Otwórz pamięć wewnętrzną</string>
@@ -376,7 +376,7 @@
     <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w lini jako widoczne symbole</string>
     <string name="manage_storage_reason">Xed-Editor wymaga dostępu aby edytować pliki w twojej pamięci. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
-    <string name="info_ext">Rozszerzenia można używać aby modyfikować zachowanie oraz funkcje Xed-Editor\'a. Naucz się jak zbudować wtyczkę klikając tutaj.</string>
+    <string name="info_ext">Rozszerzenia można używać aby modyfikować zachowanie oraz funkcje Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę sprawdź czy połączenie z internetem działa prawidłowo.</string>
     <string name="expose_saf_desc">Spraw aby główny katalog był dostępny dla aplikacji zewnętrznych używając systemowego menadżera plików (SAF)</string>
@@ -389,11 +389,11 @@
     <string name="invalid_runner_name">Tylko litery, liczby, podkreślniki oraz łączniki dozwolone</string>
     <string name="invalid_regex">Nieprawidłowy wzór wyrażenia regularnego</string>
     <string name="runner_name_exists">Nazwa programu uruchamiającego jest już używana</string>
-    <string name="info_runners">Programy uruchamiające to niewielkie sekwencje skryptów używane do uruchamiania pliku/projektu. Stwórz program uruchamiający i kliknij aby otworzyć go w edytorze.</string>
+    <string name="info_runners">Programy uruchamiające to niewielkie sekwencje skryptów używane do uruchamiania pliku/projektu. Stwórz program uruchamiający i kliknij, aby otworzyć go w edytorze.</string>
     <string name="timeout">Pobieranie przerwane ze względu na przekroczenie limitu czasu. Proszę, upewnij się że połączenie z internetem jest stabilne</string>
     <string name="more">Więcej</string>
     <string name="terminal_virus_notice">Na niektórych urządzeniach, szczególnie pewnych modelach z Chin, możesz zobaczyć systemowe ostrzeżenie bezpieczeństwa gdy wiele procesów jest uruchomionych w terminalu (np. \"apt update\" lub \"apt upgrade\"). Informacja jest myląca oraz nie wskazuje na aktywność prawdziwego wirusa.</string>
-    <string name="text_mate_suggestion">Automatyczne wypełnianie kodu</string>
+    <string name="text_mate_suggestion">Automatyczne wypełnianie kodu TextMate</string>
     <string name="text_mate_suggestion_desc">Sugeruj predefiniowane słowa klucze</string>
     <string name="uninstall_terminal_warning">Odinstalować Ubuntu? Akcji nie da się odwrócić.</string>
     <string name="uninstall">Odinstaluj</string>
