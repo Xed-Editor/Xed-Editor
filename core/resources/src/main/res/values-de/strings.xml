@@ -5,7 +5,7 @@
     <string name="saved_all">alle Dateien gespeichert</string>
     <string name="ww_wait">Bitte warten bis der Zeilenumbruch abgeschlossen ist</string>
     <string name="open_file_or_folder">Datei oder Ordner öffnen</string>
-    <string name="new_file_hint">Name z.B. Test.txt</string>
+    <string name="new_file_hint">Name (z.B. test.txt)</string>
     <string name="cs">Groß-/Kleinschreibung</string>
     <string name="wait">Bitte warten …</string>
     <string name="save_all">Alles speichern</string>
@@ -24,7 +24,7 @@
     <string name="ww">Zeilenumbruch</string>
     <string name="restart">Neustart</string>
     <string name="refresh">Neu laden</string>
-    <string name="dir_example">Name z.B. Test</string>
+    <string name="dir_example">Name (z.B. Test)</string>
     <string name="create">Erstellen</string>
     <string name="ask_enter_name">Bitte einen Namen eingeben</string>
     <string name="already_exists">Ein Dokument mit diesem Namen existiert bereits</string>
@@ -33,7 +33,7 @@
     <string name="restart_required">Neustart erforderlich</string>
     <string name="save_label">Speichern</string>
     <string name="new_file">Neue Datei</string>
-    <string name="mime">MIME-Typ z.B. text/plain</string>
+    <string name="mime">MIME-Typ (z.B. text/plain)</string>
     <string name="new_folder">Neuer Ordner</string>
     <string name="print">Drucken</string>
     <string name="paste">Einfügen</string>
@@ -107,7 +107,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in Ihrem Speicher zu bearbeiten. Bitte erlaube den Zugriff in den nächsten Systemeinstellungen.</string>
     <string name="close_this">Dies schließen</string>
     <string name="cant_handle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Bist du sicher, dass du %s endgültig löschen möchtest?</string>
+    <string name="ask_del">Bist du sicher, dass du %(file_name) endgültig löschen möchtest?</string>
     <string name="reselect_dir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Registerkarte 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
@@ -245,7 +245,7 @@
     <string name="script_showing_dialog">Dialog anzeigen</string>
     <string name="installing">Wird installiert…</string>
     <string name="u_err">Unbekannter Fehler</string>
-    <string name="not_plugin_err">Ausgewählte Datei ist keine .apk-Datei</string>
+    <string name="not_plugin_err">Ausgewählte Datei ist keine APK-Datei</string>
     <string name="install_from_storage">Aus Speicher installieren</string>
     <string name="no_ext">Keine Erweiterungen installiert.</string>
     <string name="loading">Wird geladen…</string>
@@ -361,7 +361,7 @@
     <string name="text_mate_suggestion_desc">Vordefinierte Schlüsselwörter vorschlagen</string>
     <string name="dont_ask_again">Nicht nochmal fragen</string>
     <string name="install">Installieren</string>
-    <string name="ask_lsp_install">Möchtest du den %s Language Server installieren?</string>
+    <string name="ask_lsp_install">Möchtest du den %(language_name) Language Server installieren?</string>
     <string name="uninstall_terminal_warning">Ubuntu endgültig deinstallieren? Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="uninstall">Deinstallieren</string>
     <string name="uninstall_terminal">Terminal deinstallieren</string>
@@ -374,10 +374,10 @@
     <string name="new_name">Neuer Name</string>
     <string name="type">Typ</string>
     <string name="name">Name</string>
-    <string name="view_github_profile">Github-Profil anzeigen</string>
+    <string name="view_github_profile">GitHub-Profil anzeigen</string>
     <string name="debug_options">Debug-Optionen</string>
     <string name="delete_desc">Dokument endgültig löschen</string>
-    <string name="debug_options_desc">Debugging-Optionen für %s</string>
+    <string name="debug_options_desc">Debugging-Optionen für %(app_name)</string>
     <string name="force_crash">Absturz erzwingen</string>
     <string name="force_crash_desc">Runtime-Exception werfen</string>
     <string name="force_crash_confirm">Möchtest du einen Absturz der App erzwingen? Die App kann einfrieren.</string>
@@ -397,10 +397,22 @@
     <string name="lsp_header">Port und Dateierweiterung eingeben</string>
     <string name="port_number">Port-Nummer</string>
     <string name="file_ext_example">Dateierweiterung (z.B. py)</string>
-    <string name="logcat_saved">Datei im %s als logcat.txt gespeichert</string>
+    <string name="logcat_saved">Datei im %(terminal_home) als logcat.txt gespeichert</string>
     <string name="stop_logcat">Logcat beenden</string>
     <string name="discord">Discord Community</string>
     <string name="use_tabs">Tab-Zeichen einfügen</string>
     <string name="use_tabs_desc">Einen echten Tab (\\t) statt Leerzeichen für Einrückungen verwenden</string>
     <string name="saved">Datei gespeichert</string>
+    <string name="lsp_settings">LSP-Einstellungen</string>
+    <string name="no_language_server">Kein Language Server installiert.</string>
+    <string name="developer">Entwickler</string>
+    <string name="build_info">Build-Informationen</string>
+    <string name="community">Community</string>
+    <string name="failsafe_mode">Failsafe-Modus</string>
+    <string name="failsafe_mode_desc">Terminal im Wartungsmodus starten</string>
+    <string name="render_whitespace">Leerzeichen anzeigen</string>
+    <string name="render_whitespace_desc">Leerzeichen, Tabs und Zeilenumbrüche als sichtbare Symbole anzeigen</string>
+    <string name="ask_refresh">Möchtest du dieses Dokument wirklich aktualisieren? Ungespeicherte Änderungen gehen verloren.</string>
+    <string name="docs">Dokumentation</string>
+    <string name="docs_desc">Dokumentationsseite aufrufen.</string>
 </resources>
