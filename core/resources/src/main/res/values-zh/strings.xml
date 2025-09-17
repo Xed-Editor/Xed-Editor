@@ -27,7 +27,7 @@
     <string name="ww">自动换行</string>
     <string name="restart">重新启动</string>
     <string name="refresh">重载</string>
-    <string name="dir_example">名称，例如：测试</string>
+    <string name="dir_example">名称（例如：测试）</string>
     <string name="create">创建</string>
     <string name="ask_enter_name">请输入一个名称</string>
     <string name="already_exists">已存在同名文件</string>
@@ -75,7 +75,7 @@
     <string name="open_file_or_folder">打开文件或文件夹</string>
     <string name="open_directory">打开目录</string>
     <string name="new_file">新建文件</string>
-    <string name="new_file_hint">名称，例如：测试.txt</string>
+    <string name="new_file_hint">名称（例如：测试.txt）</string>
     <string name="search_keyword">搜索关键字</string>
     <string name="wait">请稍等…</string>
     <string name="report_issue">报告问题</string>
@@ -150,7 +150,7 @@
     <string name="save_desc">将选中文件保存到其他位置</string>
     <string name="cloning">克隆存储库…</string>
     <string name="saved_all">已保存所有文件</string>
-    <string name="mime">MIME 类型，例如：text/plain</string>
+    <string name="mime">MIME 类型（例如：text/plain）</string>
     <string name="err">错误</string>
     <string name="create_new_file_desc">在选中的文件夹下新建文件</string>
     <string name="exists">已存在！</string>
@@ -194,7 +194,7 @@
     <string name="version">版本</string>
     <string name="version_code">版本代号</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">在 Github 给我们加星 🤩</string>
+    <string name="github_desc">在 GitHub 给我们加星 🤩</string>
     <string name="default_encoding">默认编码</string>
     <string name="file_not_saved">部分文件尚未保存</string>
     <string name="file_unsaved">文件未保存</string>
@@ -229,7 +229,7 @@
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
     <string name="txt_ww">仅对 TXT 文件自动换行</string>
-    <string name="txt_ww_desc">对 .txt 文件自动换行</string>
+    <string name="txt_ww_desc">对 TXT 文件自动换行</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
     <string name="update_av">有新版本可用</string>
@@ -241,7 +241,7 @@
     <string name="script_showing_dialog">显示对话框</string>
     <string name="loading">加载中…</string>
     <string name="no_ext">未安装扩展。</string>
-    <string name="not_plugin_err">所选文件不是 .apk 格式</string>
+    <string name="not_plugin_err">所选文件不是 APK 格式</string>
     <string name="install_from_storage">从内部存储安装</string>
     <string name="network_err">网络错误。请检查您的网络连接是否正常工作。</string>
     <string name="initializing">初始化中…</string>
@@ -406,4 +406,11 @@
     <string name="debugger">调试器</string>
     <string name="render_whitespace">显示空白字符</string>
     <string name="render_whitespace_desc">将空格、制表符和换行符渲染为可见符号</string>
+    <string name="lsp_settings">LSP 语言服务器设置</string>
+    <string name="no_language_server">未安装语言服务器。</string>
+    <string name="developer">开发者</string>
+    <string name="build_info">构建信息</string>
+    <string name="community">社区</string>
+    <string name="failsafe_mode">安全模式</string>
+    <string name="failsafe_mode_desc">以维护模式启动终端</string>
 </resources>
