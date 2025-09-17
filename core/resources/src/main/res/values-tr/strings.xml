@@ -414,4 +414,6 @@
     <string name="failsafe_mode">Güvenli mod</string>
     <string name="failsafe_mode_desc">Terminali bakım modunda başlat</string>
     <string name="ask_refresh">Bu belgeyi yenilemek istediğinizden emin misiniz? Kaydedilmemiş tüm değişiklikler kaybolacak.</string>
+    <string name="docs">Dokümantasyon</string>
+    <string name="docs_desc">Dokümantasyon sayfasını ziyaret et.</string>
 </resources>
