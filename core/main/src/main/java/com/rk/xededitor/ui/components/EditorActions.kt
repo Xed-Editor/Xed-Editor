@@ -36,9 +36,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rk.DefaultScope
+import com.rk.libcommons.dialog
 import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.x
 import com.rk.resources.drawables
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.Runner
 import com.rk.settings.Settings
@@ -198,18 +200,29 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.refresh),
                 labelRes = strings.refresh,
                 action = { tab,editorState ->
-                    scope.launch(Dispatchers.IO){
-                        val content = tab.file.getInputStream().use {
-                            ContentIO.createFrom(it)
-                        }
-                        editorState.content = content
-                        withContext(Dispatchers.Main){
-                            editorState.updateLock.withLock{
-                                editorState.editor?.setText(content)
-                                editorState.editor!!.updateUndoRedo()
+                    fun refresh(){
+                        scope.launch(Dispatchers.IO){
+                            val content = tab.file.getInputStream().use {
+                                ContentIO.createFrom(it)
+                            }
+                            editorState.content = content
+                            withContext(Dispatchers.Main){
+                                editorState.updateLock.withLock{
+                                    editorState.editor?.setText(content)
+                                    editorState.editor!!.updateUndoRedo()
+                                }
                             }
                         }
                     }
+
+                    if (editorState.isDirty){
+                        dialog(context = activity, title = strings.attention.getString(), msg = strings.ask_refresh.getString(), okString = strings.refresh.getString(), onCancel = {}, onOk = {
+                            refresh()
+                        })
+                    }else{
+                        refresh()
+                    }
+
                 }
             ),
             EditorAction(

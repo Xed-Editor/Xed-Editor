@@ -413,4 +413,5 @@
     <string name="failsafe_mode_desc">Start terminal in maintenance mode</string>
     <string name="render_whitespace">Render whitespace</string>
     <string name="render_whitespace_desc">Render spaces, tabs, and line breaks as visible symbols</string>
+    <string name="ask_refresh">Are you sure you want to refresh this document? Any unsaved changes will be lost.</string>
 </resources>
