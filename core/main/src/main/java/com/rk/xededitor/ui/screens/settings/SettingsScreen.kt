@@ -68,25 +68,6 @@ fun SettingsScreen(navController: NavController) {
 private fun Categories(navController: NavController) {
     val activity = LocalActivity.current
 
-
-    PreferenceTemplate(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clip(MaterialTheme.shapes.large)
-        .clickable { navController.navigate(SettingsRoutes.Support.route)  }
-        .background(Color.Transparent),
-        verticalPadding = 14.dp,
-        title = {
-            Text("Support")
-        },
-        description = {
-            Text(stringResource(id = strings.sponsor_desc))
-        },
-        startWidget = {
-            HeartbeatIcon()
-        }
-    )
-
-
     PreferenceCategory(
         label = stringResource(id = strings.app),
         description = stringResource(id = strings.app_desc),
@@ -168,6 +149,23 @@ private fun Categories(navController: NavController) {
         }
     )
 
+    PreferenceTemplate(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .clip(MaterialTheme.shapes.large)
+        .clickable { navController.navigate(SettingsRoutes.Support.route)  }
+        .background(Color.Transparent),
+        verticalPadding = 14.dp,
+        title = {
+            Text("Support")
+        },
+        description = {
+            Text(stringResource(id = strings.sponsor_desc))
+        },
+        startWidget = {
+            HeartbeatIcon()
+        }
+    )
+
 
     Hooks.Settings.screens.values.forEach{ entry ->
         PreferenceTemplate(modifier = Modifier
@@ -191,34 +189,36 @@ private fun Categories(navController: NavController) {
     }
 
 
-    PreferenceTemplate(
-        modifier = Modifier.combinedClickable(
-            indication = ripple(),
-            interactionSource = remember { MutableInteractionSource() },
-            onClick = {
-                activity?.openUrl("https://xed-editor.github.io/Xed-Docs/")
+    PreferenceTemplate(modifier = Modifier
+        .padding(horizontal = 16.dp)
+        .clip(MaterialTheme.shapes.large)
+        .clickable {
+            activity?.openUrl("https://xed-editor.github.io/Xed-Docs/")
+        }
+        .background(Color.Transparent),
+        verticalPadding = 14.dp,
+        title = {
+            Text(stringResource(id = strings.docs))
+        },
+        description = {
+            Text(stringResource(id = strings.docs_desc))
+        },
+        startWidget = {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+                Icon(
+                    imageVector = XedIcons.Menu_book,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
-        ),
-        contentModifier = Modifier
-            .fillMaxHeight()
-            .padding(vertical = 16.dp)
-            .padding(start = 16.dp),
-        title = { Text(fontWeight = FontWeight.Bold, text = stringResource(strings.docs)) },
-        description = { Text(stringResource(strings.docs_desc)) },
-        enabled = true,
-        applyPaddings = false,
+        },
         endWidget = {
             Icon(
                 modifier = Modifier.padding(16.dp),
                 imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                 contentDescription = null)
         },
-        startWidget = {
-            Icon(modifier = Modifier.size(24.dp),
-                imageVector = XedIcons.Menu_book,
-                tint = LocalContentColor.current,
-                contentDescription = null)
-        }
     )
 }
 
