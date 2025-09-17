@@ -216,7 +216,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                     }
 
                     if (editorState.isDirty){
-                        dialog(context = activity, title = strings.attention.getString(), msg = strings.ask_refresh.getString(), okString = strings.refresh.getString(), onCancel = {}, onOk = {
+                        dialog(context = activity, title = strings.attention.getString(), msg = strings.ask_refresh.getString(), okString = strings.refresh, onCancel = {}, onOk = {
                             refresh()
                         })
                     }else{

@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
         if (Intent.ACTION_VIEW == intent.action || Intent.ACTION_EDIT == intent.action) {
             val uri = intent.data!!
             val file = uri.toFileObject(isFile = true)
-            viewModel.newTab(file)
+            viewModel.newTab(file, switchToTab = true)
             setIntent(Intent())
         }
     }

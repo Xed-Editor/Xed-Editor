@@ -323,19 +323,19 @@ fun errorDialog(exception: Exception) {
 }
 
 
-fun expectOOM(requiredMEMBytes: Long): Boolean {
+fun expectOOM(requiredMemBytes: Long): Boolean {
     val runtime = Runtime.getRuntime()
     val maxMemory = runtime.maxMemory()
     val allocatedMemory = runtime.totalMemory()
     val freeMemory = runtime.freeMemory()
-    val availableMemory = maxMemory - (allocatedMemory - freeMemory)
+    val usedMemory = allocatedMemory - freeMemory
+    val availableMemory = maxMemory - usedMemory
+    val safetyBuffer = 32L * 1024 * 1024 // 32MB
+    val requiredMemory = requiredMemBytes + safetyBuffer
 
-    val safetyBuffer = 16L * 1024 * 1024
-    val requiredMemory = requiredMEMBytes + safetyBuffer
-
-    // Return true if we expect an OutOfMemoryError
     return requiredMemory > availableMemory
 }
+
 
 
 fun isChinaDevice(context: Context): Boolean {
