@@ -3,8 +3,8 @@
     <string name="open_drawer">Otwórz</string>
     <string name="close_drawer">Zamknij</string>
     <string name="not_implemented">Funkcja nie jest zaimplementowana</string>
-    <string name="unsupported_content">Nieobsługiwana zawartość</string>
-    <string name="null_content">Błąd: zawartość jest pusta</string>
+    <string name="unsupported_content">Nieobsługiwana treść</string>
+    <string name="null_content">Błąd: treść wykazuje pustą wartość</string>
     <string name="restart_required">Wymagane ponowne uruchomienie</string>
     <string name="saved_all">Wszystkie pliki zapisane</string>
     <string name="save_label">Zapisz</string>
@@ -58,7 +58,7 @@
     <string name="dir_example">Nazwa (np. Test)</string>
     <string name="create">Stwórz</string>
     <string name="ask_enter_name">Proszę wprowadzić nazwę</string>
-    <string name="already_exists">Dokument z wprowadzoną nazwą już istnieje</string>
+    <string name="already_exists">Nazwa dokumentu z wprowadzoną nazwą jest już używana</string>
     <string name="attention">Uwaga</string>
     <string name="ask_del">Czy napewno chcesz trwale usunąć %(file_name)?</string>
     <string name="reselect_dir">Proszę wybierz ponownie katalog</string>
@@ -103,7 +103,7 @@
     <string name="terminal_text_size">Rozmiar tekstu terminalu</string>
     <string name="terminal_text_size_desc">Ustaw rozmiar tekstu w terminalu</string>
     <string name="u_err">Nieznany bład</string>
-    <string name="is_null">Strumień wejściowy jest pusty</string>
+    <string name="is_null">Strumień wejściowy wykazuje pustą wartość</string>
     <string name="wait_pkg">Proszę czekać na ukończenie pobierania paczek.</string>
     <string name="unsupported_aarch">Nieobslugiwana platforma, użyj trybu bezpiecznego</string>
     <string name="pkg_download_failed">Nie udało się pobrać paczek</string>
@@ -229,7 +229,7 @@
     <string name="default_encoding">Domyślne kodowanie</string>
     <string name="default_encoding_desc">Domyślne kodowanie w edytorze</string>
     <string name="other">Inne</string>
-    <string name="content">Zawartość</string>
+    <string name="content">Treść</string>
     <string name="fonts">Czcionki</string>
     <string name="font_added">Czcionka dodana pomyślnie</string>
     <string name="delete_font">Usuń czcionkę</string>
@@ -319,7 +319,7 @@
     <string name="open_cant">Nie można otworzyć więcej niż</string>
     <string name="files">Pliki</string>
     <string name="installed">Zainstalowane</string>
-    <string name="exists">Już istnieje!</string>
+    <string name="exists">Jest już używana!</string>
     <string name="private_files">Pliki prywatne</string>
     <string name="private_files_desc">Pliki prywatne Xed-Editor\'a</string>
     <string name="cloning">Klonuje repozytorium…</string>
