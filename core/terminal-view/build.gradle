@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 35
+    compileSdkVersion 36
     namespace = "com.termux.view"
 
     dependencies {
-        implementation "androidx.annotation:annotation:1.3.0"
+        implementation libs.annotation
         api project(":core:terminal-emulator")
     }
 
@@ -23,13 +23,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
 dependencies {
-    testImplementation "junit:junit:4.13.2"
+    testImplementation libs.junit
 }
 
 task sourceJar(type: Jar) {

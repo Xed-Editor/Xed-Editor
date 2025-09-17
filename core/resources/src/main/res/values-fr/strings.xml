@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">ouvrir</string>
+    <string name="open_drawer">Ouvrir</string>
     <string name="restart_required">Redémarrage requis</string>
-    <string name="close_drawer">fermer</string>
+    <string name="close_drawer">Fermer</string>
     <string name="not_implemented">Cette fonctionnalité n\'est pas implémentée</string>
     <string name="unsupported_content">Contenu non supporté</string>
-    <string name="null_content">Erreur : le contenu est null</string>
+    <string name="null_content">Erreur : le contenu est vide</string>
     <string name="saved_all">tous les fichiers ont été enregistrés</string>
     <string name="save_label">Enregistrer</string>
     <string name="ww_wait">Attendez que le retour à la ligne soit terminé</string>
@@ -47,7 +47,7 @@
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>
     <string name="reselect_dir">Re-sélectionnez à nouveau le dossier</string>
     <string name="cant_handle">Aucune app trouvée pour gérer le fichier</string>
     <string name="add_file">Ajouter un fichier externe</string>
@@ -110,7 +110,7 @@
     <string name="available">Disponible</string>
     <string name="already_installed">Déjà installé</string>
     <string name="yes">Oui</string>
-    <string name="fetch_failed">la requête de téléchargement n’a rien renvoyé</string>
+    <string name="fetch_failed">La requête de téléchargement n’a rien renvoyé</string>
     <string name="app">Application</string>
     <string name="change_theme">Modifier l’apparence</string>
     <string name="oled_desc">Apparence Noir profond pour écrans AMOLED</string>
@@ -404,4 +404,6 @@
     <string name="stop_logcat">Arrêter logcat</string>
     <string name="discord">Communauté Discord</string>
     <string name="use_tabs">Insérer un caractère de tabulation</string>
+    <string name="render_whitespace">Afficher les espaces</string>
+    <string name="render_whitespace_desc">Affiche les espaces, les tabulations et les sauts de ligne avec des symboles visibles</string>
 </resources>

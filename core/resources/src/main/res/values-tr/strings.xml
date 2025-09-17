@@ -60,7 +60,7 @@
     <string name="ask_enter_name">Lütfen bir ad girin</string>
     <string name="already_exists">Bu isimde bir belge zaten mevcut</string>
     <string name="attention">Dikkat</string>
-    <string name="ask_del">Şunu kalıcı olarak silmek istediğinizden emin misiniz: %s?</string>
+    <string name="ask_del">Şunu kalıcı olarak silmek istediğinizden emin misiniz: %(file_name)?</string>
     <string name="reselect_dir">Lütfen dizini yeniden seçin</string>
     <string name="cant_handle">Dosyayı işleyecek uygulama bulunamadı</string>
     <string name="terminal">Terminal</string>
@@ -134,7 +134,7 @@
     <string name="editor">Editör</string>
     <string name="smooth_tabs">Akıcı sekmeler</string>
     <string name="smooth_tab_desc">Sekmeler arasında sorunsuz geçiş yapın</string>
-    <string name="ww_desc">Tüm düzenleyicilerde kelime kaydırmayı etkinleştir</string>
+    <string name="ww_desc">Tüm düzenleyicilerde satır kaydırmayı etkinleştir</string>
     <string name="drawer_lock_desc">Dosyayı açarken çekmeceyi kapalı tutun</string>
     <string name="diagonal_scroll">Çapraz kaydırma</string>
     <string name="diagonal_scroll_desc">Dosya ağacında çapraz kaydırmayı etkinleştir</string>
@@ -301,7 +301,7 @@
     <string name="misc">Çeşitli</string>
     <string name="misc_desc">Çeşitli ayarlar</string>
     <string name="unrestricted_file">Herhangi boyutta dosya açmaya izin ver</string>
-    <string name="toggle_ww">Kelime kaydırmayı aç/kapa</string>
+    <string name="toggle_ww">Satır kaydırmayı aç/kapa</string>
     <string name="native_runner">Bu çalıştırıcı yalnızca yerel dosyalar üzerinde çalışır, terminal ana dizinine taşımayı düşünün</string>
     <string name="getting_ready">Her şey hazırlanıyor…</string>
     <string name="release_wakelock">Wakelock\'u serbest bırakın</string>
@@ -359,8 +359,8 @@
     <string name="text_mate_suggestion_desc">Önceden tanımlanmış anahtar kelimeler öner</string>
     <string name="dont_ask_again">Bir daha sorma</string>
     <string name="install">Yükle</string>
-    <string name="ask_lsp_install">%s dil sunucusunu yüklemek ister misiniz?</string>
-    <string name="text_mate_suggestion">TextMate OtomatikTamamlama</string>
+    <string name="ask_lsp_install">%(language_name) dil sunucusunu yüklemek ister misiniz?</string>
+    <string name="text_mate_suggestion">TextMate otomatik tamamlama</string>
     <string name="flavor">Yazılım</string>
     <string name="indian">Hint</string>
     <string name="uninstall_terminal_warning">Ubuntu kalıcı olarak kaldırılsın mı? Bu işlem geri alınamaz.</string>
@@ -378,7 +378,7 @@
     <string name="name">İsim</string>
     <string name="view_github_profile">Github profilini görüntüle</string>
     <string name="debug_options">Hata ayıklama seçenekleri</string>
-    <string name="debug_options_desc">%s için hata ayıklama seçenekleri</string>
+    <string name="debug_options_desc">%(app_name) için hata ayıklama seçenekleri</string>
     <string name="force_crash">Zorla çökert</string>
     <string name="force_crash_desc">Çalışma zamanı istisnası fırlat</string>
     <string name="force_crash_confirm">Uygulamayı zorla çökertmek mi istiyorsun? Uygulama donabilir.</string>
@@ -398,10 +398,12 @@
     <string name="lsp_header">Port ve uzantıyı girin</string>
     <string name="port_number">Port numarası</string>
     <string name="file_ext_example">Dosya uzantısı (örn. py)</string>
-    <string name="logcat_saved">Dosya %s konumuna logcat.txt olarak kaydedildi</string>
+    <string name="logcat_saved">Dosya %(terminal_home) konumuna logcat.txt olarak kaydedildi</string>
     <string name="stop_logcat">Logcat’i durdur</string>
     <string name="discord">Discord topluluğu</string>
     <string name="use_tabs">Sekme karakteri ekle</string>
     <string name="use_tabs_desc">Girintileme için boşluk yerine gerçek bir sekme (\\t) kullanın</string>
     <string name="delete_desc">Belgeyi kalıcı olarak sil</string>
+    <string name="render_whitespace">Boşlukları göster</string>
+    <string name="render_whitespace_desc">Boşlukları, sekmeleri ve satır sonlarını görünür semboller olarak işle</string>
 </resources>

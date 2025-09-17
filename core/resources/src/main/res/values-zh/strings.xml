@@ -32,7 +32,7 @@
     <string name="ask_enter_name">请输入一个名称</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你确定要永久删除 %s 吗？</string>
+    <string name="ask_del">你确定要永久删除 %(file_name) 吗？</string>
     <string name="reselect_dir">请重新选择目录</string>
     <string name="cant_handle">未找到能处理此文件的应用</string>
     <string name="terminal">终端</string>
@@ -362,7 +362,7 @@
     <string name="text_mate_suggestion_desc">预设提示关键词</string>
     <string name="dont_ask_again">不再询问</string>
     <string name="install">安装</string>
-    <string name="ask_lsp_install">是否安装 %s 语言服务器？</string>
+    <string name="ask_lsp_install">是否安装 %(language_name) 语言服务器？</string>
     <string name="uninstall_terminal_warning">确定要卸载 Ubuntu 吗？此操作不可恢复。</string>
     <string name="uninstall">卸载</string>
     <string name="uninstall_terminal">卸载终端</string>
@@ -379,7 +379,7 @@
     <string name="name">名称</string>
     <string name="view_github_profile">查看 GitHub 个人资料</string>
     <string name="debug_options">调试选项</string>
-    <string name="debug_options_desc">%s 的调试选项</string>
+    <string name="debug_options_desc">%(app_name) 的调试选项</string>
     <string name="force_crash">强制崩溃</string>
     <string name="force_crash_desc">抛出一个 Runtime Exception 错误</string>
     <string name="lsp_desc">连接外部的 LSP 语言服务器</string>
@@ -392,7 +392,7 @@
     <string name="anr_watchdog">ANR Watchdog</string>
     <string name="debugger_not_allowed">调试器在正式发布版本不可用</string>
     <string name="capturing_logcat">抓取 Logcat 中…</string>
-    <string name="logcat_saved">logcat.txt 已保存在 %s</string>
+    <string name="logcat_saved">logcat.txt 已保存在 %(terminal_home)</string>
     <string name="stop_logcat">终止 Logcat</string>
     <string name="discord">Discord 社区</string>
     <string name="use_tabs">插入 Tab 字符</string>
@@ -404,4 +404,6 @@
     <string name="verbose_errors">详细错误</string>
     <string name="verbose_errors_desc">在对话框中显示详细堆栈跟踪信息</string>
     <string name="debugger">调试器</string>
+    <string name="render_whitespace">显示空白字符</string>
+    <string name="render_whitespace_desc">将空格、制表符和换行符渲染为可见符号</string>
 </resources>

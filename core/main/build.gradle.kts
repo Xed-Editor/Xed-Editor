@@ -59,9 +59,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
     buildFeatures {
         viewBinding = true
@@ -69,7 +66,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "2.1.10"
+        kotlinCompilerExtensionVersion = "2.2.20"
     }
 }
 
@@ -122,6 +119,7 @@ dependencies {
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
     api(libs.lsp4j)
+    api("androidx.documentfile:documentfile:1.1.0")
 
     //debug libs these libs doesn't get added when creating release builds
     debugApi(libs.bsh)

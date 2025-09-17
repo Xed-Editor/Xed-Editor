@@ -13,7 +13,7 @@ pluginManagement {
         maven("https://repo.eclipse.org/content/groups/releases/")
     }
     plugins {
-        kotlin("jvm") version "2.1.10"
+        kotlin("jvm") version "2.2.20"
     }
 }
 dependencyResolutionManagement {

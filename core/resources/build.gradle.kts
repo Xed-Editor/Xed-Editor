@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.rk.resources"
-    compileSdk = 34
+    compileSdk = 36
 
     lint.disable += "MissingTranslation"
 
@@ -31,9 +31,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
 }
 

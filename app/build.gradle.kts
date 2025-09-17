@@ -18,7 +18,7 @@ plugins {
 
 android {
     namespace = "com.rk.application"
-    compileSdk = 35
+    compileSdk = 36
 
     dependenciesInfo {
         includeInApk = false
@@ -106,8 +106,8 @@ android {
         targetSdk = 28
 
         //versioning
-        versionCode = 63
-        versionName = "3.1.8"
+        versionCode = 64
+        versionName = "3.1.9"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -125,9 +125,6 @@ android {
         buildConfig = true
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 
 
     composeOptions {
