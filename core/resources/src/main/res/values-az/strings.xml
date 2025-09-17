@@ -40,7 +40,6 @@
     <string name="userdata">İstifadəçi məlumatları</string>
     <string name="open_in_terminal">Terminalda aç</string>
     <string name="description">Açıqlama</string>
-    <string name="title_activity_main">Əsas Fəaliyyət</string>
     <string name="download">Yüklə</string>
     <string name="dir_exist_not">Qovluq mövcud deyil</string>
     <string name="invalid_userdata">İstifadəçi məlumatları doğru deyil. Onları parametrlərdən dəyişdirin</string>

@@ -81,7 +81,6 @@
     <string name="terminal">מסוף</string>
     <string name="keyword_regex">מילת מפתח (ביטוי רגולרי)</string>
     <string name="remove_a_search_batch">הסר אצווה חיפוש</string>
-    <string name="title_activity_main">פעילות ראשית</string>
     <string name="paste_desc">הדבק מסמך</string>
     <string name="create_new_file_desc">צור קובץ חדש בתיקייה שנבחרה</string>
     <string name="copy_desc">העתק קובץ</string>

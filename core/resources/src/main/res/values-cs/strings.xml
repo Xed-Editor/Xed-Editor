@@ -237,7 +237,6 @@
     <string name="content">Obsah</string>
     <string name="discard">Zahodit</string>
     <string name="telegram">Telegram Skupina</string>
-    <string name="title_activity_main">HlavníAktivita</string>
     <string name="userdata">Uživatelská data</string>
     <string name="file_open_denied">Otevřít tento soubor jinými aplikacemi není povoleno</string>
     <string name="close_current_project">Zavřít aktuální projekt</string>

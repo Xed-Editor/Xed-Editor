@@ -70,7 +70,6 @@
     <string name="add_new_replacement_batch">إضافة دفعة بديلة جديدة</string>
     <string name="remove_a_search_batch">إزالة البحث عن الدفعة</string>
     <string name="replacement">استبدال</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="tab_text_1">علامة التبويب 1</string>
     <string name="tab_text_2">علامة التبويب 2</string>
     <string name="title">عنوان</string>

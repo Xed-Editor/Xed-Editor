@@ -6,15 +6,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.libcommons.editor.lspRegistry
+import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.xededitor.ui.components.SettingsToggle
 
 @Composable
 fun LspSettings(modifier: Modifier = Modifier) {
-    PreferenceLayout(label = "Lsp Settings") {
+    PreferenceLayout(label = stringResource(strings.lsp_settings)) {
         if (lspRegistry.isNotEmpty()){
             PreferenceGroup {
                 lspRegistry.values.forEach { server ->
@@ -25,7 +27,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
             }
         }else{
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center){
-                Text("No language server installed.")
+                Text(stringResource(strings.no_language_server))
             }
         }
 

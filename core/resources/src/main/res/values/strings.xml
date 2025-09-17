@@ -14,8 +14,8 @@
     <string name="open_file_or_folder">Open file or folder</string>
     <string name="open_directory">Open a directory</string>
     <string name="new_file">New file</string>
-    <string name="new_file_hint">Name e.g. Test.txt</string>
-    <string name="mime">MIME type e.g. text/plain</string>
+    <string name="new_file_hint">Name (e.g. test.txt)</string>
+    <string name="mime">MIME type (e.g. text/plain)</string>
     <string name="rep">Replacement</string>
     <string name="search_keyword">Search keyword</string>
     <string name="cs">Case sensitive</string>
@@ -57,7 +57,7 @@
     <string name="keep_drawer_locked">Keep drawer locked</string>
     <string name="restart">Restart</string>
     <string name="refresh">Reload</string>
-    <string name="dir_example">Name e.g. Test</string>
+    <string name="dir_example">Name (e.g. Test)</string>
     <string name="create">Create</string>
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
@@ -72,7 +72,6 @@
     <string name="add_new_replacement_batch">Add new replacement batch</string>
     <string name="remove_a_search_batch">Remove a search batch</string>
     <string name="replacement">Replacement</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="title">Title</string>
@@ -174,7 +173,7 @@
     <string name="pkg_download_failed">Package download failed</string>
     <string name="copy_failed">Failed to copy file</string>
     <string name="install_done">Installed successfully</string>
-    <string name="invalid_file_type">Invalid file type, zip file expected</string>
+    <string name="invalid_file_type">Invalid file type, ZIP file expected</string>
     <string name="install_failed">Failed to install</string>
     <string name="choose_file">Choose file</string>
     <string name="force_char">Force char</string>
@@ -199,7 +198,7 @@
     <string name="version">Version</string>
     <string name="version_code">Version code</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Star it on Github 🤩</string>
+    <string name="github_desc">Star it on GitHub 🤩</string>
     <string name="telegram">Telegram group</string>
     <string name="telegram_desc">Report issues, feature requests etc.</string>
     <string name="join">Join</string>
@@ -213,8 +212,8 @@
     <string name="file_too_large">File is too big to open</string>
     <string name="toggle_suggestion">Toggle suggestion</string>
     <string name="run">Run</string>
-    <string name="txt_ww">Wrap txt files</string>
-    <string name="txt_ww_desc">Automatically wrap .txt files</string>
+    <string name="txt_ww">Wrap TXT files</string>
+    <string name="txt_ww_desc">Automatically wrap TXT files</string>
     <string name="manage_editor_font">Manage editor fonts</string>
     <string name="default_encoding">Default encoding</string>
     <string name="default_encoding_desc">Editor default encoding</string>
@@ -242,7 +241,7 @@
     <string name="launch">Launch</string>
     <string name="mutator_desc">Create user scripts</string>
     <string name="restore_sessions">Restore sessions</string>
-    <string name="restore_sessions_desc">"Restore previous tabs</string>
+    <string name="restore_sessions_desc">Restore previous tabs</string>
     <string name="terminal_home">Terminal home</string>
     <string name="terminal_home_desc">Default home directory of terminal</string>
     <string name="sessions">Sessions</string>
@@ -265,13 +264,13 @@
     <string name="script_showing_dialog">Showing a dialog</string>
     <string name="script_set_text">Set text</string>
     <string name="script_text">This text will be written in the editor</string>
-    <string name="script_api_info">Check the ImplApi class in xed-editors source code at PROJECT/core/main/ui/screens/mutators/ImplApi for more information</string>
+    <string name="script_api_info">Check the ImplApi class in Xed-Editor\'s source code at PROJECT/core/main/ui/screens/mutators/ImplApi for more information</string>
     <string name="installing">Installing…</string>
-    <string name="not_plugin_err">Selected file is not a .apk file</string>
+    <string name="not_plugin_err">Selected file is not an APK file</string>
     <string name="install_from_storage">Install from storage</string>
     <string name="no_ext">No extension installed.</string>
     <string name="loading">Loading…</string>
-    <string name="info_ext">Extensions can be used to modify the behavior and features of xed-editor. To learn how to build a plugin, click here.</string>
+    <string name="info_ext">Extensions can be used to modify the behavior and features of Xed-Editor. To learn how to build a plugin, click here.</string>
     <string name="initializing">Initializing…</string>
     <string name="downloading">Downloading…</string>
     <string name="network_err">Network error. Please check that your internet connection is working properly.</string>
@@ -378,7 +377,7 @@
     <string name="file_type">FileType</string>
     <string name="type">Type</string>
     <string name="name">Name</string>
-    <string name="view_github_profile">View Github profile</string>
+    <string name="view_github_profile">View GitHub profile</string>
     <string name="debug_options">Debug options</string>
     <string name="debug_options_desc">Debugging options for %(app_name)</string>
     <string name="force_crash">Force crash</string>
@@ -405,6 +404,13 @@
     <string name="discord">Discord community</string>
     <string name="use_tabs">Insert tab character</string>
     <string name="use_tabs_desc">Use a real tab (\\t) instead of spaces for indentation</string>
+    <string name="lsp_settings">LSP settings</string>
+    <string name="no_language_server">No language server installed.</string>
+    <string name="developer">Developer</string>
+    <string name="build_info">Build info</string>
+    <string name="community">Community</string>
+    <string name="failsafe_mode">Failsafe mode</string>
+    <string name="failsafe_mode_desc">Start terminal in maintenance mode</string>
     <string name="render_whitespace">Render whitespace</string>
     <string name="render_whitespace_desc">Render spaces, tabs, and line breaks as visible symbols</string>
 </resources>

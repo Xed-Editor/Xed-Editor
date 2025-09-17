@@ -57,7 +57,7 @@ fun AboutScreen() {
 
     PreferenceLayout(label = stringResource(id = strings.about), backArrowVisible = true) {
 
-        PreferenceGroup(heading = "Developer") {
+        PreferenceGroup(heading = stringResource(strings.developer)) {
             SettingsToggle(
                 label = "RohitKushvaha01",
                 description = stringResource(strings.view_github_profile),
@@ -95,7 +95,7 @@ fun AboutScreen() {
 
         }
 
-        PreferenceGroup(heading = "BuildInfo") {
+        PreferenceGroup(heading = stringResource(strings.build_info)) {
             PreferenceTemplate(
                 modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
                     copyToClipboard(versionName.toString())
@@ -165,7 +165,7 @@ fun AboutScreen() {
         }
 
 
-        PreferenceGroup(heading = "Community") {
+        PreferenceGroup(heading = stringResource(strings.community)) {
 
             val stars = remember { mutableStateOf("Unknown") }
 
@@ -199,7 +199,7 @@ fun AboutScreen() {
             PreferenceTemplate(
                 title = {
                     Text(
-                        text = "Github Stars",
+                        text = "GitHub stars",
                         style = MaterialTheme.typography.titleMedium
                     )
                 },
