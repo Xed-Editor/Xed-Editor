@@ -406,4 +406,14 @@
     <string name="use_tabs">Insérer un caractère de tabulation</string>
     <string name="render_whitespace">Afficher les espaces</string>
     <string name="render_whitespace_desc">Affiche les espaces, les tabulations et les sauts de ligne avec des symboles visibles</string>
+    <string name="lsp_settings">Paramètres LSP</string>
+    <string name="no_language_server">Aucun serveur de langue sélectionné.</string>
+    <string name="developer">Développeur</string>
+    <string name="build_info">Information sur la compilation</string>
+    <string name="community">Communauté</string>
+    <string name="failsafe_mode">Mode sans échec</string>
+    <string name="failsafe_mode_desc">Démarrer le terminal en mode maintenance</string>
+    <string name="ask_refresh">Êtes-vous sûr de vouloir rafraîchir ce document ? Tout changement non enregistré sera perdu.</string>
+    <string name="docs">Documentation</string>
+    <string name="docs_desc">Aller à la page de documentation.</string>
 </resources>
