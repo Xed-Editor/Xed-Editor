@@ -41,12 +41,11 @@ fun NextScreenCard(
     @DrawableRes iconRes:Int? = null,
     startIconTint:Color = LocalContentColor.current
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
     PreferenceTemplate(
         modifier = modifier.combinedClickable(
             enabled = isEnabled,
             indication = ripple(),
-            interactionSource = interactionSource,
+            interactionSource = remember { MutableInteractionSource() },
             onClick = {
                 navController?.navigate(route.route)
             }

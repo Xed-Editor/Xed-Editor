@@ -40,7 +40,6 @@ var addDialog by mutableStateOf(false)
 fun RowScope.GlobalActions(viewModel: MainViewModel) {
     val context = LocalContext.current
     if (viewModel.tabs.isEmpty()){
-
         IconButton(onClick = {
             addDialog = true
         }) {
