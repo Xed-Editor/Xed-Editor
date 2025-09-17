@@ -213,12 +213,6 @@ private fun Categories(navController: NavController) {
                 )
             }
         },
-        endWidget = {
-            Icon(
-                modifier = Modifier.padding(16.dp),
-                imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                contentDescription = null)
-        },
     )
 }
 
