@@ -35,8 +35,8 @@
     <string name="ww_wait">Per favore attendi che il testo sia mandato a capo automaticamente</string>
     <string name="open_file_or_folder">Apri file o cartella</string>
     <string name="new_file">Nuovo file</string>
-    <string name="new_file_hint">Nome es. Test.txt</string>
-    <string name="mime">Tipo MIME, ad es. text/plain</string>
+    <string name="new_file_hint">Nome (es. test.txt)</string>
+    <string name="mime">Tipo MIME (es. text/plain)</string>
     <string name="rep">Sostituzione</string>
     <string name="search_keyword">Parola chiave di ricerca</string>
     <string name="cs">Case sensitive</string>
@@ -70,10 +70,10 @@
     <string name="ww">A capo automatico</string>
     <string name="keep_drawer_locked">Mantieni il Menù Chiuso</string>
     <string name="refresh">Ricarica</string>
-    <string name="dir_example">Nome, ad es. Test</string>
+    <string name="dir_example">Nome (es. Test)</string>
     <string name="create">Crea</string>
     <string name="ask_enter_name">Per favore inserisci un nome</string>
-    <string name="ask_del">Sei sicuro di voler eliminare definitivamente %s?</string>
+    <string name="ask_del">Sei sicuro di voler eliminare definitivamente %(file_name)?</string>
     <string name="reselect_dir">Per favore seleziona nuovamente la cartella</string>
     <string name="cant_handle">Nessuna app associata a questo tipo di file</string>
     <string name="terminal">Terminale</string>
@@ -169,7 +169,7 @@
     <string name="wait_pkg">Attendere mentre i pacchetti vengono scaricati.</string>
     <string name="pkg_download_failed">Impossibile scaricare il pacchetto</string>
     <string name="copy_failed">Impossibile copiare il file</string>
-    <string name="invalid_file_type">Tipo di file non valido, file zip previsto</string>
+    <string name="invalid_file_type">Tipo di file non valido, è richiesto un file ZIP</string>
     <string name="install_failed">Impossibile installare</string>
     <string name="choose_file">Scegli File</string>
     <string name="force_char">Forza char</string>
@@ -192,7 +192,7 @@
     <string name="about_desc">Informazioni su Xed-Editor</string>
     <string name="version">Versione</string>
     <string name="version_code">Codice versione</string>
-    <string name="github_desc">Valuta su GitHub 🤩</string>
+    <string name="github_desc">Metti una stella su GitHub 🤩</string>
     <string name="telegram">Gruppo Telegram</string>
     <string name="telegram_desc">Segnala problemi, richiedi funzionalità, etc.</string>
     <string name="join">Unisciti</string>
@@ -214,8 +214,8 @@
     <string name="other">Altro</string>
     <string name="delete_font">Elimina font</string>
     <string name="fonts">Font</string>
-    <string name="txt_ww">Avvolgi file .txt</string>
-    <string name="txt_ww_desc">Avvolgi automaticamente i file .txt</string>
+    <string name="txt_ww">Avvolgi file TXT</string>
+    <string name="txt_ww_desc">Avvolgi automaticamente i file TXT</string>
     <string name="file_not_saved">Alcuni file non sono salvati</string>
     <string name="file_unsaved">File non salvato</string>
     <string name="ask_unsaved">Sei sicuro di voler eliminare questo documento non salvato?</string>
@@ -240,7 +240,7 @@
     <string name="restore_sessions_desc">Ripristina schede precedenti</string>
     <string name="terminal_home">Home terminale</string>
     <string name="mutator_name">Nome mutatore</string>
-    <string name="script_api_info">Per ulteriori informazioni, consulta la classe ImplApi nel codice sorgente di xed-editors in PROJECT/core/main/ui/screens/mutators/ImplApi</string>
+    <string name="script_api_info">Consulta la classe ImplApi nel codice sorgente di Xed-Editor in PROJECT/core/main/ui/screens/mutators/ImplApi per maggiori informazioni</string>
     <string name="install_from_storage">Installa dalla memoria interna</string>
     <string name="add_session">Aggiungi sessione</string>
     <string name="enable_ext">Estensioni</string>
@@ -254,7 +254,7 @@
     <string name="script_showing_dialog">Mostrando una finestra di dialogo</string>
     <string name="installing">Installazione…</string>
     <string name="script_text">Questo testo sarà scritto nell\'editor</string>
-    <string name="not_plugin_err">Il file selezionato non è un file .apk</string>
+    <string name="not_plugin_err">Il file selezionato non è un file APK</string>
     <string name="no_mutators">Nessun mutatore</string>
     <string name="name_empty_err">Il nome non può essere vuoto</string>
     <string name="terminal_runtime_desc">Seleziona tempo di esecuzione del terminale</string>
@@ -273,7 +273,7 @@
     <string name="file_err">Il file non può essere salvato, prova a chiuderlo e riaprirlo</string>
     <string name="file_not_loaded">Il file non è ancora caricato.</string>
     <string name="file_not_exist">Il File non esiste più</string>
-    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di xed-editor. Per imparare come costruire un plugin, clicca qui.</string>
+    <string name="info_ext">Le estensioni possono modificare il comportamento e le caratteristiche di Xed-Editor. Per imparare come costruire un plugin, clicca qui.</string>
     <string name="scroll_to_bottom">Scorri in basso</string>
     <string name="loading">Caricamento…</string>
     <string name="scroll_to_bottom_desc">Scorri in basso all\'apertura di un file</string>
