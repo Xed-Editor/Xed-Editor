@@ -49,7 +49,7 @@
     <string name="save_exit">Zapisz i wyjdź</string>
     <string name="exit">Wyjdź</string>
     <string name="rr">Wymagane ponowne uruchomienie</string>
-    <string name="restart_to_apply">Proszę, uruchom ponownie aby zastosować zmiany</string>
+    <string name="restart_to_apply">Proszę, uruchom ponownie, aby zastosować zmiany</string>
     <string name="oled">Czarny motyw</string>
     <string name="ww">Zawijanie tekstu</string>
     <string name="keep_drawer_locked">Utrzymuj szufladę w pozycji zablokowanej</string>
@@ -157,7 +157,7 @@
     <string name="disable_virtual_kbd_desc">Wyłącz wirtualną klawiaturę jeśli klawiatura fizyczna jest dostępna</string>
     <string name="experimental_feature">Funkcja eksperymentalna</string>
     <string name="experimental_session_restore_warning">Funkcja jest eksperymentalna, czasami może powodować utratę danych</string>
-    <string name="highlighting">Podświetlenie składni</string>
+    <string name="highlighting">Podświetlanie składni</string>
     <string name="unrestricted_file">Otwiera pliki każdego rozmiaru</string>
     <string name="unrestricted_file_desc">Pozwala otwierać pliki każdego rozmiaru. Może powodować awarię.</string>
     <string name="suggest_clear_app_data">Zalecane czyszczenie danych aplikacji</string>
@@ -220,7 +220,7 @@
     <string name="check_for_updates_desc">Okresowo sprawdzaj aktualizacje</string>
     <string name="click_open">Kliknij tutaj, aby otworzyć plik</string>
     <string name="no">Nie</string>
-    <string name="file_too_large">Plik jest za duży aby go otworzyć</string>
+    <string name="file_too_large">Plik jest za duży, aby go otworzyć</string>
     <string name="toggle_suggestion">Włącz sugestie</string>
     <string name="run">Uruchom</string>
     <string name="txt_ww">Zawijanie w plikach TXT</string>
@@ -269,7 +269,7 @@
     <string name="unsupported_feature">Funkcja nie jest obsługiwana przez twoje urządzenie</string>
     <string name="confirm_exit">Czy napewno chcesz wyjść?</string>
     <string name="control_panel">Panel kontrolny</string>
-    <string name="tab_memory_warning">Za mało pamięci aby otworzyć kartę. Otwarcie może spowodować awarię Xed-Editor\'a. Czy chcesz kontynuować?</string>
+    <string name="tab_memory_warning">Za mało pamięci, aby otworzyć kartę. Otwarcie może spowodować awarię Xed-Editor\'a. Czy chcesz kontynuować?</string>
     <string name="read_mode_desc">Włącz tryb czytania domyślnie</string>
     <string name="acquire_wakelock">Przejmij blokadę uśpienia</string>
     <string name="release_wakelock">Zwolnij blokadę uśpienia</string>
@@ -311,7 +311,7 @@
     <string name="yes">Tak</string>
     <string name="err">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
-    <string name="open_file_desc">Wybierz plik aby edytować go bezpośrednio</string>
+    <string name="open_file_desc">Wybierz plik, aby edytować go bezpośrednio</string>
     <string name="open_path">Pamięć wewnętrzna</string>
     <string name="open_path_desc">Otwórz pamięć wewnętrzną</string>
     <string name="add">Dodaj</string>
@@ -374,12 +374,12 @@
     <string name="use_tabs_desc">Użyj prawdziwego tabulatora (/t) zamiast spacji, aby zastosować wcięcie</string>
     <string name="render_whitespace">Renderowanie białej spacji</string>
     <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w lini jako widoczne symbole</string>
-    <string name="manage_storage_reason">Xed-Editor wymaga dostępu aby edytować pliki w twojej pamięci. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
+    <string name="manage_storage_reason">Xed-Editor wymaga dostępu, aby edytować pliki w twojej pamięci. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
-    <string name="info_ext">Rozszerzenia można używać aby modyfikować zachowanie oraz funkcje Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
+    <string name="info_ext">Rozszerzenia można używać, aby modyfikować zachowanie oraz funkcje Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
-    <string name="expose_saf_desc">Spraw aby główny katalog był dostępny dla aplikacji zewnętrznych używając systemowego menedżera plików (SAF)</string>
+    <string name="expose_saf_desc">Spraw, aby główny katalog był dostępny dla aplikacji zewnętrznych używając systemowego menedżera plików (SAF)</string>
     <string name="saf_expose_warning">Udostępniając główny katalog możesz odkryć wrażliwe informacje złośliwym aplikacjom, włączając tokeny Git, hasła, nazwy użytkownika oraz inne pliki przechowywane w twoim głównym katalogu terminalu. Czy chcesz kontynuować?</string>
     <string name="capture_logcat">Przechwycenie dzienników komunikatów</string>
     <string name="capture_logcat_desc">Przechwyć dzienniki w tle do debugingu</string>
@@ -401,7 +401,7 @@
     <string name="project_as_wk">Użyj projekt jako katalog roboczy</string>
     <string name="project_as_wk_desc">Użyj projekt jako katalog roboczy w terminalu</string>
     <string name="seccomp_desc">Napraw błąd \"funkcja nieobsługiwana\", na niektórych urządzeniach</string>
-    <string name="non_native_filetype">Uruchamianie kodu jest nieobsługiwane w tej lokalizacji. Zastanów się nad przeniesieniem pliku do głównego katalogu terminalu aby uruchomić.</string>
+    <string name="non_native_filetype">Uruchamianie kodu jest nieobsługiwane w tej lokalizacji. Zastanów się nad przeniesieniem pliku do głównego katalogu terminalu.</string>
     <string name="sdcard_filetype">Uruchamianie kodu nie jest zalecane w tej lokalizacji. Zastanów się nad przeniesieniem pliku do glównego katalogu terminalu.</string>
     <string name="rename_file">Zmień nazwę pliku</string>
     <string name="new_name">Nowa nazwa</string>
