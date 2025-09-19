@@ -12,8 +12,8 @@
     <string name="open_file_or_folder">開啟檔案或資料夾</string>
     <string name="open_directory">開啟資料夾</string>
     <string name="new_file">新增檔案</string>
-    <string name="new_file_hint">名稱，例如： 測試.txt</string>
-    <string name="mime">MIME 類型，例如： text/plain</string>
+    <string name="new_file_hint">名稱（例如： 測試.txt）</string>
+    <string name="mime">MIME 類型（例如： text/plain）</string>
     <string name="rep">取代</string>
     <string name="search_keyword">搜尋關鍵字</string>
     <string name="cs">區分大小寫</string>
@@ -55,7 +55,7 @@
     <string name="keep_drawer_locked">保持側滑欄狀態</string>
     <string name="restart">重新啟動</string>
     <string name="refresh">重新載入</string>
-    <string name="dir_example">名稱，例如：測試</string>
+    <string name="dir_example">名稱（例如：測試）</string>
     <string name="create">建立</string>
     <string name="ask_enter_name">請輸入名稱</string>
     <string name="already_exists">已存在同名文件</string>
@@ -170,7 +170,7 @@
     <string name="pkg_download_failed">套件下載失敗</string>
     <string name="copy_failed">複製資料夾失敗</string>
     <string name="install_done">安裝成功</string>
-    <string name="invalid_file_type">無效的檔案類型，請使用 zip 檔</string>
+    <string name="invalid_file_type">無效的檔案類型，請使用 ZIP 檔</string>
     <string name="install_failed">安裝失敗</string>
     <string name="choose_file">選取檔案</string>
     <string name="force_char">強制使用字元</string>
@@ -261,13 +261,13 @@
     <string name="script_showing_dialog">顯示對話框</string>
     <string name="script_set_text">設定編輯器文字</string>
     <string name="script_text">此文字將被寫入到編輯器</string>
-    <string name="script_api_info">如需更多資訊，請查看 Xed-editor 源代碼中 的 ImplApi 類別 （位於 PROJECT/core/main/ui/screens/mutators/ImplApi）</string>
+    <string name="script_api_info">如需更多資訊，請查看 Xed-Editor 源代碼中 的 ImplApi 類別 （位於 PROJECT/core/main/ui/screens/mutators/ImplApi）</string>
     <string name="installing">安裝中…</string>
-    <string name="not_plugin_err">選取的檔案不是 .apk 檔</string>
+    <string name="not_plugin_err">選取的檔案不是 APK 檔</string>
     <string name="install_from_storage">從儲存空間安裝</string>
     <string name="no_ext">未安裝擴充功能。</string>
     <string name="loading">載入中…</string>
-    <string name="info_ext">擴充功能可用來修改 Xed-editor 的行為與功能。若要了解如何建立擴充功能，請點擊此處。</string>
+    <string name="info_ext">擴充功能可用來修改 Xed-Editor 的行為與功能。若要了解如何建立擴充功能，請點擊此處。</string>
     <string name="downloading">下載中…</string>
     <string name="initializing">初始化中…</string>
     <string name="network_err">網路錯誤。請檢查你的網際網路連線是否正常。</string>
@@ -406,4 +406,6 @@
     <string name="use_tabs_desc">使用制表符 \\t 取代空格進行縮排</string>
     <string name="render_whitespace">呈現空白字元</string>
     <string name="render_whitespace_desc">將空白、定位字元與換行符號呈現為可見符號</string>
+    <string name="lsp_settings">LSP 语言伺服器设定</string>
+    <string name="no_language_server">未安装语言伺服器。</string>
 </resources>
