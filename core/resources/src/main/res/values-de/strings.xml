@@ -186,7 +186,7 @@
     <string name="force_desktop_desc">Desktop-Layout auf kleineren Bildschirmen erzwingen</string>
     <string name="light_mode">Hell</string>
     <string name="dark_mode">Dunkel</string>
-    <string name="auto_mode">Auto</string>
+    <string name="auto_mode">Automatisch</string>
     <string name="about">Über</string>
     <string name="about_desc">Über Xed-Editor</string>
     <string name="version">Version</string>
