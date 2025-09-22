@@ -60,6 +60,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    kotlin {
+        jvmToolchain(17)
+    }
     buildFeatures {
         viewBinding = true
         compose = true
