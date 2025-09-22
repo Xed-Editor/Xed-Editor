@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Surface
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.rk.extension.ProvideExtensionManager
+//import com.rk.extension.ProvideExtensionManager
 import com.rk.file.FileManager
 import com.rk.libcommons.toast
 import com.rk.resources.strings
@@ -35,7 +35,7 @@ class SettingsActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContent {
             KarbonTheme {
-                ProvideExtensionManager {
+                //ProvideExtensionManager {
                     Surface {
                         val navController = rememberNavController()
                         settingsNavController = WeakReference(navController)
@@ -52,7 +52,7 @@ class SettingsActivity : AppCompatActivity() {
                             }
                         }
                     }
-                }
+                //}
             }
         }
     }

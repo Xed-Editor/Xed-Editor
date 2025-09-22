@@ -9,7 +9,7 @@ sealed class SettingsRoutes(val route: String) {
     data object EditorFontScreen : SettingsRoutes("editorFontScreen")
     data object DefaultEncoding : SettingsRoutes("defaultEncoding")
     data object ManageMutators : SettingsRoutes("manageMutators")
-    data object Extensions : SettingsRoutes("extensions")
+    //data object Extensions : SettingsRoutes("extensions")
     data object DeveloperOptions : SettingsRoutes("developer_options")
     data object BeanshellREPL : SettingsRoutes("bsh_repl")
     data object Support : SettingsRoutes("support")

@@ -24,8 +24,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -34,31 +32,23 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
 import androidx.lifecycle.lifecycleScope
 import com.rk.ActivityCache
 import com.rk.compose.filetree.DrawerContent
 import com.rk.compose.filetree.isLoading
 import com.rk.compose.filetree.restoreProjects
 import com.rk.compose.filetree.saveProjects
-import com.rk.extension.LocalExtensionManager
-import com.rk.extension.ProvideExtensionManager
-import com.rk.extension.internal.loadAllExtensions
+//import com.rk.extension.LocalExtensionManager
+//import com.rk.extension.ProvideExtensionManager
+//import com.rk.extension.internal.loadAllExtensions
 import com.rk.file.FileManager
 import com.rk.file.FilePermission
-import com.rk.file.UriWrapper
 import com.rk.file.toFileObject
 import com.rk.libcommons.dialog
-import com.rk.libcommons.editor.KarbonEditor
-import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.theme.KarbonTheme
-import com.rk.xededitor.ui.theme.amoled
-import com.rk.xededitor.ui.theme.currentTheme
-import com.rk.xededitor.ui.theme.dynamicTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -140,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             KarbonTheme {
 
-                ProvideExtensionManager {
+                //ProvideExtensionManager {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.surface
@@ -148,11 +138,11 @@ class MainActivity : AppCompatActivity() {
                         val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
                         val scope = rememberCoroutineScope()
 
-                        val extensionManager = LocalExtensionManager.current
+                        //val extensionManager = LocalExtensionManager.current
 
-                        LaunchedEffect(Unit) {
-                            extensionManager.loadAllExtensions()
-                        }
+//                        LaunchedEffect(Unit) {
+//                            extensionManager.loadAllExtensions()
+//                        }
 
                         BackHandler {
                             if (drawerState.isOpen) {
@@ -227,7 +217,7 @@ class MainActivity : AppCompatActivity() {
 
                         }
                     }
-                }
+                //}
             }
         }
     }

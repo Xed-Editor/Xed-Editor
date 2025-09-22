@@ -1,7 +1,7 @@
 package com.rk.terminal
 
 import androidx.lifecycle.lifecycleScope
-import com.rk.extension.ExtensionManager
+//import com.rk.extension.ExtensionManager
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxDir
 import com.rk.libcommons.application
@@ -83,13 +83,13 @@ object ActionHandler {
                         return "File is not an ZIP : ${file.absolutePath}"
                     }
 
-                    runCatching {
-                        ExtensionManager(application!!).installExtension(file)
-                    }.onFailure {
-                        return it.message.toString()
-                    }.onSuccess {
-                        return "ok"
-                    }
+//                    runCatching {
+//                        ExtensionManager(application!!).installExtension(file)
+//                    }.onFailure {
+//                        return it.message.toString()
+//                    }.onSuccess {
+//                        return "ok"
+//                    }
                 }
 
                 "exec" -> {

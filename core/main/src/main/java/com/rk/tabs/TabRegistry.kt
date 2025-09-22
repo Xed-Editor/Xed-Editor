@@ -1,6 +1,6 @@
 package com.rk.tabs
 
-import com.rk.extension.Hooks
+//import com.rk.extension.Hooks
 import com.rk.file.FileObject
 
 object TabRegistry {
@@ -11,12 +11,12 @@ object TabRegistry {
 
 
             else -> {
-                Hooks.Editor.tabs.values.forEach {
-                    if (it.shouldOpenForFile(file)){
-                        callback(it.tab)
-                        return
-                    }
-                }
+//                Hooks.Editor.tabs.values.forEach {
+//                    if (it.shouldOpenForFile(file)){
+//                        callback(it.tab)
+//                        return
+//                    }
+//                }
 
                 //open editor
                 callback(null)

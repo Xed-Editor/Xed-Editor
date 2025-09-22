@@ -10,40 +10,30 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
-import com.rk.extension.Hooks
+//import com.rk.extension.Hooks
 import com.rk.libcommons.openUrl
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
@@ -51,7 +41,6 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.icons.Menu_book
 import com.rk.xededitor.ui.icons.XedIcons
 import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
@@ -105,14 +94,14 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    if (InbuiltFeatures.extensions.state.value) {
-        PreferenceCategory(
-            label = stringResource(strings.ext),
-            description = stringResource(strings.ext_desc),
-            iconResource = drawables.extension,
-            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
-        )
-    }
+//    if (InbuiltFeatures.extensions.state.value) {
+//        PreferenceCategory(
+//            label = stringResource(strings.ext),
+//            description = stringResource(strings.ext_desc),
+//            iconResource = drawables.extension,
+//            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
+//        )
+//    }
 
 
     if (App.isFDroid && InbuiltFeatures.developerOptions.state.value) {
@@ -167,26 +156,26 @@ private fun Categories(navController: NavController) {
     )
 
 
-    Hooks.Settings.screens.values.forEach{ entry ->
-        PreferenceTemplate(modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clip(MaterialTheme.shapes.large)
-            .clickable { navController.navigate(entry.route) }
-            .background(Color.Transparent),
-            verticalPadding = 14.dp,
-            title = {
-                Text(entry.label)
-            },
-            description = {
-                Text(entry.description)
-            },
-            startWidget = {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                    entry.icon()
-                }
-            }
-        )
-    }
+//    Hooks.Settings.screens.values.forEach{ entry ->
+//        PreferenceTemplate(modifier = Modifier
+//            .padding(horizontal = 16.dp)
+//            .clip(MaterialTheme.shapes.large)
+//            .clickable { navController.navigate(entry.route) }
+//            .background(Color.Transparent),
+//            verticalPadding = 14.dp,
+//            title = {
+//                Text(entry.label)
+//            },
+//            description = {
+//                Text(entry.description)
+//            },
+//            startWidget = {
+//                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
+//                    entry.icon()
+//                }
+//            }
+//        )
+//    }
 
 
     PreferenceTemplate(modifier = Modifier
