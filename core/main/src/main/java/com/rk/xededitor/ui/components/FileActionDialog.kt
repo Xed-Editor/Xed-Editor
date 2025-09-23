@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
-//import com.rk.extension.Hooks
+import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.openWith
@@ -259,18 +259,18 @@ fun FileActionDialog(
                     }
                 )
 
-//                Hooks.FileAction.actions.values.forEach { action ->
-//                    if (action.shouldAttach(root,file)){
-//                        AddDialogItem(
-//                            icon = action.icon,
-//                            title = action.title,
-//                            onClick = {
-//                                action.onClick(root,file)
-//                            }
-//                        )
-//                    }
-//
-//                }
+                Hooks.FileAction.actions.values.forEach { action ->
+                    if (action.shouldAttach(root,file)){
+                        AddDialogItem(
+                            icon = action.icon,
+                            title = action.title,
+                            onClick = {
+                                action.onClick(root,file)
+                            }
+                        )
+                    }
+
+                }
                 
             }
         }

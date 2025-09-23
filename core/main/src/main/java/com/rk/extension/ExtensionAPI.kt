@@ -1,5 +1,6 @@
 package com.rk.extension
 
+
 abstract class ExtensionAPI {
     open fun onPluginLoaded(extension: Extension,isInit: Boolean){}
     open fun onMainActivityPaused(){}

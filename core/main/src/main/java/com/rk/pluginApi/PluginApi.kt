@@ -1,10 +1,24 @@
-package com.rk.extension
+package com.rk.pluginApi
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.lifecycleScope
+import com.rk.extension.CustomTab
+import com.rk.extension.Extension
+import com.rk.xededitor.ui.activities.main.ControlItem
+import com.rk.extension.Hooks
+import com.rk.extension.SettingsScreen
+import com.rk.file.FileObject
+import com.rk.libcommons.errorDialog
+import com.rk.runner.RunnerImpl
+import com.rk.xededitor.ui.activities.main.MainActivity
+import com.rk.tabs.Tab
+import kotlinx.coroutines.launch
 import java.io.InputStream
+
 
 /**
  * Xed Editor Plugin API
@@ -202,46 +216,46 @@ object PluginApi {
 
 
     fun Context.getHostDrawable(name: String): Drawable? =
-        getHostResource(this, name, ResourceType.DRAWABLE) as? Drawable
+        PluginApi.getHostResource(this, name, ResourceType.DRAWABLE) as? Drawable
 
     fun Context.getHostMipmap(name: String): Drawable? =
-        getHostResource(this, name, ResourceType.MIPMAP) as? Drawable
+        PluginApi.getHostResource(this, name, ResourceType.MIPMAP) as? Drawable
 
     fun Context.getHostString(name: String): String? =
-        getHostResource(this, name, ResourceType.STRING) as? String
+        PluginApi.getHostResource(this, name, ResourceType.STRING) as? String
 
     fun Context.getHostColor(name: String): Int? =
-        getHostResource(this, name, ResourceType.COLOR) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.COLOR) as? Int
 
     fun Context.getHostRaw(name: String): InputStream? =
-        getHostResource(this, name, ResourceType.RAW) as? InputStream
+        PluginApi.getHostResource(this, name, ResourceType.RAW) as? InputStream
 
     fun Context.getHostLayoutId(name: String): Int? =
-        getHostResource(this, name, ResourceType.LAYOUT) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.LAYOUT) as? Int
 
     fun Context.getHostAnimId(name: String): Int? =
-        getHostResource(this, name, ResourceType.ANIM) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.ANIM) as? Int
 
     fun Context.getHostId(name: String): Int? =
-        getHostResource(this, name, ResourceType.ID) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.ID) as? Int
 
     fun Context.getHostDimenId(name: String): Int? =
-        getHostResource(this, name, ResourceType.DIMEN) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.DIMEN) as? Int
 
     fun Context.getHostBoolId(name: String): Int? =
-        getHostResource(this, name, ResourceType.BOOL) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.BOOL) as? Int
 
     fun Context.getHostIntegerId(name: String): Int? =
-        getHostResource(this, name, ResourceType.INTEGER) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.INTEGER) as? Int
 
     fun Context.getHostArrayId(name: String): Int? =
-        getHostResource(this, name, ResourceType.ARRAY) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.ARRAY) as? Int
 
     fun Context.getHostStyleId(name: String): Int? =
-        getHostResource(this, name, ResourceType.STYLE) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.STYLE) as? Int
 
     fun Context.getHostXmlId(name: String): Int? =
-        getHostResource(this, name, ResourceType.XML) as? Int
+        PluginApi.getHostResource(this, name, ResourceType.XML) as? Int
 
 
 }

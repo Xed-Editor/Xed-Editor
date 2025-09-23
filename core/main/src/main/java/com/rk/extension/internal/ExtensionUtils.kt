@@ -15,7 +15,6 @@ import com.rk.libcommons.isMainThread
 import com.rk.settings.Preference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.collections.iterator
 
 internal val loadedExtensions = mutableStateMapOf<LocalExtension, ExtensionAPI>()
 

@@ -62,8 +62,8 @@ data class Feature(
 }
 
 object InbuiltFeatures {
-//    val extensions =
-//        Feature(name = strings.enable_ext.getString(), key = "enable_extension", default = false)
+    val extensions =
+        Feature(name = strings.enable_ext.getString(), key = "enable_extension", default = false)
     val terminal = Feature(
         name = strings.terminal.getString() + " + " + strings.runners.getString(),
         key = "feature_terminal",
@@ -139,15 +139,15 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     InbuiltFeatures.terminal.setEnable(it)
                 }
             )
-//            if (App.isFDroid) {
-//                SettingsToggle(
-//                    label = InbuiltFeatures.extensions.name,
-//                    default = InbuiltFeatures.extensions.state.value,
-//                    sideEffect = {
-//                        InbuiltFeatures.extensions.setEnable(it)
-//                    }
-//                )
-//            }
+            if (App.isFDroid) {
+                SettingsToggle(
+                    label = InbuiltFeatures.extensions.name,
+                    default = InbuiltFeatures.extensions.state.value,
+                    sideEffect = {
+                        InbuiltFeatures.extensions.setEnable(it)
+                    }
+                )
+            }
 
             SettingsToggle(
                 label = InbuiltFeatures.mutators.name,
@@ -157,13 +157,15 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 }
             )
 
-            SettingsToggle(
-                label = InbuiltFeatures.developerOptions.name,
-                default = InbuiltFeatures.developerOptions.state.value,
-                sideEffect = {
-                    InbuiltFeatures.developerOptions.setEnable(it)
-                }
-            )
+            if (App.isFDroid) {
+                SettingsToggle(
+                    label = InbuiltFeatures.developerOptions.name,
+                    default = InbuiltFeatures.developerOptions.state.value,
+                    sideEffect = {
+                        InbuiltFeatures.developerOptions.setEnable(it)
+                    }
+                )
+            }
         }
 
     }

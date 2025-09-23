@@ -125,7 +125,7 @@ dependencies {
     api("androidx.documentfile:documentfile:1.1.0")
 
     //debug libs these libs doesn't get added when creating release builds
-    //debugApi(libs.bsh)
+    debugApi(libs.bsh)
     //debugApi(libs.leakcanary.android)
 
     api(project(":editor"))
@@ -134,7 +134,7 @@ dependencies {
     api(project(":core:resources"))
     api(project(":core:components"))
     api(project(":core:bridge"))
-    //api(project(":core:extension"))
+    api(project(":core:extension"))
 
     api(libs.kotlin.reflect)
 
@@ -149,17 +149,11 @@ abstract class GenerateSupportedLocales : DefaultTask() {
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
-    // 1. Inject the necessary service for file operations
-    @get:Inject
-    abstract val fs: FileSystemOperations
-
     @TaskAction
     fun generate() {
         val locales = mutableListOf<String>()
 
-        // 2. Use the injected service to safely work with files at execution time
-        val resolvedResDir = resDir.get().asFile
-        resolvedResDir.listFiles { file ->
+        resDir.get().asFile.listFiles { file ->
             file.isDirectory && file.name.startsWith("values")
         }?.forEach { dir ->
             val folderName = dir.name
@@ -175,10 +169,10 @@ abstract class GenerateSupportedLocales : DefaultTask() {
         locales.sort()
 
         val outFile = outputFile.get().asFile
-        // 3. Use standard Java/Kotlin I/O for the output, which is safe
         outFile.parentFile.mkdirs()
         outFile.writeText(JsonOutput.prettyPrint(JsonOutput.toJson(locales)))
 
         logger.lifecycle("✅ Generated ${outFile.path}")
     }
 }
+

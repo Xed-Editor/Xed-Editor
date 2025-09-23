@@ -1,11 +1,12 @@
 package com.rk.xededitor.ui.activities.settings
 
 
+import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-//import com.rk.extension.Hooks
+import com.rk.extension.Hooks
 import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
 import com.rk.xededitor.ui.screens.debugger.Debugger
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
@@ -16,7 +17,7 @@ import com.rk.xededitor.ui.screens.settings.editor.DefaultEncoding
 import com.rk.xededitor.ui.screens.settings.editor.EditorFontScreen
 import com.rk.xededitor.ui.screens.settings.editor.LspSettings
 import com.rk.xededitor.ui.screens.settings.editor.SettingsEditorScreen
-//import com.rk.xededitor.ui.screens.settings.extensions.Extensions
+import com.rk.xededitor.ui.screens.settings.extensions.Extensions
 import com.rk.xededitor.ui.screens.settings.language.LanguageScreen
 import com.rk.xededitor.ui.screens.settings.mutators.ManageMutators
 import com.rk.xededitor.ui.screens.settings.runners.Runners
@@ -42,7 +43,7 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.About.route) { AboutScreen() }
         composable(SettingsRoutes.EditorFontScreen.route) { EditorFontScreen() }
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
-        //composable(SettingsRoutes.Extensions.route){ Extensions() }
+        composable(SettingsRoutes.Extensions.route){ Extensions() }
         composable(SettingsRoutes.DeveloperOptions.route){ DeveloperOptions(navController = navController) }
         composable(SettingsRoutes.BeanshellREPL.route){ Debugger() }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
@@ -52,10 +53,10 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.LspSettings.route){ LspSettings() }
         composable(SettingsRoutes.Themes.route) { ThemeScreen() }
 
-//        Hooks.Settings.screens.values.forEach{ entry ->
-//            composable(entry.route){
-//                entry.content()
-//            }
-//        }
+        Hooks.Settings.screens.values.forEach{ entry ->
+            composable(entry.route){
+                entry.content()
+            }
+        }
     }
 }
