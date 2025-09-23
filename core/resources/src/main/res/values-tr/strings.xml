@@ -7,7 +7,7 @@
     <string name="null_content">Hata: içerik boş</string>
     <string name="restart_required">Yeniden başlatmanız gerekiyor</string>
     <string name="saved_all">Tüm dosyalar kaydedildi</string>
-    <string name="save_label">Kaydet</string>
+    <string name="save">Kaydet</string>
     <string name="ww_wait">Lütfen sözcük kaydırmanın tamamlanmasını bekleyin</string>
     <string name="open_file_or_folder">Dosya veya klasör aç</string>
     <string name="open_directory">Bir klasör aç</string>
@@ -112,7 +112,7 @@
     <string name="private_files">Özel dosyalar</string>
     <string name="private_files_desc">Xed-Editor\'ün özel dosyaları</string>
     <string name="cloning">Klon Deposu…</string>
-    <string name="err">Yanlış</string>
+    <string name="error">Yanlış</string>
     <string name="open_dir_desc">Sistem dosya seçicisinden bir klasör aç</string>
     <string name="open_file_desc">Doğrudan düzenlemek için bir dosya seçin</string>
     <string name="open_path">Dahili depolama</string>

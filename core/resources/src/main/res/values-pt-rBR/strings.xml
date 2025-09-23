@@ -111,7 +111,7 @@
     <string name="private_files">Arquivos Privados</string>
     <string name="private_files_desc">Arquivos Privados do Xed-Editor</string>
     <string name="cloning">Clonando repositório…</string>
-    <string name="err">Erro</string>
+    <string name="error">Erro</string>
     <string name="open_dir_desc">Abrir pasta usando SAF</string>
     <string name="open_file_desc">Escolha um arquivo para editá-lo diretamente</string>
     <string name="open_path">Armazenamento Interno</string>
@@ -206,7 +206,7 @@
     <string name="check_for_updates_desc">Verificar periodicamente se há atualizações</string>
     <string name="txt_ww">Quebrar arquivos txt</string>
     <string name="no">Não</string>
-    <string name="save_label">Salvar</string>
+    <string name="save">Salvar</string>
     <string name="click_open">Clique aqui para abrir o arquivo</string>
     <string name="file_too_large">Arquivo é muito grande para abrir</string>
     <string name="toggle_suggestion">Alternar sugestão</string>

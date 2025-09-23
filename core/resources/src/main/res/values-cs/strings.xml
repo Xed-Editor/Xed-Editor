@@ -6,7 +6,7 @@
     <string name="unsupported_content">Nepodporovaný obsah</string>
     <string name="null_content">Chyba: Obsah je null (prázdný)</string>
     <string name="saved_all">Všechny soubory uloženy</string>
-    <string name="save_label">Uložit</string>
+    <string name="save">Uložit</string>
     <string name="ww_wait">Vičkejte prosím než zalamování slov bude dokončeno</string>
     <string name="open_file_or_folder">Otevřít Soubor nebo Složku</string>
     <string name="open_directory">Otevřít Složku</string>
@@ -36,7 +36,7 @@
     <string name="paste_desc">Vložit soubor</string>
     <string name="open">Otevřít</string>
     <string name="permission_denied">Přístup Odepřen</string>
-    <string name="err">Chyba</string>
+    <string name="error">Chyba</string>
     <string name="add">Přidat</string>
     <string name="already_opened">Soubor je už otevřen</string>
     <string name="files">Soubory</string>

@@ -7,7 +7,7 @@
     <string name="null_content">خطأ: المحتوى فارغ</string>
     <string name="restart_required">إعادة التشغيل مطلوبة</string>
     <string name="saved_all">تم حفظ جميع الملفات</string>
-    <string name="save_label">حفظ</string>
+    <string name="save">حفظ</string>
     <string name="ww_wait">يرجى الانتظار حتى يكتمل ألتفاف النص</string>
     <string name="open_file_or_folder">فتح الملف أو المجلد</string>
     <string name="open_directory">فتح مسار</string>
@@ -112,7 +112,7 @@
     <string name="private_files">ملفات خاصة</string>
     <string name="private_files_desc">ملفات خاصة لمحرر Xed</string>
     <string name="cloning">يجري نسخ المستودع …</string>
-    <string name="err">خطأ</string>
+    <string name="error">خطأ</string>
     <string name="open_dir_desc">فتح دليل باستخدام SAF</string>
     <string name="open_file_desc">حدد ملفًا لتحريره مباشرةً</string>
     <string name="open_path">التخزين الداخلي</string>

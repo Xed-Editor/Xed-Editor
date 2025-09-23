@@ -7,7 +7,7 @@
     <string name="unsupported_content">Contenu non supporté</string>
     <string name="null_content">Erreur : le contenu est vide</string>
     <string name="saved_all">tous les fichiers ont été enregistrés</string>
-    <string name="save_label">Enregistrer</string>
+    <string name="save">Enregistrer</string>
     <string name="ww_wait">Attendez que le retour à la ligne soit terminé</string>
     <string name="open_file_or_folder">Ouvrir fichier ou dossier</string>
     <string name="rep">Substitution</string>
@@ -98,7 +98,7 @@
     <string name="private_files">Fichiers privés</string>
     <string name="private_files_desc">Fichiers privés de Xed-Editor</string>
     <string name="cloning">Dépôt en cours de clonage…</string>
-    <string name="err">Erreur</string>
+    <string name="error">Erreur</string>
     <string name="open_dir_desc">Ouvrir un dossier via SAF</string>
     <string name="open_file_desc">Choisir un fichier à éditer</string>
     <string name="open_path">Stockage interne</string>

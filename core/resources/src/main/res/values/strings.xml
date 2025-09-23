@@ -9,7 +9,7 @@
     <string name="restart_required">Restart required</string>
     <string name="saved">File saved</string>
     <string name="saved_all">Saved all files</string>
-    <string name="save_label">Save</string>
+    <string name="save">Save</string>
     <string name="ww_wait">Please wait for word wrap to complete</string>
     <string name="open_file_or_folder">Open file or folder</string>
     <string name="open_directory">Open a directory</string>
@@ -115,7 +115,7 @@
     <string name="private_files">Private files</string>
     <string name="private_files_desc">Private files of Xed-Editor</string>
     <string name="cloning">Cloning repository…</string>
-    <string name="err">Error</string>
+    <string name="error">Error</string>
     <string name="open_dir_desc">Open a directory via system file picker</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
     <string name="open_path">Internal storage</string>
@@ -405,6 +405,7 @@
     <string name="use_tabs">Insert tab character</string>
     <string name="use_tabs_desc">Use a real tab (\\t) instead of spaces for indentation</string>
     <string name="lsp_settings">LSP settings</string>
+    <string name="lsp_settings_desc">Language server settings</string>
     <string name="no_language_server">No language server installed.</string>
     <string name="developer">Developer</string>
     <string name="build_info">Build info</string>
@@ -416,4 +417,7 @@
     <string name="ask_refresh">Are you sure you want to refresh this document? Any unsaved changes will be lost.</string>
     <string name="docs">Documentation</string>
     <string name="docs_desc">Visit documentation page.</string>
+    <string name="github_stars">GitHub stars</string>
+    <string name="api_error">API Error</string>
+    <string name="unknown">Unknown</string>
 </resources>

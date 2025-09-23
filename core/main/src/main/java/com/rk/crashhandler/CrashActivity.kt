@@ -4,11 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -45,7 +41,6 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.R
 import com.rk.xededitor.ui.theme.KarbonTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -120,7 +115,7 @@ class CrashActivity : ComponentActivity() {
                                             )
                                         }
                                     },
-                                    title = { Text(strings.err.getString()) },
+                                    title = { Text(strings.error.getString()) },
                                     actions = {
                                         TextButton(onClick = {
                                             runCatching {

@@ -23,7 +23,7 @@
     <item
         android:id="@+id/action_save"
         android:icon="@drawable/save"
-        android:title="@string/save_label"
+        android:title="@string/save"
         android:visible="false"
         app:showAsAction="always" />
 

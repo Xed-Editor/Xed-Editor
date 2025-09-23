@@ -10,7 +10,7 @@
     <string name="unsupported_content">תוכן לא נתמך</string>
     <string name="null_content">שגיאה: התוכן ריק</string>
     <string name="saved_all">כל הקבצים נשמרו</string>
-    <string name="save_label">שמירה</string>
+    <string name="save">שמירה</string>
     <string name="ww_wait">אנא המתן עד להשלמת גלישת המילים</string>
     <string name="open_file_or_folder">פתח קובץ או תיקיה</string>
     <string name="open_directory">פתח תיקיה</string>
@@ -177,7 +177,7 @@
     <string name="cant_handle">לא נמצאה אפליקציה לטיפול בקובץ</string>
     <string name="add">הוספה</string>
     <string name="app_desc">הגדרות כלליות של האפליקציה</string>
-    <string name="err">שגיאה</string>
+    <string name="error">שגיאה</string>
     <string name="yes">כן</string>
     <string name="smooth_tabs">לשוניות חלקות</string>
     <string name="themes">עיצוב</string>

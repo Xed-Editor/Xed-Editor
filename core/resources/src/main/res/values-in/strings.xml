@@ -7,7 +7,7 @@
     <string name="null_content">Kesalahan: Konten null</string>
     <string name="restart_required">Muat ulang diperlukan</string>
     <string name="saved_all">Simpan semua berkas</string>
-    <string name="save_label">Simpan</string>
+    <string name="save">Simpan</string>
     <string name="ww_wait">Harap tunggu sampai pembungkusan kata selesai</string>
     <string name="open_file_or_folder">Buka berkas atau folder</string>
     <string name="open_directory">Buka direktori</string>
@@ -109,7 +109,7 @@
     <string name="private_files">Berkas pribadi</string>
     <string name="private_files_desc">Berkas pribadi Xed-Editor</string>
     <string name="cloning">Kloning repositori…</string>
-    <string name="err">Kesalahan</string>
+    <string name="error">Kesalahan</string>
     <string name="open_dir_desc">Buka sebuah direktori melalui pemilih berkas sistem</string>
     <string name="open_path">Penyimpanan internal</string>
     <string name="open_path_desc">Buka penyimpanan internal</string>

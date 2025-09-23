@@ -8,9 +8,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.telephony.TelephonyManager
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
@@ -18,7 +15,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -40,7 +36,6 @@ import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
-import com.rk.xededitor.R
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -262,7 +257,7 @@ fun errorDialog(msg: String, activity: Activity? = MainActivity.instance) {
             return@runOnUiThread
         }
 
-        dialog(context = activity, title = strings.err.getString(), msg = msg, onOk = {})
+        dialog(context = activity, title = strings.error.getString(), msg = msg, onOk = {})
     }
 }
 

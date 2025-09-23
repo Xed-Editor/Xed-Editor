@@ -15,7 +15,7 @@
     <string name="download_sure">Sei sicuro di voler scaricare</string>
     <string name="themes">Temi</string>
     <string name="open_directory">Apri una cartella</string>
-    <string name="save_label">Salva</string>
+    <string name="save">Salva</string>
     <string name="copy">Copia</string>
     <string name="private_files_desc">File privati di Xed-Editor</string>
     <string name="restart_required">Riavvio richiesto</string>
@@ -111,7 +111,7 @@
     <string name="exists">Esiste già!</string>
     <string name="private_files">File privati</string>
     <string name="cloning">Sto clonando il repository…</string>
-    <string name="err">Errore</string>
+    <string name="error">Errore</string>
     <string name="open_dir_desc">Apri una cartella tramite il selettore file di sistema</string>
     <string name="open_path">Memoria interna</string>
     <string name="open_path_desc">Apri la memoria interna</string>

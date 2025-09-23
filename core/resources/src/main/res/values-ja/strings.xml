@@ -14,7 +14,7 @@
     <string name="close_drawer">閉じる</string>
     <string name="null_content">エラー: 内容がnullです</string>
     <string name="restart_required">再起動が必要です</string>
-    <string name="save_label">保存</string>
+    <string name="save">保存</string>
     <string name="open_directory">ディレクトリを開く</string>
     <string name="new_file">新規ファイル</string>
     <string name="new_file_hint">名前 例: Test.txt</string>
@@ -83,7 +83,7 @@
     <string name="private_files">プライベートファイル</string>
     <string name="private_files_desc">Xed-Editorのプライベートファイル</string>
     <string name="cloning">リポジトリをクローンしています…</string>
-    <string name="err">エラー</string>
+    <string name="error">エラー</string>
     <string name="open_dir_desc">SAFを使用してディレクトリを開く</string>
     <string name="open_cant">次の数以上のファイルは開けません:</string>
     <string name="available">利用可能</string>

@@ -7,7 +7,7 @@
     <string name="null_content">Ошибка: нет содержимого</string>
     <string name="restart_required">Требуется перезапуск</string>
     <string name="saved_all">Все файлы сохранены</string>
-    <string name="save_label">Сохранить</string>
+    <string name="save">Сохранить</string>
     <string name="ww_wait">Пожалуйста, дождитесь завершения переноса слов</string>
     <string name="open_file_or_folder">Открыть файл или папку</string>
     <string name="open_directory">Открыть каталог</string>
@@ -112,7 +112,7 @@
     <string name="private_files">Приватные файлы</string>
     <string name="private_files_desc">Приватные файлы Xed-Editor</string>
     <string name="cloning">Клонирование репозитория…</string>
-    <string name="err">Ошибка</string>
+    <string name="error">Ошибка</string>
     <string name="open_dir_desc">Открыть каталог с помощью SAF</string>
     <string name="open_file_desc">Выберите файл, чтобы редактировать его напрямую</string>
     <string name="open_path">Внутреннее хранилище</string>

@@ -7,7 +7,7 @@
     <string name="null_content">Błąd: treść wykazuje pustą wartość</string>
     <string name="restart_required">Wymagane ponowne uruchomienie</string>
     <string name="saved_all">Wszystkie pliki zapisane</string>
-    <string name="save_label">Zapisz</string>
+    <string name="save">Zapisz</string>
     <string name="ww_wait">Proszę czekać na ukończenie zawijania tekstu</string>
     <string name="open_file_or_folder">Otwórz plik lub katalog</string>
     <string name="open_directory">Otwórz katalog</string>
@@ -309,7 +309,7 @@
     <string name="already_installed">Już zainstalowano</string>
     <string name="download_sure">Czy napewno chcesz pobrać</string>
     <string name="yes">Tak</string>
-    <string name="err">Błąd</string>
+    <string name="error">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
     <string name="open_file_desc">Wybierz plik, aby edytować go bezpośrednio</string>
     <string name="open_path">Pamięć wewnętrzna</string>

@@ -4,7 +4,7 @@
     <string name="unsupported_content">Conteúdo não suportado</string>
     <string name="saved">Ficheiro gravado</string>
     <string name="saved_all">Todos os ficheiros foram gravados</string>
-    <string name="save_label">Gravar</string>
+    <string name="save">Gravar</string>
     <string name="ww_wait">Aguarde a conclusão da quebra de linha</string>
     <string name="rep">Substituição</string>
     <string name="wait">Por favor, aguarde…</string>
@@ -75,7 +75,7 @@
     <string name="data_clear">Dados da app foram apagados</string>
     <string name="clone_repo">Clonar repositório</string>
     <string name="cloning">A clonar repositório…</string>
-    <string name="err">Erro</string>
+    <string name="error">Erro</string>
     <string name="open_file_desc">Escolha um ficheiro para editá-lo diretamente</string>
     <string name="open_path_desc">Abrir armazenamento interno</string>
     <string name="add">Adicionar</string>

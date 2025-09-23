@@ -18,7 +18,7 @@
     <string name="add_file">Külső fájl hozzáadása</string>
     <string name="replace_all">MindCseréje</string>
     <string name="print">Nyomtatás</string>
-    <string name="save_label">Mentés</string>
+    <string name="save">Mentés</string>
     <string name="replace">Csere</string>
     <string name="saved_all">minden fájl mentve</string>
     <string name="copy">Másolás</string>
