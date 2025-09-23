@@ -370,4 +370,5 @@
     <string name="use_tabs">Vložit znak tabulátora</string>
     <string name="use_tabs_desc">Používat znak tabulátora (\\t) namísto mezer pro odsazení</string>
     <string name="terminal_virus_notice">Na některých zařízení, zejména zařízení z Číny, můžete vidět systémové upozornění bezpečnosti když jsou spuštěny několik procesů ve Terminálu (např. během \'apt update\' nebo \'apt upgrade\'). Je to omyl a to neznamená, že to je realný vir.</string>
+    <string name="anr_watchdog_desc">Ukončí Xed-Editor jestli neodpovídá více než 5 sekund</string>
 </resources>
