@@ -124,7 +124,7 @@
     <string name="installed">Yüklendi</string>
     <string name="available">Mevcut</string>
     <string name="already_installed">Zaten yüklü</string>
-    <string name="download_sure">İndirmek istediğinizden emin misiniz</string>
+    <string name="download_sure">Şunu indirmek istediğinden emin misin: %(name)?</string>
     <string name="yes">Evet</string>
     <string name="fetch_failed">Getirme isteği null değer döndürdü</string>
     <string name="app">Uygulama</string>
