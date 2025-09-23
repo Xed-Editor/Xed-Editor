@@ -127,7 +127,7 @@
     <string name="installed">Installed</string>
     <string name="available">Available</string>
     <string name="already_installed">Already installed</string>
-    <string name="download_sure">Are you sure you want to download</string>
+    <string name="download_sure">Are you sure you want to download %(name)?</string>
     <string name="yes">Yes</string>
     <string name="fetch_failed">Fetch request returned null</string>
     <string name="app">Application</string>
