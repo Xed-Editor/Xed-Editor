@@ -136,7 +136,7 @@
     <string name="editor">Editor</string>
     <string name="fetch_failed">Fetch-Request hat null zurückgegeben</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
-    <string name="download_sure">Möchtest du wirklich herunterladen?</string>
+    <string name="download_sure">Möchtest du wirklich %(name) herunterladen?</string>
     <string name="oled_desc">Schwarzes Thema (#000)</string>
     <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
@@ -379,7 +379,7 @@
     <string name="delete_desc">Dokument endgültig löschen</string>
     <string name="debug_options_desc">Debugging-Optionen für %(app_name)</string>
     <string name="force_crash">Absturz erzwingen</string>
-    <string name="force_crash_desc">Eine Laufzeitausnahme auslösen</string>
+    <string name="force_crash_desc">Eine Runtime-Exception werfen</string>
     <string name="force_crash_confirm">Möchtest du einen Absturz der App erzwingen? Die App kann einfrieren.</string>
     <string name="memory_usage">Arbeitsspeicher-Nutzung</string>
     <string name="strict_mode">Strikter Modus</string>
