@@ -12,8 +12,8 @@
     <string name="open_file_or_folder">Buka berkas atau folder</string>
     <string name="open_directory">Buka direktori</string>
     <string name="new_file">Berkas baru</string>
-    <string name="new_file_hint">Nama misal. Test.txt</string>
-    <string name="mime">Jenis MIME misal. text/plain</string>
+    <string name="new_file_hint">Nama (misal. test.txt)</string>
+    <string name="mime">Jenis MIME (misal. text/plain)</string>
     <string name="rep">Penggantian</string>
     <string name="search_keyword">Cari kata kunci</string>
     <string name="cs">Peka terhadap huruf</string>
@@ -55,7 +55,7 @@
     <string name="keep_drawer_locked">Jaga Laci Tetap Terkunci</string>
     <string name="restart">Mulai Ulang</string>
     <string name="refresh">Muat Ulang</string>
-    <string name="dir_example">Nama misal. Test</string>
+    <string name="dir_example">Nama (misal. Test)</string>
     <string name="create">Buat</string>
     <string name="ask_enter_name">Silakan masukkan nama</string>
     <string name="already_exists">Dokumen dengan nama ini sudah ada</string>
@@ -159,7 +159,7 @@
     <string name="pkg_download_failed">Pengunduhan paket gagal</string>
     <string name="copy_failed">Gagal menyalin berkas</string>
     <string name="install_done">Berhasil dipasang</string>
-    <string name="invalid_file_type">Jenis berkas tidak sah, diharapkan berkas zip</string>
+    <string name="invalid_file_type">Jenis berkas tidak sah, diharapkan berkas ZIP</string>
     <string name="install_failed">Gagal memasang</string>
     <string name="choose_file">Pilih berkas</string>
     <string name="force_char">Paksa char</string>
@@ -182,7 +182,7 @@
     <string name="about_desc">Tentang Xed-Editor</string>
     <string name="version">Versi</string>
     <string name="version_code">Kode versi</string>
-    <string name="github_desc">Beri bintang di Github🤩</string>
+    <string name="github_desc">Beri bintang di GitHub🤩</string>
     <string name="telegram_desc">Laporkan masalah, permintaan fitur, dll.</string>
     <string name="join">Gabung</string>
     <string name="show_virtual_keyboard">Tampilkan papan ketik virtual</string>
@@ -194,8 +194,8 @@
     <string name="no">Tidak</string>
     <string name="toggle_suggestion">Tombol saran</string>
     <string name="run">Jalankan</string>
-    <string name="txt_ww">Bungkus berkas txt</string>
-    <string name="txt_ww_desc">Membungkus berkas .txt secara otomatis</string>
+    <string name="txt_ww">Bungkus berkas TXT</string>
+    <string name="txt_ww_desc">Membungkus berkas TXT secara otomatis</string>
     <string name="manage_editor_font">Kelola penyunting font</string>
     <string name="default_encoding_desc">Pengodean default penyunting</string>
     <string name="other">Lainnya</string>
@@ -259,7 +259,7 @@
     <string name="script_set_text">Atur teks</string>
     <string name="script_api_info">Periksa kelas ImplApi di kode sumber Xed-Editor pada PROJECT/core/main/ui/screens/mutators/ImplApi untuk informasi lebih lanjut</string>
     <string name="installing">Memasang…</string>
-    <string name="not_plugin_err">Berkas yang dipilih bukan berkas .apk</string>
+    <string name="not_plugin_err">Berkas yang dipilih bukan berkas APK</string>
     <string name="install_from_storage">Memasang dari penyimpanan</string>
     <string name="no_ext">Tidak ada pengaya yang dipasang.</string>
     <string name="loading">Memuat…</string>
@@ -380,7 +380,7 @@
     <string name="use_tabs">Sisipkan karakter tab</string>
     <string name="use_tabs_desc">Gunakan tab nyata (\\t) daripada spasi untuk indentasi</string>
     <string name="delete_desc">Hapus dokumen secara permanen</string>
-    <string name="view_github_profile">Lihat profil Github</string>
+    <string name="view_github_profile">Lihat profil GitHub</string>
     <string name="debug_options">Pilihan debug</string>
     <string name="debug_options_desc">Pilihan debugging untuk %(app_name)</string>
     <string name="force_crash">Paksa kerusakan</string>
@@ -406,4 +406,14 @@
     <string name="stop_logcat">Hentikan logcat</string>
     <string name="render_whitespace">Merender spasi kosong</string>
     <string name="render_whitespace_desc">Merender spasi, tab, dan jeda baris sebagai simbol yang terlihat</string>
+    <string name="lsp_settings">Pengaturan LSP</string>
+    <string name="no_language_server">Tidak ada server bahasa yang dipasang.</string>
+    <string name="developer">Pengembang</string>
+    <string name="build_info">Info build</string>
+    <string name="community">Komunitas</string>
+    <string name="failsafe_mode">Mode failsafe</string>
+    <string name="failsafe_mode_desc">Mulai terminal dalam mode pemeliharaan</string>
+    <string name="ask_refresh">Apakah Anda yakin ingin menyegarkan dokumen ini? Setiap perubahan yang belum disimpan akan hilang.</string>
+    <string name="docs">Dokumentasi</string>
+    <string name="docs_desc">Kunjungi halaman dokumentasi.</string>
 </resources>

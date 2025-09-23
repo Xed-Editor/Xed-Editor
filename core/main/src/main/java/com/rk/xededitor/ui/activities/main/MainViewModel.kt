@@ -124,8 +124,13 @@ class MainViewModel : ViewModel() {
     private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(
         Dispatchers.IO) {
 
-        if (checkDuplicate && tabs.any { it is EditorTab && it.file == file }) {
-            return@withContext false
+        if (checkDuplicate) {
+            tabs.forEachIndexed { index,tab ->
+                if (tab is EditorTab && tab.file == file){
+                    currentTabIndex = index
+                    return@withContext true
+                }
+            }
         }
 
         return@withContext withContext(Dispatchers.Main) {

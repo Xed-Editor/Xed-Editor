@@ -379,4 +379,14 @@
     <string name="discord">Comunidade Discord</string>
     <string name="use_tabs">Inserir Caractere de Tabulação</string>
     <string name="use_tabs_desc">Usar uma tabulação real (\\t) em vez de espaços para recuo</string>
+    <string name="delete_desc">Excluir documento permanentemente</string>
+    <string name="view_github_profile">Ver perfil no GitHub</string>
+    <string name="debug_options">Opções de depuração</string>
+    <string name="debug_options_desc">Opções de depuração para %(app_name)</string>
+    <string name="force_crash">Forçar encerramento</string>
+    <string name="force_crash_desc">Lançar uma exceção de tempo de execução</string>
+    <string name="force_crash_confirm">Deseja forçar o encerramento do aplicativo? O aplicativo pode travar.</string>
+    <string name="memory_usage">Uso da memória</string>
+    <string name="strict_mode">Modo estrito</string>
+    <string name="strict_mode_desc">Detectar acesso ao disco ou à rede na linha principal</string>
 </resources>

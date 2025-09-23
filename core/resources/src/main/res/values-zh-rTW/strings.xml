@@ -408,4 +408,12 @@
     <string name="render_whitespace_desc">將空白、定位字元與換行符號呈現為可見符號</string>
     <string name="lsp_settings">LSP 语言伺服器设定</string>
     <string name="no_language_server">未安装语言伺服器。</string>
+    <string name="developer">開發者</string>
+    <string name="build_info">建置資訊</string>
+    <string name="community">社群</string>
+    <string name="failsafe_mode">安全模式</string>
+    <string name="failsafe_mode_desc">在維護模式中啟動終端機</string>
+    <string name="ask_refresh">確定要重新整理此文件嗎？任何未儲存的變更都將會遺失。</string>
+    <string name="docs">文件</string>
+    <string name="docs_desc">造訪文件頁面。</string>
 </resources>
