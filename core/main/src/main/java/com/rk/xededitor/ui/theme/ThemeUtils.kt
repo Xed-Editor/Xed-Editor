@@ -86,13 +86,15 @@ fun ThemeConfig.build(): Theme{
         return props
     }
 
-    return Theme(id = id,
-        name = name,
-        lightScheme = this.light.build(isDarkTheme = false),
-        darkScheme = this.dark.build(isDarkTheme = true),
-        lightTerminalColors = light.terminalColors?.toProperties()!!,
-        darkTerminalColors = dark.terminalColors?.toProperties()!!
-    )
+    return Theme(
+    id = id,
+    name = name,
+    lightScheme = this.light.build(isDarkTheme = false),
+    darkScheme = this.dark.build(isDarkTheme = true),
+    lightTerminalColors = light.terminalColors?.toProperties() ?: Properties(),
+    darkTerminalColors = dark.terminalColors?.toProperties() ?: Properties()
+)
+
 }
 
 fun ThemePalette.build(isDarkTheme: Boolean): ColorScheme {
