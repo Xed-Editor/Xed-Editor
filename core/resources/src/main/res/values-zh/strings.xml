@@ -122,7 +122,7 @@
     <string name="files">文件</string>
     <string name="available">可用</string>
     <string name="already_installed">已完成安装</string>
-    <string name="download_sure">你确定要下载吗</string>
+    <string name="download_sure">你确定要下载 %(name) 吗？</string>
     <string name="yes">是</string>
     <string name="change_theme">更改主题</string>
     <string name="editor">编辑器</string>
@@ -416,4 +416,8 @@
     <string name="ask_refresh">你确定要重新载入此文档吗？所有未保存的更改将会丢失。</string>
     <string name="docs">文档</string>
     <string name="docs_desc">访问文档页面。</string>
+    <string name="lsp_settings_desc">语言服务器设置</string>
+    <string name="github_stars">GitHub 星数</string>
+    <string name="api_error">API 错误</string>
+    <string name="unknown">未知的</string>
 </resources>
