@@ -416,4 +416,8 @@
     <string name="ask_refresh">Bu belgeyi yenilemek istediğinizden emin misiniz? Kaydedilmemiş tüm değişiklikler kaybolacak.</string>
     <string name="docs">Dokümantasyon</string>
     <string name="docs_desc">Dokümantasyon sayfasını ziyaret et.</string>
+    <string name="lsp_settings_desc">Dil sunucusu ayarları</string>
+    <string name="github_stars">GitHub yıldızları</string>
+    <string name="api_error">API Hatası</string>
+    <string name="unknown">Bilinmeyen</string>
 </resources>
