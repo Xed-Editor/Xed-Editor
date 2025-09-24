@@ -7,7 +7,7 @@
     <string name="null_content">錯誤：內容為空</string>
     <string name="restart_required">需要重新啟動</string>
     <string name="saved_all">已儲存所有檔案</string>
-    <string name="save_label">儲存</string>
+    <string name="save">儲存</string>
     <string name="ww_wait">請等待換行完成</string>
     <string name="open_file_or_folder">開啟檔案或資料夾</string>
     <string name="open_directory">開啟資料夾</string>
@@ -112,7 +112,7 @@
     <string name="private_files">私有檔案</string>
     <string name="private_files_desc">Xed-Editor 私有檔案</string>
     <string name="cloning">克隆存儲庫…</string>
-    <string name="err">錯誤</string>
+    <string name="error">錯誤</string>
     <string name="open_dir_desc">打開資料夾（透過系統檔案選擇器）</string>
     <string name="open_file_desc">選取一個檔案並直接編輯</string>
     <string name="open_path">內部儲存空間</string>

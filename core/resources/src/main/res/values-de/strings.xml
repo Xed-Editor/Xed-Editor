@@ -31,7 +31,7 @@
     <string name="check_for_updates">Auf Updates überprüfen</string>
     <string name="report_issue">Problem melden</string>
     <string name="restart_required">Neustart erforderlich</string>
-    <string name="save_label">Speichern</string>
+    <string name="save">Speichern</string>
     <string name="new_file">Neue Datei</string>
     <string name="mime">MIME-Typ (z. B. text/plain)</string>
     <string name="new_folder">Neuer Ordner</string>
@@ -120,7 +120,7 @@
     <string name="invalid_path">Pfad existiert nicht</string>
     <string name="permission_denied">Zugriff verweigert</string>
     <string name="private_files">Private Dateien</string>
-    <string name="err">Fehler</string>
+    <string name="error">Fehler</string>
     <string name="add">Hinzufügen</string>
     <string name="already_opened">Datei bereits geöffnet</string>
     <string name="already_installed">Bereits installiert</string>

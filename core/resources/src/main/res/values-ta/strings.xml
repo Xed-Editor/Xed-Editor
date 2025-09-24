@@ -33,7 +33,7 @@
     <string name="unsupported_content">ஆதரிக்கப்படாத உள்ளடக்கம்</string>
     <string name="null_content">பிழை: உள்ளடக்கம் பூச்யமானது</string>
     <string name="saved_all">எல்லா கோப்புகளையும் சேமித்தது</string>
-    <string name="save_label">சேமி</string>
+    <string name="save">சேமி</string>
     <string name="ww_wait">சொல் மடக்கு முடிவடையும் வரை காத்திருங்கள்</string>
     <string name="open_file_or_folder">கோப்பு அல்லது கோப்புறையைத் திறக்கவும்</string>
     <string name="new_file">புதிய கோப்பு</string>
@@ -126,7 +126,7 @@
     <string name="private_files">தனிப்பட்ட கோப்புகள்</string>
     <string name="private_files_desc">Xed-editor இன் தனிப்பட்ட கோப்புகள்</string>
     <string name="cloning">குளோனிங் களஞ்சியம்…</string>
-    <string name="err">பிழை</string>
+    <string name="error">பிழை</string>
     <string name="open_dir_desc">SAF ஐப் பயன்படுத்தி ஒரு கோப்பகத்தைத் திறக்கவும்</string>
     <string name="open_file_desc">அதை நேரடியாக திருத்த ஒரு கோப்பைத் தேர்வுசெய்க</string>
     <string name="open_path">உள் சேமிப்பு</string>

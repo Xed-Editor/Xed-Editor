@@ -8,7 +8,7 @@
     <string name="null_content">त्रुटि: कंटेंट खाली है</string>
     <string name="restart_required">रिस्टार्ट जरूरी</string>
     <string name="saved_all">सभी फ़ाइलें सेव हुईं</string>
-    <string name="save_label">सेव करें</string>
+    <string name="save">सेव करें</string>
     <string name="ww_wait">वर्ड रैप पूरा होने तक प्रतीक्षा करें</string>
     <string name="open_file_or_folder">फ़ाइल या फ़ोल्डर खोलें</string>
     <string name="open_directory">डायरेक्टरी खोलें</string>
@@ -113,7 +113,7 @@
     <string name="private_files">निजी फ़ाइलें</string>
     <string name="private_files_desc">Xed-Editor की निजी फ़ाइलें</string>
     <string name="cloning">रिपॉजिटरी क्लोन हो रही है…</string>
-    <string name="err">त्रुटि</string>
+    <string name="error">त्रुटि</string>
     <string name="open_dir_desc">SAF का उपयोग करके डायरेक्टरी खोलें</string>
     <string name="open_file_desc">सीधे संपादित करने के लिए एक फ़ाइल चुनें</string>
     <string name="open_path">इंटरनल स्टोरेज</string>

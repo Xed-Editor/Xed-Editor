@@ -7,7 +7,7 @@
     <string name="null_content">Fel: Innehållet är null</string>
     <string name="restart_required">Omstart krävs</string>
     <string name="saved_all">alla filer sparade</string>
-    <string name="save_label">Spara</string>
+    <string name="save">Spara</string>
     <string name="ww_wait">Vänta tills radbryt är klar</string>
     <string name="open_file_or_folder">Öppna fil eller katalog</string>
     <string name="open_directory">Öppna katalog</string>
@@ -112,7 +112,7 @@
     <string name="private_files">Privata filer</string>
     <string name="private_files_desc">Privata filer för Xed-Editor</string>
     <string name="cloning">Klonar repository…</string>
-    <string name="err">Fel</string>
+    <string name="error">Fel</string>
     <string name="open_dir_desc">Öppna en katalog med SAF</string>
     <string name="open_file_desc">Välj en fil att redigera</string>
     <string name="open_path">Intern lagring</string>

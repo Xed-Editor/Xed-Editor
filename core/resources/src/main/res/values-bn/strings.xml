@@ -11,7 +11,7 @@
     <string name="null_content">ত্রুটি: বিষয়বস্তু শূন্য</string>
     <string name="restart_required">পুনরায় চালু করা প্রয়োজন</string>
     <string name="saved_all">সব ফাইল সংরক্ষিত হয়েছে</string>
-    <string name="save_label">সংরক্ষন করুন</string>
+    <string name="save">সংরক্ষন করুন</string>
     <string name="ww_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
     <string name="open_file_or_folder">ফাইল বা ফোল্ডার খুলুন</string>
     <string name="open_directory">একটি ডিরেক্টরি খুলুন</string>

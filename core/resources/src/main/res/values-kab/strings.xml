@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="close_drawer">mdel</string>
-    <string name="err">Tuccḍa</string>
+    <string name="error">Tuccḍa</string>
     <string name="yes">Ih</string>
     <string name="print">Siggez</string>
     <string name="add">Rnu</string>
@@ -33,7 +33,7 @@
     <string name="update">Leqqem</string>
     <string name="ignore">Zgel-it</string>
     <string name="launch">Sekker</string>
-    <string name="save_label">Sekles</string>
+    <string name="save">Sekles</string>
     <string name="new_file">Afaylu amaynut</string>
     <string name="wait">Ttxil-k arǧu…</string>
     <string name="save_all">Sekles-iten akk</string>

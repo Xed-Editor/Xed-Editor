@@ -7,7 +7,7 @@
     <string name="null_content">Помилка: вмісту немає</string>
     <string name="restart_required">Потрібен перезапуск</string>
     <string name="saved_all">зберіг усі файли</string>
-    <string name="save_label">Зберегти</string>
+    <string name="save">Зберегти</string>
     <string name="ww_wait">Зачекайте, доки завершиться перенесення слів</string>
     <string name="open_file_or_folder">Відкрити файл або теку</string>
     <string name="open_directory">Відкрити каталог</string>
@@ -112,7 +112,7 @@
     <string name="private_files">Приватні файли</string>
     <string name="private_files_desc">Приватні файли від Karbon</string>
     <string name="cloning">Клонування репозиторію…</string>
-    <string name="err">Помилка</string>
+    <string name="error">Помилка</string>
     <string name="open_dir_desc">Виберіть каталог як проєкт</string>
     <string name="open_file_desc">Виберіть файл, щоб безпосередньо його редагувати</string>
     <string name="open_path">Внутрішнє сховище</string>

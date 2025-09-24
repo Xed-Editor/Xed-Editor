@@ -5,7 +5,7 @@
     <string name="not_implemented">এই সুবিধাটি উপলব্ধ নয়</string>
     <string name="unsupported_content">অসমর্থিত দ্রব্য</string>
     <string name="close_drawer">নিকটবর্তি</string>
-    <string name="save_label">সংরক্ষণ</string>
+    <string name="save">সংরক্ষণ</string>
     <string name="open_file_or_folder">ফাইল অথবা ফোল্ডার খুলুন</string>
     <string name="open_directory">একটি নির্দেশক খুলুন</string>
     <string name="new_file">নতুন ফাইল</string>

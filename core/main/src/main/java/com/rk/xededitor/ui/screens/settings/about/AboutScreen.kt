@@ -45,6 +45,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
 import androidx.core.net.toUri
+import com.rk.resources.getString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -167,7 +168,7 @@ fun AboutScreen() {
 
         PreferenceGroup(heading = stringResource(strings.community)) {
 
-            val stars = remember { mutableStateOf("Unknown") }
+            val stars = remember { mutableStateOf(strings.unknown_err.getString()) }
 
             LaunchedEffect(Unit) {
                 val client = OkHttpClient()
@@ -187,11 +188,11 @@ fun AboutScreen() {
                                     stars.value = count.toString()
                                 }
                             } else {
-                                stars.value = "Error"
+                                stars.value = strings.error.getString()
                             }
                         }
                     } catch (e: Exception) {
-                        stars.value = e.message ?: "API Error"
+                        stars.value = e.message ?: strings.api_error.getString()
                     }
                 }
             }
@@ -199,7 +200,7 @@ fun AboutScreen() {
             PreferenceTemplate(
                 title = {
                     Text(
-                        text = "GitHub stars",
+                        text = stringResource(strings.github_stars),
                         style = MaterialTheme.typography.titleMedium
                     )
                 },

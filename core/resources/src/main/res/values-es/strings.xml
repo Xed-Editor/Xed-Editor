@@ -4,7 +4,7 @@
     <string name="reload_file_tree">Recargar archivos</string>
     <string name="drawer_lock_desc">Bloquear el cajón al abrir un archivo</string>
     <string name="not_implemented">Esta característica no se ha implementado</string>
-    <string name="save_label">Guardar</string>
+    <string name="save">Guardar</string>
     <string name="cant_handle">No se encontró una aplicación capaz de manipular el archivo</string>
     <string name="apply">Aplicar</string>
     <string name="app_desc">Ajustes generales de la aplicación</string>
@@ -225,7 +225,7 @@
     <string name="manage_storage_reason">Xed-Editor necesita permisos para poder editar archivos en tu almacenamiento. Por favor, otorga acceso a la aplicación en el diálogo siguiente.</string>
     <string name="wait_pkg">Por favor espera mientras se descargan los paquetes.</string>
     <string name="installed">Instaladas</string>
-    <string name="err">Error</string>
+    <string name="error">Error</string>
     <string name="yes">Sí</string>
     <string name="fetch_failed">petición de carga devolvió null</string>
     <string name="extra_keys_desc">Mostrar teclas adicionales en el editor</string>

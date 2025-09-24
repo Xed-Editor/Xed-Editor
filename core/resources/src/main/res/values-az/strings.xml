@@ -6,7 +6,7 @@
     <string name="not_implemented">Bu xüsusiyyət tətbiq edilmir</string>
     <string name="unsupported_content">Dəstəklənməyən məznun</string>
     <string name="saved_all">bütün fayllar yadda saxlanıldı</string>
-    <string name="save_label">Yadda saxla</string>
+    <string name="save">Yadda saxla</string>
     <string name="open_drawer">aç</string>
     <string name="close_drawer">bağla</string>
     <string name="share">Paylaş</string>
@@ -45,7 +45,7 @@
     <string name="invalid_userdata">İstifadəçi məlumatları doğru deyil. Onları parametrlərdən dəyişdirin</string>
     <string name="ok">OLDU</string>
     <string name="data_clear">Tətbiq məlumatları silindi</string>
-    <string name="err">Xəta</string>
+    <string name="error">Xəta</string>
     <string name="permission_denied">Icazə rədd edildi</string>
     <string name="manage_storage">Yaddaşı İdarə Et</string>
     <string name="manage_storage_reason">Karbon-un yaddaşdakı fayllara düzəliş etməsi üçün icazə lazımdır. Zəhmət olmasa, bir sonrakı sistem parametrində girişə icazə verin.</string>

@@ -1,34 +1,25 @@
+
 package com.rk.xededitor.ui.activities.main
 
-import android.app.Dialog
 import androidx.compose.foundation.clickable
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.compose.ui.res.stringResource
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.DefaultScope
 import com.rk.extension.Hooks
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
+import com.rk.resources.strings
 import com.rk.tabs.EditorTab
-import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
-import com.rk.xededitor.ui.theme.KarbonTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.lang.ref.WeakReference
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -38,7 +29,7 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
 
             ControlItem(
                 item = ControlItem(
-                    label = "Save",
+                    label = stringResource(strings.save),
                     sideEffect = {
                         MainActivity.instance?.viewModel?.currentTab?.let {
                             if (it is EditorTab){
@@ -57,7 +48,7 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
 
             ControlItem(
                 item = ControlItem(
-                    label = "Save All",
+                    label = stringResource(strings.save_all),
                     sideEffect = {
                         MainActivity.instance?.viewModel?.currentTab?.let {
                             if (it is EditorTab){

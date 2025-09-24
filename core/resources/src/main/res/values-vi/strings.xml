@@ -4,7 +4,7 @@
     <string name="not_implemented">Tính năng này chưa được triển khai</string>
     <string name="unsupported_content">Nội dung không được hỗ trợ</string>
     <string name="saved_all">đã lưu tất cả các tệp</string>
-    <string name="save_label">Lưu</string>
+    <string name="save">Lưu</string>
     <string name="ww_wait">Vui lòng đợi quá trình ngắt từ hoàn tất</string>
     <string name="open_file_or_folder">Mở tệp hoặc thư mục</string>
     <string name="open_directory">Mở thư mục</string>
@@ -120,7 +120,7 @@
     <string name="private_files">Tệp riêng tư</string>
     <string name="private_files_desc">Tệp riêng tư của Xed-Editor</string>
     <string name="cloning">Đang nhân bản kho lưu trữ…</string>
-    <string name="err">Lỗi</string>
+    <string name="error">Lỗi</string>
     <string name="open_dir_desc">Mở một thư mục bằng cách sử dụng SAF</string>
     <string name="open_file_desc">Chọn một tệp để chỉnh sửa nó trực tiếp</string>
     <string name="open_path">Kho lưu trữ Nội bộ</string>

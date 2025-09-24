@@ -70,7 +70,7 @@
     <string name="unsupported_content">不支持的内容</string>
     <string name="null_content">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
-    <string name="save_label">保存</string>
+    <string name="save">保存</string>
     <string name="ww_wait">请等待换行完成</string>
     <string name="open_file_or_folder">打开文件或文件夹</string>
     <string name="open_directory">打开目录</string>
@@ -151,7 +151,7 @@
     <string name="cloning">克隆存储库…</string>
     <string name="saved_all">已保存所有文件</string>
     <string name="mime">MIME 类型（例如：text/plain）</string>
-    <string name="err">错误</string>
+    <string name="error">错误</string>
     <string name="create_new_file_desc">在选中的文件夹下新建文件</string>
     <string name="exists">已存在！</string>
     <string name="dir_exist_not">文件夹不存在</string>

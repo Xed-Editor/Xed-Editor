@@ -7,7 +7,7 @@
     <string name="null_content">خطا: محتوا تهی است</string>
     <string name="restart_required">نیاز به ری استارت</string>
     <string name="saved_all">همه فایل ها ذخیره شدند</string>
-    <string name="save_label">ذخیره</string>
+    <string name="save">ذخیره</string>
     <string name="ww_wait">لطفا صبر کنید تا قرارگیری واژه ها تمام شود</string>
     <string name="open_file_or_folder">باز کردن فایل یا پوشه</string>
     <string name="open_directory">باز کردن پوشه</string>
