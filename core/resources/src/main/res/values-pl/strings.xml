@@ -95,7 +95,7 @@
     <string name="tab_size_desc">Ustaw rozmiar kart</string>
     <string name="monet">Dynamiczne kolory</string>
     <string name="monet_desc">Użyj systemowego motywu w aplikacji</string>
-    <string name="restart_app">Proszę, uruchom ponownie aplikacje.</string>
+    <string name="restart_app">Proszę, uruchom ponownie aplikację.</string>
     <string name="old_android">Nieobsługiwana wersja Androida</string>
     <string name="app_desc">Ogólne ustawienia aplikacji</string>
     <string name="editor_desc">Ogólne ustawienia edytora</string>
@@ -134,7 +134,7 @@
     <string name="version">Wersja</string>
     <string name="version_code">Wersja kodu</string>
     <string name="github">GitHub</string>
-    <string name="github_desc">Gwiazdkuj na GitHubie 🤩</string>
+    <string name="github_desc">Gwiazdkuj na GitHub\'ie 🤩</string>
     <string name="telegram">Grupa na Telegramie</string>
     <string name="tab_opened">Karta otwarta</string>
     <string name="mutator_name">Nazwa mutatora</string>
@@ -263,7 +263,7 @@
     <string name="enable_ext_desc">Wczytaj rozszerzenia innych twórców</string>
     <string name="ext">Rozszerzenia</string>
     <string name="ext_desc">Zarządzaj rozszerzeniami</string>
-    <string name="info_mutators">Mutatory to niewielkie skrypty które są używane do modyfikowania tekstu w edytorze. Stwórz mutator i kliknij, aby otworzyć go w edytorze.</string>
+    <string name="info_mutators">Mutatory to niewielkie skrypty używane do modyfikowania tekstu w edytorze. Stwórz mutator i kliknij, aby otworzyć go w edytorze.</string>
     <string name="no_mutators">Brak mutatorów</string>
     <string name="add_theme">Dodaj motyw</string>
     <string name="unsupported_feature">Funkcja nie jest obsługiwana przez twoje urządzenie</string>
@@ -307,7 +307,7 @@
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
     <string name="available">Dostępne</string>
     <string name="already_installed">Już zainstalowano</string>
-    <string name="download_sure">Czy napewno chcesz pobrać</string>
+    <string name="download_sure">Czy napewno chcesz pobrać %(name)?</string>
     <string name="yes">Tak</string>
     <string name="error">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
@@ -361,7 +361,7 @@
     <string name="stop_logcat">Zatrzymaj przechwytywanie dzienników komunikatów</string>
     <string name="discord">Społeczność Discord\'a</string>
     <string name="use_tabs">Wstaw tabulator</string>
-    <string name="view_github_profile">Odwiedź profil Github</string>
+    <string name="view_github_profile">Odwiedź profil GitHub</string>
     <string name="debug_options">Opcje debug</string>
     <string name="debug_options_desc">Opcje debug dla %(app_name)</string>
     <string name="force_crash">Wymuś awarie</string>
@@ -376,7 +376,7 @@
     <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w lini jako widoczne symbole</string>
     <string name="manage_storage_reason">Xed-Editor wymaga dostępu, aby edytować pliki w twojej pamięci. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
-    <string name="info_ext">Rozszerzenia można używać, aby modyfikować zachowanie oraz funkcje Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
+    <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
     <string name="expose_saf_desc">Spraw, aby główny katalog był dostępny dla aplikacji zewnętrznych używając systemowego menedżera plików (SAF)</string>
@@ -415,4 +415,8 @@
     <string name="ask_refresh">Czy napewno chcesz odświeżyć dokument? Wszystkie niezapisane zmiany zostaną utracone.</string>
     <string name="docs">Dokumentacja</string>
     <string name="docs_desc">Odwiedź stronę dokumentacji.</string>
+    <string name="lsp_settings_desc">Ustawienia serwera językowego</string>
+    <string name="github_stars">Gwiazdki na GitHub\'ie</string>
+    <string name="api_error">Błąd API</string>
+    <string name="unknown">Nieznany</string>
 </resources>
