@@ -12,7 +12,7 @@
     <string name="action_done">Azione eseguita</string>
     <string name="manage_storage_reason">Xed-Editor ha bisogno dei permessi per modificare i file. Per favore concedi i permessi nella schermata seguente.</string>
     <string name="open_file_desc">Scegli un file per modificarlo direttamente</string>
-    <string name="download_sure">Sei sicuro di voler scaricare</string>
+    <string name="download_sure">Sei sicuro di voler scaricare %(name)?</string>
     <string name="themes">Temi</string>
     <string name="open_directory">Apri una cartella</string>
     <string name="save">Salva</string>
