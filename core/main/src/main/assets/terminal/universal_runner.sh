@@ -9,6 +9,18 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+info() {
+  printf '\033[34;1m[*] \033[0m%s\n' "$1"
+}
+
+warn() {
+  printf '\033[33;1m[!] \033[0m%s\n' "$1"
+}
+
+error() {
+  printf '\033[31;1m[x] \033[0m%s\n' "$1"
+}
+
 run_code(){
     echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
     chmod +x "$1"
