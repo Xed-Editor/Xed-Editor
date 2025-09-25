@@ -11,7 +11,6 @@ sealed class SettingsRoutes(val route: String) {
     data object ManageMutators : SettingsRoutes("manageMutators")
     data object Extensions : SettingsRoutes("extensions")
     data object DeveloperOptions : SettingsRoutes("developer_options")
-    data object BeanshellREPL : SettingsRoutes("bsh_repl")
     data object Support : SettingsRoutes("support")
     data object LanguageScreen : SettingsRoutes("language")
     data object Runners : SettingsRoutes("runners")
