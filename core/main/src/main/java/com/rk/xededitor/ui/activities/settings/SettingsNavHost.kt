@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.rk.extension.Hooks
 import com.rk.xededitor.ui.animations.NavigationAnimationTransitions
-import com.rk.xededitor.ui.screens.debugger.Debugger
 import com.rk.xededitor.ui.screens.settings.SettingsScreen
 import com.rk.xededitor.ui.screens.settings.about.AboutScreen
 import com.rk.xededitor.ui.screens.settings.app.SettingsAppScreen
@@ -45,7 +44,6 @@ fun SettingsNavHost(navController: NavHostController, activity: SettingsActivity
         composable(SettingsRoutes.DefaultEncoding.route) { DefaultEncoding() }
         composable(SettingsRoutes.Extensions.route){ Extensions() }
         composable(SettingsRoutes.DeveloperOptions.route){ DeveloperOptions(navController = navController) }
-        composable(SettingsRoutes.BeanshellREPL.route){ Debugger() }
         composable(SettingsRoutes.ManageMutators.route) { ManageMutators(navController = navController) }
         composable(SettingsRoutes.Support.route){ Support() }
         composable(SettingsRoutes.LanguageScreen.route){ LanguageScreen() }
