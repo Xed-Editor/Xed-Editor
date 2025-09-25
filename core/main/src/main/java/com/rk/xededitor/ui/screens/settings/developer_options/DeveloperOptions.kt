@@ -132,20 +132,6 @@ fun DeveloperOptions(modifier: Modifier = Modifier, navController: NavController
                 }
             )
 
-            SettingsToggle(
-                label = stringResource(strings.debugger),
-                description = "Beanshell",
-                showSwitch = false,
-                default = false,
-                sideEffect = {
-                    if (BuildConfig.DEBUG) {
-                        navController.navigate(SettingsRoutes.BeanshellREPL.route)
-                    } else {
-                        toast(strings.debugger_not_allowed)
-                    }
-                }
-            )
-
 
             SettingsToggle(
                 label = stringResource(strings.capture_logcat),

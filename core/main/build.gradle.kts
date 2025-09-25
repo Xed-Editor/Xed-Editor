@@ -125,7 +125,7 @@ dependencies {
     api("androidx.documentfile:documentfile:1.1.0")
 
     //debug libs these libs doesn't get added when creating release builds
-    debugApi(libs.bsh)
+    //debugApi(libs.bsh)
     //debugApi(libs.leakcanary.android)
 
     api(project(":editor"))

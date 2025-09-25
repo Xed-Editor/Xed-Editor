@@ -128,14 +128,14 @@ fun SettingsTerminalScreen() {
 
             }
 
+            val activity = LocalActivity.current as SettingsActivity
             SettingsToggle(
                 label = stringResource(strings.backup),
                 description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-
-                    SettingsActivity.instance!!.fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
+                    activity.fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
                         if (fileObject != null){
                             val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
 
