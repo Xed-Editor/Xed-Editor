@@ -1,3 +1,4 @@
+set -e
 file="$1"
 
 if [ ! -f "$file" ]; then
@@ -24,22 +25,22 @@ error() {
 run_code(){
     echo -e "\e[32;1m[✓]\e[37m Compilation successful! Running...\e[0m"
     chmod +x "$1"
-        if [ -x "$TARGET_FILE" ]; then
-            "$1"
-            rm $1
-        else
-            mv "$1" /tmp/a.out
-            chmod +x /tmp/a.out
-            /tmp/a.out
-            rm /tmp/a.out
-        fi
+    if [ -x "$1" ]; then
+        "$1"
+        rm "$1"
+    else
+        mv "$1" /tmp/a.out
+        chmod +x /tmp/a.out
+        /tmp/a.out
+        rm /tmp/a.out
+    fi
 }
 
 install_package() {
   local packages="$1"
   info "Installing $packages..."
-  apt update -qq
-  apt install -y --color=always "$packages"
+  apt update -y && apt upgrade -y
+  apt install -y "$packages"
 }
 
 
