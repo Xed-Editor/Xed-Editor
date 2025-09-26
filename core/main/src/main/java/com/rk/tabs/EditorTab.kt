@@ -71,7 +71,7 @@ data class CodeEditorState(
     var arrowKeys: HorizontalScrollView? = null
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
-    var editable by mutableStateOf(Settings.readOnlyByDefault.not())
+    var editable by mutableStateOf(false)
     val updateLock = Mutex()
 
     var isSearching by mutableStateOf(false)
@@ -122,9 +122,7 @@ class EditorTab(
 
 
 
-    val editorState by mutableStateOf(CodeEditorState().also { if (it.editable){
-        it.editable = file.canWrite()
-    } })
+    val editorState by mutableStateOf(CodeEditorState())
 
     override fun onTabRemoved() {
         scope.cancel()
@@ -149,6 +147,7 @@ class EditorTab(
                         editorState.editor?.setText(editorState.content)
                     }
 
+                    editorState.editable = Settings.readOnlyByDefault.not() && file.canWrite()
                 }.onFailure {
                     errorDialog(it)
                 }
