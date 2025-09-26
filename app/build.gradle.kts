@@ -15,7 +15,6 @@ plugins {
     alias(libs.plugins.baselineprofile)
 }
 
-
 android {
     namespace = "com.rk.application"
     compileSdk = 36
@@ -60,7 +59,6 @@ android {
         }
     }
 
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -71,11 +69,13 @@ android {
             )
             signingConfig = signingConfigs.getByName("release")
         }
+
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-DEBUG"
             resValue("string", "app_name", "Xed-Debug")
         }
+
         create("benchmark") {
             initWith(buildTypes.getByName("release"))
             matchingFallbacks += listOf("release")
@@ -97,7 +97,7 @@ android {
         }
     }
 
-    //values in this will be overridden by the flavours
+    // Values in this will be overridden by the flavours
     defaultConfig {
         applicationId = "com.rk.xededitor"
         minSdk = 26
@@ -125,18 +125,15 @@ android {
         buildConfig = true
     }
 
-
-
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.15"
     }
+
     packaging {
         jniLibs {
             useLegacyPackaging = true
         }
     }
-
-
 }
 
 fun downloadFile(localUrl: String, remoteUrl: String, expectedChecksum: String) {
@@ -152,7 +149,9 @@ fun downloadFile(localUrl: String, remoteUrl: String, expectedChecksum: String) 
             digest.update(buffer, 0, readBytes)
         }
         var checksum = BigInteger(1, digest.digest()).toString(16)
-        while (checksum.length < 64) { checksum = "0$checksum" }
+        while (checksum.length < 64) {
+            checksum = "0$checksum"
+        }
         if (checksum == expectedChecksum) {
             return
         } else {
@@ -172,7 +171,9 @@ fun downloadFile(localUrl: String, remoteUrl: String, expectedChecksum: String) 
     out.close()
 
     var checksum = BigInteger(1, digest.digest()).toString(16)
-    while (checksum.length < 64) { checksum = "0$checksum" }
+    while (checksum.length < 64) {
+        checksum = "0$checksum"
+    }
     if (checksum != expectedChecksum) {
         file.delete()
         throw GradleException("Wrong checksum for $remoteUrl:\n Expected: $expectedChecksum\n Actual:   $checksum")
@@ -183,24 +184,46 @@ tasks.register("downloadPrebuilt") {
     doLast {
         val prootTag = "proot-2025.01.15-r2"
         val prootVersion = "5.1.107-66"
-        var prootUrl = "https://github.com/termux-play-store/termux-packages/releases/download/${prootTag}/libproot-loader-ARCH-${prootVersion}.so"
+        var prootUrl =
+            "https://github.com/termux-play-store/termux-packages/releases/download/${prootTag}/libproot-loader-ARCH-${prootVersion}.so"
 
-        downloadFile("src/main/jniLibs/armeabi-v7a/libproot-loader.so", prootUrl.replace("ARCH", "arm"), "eb1d64e9ef875039534ce7a8eeffa61bbc4c0ae5722cb48c9112816b43646a3e")
-        downloadFile("src/main/jniLibs/arm64-v8a/libproot-loader.so", prootUrl.replace("ARCH", "aarch64"), "8814b72f760cd26afe5350a1468cabb6622b4871064947733fcd9cd06f1c8cb8")
-        downloadFile("src/main/jniLibs/x86_64/libproot-loader.so", prootUrl.replace("ARCH", "x86_64"), "1a52cc9cc5fdecbf4235659ffeac8c51e4fefd7c75cc205f52d4884a3a0a0ba1")
-        prootUrl = "https://github.com/termux-play-store/termux-packages/releases/download/${prootTag}/libproot-loader32-ARCH-${prootVersion}.so"
-        downloadFile("src/main/jniLibs/arm64-v8a/libproot-loader32.so", prootUrl.replace("ARCH", "aarch64"), "ff56a5e3a37104f6778420d912e3edf31395c15d1528d28f0eb7d13a64481b99")
-        downloadFile("src/main/jniLibs/x86_64/libproot-loader32.so", prootUrl.replace("ARCH", "x86_64"), "5460a597e473f57f0d33405891e35ca24709173ca0a38805d395e3544ab8b1b4")
+        downloadFile(
+            "src/main/jniLibs/armeabi-v7a/libproot-loader.so",
+            prootUrl.replace("ARCH", "arm"),
+            "eb1d64e9ef875039534ce7a8eeffa61bbc4c0ae5722cb48c9112816b43646a3e"
+        )
+        downloadFile(
+            "src/main/jniLibs/arm64-v8a/libproot-loader.so",
+            prootUrl.replace("ARCH", "aarch64"),
+            "8814b72f760cd26afe5350a1468cabb6622b4871064947733fcd9cd06f1c8cb8"
+        )
+        downloadFile(
+            "src/main/jniLibs/x86_64/libproot-loader.so",
+            prootUrl.replace("ARCH", "x86_64"),
+            "1a52cc9cc5fdecbf4235659ffeac8c51e4fefd7c75cc205f52d4884a3a0a0ba1"
+        )
+        prootUrl =
+            "https://github.com/termux-play-store/termux-packages/releases/download/${prootTag}/libproot-loader32-ARCH-${prootVersion}.so"
+        downloadFile(
+            "src/main/jniLibs/arm64-v8a/libproot-loader32.so",
+            prootUrl.replace("ARCH", "aarch64"),
+            "ff56a5e3a37104f6778420d912e3edf31395c15d1528d28f0eb7d13a64481b99"
+        )
+        downloadFile(
+            "src/main/jniLibs/x86_64/libproot-loader32.so",
+            prootUrl.replace("ARCH", "x86_64"),
+            "5460a597e473f57f0d33405891e35ca24709173ca0a38805d395e3544ab8b1b4"
+        )
     }
 }
 
-tasks.register("removeProotLoaders"){
-    fun rm(path:String){
-        val file = File(projectDir,path)
+tasks.register("removeProotLoaders") {
+    fun rm(path: String) {
+        val file = File(projectDir, path)
 
-        if(file.exists()){
+        if (file.exists()) {
             logger.quiet("Deleting $path")
-            if(file.delete().not()){
+            if (file.delete().not()) {
                 logger.error("Failed to delete $path")
             }
         }
@@ -217,19 +240,17 @@ afterEvaluate {
     android.applicationVariants.all { variant ->
         if (variant.flavorName == "PlayStore") {
             variant.javaCompileProvider.dependsOn("downloadPrebuilt")
-        }else{
+        } else {
             variant.javaCompileProvider.dependsOn("removeProotLoaders")
         }
         true
     }
 }
 
-
-
-
 dependencies {
     implementation(libs.androidx.profileinstaller)
-    "baselineProfile"(project(":baselineprofile"))
     coreLibraryDesugaring(libs.desugar.jdk.libs)
+
+    "baselineProfile"(project(":baselineprofile"))
     implementation(project(":core:main"))
 }
