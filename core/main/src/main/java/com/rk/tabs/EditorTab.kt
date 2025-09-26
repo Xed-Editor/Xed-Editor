@@ -122,7 +122,9 @@ class EditorTab(
 
 
 
-    val editorState by mutableStateOf(CodeEditorState())
+    val editorState by mutableStateOf(CodeEditorState().also { if (it.editable){
+        it.editable = file.canWrite()
+    } })
 
     override fun onTabRemoved() {
         scope.cancel()
@@ -161,6 +163,10 @@ class EditorTab(
     suspend fun save() = withContext(Dispatchers.IO){
         saveMutex.withLock{
             runCatching {
+                if (file.canWrite().not()){
+                    errorDialog(strings.cant_write)
+                    return@withContext
+                }
                 file.writeText(editorState.content.toString(),charset)
                 editorState.isDirty = false
                 baseLspConnector?.notifySave(charset)

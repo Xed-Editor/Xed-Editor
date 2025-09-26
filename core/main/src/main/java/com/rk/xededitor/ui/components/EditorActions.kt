@@ -61,6 +61,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.ranges.random
+import androidx.compose.ui.platform.LocalResources
 
 sealed class ActionType {
     data class PainterAction(@DrawableRes val iconRes: Int) : ActionType()
@@ -94,7 +95,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
     var editable by remember(tab) { mutableStateOf(tab.file.canWrite() && tab.editorState.editable) }
     var isRunnable by remember(tab) { mutableStateOf(false) }
 
-    val resources = LocalContext.current.resources
+    val resources = LocalResources.current
 
     val activity = LocalActivity.current
     val editorState = tab.editorState
@@ -116,6 +117,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 id = "save",
                 type = ActionType.PainterAction(drawables.save),
                 labelRes = strings.saved,
+                isEnabled = tab.file.canWrite(),
                 action = { tab,editorState ->
                     GlobalScope.launch{
                         tab.save()
@@ -172,6 +174,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
             ),
             EditorAction(
                 id = "editable",
+                isEnabled = tab.file.canWrite(),
                 type = ActionType.VectorAction(if (editable){
                     Icons.Outlined.Lock
                 }else{

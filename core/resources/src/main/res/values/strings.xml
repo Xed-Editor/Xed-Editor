@@ -78,7 +78,6 @@
     <string name="description">Description</string>
     <string name="download">Download</string>
     <string name="dir_exist_not">Folder does not exists</string>
-    <string name="file_exist_not">File no longer exists</string>
     <string name="file_saved">File saved</string>
     <string name="apply">Apply</string>
     <string name="userdata">User data</string>
@@ -420,4 +419,6 @@
     <string name="github_stars">GitHub stars</string>
     <string name="api_error">API Error</string>
     <string name="unknown">Unknown</string>
+    <string name="cant_read">Cannot read the file (no read permission)</string>
+    <string name="cant_write">Cannot write the file (no write permission)</string>
 </resources>

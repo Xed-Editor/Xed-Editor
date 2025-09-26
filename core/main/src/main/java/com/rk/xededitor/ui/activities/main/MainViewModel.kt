@@ -8,6 +8,7 @@ import com.rk.file.FileObject
 import com.rk.file.child
 import com.rk.libcommons.application
 import com.rk.libcommons.dialog
+import com.rk.libcommons.errorDialog
 import com.rk.libcommons.expectOOM
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -98,6 +99,17 @@ class MainViewModel : ViewModel() {
     }
 
     suspend fun newTab(fileObject: FileObject,checkDuplicate: Boolean = true,switchToTab: Boolean = false) = withContext(Dispatchers.IO){
+
+        if (fileObject.exists()){
+            if (fileObject.canRead().not()){
+                errorDialog(strings.cant_read)
+                return@withContext
+            }
+        }else{
+            errorDialog(strings.file_exist_not)
+            return@withContext
+        }
+
         val function = suspend {
             TabRegistry.getTab(fileObject){
                 if (it == null){
