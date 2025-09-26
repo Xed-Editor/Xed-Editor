@@ -203,27 +203,14 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.refresh),
                 labelRes = strings.refresh,
                 action = { tab,editorState ->
-                    fun refresh(){
-                        scope.launch(Dispatchers.IO){
-                            val content = tab.file.getInputStream().use {
-                                ContentIO.createFrom(it)
-                            }
-                            editorState.content = content
-                            withContext(Dispatchers.Main){
-                                editorState.updateLock.withLock{
-                                    editorState.editor?.setText(content)
-                                    editorState.editor!!.updateUndoRedo()
-                                }
-                            }
-                        }
-                    }
+
 
                     if (editorState.isDirty){
                         dialog(context = activity, title = strings.attention.getString(), msg = strings.ask_refresh.getString(), okString = strings.refresh, onCancel = {}, onOk = {
-                            refresh()
+                            tab.refresh()
                         })
                     }else{
-                        refresh()
+                        tab.refresh()
                     }
 
                 }

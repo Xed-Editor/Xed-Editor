@@ -28,6 +28,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.file.FileContentWatcher
 import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
@@ -43,6 +44,7 @@ import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.terminal.ProcessConnection
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.components.EditorActions
 import com.rk.xededitor.ui.components.SearchPanel
 import com.rk.xededitor.ui.components.updateUndoRedo
@@ -123,6 +125,7 @@ class EditorTab(
 
 
     val editorState by mutableStateOf(CodeEditorState())
+    private var watcher: FileContentWatcher? = null
 
     override fun onTabRemoved() {
         scope.cancel()
@@ -134,8 +137,13 @@ class EditorTab(
             baseLspConnector?.disconnect()
             lspConnection?.close()
         }
+        watcher?.stopWatching()
+        watcher = null
     }
 
+
+
+    private var dialogShown = false
     init {
         if (editorState.content == null){
             scope.launch(Dispatchers.IO){
@@ -146,14 +154,26 @@ class EditorTab(
                     editorState.updateLock.withLock{
                         editorState.editor?.setText(editorState.content)
                     }
-
                     editorState.editable = Settings.readOnlyByDefault.not() && file.canWrite()
+
+                    watcher = FileContentWatcher(file){
+                        if (editorState.isDirty && dialogShown.not()){
+                            dialog(title = strings.attention.getString(), msg = strings.content_update.getString(), okString = strings.refresh, onCancel = {}, onOk = {
+                                refresh()
+                                dialogShown = false
+                            })
+                            dialogShown = true
+                        }else if (editorState.isDirty.not()){
+                            refresh()
+                        }
+                    }
                 }.onFailure {
                     errorDialog(it)
                 }
 
             }
         }
+
     }
 
     private val saveMutex = Mutex()
@@ -166,6 +186,7 @@ class EditorTab(
                     errorDialog(strings.cant_write)
                     return@withContext
                 }
+                editorState.isDirty = false
                 file.writeText(editorState.content.toString(),charset)
                 editorState.isDirty = false
                 baseLspConnector?.notifySave(charset)
@@ -231,6 +252,21 @@ class EditorTab(
             tab = this@EditorTab,
             viewModel = viewModel
         )
+    }
+
+    fun refresh(){
+        scope.launch(Dispatchers.IO){
+            val content = file.getInputStream().use {
+                ContentIO.createFrom(it)
+            }
+            editorState.content = content
+            withContext(Dispatchers.Main){
+                editorState.updateLock.withLock{
+                    editorState.editor?.setText(content)
+                    editorState.editor!!.updateUndoRedo()
+                }
+            }
+        }
     }
 
 }

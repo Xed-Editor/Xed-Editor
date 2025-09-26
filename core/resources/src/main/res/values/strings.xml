@@ -419,6 +419,6 @@
     <string name="github_stars">GitHub stars</string>
     <string name="api_error">API Error</string>
     <string name="unknown">Unknown</string>
-    <string name="cant_read">Cannot read the file (no read permission)</string>
     <string name="cant_write">Cannot write the file (no write permission)</string>
+    <string name="content_update">This file was modified by another app. Do you want to refresh? Unsaved changes will be lost.</string>
 </resources>

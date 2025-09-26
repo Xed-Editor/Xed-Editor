@@ -99,17 +99,6 @@ class MainViewModel : ViewModel() {
     }
 
     suspend fun newTab(fileObject: FileObject,checkDuplicate: Boolean = true,switchToTab: Boolean = false) = withContext(Dispatchers.IO){
-
-        if (fileObject.exists()){
-            if (fileObject.canRead().not()){
-                errorDialog(strings.cant_read)
-                return@withContext
-            }
-        }else{
-            errorDialog(strings.file_exist_not)
-            return@withContext
-        }
-
         val function = suspend {
             TabRegistry.getTab(fileObject){
                 if (it == null){
