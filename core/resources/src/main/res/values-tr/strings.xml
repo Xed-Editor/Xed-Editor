@@ -420,4 +420,6 @@
     <string name="github_stars">GitHub yıldızları</string>
     <string name="api_error">API Hatası</string>
     <string name="unknown">Bilinmeyen</string>
+    <string name="cant_write">Dosyaya yazılamıyor (yazma izni yok)</string>
+    <string name="content_update">Bu dosya başka bir uygulama tarafından değiştirildi. Yenilemek istiyor musunuz? Kaydedilmemiş değişiklikler kaybolacak.</string>
 </resources>
