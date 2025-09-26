@@ -292,6 +292,10 @@ class KarbonEditor : CodeEditor {
         isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
         showSuggestions(keyboardSuggestion)
 
+        val minScaleSize: Float = 6f * resources.displayMetrics.scaledDensity
+        val maxScaleSize: Float = 100f * resources.displayMetrics.scaledDensity
+        setScaleTextSizes(minScaleSize, maxScaleSize)
+
         if (renderWhitespace) {
             nonPrintablePaintingFlags = FLAG_DRAW_LINE_SEPARATOR or
                                         FLAG_DRAW_WHITESPACE_LEADING or

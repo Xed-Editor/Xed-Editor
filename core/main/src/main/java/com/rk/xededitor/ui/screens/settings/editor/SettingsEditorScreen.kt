@@ -277,10 +277,10 @@ fun SettingsEditorScreen(navController: NavController) {
                     if (textSizeValue.toIntOrNull() == null) {
                         toast(strings.invalid_v)
                         textSizeValue = Settings.editor_text_size.toString()
-                    } else if (textSizeValue.toInt() > 32) {
+                    } else if (textSizeValue.toInt() > 128) {
                         toast(context.getString(strings.v_large))
                         textSizeValue = Settings.editor_text_size.toString()
-                    } else if (textSizeValue.toInt() < 8) {
+                    } else if (textSizeValue.toInt() < 6) {
                         toast(context.getString(strings.v_small))
                         textSizeValue = Settings.editor_text_size.toString()
                     } else {
