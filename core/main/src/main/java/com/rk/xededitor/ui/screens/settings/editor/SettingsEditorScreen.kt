@@ -29,11 +29,16 @@ fun SettingsEditorScreen(navController: NavController) {
         val context = LocalContext.current
 
         var showTextSizeDialog by remember { mutableStateOf(false) }
-        var showTabSizeDialog by remember { mutableStateOf(false) }
         var textSizeValue by remember { mutableStateOf(Settings.editor_text_size.toString()) }
+        var textSizeError by remember { mutableStateOf<String?>(null) }
+
+        var showTabSizeDialog by remember { mutableStateOf(false) }
         var tabSizeValue by remember { mutableStateOf(Settings.tab_size.toString()) }
+        var tabSizeError by remember { mutableStateOf<String?>(null) }
+
         var showLineSpacingDialog by remember { mutableStateOf(false) }
         var lineSpacingValue by remember { mutableStateOf(Settings.line_spacing.toString()) }
+        var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
         PreferenceGroup {
             NextScreenCard(navController = navController, label = stringResource(strings.lsp_settings), description = stringResource(strings.lsp_settings_desc), route = SettingsRoutes.LspSettings)
@@ -243,25 +248,25 @@ fun SettingsEditorScreen(navController: NavController) {
             InputDialog(
                 title = stringResource(id = strings.line_spacing),
                 inputLabel = stringResource(id = strings.line_spacing),
-                inputValue = lineSpacingValue.toString(),
+                inputValue = lineSpacingValue,
+                errorMessage = lineSpacingError,
                 onInputValueChange = {
                     lineSpacingValue = it
+                    lineSpacingError = null
+                    if (lineSpacingValue.toFloatOrNull() == null) {
+                        lineSpacingError = context.getString(strings.invalid_v)
+                    } else if (lineSpacingValue.toFloat() < 0) {
+                        lineSpacingError = context.getString(strings.v_small)
+                    }
                 },
                 onConfirm = {
-                    if (lineSpacingValue.toFloatOrNull() == null) {
-                        toast(strings.invalid_v)
-                        lineSpacingValue = Settings.line_spacing.toString()
-                    } else if (lineSpacingValue.toFloat() < 0) {
-                        toast(context.getString(strings.v_small))
-                        lineSpacingValue = Settings.line_spacing.toString()
-                    } else {
-                        Settings.line_spacing = lineSpacingValue.toFloat()
-
-                        showLineSpacingDialog = false
-                    }
-
+                    Settings.line_spacing = lineSpacingValue.toFloat()
                 },
-                onDismiss = { showLineSpacingDialog = false },
+                onDismiss = {
+                    lineSpacingValue = Settings.line_spacing.toString()
+                    lineSpacingError = null
+                    showLineSpacingDialog = false
+                },
             )
         }
 
@@ -269,69 +274,72 @@ fun SettingsEditorScreen(navController: NavController) {
             InputDialog(
                 title = stringResource(id = strings.text_size),
                 inputLabel = stringResource(id = strings.text_size),
-                inputValue = textSizeValue.toString(),
+                inputValue = textSizeValue,
+                errorMessage = textSizeError,
                 onInputValueChange = {
                     textSizeValue = it
+                    textSizeError = null
+                    if (it.toIntOrNull() == null) {
+                        textSizeError = context.getString(strings.invalid_v);
+                    } else if (it.toInt() > 100) {
+                        textSizeError = context.getString(strings.v_large)
+                    } else if (it.toInt() < 6) {
+                        textSizeError = context.getString(strings.v_small)
+                    }
                 },
                 onConfirm = {
-                    if (textSizeValue.toIntOrNull() == null) {
-                        toast(strings.invalid_v)
-                        textSizeValue = Settings.editor_text_size.toString()
-                    } else if (textSizeValue.toInt() > 128) {
-                        toast(context.getString(strings.v_large))
-                        textSizeValue = Settings.editor_text_size.toString()
-                    } else if (textSizeValue.toInt() < 6) {
-                        toast(context.getString(strings.v_small))
-                        textSizeValue = Settings.editor_text_size.toString()
-                    } else {
-                        Settings.editor_text_size = textSizeValue.toInt()
+                    Settings.editor_text_size = textSizeValue.toInt()
 
-                        MainActivity.instance?.apply {
-                            viewModel.tabs.forEach {
-                                if (it is EditorTab) {
-                                    it.editorState.editor?.applySettings()
-                                }
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.forEach {
+                            if (it is EditorTab) {
+                                it.editorState.editor?.applySettings()
                             }
                         }
                     }
 
                 },
-                onDismiss = { showTextSizeDialog = false },
+                onDismiss = {
+                    textSizeValue = Settings.editor_text_size.toString()
+                    textSizeError = null
+                    showTextSizeDialog = false
+                },
             )
         }
+
         if (showTabSizeDialog) {
             InputDialog(
                 title = stringResource(id = strings.tab_size),
                 inputLabel = stringResource(id = strings.tab_size),
-                inputValue = tabSizeValue.toString(),
+                inputValue = tabSizeValue,
+                errorMessage = tabSizeError,
                 onInputValueChange = {
                     tabSizeValue = it
-                },
-                onConfirm = {
+                    tabSizeError = null
                     if (tabSizeValue.toIntOrNull() == null) {
-                        toast(strings.invalid_v)
-                        tabSizeValue = Settings.tab_size.toString()
+                        tabSizeError = context.getString(strings.invalid_v)
                     } else if (tabSizeValue.toInt() > 16) {
-                        toast(context.getString(strings.v_large))
-                        tabSizeValue = Settings.tab_size.toString()
+                        tabSizeError = context.getString(strings.v_large)
                     } else if (tabSizeValue.toInt() < 1) {
-                        toast(context.getString(strings.v_small))
-                        tabSizeValue = Settings.tab_size.toString()
-                    } else {
-                        Settings.tab_size = tabSizeValue.toInt()
-
-                        MainActivity.instance?.apply {
-                            viewModel.tabs.forEach {
-                                if (it is EditorTab) {
-                                    it.editorState.editor?.applySettings()
-                                }
-                            }
-                        }
-
-                        showTabSizeDialog = false
+                        tabSizeError = context.getString(strings.v_small)
                     }
                 },
-                onDismiss = { showTabSizeDialog = false },
+                onConfirm = {
+                    Settings.tab_size = tabSizeValue.toInt()
+
+                    MainActivity.instance?.apply {
+                        viewModel.tabs.forEach {
+                            if (it is EditorTab) {
+                                it.editorState.editor?.applySettings()
+                            }
+                        }
+                    }
+                },
+                onDismiss = {
+                    tabSizeValue = Settings.tab_size.toString()
+                    tabSizeError = null
+                    showTabSizeDialog = false
+                },
             )
         }
 

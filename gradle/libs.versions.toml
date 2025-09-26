@@ -71,6 +71,7 @@ profileinstaller = "1.4.1"
 benchmark = "1.2.4"
 runner = "1.5.2"
 benchmarkJunit4 = "1.2.4"
+materialIconsExtended = "1.7.8"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanistDrawablepainter" }
@@ -188,6 +189,7 @@ androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchm
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 androidx-benchmark-junit4 = { group = "androidx.benchmark", name = "benchmark-junit4", version.ref = "benchmarkJunit4" }
+androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 
 
 

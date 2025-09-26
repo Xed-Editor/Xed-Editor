@@ -137,6 +137,7 @@ dependencies {
     api(project(":core:extension"))
 
     api(libs.kotlin.reflect)
+    api(libs.androidx.material.icons.extended)
 
 }
 
