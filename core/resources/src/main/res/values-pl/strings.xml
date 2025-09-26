@@ -419,4 +419,6 @@
     <string name="github_stars">Gwiazdki na GitHub\'ie</string>
     <string name="api_error">Błąd API</string>
     <string name="unknown">Nieznany</string>
+    <string name="cant_read">Nie można odczytać pliku (brak uprawnienia odczytu)</string>
+    <string name="cant_write">Nie można zapisać pliku (brak uprawnienia zapisu)</string>
 </resources>
