@@ -124,7 +124,7 @@
     <string name="installed">已安裝</string>
     <string name="available">可用</string>
     <string name="already_installed">已完成安裝</string>
-    <string name="download_sure">你確定要下載嗎</string>
+    <string name="download_sure">你確定要下載 %(name)嗎？</string>
     <string name="yes">是</string>
     <string name="fetch_failed">請求獲取的資料回傳空值</string>
     <string name="app">應用程式</string>
@@ -416,4 +416,10 @@
     <string name="ask_refresh">確定要重新整理此文件嗎？任何未儲存的變更都將會遺失。</string>
     <string name="docs">文件</string>
     <string name="docs_desc">造訪文件頁面。</string>
+    <string name="lsp_settings_desc">語言伺服器設定</string>
+    <string name="github_stars">GitHub 標星</string>
+    <string name="api_error">API 錯誤</string>
+    <string name="unknown">未知</string>
+    <string name="cant_write">無法寫入檔案（沒有寫入權限）</string>
+    <string name="content_update">此檔案已被其他應用程式修改。要重新整理嗎？未儲存的變更將會遺失。</string>
 </resources>
