@@ -420,4 +420,6 @@
     <string name="github_stars">Étoiles GitHub</string>
     <string name="api_error">Erreur de l\'API</string>
     <string name="unknown">Inconnu</string>
+    <string name="cant_write">Le fichier ne peut pas être enregistré (droit d\'écriture absent)</string>
+    <string name="content_update">Ce fichier a été modifié par un autre logiciel. Voulez-vous le mettre à jour ? Les changements non enregistrés seront perdus.</string>
 </resources>

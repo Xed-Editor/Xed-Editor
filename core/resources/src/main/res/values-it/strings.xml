@@ -353,4 +353,27 @@
     <string name="control_panel">Pannello di controllo</string>
     <string name="tab_memory_warning">Memoria insufficiente per aprire questa scheda. Aprirla potrebbe causare il crash di Xed-Editor. Vuoi procedere comunque?</string>
     <string name="read_mode_desc">Abilita modalità lettura per impostazione predefinita</string>
+    <string name="dont_ask_again">Non chiedere più</string>
+    <string name="install">Installa</string>
+    <string name="ask_lsp_install">Vuoi installare il server linguistico per %(language_name)?</string>
+    <string name="uninstall_terminal_warning">Disinstallare Ubuntu in modo permanente? Questa azione non può essere annullata.</string>
+    <string name="uninstall">Disinstalla</string>
+    <string name="uninstall_terminal">Disinstalla terminale</string>
+    <string name="project_as_wk">Usa progetto come directory di lavoro</string>
+    <string name="project_as_wk_desc">Usa progetto come directory di lavoro nel terminale</string>
+    <string name="seccomp_desc">Corregge l\'errore \"funzione non implementata\" su alcuni dispositivi</string>
+    <string name="non_native_filetype">L’esecuzione del codice non è supportata in questa posizione. Sposta il file nella directory home del terminale per poterlo eseguire.</string>
+    <string name="sdcard_filetype">L’esecuzione del codice non è consigliata in questa posizione. Sposta il file nella directory home del terminale.</string>
+    <string name="rename_file">Rinomina file</string>
+    <string name="new_name">Nuovo nome</string>
+    <string name="file_type">Tipo di file</string>
+    <string name="type">Tipo</string>
+    <string name="name">Nome</string>
+    <string name="view_github_profile">Visualizza profilo GitHub</string>
+    <string name="debug_options">Opzioni di debug</string>
+    <string name="debug_options_desc">Opzioni di debug per %(app_name)</string>
+    <string name="force_crash">Forza arresto</string>
+    <string name="force_crash_desc">Genera un’eccezione a runtime</string>
+    <string name="force_crash_confirm">Vuoi forzare l\'arresto dell\'app? L\'app potrebbe bloccarsi.</string>
+    <string name="memory_usage">Utilizzo memoria</string>
 </resources>

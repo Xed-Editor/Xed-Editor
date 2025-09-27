@@ -299,7 +299,7 @@
     <string name="show_suggestions">Tastaturvorschläge anzeigen</string>
     <string name="txt_ww">TXT-Dateien umbrechen</string>
     <string name="txt_ww_desc">TXT-Dateien automatisch umbrechen</string>
-    <string name="ask_unsaved">Bist du sicher, dass du dieses ungespeicherte Dokument verwerfen möchtest?</string>
+    <string name="ask_unsaved">Bist du sicher, dass du dieses nicht gespeicherte Dokument verwerfen möchtest?</string>
     <string name="encoding_warning">Von einer Änderung der Standardcodierung wird dringend abgeraten, da dies zu einer Beschädigung der Dateien führen kann. Es wird dringend empfohlen, UTF-8 zu verwenden, es sei denn, du bist dir der Auswirkungen voll bewusst und hast entsprechende Sicherungskopien erstellt.</string>
     <string name="info_mutators">Mutatoren sind kleine Skripte, die verwendet werden, um den Text im Editor zu verändern. Erstelle einen Mutator und klicke auf ihn, um ihn im Editor zu öffnen.</string>
     <string name="script_get_text">Text erhalten</string>
@@ -412,8 +412,14 @@
     <string name="failsafe_mode_desc">Terminal im Wartungsmodus starten</string>
     <string name="render_whitespace">Leerzeichen anzeigen</string>
     <string name="render_whitespace_desc">Leerzeichen, Tabs und Zeilenumbrüche als sichtbare Symbole anzeigen</string>
-    <string name="ask_refresh">Möchtest du dieses Dokument wirklich aktualisieren? Ungespeicherte Änderungen gehen verloren.</string>
+    <string name="ask_refresh">Möchtest du dieses Dokument wirklich aktualisieren? Nicht gespeicherte Änderungen gehen verloren.</string>
     <string name="docs">Dokumentation</string>
     <string name="docs_desc">Dokumentationsseite aufrufen.</string>
     <string name="file_type">Dateityp</string>
+    <string name="lsp_settings_desc">Sprachserver-Einstellungen</string>
+    <string name="github_stars">GitHub-Sterne</string>
+    <string name="api_error">API-Fehler</string>
+    <string name="unknown">Unbekannt</string>
+    <string name="cant_write">Die Datei kann nicht geschrieben werden (keine Schreibrechte)</string>
+    <string name="content_update">Diese Datei wurde von einer anderen App modifiziert. Möchtest du aktualisieren? Nicht gespeicherte Änderungen gehen verloren.</string>
 </resources>

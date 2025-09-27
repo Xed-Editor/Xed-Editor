@@ -29,12 +29,10 @@ android {
 }
 
 dependencies {
-    implementation(libs.material)
-    implementation(libs.appcompat)
-    
     implementation(platform(libs.compose.bom))
     implementation(libs.material3)
     implementation(libs.material)
+    implementation(libs.appcompat)
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.activity.compose)

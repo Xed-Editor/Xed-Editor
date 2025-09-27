@@ -1,5 +1,3 @@
-import java.io.ByteArrayOutputStream
-import java.io.File
 import groovy.json.JsonOutput
 
 plugins {
@@ -21,14 +19,13 @@ val gitCommitDate: Provider<String> = providers.exec {
     commandLine("git", "show", "-s", "--format=%cI", "HEAD")
 }.standardOutput.asText.map { it.trim() }
 
-
 android {
     namespace = "com.rk.xededitor"
+    compileSdk = 36
+
     buildFeatures {
         buildConfig = true
     }
-
-    compileSdk = 36
 
     defaultConfig {
         minSdk = 26
@@ -41,19 +38,21 @@ android {
             buildConfigField("String", "GIT_COMMIT_HASH", "\"${fullGitCommitHash.get()}\"")
             buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${gitCommitHash.get()}\"")
             buildConfigField("String", "GIT_COMMIT_DATE", "\"${gitCommitDate.get()}\"")
+
             isMinifyEnabled = false
             isShrinkResources = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
         }
+
         debug {
             buildConfigField("String", "GIT_COMMIT_HASH", "\"${fullGitCommitHash.get()}\"")
             buildConfigField("String", "GIT_SHORT_COMMIT_HASH", "\"${gitCommitHash.get()}\"")
             buildConfigField("String", "GIT_COMMIT_DATE", "\"${gitCommitDate.get()}\"")
         }
     }
-
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -63,6 +62,7 @@ android {
     kotlin {
         jvmToolchain(17)
     }
+
     buildFeatures {
         viewBinding = true
         compose = true
@@ -86,8 +86,6 @@ tasks.named("preBuild") {
     dependsOn(runPrecompileScript)
 }
 
-
-
 dependencies {
     api(libs.appcompat)
     api(libs.material)
@@ -105,11 +103,8 @@ dependencies {
     api(libs.ui.graphics)
     api(libs.material3)
     api(libs.navigation.compose)
-    api(project(":core:terminal-view"))
-    api(project(":core:terminal-emulator"))
     api(libs.utilcode)
     api(libs.coil.compose)
-    //api(libs.org.eclipse.jgit)
     api(libs.gson)
     api(libs.commons.net)
     api(libs.okhttp)
@@ -122,12 +117,11 @@ dependencies {
     api(libs.quickjs.android)
     api(libs.anrwatchdog)
     api(libs.lsp4j)
-    api("androidx.documentfile:documentfile:1.1.0")
+    api(libs.kotlin.reflect)
+    api(libs.androidx.documentfile)
+    api(libs.androidx.material.icons.extended)
 
-    //debug libs these libs doesn't get added when creating release builds
-    //debugApi(libs.bsh)
-    //debugApi(libs.leakcanary.android)
-
+    // Modules
     api(project(":editor"))
     api(project(":editor-lsp"))
     api(project(":language-textmate"))
@@ -135,15 +129,11 @@ dependencies {
     api(project(":core:components"))
     api(project(":core:bridge"))
     api(project(":core:extension"))
-
-    api(libs.kotlin.reflect)
-    api(libs.androidx.material.icons.extended)
-
+    api(project(":core:terminal-view"))
+    api(project(":core:terminal-emulator"))
 }
 
-
 abstract class GenerateSupportedLocales : DefaultTask() {
-
     @get:InputDirectory
     abstract val resDir: DirectoryProperty
 
@@ -162,6 +152,7 @@ abstract class GenerateSupportedLocales : DefaultTask() {
                 folderName == "values" -> "en"
                 folderName.startsWith("values-") ->
                     folderName.removePrefix("values-").replace("-r", "-")
+
                 else -> null
             }
             locale?.let { locales.add(it) }
