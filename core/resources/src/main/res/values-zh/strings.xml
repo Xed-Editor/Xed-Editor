@@ -420,4 +420,6 @@
     <string name="github_stars">GitHub 星数</string>
     <string name="api_error">API 错误</string>
     <string name="unknown">未知的</string>
+    <string name="cant_write">无法写入文件（没有写入权限）</string>
+    <string name="content_update">此文件已被其他 APP 修改。你想要重新载入此文件吗？未保存的更改将会丢失。</string>
 </resources>
