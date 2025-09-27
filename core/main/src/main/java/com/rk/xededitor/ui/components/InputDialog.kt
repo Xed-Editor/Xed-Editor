@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -11,7 +13,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.rk.resources.strings
-import com.rk.xededitor.R
 
 @Composable
 fun InputDialog(
@@ -21,7 +22,8 @@ fun InputDialog(
     onInputValueChange: (String) -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    singleLineMode:Boolean = true
+    singleLineMode: Boolean = true,
+    errorMessage: String? = null
 ) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -35,6 +37,20 @@ fun InputDialog(
                     label = { Text(inputLabel) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
+                    isError = errorMessage != null,
+                    supportingText = {
+                        if (errorMessage != null) {
+                            Text(
+                                text = errorMessage,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    },
+                    trailingIcon = {
+                        if (errorMessage != null)
+                            Icon(Icons.Filled.Error, "error", tint = MaterialTheme.colorScheme.error)
+                    },
                     keyboardActions = KeyboardActions(
                         onDone = { onConfirm() },
                         onSearch = { onConfirm() }
@@ -47,6 +63,7 @@ fun InputDialog(
         },
         confirmButton = {
             Button(
+                enabled = errorMessage == null,
                 onClick = {
                     onConfirm()
                     onDismiss()
