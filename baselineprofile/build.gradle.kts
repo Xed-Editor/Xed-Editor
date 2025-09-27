@@ -14,7 +14,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-
     defaultConfig {
         minSdk = 28
         targetSdk = 36
@@ -29,7 +28,6 @@ android {
         create("Fdroid") { dimension = "store" }
         create("PlayStore") { dimension = "store" }
     }
-
 }
 
 // This is the configuration block for the Baseline Profile plugin.
