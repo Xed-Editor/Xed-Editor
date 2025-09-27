@@ -379,7 +379,7 @@
     <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
-    <string name="expose_saf_desc">Spraw, aby główny katalog był dostępny dla aplikacji zewnętrznych używając systemowego menedżera plików (SAF)</string>
+    <string name="expose_saf_desc">Udostępnij katalog główny aplikacjom zewnętrznym używając systemowego menedżera plików (SAF)</string>
     <string name="saf_expose_warning">Udostępniając główny katalog możesz odkryć wrażliwe informacje złośliwym aplikacjom, włączając tokeny Git, hasła, nazwy użytkownika oraz inne pliki przechowywane w twoim głównym katalogu terminalu. Czy chcesz kontynuować?</string>
     <string name="capture_logcat">Przechwycenie dzienników komunikatów</string>
     <string name="capture_logcat_desc">Przechwyć dzienniki w tle do debugingu</string>
