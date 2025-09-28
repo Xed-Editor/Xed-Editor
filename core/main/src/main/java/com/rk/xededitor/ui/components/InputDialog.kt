@@ -48,8 +48,9 @@ fun InputDialog(
                         }
                     },
                     trailingIcon = {
-                        if (errorMessage != null)
+                        if (errorMessage != null) {
                             Icon(Icons.Filled.Error, "error", tint = MaterialTheme.colorScheme.error)
+                        }
                     },
                     keyboardActions = KeyboardActions(
                         onDone = { onConfirm() },
