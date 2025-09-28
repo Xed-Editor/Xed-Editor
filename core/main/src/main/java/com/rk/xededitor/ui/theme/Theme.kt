@@ -3,6 +3,7 @@ package com.rk.xededitor.ui.theme
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -83,3 +84,10 @@ fun KarbonTheme(
 
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
 fun supportsDynamicTheming() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+// Custom warning colors
+val ColorScheme.warningSurface: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(0xFF633F00) else Color(0xFFFFDDB4)
+
+val ColorScheme.onWarningSurface: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(0xFFFFDDB4) else Color(0xFF633F00)

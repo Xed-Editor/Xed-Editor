@@ -8,4 +8,5 @@ abstract class BaseLspServer {
     abstract fun command(): Array<String>
     abstract val id: String
     abstract val languageName: String
+    abstract val supportedExtensions: List<String>
 }

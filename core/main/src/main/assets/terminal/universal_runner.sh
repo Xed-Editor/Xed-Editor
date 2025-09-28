@@ -43,15 +43,21 @@ install_package() {
   apt install -y "$packages"
 }
 
-
 install_nodejs() {
   echo "Installing Node.js LTS..."
+  install_package "curl"
   curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
   apt install -y nodejs
+  mkdir -p /home/.npm-global
+  npm config set prefix '/home/.npm-global'
+  grep -qxF "export PATH=\"/home/.npm-global/bin:$PATH\"" ~/.bashrc || \
+      echo "export PATH=\"/home/.npm-global/bin:$PATH\"" >> ~/.bashrc
+  export PATH="/home/.npm-global/bin:$PATH"
 }
 
 install_rust() {
   echo "Installing Rust..."
+  install_package "curl"
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   source "$HOME/.cargo/env"
   # Add to PATH for current session
@@ -68,6 +74,7 @@ install_dotnet() {
 }
 
 install_kotlin() {
+    install_package "unzip curl"
     echo "Fetching latest Kotlin compiler..."
     url=$(curl -s https://api.github.com/repos/JetBrains/kotlin/releases/latest \
         | grep "browser_download_url" \
@@ -135,7 +142,6 @@ case "$file" in
     fi
     if ! command_exists kotlinc; then
       echo "Installing Kotlin..."
-      install_package "curl unzip"
       install_kotlin
     fi
     kotlinc "$file" -include-runtime -d temp.jar && java -jar temp.jar
