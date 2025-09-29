@@ -1,6 +1,10 @@
 package com.rk.libcommons.editor
 
+import com.rk.libcommons.editor.lspServers.CSS
+import com.rk.libcommons.editor.lspServers.HTML
+import com.rk.libcommons.editor.lspServers.JSON
 import com.rk.libcommons.editor.lspServers.Python
+import com.rk.libcommons.editor.lspServers.TypeScript
 
 val textmateSources = mapOf(
     "pro" to "source.shell",
@@ -70,6 +74,10 @@ val textmateSources = mapOf(
     "zig" to "source.zig"
 )
 
-val lspRegistry = mapOf<String, BaseLspServer>(
-    "py" to Python()
+val lspRegistry = listOf(
+    Python(),
+    HTML(),
+    CSS(),
+    TypeScript(),
+    JSON()
 )
