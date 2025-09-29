@@ -422,4 +422,6 @@
     <string name="unknown">未知</string>
     <string name="cant_write">無法寫入檔案（沒有寫入權限）</string>
     <string name="content_update">此檔案已被其他應用程式修改。要重新整理嗎？未儲存的變更將會遺失。</string>
+    <string name="info_lsp">語言伺服器是獨立的程序，提供智慧型功能，例如程式碼自動完成、錯誤高亮顯示以及行內文件說明。</string>
+    <string name="experimental_lsp">語言伺服器屬於實驗性功能，可能無法正常運作。</string>
 </resources>
