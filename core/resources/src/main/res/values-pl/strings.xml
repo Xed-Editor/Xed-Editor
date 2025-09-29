@@ -135,7 +135,7 @@
     <string name="version_code">Wersja kodu</string>
     <string name="github">GitHub</string>
     <string name="github_desc">Gwiazdkuj na GitHub\'ie 🤩</string>
-    <string name="telegram">Grupa na Telegramie</string>
+    <string name="telegram">Grupa na Telegram\'ie</string>
     <string name="tab_opened">Karta otwarta</string>
     <string name="mutator_name">Nazwa mutatora</string>
     <string name="name_empty_err">Pole nazwa nie może być puste</string>
@@ -422,6 +422,6 @@
     <string name="cant_read">Nie można odczytać pliku (brak uprawnienia odczytu)</string>
     <string name="cant_write">Nie można zapisać pliku (brak uprawnienia zapisu)</string>
     <string name="content_update">Dokument został zmodyfikowany przez inną aplikacje. Czy napewno chcesz odświeżyć? Wszystkie niezapisane zmiany zostaną utracone.</string>
-    <string name="info_lsp">Serwery językowe dodają inteligentne funkcje, takie jak wypełnianie kodu, podkreślenie błędów oraz dokumentację osadzoną w kodzie.</string>
+    <string name="info_lsp">Serwery językowe dodają inteligentne funkcje, takie jak wypełnianie kodu, podkreślanie błędów oraz dokumentację osadzoną w kodzie.</string>
     <string name="experimental_lsp">Serwery językowe są funkcją eksperymentalną, czasami mogą nie działać prawidłowo.</string>
 </resources>
