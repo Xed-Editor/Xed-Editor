@@ -422,4 +422,6 @@
     <string name="unknown">Bilinmeyen</string>
     <string name="cant_write">Dosyaya yazılamıyor (yazma izni yok)</string>
     <string name="content_update">Bu dosya başka bir uygulama tarafından değiştirildi. Yenilemek istiyor musunuz? Kaydedilmemiş değişiklikler kaybolacak.</string>
+    <string name="info_lsp">Dil sunucuları, kod tamamlama, hata vurgulama ve satır içi dokümantasyon gibi akıllı özellikler sağlayan bağımsız süreçlerdir.</string>
+    <string name="experimental_lsp">Dil sunucuları deneyseldir ve düzgün çalışmayabilir.</string>
 </resources>
