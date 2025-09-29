@@ -119,7 +119,6 @@ dependencies {
     api(libs.lsp4j)
     api(libs.kotlin.reflect)
     api(libs.androidx.documentfile)
-    api(libs.androidx.material.icons.extended)
 
     // Modules
     api(project(":editor"))

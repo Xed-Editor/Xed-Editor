@@ -61,10 +61,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isCrunchPngs = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
 
+
+            isCrunchPngs = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
             )
@@ -94,6 +95,8 @@ android {
 
         create("PlayStore") {
             dimension = "store"
+            applicationIdSuffix = ".play"
+            versionNameSuffix = "-PLAY"
             targetSdk = 35
         }
     }

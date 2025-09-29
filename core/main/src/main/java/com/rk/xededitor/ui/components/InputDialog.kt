@@ -5,14 +5,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.rk.resources.drawables
 import com.rk.resources.strings
+import com.rk.xededitor.ui.icons.Error
+import com.rk.xededitor.ui.icons.XedIcons
 
 @Composable
 fun InputDialog(
@@ -49,7 +52,7 @@ fun InputDialog(
                     },
                     trailingIcon = {
                         if (errorMessage != null) {
-                            Icon(Icons.Filled.Error, "error", tint = MaterialTheme.colorScheme.error)
+                            Icon(XedIcons.Error, "error", tint = MaterialTheme.colorScheme.error)
                         }
                     },
                     keyboardActions = KeyboardActions(
