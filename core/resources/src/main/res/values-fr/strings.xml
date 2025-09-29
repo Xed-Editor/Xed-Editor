@@ -422,4 +422,6 @@
     <string name="unknown">Inconnu</string>
     <string name="cant_write">Le fichier ne peut pas être enregistré (droit d\'écriture absent)</string>
     <string name="content_update">Ce fichier a été modifié par un autre logiciel. Voulez-vous le mettre à jour ? Les changements non enregistrés seront perdus.</string>
+    <string name="info_lsp">Les serveurs de langue sont des processus séparés qui fournissent des fonctionnalités intelligentes, comme la complétion du code, le surlignement des erreurs et la documentation intégrée.</string>
+    <string name="experimental_lsp">Les serveurs de langue sont expérimentaux et pourraient ne pas fonctionner correctement.</string>
 </resources>
