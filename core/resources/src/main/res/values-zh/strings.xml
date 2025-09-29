@@ -422,4 +422,6 @@
     <string name="unknown">未知的</string>
     <string name="cant_write">无法写入文件（没有写入权限）</string>
     <string name="content_update">此文件已被其他 APP 修改。你想要重新载入此文件吗？未保存的更改将会丢失。</string>
+    <string name="info_lsp">语言服务器是独立的进程，能提供例如代码补全、语法高亮和内联文档等诸多智能功能。</string>
+    <string name="experimental_lsp">语言服务器功能还在实验性阶段，可能无法正常工作。</string>
 </resources>
