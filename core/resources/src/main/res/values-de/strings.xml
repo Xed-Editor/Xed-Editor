@@ -356,7 +356,7 @@
     <string name="release_wakelock">Wakelock freigeben</string>
     <string name="getting_ready">Vorbereitung läuft …</string>
     <string name="native_runner">Dieser Runner funktioniert nur mit nativen Dateien, verschiebe ihn gegebenenfalls in das Terminal-Home-Verzeichnis</string>
-    <string name="terminal_virus_notice">Auf manchen Geräten, insbesondere bei bestimmten Modellen aus China, siehst du eventuell eine System-Sicherheitswarnung, wenn viele Prozesse im Terminal ausgeführt werden (z. B. während \'apt update\' oder \'apt upgrade\'). Dies ist ein Fehlalarm und weist nicht auf einen echten Virus hin.</string>
+    <string name="terminal_virus_notice">Auf manchen Geräten, insbesondere bei bestimmten Modellen aus China, siehst du möglicherweise eine System-Sicherheitswarnung, wenn viele Prozesse im Terminal ausgeführt werden (z. B. während \'apt update\' oder \'apt upgrade\'). Dies ist ein Fehlalarm und weist nicht auf einen echten Virus hin.</string>
     <string name="text_mate_suggestion">TextMate-Autovervollständigung</string>
     <string name="text_mate_suggestion_desc">Vordefinierte Schlüsselwörter vorschlagen</string>
     <string name="dont_ask_again">Nicht noch mal fragen</string>
@@ -422,4 +422,6 @@
     <string name="unknown">Unbekannt</string>
     <string name="cant_write">Die Datei kann nicht geschrieben werden (keine Schreibrechte)</string>
     <string name="content_update">Diese Datei wurde von einer anderen App modifiziert. Möchtest du aktualisieren? Nicht gespeicherte Änderungen gehen verloren.</string>
+    <string name="info_lsp">Sprachserver sind separate Prozesse, die intelligente Funktionen, wie Code-Vervollständigung, Fehlerhervorhebung und Inline-Dokumentation bereitstellen.</string>
+    <string name="experimental_lsp">Sprachserver sind experimentell und funktionieren möglicherweise nicht richtig.</string>
 </resources>
