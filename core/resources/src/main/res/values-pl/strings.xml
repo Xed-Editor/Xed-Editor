@@ -422,4 +422,6 @@
     <string name="cant_read">Nie można odczytać pliku (brak uprawnienia odczytu)</string>
     <string name="cant_write">Nie można zapisać pliku (brak uprawnienia zapisu)</string>
     <string name="content_update">Dokument został zmodyfikowany przez inną aplikacje. Czy napewno chcesz odświeżyć? Wszystkie niezapisane zmiany zostaną utracone.</string>
+    <string name="info_lsp">Serwery językowe dodają inteligentne funkcje, takie jak wypełnianie kodu, podkreślenie błędów oraz dokumentację osadzoną w kodzie.</string>
+    <string name="experimental_lsp">Serwery językowe są funkcją eksperymentalną, czasami mogą nie działać prawidłowo.</string>
 </resources>
