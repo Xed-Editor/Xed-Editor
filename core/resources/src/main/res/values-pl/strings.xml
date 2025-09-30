@@ -180,7 +180,7 @@
     <string name="unknown_err">Coś poszło nie tak</string>
     <string name="misc">Różne</string>
     <string name="misc_desc">Różne ustawienia</string>
-    <string name="expose_saf">Udostępnij główny katalog</string>
+    <string name="expose_saf">Udostępnij katalog główny</string>
     <string name="saved">Plik zapisany</string>
     <string name="dir_exist_not">Katalog nie istnieje</string>
     <string name="file_exist_not">Plik nie istnieje</string>
