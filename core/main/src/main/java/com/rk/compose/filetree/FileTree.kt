@@ -42,6 +42,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rk.file.FileObject
 import com.rk.resources.drawables
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.main.getDrawerWidth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -495,7 +497,7 @@ private fun FileTreeNodeItem(
 
 fun FileObject.getAppropriateName(): String {
     return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath) {
-        "Storage"
+        strings.storage.getString()
     } else {
         getName()
     }

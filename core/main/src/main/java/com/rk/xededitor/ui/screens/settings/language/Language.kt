@@ -125,7 +125,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
 
         }
 
-        PreferenceGroup(heading = "Other") {
+        PreferenceGroup(heading = stringResource(strings.other)) {
             if (languages.isNotEmpty()){
                 languages.forEach { locale ->
                     SettingsToggle(
