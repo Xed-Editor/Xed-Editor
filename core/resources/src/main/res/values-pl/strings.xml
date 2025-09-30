@@ -254,7 +254,7 @@
     <string name="restore_sessions">Przywróć sesje</string>
     <string name="restore_sessions_desc">Przywróć poprzednie karty</string>
     <string name="terminal_home">Katalog główny terminalu</string>
-    <string name="terminal_home_desc">Domyślny główny katalog terminalu</string>
+    <string name="terminal_home_desc">Domyślny katalog główny terminalu</string>
     <string name="sessions">Sesje</string>
     <string name="add_session">Dodaj sesje</string>
     <string name="terminal_runtime">Czas działania terminalu</string>
@@ -380,7 +380,7 @@
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
     <string name="expose_saf_desc">Udostępnij katalog główny aplikacjom zewnętrznym używając systemowego menedżera plików (SAF)</string>
-    <string name="saf_expose_warning">Udostępniając główny katalog możesz odkryć wrażliwe informacje złośliwym aplikacjom, włączając tokeny Git, hasła, nazwy użytkownika oraz inne pliki przechowywane w twoim głównym katalogu terminalu. Czy chcesz kontynuować?</string>
+    <string name="saf_expose_warning">Udostępniając katalog główny możesz odkryć wrażliwe informacje złośliwym aplikacjom, włączając tokeny Git, hasła, nazwy użytkownika oraz inne pliki przechowywane w twoim głównym katalogu terminalu. Czy chcesz kontynuować?</string>
     <string name="capture_logcat">Przechwycenie dzienników komunikatów</string>
     <string name="capture_logcat_desc">Przechwyć dzienniki w tle do debugingu</string>
     <string name="logcat_service">Usługa dzienników komunikatów</string>
@@ -424,4 +424,5 @@
     <string name="content_update">Dokument został zmodyfikowany przez inną aplikacje. Czy napewno chcesz odświeżyć? Wszystkie niezapisane zmiany zostaną utracone.</string>
     <string name="info_lsp">Serwery językowe dodają inteligentne funkcje, takie jak wypełnianie kodu, podkreślanie błędów oraz dokumentację osadzoną w kodzie.</string>
     <string name="experimental_lsp">Serwery językowe są funkcją eksperymentalną, czasami mogą nie działać prawidłowo.</string>
+    <string name="storage">Pamięć</string>
 </resources>
