@@ -136,8 +136,6 @@ class EditorTab(
             baseLspConnector?.disconnect()
             lspConnection?.close()
         }
-        watcher?.stopWatching()
-        watcher = null
     }
 
 
