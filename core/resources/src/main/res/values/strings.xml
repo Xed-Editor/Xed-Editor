@@ -423,6 +423,7 @@
     <string name="content_update">This file was modified by another app. Do you want to refresh? Unsaved changes will be lost.</string>
     <string name="info_lsp">Language servers are separate processes that provide intelligent features, such as code completion, error highlighting and inline documentation.</string>
     <string name="experimental_lsp">Language servers are experimental and may not work properly.</string>
+    <string name="storage">Storage</string>
     <string name="folder_name">Folder name</string>
     <string name="invalid_characters">Invalid characters</string>
     <string name="script_show_input_dialog">Show an input dialog</string>
