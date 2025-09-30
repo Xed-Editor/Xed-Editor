@@ -6,6 +6,7 @@ import android.os.StrictMode
 import android.system.Os
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.extension.internal.ExtensionAPIManager
@@ -66,7 +67,6 @@ class App : Application() {
         val appLocale = LocaleListCompat.create(currentLocale)
         AppCompatDelegate.setApplicationLocales(appLocale)
 
-
         updateThemes()
 
         if (BuildConfig.DEBUG || Settings.anr_watchdog) {
@@ -87,6 +87,8 @@ class App : Application() {
                 }.build()
             )
         }
+
+        ProcessLifecycleOwner.get().lifecycle.addObserver(AppLifecycleListener())
 
         GlobalScope.launch {
             launch(Dispatchers.IO) {

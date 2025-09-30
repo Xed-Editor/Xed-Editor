@@ -130,6 +130,7 @@ dependencies {
     api(project(":core:extension"))
     api(project(":core:terminal-view"))
     api(project(":core:terminal-emulator"))
+    implementation(libs.androidx.lifecycle.process)
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

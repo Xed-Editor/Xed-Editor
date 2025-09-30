@@ -1,15 +1,9 @@
 package com.rk.file
 import android.os.Build
 import android.os.FileObserver
+import com.rk.isAppForeground
+import com.rk.libcommons.toast
 import java.io.File
-
-
-enum class FileWatcherUpdateType{
-    CREATE,
-    DELETE,
-    MODIFY,
-    RENAME
-}
 
 class FileContentWatcher(fileObject: FileObject,onUpdate:()-> Unit){
     private var watcher: FileWatcher? = null
@@ -33,13 +27,9 @@ private class FileWatcher(
 ) {
 
     private var observer: FileObserver? = null
-    private var lastContent: String? = null
 
     fun startWatching() {
         if (!file.exists() || !file.isFile) return
-
-        // Initialize last content
-        lastContent = file.readText()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             observer = object : FileObserver(file, MODIFY or CLOSE_WRITE) {

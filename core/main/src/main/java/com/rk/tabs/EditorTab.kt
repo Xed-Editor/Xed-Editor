@@ -30,6 +30,7 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.file.FileContentWatcher
 import com.rk.file.FileObject
+import com.rk.isAppForeground
 import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.editor.BaseLspConnector
@@ -124,7 +125,6 @@ class EditorTab(
 
 
     val editorState by mutableStateOf(CodeEditorState())
-    private var watcher: FileContentWatcher? = null
 
     override fun onTabRemoved() {
         scope.cancel()
@@ -155,17 +155,6 @@ class EditorTab(
                     }
                     editorState.editable = Settings.readOnlyByDefault.not() && file.canWrite()
 
-                    watcher = FileContentWatcher(file){
-                        if (editorState.isDirty && dialogShown.not()){
-                            dialog(title = strings.attention.getString(), msg = strings.content_update.getString(), okString = strings.refresh, onCancel = {}, onOk = {
-                                refresh()
-                                dialogShown = false
-                            })
-                            dialogShown = true
-                        }else if (editorState.isDirty.not()){
-                            refresh()
-                        }
-                    }
                 }.onFailure {
                     errorDialog(it)
                 }

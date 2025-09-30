@@ -28,6 +28,7 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
+import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.components.ValueSlider
@@ -128,14 +129,20 @@ fun SettingsTerminalScreen() {
 
             }
 
-            val activity = LocalActivity.current as SettingsActivity
             SettingsToggle(
                 label = stringResource(strings.backup),
                 description = "${stringResource(strings.terminal)} ${stringResource(strings.backup)}",
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    activity.fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
+                    val fileManager = if (SettingsActivity.instance != null){
+                        SettingsActivity.instance!!.fileManager
+                    }else{
+                        MainActivity.instance!!.fileManager
+                    }
+
+
+                    fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
                         if (fileObject != null){
                             val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
 
