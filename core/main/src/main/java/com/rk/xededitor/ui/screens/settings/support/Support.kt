@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Support(modifier: Modifier = Modifier) {
-    PreferenceLayout(label = "Support", backArrowVisible = true) {
+    PreferenceLayout(label = stringResource(strings.support), backArrowVisible = true) {
         val context = LocalContext.current
 
         PreferenceGroup {
@@ -184,7 +184,5 @@ fun MainActivity.handleSupport(){
                 }
             )
         }
-
     }
-
 }

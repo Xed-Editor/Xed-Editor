@@ -47,7 +47,7 @@ fun LanguageScreen(modifier: Modifier = Modifier) {
         ExtendedFloatingActionButton(onClick = {
             context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://hosted.weblate.org/engage/xed-editor/")))
         }, text = {
-            Text("Translate")
+            Text(stringResource(strings.translate))
         }, icon = {
             Icon(imageVector = Icons.Default.Add, contentDescription = null)
         })

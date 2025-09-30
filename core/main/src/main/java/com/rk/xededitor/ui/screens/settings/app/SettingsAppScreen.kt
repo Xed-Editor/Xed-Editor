@@ -1,54 +1,32 @@
 package com.rk.xededitor.ui.screens.settings.app
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.rk.App
-import com.rk.libcommons.toast
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
-import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.SettingsToggle
-import kotlinx.coroutines.launch
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.settings.Preference
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.components.NextScreenCard
 
 data class Feature(
-    val name: String,
+    val nameRes: Int,
     val key: String,
     val default: Boolean,
     val onChange: ((Boolean) -> Unit)? = null,
@@ -63,16 +41,17 @@ data class Feature(
 
 object InbuiltFeatures {
     val extensions =
-        Feature(name = strings.enable_ext.getString(), key = "enable_extension", default = false)
-    val terminal = Feature(
-        name = strings.terminal.getString() + " + " + strings.runners.getString(),
-        key = "feature_terminal",
-        default = true
-    )
+        Feature(nameRes = strings.enable_ext, key = "enable_extension", default = false)
+    val terminal =
+        Feature(
+            nameRes = strings.terminal_feature,
+            key = "feature_terminal",
+            default = true
+        )
     val mutators =
-        Feature(name = strings.mutators.getString(), key = "feature_mutators", default = true)
+        Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
     val developerOptions =
-        Feature(name = strings.debug_options.getString(), key = "developerOptions", default = false)
+        Feature(nameRes = strings.debug_options, key = "developerOptions", default = false)
 }
 
 @Composable
@@ -133,7 +112,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
         PreferenceGroup(heading = stringResource(strings.feature_toggles)) {
             SettingsToggle(
-                label = InbuiltFeatures.terminal.name,
+                label = stringResource(InbuiltFeatures.terminal.nameRes),
                 default = InbuiltFeatures.terminal.state.value,
                 sideEffect = {
                     InbuiltFeatures.terminal.setEnable(it)
@@ -141,7 +120,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             )
             if (App.isFDroid) {
                 SettingsToggle(
-                    label = InbuiltFeatures.extensions.name,
+                    label = stringResource(InbuiltFeatures.extensions.nameRes),
                     default = InbuiltFeatures.extensions.state.value,
                     sideEffect = {
                         InbuiltFeatures.extensions.setEnable(it)
@@ -150,7 +129,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
             }
 
             SettingsToggle(
-                label = InbuiltFeatures.mutators.name,
+                label = stringResource(InbuiltFeatures.mutators.nameRes),
                 default = InbuiltFeatures.mutators.state.value,
                 sideEffect = {
                     InbuiltFeatures.mutators.setEnable(it)
@@ -159,7 +138,7 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
 
             if (App.isFDroid) {
                 SettingsToggle(
-                    label = InbuiltFeatures.developerOptions.name,
+                    label = stringResource(InbuiltFeatures.developerOptions.nameRes),
                     default = InbuiltFeatures.developerOptions.state.value,
                     sideEffect = {
                         InbuiltFeatures.developerOptions.setEnable(it)
@@ -167,6 +146,5 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                 )
             }
         }
-
     }
 }

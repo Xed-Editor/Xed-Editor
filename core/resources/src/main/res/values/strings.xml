@@ -398,7 +398,7 @@
     <string name="lsp_header">Enter port and extension</string>
     <string name="port_number">Port number</string>
     <string name="file_ext_example">File extension (e.g. py)</string>
-    <string name="logcat_saved">File saved in %(terminal_home) as logcat.txt</string>
+    <string name="logcat_saved">File saved in terminal home directory as logcat.txt</string>
     <string name="stop_logcat">Stop logcat</string>
     <string name="discord">Discord community</string>
     <string name="use_tabs">Insert tab character</string>
@@ -424,4 +424,7 @@
     <string name="info_lsp">Language servers are separate processes that provide intelligent features, such as code completion, error highlighting and inline documentation.</string>
     <string name="experimental_lsp">Language servers are experimental and may not work properly.</string>
     <string name="storage">Storage</string>
+    <string name="support">Support</string>
+    <string name="translate">Translate</string>
+    <string name="terminal_feature">Terminal and runners</string>
 </resources>
