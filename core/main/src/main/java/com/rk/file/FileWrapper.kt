@@ -143,7 +143,7 @@ class FileWrapper(var file: File) : FileObject {
             }
         } else {
             File(file, name).apply {
-                mkdir()
+                mkdirs()
                 return FileWrapper(this)
             }
         }

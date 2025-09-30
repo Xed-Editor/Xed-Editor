@@ -62,7 +62,7 @@
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to permanently delete %(file_name)?</string>
+    <string name="ask_del">Are you sure you want to permanently delete \'%(file_name)\'?</string>
     <string name="reselect_dir">Please reselect the directory</string>
     <string name="cant_handle">No app found to handle the file</string>
     <string name="terminal">Terminal</string>
@@ -86,7 +86,7 @@
     <string name="open_dir_in_terminal">Open directory in Terminal</string>
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
     <string name="reload_file_tree">Reload files</string>
-    <string name="close_current_project">Close current project</string>
+    <string name="close_current_project">Are you sure you want to close the project \'%(project_name)\'?</string>
     <string name="rename_desc">Rename the document</string>
     <string name="open_with_other">Open selected file in other apps</string>
     <string name="delete_desc">Permanently delete document</string>
@@ -126,7 +126,7 @@
     <string name="installed">Installed</string>
     <string name="available">Available</string>
     <string name="already_installed">Already installed</string>
-    <string name="download_sure">Are you sure you want to download %(name)?</string>
+    <string name="download_sure">Are you sure you want to download \'%(name)\'?</string>
     <string name="yes">Yes</string>
     <string name="fetch_failed">Fetch request returned null</string>
     <string name="app">Application</string>
@@ -310,7 +310,7 @@
     <string name="saf_expose_warning">Exposing the home directory may reveal sensitive information to malicious apps, including Git tokens, passwords, usernames, and other files stored in your terminal home directory. Do you want to continue?</string>
     <string name="info">Info</string>
     <string name="file_info">File info</string>
-    <string name="file_size">File size</string>
+    <string name="size">Size</string>
     <string name="can_read">Can read</string>
     <string name="can_write">Can write</string>
     <string name="is_file">Is file</string>
@@ -362,7 +362,7 @@
     <string name="text_mate_suggestion_desc">Suggest predefined keywords</string>
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
-    <string name="ask_lsp_install">Would you like to install %(language_name) language server?</string>
+    <string name="ask_lsp_install">Would you like to install \'%(language_name)\' language server?</string>
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall terminal</string>
@@ -373,7 +373,7 @@
     <string name="sdcard_filetype">Running code is not recommended in this location. Consider moving your file to the terminal\'s home directory.</string>
     <string name="rename_file">Rename file</string>
     <string name="new_name">New name</string>
-    <string name="file_type">FileType</string>
+    <string name="wrapper_type">Wrapper type</string>
     <string name="type">Type</string>
     <string name="name">Name</string>
     <string name="view_github_profile">View GitHub profile</string>
@@ -423,4 +423,9 @@
     <string name="content_update">This file was modified by another app. Do you want to refresh? Unsaved changes will be lost.</string>
     <string name="info_lsp">Language servers are separate processes that provide intelligent features, such as code completion, error highlighting and inline documentation.</string>
     <string name="experimental_lsp">Language servers are experimental and may not work properly.</string>
+    <string name="folder_name">Folder name</string>
+    <string name="invalid_characters">Invalid characters</string>
+    <string name="script_show_input_dialog">Show an input dialog</string>
+    <string name="properties">Properties</string>
+    <string name="rename_folder">Rename folder</string>
 </resources>

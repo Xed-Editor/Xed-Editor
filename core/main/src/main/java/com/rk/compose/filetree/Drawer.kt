@@ -53,6 +53,8 @@ import com.rk.libcommons.application
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
 import com.rk.resources.drawables
+import com.rk.resources.fillPlaceholders
+import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -313,7 +315,15 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                             Text(text = strings.close.getString())
                         },
                         text = {
-                            Text(text = "${strings.close_current_project.getString()} (${closeProjectDialog?.getName()})?")
+                            Text(
+                                text = stringResource(strings.close_current_project).fillPlaceholders(
+                                    mapOf(
+                                        "project_name" to (closeProjectDialog?.getName() ?: stringResource(
+                                            strings.unknown
+                                        ))
+                                    )
+                                )
+                            )
                         },
                         confirmButton = {
                             TextButton(onClick = {
@@ -352,7 +362,6 @@ private fun AddProjectDialog(
 
     XedDialog(onDismissRequest = onDismiss) {
         DividerColumn {
-
             AddDialogItem(
                 icon = drawables.file_symlink,
                 title = stringResource(strings.open_directory),
@@ -362,8 +371,6 @@ private fun AddProjectDialog(
                     onDismiss()
                 }
             )
-
-
 
             // Open Path option
             val is11Plus = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
@@ -436,8 +443,6 @@ private fun AddProjectDialog(
             )
         }
     }
-
-
 }
 
 

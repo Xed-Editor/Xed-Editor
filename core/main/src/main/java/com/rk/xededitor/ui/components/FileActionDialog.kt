@@ -2,27 +2,22 @@ package com.rk.xededitor.ui.components
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -33,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.compose.filetree.fileTreeViewModel
-import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -48,6 +42,9 @@ import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.icons.CreateNewFile
+import com.rk.xededitor.ui.icons.CreateNewFolder
+import com.rk.xededitor.ui.icons.XedIcons
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,30 +65,23 @@ fun FileActionDialog(
 
     // State for various dialogs
     var showRenameDialog by remember { mutableStateOf(false) }
+    var renameValue by remember { mutableStateOf(file.getName()) }
+    var renameError by remember { mutableStateOf<String?>(null) }
+
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
-    var showNewDialog by remember { mutableStateOf(false) }
     var showXedDialog by remember { mutableStateOf(true) }
+
+    var isNewFile by remember { mutableStateOf(true) }
+    var newNameValue by remember { mutableStateOf("") }
+    var newNameError by remember { mutableStateOf<String?>(null) }
+    var showNewDialog by remember { mutableStateOf(false) }
 
     if (showXedDialog){
         XedDialog(onDismissRequest = onDismissRequest) {
             DividerColumn(modifier = Modifier
                 .padding(0.dp)
                 .verticalScroll(rememberScrollState())) {
-
-                if (fileTreeContext && root != null){
-                    AddDialogItem(
-                        icon = Icons.Outlined.Close,
-                        title = stringResource(strings.close),
-                        //description = stringResource(strings.close_current_project),
-                        onClick = {
-                            removeProject(root, true)
-                            showXedDialog = true
-                            onDismissRequest()
-                        }
-                    )
-                }
-
 
                 if (file.isDirectory()) {
                     AddDialogItem(
@@ -104,7 +94,6 @@ fun FileActionDialog(
                             onDismissRequest()
                         }
                     )
-                    
                 }
 
                 if (file is FileWrapper && file.isDirectory()){
@@ -121,20 +110,30 @@ fun FileActionDialog(
                             }
                         }
                     )
-                    
                 }
 
                 if (file.isDirectory()){
                     AddDialogItem(
-                        icon = Icons.Outlined.Add,
-                        title = stringResource(strings.new_document),
+                        icon = XedIcons.CreateNewFile,
+                        title = stringResource(strings.new_file),
                         //description = stringResource(strings.new_document_desc),
                         onClick = {
+                            isNewFile = true
                             showXedDialog = false
-                           showNewDialog = true
+                            showNewDialog = true
                         }
                     )
 
+                    AddDialogItem(
+                        icon = XedIcons.CreateNewFolder,
+                        title = stringResource(strings.new_folder),
+                        //description = stringResource(strings.new_document_desc),
+                        onClick = {
+                            isNewFile = false
+                            showXedDialog = false
+                            showNewDialog = true
+                        }
+                    )
                 }
 
                 AddDialogItem(
@@ -146,7 +145,6 @@ fun FileActionDialog(
                         showRenameDialog = true
                     }
                 )
-                
 
                 AddDialogItem(
                     icon = Icons.Outlined.Delete,
@@ -157,7 +155,6 @@ fun FileActionDialog(
                         showDeleteDialog = true
                     }
                 )
-                
 
                 AddDialogItem(
                     icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
@@ -172,7 +169,6 @@ fun FileActionDialog(
                         }
                     }
                 )
-                
 
                 AddDialogItem(
                     icon = drawables.round_content_cut_20,
@@ -186,7 +182,6 @@ fun FileActionDialog(
                         }
                     }
                 )
-                
 
                 if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()){
                     AddDialogItem(
@@ -207,7 +202,6 @@ fun FileActionDialog(
                     
                 }
 
-
                 AddDialogItem(
                     icon = Icons.AutoMirrored.Outlined.ExitToApp,
                     title = stringResource(strings.open_with),
@@ -218,7 +212,6 @@ fun FileActionDialog(
                         onDismissRequest()
                     }
                 )
-                
 
                 AddDialogItem(
                     icon = drawables.file_symlink,
@@ -231,7 +224,6 @@ fun FileActionDialog(
                         onDismissRequest()
                     }
                 )
-                
 
                 if (fileTreeContext && file.isDirectory()){
                     AddDialogItem(
@@ -250,7 +242,7 @@ fun FileActionDialog(
 
                 AddDialogItem(
                     icon = Icons.Outlined.Info,
-                    title = stringResource(strings.info),
+                    title = stringResource(strings.properties),
                     //description = stringResource(strings.file_info),
                     onClick = {
                         showXedDialog = false
@@ -276,15 +268,29 @@ fun FileActionDialog(
         }
     }
 
-
-    // Rename Dialog
+    // Rename dialog
     if (showRenameDialog) {
-        RenameDialog(
-            currentName = file.getName(),
-            onConfirm = { newName ->
+        SingleInputDialog(
+            title = if (file.isFile()) stringResource(strings.rename_file) else stringResource(strings.rename_folder),
+            inputLabel = stringResource(id = strings.new_name),
+            inputValue = renameValue,
+            errorMessage = renameError,
+            confirmEnabled = renameValue.isNotBlank() && renameValue != file.getName(),
+            confirmText = stringResource(strings.rename),
+            onInputValueChange = {
+                renameValue = it
+                renameError = null
+
+                if (renameValue.contains(Regex("""[\p{Cntrl}/\\<>:"|?*]"""))) {
+                    renameError = context.getString(strings.invalid_characters)
+                }
+            },
+            onConfirm = {
+                val newName = renameValue
                 scope.launch {
                     val parentFile = file.getParentFile()
                     val success = FileOperations.renameFile(file, newName)
+                    toast(success.toString())
                     if (success) {
                         if (parentFile != null){
                             fileTreeViewModel?.updateCache(file.getParentFile()!!)
@@ -298,18 +304,19 @@ fun FileActionDialog(
                         }
                     }
                 }
-                showRenameDialog = false
-                //showXedDialog = true
+
                 onDismissRequest()
             },
-            onDismiss = {
+            onFinish = {
+                renameValue = file.getName()
+                renameError = null
                 showXedDialog = true
                 showRenameDialog = false
             }
         )
     }
 
-    // Delete Confirmation Dialog
+    // Delete confirmation dialog
     if (showDeleteDialog) {
         DeleteConfirmationDialog(
             fileName = file.getName(),
@@ -332,7 +339,7 @@ fun FileActionDialog(
         )
     }
 
-    // Info Dialog
+    // Info dialog
     if (showInfoDialog) {
         FileInfoDialog(
             file = file,
@@ -344,17 +351,39 @@ fun FileActionDialog(
         )
     }
 
-    if (showNewDialog){
-        NewDocumentDialog(
-            parentFile = file, onDismiss = {
-                showXedDialog = true
-                showNewDialog = false
+    // New file/folder dialog
+    if (showNewDialog) {
+        SingleInputDialog(
+            title = if (isNewFile) stringResource(strings.new_file) else stringResource(strings.new_folder),
+            inputLabel = if (isNewFile) stringResource(id = strings.file_name) else stringResource(id = strings.folder_name),
+            inputValue = newNameValue,
+            errorMessage = newNameError,
+            confirmEnabled = newNameValue.isNotBlank(),
+            confirmText = stringResource(strings.create),
+            onInputValueChange = {
+                newNameValue = it
+                newNameError = null
+
+                if (
+                    isNewFile && newNameValue.contains(Regex("""[\p{Cntrl}/\\<>:"|?*]""")) ||
+                    !isNewFile && newNameValue.contains(Regex("""[\p{Cntrl}\\<>:"|?*]|^/"""))
+                ) {
+                    newNameError = context.getString(strings.invalid_characters)
+                }
             },
             onConfirm = {
+                if (!file.hasChild(newNameValue)){
+                    file.createChild(createFile = isNewFile, newNameValue)
+                }
+
                 fileTreeViewModel?.updateCache(file)
+                onDismissRequest()
+            },
+            onFinish = {
+                newNameValue = ""
+                newNameError = null
                 showXedDialog = true
                 showNewDialog = false
-                onDismissRequest()
             }
         )
     }
@@ -405,104 +434,6 @@ object FileOperations {
     }
 }
 
-// Rename Dialog Component
-@Composable
-fun RenameDialog(
-    currentName: String,
-    onConfirm: (String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var newName by remember { mutableStateOf(currentName) }
-
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(strings.rename_file),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            OutlinedTextField(
-                value = newName,
-                onValueChange = { newName = it },
-                label = { Text(stringResource(strings.new_name)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(strings.cancel))
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(
-                    onClick = { onConfirm(newName) },
-                    enabled = newName.isNotBlank() && newName != currentName
-                ) {
-                    Text(stringResource((strings.rename)))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun NewDocumentDialog(
-    parentFile: FileObject,
-    onConfirm: (FileObject?) -> Unit,
-    onDismiss: () -> Unit
-) {
-
-    var value by remember { mutableStateOf("") }
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(strings.new_document),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            OutlinedTextField(
-                value = value,
-                onValueChange = { value = it },
-                label = { Text(stringResource(strings.new_file_hint)) },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = {
-                    if (!parentFile.hasChild(value)){
-                        onConfirm(parentFile.createChild(createFile = false,value))
-                    }
-
-                }) {
-                    Text(stringResource(strings.folder))
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(
-                    onClick = {
-                        if (!parentFile.hasChild(value)){
-                            onConfirm(parentFile.createChild(createFile = true,value))
-                        }
-                    },
-                    enabled = value.isNotBlank()
-                ) {
-                    Text(stringResource(strings.file))
-                }
-            }
-        }
-    }
-}
-
 // Delete Confirmation Dialog
 @Composable
 fun DeleteConfirmationDialog(
@@ -510,38 +441,40 @@ fun DeleteConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(strings.delete),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Text(
-                text = stringResource(strings.ask_del).fillPlaceholders(mapOf("file_name" to fileName)),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(strings.cancel))
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(
-                    onClick = onConfirm,
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(stringResource(strings.delete))
-                }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(strings.delete))
+        },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(strings.ask_del).fillPlaceholders(mapOf("file_name" to fileName))
+                )
             }
-        }
-    }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(
+                    stringResource(strings.delete)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text(
+                    stringResource(strings.cancel)
+                )
+            }
+        },
+    )
 }
 
 // File Info Dialog
@@ -550,37 +483,45 @@ fun FileInfoDialog(
     file: FileObject,
     onDismiss: () -> Unit
 ) {
-    XedDialog(onDismissRequest = onDismiss) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(strings.file_info),
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(strings.properties))
+        },
+        text = {
+            Column {
+                InfoRow(stringResource(strings.name), file.getName())
 
-            InfoRow(stringResource(strings.name), file.getName())
-            if (file.isFile()){
-                InfoRow(stringResource(strings.file_size), formatFileSize(file.length()))
-            }
-            InfoRow(stringResource(strings.type), if (file.isDirectory()) stringResource(strings.folder) else stringResource(strings.file))
-            InfoRow(stringResource(strings.can_read), if (file.canRead()) stringResource(strings.yes) else stringResource(strings.no))
-            InfoRow(stringResource(strings.can_write), if (file.canWrite()) stringResource(strings.yes) else stringResource(strings.no))
-
-            InfoRow(stringResource(strings.file_type), file.javaClass.simpleName)
-            InfoRow(stringResource(strings.path), file.getAbsolutePath())
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(strings.close))
+                if (file.isFile()) {
+                    InfoRow(stringResource(strings.size), formatFileSize(file.length()))
                 }
+
+                InfoRow(
+                    stringResource(strings.type),
+                    if (file.isDirectory()) stringResource(strings.folder) else stringResource(
+                        strings.file
+                    )
+                )
+                InfoRow(
+                    stringResource(strings.can_read),
+                    if (file.canRead()) stringResource(strings.yes) else stringResource(strings.no)
+                )
+                InfoRow(
+                    stringResource(strings.can_write),
+                    if (file.canWrite()) stringResource(strings.yes) else stringResource(strings.no)
+                )
+
+                InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
+                InfoRow(stringResource(strings.path), file.getAbsolutePath())
             }
-        }
-    }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(strings.close))
+            }
+        },
+        confirmButton = {}
+    )
 }
 
 @Composable
@@ -615,8 +556,6 @@ private fun formatFileSize(bytes: Long): String {
     val gb = mb / 1024.0
     return String.format(Locale.getDefault(),"%.1f GB", gb)
 }
-
-
 
 /**
  * Pastes a file or folder to the destination directory

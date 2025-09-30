@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -231,7 +232,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     }
                 },
                 confirmButton = {
-                    Button(
+                    TextButton(
                         onClick = {
                             val validRegex = validateRegex()
                             val validName = validateName()
@@ -241,7 +242,7 @@ fun Runners(modifier: Modifier = Modifier) {
                                 if (editing == null) {
                                     if (ShellBasedRunners.runners.any { it.getName() == runnerName }) {
                                         nameError = context.getString(strings.runner_name_exists)
-                                        return@Button
+                                        return@TextButton
                                     }
                                 }
 
@@ -295,7 +296,7 @@ fun Runners(modifier: Modifier = Modifier) {
                     }
                 },
                 dismissButton = {
-                    OutlinedButton(
+                    TextButton(
                         onClick = {
                             showDialog = false
                             resetDialogState()

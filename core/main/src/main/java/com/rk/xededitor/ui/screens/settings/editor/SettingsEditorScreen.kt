@@ -17,7 +17,7 @@ import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
 import com.rk.xededitor.ui.components.EditorSettingsToggle
-import com.rk.xededitor.ui.components.InputDialog
+import com.rk.xededitor.ui.components.SingleInputDialog
 import com.rk.xededitor.ui.components.NextScreenCard
 import com.rk.xededitor.ui.components.SettingsToggle
 import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
@@ -245,7 +245,7 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         if (showLineSpacingDialog) {
-            InputDialog(
+            SingleInputDialog(
                 title = stringResource(id = strings.line_spacing),
                 inputLabel = stringResource(id = strings.line_spacing),
                 inputValue = lineSpacingValue,
@@ -262,7 +262,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 onConfirm = {
                     Settings.line_spacing = lineSpacingValue.toFloat()
                 },
-                onDismiss = {
+                onFinish = {
                     lineSpacingValue = Settings.line_spacing.toString()
                     lineSpacingError = null
                     showLineSpacingDialog = false
@@ -271,7 +271,7 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         if (showTextSizeDialog) {
-            InputDialog(
+            SingleInputDialog(
                 title = stringResource(id = strings.text_size),
                 inputLabel = stringResource(id = strings.text_size),
                 inputValue = textSizeValue,
@@ -299,7 +299,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     }
 
                 },
-                onDismiss = {
+                onFinish = {
                     textSizeValue = Settings.editor_text_size.toString()
                     textSizeError = null
                     showTextSizeDialog = false
@@ -308,7 +308,7 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         if (showTabSizeDialog) {
-            InputDialog(
+            SingleInputDialog(
                 title = stringResource(id = strings.tab_size),
                 inputLabel = stringResource(id = strings.tab_size),
                 inputValue = tabSizeValue,
@@ -335,7 +335,7 @@ fun SettingsEditorScreen(navController: NavController) {
                         }
                     }
                 },
-                onDismiss = {
+                onFinish = {
                     tabSizeValue = Settings.tab_size.toString()
                     tabSizeError = null
                     showTabSizeDialog = false
