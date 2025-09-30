@@ -1,3 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="open_drawer">فتح</string>
+    <string name="close_drawer">إغلاق</string>
+    <string name="not_implemented">هذه الميزة غير متاحة بعد</string>
+    <string name="unsupported_content">محتوى غير مدعوم</string>
+    <string name="null_content">خطأ: المحتوى فارغ</string>
+    <string name="restart_required">إعادة التشغيل مطلوبة</string>
+    <string name="saved">تم حفظ الملف</string>
+    <string name="saved_all">تم حفظ كل الملفات</string>
+    <string name="save">حفظ</string>
+    <string name="ww_wait">يرجى الانتظار حتى يكتمل التفاف النص</string>
+    <string name="open_file_or_folder">فتح ملف أو مجلد</string>
+    <string name="open_directory">فتح مجلد</string>
+    <string name="new_file">ملف جديد</string>
+    <string name="new_file_hint">الاسم (على سبيل المثال: Test)</string>
+    <string name="mime">نوع ‎MIME (على سبيل المثال: ‎text/plain)</string>
 </resources>
