@@ -60,7 +60,7 @@
     <string name="ask_enter_name">Proszę, wprowadź nazwę</string>
     <string name="already_exists">Nazwa dokumentu z wprowadzoną nazwą jest już używana</string>
     <string name="attention">Uwaga</string>
-    <string name="ask_del">Czy napewno chcesz trwale usunąć %(file_name)?</string>
+    <string name="ask_del">Czy napewno chcesz trwale usunąć \'%(file_name)\'?</string>
     <string name="reselect_dir">Proszę wybierz ponownie katalog</string>
     <string name="cant_handle">Nie znaleziono aplikacji do obsługi pliku</string>
     <string name="terminal">Terminal</string>
@@ -192,7 +192,7 @@
     <string name="open_dir_in_terminal">Otwórz katalog w terminalu</string>
     <string name="file_open_denied">Otwieranie wybranego pliku w innych aplikacjach jest zabronione</string>
     <string name="reload_file_tree">Przeładuj pliki</string>
-    <string name="close_current_project">Zamknij obecny projekt</string>
+    <string name="close_current_project">Czy napewno chcesz zamknąć projekt \'%(project_name)\'?</string>
     <string name="rename_desc">Zmień nazwę dokumentu</string>
     <string name="open_with_other">Otwórz wybrany plik w innych aplikacjach</string>
     <string name="delete_desc">Usuń trwale dokument</string>
@@ -307,7 +307,7 @@
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
     <string name="available">Dostępne</string>
     <string name="already_installed">Już zainstalowano</string>
-    <string name="download_sure">Czy napewno chcesz pobrać %(name)?</string>
+    <string name="download_sure">Czy napewno chcesz pobrać \'%(name)\'?</string>
     <string name="yes">Tak</string>
     <string name="error">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
@@ -325,7 +325,7 @@
     <string name="cloning">Klonuje repozytorium…</string>
     <string name="dont_ask_again">Nie pytaj ponownie</string>
     <string name="install">Zainstaluj</string>
-    <string name="ask_lsp_install">Czy chcesz zainstalować %(language_name) serwer językowy?</string>
+    <string name="ask_lsp_install">Czy chcesz zainstalować \'%(language_name)\' serwer językowy?</string>
     <string name="theme_settings">Ustawienia motywu</string>
     <string name="action_done">Akcja ukończona</string>
     <string name="clone_repo">Klonuj repozytorium</string>
@@ -357,7 +357,7 @@
     <string name="lsp_header">Wprowadź port i rozszerzenie</string>
     <string name="port_number">Numer portu</string>
     <string name="file_ext_example">Rozszerzenie pliku (np. .py)</string>
-    <string name="logcat_saved">Plik zapisany w %(terminal_home) jako logcat.txt</string>
+    <string name="logcat_saved">Plik zapisany w katalogu głównym terminalu jako logcat.txt</string>
     <string name="stop_logcat">Zatrzymaj przechwytywanie dzienników komunikatów</string>
     <string name="discord">Społeczność Discord\'a</string>
     <string name="use_tabs">Wstaw tabulator</string>
@@ -425,4 +425,14 @@
     <string name="info_lsp">Serwery językowe dodają inteligentne funkcje, takie jak wypełnianie kodu, podkreślanie błędów oraz dokumentację osadzoną w kodzie.</string>
     <string name="experimental_lsp">Serwery językowe są funkcją eksperymentalną, czasami mogą nie działać prawidłowo.</string>
     <string name="storage">Pamięć</string>
+    <string name="size">Rozmiar</string>
+    <string name="support">Wsparcie</string>
+    <string name="translate">Przetłumacz</string>
+    <string name="terminal_feature">Terminal oraz programy uruchamiające</string>
+    <string name="folder_name">Nazwa katalogu</string>
+    <string name="invalid_characters">Nieprawidłowe znaki</string>
+    <string name="script_show_input_dialog">Pokaż okno dialogowe wprowadzania</string>
+    <string name="properties">Właściwości</string>
+    <string name="rename_folder">Zmień nazwę katalogu</string>
+    <string name="wrapper_type">Typ funkcji opakowującej</string>
 </resources>
