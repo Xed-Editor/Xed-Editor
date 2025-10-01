@@ -29,7 +29,7 @@
     <string name="close">إغلاق</string>
     <string name="cancel">إلغاء</string>
     <string name="exit">خروج</string>
-    <string name="rr">إعادة التشغيل مطلوبة</string>
+    <string name="restart_required">إعادة التشغيل مطلوبة</string>
     <string name="oled">السمة السوداء</string>
     <string name="word_wrap">التفاف النص</string>
     <string name="keep_drawer_locked">بقاء الدرج مغلقا</string>

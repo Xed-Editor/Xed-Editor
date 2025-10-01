@@ -29,7 +29,7 @@
     <string name="close">Закрити</string>
     <string name="cancel">Скасувати</string>
     <string name="exit">Вийти</string>
-    <string name="rr">Потрібен перезапуск</string>
+    <string name="restart_required">Потрібен перезапуск</string>
     <string name="oled">Тема «Чорна ніч»</string>
     <string name="word_wrap">Перенесення слова</string>
     <string name="keep_drawer_locked">Тримати вкладку заблокованою</string>

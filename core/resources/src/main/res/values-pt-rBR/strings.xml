@@ -28,7 +28,7 @@
     <string name="close">Fechar</string>
     <string name="cancel">Cancelar</string>
     <string name="exit">Sair</string>
-    <string name="rr">Reinicialização necessária</string>
+    <string name="restart_required">Reinicialização necessária</string>
     <string name="oled">Tema Preto</string>
     <string name="word_wrap">Quebra de linha</string>
     <string name="keep_drawer_locked">Manter gaveta travada</string>

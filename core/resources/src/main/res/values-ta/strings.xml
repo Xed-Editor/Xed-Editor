@@ -44,7 +44,7 @@
     <string name="close">மூடு</string>
     <string name="cancel">ரத்துசெய்</string>
     <string name="exit">வெளியேறு</string>
-    <string name="rr">மறுதொடக்கம் தேவை</string>
+    <string name="restart_required">மறுதொடக்கம் தேவை</string>
     <string name="oled">கருப்பு கருப்பொருள்</string>
     <string name="word_wrap">சொல் மடக்கு</string>
     <string name="keep_drawer_locked">டிராயரை பூட்டிக் கொள்ளுங்கள்</string>

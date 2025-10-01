@@ -27,7 +27,7 @@
     <string name="close">סגור</string>
     <string name="cancel">ביטול</string>
     <string name="exit">יציאה</string>
-    <string name="rr">נדרש הפעלה מחדש</string>
+    <string name="restart_required">נדרש הפעלה מחדש</string>
     <string name="oled">עיצוב שחור</string>
     <string name="word_wrap">גלישת טקסט</string>
     <string name="close_this">סגור את זה</string>

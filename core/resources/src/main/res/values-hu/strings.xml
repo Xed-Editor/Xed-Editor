@@ -20,7 +20,7 @@
     <string name="go_prev">Előzőhöz ugrás</string>
     <string name="close_all">Mind bezárása</string>
     <string name="exit">Kilépés</string>
-    <string name="rr">Újraindítás Szükséges</string>
+    <string name="restart_required">Újraindítás Szükséges</string>
     <string name="create">Elkészítés</string>
     <string name="open_file">Fájl Megnyitása</string>
     <string name="new_folder">Új Mappa</string>

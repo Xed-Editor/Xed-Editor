@@ -30,7 +30,7 @@
     <string name="close">बंद करें</string>
     <string name="cancel">कैंसिल</string>
     <string name="exit">बाहर निकलें</string>
-    <string name="rr">रिस्टार्ट जरूरी</string>
+    <string name="restart_required">रिस्टार्ट जरूरी</string>
     <string name="oled">ब्लैक थीम</string>
     <string name="word_wrap">वर्ड रैप</string>
     <string name="keep_drawer_locked">ड्रॉअर लॉक रखें</string>

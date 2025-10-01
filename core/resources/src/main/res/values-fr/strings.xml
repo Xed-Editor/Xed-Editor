@@ -24,7 +24,7 @@
     <string name="word_wrap">Retour à la ligne automatique</string>
     <string name="keep_drawer_locked">Garder le tiroir fermé</string>
     <string name="oled">Apparence noir profond</string>
-    <string name="rr">Redémarrage requis</string>
+    <string name="restart_required">Redémarrage requis</string>
     <string name="refresh">Mettre à jour</string>
     <string name="create">Créer</string>
     <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>

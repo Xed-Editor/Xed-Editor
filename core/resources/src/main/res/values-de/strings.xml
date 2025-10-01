@@ -11,7 +11,7 @@
     <string name="save_as">Speichern als</string>
     <string name="close_all">Alle schließen</string>
     <string name="cancel">Abbrechen</string>
-    <string name="rr">Neustart erforderlich</string>
+    <string name="restart_required">Neustart erforderlich</string>
     <string name="oled">Schwarzes Thema</string>
     <string name="word_wrap">Zeilenumbruch</string>
     <string name="refresh">Neu laden</string>

@@ -13,7 +13,7 @@
     <string name="copy">Copia</string>
     <string name="private_files_desc">File privati di Xed-Editor</string>
     <string name="attention">Attenzione</string>
-    <string name="rr">Riavvio richiesto</string>
+    <string name="restart_required">Riavvio richiesto</string>
     <string name="apply">Applica</string>
     <string name="new_file">Nuovo file</string>
     <string name="report_issue">Segnala un problema</string>

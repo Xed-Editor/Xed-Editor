@@ -29,7 +29,7 @@
     <string name="close">Stäng</string>
     <string name="cancel">Avbryt</string>
     <string name="exit">Avsluta</string>
-    <string name="rr">Omstart krävs</string>
+    <string name="restart_required">Omstart krävs</string>
     <string name="oled">Mörkt tema</string>
     <string name="word_wrap">Radbryt</string>
     <string name="keep_drawer_locked">Håll sidomeny stängd</string>

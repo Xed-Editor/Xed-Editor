@@ -24,7 +24,7 @@
     <string name="close_all">全て閉じる</string>
     <string name="cancel">キャンセル</string>
     <string name="exit">終了</string>
-    <string name="rr">再起動が必要です</string>
+    <string name="restart_required">再起動が必要です</string>
     <string name="word_wrap">ワードラップ</string>
     <string name="keep_drawer_locked">引き出しをロックしたままにする</string>
     <string name="refresh">再読み込み</string>

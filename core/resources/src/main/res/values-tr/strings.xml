@@ -29,7 +29,7 @@
     <string name="close">Kapat</string>
     <string name="cancel">İptal et</string>
     <string name="exit">Çıkış</string>
-    <string name="rr">Yeniden başlatma gerekli</string>
+    <string name="restart_required">Yeniden başlatma gerekli</string>
     <string name="oled">Koyu tema</string>
     <string name="word_wrap">Satır kaydırma</string>
     <string name="keep_drawer_locked">Paneli sabitle</string>

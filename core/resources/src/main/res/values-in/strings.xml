@@ -29,7 +29,7 @@
     <string name="close">Tutup</string>
     <string name="cancel">Batal</string>
     <string name="exit">Keluar</string>
-    <string name="rr">Diperlukan mulai ulang</string>
+    <string name="restart_required">Diperlukan mulai ulang</string>
     <string name="oled">Tema hitam</string>
     <string name="word_wrap">Bungkus kata</string>
     <string name="keep_drawer_locked">Jaga Laci Tetap Terkunci</string>

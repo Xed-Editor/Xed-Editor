@@ -65,7 +65,7 @@
     <string name="close_others">Zavřít ostatní</string>
     <string name="close_all">Zavřít všechno</string>
     <string name="cancel">Zrušit</string>
-    <string name="rr">Restart aplikace je požadovaný</string>
+    <string name="restart_required">Restart aplikace je požadovaný</string>
     <string name="refresh">Načíst</string>
     <string name="create">Vytvořit</string>
     <string name="add_file">Přidat externí soubor</string>

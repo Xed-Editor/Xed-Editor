@@ -31,7 +31,7 @@
     <string name="close">Cerrar</string>
     <string name="cancel">Cancelar</string>
     <string name="exit">Salir</string>
-    <string name="rr">Se requiere un reinicio</string>
+    <string name="restart_required">Se requiere un reinicio</string>
     <string name="oled">Tema negro puro</string>
     <string name="word_wrap">Ajuste de línea</string>
     <string name="keep_drawer_locked">Mantener el cajón bloqueado</string>

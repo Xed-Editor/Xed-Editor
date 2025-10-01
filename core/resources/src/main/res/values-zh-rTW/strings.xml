@@ -29,7 +29,7 @@
     <string name="close">關閉</string>
     <string name="cancel">取消</string>
     <string name="exit">退出</string>
-    <string name="rr">需要重新啟動以生效</string>
+    <string name="restart_required">需要重新啟動以生效</string>
     <string name="oled">純黑主題</string>
     <string name="word_wrap">自動換行</string>
     <string name="keep_drawer_locked">保持側滑欄狀態</string>

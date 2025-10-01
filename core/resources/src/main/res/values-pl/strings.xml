@@ -29,7 +29,7 @@
     <string name="close">Zamknij</string>
     <string name="cancel">Anuluj</string>
     <string name="exit">Wyjdź</string>
-    <string name="rr">Wymagane ponowne uruchomienie</string>
+    <string name="restart_required">Wymagane ponowne uruchomienie</string>
     <string name="oled">Czarny motyw</string>
     <string name="word_wrap">Zawijanie tekstu</string>
     <string name="keep_drawer_locked">Utrzymuj szufladę w pozycji zablokowanej</string>

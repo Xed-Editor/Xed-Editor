@@ -15,7 +15,7 @@
     <string name="rename">重命名</string>
     <string name="delete">删除</string>
     <string name="exit">退出</string>
-    <string name="rr">需要重启以生效</string>
+    <string name="restart_required">需要重启以生效</string>
     <string name="oled">纯黑主题</string>
     <string name="word_wrap">自动换行</string>
     <string name="refresh">重载</string>

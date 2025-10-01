@@ -169,7 +169,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.textMateSuggestion,
                 sideEffect = {
                     Settings.textMateSuggestion = it
-                    toast(strings.rr)
+                    toast(strings.restart_required)
                 }
             )
 

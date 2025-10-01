@@ -24,7 +24,7 @@
     <string name="close">বন্ধ</string>
     <string name="cancel">বাতিল করুন</string>
     <string name="exit">বেরিয়ে যান</string>
-    <string name="rr">পুনরারম্ভ করা প্রয়োজনীয়</string>
+    <string name="restart_required">পুনরারম্ভ করা প্রয়োজনীয়</string>
     <string name="oled">ব্ল্যাক নাইট থিম</string>
     <string name="word_wrap">শব্দ মোড়ানো</string>
     <string name="keep_drawer_locked">ড্রয়ার লক রাখুন</string>

@@ -27,7 +27,7 @@
     <string name="close_all">Đóng tất cả</string>
     <string name="cancel">Hủy</string>
     <string name="exit">Thoát</string>
-    <string name="rr">Yêu cầu khởi động lại</string>
+    <string name="restart_required">Yêu cầu khởi động lại</string>
     <string name="oled">Chủ đề Tối</string>
     <string name="word_wrap">Word wrap</string>
     <string name="refresh">Tải lại</string>

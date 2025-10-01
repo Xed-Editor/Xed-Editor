@@ -31,7 +31,7 @@
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>
     <string name="exit">Exit</string>
-    <string name="rr">Restart required</string>
+    <string name="restart_required">Restart required</string>
     <string name="oled">Black theme</string>
     <string name="word_wrap">Word wrap</string>
     <string name="keep_drawer_locked">Keep drawer locked</string>
