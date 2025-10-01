@@ -36,7 +36,7 @@
     <string name="refresh">Yenile</string>
     <string name="create">Oluştur</string>
     <string name="attention">Dikkat</string>
-    <string name="ask_del">Şunu kalıcı olarak silmek istediğinizden emin misiniz: %(file_name)?</string>
+    <string name="ask_del">Şu dosyayı kalıcı olarak silmek istediğinizden emin misiniz: \'%(file_name)\'?</string>
     <string name="cant_handle">Dosyayı işleyecek uygulama bulunamadı</string>
     <string name="terminal">Terminal</string>
     <string name="add_file">Harici dosya ekle</string>
@@ -44,7 +44,7 @@
     <string name="apply">Uygula</string>
     <string name="open_in_terminal">Terminalde aç</string>
     <string name="file_open_denied">Bu dosyanın başka programlarla açılmasına izin verilmiyor</string>
-    <string name="close_current_project">Mevcut projeyi kapat</string>
+    <string name="close_current_project">Şu projeyi kapatmak istediğinizden emin misiniz: \'%(project_name)\'?</string>
     <string name="file_name">Dosya adı</string>
     <string name="path">Yol</string>
     <string name="invalid_path">Yol mevcut değil</string>
@@ -219,7 +219,7 @@
     <string name="text_mate_suggestion_desc">Önceden tanımlanmış anahtar kelimeler öner</string>
     <string name="dont_ask_again">Bir daha sorma</string>
     <string name="install">Yükle</string>
-    <string name="ask_lsp_install">%(language_name) dil sunucusunu yüklemek ister misiniz?</string>
+    <string name="ask_lsp_install">\'%(language_name)\' dil sunucusunu yüklemek ister misiniz?</string>
     <string name="text_mate_suggestion">TextMate otomatik tamamlama</string>
     <string name="flavor">Yazılım</string>
     <string name="indian">Hint</string>
@@ -255,7 +255,7 @@
     <string name="lsp_header">Port ve uzantıyı girin</string>
     <string name="port_number">Port numarası</string>
     <string name="file_extension_example">Dosya uzantısı (örn. py)</string>
-    <string name="logcat_saved">Dosya %(terminal_home) konumuna logcat.txt olarak kaydedildi</string>
+    <string name="logcat_saved">Dosya terminalin ana klasörüne logcat.txt adıyla kaydedildi</string>
     <string name="stop_logcat">Logcat’i durdur</string>
     <string name="discord">Discord topluluğu</string>
     <string name="use_tabs">Sekme karakteri ekle</string>
@@ -280,4 +280,14 @@
     <string name="info_lsp">Dil sunucuları, kod tamamlama, hata vurgulama ve satır içi dokümantasyon gibi akıllı özellikler sağlayan bağımsız süreçlerdir.</string>
     <string name="experimental_lsp">Dil sunucuları deneyseldir ve düzgün çalışmayabilir.</string>
     <string name="storage">Depolama</string>
+    <string name="support">Destek</string>
+    <string name="translate">Tercüme et</string>
+    <string name="terminal_feature">Terminal ve çalıştırıcılar</string>
+    <string name="folder_name">Klasör adı</string>
+    <string name="invalid_characters">Geçersiz karakterler</string>
+    <string name="script_show_input_dialog">Giriş kutusu göster</string>
+    <string name="properties">Özellikler</string>
+    <string name="rename_folder">Klasörü yeniden adlandır</string>
+    <string name="size">Boyut</string>
+    <string name="wrapper_type">Sarmalayıcı tipi</string>
 </resources>
