@@ -115,7 +115,7 @@
     <string name="clipboard_empty">Dateizwischenablage ist leer</string>
     <string name="save_desc">Die ausgewählte Datei an einem anderen Ort speichern</string>
     <string name="open">Öffnen</string>
-    <string name="path">Dateipfad</string>
+    <string name="path">Pfad</string>
     <string name="enter_path">Bitte Dateipfad eingeben</string>
     <string name="invalid_path">Pfad existiert nicht</string>
     <string name="permission_denied">Zugriff verweigert</string>

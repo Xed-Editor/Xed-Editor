@@ -20,7 +20,11 @@ import androidx.compose.ui.window.DialogProperties
 import com.rk.components.compose.preferences.base.PreferenceGroup
 
 @Composable
-fun XedDialog(onDismissRequest:()-> Unit,dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),content: @Composable () -> Unit) {
+fun XedDialog(
+    onDismissRequest: () -> Unit,
+    dialogProperties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    content: @Composable () -> Unit
+) {
     val config = LocalConfiguration.current
 
     Dialog(
@@ -28,13 +32,14 @@ fun XedDialog(onDismissRequest:()-> Unit,dialogProperties: DialogProperties = Di
         properties = dialogProperties
     ) {
         Box(
-            modifier = Modifier.padding(16.dp).clip(shape = RoundedCornerShape(16.dp))
+            modifier = Modifier
+                .padding(16.dp)
+                .clip(shape = RoundedCornerShape(16.dp))
                 .width((config.screenWidthDp / 1.25).dp)
                 .background(MaterialTheme.colorScheme.surfaceContainer),
             contentAlignment = Alignment.Center
         ) {
             content()
-
         }
     }
 }

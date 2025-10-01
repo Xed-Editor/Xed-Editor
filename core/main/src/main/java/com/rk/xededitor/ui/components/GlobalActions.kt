@@ -32,6 +32,8 @@ import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.main.MainViewModel
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
+import com.rk.xededitor.ui.icons.CreateNewFile
+import com.rk.xededitor.ui.icons.XedIcons
 import kotlinx.coroutines.launch
 
 var addDialog by mutableStateOf(false)
@@ -75,7 +77,7 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                     addDialog = false
                 }
 
-                AddDialogItem(icon = Icons.Outlined.Add, title = stringResource(strings.new_file)) {
+                AddDialogItem(icon = XedIcons.CreateNewFile, title = stringResource(strings.new_file)) {
                     addDialog = false
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
