@@ -27,7 +27,7 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.components.InfoBlock
-import com.rk.xededitor.ui.components.InputDialog
+import com.rk.xededitor.ui.components.SingleInputDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,7 +42,8 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
 
     val mutators = Mutators.mutators
     var showDialog by remember { mutableStateOf(false) }
-    var inputText by remember { mutableStateOf("") }
+    var inputValue by remember { mutableStateOf("") }
+    var inputError by remember { mutableStateOf<String?>(null) }
 
 
     PreferenceLayout(label = stringResource(id = strings.mutators), backArrowVisible = true, fab = {
@@ -96,65 +97,51 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
     }
 
     if (showDialog) {
-        InputDialog(
+        SingleInputDialog(
             title = stringResource(strings.create),
             inputLabel = stringResource(strings.mutator_name),
-            inputValue = inputText,
-            onInputValueChange = { text ->
-                inputText = text
-            },
-            onConfirm = {
-                if (onDone(inputText)) {
-                    showDialog = false
+            inputValue = inputValue,
+            errorMessage = inputError,
+            onInputValueChange = {
+                inputValue = it
+                inputError = null
+                if (inputValue.isBlank()) {
+                    inputError = strings.name_empty_err.getString()
+                } else if (Mutators.mutators.map { it.name }.contains(inputValue)) {
+                    inputError = strings.name_used.getString()
                 }
             },
-            onDismiss = {
+            onConfirm = {
+                Mutators.createMutator(
+                    name = inputValue,
+                    script = """
+                        // ${strings.script_get_text.getString()}
+                        // let text = getEditorText()
+                        
+                        // ${strings.script_show_toast.getString()}
+                        // showToast(text)
+
+
+                        // ${strings.script_network.getString()}
+                        // let response = http(url, jsonString)
+                        
+                        // ${strings.script_showing_dialog.getString()}
+                        // showDialog(title,msg)
+
+                        // ${strings.script_show_input_dialog.getString()}
+                        // showInput(title, hint, prefill)
+
+                        // ${strings.script_set_text.getString()}
+                        // setEditorText("${strings.script_text.getString()}")
+                """.trimIndent()
+                )
+            },
+            onFinish = {
+                inputValue = ""
+                inputError = null
                 showDialog = false
-                inputText = ""
             },
         )
 
     }
 }
-
-private fun onDone(name: String): Boolean {
-    if (name.isBlank()) {
-        toast(strings.name_empty_err.getString())
-        return false
-    } else {
-        if (Mutators.mutators.map { it.name }.contains(name)) {
-            toast(strings.name_used.getString())
-            return false
-        }
-        Mutators.createMutator(
-
-                name = name, script = """
-
-            //${strings.script_get_text.getString()}
-            //let text = getEditorText()
-            
-            //${strings.script_show_toast.getString()}
-            //showToast(text)
-
-
-            //${strings.script_network.getString()}
-            //let response = http(url, jsonString)
-            
-            //${strings.script_showing_dialog.getString()}
-            //showDialog(title,msg)
-
-            //show a input dialog 
-            //showInput(title, hint, prefill)
-
-            //${strings.script_set_text.getString()}
-            //setEditorText("${strings.script_text.getString()}")
-            
-        """.trimIndent()
-        )
-        return true
-    }
-
-    //return true to hide the dialog
-}
-
-

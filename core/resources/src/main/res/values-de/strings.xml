@@ -115,7 +115,7 @@
     <string name="clipboard_empty">Dateizwischenablage ist leer</string>
     <string name="save_desc">Die ausgewählte Datei an einem anderen Ort speichern</string>
     <string name="open">Öffnen</string>
-    <string name="path">Dateipfad</string>
+    <string name="path">Pfad</string>
     <string name="enter_path">Bitte Dateipfad eingeben</string>
     <string name="invalid_path">Pfad existiert nicht</string>
     <string name="permission_denied">Zugriff verweigert</string>
@@ -424,4 +424,5 @@
     <string name="content_update">Diese Datei wurde von einer anderen App modifiziert. Möchtest du aktualisieren? Nicht gespeicherte Änderungen gehen verloren.</string>
     <string name="info_lsp">Sprachserver sind separate Prozesse, die intelligente Funktionen, wie Code-Vervollständigung, Fehlerhervorhebung und Inline-Dokumentation bereitstellen.</string>
     <string name="experimental_lsp">Sprachserver sind experimentell und funktionieren möglicherweise nicht richtig.</string>
+    <string name="storage">Speicher</string>
 </resources>

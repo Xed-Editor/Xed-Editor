@@ -4,32 +4,35 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.rk.resources.drawables
 import com.rk.resources.strings
 import com.rk.xededitor.ui.icons.Error
 import com.rk.xededitor.ui.icons.XedIcons
 
 @Composable
-fun InputDialog(
+fun SingleInputDialog(
     title: String,
     inputLabel: String,
     inputValue: String,
     onInputValueChange: (String) -> Unit,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
+    onDismiss: () -> Unit = {},
+    onFinish: () -> Unit = {},
     singleLineMode: Boolean = true,
+    confirmText: String = stringResource(strings.apply),
+    confirmEnabled: Boolean = true,
     errorMessage: String? = null
 ) {
     AlertDialog(
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = {
+            onDismiss()
+            onFinish()
+        },
         title = { Text(text = title) },
         text = {
             Column {
@@ -39,7 +42,6 @@ fun InputDialog(
                     onValueChange = onInputValueChange,
                     label = { Text(inputLabel) },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
                     isError = errorMessage != null,
                     supportingText = {
                         if (errorMessage != null) {
@@ -66,18 +68,25 @@ fun InputDialog(
             }
         },
         confirmButton = {
-            Button(
-                enabled = errorMessage == null,
+            TextButton(
+                enabled = confirmEnabled && errorMessage == null,
                 onClick = {
                     onConfirm()
-                    onDismiss()
+                    onFinish()
                 }
             ) {
-                Text(stringResource(id = strings.apply))
+                Text(confirmText)
             }
         },
         dismissButton = {
-            OutlinedButton(onClick = { onDismiss() }) { Text(stringResource(id = strings.cancel)) }
+            TextButton(
+                onClick = {
+                    onDismiss()
+                    onFinish()
+                }
+            ) {
+                Text(stringResource(id = strings.cancel))
+            }
         },
     )
 }
