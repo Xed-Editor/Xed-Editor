@@ -156,7 +156,7 @@ private fun Categories(navController: NavController) {
         .background(Color.Transparent),
         verticalPadding = 14.dp,
         title = {
-            Text("Support")
+            Text(stringResource(strings.support))
         },
         description = {
             Text(stringResource(id = strings.sponsor_desc))

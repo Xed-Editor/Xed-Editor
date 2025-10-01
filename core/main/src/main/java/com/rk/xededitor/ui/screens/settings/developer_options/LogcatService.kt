@@ -70,7 +70,7 @@ class LogcatService : Service(),
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             "ACTION_DONE" -> {
-                toast(strings.logcat_saved.getFilledString(mapOf("terminal_home" to strings.terminal_home.getString())))
+                toast(strings.logcat_saved)
                 stopSelf()
             }
         }
