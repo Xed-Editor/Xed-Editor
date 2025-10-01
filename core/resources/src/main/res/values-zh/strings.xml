@@ -8,7 +8,7 @@
     <string name="keep_drawer_locked">保持侧滑栏状态</string>
     <string name="close_others">关闭其他</string>
     <string name="auto_save">自动保存</string>
-    <string name="save_as">另存为</string>
+    <string name="save_as">另存文件</string>
     <string name="not_implemented">该功能暂未实现</string>
     <string name="cs">区分大小写</string>
     <string name="copy">复制</string>
@@ -45,7 +45,7 @@
     <string name="download">下载</string>
     <string name="file_saved">文件已保存</string>
     <string name="userdata">用户数据</string>
-    <string name="open_in_terminal">在终端打开</string>
+    <string name="open_in_terminal">打开终端</string>
     <string name="open_dir_in_terminal">在终端打开目录</string>
     <string name="close_current_project">你确定要关闭 \'%(project_name)\' 项目吗？</string>
     <string name="file_name">文件名称</string>
@@ -82,7 +82,7 @@
     <string name="save_all">保存全部</string>
     <string name="undo">撤销</string>
     <string name="settings">设置</string>
-    <string name="new_folder">新建文件夹</string>
+    <string name="new_folder">新建目录</string>
     <string name="open_with">打开方式…</string>
     <string name="paste">粘贴</string>
     <string name="close_this">关闭</string>
@@ -228,8 +228,8 @@
     <string name="file_too_large">打开的文件过大</string>
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
-    <string name="txt_ww">自动换行 TXT 文件</string>
-    <string name="txt_ww_desc">对 TXT 纯文本文件自动换行</string>
+    <string name="txt_ww">换行 TXT 文件</string>
+    <string name="txt_ww_desc">自动换行 TXT 文件</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
     <string name="update_av">有新版本可用</string>
@@ -423,10 +423,10 @@
     <string name="cant_write">无法写入文件（没有写入权限）</string>
     <string name="content_update">此文件已被其他 APP 修改。你想要重新载入此文件吗？未保存的更改将会丢失。</string>
     <string name="info_lsp">语言服务器作为独立的进程，能提供例如代码补全、语法高亮和内联文档等诸多智能功能。</string>
-    <string name="experimental_lsp">语言服务器功能还在实验性阶段，可能无法正常工作。</string>
+    <string name="experimental_lsp">语言服务器还在实验性阶段，可能无法正常工作。</string>
     <string name="storage">储存空间</string>
     <string name="size">大小</string>
-    <string name="wrapper_type">包装器类型</string>
+    <string name="wrapper_type">包装</string>
     <string name="support">支持</string>
     <string name="translate">翻译</string>
     <string name="terminal_feature">终端和运行器</string>
