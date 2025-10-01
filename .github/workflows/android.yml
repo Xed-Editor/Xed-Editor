@@ -101,10 +101,10 @@ jobs:
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
         run: |
           APK_PATH="app/xed-editor-${{ env.COMMIT_HASH }}.apk"
-          
-          # Extract SHA-256 signing certificate hash
-          CERT_HASH=$($ANDROID_HOME/build-tools/34.0.0/apksigner verify --print-certs "$APK_PATH" | grep 'SHA-256 digest' | awk '{print $4}')
-          
+
+          BUILD_TOOLS=$(ls -d $ANDROID_HOME/build-tools/* | sort -V | tail -n 1)
+          CERT_HASH=$($BUILD_TOOLS/apksigner verify --print-certs "$APK_PATH" | grep 'SHA-256 digest' | awk '{print $4}')
+
           TAG_NAME="v${{ env.VERSION_NAME }}"
           RELEASE_NAME="Xed-Editor $TAG_NAME"
           BRANCH_NAME="${{ github.ref_name }}"
