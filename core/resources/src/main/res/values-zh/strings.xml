@@ -32,7 +32,7 @@
     <string name="ask_enter_name">请输入一个名称</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你确定要永久删除 %(file_name) 吗？</string>
+    <string name="ask_del">你确定要永久删除 \'%(file_name)\' 吗？</string>
     <string name="reselect_dir">请重新选择目录</string>
     <string name="cant_handle">未找到能处理此文件的应用</string>
     <string name="terminal">终端</string>
@@ -47,7 +47,7 @@
     <string name="userdata">用户数据</string>
     <string name="open_in_terminal">在终端打开</string>
     <string name="open_dir_in_terminal">在终端打开目录</string>
-    <string name="close_current_project">关闭当前项目</string>
+    <string name="close_current_project">你确定要关闭 \'%(project_name)\' 项目吗？</string>
     <string name="file_name">文件名称</string>
     <string name="open">打开</string>
     <string name="installed">已安装</string>
@@ -108,7 +108,7 @@
     <string name="enter_path">请输入一个路径</string>
     <string name="invalid_path">路径不存在</string>
     <string name="permission_denied">没有权限</string>
-    <string name="manage_storage">管理存储权限</string>
+    <string name="manage_storage">管理存储空间</string>
     <string name="ok">确定</string>
     <string name="data_clear">应用数据已清除</string>
     <string name="action_done">操作已完成</string>
@@ -122,7 +122,7 @@
     <string name="files">文件</string>
     <string name="available">可用</string>
     <string name="already_installed">已完成安装</string>
-    <string name="download_sure">你确定要下载 %(name) 吗？</string>
+    <string name="download_sure">你确定要下载 \'%(name)\' 吗？</string>
     <string name="yes">是</string>
     <string name="change_theme">更改主题</string>
     <string name="editor">编辑器</string>
@@ -135,8 +135,8 @@
     <string name="cursor_anim_desc">启用平滑光标动画</string>
     <string name="show_line_number">显示行号</string>
     <string name="pin_line_number">固定行号</string>
-    <string name="extra_keys">提取关键词</string>
-    <string name="extra_keys_desc">在编辑器中显示额外关键词</string>
+    <string name="extra_keys">额外关键字</string>
+    <string name="extra_keys_desc">在编辑器中显示额外关键字</string>
     <string name="interval_in_ms">间隔（毫秒）</string>
     <string name="invalid_v">无效值</string>
     <string name="v_small">数值太小</string>
@@ -188,7 +188,7 @@
     <string name="auto_mode">自动</string>
     <string name="cannot_be_empty">此处不能为空。</string>
     <string name="theme_mode_desc">将主题改为自动、亮色或暗色</string>
-    <string name="show_suggestions">键盘选词建议</string>
+    <string name="show_suggestions">显示键盘选词建议</string>
     <string name="about">关于</string>
     <string name="about_desc">关于 Xed-Editor</string>
     <string name="version">版本</string>
@@ -228,8 +228,8 @@
     <string name="file_too_large">打开的文件过大</string>
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
-    <string name="txt_ww">仅对 TXT 文件自动换行</string>
-    <string name="txt_ww_desc">对 TXT 文件自动换行</string>
+    <string name="txt_ww">自动换行 TXT 文件</string>
+    <string name="txt_ww_desc">对 TXT 纯文本文件自动换行</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
     <string name="update_av">有新版本可用</string>
@@ -281,7 +281,7 @@
     <string name="highlighting">语法高亮</string>
     <string name="info_ext">扩展可用来自定义 Xed-Editor 的行为和功能。要了解如何构建扩展，请单击此处。</string>
     <string name="file_not_exist">文件已不存在</string>
-    <string name="info_mutators">Mutator 是用于批量修改编辑器文本的小脚本。创建后并点击即可在编辑器中打开。</string>
+    <string name="info_mutators">Mutator 是用于批量修改编辑器文本的小型脚本。创建后并点击即可在编辑器中打开。</string>
     <string name="scroll_to_bottom_desc">打开文件时滚动到底部</string>
     <string name="ext">扩展</string>
     <string name="unrestricted_file_desc">允许打开任意大小的文件（可能导致程序崩溃）。</string>
@@ -315,14 +315,14 @@
     <string name="expose_saf_desc">通过系统文件选择器（SAF）允许外部应用访问终端主目录</string>
     <string name="flavor">版本</string>
     <string name="temp_file">临时文件</string>
-    <string name="disable_virtual_kbd">显示虚拟键盘</string>
+    <string name="disable_virtual_kbd">禁用虚拟键盘</string>
     <string name="disable_virtual_kbd_desc">如果硬件键盘可用，则禁用虚拟键盘</string>
     <string name="auto_complete">编辑器自动补全</string>
     <string name="capture_logcat">抓取 Logcat 日志</string>
     <string name="capture_logcat_desc">在后台抓取日志以进行调试</string>
     <string name="logcat_service">Logcat 日志服务</string>
     <string name="logcat_service_desc">正在后台抓取日志</string>
-    <string name="manage_storage_desc">管理存储权限</string>
+    <string name="manage_storage_desc">管理存储空间权限</string>
     <string name="lang">语言</string>
     <string name="lang_desc">语言设置</string>
     <string name="indian">印度</string>
@@ -359,10 +359,10 @@
     <string name="native_runner">此运行器仅适用于本地文件，建议将其移动到终端主目录</string>
     <string name="terminal_virus_notice">在一些设备上，特别是中国的某些型号，当终端中运行大量进程（例如执行 apt update 或 apt upgrade 时），你可能会看到系统显示安全警告。这是系统误报，并不代表真的有病毒。</string>
     <string name="text_mate_suggestion">TextMate 自动补全</string>
-    <string name="text_mate_suggestion_desc">预设提示关键词</string>
+    <string name="text_mate_suggestion_desc">提示预设的关键字</string>
     <string name="dont_ask_again">不再询问</string>
     <string name="install">安装</string>
-    <string name="ask_lsp_install">是否安装 %(language_name) 语言服务器？</string>
+    <string name="ask_lsp_install">你想要安装 \'%(language_name)\' 语言服务器吗？</string>
     <string name="uninstall_terminal_warning">确定要卸载 Ubuntu 吗？此操作不可恢复。</string>
     <string name="uninstall">卸载</string>
     <string name="uninstall_terminal">卸载终端</string>
@@ -392,7 +392,7 @@
     <string name="anr_watchdog">ANR Watchdog</string>
     <string name="debugger_not_allowed">调试器在正式发布版本不可用</string>
     <string name="capturing_logcat">抓取 Logcat 中…</string>
-    <string name="logcat_saved">logcat.txt 已保存在 %(terminal_home)</string>
+    <string name="logcat_saved">文件 logcat.txt 已保存在终端主目录</string>
     <string name="stop_logcat">终止 Logcat</string>
     <string name="discord">Discord 社区</string>
     <string name="use_tabs">插入 Tab 字符</string>
@@ -405,7 +405,7 @@
     <string name="verbose_errors_desc">在对话框中显示详细堆栈跟踪信息</string>
     <string name="debugger">调试器</string>
     <string name="render_whitespace">显示空白字符</string>
-    <string name="render_whitespace_desc">将空格、制表符和换行符渲染为可见符号</string>
+    <string name="render_whitespace_desc">使空格、制表符和换行符可见</string>
     <string name="lsp_settings">LSP 语言服务器设置</string>
     <string name="no_language_server">未安装语言服务器。</string>
     <string name="developer">开发者</string>
@@ -422,7 +422,17 @@
     <string name="unknown">未知的</string>
     <string name="cant_write">无法写入文件（没有写入权限）</string>
     <string name="content_update">此文件已被其他 APP 修改。你想要重新载入此文件吗？未保存的更改将会丢失。</string>
-    <string name="info_lsp">语言服务器是独立的进程，能提供例如代码补全、语法高亮和内联文档等诸多智能功能。</string>
+    <string name="info_lsp">语言服务器作为独立的进程，能提供例如代码补全、语法高亮和内联文档等诸多智能功能。</string>
     <string name="experimental_lsp">语言服务器功能还在实验性阶段，可能无法正常工作。</string>
     <string name="storage">储存空间</string>
+    <string name="size">大小</string>
+    <string name="wrapper_type">包装器类型</string>
+    <string name="support">支持</string>
+    <string name="translate">翻译</string>
+    <string name="terminal_feature">终端和运行器</string>
+    <string name="folder_name">文件夹名称</string>
+    <string name="invalid_characters">非法字符</string>
+    <string name="script_show_input_dialog">显示一个输入对话框</string>
+    <string name="properties">属性</string>
+    <string name="rename_folder">重命名文件夹</string>
 </resources>
