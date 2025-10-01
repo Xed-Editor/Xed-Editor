@@ -1,7 +1,6 @@
 package com.rk.xededitor.ui.screens.settings.extensions
 
 import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -10,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,15 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -41,12 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import androidx.documentfile.provider.DocumentFile
 import com.rk.DefaultScope
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceScaffold
-import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.extension.InstallResult
 import com.rk.extension.LocalExtension
 import com.rk.extension.LocalExtensionManager
@@ -54,7 +46,6 @@ import com.rk.extension.PluginRegistry
 import com.rk.extension.github.GitHubApiException
 import com.rk.extension.internal.installExtension
 import com.rk.extension.internal.load
-import com.rk.file.UriWrapper
 import com.rk.file.toFileObject
 import com.rk.libcommons.LoadingPopup
 import com.rk.libcommons.application
@@ -64,12 +55,10 @@ import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
-import com.rk.xededitor.ui.components.BottomSheetContent
 import com.rk.xededitor.ui.components.InfoBlock
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 var selectedPlugin: LocalExtension? = null
 
@@ -117,7 +106,7 @@ fun Extensions(modifier: Modifier = Modifier) {
     }
 
     PreferenceScaffold(
-        label = stringResource(strings.ext),
+        label = stringResource(strings.extensions),
         isExpandedScreen = false,
         backArrowVisible = true,
         fab = {
@@ -181,7 +170,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                         imageVector = Icons.Outlined.Info, contentDescription = null
                     )
                 },
-                text = stringResource(strings.info_ext),
+                text = stringResource(strings.info_extensions),
             )
 
             if (isIndexing) {
@@ -294,7 +283,7 @@ fun Extensions(modifier: Modifier = Modifier) {
                 } else {
                     PreferenceGroup {
                         Text(
-                            text = stringResource(strings.no_ext),
+                            text = stringResource(strings.no_extensions),
                             modifier = Modifier.padding(16.dp)
                         )
                     }

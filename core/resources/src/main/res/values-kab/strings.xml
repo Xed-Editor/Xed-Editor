@@ -1,18 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="close_drawer">mdel</string>
     <string name="error">Tuccḍa</string>
     <string name="yes">Ih</string>
-    <string name="print">Siggez</string>
     <string name="add">Rnu</string>
     <string name="saved">Yettwasekles</string>
     <string name="copy">Nɣel</string>
     <string name="close">Mdel</string>
     <string name="path">Abrid</string>
     <string name="app">Asnas</string>
-    <string name="download">Sider</string>
     <string name="cancel">Sefsex</string>
-    <string name="restart">Ales asenker</string>
     <string name="settings">Iɣewwaren</string>
     <string name="search">Nadi</string>
     <string name="share">Bḍu</string>
@@ -20,19 +16,12 @@
     <string name="paste">Senṭeḍ</string>
     <string name="delete">Kkes</string>
     <string name="exit">Ffeɣ</string>
-    <string name="title">Azwel</string>
-    <string name="open">Ldi</string>
     <string name="editor">Amaẓrag</string>
-    <string name="open_drawer">ldi</string>
     <string name="create">Snulfu-d</string>
-    <string name="description">Aglam</string>
     <string name="themes">Isental</string>
     <string name="ok">Ih</string>
-    <string name="files">Ifuyla</string>
-    <string name="available">Yella</string>
     <string name="update">Leqqem</string>
     <string name="ignore">Zgel-it</string>
-    <string name="launch">Sekker</string>
     <string name="save">Sekles</string>
     <string name="new_file">Afaylu amaynut</string>
     <string name="wait">Ttxil-k arǧu…</string>
@@ -51,7 +40,6 @@
     <string name="run">Selḥu</string>
     <string name="content">Agbur</string>
     <string name="other">Wayeḍ</string>
-    <string name="userdata">Isefka n useqdac</string>
     <string name="close_this">Model wa</string>
     <string name="new_folder">Akaram amaynut</string>
     <string name="replace">Semselsi</string>
@@ -60,10 +48,9 @@
     <string name="github">GitHub</string>
     <string name="close_all">Mdel-iten akk</string>
     <string name="sessions">Tiɣimiyin</string>
-    <string name="ext">Isiɣzaf</string>
+    <string name="extensions">Isiɣzaf</string>
     <string name="installing">Asbeddi…</string>
     <string name="loading">Aɛebbi…</string>
-    <string name="enable_ext">Isiɣzaf</string>
     <string name="downloading">Azdam…</string>
     <string name="file">Afaylu</string>
     <string name="folder">Akaram</string>

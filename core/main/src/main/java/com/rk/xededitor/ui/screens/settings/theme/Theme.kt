@@ -243,7 +243,6 @@ fun DayNightDialog(
                                 coroutineScope.launch {
                                     bottomSheetState.hide(); showBottomSheet.value = false;
                                 }
-                                //toast(strings.restart_required)
                             },
                             startWidget = {
                                 RadioButton(

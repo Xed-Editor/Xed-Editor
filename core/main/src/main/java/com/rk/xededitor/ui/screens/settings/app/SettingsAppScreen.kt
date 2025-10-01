@@ -41,7 +41,7 @@ data class Feature(
 
 object InbuiltFeatures {
     val extensions =
-        Feature(nameRes = strings.enable_ext, key = "enable_extension", default = false)
+        Feature(nameRes = strings.extensions, key = "enable_extension", default = false)
     val terminal =
         Feature(
             nameRes = strings.terminal_feature,
