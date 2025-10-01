@@ -1,23 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">খুলুন</string>
-    <string name="close_drawer">বন্ধ করুন</string>
-    <string name="not_implemented">এই সুবিধাটি এখনও বাস্তবায়িত হয়নি</string>
-    <string name="unsupported_content">অসমর্থিত বিষয়বস্তু</string>
     <string name="wait">অনুগ্রহ করে অপেক্ষা করুন…</string>
     <string name="search">খুঁজুন</string>
     <string name="go_next">পরবর্তীতে যান</string>
     <string name="go_prev">পূর্বে যান</string>
-    <string name="null_content">ত্রুটি: বিষয়বস্তু শূন্য</string>
-    <string name="restart_required">পুনরায় চালু করা প্রয়োজন</string>
-    <string name="saved_all">সব ফাইল সংরক্ষিত হয়েছে</string>
     <string name="save">সংরক্ষন করুন</string>
-    <string name="ww_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
-    <string name="open_file_or_folder">ফাইল বা ফোল্ডার খুলুন</string>
     <string name="open_directory">একটি ডিরেক্টরি খুলুন</string>
     <string name="new_file">নতুন ফাইল</string>
-    <string name="new_file_hint">নাম যেমন Test.txt</string>
-    <string name="mime">মাইম টাইপ যেমন text/plain</string>
-    <string name="rep">প্রতিস্থাপন</string>
-    <string name="force_char_desc">Forza Char in base all\'input nel terminale</string>
 </resources>

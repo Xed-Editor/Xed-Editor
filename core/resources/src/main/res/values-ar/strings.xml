@@ -1,29 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">فتح</string>
-    <string name="close_drawer">إغلاق</string>
-    <string name="not_implemented">هذه الميزة غير منجزة</string>
-    <string name="unsupported_content">محتوى غير مدعوم</string>
-    <string name="null_content">خطأ: المحتوى فارغ</string>
-    <string name="restart_required">إعادة التشغيل مطلوبة</string>
-    <string name="saved_all">تم حفظ جميع الملفات</string>
     <string name="save">حفظ</string>
-    <string name="ww_wait">يرجى الانتظار حتى يكتمل ألتفاف النص</string>
-    <string name="open_file_or_folder">فتح الملف أو المجلد</string>
     <string name="open_directory">فتح مسار</string>
     <string name="new_file">ملف جديد</string>
-    <string name="new_file_hint">الاسم (على سبيل المثال: ‎test.txt)</string>
-    <string name="mime">نوع ‎MIME (على سبيل المثال: ‎text/plain)</string>
-    <string name="rep">استبدال</string>
-    <string name="search_keyword">البحث عن كلمة</string>
-    <string name="cs">حسّاس لحالة الأحرف</string>
     <string name="wait">انتظر من فضلك…</string>
     <string name="report_issue">الإبلاغ عن مشكلة</string>
     <string name="copy">نسخ</string>
     <string name="save_all">حفظ الكل</string>
     <string name="undo">عودة</string>
     <string name="settings">الإعدادات</string>
-    <string name="print">طباعة</string>
     <string name="search">بحث</string>
     <string name="go_next">التالي</string>
     <string name="go_prev">السابق</string>
@@ -41,103 +26,49 @@
     <string name="close_this">إغلاق هذا</string>
     <string name="close_others">إغلاق الآخرين</string>
     <string name="close_all">إغلاق الكل</string>
-    <string name="insert_date">إدخال التاريخ</string>
     <string name="close">إغلاق</string>
-    <string name="unsaved">الملفات الغير محفوظة</string>
-    <string name="unsaved_files">لديك ملفات غير محفوظة!</string>
     <string name="cancel">إلغاء</string>
-    <string name="save_exit">حفظ وخروج</string>
     <string name="exit">خروج</string>
     <string name="rr">إعادة التشغيل مطلوبة</string>
-    <string name="restart_to_apply">يرجى إعادة التشغيل لتطبيق الإعدادات</string>
     <string name="oled">السمة السوداء</string>
-    <string name="ww">التفاف النص</string>
+    <string name="word_wrap">التفاف النص</string>
     <string name="keep_drawer_locked">بقاء الدرج مغلقا</string>
-    <string name="restart">إعادة تشغيل</string>
     <string name="refresh">إعادة التحميل</string>
-    <string name="dir_example">الاسم (على سبيل المثال: Test)</string>
     <string name="create">انشاء</string>
-    <string name="ask_enter_name">الرجاء إدخال اسم</string>
-    <string name="already_exists">يوجد مستند بهذا الاسم بالفعل</string>
     <string name="attention">تحذير</string>
     <string name="ask_del">هل أنت متأكد أنك تريد حذف ‎%(file_name) نهائيًا؟</string>
-    <string name="reselect_dir">الرجاء إعادة تحديد المسار</string>
     <string name="cant_handle">لم يتم العثور على تطبيق للتعامل مع الملف</string>
     <string name="terminal">موجه الأوامر</string>
     <string name="add_file">إضافة ملف خارجي</string>
-    <string name="keyword_regex">الكلمة المفتاحية (regex)</string>
     <string name="replace_all">استبدال كل شيء</string>
-    <string name="add_new_replacement_batch">إضافة دفعة بديلة جديدة</string>
-    <string name="remove_a_search_batch">إزالة دفعة بحث</string>
-    <string name="replacement">استبدال</string>
-    <string name="tab_text_1">علامة التبويب 1</string>
-    <string name="tab_text_2">علامة التبويب 2</string>
-    <string name="title">عنوان</string>
-    <string name="description">وصف</string>
-    <string name="download">تحميل</string>
-    <string name="dir_exist_not">المجلد غير موجود</string>
-    <string name="file_exist_not">الملف لم يعد موجودا</string>
-    <string name="file_saved">تم حفظ الملف</string>
     <string name="apply">تطبيق</string>
-    <string name="userdata">بيانات المستخدم</string>
-    <string name="invalid_userdata">بيانات المستخدم غير صالحة.يرجى تغييره في الإعدادات</string>
     <string name="open_in_terminal">فتح في الطرفية</string>
-    <string name="open_dir_in_terminal">فتح الدليل في الطرفية</string>
     <string name="file_open_denied">لا يجوز فتح هذا الملف مع برامج أخرى</string>
-    <string name="reload_file_tree">إعادة تحميل الملفات</string>
     <string name="close_current_project">إغلاق المشروع الحالي</string>
-    <string name="rename_desc">إعادة تسمية المستند</string>
-    <string name="open_with_other">فتح الملف المحدد في التطبيقات الأخرى</string>
-    <string name="add_file_desc">حدد ملفًا جديدًا لإضافته هنا</string>
-    <string name="create_new_file_desc">قم بإنشاء ملف جديد ضمن المسار المحدد</string>
-    <string name="paste_desc">لصق المستند</string>
-    <string name="clipboard_empty">الحافظة فارغة من الملفات</string>
-    <string name="save_desc">حفظ الملف المحدد في مكان آخر</string>
-    <string name="copy_desc">نسخ المستند</string>
-    <string name="failed_move">فشل في نقل الملف</string>
     <string name="file_name">اسم الملف</string>
-    <string name="ff_path">مسار الملف أو المسار</string>
     <string name="path">مسار</string>
-    <string name="open">فتح</string>
-    <string name="enter_path">الرجاء إدخال المسار</string>
     <string name="invalid_path">المسار غير موجود</string>
     <string name="permission_denied">تم رفض الإذن</string>
     <string name="manage_storage">إدارة التخزين</string>
     <string name="manage_storage_reason">يحتاج Xed-Editor إلى الوصول لتحرير الملفات الموجودة في مساحة التخزين الخاصة بك. يرجى السماح بالوصول في إعداد النظام القادم.</string>
     <string name="ok">حسنا</string>
-    <string name="data_clear">يتم حذف بيانات التطبيق</string>
-    <string name="action_done">تم تنفيذ الإجراء</string>
-    <string name="clone_repo">نسخ مستودع</string>
-    <string name="exists">موجود مسبقًا!</string>
     <string name="private_files">ملفات خاصة</string>
     <string name="private_files_desc">الملفات الخاصة بمحرر Xed</string>
-    <string name="cloning">يجري نسخ المستودع …</string>
     <string name="error">خطأ</string>
     <string name="open_dir_desc">فتح دليل عبر منتقي الملفات في النظام</string>
-    <string name="open_file_desc">حدد ملفًا لتحريره مباشرةً</string>
     <string name="open_path">التخزين الداخلي</string>
     <string name="open_path_desc">فتح وحدة التخزين الداخلية</string>
     <string name="add">اضافة</string>
-    <string name="already_opened">الملف مفتوح بالفعل</string>
-    <string name="open_cant">لا يمكن فتح أكثر من ذلك</string>
-    <string name="files">ملفات</string>
     <string name="installed">تم التثبيت</string>
-    <string name="available">متاح</string>
-    <string name="already_installed">مثبّت مسبقًا</string>
-    <string name="download_sure">هل أنت متأكد أنك تريد تنزيل ‎%(name)؟</string>
     <string name="yes">نعم</string>
-    <string name="fetch_failed">طلب الجلب أرجع فارغًا</string>
     <string name="app">تطبيق</string>
     <string name="oled_desc">السمة السوداء (#000)</string>
     <string name="themes">السمات</string>
-    <string name="change_theme">تغيير السمة</string>
     <string name="editor">محرر</string>
     <string name="smooth_tabs">علامات تبويب سلسة</string>
     <string name="smooth_tab_desc">التبديل بين علامات التبويب بسلاسة</string>
-    <string name="ww_desc">تفعيل التفاف النص في جميع المحررات</string>
+    <string name="word_wrap_desc">تفعيل التفاف النص في جميع المحررات</string>
     <string name="drawer_lock_desc">بقاء الدرج مغلقًا عند فتح الملف</string>
-    <string name="diagonal_scroll">التمرير القطري</string>
-    <string name="diagonal_scroll_desc">تمكين التمرير القطري في شجرة الملفات</string>
     <string name="cursor_anim">التحريك للمؤشر</string>
     <string name="cursor_anim_desc">تمكين التحريك السلس للمؤشر</string>
     <string name="show_line_number">إظهار أرقام الأسطر</string>
@@ -146,48 +77,22 @@
     <string name="extra_keys_desc">إظهار المفاتيح الإضافية في المحرر</string>
     <string name="auto_save">الحفظ التلقائي</string>
     <string name="auto_save_desc">حفظ الملف تلقائيا</string>
-    <string name="interval_in_ms">الفاصل الزمني بالمللي ثانية</string>
-    <string name="invalid_v">القيمة غير صالحة</string>
-    <string name="v_small">القيمة صغيرة جدًا</string>
-    <string name="v_large">القيمة كبيرة جدًا</string>
+    <string name="value_invalid">القيمة غير صالحة</string>
+    <string name="value_small">القيمة صغيرة جدًا</string>
+    <string name="value_large">القيمة كبيرة جدًا</string>
     <string name="text_size">حجم النص</string>
     <string name="text_size_desc">ضبط حجم النص</string>
     <string name="tab_size">حجم علامة التبويب</string>
     <string name="tab_size_desc">ضبط حجم علامة التبويب</string>
     <string name="monet">الألوان الديناميكية</string>
     <string name="monet_desc">استخدم سمة الجهاز في التطبيق</string>
-    <string name="restart_app">الرجاء إعادة تشغيل التطبيق.</string>
-    <string name="old_android">نسخة أندرويد غير مدعومة</string>
     <string name="app_desc">الإعدادات العامة للتطبيق</string>
     <string name="editor_desc">الإعدادات العامة للمحرر</string>
     <string name="terminal_desc">الإعدادات العامة للمحطة</string>
-    <string name="terminal_text_size">حجم النص لموجه الأوامر</string>
-    <string name="terminal_text_size_desc">ضبط حجم النص لموجه الأوامر</string>
-    <string name="u_err">خطأ غير معروف</string>
     <string name="saved">تم الحفظ</string>
-    <string name="is_null">InputStream هو لا شيء</string>
-    <string name="wait_pkg">الرجاء الانتظار بينما يتم تنزيل الحزم.</string>
-    <string name="unsupported_aarch">منصة غير مدعومة، استخدم Fail Safe</string>
-    <string name="pkg_download_failed">فشل تنزيل الحزمة</string>
-    <string name="copy_failed">فشل في نسخ الملف</string>
-    <string name="install_done">تم التثبيت بنجاح</string>
-    <string name="invalid_file_type">نوع الملف غير صالح، من المتوقع وجود ملف مضغوط</string>
-    <string name="install_failed">فشل التثبيت</string>
-    <string name="choose_file">حدد الملف</string>
-    <string name="force_char">اجبار char</string>
-    <string name="force_char_desc">فرض الإدخال المستند إلى Char في موجه الأوامر</string>
-    <string name="use_ctrl_workaround">استخدم الحل البديل Ctrl</string>
-    <string name="use_ctrl_workaround_desc">استخدم الحل البديل لمساحة Ctrl</string>
-    <string name="editor_font">خط المحرر</string>
-    <string name="editor_font_desc">اختيار خط المحرر</string>
-    <string name="force_desktop">فرض وضع سطح المكتب</string>
-    <string name="force_desktop_desc">فرض تخطيط سطح المكتب على الأجهزة ذات الشاشات الصغيرة</string>
-    <string name="force_normal">فرض الوضع العادي</string>
-    <string name="force_normal_desc">فرض التخطيط العادي على الأجهزة ذات الشاشات الكبيرة</string>
     <string name="light_mode">ساطع</string>
     <string name="dark_mode">مظلم</string>
     <string name="auto_mode">تلقائي</string>
-    <string name="cannot_be_empty">لا يمكن أن تكون فارغة.</string>
     <string name="theme_mode">سمة</string>
     <string name="theme_mode_desc">تغيير لون سمة التطبيق</string>
     <string name="show_suggestions">إظهار اقتراحات لوحة المفاتيح</string>
@@ -199,45 +104,34 @@
     <string name="github_desc">ضع نجمة في الجيتهب🤩</string>
     <string name="telegram">مجموعة التلجرام</string>
     <string name="telegram_desc">الإبلاغ عن المشكلات وطلب الميزات وما إلى ذلك.</string>
-    <string name="join">انضمام</string>
-    <string name="show_virtual_keyboard">إظهار لوحة المفاتيح الافتراضية</string>
-    <string name="show_virtual_keyboard_desc">إظهار لوحة المفاتيح الافتراضية عند توصيل لوحة المفاتيح الفعلية</string>
     <string name="git_commit">تجزئة الكوميت Git</string>
     <string name="check_for_updates">التحقق من وجود تحديثات</string>
     <string name="check_for_updates_desc">التحقق دوريًا من وجود تحديثات</string>
     <string name="click_open">انقر هنا لفتح الملف</string>
     <string name="no">لا</string>
-    <string name="file_too_large">الملف كبير جدًا ولا يمكن فتحه</string>
     <string name="toggle_suggestion">تغيير الاقتراح</string>
     <string name="run">تشغيل</string>
-    <string name="txt_ww">لف ملفات txt</string>
-    <string name="txt_ww_desc">التفاف الملفات النصية تلقائيا</string>
+    <string name="text_word_wrap">لف ملفات txt</string>
+    <string name="text_word_wrap_desc">التفاف الملفات النصية تلقائيا</string>
     <string name="manage_editor_font">تعديل خطوط المحرر</string>
     <string name="default_encoding">الترميز الافتراضي</string>
     <string name="default_encoding_desc">الترميز الافتراضي عند فتح وإنشاء ملفات</string>
     <string name="other">أشياء أخرى</string>
     <string name="add_font_desc">اختيار ملف ttf من وحدة التخزين</string>
-    <string name="file_not_saved">هناك ملفات لم يتم حفظها</string>
     <string name="file_unsaved">ملف غير محفوظ</string>
     <string name="ask_unsaved">هل انت متأكد من انك تريد عدم حفظ المستند؟</string>
-    <string name="keep_editing">ابقاء التعديل</string>
-    <string name="discard">الغاء التعديل</string>
     <string name="delete_font">حذف الخط</string>
     <string name="add_font">اضافة خط جديد</string>
     <string name="content">المحتوى</string>
     <string name="fonts">الخطوط</string>
     <string name="font_added">لقد تمت إضافة الخط بنجاح</string>
     <string name="line_spacing">بعد الخطوط</string>
-    <string name="line_spacing_multiplier">مضعف بعد الخطوط</string>
-    <string name="warning">تحذير</string>
     <string name="encoding_warning">لا ينصح بشدة بتغيير الترميز الافتراضي، حيث قد يؤدي ذلك إلى تلف الملف. يوصى بشدة باستخدام UTF-8 ما لم تكن تفهم تمامًا العواقب المترتبة على ذلك وقمت بإنشاء نسخ احتياطية مناسبة.</string>
     <string name="mutators">المتحولات</string>
     <string name="update_av">هناك تحديث قادم</string>
     <string name="update">تحديث</string>
     <string name="ignore">تجاهل</string>
-    <string name="update_disable">تم إغلاق تفقد التحديثات</string>
-    <string name="launch">تشغيل</string>
-    <string name="info_ext">يمكن استخدام الإضافات لتعديل سلوك وميزات محرر xed-editor. لمعرفة كيفية بناء إضافة، انقر هنا.</string>
+    <string name="info_extensions">يمكن استخدام الإضافات لتعديل سلوك وميزات محرر xed-editor. لمعرفة كيفية بناء إضافة، انقر هنا.</string>
     <string name="mutator_desc">انشاء ادوات ميكرو</string>
     <string name="restore_sessions">استعادة جلسات</string>
     <string name="restore_sessions_desc">استعادة علامات تبويب سابقة</string>
@@ -255,44 +149,22 @@
     <string name="script_showing_dialog">عرض حوار</string>
     <string name="script_set_text">ضبط نص</string>
     <string name="script_text">هذا النص سيتم كتابته في المحرر</string>
-    <string name="script_api_info">تحقق من فئة ImplApi في الكود المصدري لـ xed-editors في المسار PROJECT/core/main/ui/screens/mutators/ImplApi لمزيد من المعلومات.</string>
     <string name="installing">يتثبت…</string>
-    <string name="no_ext">لا يوجد إضافة مثبتة.</string>
+    <string name="no_extensions">لا يوجد إضافة مثبتة.</string>
     <string name="install_from_storage">التثبيت من وحدة تخزين</string>
     <string name="loading">تحميل…</string>
-    <string name="initializing">جارٍ التهيئة…</string>
     <string name="downloading">جارٍ التحميل…</string>
     <string name="network_err">خطأ في الشبكة</string>
-    <string name="file_not_loaded">الملف لم يتم تحميله بعد.</string>
-    <string name="ext_desc">إدارة الإضافات</string>
+    <string name="extensions_desc">إدارة الإضافات</string>
     <string name="info_mutators">تعد المتحولات نصوصًا صغيرة تُستخدم لتعديل نص المحرر. قم بإنشاء متحول وانقر فوقه لفتحه في المحرر.</string>
     <string name="add_session">اضف جلسة</string>
-    <string name="terminal_runtime_desc">اختيار محطة طرفية</string>
-    <string name="terminal_runtime">محطة طرفية</string>
-    <string name="enable_ext">الإضافات</string>
-    <string name="enable_ext_desc">تحميل إضافات طرف ثالث</string>
-    <string name="ext">إضافات</string>
-    <string name="not_plugin_err">الملف المحدد ليس ملفًا من نوع apk.</string>
-    <string name="scroll_to_bottom">التمرير إلى الأسفل</string>
-    <string name="scroll_to_bottom_desc">التمرير إلى الأسفل عند فتح ملف</string>
-    <string name="file_err">لا يمكن حفظ الملف، حاول إغلاقه وإعادة فتحه</string>
-    <string name="file_not_exist">الملف لم يعد موجودا</string>
-    <string name="experimental_session_restore_warning">هذه الميزة تجريبية ومن المعروف أنها قد تتسبب أحيانًا في فقدان البيانات</string>
+    <string name="extensions">إضافات</string>
     <string name="warning_private_dir">سيتم حذف محتوى هذا الدليل إذا قمت بمسح البيانات أو حذف Xed-Editor</string>
-    <string name="update_files_cleared">تم تحديث التطبيق: تم مسح البيانات</string>
-    <string name="experimental_feature">ميزة تجريبية</string>
     <string name="highlighting">تمييز الصيغة</string>
-    <string name="unrestricted_file">فتح الملفات بأي حجم</string>
-    <string name="unrestricted_file_desc">السماح بفتح الملفات بأي حجم. قد يؤدي ذلك إلى حدوث أعطال</string>
-    <string name="suggest_clear_app_data">يوصى بمسح بيانات التطبيق</string>
-    <string name="toggle_ww">تبديل التفاف الكلمات</string>
-    <string name="read_only_file">يتم قراءة الملف فقط</string>
+    <string name="toggle_word_wrap">تبديل التفاف الكلمات</string>
     <string name="temp_file">ملف مؤقت</string>
     <string name="folder">‌مجلد</string>
     <string name="file">ملف</string>
-    <string name="new_document_desc">ملف أو مجلد جديد</string>
-    <string name="new_document">مستند جديد</string>
-    <string name="feature_toggles_desc">تمكين أو تعطيل ميزات معينة</string>
     <string name="feature_toggles">تبديل الميزات</string>
     <string name="failed">فشل</string>
     <string name="success">‌بنجاح</string>
@@ -301,22 +173,13 @@
     <string name="sponsor_desc">أدعم المطور</string>
     <string name="expose_saf">عرض دليل الرئيسي</string>
     <string name="saf_expose_warning">قد يؤدي كشف الدليل الرئيسي إلى كشف معلومات حساسة للتطبيقات الضارة، بما في ذلك رموز Git وكلمات المرور وأسماء المستخدمين والملفات الأخرى المخزنة في الدليل الرئيسي لجهازك. هل تريد المتابعة؟</string>
-    <string name="info">معلومات</string>
     <string name="copied">منسوخ</string>
     <string name="can_read">يمكن القراءة</string>
-    <string name="file_size">حجم الملف</string>
-    <string name="file_info">معلومات الملف</string>
-    <string name="is_file">هو ملف</string>
     <string name="flavor">نكهة</string>
-    <string name="sponsor">الراعي</string>
     <string name="unknown_err">حدث خطأ ما</string>
     <string name="can_write">يمكن الكتابة</string>
     <string name="expose_saf_desc">جعل الدليل الرئيسي متاحًا للتطبيقات الخارجية عبر أداة اختيار ملفات النظام (SAF)</string>
-    <string name="cant_undo">لا يمكن التراجع عن هذا الإجراء</string>
-    <string name="misc_desc">إعدادات متنوعة</string>
-    <string name="misc">متنوع</string>
     <string name="disable_virtual_kbd">تعطيل لوحة المفاتيح الافتراضية</string>
-    <string name="auto_complete">محرر الإكمال التلقائي</string>
     <string name="disable_virtual_kbd_desc">تعطيل لوحة المفاتيح الافتراضية إذا كانت لوحة المفاتيح المادية متاحة</string>
     <string name="logcat_service_desc">التقاط السجلات في الخلفية</string>
     <string name="logcat_service">خدمة Logcat</string>
@@ -330,6 +193,4 @@
     <string name="native_runner">يعمل هذا المشغل فقط على الملفات الأصلية، فكر في نقله إلى دليل الجهاز الرئيسي</string>
     <string name="acquire_wakelock">الحصول على قفل الاستيقاظ</string>
     <string name="release_wakelock">إصدار قفل الإيقاظ</string>
-    <string name="getting_ready">تجهيز كل شيء…</string>
-    <string name="delete_desc">حذف المستند نهائيًا</string>
 </resources>

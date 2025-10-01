@@ -1,20 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="null_content">Xəta: Məznun etibarsızdır</string>
-    <string name="open_file_or_folder">Fayl və ya Qovluğu aç</string>
-    <string name="restart_required">Yenidən başlatmaq lazımdır</string>
-    <string name="not_implemented">Bu xüsusiyyət tətbiq edilmir</string>
-    <string name="unsupported_content">Dəstəklənməyən məznun</string>
-    <string name="saved_all">bütün fayllar yadda saxlanıldı</string>
     <string name="save">Yadda saxla</string>
-    <string name="open_drawer">aç</string>
-    <string name="close_drawer">bağla</string>
     <string name="share">Paylaş</string>
     <string name="open_file">Faylı aç</string>
     <string name="open_with">Bununla aç:</string>
     <string name="undo">Geri qaytar</string>
     <string name="settings">Parametrlər</string>
-    <string name="print">Çap et</string>
     <string name="search">Axtar</string>
     <string name="go_next">Sonrakı get</string>
     <string name="go_prev">Əvvəlkinə qayıt.</string>
@@ -28,32 +19,17 @@
     <string name="close_this">Bunu bağla</string>
     <string name="close_others">Digərlərini bağla</string>
     <string name="close_all">Hamısını bağla</string>
-    <string name="insert_date">Tarixi daxil et</string>
     <string name="close">Bağla</string>
-    <string name="unsaved">Yadda Saxlanılmamış Fayllar</string>
-    <string name="unsaved_files">Sizin yadda saxlanılmamış fayllarınız var!</string>
     <string name="cancel">Ləğv et</string>
-    <string name="title">Başlıq</string>
-    <string name="file_exist_not">Fayl artıq mövcud deyil</string>
-    <string name="file_saved">Fayl yadda saxlanıldı</string>
     <string name="apply">Tətbiq et</string>
-    <string name="userdata">İstifadəçi məlumatları</string>
     <string name="open_in_terminal">Terminalda aç</string>
-    <string name="description">Açıqlama</string>
-    <string name="download">Yüklə</string>
-    <string name="dir_exist_not">Qovluq mövcud deyil</string>
-    <string name="invalid_userdata">İstifadəçi məlumatları doğru deyil. Onları parametrlərdən dəyişdirin</string>
     <string name="ok">OLDU</string>
-    <string name="data_clear">Tətbiq məlumatları silindi</string>
     <string name="error">Xəta</string>
     <string name="permission_denied">Icazə rədd edildi</string>
     <string name="manage_storage">Yaddaşı İdarə Et</string>
     <string name="manage_storage_reason">Karbon-un yaddaşdakı fayllara düzəliş etməsi üçün icazə lazımdır. Zəhmət olmasa, bir sonrakı sistem parametrində girişə icazə verin.</string>
-    <string name="action_done">Proses Tamamlandı</string>
-    <string name="exists">artıq mövcuddur!</string>
     <string name="private_files">Şəxsi Fayllar</string>
     <string name="private_files_desc">Karbon-un Şəxsi Faylları</string>
     <string name="open_path">Daxili Yaddaş</string>
     <string name="open_path_desc">Daxili yaddaşı aç</string>
-    <string name="open_file_desc">Birbaşa düzəliş etmək üçün faylı seçin</string>
 </resources>
