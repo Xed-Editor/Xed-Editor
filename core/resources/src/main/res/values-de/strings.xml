@@ -93,8 +93,8 @@
     <string name="file_exist_not">Datei existiert nicht mehr</string>
     <string name="file_open_denied">Das Öffnen dieser Datei mit anderen Apps ist nicht zulässig</string>
     <string name="reload_file_tree">Dateien neu laden</string>
-    <string name="close_current_project">Aktuelles Projekt schließen</string>
-    <string name="rename_desc">Benenne das Dokument um</string>
+    <string name="close_current_project">Möchtest du das Projekt \'%(project_name)\' wirklich schließen?</string>
+    <string name="rename_desc">Das Dokument umbenennen</string>
     <string name="open_with_other">Ausgewählte Datei in anderen Apps öffnen</string>
     <string name="data_clear">App-Daten wurden gelöscht</string>
     <string name="ok">OK</string>
@@ -107,7 +107,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in deinem Speicher zu bearbeiten. Erlaube bitte den Zugriff in der nächsten Systemeinstellung.</string>
     <string name="close_this">Schließen</string>
     <string name="cant_handle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Bist du sicher, dass du %(file_name) endgültig löschen möchtest?</string>
+    <string name="ask_del">Bist du sicher, dass du \'%(file_name)\' endgültig löschen möchtest?</string>
     <string name="reselect_dir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
@@ -136,7 +136,7 @@
     <string name="editor">Editor</string>
     <string name="fetch_failed">Fetch-Request hat null zurückgegeben</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
-    <string name="download_sure">Möchtest du wirklich %(name) herunterladen?</string>
+    <string name="download_sure">Möchtest du wirklich \'%(name)\' herunterladen?</string>
     <string name="oled_desc">Schwarzes Thema (#000)</string>
     <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
@@ -361,7 +361,7 @@
     <string name="text_mate_suggestion_desc">Vordefinierte Schlüsselwörter vorschlagen</string>
     <string name="dont_ask_again">Nicht noch mal fragen</string>
     <string name="install">Installieren</string>
-    <string name="ask_lsp_install">Möchtest du den %(language_name)-Sprachserver installieren?</string>
+    <string name="ask_lsp_install">Möchtest du den \'%(language_name)\' Sprachserver installieren?</string>
     <string name="uninstall_terminal_warning">Ubuntu endgültig deinstallieren? Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="uninstall">Deinstallieren</string>
     <string name="uninstall_terminal">Terminal deinstallieren</string>
@@ -397,7 +397,7 @@
     <string name="lsp_header">Port und Dateierweiterung eingeben</string>
     <string name="port_number">Port-Nummer</string>
     <string name="file_ext_example">Dateierweiterung (z. B. py)</string>
-    <string name="logcat_saved">Datei in %(terminal_home) als logcat.txt gespeichert</string>
+    <string name="logcat_saved">Datei im Terminal-Home-Verzeichnis als logcat.txt gespeichert</string>
     <string name="stop_logcat">Logcat beenden</string>
     <string name="discord">Discord Community</string>
     <string name="use_tabs">Tab-Zeichen einfügen</string>
@@ -425,4 +425,14 @@
     <string name="info_lsp">Sprachserver sind separate Prozesse, die intelligente Funktionen, wie Code-Vervollständigung, Fehlerhervorhebung und Inline-Dokumentation bereitstellen.</string>
     <string name="experimental_lsp">Sprachserver sind experimentell und funktionieren möglicherweise nicht richtig.</string>
     <string name="storage">Speicher</string>
+    <string name="size">Größe</string>
+    <string name="wrapper_type">Wrapper-Typ</string>
+    <string name="support">Unterstützung</string>
+    <string name="translate">Übersetzen</string>
+    <string name="terminal_feature">Terminal und Runner</string>
+    <string name="folder_name">Ordnername</string>
+    <string name="invalid_characters">Ungültige Zeichen</string>
+    <string name="script_show_input_dialog">Zeige einen Eingabedialog an</string>
+    <string name="properties">Eigenschaften</string>
+    <string name="rename_folder">Ordner umbenennen</string>
 </resources>
