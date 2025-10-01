@@ -162,7 +162,7 @@
     <string name="ok">OK</string>
     <string name="invalid_path">Umístění neexistuje</string>
     <string name="action_done">Akce dokončena</string>
-    <string name="download_sure">Opravdu chcete stáhnout</string>
+    <string name="download_sure">Opravdu chcete stáhnout \'%(name)\'?</string>
     <string name="cursor_anim">Animace kurzoru</string>
     <string name="file_name">Jméno souboru</string>
     <string name="save_desc">Uložte vybraný soubor někde jinde</string>
@@ -371,4 +371,5 @@
     <string name="use_tabs_desc">Používat znak tabulátora (\\t) namísto mezer pro odsazení</string>
     <string name="terminal_virus_notice">Na některých zařízení, zejména zařízení z Číny, můžete vidět systémové upozornění bezpečnosti když jsou spuštěny několik procesů ve Terminálu (např. během \'apt update\' nebo \'apt upgrade\'). Je to omyl a to neznamená, že to je realný vir.</string>
     <string name="anr_watchdog_desc">Ukončí Xed-Editor jestli neodpovídá více než 5 sekund</string>
+    <string name="lsp_settings_desc">Nastavení jazykového servera</string>
 </resources>
