@@ -432,4 +432,7 @@
     <string name="script_show_input_dialog">Show an input dialog</string>
     <string name="properties">Properties</string>
     <string name="rename_folder">Rename folder</string>
+    <string name="ignore_case">Ignore case</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Whole word</string>
 </resources>

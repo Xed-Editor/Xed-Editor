@@ -40,11 +40,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.tabs.CodeEditorState
+import io.github.rosemoe.sora.event.EventReceiver
+import io.github.rosemoe.sora.event.PublishSearchResultEvent
+import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.widget.EditorSearcher
+import io.github.rosemoe.sora.widget.subscribeAlways
 import java.util.regex.PatternSyntaxException
-
 
 @Composable
 fun SearchPanel(
@@ -52,12 +56,13 @@ fun SearchPanel(
     modifier: Modifier = Modifier,
 ) {
     val editor = editorState.editor
-
     val focusRequester = remember { FocusRequester() }
 
     // Search error state
     var hasSearchError by remember { mutableStateOf(false) }
     var isSearchingInternal by remember { mutableStateOf(false) }
+    var searchMatchesCount by remember { mutableIntStateOf(0) }
+    var searchCurrentIndex by remember { mutableIntStateOf(0) }
 
     // Search execution logic
     fun tryCommitSearch() {
@@ -76,6 +81,16 @@ fun SearchPanel(
             editor?.searcher?.stopSearch()
             hasSearchError = false
             isSearchingInternal = false
+        }
+    }
+
+    LaunchedEffect(editor) {
+        editor?.subscribeAlways(PublishSearchResultEvent::class.java) {
+            searchMatchesCount = runCatching { editor.searcher?.matchedPositionCount ?: 0 }.getOrDefault(0)
+        }
+
+        editor?.subscribeAlways(SelectionChangeEvent::class.java) {
+            searchCurrentIndex = runCatching { editor.searcher?.currentMatchedPositionIndex?.plus(1) ?: 0 }.getOrDefault(0)
         }
     }
 
@@ -160,8 +175,8 @@ fun SearchPanel(
                                                         checked = editorState.ignoreCase,
                                                         onCheckedChange = { editorState.ignoreCase = it }
                                                     )
+                                                    Text(stringResource(strings.ignore_case))
                                                     Spacer(Modifier.width(8.dp))
-                                                    Text("Ignore Case")
                                                 }
                                             },
                                             onClick = {
@@ -175,15 +190,24 @@ fun SearchPanel(
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                                     Checkbox(
                                                         checked = editorState.searchRegex,
-                                                        onCheckedChange = { editorState.searchRegex = it }
+                                                        onCheckedChange = {
+                                                            editorState.searchRegex = it
+                                                            if (it) {
+                                                                editorState.searchWholeWord = false
+                                                            }
+                                                        }
                                                     )
+                                                    Text(stringResource(strings.regex))
                                                     Spacer(Modifier.width(8.dp))
-                                                    Text("Regex")
                                                 }
                                             },
                                             onClick = {
-                                                editorState.searchRegex = !editorState.searchRegex
+                                                val newValue = !editorState.searchRegex
+                                                editorState.searchRegex = newValue
                                                 editorState.showOptionsMenu = false
+                                                if (newValue) {
+                                                    editorState.searchWholeWord = false
+                                                }
                                             }
                                         )
 
@@ -192,15 +216,24 @@ fun SearchPanel(
                                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                                     Checkbox(
                                                         checked = editorState.searchWholeWord,
-                                                        onCheckedChange = { editorState.searchWholeWord = it }
+                                                        onCheckedChange = {
+                                                            editorState.searchWholeWord = it
+                                                            if (it) {
+                                                                editorState.searchRegex = false
+                                                            }
+                                                        }
                                                     )
+                                                    Text(stringResource(strings.whole_word))
                                                     Spacer(Modifier.width(8.dp))
-                                                    Text("Whole Word")
                                                 }
                                             },
                                             onClick = {
-                                                editorState.searchWholeWord = !editorState.searchWholeWord
+                                                val newValue = !editorState.searchWholeWord;
+                                                editorState.searchWholeWord = newValue
                                                 editorState.showOptionsMenu = false
+                                                if (newValue) {
+                                                    editorState.searchRegex = false
+                                                }
                                             }
                                         )
                                     }
@@ -244,16 +277,13 @@ fun SearchPanel(
                                     .weight(1f)
                                     .padding(horizontal = 8.dp)
                                     .height(42.dp),
-                                maxLines = 1,
                                 value = editorState.replaceKeyword,
                                 onValueChange = { editorState.replaceKeyword = it },
                                 shape = RoundedCornerShape(8.dp),
-                                placeholder = {
-                                    Text(
-                                        stringResource(strings.replace),
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                    )
-                                }
+                                placeholder = { Text(stringResource(strings.replace)) },
+                                keyboardOptions = KeyboardOptions(
+                                    imeAction = ImeAction.Default
+                                ),
                             )
 
                             Spacer(Modifier.width(48.dp))
@@ -265,40 +295,53 @@ fun SearchPanel(
             Spacer(Modifier.height(2.dp))
 
             Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 8.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                TextButton(enabled = isSearchingInternal, onClick = {
-                    editor?.searcher?.gotoPrevious()
-                }) {
-                    Text(stringResource(strings.go_prev).uppercase())
-                }
-
-                TextButton(enabled = isSearchingInternal,onClick = {
-                    editor?.searcher?.gotoNext()
-                }) {
-                    Text(stringResource(strings.go_next).uppercase())
-                }
-
-                if (editorState.isReplaceShown){
-                    TextButton(enabled = isSearchingInternal,
-                        onClick = {
-                            editor?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
-                        }) {
-                        Text(stringResource(strings.replace).uppercase())
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .weight(1f)
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 8.dp)
+                ) {
+                    TextButton(enabled = isSearchingInternal, onClick = {
+                        editor?.searcher?.gotoPrevious()
+                    }) {
+                        Text(stringResource(strings.go_prev).uppercase())
                     }
 
-                    TextButton(enabled = isSearchingInternal,
-                        onClick = {
-                            editor?.searcher?.replaceAll(editorState.replaceKeyword)
-                        }) {
-                        Text(stringResource(strings.replace_all).uppercase())
+                    Spacer(Modifier.height(10.dp))
+
+                    TextButton(enabled = isSearchingInternal, onClick = {
+                        editor?.searcher?.gotoNext()
+                    }) {
+                        Text(stringResource(strings.go_next).uppercase())
+                    }
+
+                    if (editorState.isReplaceShown) {
+                        TextButton(
+                            enabled = isSearchingInternal,
+                            onClick = {
+                                editor?.searcher?.replaceCurrentMatch(editorState.replaceKeyword)
+                            }) {
+                            Text(stringResource(strings.replace).uppercase())
+                        }
+
+                        TextButton(
+                            enabled = isSearchingInternal,
+                            onClick = {
+                                editor?.searcher?.replaceAll(editorState.replaceKeyword)
+                            }) {
+                            Text(stringResource(strings.replace_all).uppercase())
+                        }
                     }
                 }
 
+                Text(
+                    text = "$searchCurrentIndex/$searchMatchesCount",
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                )
             }
         }
 
@@ -321,6 +364,7 @@ private fun getSearchOptions(
     if (searchRegex) {
         type = EditorSearcher.SearchOptions.TYPE_REGULAR_EXPRESSION
     }
+
     if (searchWholeWord) {
         type = EditorSearcher.SearchOptions.TYPE_WHOLE_WORD
     }

@@ -122,8 +122,6 @@ class EditorTab(
         }
     }
 
-
-
     val editorState by mutableStateOf(CodeEditorState())
 
     override fun onTabRemoved() {
@@ -137,8 +135,6 @@ class EditorTab(
             lspConnection?.close()
         }
     }
-
-
 
     private var dialogShown = false
     init {
@@ -159,7 +155,6 @@ class EditorTab(
 
             }
         }
-
     }
 
     private val saveMutex = Mutex()
@@ -180,7 +175,6 @@ class EditorTab(
                 errorDialog(it)
             }
         }
-
     }
 
     @Composable
@@ -223,12 +217,7 @@ class EditorTab(
                     }
                 }
             )
-
-
         }
-
-
-
     }
 
     @Composable
@@ -254,9 +243,7 @@ class EditorTab(
             }
         }
     }
-
 }
-
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
@@ -264,10 +251,9 @@ private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
     textmateScope: String? = null,
-    onKeyEvent:(EditorKeyEvent)-> Unit,
-    onTextChange:()-> Unit
+    onKeyEvent: (EditorKeyEvent) -> Unit,
+    onTextChange: () -> Unit
 ) {
-
     val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
     val selectionColors = LocalTextSelectionColors.current

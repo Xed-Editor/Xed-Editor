@@ -65,45 +65,40 @@ fun StyledTextField(
 ) {
     val finalInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-
-
-        BasicTextField(
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+    BasicTextField(
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier,
+        enabled = enabled,
+        readOnly = readOnly,
+        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        visualTransformation = visualTransformation,
+        interactionSource = finalInteractionSource,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        minLines = minLines
+    ) { innerTextField ->
+        TextFieldDefaults.DecorationBox(
             value = value,
-            onValueChange = onValueChange,
-            modifier = modifier,
-            enabled = enabled,
-            readOnly = readOnly,
-            textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
             visualTransformation = visualTransformation,
-            interactionSource = finalInteractionSource,
+            innerTextField = innerTextField,
             singleLine = singleLine,
-            maxLines = maxLines,
-            minLines = minLines
-        ) { innerTextField ->
-            TextFieldDefaults.DecorationBox(
-                value = value,
-                visualTransformation = visualTransformation,
-                innerTextField = innerTextField,
-                singleLine = singleLine,
-                enabled = enabled,
-                isError = isError,
-                interactionSource = finalInteractionSource,
-                contentPadding = PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
-                placeholder = placeholder,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                prefix = prefix,
-                suffix = suffix,
-                supportingText = supportingText,
-                label = label,
-                shape = shape,
-                colors = colors
-            )
-        }
-
-
-
+            enabled = enabled,
+            isError = isError,
+            interactionSource = finalInteractionSource,
+            contentPadding = PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
+            placeholder = placeholder,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            prefix = prefix,
+            suffix = suffix,
+            supportingText = supportingText,
+            label = label,
+            shape = shape,
+            colors = colors
+        )
+    }
 }
