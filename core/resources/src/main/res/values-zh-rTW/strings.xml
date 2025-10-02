@@ -60,7 +60,7 @@
     <string name="ask_enter_name">請輸入名稱</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你確定要永久刪除 %(file_name) 嗎？</string>
+    <string name="ask_del">你確定要永久刪除 \' %(file_name)\' 嗎？</string>
     <string name="reselect_dir">請重新選取資料夾</string>
     <string name="cant_handle">找不到可處理此檔案的應用程式</string>
     <string name="terminal">終端機</string>
@@ -85,7 +85,7 @@
     <string name="open_dir_in_terminal">在終端機開啟資料夾</string>
     <string name="file_open_denied">無法使用其他應用程式開啟此檔案</string>
     <string name="reload_file_tree">重新載入檔案</string>
-    <string name="close_current_project">關閉目前的專案</string>
+    <string name="close_current_project">你確定要關閉專案 \'%(project_name)\'嗎？</string>
     <string name="rename_desc">重新命名文件</string>
     <string name="open_with_other">在其他應用程式中開啟所選檔案</string>
     <string name="add_file_desc">選取要在此新增的新檔案</string>
@@ -124,7 +124,7 @@
     <string name="installed">已安裝</string>
     <string name="available">可用</string>
     <string name="already_installed">已完成安裝</string>
-    <string name="download_sure">你確定要下載 %(name)嗎？</string>
+    <string name="download_sure">你確定要下載 \'%(name)\'嗎？</string>
     <string name="yes">是</string>
     <string name="fetch_failed">請求獲取的資料回傳空值</string>
     <string name="app">應用程式</string>
@@ -361,7 +361,7 @@
     <string name="text_mate_suggestion_desc">建議預先定義的關鍵字</string>
     <string name="dont_ask_again">不再詢問</string>
     <string name="install">安裝</string>
-    <string name="ask_lsp_install">是否要安裝 %(language_name) 語言伺服器？</string>
+    <string name="ask_lsp_install">是否要安裝 \'%(language_name)\' 語言伺服器？</string>
     <string name="uninstall_terminal_warning">要永久解除安裝 Ubuntu 嗎？此操作將無法復原。</string>
     <string name="uninstall">解除安裝</string>
     <string name="uninstall_terminal">解除安裝終端機</string>
@@ -399,7 +399,7 @@
     <string name="lsp_header">輸入通讯埠與副檔名</string>
     <string name="port_number">通讯埠</string>
     <string name="file_ext_example">檔案類型（例如 .py）</string>
-    <string name="logcat_saved">logcat.txt 已儲存在 %(terminal_home)</string>
+    <string name="logcat_saved">檔案已儲存 logcat.txt 在終端主目錄下</string>
     <string name="stop_logcat">終止 Logcat</string>
     <string name="discord">Discord 社群</string>
     <string name="use_tabs">插入 Tab 字元</string>
@@ -425,4 +425,14 @@
     <string name="info_lsp">語言伺服器是獨立的程序，提供智慧型功能，例如程式碼自動完成、錯誤高亮顯示以及行內文件說明。</string>
     <string name="experimental_lsp">語言伺服器屬於實驗性功能，可能無法正常運作。</string>
     <string name="storage">儲存空間</string>
+    <string name="size">大小</string>
+    <string name="wrapper_type">封裝類型</string>
+    <string name="support">支援</string>
+    <string name="translate">翻譯</string>
+    <string name="terminal_feature">終端與執行器</string>
+    <string name="folder_name">資料夾名稱</string>
+    <string name="invalid_characters">無效字元</string>
+    <string name="properties">屬性</string>
+    <string name="script_show_input_dialog">顯示輸入對話框</string>
+    <string name="rename_folder">重新命名資料夾</string>
 </resources>
