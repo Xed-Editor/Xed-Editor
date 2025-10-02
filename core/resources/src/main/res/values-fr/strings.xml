@@ -425,4 +425,14 @@
     <string name="info_lsp">Les serveurs de langue sont des processus séparés qui fournissent des fonctionnalités intelligentes, comme la complétion du code, le surlignement des erreurs et la documentation intégrée.</string>
     <string name="experimental_lsp">Les serveurs de langue sont expérimentaux et pourraient ne pas fonctionner correctement.</string>
     <string name="storage">Stockage</string>
+    <string name="size">Taille</string>
+    <string name="wrapper_type">Type de wrapper</string>
+    <string name="support">Assistance</string>
+    <string name="translate">Traduire</string>
+    <string name="terminal_feature">Terminal et lanceurs</string>
+    <string name="folder_name">Nom de répertoire</string>
+    <string name="invalid_characters">Caractères invalides</string>
+    <string name="script_show_input_dialog">Afficher une fenêtre de saisie</string>
+    <string name="properties">Propriétés</string>
+    <string name="rename_folder">Renommer un répertoire</string>
 </resources>
