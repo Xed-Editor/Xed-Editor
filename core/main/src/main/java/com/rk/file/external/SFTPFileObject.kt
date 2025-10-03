@@ -13,6 +13,8 @@ import com.jcraft.jsch.SftpATTRS
 import com.jcraft.jsch.SftpException
 import com.rk.file.FileObject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -28,6 +30,11 @@ class SFTPFileObject(
     private val absolutePath: String,
     private val isRoot: Boolean = false,
 ) : FileObject {
+//    variables, I love them, being at the top 🙃
+    private var attrs: SftpATTRS? = null
+    private var attrsFetched: Boolean = false
+    private val childrenCache = mutableListOf<FileObject>()
+    private var childrenFetched = false
 
     private val remotePath: String
 
@@ -48,15 +55,24 @@ class SFTPFileObject(
             }
         } catch (e: Exception) {
             Log.e("SFTPFileObject", "Error parsing absolutePath: '$absolutePath'", e)
-            // Fallback for safety, though this might still be problematic
             pathForSftp = absolutePath.substringAfterLast("/", "")
+            if (pathForSftp.isEmpty() && absolutePath.endsWith("/")) { // A guess for root in fallback
+                pathForSftp = "/"
+            }
         }
-        this.remotePath = pathForSftp
+//        Ik, the whole remotePath is a mess, currently. But it will be better later.
+//        OR, It's keep it as is. If it works fine without huge errors/issues.
 
-//        wild this code is wrong
+        this.remotePath = pathForSftp.ifEmpty {
+            // If after all logic pathForSftp is still empty, and this object isRoot,
+            // it's problematic. What should root be? Usually "/", or "."
+            // This is a safety net.
+            if (isRoot) "/" else ""
+        }
+
         Log.d(
             "SFTPFileObject",
-            "CONSTRUCTOR: input absolutePath='$absolutePath', calculated remotePath='$this.remotePath', isRoot=$isRoot"
+            "CONSTRUCTOR: input absolutePath='$absolutePath', calculated remotePath='${this.remotePath}', isRoot=$isRoot"
         )
     }
     companion object {
@@ -102,6 +118,35 @@ class SFTPFileObject(
         }
     }
 
+    /**
+     * Asynchronously fetches and caches the file attributes from the SFTP server.
+     * This MUST be called from a background thread before accessing synchronous
+     * methods like isFile(), isDirectory(), getName() if they need network data.
+     */
+    suspend fun prefetchAttributes() {
+        if (attrsFetched) return // Don't fetch again if we already tried
+
+        attrs = withContext(Dispatchers.IO) {
+            try {
+                Log.d("SftpFileObject", "Prefetching attributes for: '$remotePath'")
+                if (remotePath.isNotEmpty()) {
+                    channelSftp.lstat(remotePath)
+                } else {
+                    // Handle case where remotePath might be empty for root, JSch might expect "."
+                    // Or if your logic now ensures root is "/", this branch may not be needed.
+                    // Let's assume remotePath is now always a valid path like "/" or "file.txt"
+                    // If remotePath can be empty, use "."
+                    // That's all, Buy a better Chair & touch Grass 🙃
+                    channelSftp.lstat(if (remotePath.isEmpty() && isRoot) "." else remotePath)
+                }
+            } catch (e: Exception) {
+                Log.e("SftpFileObject", "lstat failed for $remotePath: ${e.message}", e)
+                null
+            }
+        }
+        attrsFetched = true
+    }
+
     override fun getName(): String {
         if (isRoot) {
             val userInfo = session.userName
@@ -142,33 +187,85 @@ class SFTPFileObject(
 
     override fun isFile(): Boolean {
         Log.d("SftpFileObject", "Checking if path is file: '$remotePath'")
-        val attrs = getSftpAttrs()
-        return attrs != null && attrs.isReg
-    }
-
-    override fun isDirectory(): Boolean = getSftpAttrs()?.isDir ?: false
-
-    @Suppress("UNCHECKED_CAST")
-    override fun listFiles(): List<FileObject> {
-        if (!isDirectory()) return emptyList()
-        val files = mutableListOf<SFTPFileObject>()
-        try {
-            val entries = channelSftp.ls(remotePath) as Vector<ChannelSftp.LsEntry>
-            for (entry in entries) {
-                val entryName = entry.filename
-                if (entryName == "." || entryName == "..") continue
-
-                val childPath = if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
-                val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childPath"
-                files.add(SFTPFileObject(session, channelSftp, childAbsolutePath))
-            }
-        } catch (e: SftpException) {
-            Log.e("SftpFileObject", "ls failed for $remotePath: ${e.message}", e)
+        if (!attrsFetched) {
+            Log.e("SFTPFileObject", "isFile() called without prefetching attributes first! This can lead to incorrect results.")
         }
-        return files
+
+        return attrs?.isReg ?: false
     }
 
-    override fun getInputStream(): InputStream {
+    override fun isDirectory(): Boolean {
+        if (!attrsFetched) {
+            Log.e("SFTPFileObject", "isDirectory() called without prefetching attributes first!")
+        }
+
+        return attrs?.isDir ?: false
+    }
+
+//    @Suppress("UNCHECKED_CAST")
+//    override fun listFiles(): List<FileObject> {
+//        if (!isDirectory()) return emptyList()
+//        val files = mutableListOf<SFTPFileObject>()
+//        try {
+//            val entries = channelSftp.ls(remotePath) as Vector<ChannelSftp.LsEntry>
+//            for (entry in entries) {
+//                val entryName = entry.filename
+//                if (entryName == "." || entryName == "..") continue
+//
+//                val childPath = if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
+//                val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childPath"
+//                files.add(SFTPFileObject(session, channelSftp, childAbsolutePath))
+//            }
+//        } catch (e: SftpException) {
+//            Log.e("SftpFileObject", "ls failed for $remotePath: ${e.message}", e)
+//        }
+//        return files
+//    }
+
+    override fun listFiles(): List<FileObject> {
+        if (!childrenFetched) {
+            Log.w("SFTPFileObject", "listFiles() called without pre-fetching children. Returning empty list.")
+        }
+        return childrenCache
+    }
+
+    suspend fun fetchChildren(): List<FileObject> {
+        if (childrenFetched) return childrenCache
+
+        val result = withContext(Dispatchers.IO) {
+            val files = mutableListOf<SFTPFileObject>()
+            if (isDirectory()) { // Uses the cached 'attrs'
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    val entries = channelSftp.ls(remotePath) as Vector<ChannelSftp.LsEntry>
+                    for (entry in entries) {
+                        val entryName = entry.filename
+                        if (entryName == "." || entryName == "..") continue
+
+                        val childPath = if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
+                        val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childPath"
+                        files.add(SFTPFileObject(session, channelSftp, childAbsolutePath))
+                    }
+                } catch (e: Exception) {
+                    // handle exception
+                }
+            }
+            files
+        }
+
+        // Pre-fetch attributes for all children in parallel for efficiency
+        coroutineScope {
+            result.forEach { child ->
+                launch { child.prefetchAttributes() }
+            }
+        }
+
+        childrenCache.addAll(result)
+        childrenFetched = true
+        return childrenCache
+    }
+
+    override  fun getInputStream(): InputStream {
         if (!isFile()) throw FileNotFoundException("Not a file or does not exist: $remotePath")
         try {
             return channelSftp.get(remotePath)
@@ -191,11 +288,19 @@ class SFTPFileObject(
         }
     }
 
-    override fun length(): Long = getSftpAttrs()?.size ?: 0L
+    override fun length(): Long = attrs?.size ?: 0L
 
     fun lastModified(): Long = getSftpAttrs()?.mTime?.toLong()?.times(1000L) ?: 0L // sftp mTime is in seconds
 
-    override fun exists(): Boolean = getSftpAttrs() != null
+    // Other methods like length(), canWrite(), etc., would also use the cached 'attrs'
+    // just so I don't forget to modify other Methods 🙃
+    override fun exists(): Boolean {
+        if (!attrsFetched) {
+            Log.e("SFTPFileObject", "exists() called without prefetching attributes first!")
+        }
+        // If we successfully fetched and got a result, it exists.
+        return attrs != null
+    }
 
     override fun createNewFile(): Boolean {
         if (exists()) return false
@@ -223,7 +328,7 @@ class SFTPFileObject(
         }
     }
 
-    override fun mkdirs(): Boolean {
+    override  fun mkdirs(): Boolean {
         if (exists()) return isDirectory()
         // JSch doesn't have a direct mkdirs. You might need to create parent directories iteratively.
         // For simplicity, this is not implemented here. You can use channelSftp.cd and mkdir.
@@ -254,7 +359,7 @@ class SFTPFileObject(
 
     fun createFile(): Boolean = createNewFile() // Alias
 
-    override fun delete(): Boolean {
+    override  fun delete(): Boolean {
         if (!exists()) return false
         return try {
             if (isDirectory()) {
@@ -274,7 +379,7 @@ class SFTPFileObject(
         return Uri.parse("sftp://${session.userName}@${session.host}:${session.port}/$remotePath")
     }
 
-    override fun getMimeType(context: Context): String? {
+    override  fun getMimeType(context: Context): String? {
         val currentName = getName()
         val extension = currentName.substringAfterLast('.', "")
         return if (extension.isNotEmpty()) {
@@ -305,12 +410,12 @@ class SFTPFileObject(
     }
 
 
-    override fun hasChild(name: String): Boolean {
+    override  fun hasChild(name: String): Boolean {
         if (!isDirectory()) return false
         return listFiles().any { it.getName() == name }
     }
 
-    override fun createChild(createFile: Boolean, name: String): FileObject? {
+    override  fun createChild(createFile: Boolean, name: String): FileObject? {
         if (!isDirectory()) return null
         val childRemotePath = if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
         val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childRemotePath"
@@ -347,9 +452,9 @@ class SFTPFileObject(
     }
 
 
-    override fun readText(): String? = readText(Charsets.UTF_8)
+    override  fun readText(): String? = readText(Charsets.UTF_8)
 
-    override fun readText(charset: Charset): String? {
+    override  fun readText(charset: Charset): String? {
         if (!isFile()) return null
         return try {
             getInputStream().use { inputStream ->

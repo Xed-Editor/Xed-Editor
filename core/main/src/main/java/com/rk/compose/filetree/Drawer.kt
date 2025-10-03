@@ -315,12 +315,20 @@ var projects = mutableStateListOf<FileObjectWrapper>()
 var currentProject by mutableStateOf<FileObject?>(null)
 
 @OptIn(DelicateCoroutinesApi::class)
-fun addProject(fileObject: FileObject, save: Boolean = false) {
+suspend fun addProject(fileObject: FileObject, save: Boolean = false) {
     if (projects.find { it.fileObject == fileObject } != null) {
         return
     }
-    projects.add(FileObjectWrapper(fileObject = fileObject, name = fileObject.getName()))
-    currentProject = fileObject
+
+    val projectName = withContext(Dispatchers.IO) {
+        fileObject.getName()
+    }
+
+    withContext(Dispatchers.Main) {
+        projects.add(FileObjectWrapper(fileObject = fileObject, name = projectName))
+        currentProject = fileObject
+    }
+
     if (save) {
         GlobalScope.launch(Dispatchers.IO) {
             saveProjects()
@@ -351,6 +359,8 @@ var isLoading by mutableStateOf(true)
 fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Unit) {
     val context = LocalContext.current
 
+    val scope = rememberCoroutineScope()
+
     val openFolder = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
         onResult = { uri ->
@@ -361,8 +371,14 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                         Intent.FLAG_GRANT_READ_URI_PERMISSION or
                                 Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
                 }.onFailure { it.printStackTrace() }
-                
-                addProject(it.toFileObject(isFile = false))
+
+                scope.launch {
+                    runCatching {
+                        addProject(it.toFileObject(isFile = false))
+                    }.onFailure { it.printStackTrace();errorDialog(it) }
+//                    Do nothing on success, As user sees the result :upside_down:
+
+                }
             }
         }
     )
@@ -570,7 +586,11 @@ private fun AddProjectDialog(
                                 hostname, port, username, password, initialPath
                             )
 
-                            if (sftpFileObject != null) {
+                            if (sftpFileObject != null && sftpFileObject is SFTPFileObject) {
+                                sftpFileObject.prefetchAttributes()
+//                                prefetching for the time being - just a workaround, hope it works
+                                sftpFileObject.fetchChildren();
+
                                 onAddProject(sftpFileObject) // This is the onAddProject from AddProjectDialog's parameters
                                 onDismiss() // This is the onDismiss from AddProjectDialog's parameters, to close it.
                             } else {
@@ -602,7 +622,12 @@ private fun AddProjectDialog(
                     title = stringResource(strings.open_path),
                     description = stringResource(strings.open_path_desc),
                     onClick = {
-                        addProject(FileWrapper(storage))
+                        lifecycleScope.launch {
+                            runCatching {
+                                addProject(FileWrapper(storage))
+                            }.onFailure { it.printStackTrace();errorDialog(it) }
+//                            Do nothing on success, As user sees the result :upside_down:
+                        }
                         onDismiss()
                     }
                 )
