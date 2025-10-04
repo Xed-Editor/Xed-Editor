@@ -205,8 +205,9 @@ suspend fun connectToSftpAndCreateFileObject(
             toast("Successfully connected to $hostname. Initial path: $actualInitialPath")
 
             // Create the root FileObject for this SFTP connection
-            // The JschSftpFileObject will hold the session and channel.
-            SFTPFileObject(session, channelSftp, rootAbsolutePath, isRoot = true)
+            // The sftpFileObject will hold the session and channel.
+            SFTPFileObject(hostname, port, username, password,
+                session, channelSftp, rootAbsolutePath, isRoot = true)
 
         } catch (e: Exception) { // Catch JSchException, SftpException, etc.
             Log.e("SFTP_CONNECT", "SFTP connection to $hostname failed: ${e.message}", e)

@@ -4,10 +4,15 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.webkit.MimeTypeMap
-import java.util.Locale
 import com.jcraft.jsch.ChannelSftp
 import com.jcraft.jsch.JSch
 import com.jcraft.jsch.JSchException
+import com.jcraft.jsch.Logger
+import com.jcraft.jsch.Logger.DEBUG
+import com.jcraft.jsch.Logger.ERROR
+import com.jcraft.jsch.Logger.FATAL
+import com.jcraft.jsch.Logger.INFO
+import com.jcraft.jsch.Logger.WARN
 import com.jcraft.jsch.Session
 import com.jcraft.jsch.SftpATTRS
 import com.jcraft.jsch.SftpException
@@ -19,22 +24,58 @@ import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
+import java.io.ObjectInputStream
 import java.io.OutputStream
 import java.nio.charset.Charset
+import java.util.Locale
 import java.util.Properties
 import java.util.Vector
 
+public class JsChSFTPLogger: Logger {
+
+    var name: MutableMap<Int?, String?> = HashMap<Int?, String?>()
+
+    init
+    {
+        name.put(DEBUG, "DEBUG: ");
+        name.put(INFO, "INFO: ");
+        name.put(WARN, "WARN: ");
+        name.put(ERROR, "ERROR: ");
+        name.put(FATAL, "FATAL: ");
+    }
+
+    override fun isEnabled(level: Int): Boolean {
+        return true
+    }
+
+    override fun log(level: Int, message: String?) {
+        Log.println(level, "JschSftpLogger", message!!)
+    }
+
+}
+
 class SFTPFileObject(
-    private val session: Session,
-    private val channelSftp: ChannelSftp,
+    private val hostname: String,
+    private val port: Int,
+    private val username: String,
+    private val password: String,
+    @Transient
+    private var session: Session,
+    @Transient
+    private var channelSftp: ChannelSftp,
     private val absolutePath: String,
     private val isRoot: Boolean = false,
 ) : FileObject {
 //    variables, I love them, being at the top 🙃
+    @Transient
     private var attrs: SftpATTRS? = null
+    @Transient
     private var attrsFetched: Boolean = false
+    @Transient
     private val childrenCache = mutableListOf<FileObject>()
+    @Transient
     private var childrenFetched = false
+
 
     private val remotePath: String
 
@@ -75,6 +116,33 @@ class SFTPFileObject(
             "CONSTRUCTOR: input absolutePath='$absolutePath', calculated remotePath='${this.remotePath}', isRoot=$isRoot"
         )
     }
+
+    private suspend fun connectOnDeserialization() {
+            val session = createSession(this.hostname, this.port, this.username, this.password)
+            if (session == null || !session.isConnected) {
+                Log.e("SFTP_CONNECT", "Failed to create or connect session to ${this.hostname}")
+                return;
+            }
+
+            val channelSftp = createChannel(session);
+
+            if (channelSftp == null || !channelSftp.isConnected) {
+                Log.e("SFTP_CONNECT", "Failed to create or connect SFTP channel to ${this.hostname}")
+                session.disconnect() // Clean up session
+                return;
+            }
+
+            this.session = session;
+            this.channelSftp = channelSftp;
+
+            prefetchAttributes()
+            fetchChildren()
+
+
+        // ?: Path is serializable & will last within the process of it.
+        // OR maybe I should query it again, If the server has changed it. IDK (think, YOU TOO!).
+    }
+
     companion object {
         fun createSession(
             hostname: String,
@@ -83,7 +151,10 @@ class SFTPFileObject(
             password: String?
         ): Session? {
             return try {
+                JSch.setLogger(JsChSFTPLogger())
+
                 val jsch = JSch()
+
 
                 val session = jsch.getSession(username, hostname, port)
 
@@ -109,6 +180,7 @@ class SFTPFileObject(
             return try {
                 val channel = session.openChannel("sftp") as ChannelSftp
                 channel.connect(5000)
+                
                 channel
             } catch (e: JSchException) {
                 Log.e("SftpFileObject", "ChannelSftp creation failed: ${e.message}", e)
@@ -147,6 +219,15 @@ class SFTPFileObject(
         attrsFetched = true
     }
 
+    @Throws(IOException::class, ClassNotFoundException::class)
+    private suspend fun readObject(input: ObjectInputStream) {
+        input.defaultReadObject()   // Restores host, port, username, password, remotePath
+        // Reconnect after deserialization
+
+        connectOnDeserialization();
+        Log.d("SFTPFileObject", "Deserialized SFTPFileObject: $remotePath")
+    }
+
     override fun getName(): String {
         if (isRoot) {
             val userInfo = session.userName
@@ -165,7 +246,7 @@ class SFTPFileObject(
         }
         val parentPathString = remotePath.substringBeforeLast('/', "")
         val parentAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/${parentPathString.removePrefix("/")}"
-        return SFTPFileObject(session, channelSftp, parentAbsolutePath)
+        return SFTPFileObject(hostname, port, username, password, session, channelSftp, parentAbsolutePath)
     }
 
     private fun getSftpAttrs(): SftpATTRS? {
@@ -223,6 +304,7 @@ class SFTPFileObject(
 //    }
 
     override fun listFiles(): List<FileObject> {
+        Log.d("SftpFileObject", "Listing files for path: '$remotePath', childrenFetched=$childrenFetched (using cache/pre-fetched? $childrenFetched), cached children size: ${childrenCache.size}")
         if (!childrenFetched) {
             Log.w("SFTPFileObject", "listFiles() called without pre-fetching children. Returning empty list.")
         }
@@ -243,11 +325,14 @@ class SFTPFileObject(
                         if (entryName == "." || entryName == "..") continue
 
                         val childPath = if (remotePath.endsWith("/")) remotePath + entryName else "$remotePath/$entryName"
-                        val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childPath"
-                        files.add(SFTPFileObject(session, channelSftp, childAbsolutePath))
+                        val childAbsolutePath =
+                            "sftp://${session.userName}@${session.host}:${session.port}${if (childPath.startsWith("/")) childPath else "/$childPath" }"
+
+                        files.add(SFTPFileObject(hostname, port, username, password, session, channelSftp, childAbsolutePath))
                     }
                 } catch (e: Exception) {
-                    // handle exception
+                    // handle exception, Am I supposed?? I guess, That's for the TO-DO upside down
+                    null
                 }
             }
             files
@@ -419,7 +504,7 @@ class SFTPFileObject(
         if (!isDirectory()) return null
         val childRemotePath = if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
         val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childRemotePath"
-        val childFile = SFTPFileObject(session, channelSftp, childAbsolutePath)
+        val childFile = SFTPFileObject(hostname, port, username, password, session, channelSftp, childAbsolutePath)
 
         return try {
             if (createFile) {
@@ -448,7 +533,7 @@ class SFTPFileObject(
     override fun getChildForName(name: String): FileObject {
         val childPath = if (remotePath.endsWith("/")) remotePath + name else "$remotePath/$name"
         val childAbsolutePath = "sftp://${session.userName}@${session.host}:${session.port}/$childPath"
-        return SFTPFileObject(session, channelSftp, childAbsolutePath)
+        return SFTPFileObject(hostname, port, username, password, session, channelSftp, childAbsolutePath)
     }
 
 
@@ -469,7 +554,16 @@ class SFTPFileObject(
     }
 
 
-    override fun isSymlink(): Boolean = getSftpAttrs()?.isLink ?: false
+//    override fun isSymlink(): Boolean = getSftpAttrs()?.isLink ?: false
+
+    override fun isSymlink(): Boolean {
+        Log.d("SftpFileObject", "Checking if path is symlink: '$remotePath', attrsFetched=$attrsFetched")
+        if (!attrsFetched) {
+            Log.e("SFTPFileObject", "isSymlink() called without prefetching attributes first!")
+        }
+
+        return attrs?.isLink ?: false
+    }
 
     override fun canWrite(): Boolean {
         // Similar to canRead, a precise check is complex.
@@ -478,7 +572,6 @@ class SFTPFileObject(
         // This is a simplification.
         return exists() // A more robust check would look at sftpAttrs.getPermissions()
     }
-
 
     // Call this when the FileObject is no longer needed, especially for the root object
     // to close the session and channel.
@@ -489,6 +582,6 @@ class SFTPFileObject(
         if (session.isConnected) {
             session.disconnect()
         }
-        Log.d("JschSftpFileObject", "SFTP session to ${session.host} disconnected.")
+        Log.d("SftpFileObject", "SFTP session to ${session.host} disconnected.")
     }
 }
