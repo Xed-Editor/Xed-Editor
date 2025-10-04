@@ -23,7 +23,7 @@
     <string name="close">Zavřít</string>
     <string name="download">Stáhnout</string>
     <string name="attention">Upozornění</string>
-    <string name="ask_del">Určitě chcete nenávratně odstranit %(file_name)?</string>
+    <string name="ask_del">Určitě chcete nenávratně odstranit \'%(file_name)\'?</string>
     <string name="terminal">Terminál</string>
     <string name="tab_text_1">Karta 1</string>
     <string name="tab_text_2">Karta 2</string>
@@ -205,7 +205,7 @@
     <string name="v_large">Hodnota příliš velká</string>
     <string name="interval_in_ms">Interval ve milisekundách</string>
     <string name="editor">Editor</string>
-    <string name="oled_desc">Použít čistě-černé téma pro AMOLED zařízení</string>
+    <string name="oled_desc">Černé téma (#000)</string>
     <string name="invalid_file_type">Neplatný typ souboru, ZIP soubor očekáván</string>
     <string name="ww_desc">Zapnout zalamování slov ve všech editorů</string>
     <string name="txt_ww">Zalamovat txt soubory</string>
@@ -239,7 +239,7 @@
     <string name="telegram">Telegram skupina</string>
     <string name="userdata">Uživatelská data</string>
     <string name="file_open_denied">Otevřít tento soubor jinými aplikacemi není povoleno</string>
-    <string name="close_current_project">Zavřít aktuální projekt</string>
+    <string name="close_current_project">Opravdu chcete uzavřít projekt \'%(project_name)\'?</string>
     <string name="clone_repo">Klonovat repozitář</string>
     <string name="force_desktop">Vynutit stolní rozhraní</string>
     <string name="force_desktop_desc">Vynutit stolní rozhraní na zařízeních s menší obrazovkou</string>
@@ -329,7 +329,7 @@
     <string name="read_mode_desc">Výchoze zapnout čtecí režim</string>
     <string name="mutator_desc">Vytvářejte uživatelské skripty</string>
     <string name="info_ext">Doplňky mohou být použity pro změnění chování a funkce Xed-Editoru. K naučení jak se sestavuje plugin, klepněte zde.</string>
-    <string name="ask_lsp_install">Chtěli byste nainstalovat %(language_name) jazykový server?</string>
+    <string name="ask_lsp_install">Chtěli byste nainstalovat \'%(language_name)\' jazykový server?</string>
     <string name="dont_ask_again">Neptat se znova</string>
     <string name="install">Instalovat</string>
     <string name="uninstall_terminal_warning">Nenávratně odinstalovat Ubuntu? Táto akce nemůže být vrácena zpět.</string>
@@ -353,7 +353,7 @@
     <string name="invalid_port">Neplatný port</string>
     <string name="port_number">Číslo portu</string>
     <string name="file_ext_example">Koncovka souboru (např. py)</string>
-    <string name="logcat_saved">Soubor uložen v %(terminal_home) jako logcat.txt</string>
+    <string name="logcat_saved">Soubor uložen v domovské složky terminálu jako logcat.txt</string>
     <string name="discord">Komunita Discord</string>
     <string name="view_github_profile">Zobrazit GitHub profil</string>
     <string name="delete_desc">Nenávratně odstranit soubor</string>
@@ -384,4 +384,8 @@
     <string name="invalid_characters">Neplatné znaky</string>
     <string name="properties">Podrobnosti</string>
     <string name="rename_folder">Přejmenovat složku</string>
+    <string name="experimental_lsp">Jazykové servery jsou experimentální a nemusí fungovat správně.</string>
+    <string name="stop_logcat">Zastavit logcat</string>
+    <string name="size">Velikost</string>
+    <string name="support">Podpořit</string>
 </resources>
