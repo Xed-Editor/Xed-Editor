@@ -13,6 +13,7 @@
     <string name="ww_wait">Please wait for word wrap to complete</string>
     <string name="open_file_or_folder">Open file or folder</string>
     <string name="open_directory">Open a directory</string>
+    <string name="add_sftp">Add SFTP (Remote)</string>
     <string name="new_file">New file</string>
     <string name="new_file_hint">Name (e.g. test.txt)</string>
     <string name="mime">MIME type (e.g. text/plain)</string>
@@ -116,6 +117,7 @@
     <string name="cloning">Cloning repository…</string>
     <string name="error">Error</string>
     <string name="open_dir_desc">Open a directory via system file picker</string>
+    <string name="add_sftp_desc">Add SFTP (Remote) server</string>
     <string name="open_file_desc">Choose a file to directly edit it</string>
     <string name="open_path">Internal storage</string>
     <string name="open_path_desc">Open internal storage</string>
