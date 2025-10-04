@@ -372,4 +372,16 @@
     <string name="terminal_virus_notice">Na některých zařízení, zejména zařízení z Číny, můžete vidět systémové upozornění bezpečnosti když jsou spuštěny několik procesů ve Terminálu (např. během \'apt update\' nebo \'apt upgrade\'). Je to omyl a to neznamená, že to je realný vir.</string>
     <string name="anr_watchdog_desc">Ukončí Xed-Editor jestli neodpovídá více než 5 sekund</string>
     <string name="lsp_settings_desc">Nastavení jazykového servera</string>
+    <string name="github_stars">Hvězdiček na GitHubu</string>
+    <string name="api_error">API Chyba</string>
+    <string name="unknown">Neznámé</string>
+    <string name="cant_write">Nelze zapisovat do souboru (žádná oprávnění zapisování)</string>
+    <string name="content_update">Tento soubor byl změněn jinou aplikací. Chcete tento soubor aktualizovat? Neuložené změny budou zahozeny.</string>
+    <string name="storage">Uložiště</string>
+    <string name="translate">Přeložit</string>
+    <string name="terminal_feature">Terminál a spouštěče</string>
+    <string name="folder_name">Jméno složky</string>
+    <string name="invalid_characters">Neplatné znaky</string>
+    <string name="properties">Podrobnosti</string>
+    <string name="rename_folder">Přejmenovat složku</string>
 </resources>
