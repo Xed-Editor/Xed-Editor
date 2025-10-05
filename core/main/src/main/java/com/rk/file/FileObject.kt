@@ -11,6 +11,8 @@ import java.io.OutputStream
 import java.io.Serializable
 import java.nio.charset.Charset
 
+// why tf i didnt make them suspended by default?
+
 interface FileObject : Serializable {
     fun listFiles(): List<FileObject>
     fun isDirectory(): Boolean

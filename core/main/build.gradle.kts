@@ -119,6 +119,8 @@ dependencies {
     api(libs.lsp4j)
     api(libs.kotlin.reflect)
     api(libs.androidx.documentfile)
+    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.jsch)
 
     // Modules
     api(project(":editor"))
@@ -130,7 +132,7 @@ dependencies {
     api(project(":core:extension"))
     api(project(":core:terminal-view"))
     api(project(":core:terminal-emulator"))
-    implementation(libs.androidx.lifecycle.process)
+
 }
 
 abstract class GenerateSupportedLocales : DefaultTask() {

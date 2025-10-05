@@ -139,7 +139,7 @@ suspend fun restoreProjects() {
                         val list = mutableStateListOf<FileObjectWrapper>()
                         list.addAll((ois.readObject() as List<FileObject>).map { 
                             if(it is SFTPFileObject){
-                                it.connectOnDeserialization()
+                                it.connect()
                             }
                             FileObjectWrapper(it, it.getName())
                         })
@@ -167,31 +167,31 @@ suspend fun connectToSftpAndCreateFileObject(
     username: String,
     password: String,
     initialPath: String?
-): FileObject? {
+): SFTPFileObject? {
     return withContext(Dispatchers.IO) {
         var session: Session? = null
         var channelSftp: ChannelSftp? = null
 
         try {
-            session = SFTPFileObject.createSession(hostname, port, username, password)
+            session = SFTPFileObject.createSessionInternal(hostname, port, username, password)
             if (session == null || !session.isConnected) {
+                toast("Failed to create or connect SFTP channel to $hostname")
                 Log.e("SFTP_CONNECT", "Failed to create or connect session to $hostname")
                 return@withContext null
             }
 
-            channelSftp = SFTPFileObject.createChannel(session)
+            channelSftp = SFTPFileObject.createChannelInternal(session)
             if (channelSftp == null || !channelSftp.isConnected) {
+                toast("Failed to create or connect SFTP channel to $hostname")
                 Log.e("SFTP_CONNECT", "Failed to create or connect SFTP channel to $hostname")
                 session.disconnect() // Clean up session
                 return@withContext null
             }
 
             // Determine the actual initial path on the server
-            val actualInitialPath = if (initialPath.isNullOrBlank() || initialPath == "/") {
-                channelSftp.pwd() // Get current working directory if initialPath is root or empty
-            } else {
+            val actualInitialPath = run {
                 // Ensure initialPathString starts with a slash if it's not empty and not already the case
-                val path = if (initialPath.startsWith("/")) initialPath else "/$initialPath"
+                val path = if (initialPath.isNullOrBlank()) "/" else initialPath
                 // You might want to verify if this path exists or cd to it
                 try {
                     channelSftp.cd(path) // Try to change to the path
@@ -587,7 +587,7 @@ private fun AddProjectDialog(
 
                         showSftpCredentialsDialog = false
 
-                        lifecycleScope.launch {
+                        lifecycleScope.launch(Dispatchers.IO) {
                             val sftpFileObject = connectToSftpAndCreateFileObject(
                                 hostname, port, username, password, initialPath
                             )
