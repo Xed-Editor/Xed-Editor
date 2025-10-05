@@ -137,7 +137,12 @@ suspend fun restoreProjects() {
                 if (file.exists() && file.canRead()) {
                     ObjectInputStream(FileInputStream(file)).use { ois ->
                         val list = mutableStateListOf<FileObjectWrapper>()
-                        list.addAll((ois.readObject() as List<FileObject>).map { FileObjectWrapper(it, it.getName()) })
+                        list.addAll((ois.readObject() as List<FileObject>).map { 
+                            if(it is SFTPFileObject){
+                                it.connectOnDeserialization()
+                            }
+                            FileObjectWrapper(it, it.getName())
+                        })
                         withContext(Dispatchers.Main){
                             projects = list
                         }
