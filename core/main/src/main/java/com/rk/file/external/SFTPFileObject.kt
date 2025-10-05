@@ -117,7 +117,7 @@ class SFTPFileObject(
         )
     }
 
-    private suspend fun connectOnDeserialization() {
+    suspend fun connectOnDeserialization() {
             val session = createSession(this.hostname, this.port, this.username, this.password)
             if (session == null || !session.isConnected) {
                 Log.e("SFTP_CONNECT", "Failed to create or connect session to ${this.hostname}")
@@ -219,14 +219,14 @@ class SFTPFileObject(
         attrsFetched = true
     }
 
-    @Throws(IOException::class, ClassNotFoundException::class)
-    private suspend fun readObject(input: ObjectInputStream) {
-        input.defaultReadObject()   // Restores host, port, username, password, remotePath
-        // Reconnect after deserialization
+   // @Throws(IOException::class, ClassNotFoundException::class)
+   // private suspend fun readObject(input: ObjectInputStream) {
+    //    input.defaultReadObject()   // Restores host, port, username, password, remotePath
+        //// Reconnect after deserialization
 
-        connectOnDeserialization();
-        Log.d("SFTPFileObject", "Deserialized SFTPFileObject: $remotePath")
-    }
+     //   connectOnDeserialization();
+   //     Log.d("SFTPFileObject", "Deserialized SFTPFileObject: $remotePath")
+    //}
 
     override fun getName(): String {
         if (isRoot) {
