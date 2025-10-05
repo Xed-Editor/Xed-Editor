@@ -129,7 +129,7 @@ dependencies {
     api(project(":core:resources"))
     api(project(":core:components"))
     api(project(":core:bridge"))
-    api(project(":core:extension"))
+    //api(project(":core:extension"))
     api(project(":core:terminal-view"))
     api(project(":core:terminal-emulator"))
 

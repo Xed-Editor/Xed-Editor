@@ -62,6 +62,7 @@ import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.ranges.random
 import androidx.compose.ui.platform.LocalResources
+import com.rk.compose.filetree.getAppropriateName
 
 sealed class ActionType {
     data class PainterAction(@DrawableRes val iconRes: Int) : ActionType()
@@ -92,7 +93,15 @@ fun CodeEditor.updateUndoRedo(){
 fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewModel: MainViewModel) {
 
     var expanded by remember { mutableStateOf(false) }
-    var editable by remember(tab) { mutableStateOf(tab.file.canWrite() && tab.editorState.editable) }
+
+    val canWrite by produceState<Boolean>(
+        initialValue = false,
+        key1 = tab.file
+    ) {
+        value = tab.file.canWrite()
+    }
+
+    var editable by remember(tab) { mutableStateOf(canWrite && tab.editorState.editable) }
     var isRunnable by remember(tab) { mutableStateOf(false) }
 
     val resources = LocalResources.current
@@ -117,7 +126,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 id = "save",
                 type = ActionType.PainterAction(drawables.save),
                 labelRes = strings.saved,
-                isEnabled = tab.file.canWrite(),
+                isEnabled = canWrite,
                 action = { tab,editorState ->
                     GlobalScope.launch{
                         tab.save()
@@ -174,7 +183,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
             ),
             EditorAction(
                 id = "editable",
-                isEnabled = tab.file.canWrite(),
+                isEnabled = canWrite,
                 type = ActionType.VectorAction(if (editable){
                     Icons.Outlined.Lock
                 }else{

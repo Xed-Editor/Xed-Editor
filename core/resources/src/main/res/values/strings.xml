@@ -375,7 +375,7 @@
     <string name="sdcard_filetype">Running code is not recommended in this location. Consider moving your file to the terminal\'s home directory.</string>
     <string name="rename_file">Rename file</string>
     <string name="new_name">New name</string>
-    <string name="wrapper_type">Wrapper type</string>
+    <string name="wrapper_type">Wrapper</string>
     <string name="type">Type</string>
     <string name="name">Name</string>
     <string name="view_github_profile">View GitHub profile</string>

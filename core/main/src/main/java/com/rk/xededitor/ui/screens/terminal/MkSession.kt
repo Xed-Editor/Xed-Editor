@@ -1,5 +1,6 @@
 package com.rk.xededitor.ui.screens.terminal
 
+import android.content.Intent
 import com.rk.App
 import com.rk.compose.filetree.currentProject
 import com.rk.file.FileWrapper
@@ -21,7 +22,46 @@ import com.termux.terminal.TerminalSessionClient
 import java.io.File
 
 object MkSession {
-    fun createSession(
+
+    private suspend fun getPwd(intent: Intent): String?{
+        if (pendingCommand?.workingDir != null){
+            return pendingCommand?.workingDir
+        }
+
+        if (intent.hasExtra("cwd")){
+            return intent.getStringExtra("cwd").toString()
+        }
+
+        if (Settings.project_as_pwd){
+            if (currentProject != null && currentProject is FileWrapper){
+                return if (Settings.sandbox){
+                    currentProject!!.getAbsolutePath().removePrefix(localDir().absolutePath)
+                }else{
+                    currentProject!!.getAbsolutePath()
+                }
+            }
+        }else{
+            val currentTab = MainActivity.instance?.viewModel?.currentTab
+            if (currentTab != null && currentTab is EditorTab && currentTab.file is FileWrapper){
+                val parent = currentTab.file.getParentFile()
+                if (parent != null && parent is FileWrapper){
+                    return if (Settings.sandbox){
+                        //error
+                        parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
+                    }else {
+                        //error
+                        parent.getAbsolutePath().toString()
+                    }
+                }
+            }
+        }
+        return if (Settings.sandbox){
+            "/home"
+        }else{
+            sandboxHomeDir().absolutePath
+        }
+    }
+    suspend fun createSession(
         activity: Terminal, sessionClient: TerminalSessionClient, session_id: String
     ): TerminalSession {
         with(activity) {
@@ -38,45 +78,9 @@ object MkSession {
                 "PATH" to System.getenv("PATH")?.toString()+":${localBinDir().absolutePath}"
             )
 
-            fun getPwd(): String?{
-                if (pendingCommand?.workingDir != null){
-                    return pendingCommand?.workingDir
-                }
 
-                if (intent.hasExtra("cwd")){
-                    return intent.getStringExtra("cwd").toString()
-                }
 
-                if (Settings.project_as_pwd){
-                    if (currentProject != null && currentProject is FileWrapper){
-                        return if (Settings.sandbox){
-                            currentProject!!.getAbsolutePath().removePrefix(localDir().absolutePath)
-                        }else{
-                            currentProject!!.getAbsolutePath()
-                        }
-                    }
-                }else{
-                    MainActivity.instance?.viewModel?.currentTab?.let {
-                        if (it is EditorTab && it.file is FileWrapper){
-                            val parent = it.file.getParentFile()
-                            if (parent != null && parent is FileWrapper){
-                                return if (Settings.sandbox){
-                                    parent.getAbsolutePath().removePrefix(localDir().absolutePath).toString()
-                                }else {
-                                    parent.getAbsolutePath().toString()
-                                }
-                            }
-                        }
-                    }
-                }
-                return if (Settings.sandbox){
-                    "/home"
-                }else{
-                    sandboxHomeDir().absolutePath
-                }
-            }
-
-            val workingDir = getPwd()
+            val workingDir = getPwd(intent)
 
             val tmpDir = File(getTempDir(), "terminal/$session_id")
 

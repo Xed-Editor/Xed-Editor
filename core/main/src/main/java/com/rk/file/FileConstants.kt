@@ -15,13 +15,13 @@ fun localDir(context: Context = application!!): File {
     }
 }
 
-fun localBinDir(context: Context = application!!): File {
+ fun localBinDir(context: Context = application!!): File {
     return localDir(context).child("bin").also {
         it.createDirIfNot()
     }
 }
 
-fun localLibDir(context: Context = application!!): File {
+ fun localLibDir(context: Context = application!!): File {
     return localDir(context).child("lib").also {
         it.createDirIfNot()
     }

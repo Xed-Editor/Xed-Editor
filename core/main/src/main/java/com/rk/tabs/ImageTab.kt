@@ -15,14 +15,23 @@ import com.github.chrisbanes.photoview.PhotoView
 import coil.load
 import com.bumptech.glide.Glide
 import com.rk.file.FileObject
+import com.rk.resources.getString
+import com.rk.resources.strings
 import com.rk.xededitor.ui.icons.Photo
 import com.rk.xededitor.ui.icons.XedIcons
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class ImageTab(
     private val fileObject: FileObject
 ) : Tab() {
 
-    override var tabTitle: MutableState<String> = mutableStateOf(fileObject.getName())
+
+    override var tabTitle: MutableState<String> = mutableStateOf(strings.loading.getString()).also {
+        GlobalScope.launch {
+            it.value = fileObject.getName()
+        }
+    }
 
     override val icon: ImageVector
         get() = XedIcons.Photo
@@ -33,6 +42,9 @@ class ImageTab(
     @Composable
     override fun Content() {
         Box(modifier = Modifier.fillMaxSize().clipToBounds()){
+
+
+
             AndroidView(
                 factory = { context ->
                     PhotoView(context).apply {

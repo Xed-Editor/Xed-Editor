@@ -6,6 +6,9 @@ import android.util.Log
 import com.rk.libcommons.application
 import com.rk.file.child
 import com.rk.file.createFileIfNot
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.io.PrintWriter
 import java.io.StringWriter
 import kotlin.system.exitProcess
@@ -71,8 +74,11 @@ object CrashHandler : Thread.UncaughtExceptionHandler {
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 fun logErrorOrExit(throwable: Throwable){
     runCatching {
-        application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString())
+        GlobalScope.launch {
+            application!!.filesDir.child("crash.log").createFileIfNot().appendText(throwable.toString())
+        }
     }.onFailure { it.printStackTrace();exitProcess(-1) }
 }

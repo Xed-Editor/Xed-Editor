@@ -13,7 +13,7 @@ class TypeScript() : BaseLspServer() {
     override val languageName: String = "TypeScript"
     override val supportedExtensions: List<String> = listOf("js", "jsx", "ts", "tsx")
 
-    override fun isInstalled(context: Context): Boolean {
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()){
             return false
         }
@@ -21,7 +21,7 @@ class TypeScript() : BaseLspServer() {
         return sandboxHomeDir().child("/.npm-global/bin/typescript-language-server").exists()
     }
 
-    override fun install(context: Context) {
+    override suspend fun install(context: Context) {
         val installCommand = """
             apt update && \
             apt upgrade -y && \
@@ -49,7 +49,7 @@ class TypeScript() : BaseLspServer() {
         )
     }
 
-    override fun command(): Array<String> {
+    override suspend fun command(): Array<String> {
         return arrayOf("/usr/bin/node", "/home/.npm-global/bin/typescript-language-server",  "--stdio")
     }
 }

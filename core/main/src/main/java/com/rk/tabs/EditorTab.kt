@@ -28,7 +28,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
-import com.rk.file.FileContentWatcher
 import com.rk.file.FileObject
 import com.rk.isAppForeground
 import com.rk.libcommons.dialog
@@ -107,7 +106,7 @@ class EditorTab(
 
     val scope = CoroutineScope(Dispatchers.Default)
 
-    override var tabTitle: MutableState<String> = mutableStateOf(file.getName()).also {
+    override var tabTitle: MutableState<String> = mutableStateOf(strings.loading.getString()).also {
         scope.launch{
             delay(100)
             val parent = file.getParentFile()
@@ -118,6 +117,8 @@ class EditorTab(
                     tabTitle.value = title
                 }
 
+            }else{
+                tabTitle.value = file.getName()
             }
         }
     }
@@ -186,9 +187,7 @@ class EditorTab(
     @Composable
     override fun Content(){
         Column {
-            val language = file.let {
-                textmateSources[it.getName().substringAfterLast('.', "").trim()]
-            }
+
 
             if (editorState.showControlPanel){
                 ControlPanel(onDismissRequest = {
@@ -204,7 +203,11 @@ class EditorTab(
             CodeEditor(
                 modifier = Modifier,
                 state = editorState,
-                textmateScope = language,
+                getTextmateScope = {
+                    file.let {
+                        textmateSources[it.getName().substringAfterLast('.', "").trim()]
+                    }
+                },
                 onTextChange = {
                     if (Settings.auto_save){
                         scope.launch(Dispatchers.IO){
@@ -263,7 +266,7 @@ class EditorTab(
 private fun EditorTab.CodeEditor(
     modifier: Modifier = Modifier,
     state: CodeEditorState,
-    textmateScope: String? = null,
+    getTextmateScope: suspend ()-> String?,
     onKeyEvent:(EditorKeyEvent)-> Unit,
     onTextChange:()-> Unit
 ) {
@@ -332,8 +335,8 @@ private fun EditorTab.CodeEditor(
 
                         state.editor = this
 
-                        textmateScope?.let { langScope ->
-                            scope.launch(Dispatchers.IO) {
+                        scope.launch(Dispatchers.IO) {
+                            getTextmateScope()?.let { langScope ->
                                 val ext = file.getName().substringAfterLast(".").trim()
 
                                 if (lsp_connections.contains(ext)) {
@@ -352,8 +355,15 @@ private fun EditorTab.CodeEditor(
                                     return@launch
                                 }
 
-                                val server = lspRegistry.find { it.supportedExtensions.map { e -> e.lowercase() }.contains(ext.lowercase()) }
-                                if (server != null && Preference.getBoolean("lsp_${server.id}",true)) {
+                                val server = lspRegistry.find {
+                                    it.supportedExtensions.map { e -> e.lowercase() }
+                                        .contains(ext.lowercase())
+                                }
+                                if (server != null && Preference.getBoolean(
+                                        "lsp_${server.id}",
+                                        true
+                                    )
+                                ) {
                                     lspConnection = ProcessConnection(server.command())
 
                                     if (server.isInstalled(context)) {
@@ -377,7 +387,9 @@ private fun EditorTab.CodeEditor(
                                             msg = strings.ask_lsp_install.getFilledString(mapOf("language_name" to server.languageName)),
                                             cancelString = strings.dont_ask_again,
                                             okString = strings.install,
-                                            onOk = { server.install(context) },
+                                            onOk = { scope.launch {
+                                                server.install(context)
+                                            } },
                                             onCancel = {
                                                 Preference.setBoolean(
                                                     "lsp_${server.id}",
@@ -392,6 +404,8 @@ private fun EditorTab.CodeEditor(
                                 setLanguage(langScope)
                             }
                         }
+
+
 
 
                         scope.launch(Dispatchers.IO){

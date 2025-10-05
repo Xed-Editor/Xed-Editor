@@ -16,7 +16,7 @@ class CSS() : BaseLspServer() {
     override val languageName: String = "CSS"
     override val supportedExtensions: List<String> = listOf("css")
 
-    override fun isInstalled(context: Context): Boolean {
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()){
             return false
         }
@@ -24,7 +24,7 @@ class CSS() : BaseLspServer() {
         return sandboxHomeDir().child("/.npm-global/bin/vscode-css-language-server").exists()
     }
 
-    override fun install(context: Context) {
+    override suspend fun install(context: Context) {
         val installCommand = """
             apt update && \
             apt upgrade -y && \
@@ -52,7 +52,7 @@ class CSS() : BaseLspServer() {
         )
     }
 
-    override fun command(): Array<String> {
+    override suspend fun command(): Array<String> {
         return arrayOf("/usr/bin/node", "/home/.npm-global/bin/vscode-css-language-server",  "--stdio")
     }
 }

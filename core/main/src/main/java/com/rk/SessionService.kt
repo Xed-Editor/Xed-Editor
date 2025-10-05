@@ -34,7 +34,7 @@ class SessionService : Service() {
             return this@SessionService
         }
 
-        fun createSession(
+        suspend fun createSession(
             id: String,
             client: TerminalSessionClient,
             activity: Terminal

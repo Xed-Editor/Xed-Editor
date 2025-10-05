@@ -24,7 +24,7 @@ class HtmlRunner() : RunnerImpl() {
 
     //a broadcasts should be used instead of this hack
 //    class DevTools : Service(){
-//        override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+//        override suspend fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 //            httpServer?.let {
 //                if (it.isAlive.not()){
 //                    stopSelf()
@@ -35,12 +35,12 @@ class HtmlRunner() : RunnerImpl() {
 //            stopSelf()
 //            return super.onStartCommand(intent, flags, startId)
 //        }
-//        override fun onBind(p0: Intent?): IBinder? {
+//        override suspend fun onBind(p0: Intent?): IBinder? {
 //            return null
 //        }
 //    }
 
-    override fun run(context: Context,file: FileObject) {
+    override suspend fun run(context: Context,file: FileObject) {
         stop()
         httpServer = HttpServer(PORT, file.getParentFile() ?: file)
 
@@ -59,16 +59,16 @@ class HtmlRunner() : RunnerImpl() {
         }.build().launchUrl(context, url.toUri())
     }
 
-    override fun getName(): String {
+    override suspend fun getName(): String {
         return "Html"
     }
 
-    override fun getIcon(context: Context): Drawable? =
+    override suspend fun getIcon(context: Context): Drawable? =
         drawables.ic_language_html.getDrawable(context)
 
-    override fun isRunning(): Boolean = httpServer?.isAlive == true
+    override suspend fun isRunning(): Boolean = httpServer?.isAlive == true
 
-    override fun stop() {
+    override suspend fun stop() {
         if (isRunning()) {
             httpServer?.closeAllConnections()
             httpServer?.stop()

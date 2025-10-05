@@ -19,7 +19,7 @@ import java.util.Locale
 
 
 class FileWrapper(var file: File) : FileObject {
-    override fun listFiles(): List<FileObject> {
+    override suspend fun listFiles(): List<FileObject> {
         val list = file.listFiles()
         if (list.isNullOrEmpty()) {
             return emptyList()
@@ -27,11 +27,11 @@ class FileWrapper(var file: File) : FileObject {
         return list.map { f -> FileWrapper(f) }
     }
 
-    override fun isDirectory(): Boolean {
+    override suspend fun isDirectory(): Boolean {
         return file.isDirectory
     }
 
-    override fun getCanonicalPath(): String {
+    override suspend fun getCanonicalPath(): String {
         return file.canonicalPath
     }
 
@@ -50,43 +50,43 @@ class FileWrapper(var file: File) : FileObject {
         return true
     }
 
-    override fun isFile(): Boolean {
+    override suspend fun isFile(): Boolean {
         return file.isFile
     }
 
-    override fun getName(): String {
+    override suspend fun getName(): String {
         return file.name
     }
 
-    override fun getParentFile(): FileObject? {
+    override suspend fun getParentFile(): FileObject? {
         return file.parentFile?.let { FileWrapper(it) }
     }
 
-    override fun exists(): Boolean {
+    override suspend fun exists(): Boolean {
         return file.exists()
     }
 
-    override fun createNewFile(): Boolean {
+    override suspend fun createNewFile(): Boolean {
         return file.createNewFile()
     }
 
-    override fun mkdir(): Boolean {
+    override suspend fun mkdir(): Boolean {
         return file.mkdir()
     }
 
-    override fun mkdirs(): Boolean {
+    override suspend fun mkdirs(): Boolean {
         return file.mkdirs()
     }
 
-    override fun writeText(text: String) {
+    override suspend fun writeText(text: String) {
         file.writeText(text)
     }
 
-    override fun getInputStream(): InputStream {
+    override suspend fun getInputStream(): InputStream {
         return FileInputStream(file)
     }
 
-    override fun getOutPutStream(append: Boolean): OutputStream {
+    override suspend fun getOutPutStream(append: Boolean): OutputStream {
         return if (append) {
             FileOutputStream(file, true)
         } else {
@@ -99,11 +99,11 @@ class FileWrapper(var file: File) : FileObject {
         return file.absolutePath
     }
 
-    override fun length(): Long {
+    override suspend fun length(): Long {
         return file.length()
     }
 
-    override fun delete(): Boolean {
+    override suspend fun delete(): Boolean {
         return if (isDirectory()) {
             file.deleteRecursively()
         } else {
@@ -115,7 +115,7 @@ class FileWrapper(var file: File) : FileObject {
         return file.toUri()
     }
 
-    override fun getMimeType(context: Context): String? {
+    override suspend fun getMimeType(context: Context): String? {
         val uri: Uri = Uri.fromFile(file)
         val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
         return if (extension != null) {
@@ -126,16 +126,16 @@ class FileWrapper(var file: File) : FileObject {
         }
     }
 
-    override fun renameTo(string: String): Boolean {
+    override suspend fun renameTo(string: String): Boolean {
         val newFile = File(file.parentFile, string)
         return file.renameTo(newFile).also { this.file = newFile }
     }
 
-    override fun hasChild(name: String): Boolean {
+    override suspend fun hasChild(name: String): Boolean {
         return File(file, name).exists()
     }
 
-    override fun createChild(createFile: Boolean, name: String): FileObject {
+    override suspend fun createChild(createFile: Boolean, name: String): FileObject {
         if (createFile) {
             File(file, name).apply {
                 createNewFile()
@@ -149,27 +149,27 @@ class FileWrapper(var file: File) : FileObject {
         }
     }
 
-    override fun canWrite(): Boolean {
+    override suspend fun canWrite(): Boolean {
         return file.canWrite()
     }
 
-    override fun canRead(): Boolean {
+    override suspend fun canRead(): Boolean {
         return file.canRead()
     }
 
-    override fun getChildForName(name: String): FileObject {
+    override suspend fun getChildForName(name: String): FileObject {
         return FileWrapper(File(file, name))
     }
 
-    override fun readText(): String {
+    override suspend fun readText(): String {
         return file.readText()
     }
 
-    override fun readText(charset: Charset): String {
+    override suspend fun readText(charset: Charset): String {
         return file.readText(charset = charset)
     }
 
-    override fun isSymlink(): Boolean {
+    override suspend fun isSymlink(): Boolean {
         return Files.isSymbolicLink(file.toPath())
     }
 
@@ -178,13 +178,13 @@ class FileWrapper(var file: File) : FileObject {
     }
 
     override fun toString(): String {
-        return getAbsolutePath()
+        return file.absolutePath
     }
 
     override fun equals(other: Any?): Boolean {
         if (other !is FileWrapper) {
             return false
         }
-        return other.getAbsolutePath() == getAbsolutePath()
+        return other.file.absolutePath == file.absolutePath
     }
 }

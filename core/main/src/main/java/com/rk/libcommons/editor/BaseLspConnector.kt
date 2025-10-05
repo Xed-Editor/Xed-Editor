@@ -36,7 +36,7 @@ class BaseLspConnector(
         private set
     private var fileObject: FileObject? = null
 
-    fun isSupported(file: FileObject): Boolean {
+    suspend fun isSupported(file: FileObject): Boolean {
         val fileExt = file.getName().substringAfterLast(".")
         return fileExt == ext && textmateSources.containsKey(fileExt)
     }

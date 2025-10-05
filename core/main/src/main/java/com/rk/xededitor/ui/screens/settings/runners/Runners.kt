@@ -31,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
+import com.rk.compose.filetree.getAppropriateName
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
@@ -143,9 +144,15 @@ fun Runners(modifier: Modifier = Modifier) {
                     )
                 } else {
                     ShellBasedRunners.runners.forEach { runner ->
+                        val fileName by produceState<String>(
+                            initialValue = stringResource(strings.unknown),
+                            key1 = runner
+                        ) {
+                            value = runner.getName()
+                        }
                         SettingsToggle(
                             modifier = Modifier,
-                            label = runner.getName(),
+                            label = fileName,
                             description = null,
                             default = false,
                             sideEffect = { _ ->
@@ -163,9 +170,15 @@ fun Runners(modifier: Modifier = Modifier) {
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center
                                 ) {
+                                    val fileName by produceState<String>(
+                                        initialValue = stringResource(strings.unknown),
+                                        key1 = runner
+                                    ) {
+                                        value = runner.getName()
+                                    }
                                     IconButton(onClick = {
                                         editing = runner
-                                        runnerName = runner.getName()
+                                        runnerName = fileName
                                         regexPattern = runner.regex
                                         showDialog = true
                                     }) {
@@ -234,53 +247,59 @@ fun Runners(modifier: Modifier = Modifier) {
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            val validRegex = validateRegex()
-                            val validName = validateName()
+                            scope.launch {
+                                val validRegex = validateRegex()
+                                val validName = validateName()
 
-                            if (validName && validRegex) {
-                                // Check for duplicate names only when creating new runner
-                                if (editing == null) {
-                                    if (ShellBasedRunners.runners.any { it.getName() == runnerName }) {
-                                        nameError = context.getString(strings.runner_name_exists)
-                                        return@TextButton
-                                    }
-                                }
-
-                                scope.launch {
+                                if (validName && validRegex) {
+                                    // Check for duplicate names only when creating new runner
                                     if (editing == null) {
-                                        // Create new runner
-                                        val runner = ShellBasedRunner(
-                                            name = runnerName,
-                                            regex = regexPattern
-                                        )
-                                        val created = ShellBasedRunners.newRunner(runner)
-                                        if (created) {
-                                            // Refresh list
-                                            isLoading = true
-                                            ShellBasedRunners.indexRunners()
-                                            isLoading = false
-                                            showDialog = false
-                                            resetDialogState()
-                                        } else {
-                                            toast(strings.failed)
+                                        if (ShellBasedRunners.runners.any { it.getName() == runnerName }) {
+                                            nameError =
+                                                context.getString(strings.runner_name_exists)
+                                            return@launch
                                         }
-                                    } else {
-                                        // Update existing runner
-                                        val updatedRunner = ShellBasedRunner(
-                                            name = runnerName, // Name remains the same
-                                            regex = regexPattern
-                                        )
-                                        ShellBasedRunners.deleteRunner(editing!!,deleteScript = false)
-                                        val updated = ShellBasedRunners.newRunner(updatedRunner)
-                                        if (updated) {
-                                            // Refresh list
-                                            isLoading = true
-                                            ShellBasedRunners.indexRunners()
-                                            isLoading = false
-                                            showDialog = false
-                                            resetDialogState()
+                                    }
+
+                                    scope.launch {
+                                        if (editing == null) {
+                                            // Create new runner
+                                            val runner = ShellBasedRunner(
+                                                name = runnerName,
+                                                regex = regexPattern
+                                            )
+                                            val created = ShellBasedRunners.newRunner(runner)
+                                            if (created) {
+                                                // Refresh list
+                                                isLoading = true
+                                                ShellBasedRunners.indexRunners()
+                                                isLoading = false
+                                                showDialog = false
+                                                resetDialogState()
+                                            } else {
+                                                toast(strings.failed)
+                                            }
                                         } else {
-                                            toast(strings.failed)
+                                            // Update existing runner
+                                            val updatedRunner = ShellBasedRunner(
+                                                name = runnerName, // Name remains the same
+                                                regex = regexPattern
+                                            )
+                                            ShellBasedRunners.deleteRunner(
+                                                editing!!,
+                                                deleteScript = false
+                                            )
+                                            val updated = ShellBasedRunners.newRunner(updatedRunner)
+                                            if (updated) {
+                                                // Refresh list
+                                                isLoading = true
+                                                ShellBasedRunners.indexRunners()
+                                                isLoading = false
+                                                showDialog = false
+                                                resetDialogState()
+                                            } else {
+                                                toast(strings.failed)
+                                            }
                                         }
                                     }
                                 }

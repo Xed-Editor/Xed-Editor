@@ -23,7 +23,7 @@ import com.rk.xededitor.ui.screens.terminal.stat
 
 class UniversalRunner : RunnerImpl(){
     @SuppressLint("SdCardPath")
-    override fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         with(localBinDir().child("universal_runner")){
             if (exists().not()){
                 createFileIfNot()
@@ -52,19 +52,19 @@ class UniversalRunner : RunnerImpl(){
         ))
     }
 
-    override fun getName(): String {
+    override suspend fun getName(): String {
         return "Universal Runner"
     }
 
-    override fun getIcon(context: Context): Drawable? {
+    override suspend fun getIcon(context: Context): Drawable? {
         return drawables.run.getDrawable(context)
     }
 
-    override fun isRunning(): Boolean {
+    override suspend fun isRunning(): Boolean {
         return false
     }
 
-    override fun stop() {
+    override suspend fun stop() {
 
     }
 

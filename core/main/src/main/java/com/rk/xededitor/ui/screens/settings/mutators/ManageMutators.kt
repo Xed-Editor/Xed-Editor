@@ -35,6 +35,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.xededitor.ui.activities.main.MainActivity
+import kotlinx.coroutines.GlobalScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -112,9 +113,12 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                 }
             },
             onConfirm = {
-                Mutators.createMutator(
-                    name = inputValue,
-                    script = """
+                GlobalScope.launch {
+
+
+                    Mutators.createMutator(
+                        name = inputValue,
+                        script = """
                         // ${strings.script_get_text.getString()}
                         // let text = getEditorText()
                         
@@ -134,7 +138,8 @@ fun ManageMutators(modifier: Modifier = Modifier, navController: NavController) 
                         // ${strings.script_set_text.getString()}
                         // setEditorText("${strings.script_text.getString()}")
                 """.trimIndent()
-                )
+                    )
+                }
             },
             onFinish = {
                 inputValue = ""

@@ -84,6 +84,7 @@ import com.rk.xededitor.ui.theme.blueberry
 import com.rk.xededitor.ui.theme.currentTheme
 import com.termux.terminal.TerminalColors
 import com.termux.view.TerminalView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
@@ -167,6 +168,9 @@ fun TerminalScreenInternal(
                             )
                             Row(horizontalArrangement = Arrangement.End) {
                                 IconButton(onClick = {
+                                    scope.launch {
+
+
                                     fun generateUniqueString(existingStrings: List<String>): String {
                                         var index = 1
                                         var newString: String
@@ -191,7 +195,7 @@ fun TerminalScreenInternal(
                                             )
                                         }
 
-                                }) {
+                                }}) {
                                     Icon(
                                         imageVector = Icons.Default.Add, // Material Design "Add" icon
                                         contentDescription = stringResource(strings.add_session)
@@ -216,7 +220,7 @@ fun TerminalScreenInternal(
                                     SelectableCard(
                                         selected = session_id == terminalActivity.sessionBinder?.get()
                                             ?.getService()?.currentSession?.value,
-                                        onSelect = { changeSession(terminalActivity, session_id) },
+                                        onSelect = { scope.launch { changeSession(terminalActivity, session_id) } },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .padding(8.dp)
@@ -280,14 +284,16 @@ fun TerminalScreenInternal(
                         AndroidView(
                             factory = { context ->
                                 TerminalView(context, null).apply {
-                                    terminalView = WeakReference(this)
+                                    scope.launch(Dispatchers.Main.immediate) {
+
+                                    terminalView = WeakReference(this@apply)
                                     setTextSize(
                                         dpToPx(
                                             Settings.terminal_font_size.toFloat(),
                                             context
                                         )
                                     )
-                                    val client = TerminalBackEnd(this, terminalActivity)
+                                    val client = TerminalBackEnd(this@apply, terminalActivity)
 
                                     val session = if (pendingCommand != null) {
                                         terminalActivity.sessionBinder?.get()!!
@@ -361,6 +367,7 @@ fun TerminalScreenInternal(
                                             //set(258, onSurfaceColor!!)
                                         }
                                     }
+                                }
                                 }
                             },
                             modifier = Modifier
@@ -588,7 +595,7 @@ fun SelectableCard(
 }
 
 
-fun changeSession(terminalActivity: Terminal, session_id: String) {
+suspend fun changeSession(terminalActivity: Terminal, session_id: String) {
     terminalView.get()?.apply {
         val client = TerminalBackEnd(this, terminalActivity)
         val session =

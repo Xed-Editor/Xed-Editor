@@ -423,8 +423,16 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
 
                             },
                             label = {
+
+                                val fileName by produceState<String>(
+                                    initialValue = stringResource(strings.unknown),
+                                    key1 = file
+                                ) {
+                                    value = file.fileObject.getAppropriateName()
+                                }
+
                                 Text(
-                                    file.fileObject.getAppropriateName(),
+                                    fileName,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -449,7 +457,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                                 .fillMaxSize()
                                 .weight(1f)
                                 .systemBarsPadding(),
-                            rootNode = project.toFileTreeNode(),
+                            root = project,
                             onFileClick = {
                                 if (it.isFile) {
                                     onFileSelected.invoke(it.file)
@@ -507,10 +515,17 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                             Text(text = strings.close.getString())
                         },
                         text = {
+                            val projectName by produceState<String?>(
+                                initialValue = stringResource(strings.unknown),
+                                key1 = closeProjectDialog
+                            ) {
+                                value = closeProjectDialog?.getName()
+                            }
+
                             Text(
                                 text = stringResource(strings.close_current_project).fillPlaceholders(
                                     mapOf(
-                                        "project_name" to (closeProjectDialog?.getName() ?: stringResource(
+                                        "project_name" to (projectName ?: stringResource(
                                             strings.unknown
                                         ))
                                     )

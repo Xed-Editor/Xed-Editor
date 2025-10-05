@@ -5,6 +5,8 @@ import android.net.Uri
 import com.rk.App
 import com.rk.libcommons.PathUtils
 import com.rk.libcommons.PathUtils.toPath
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -14,37 +16,37 @@ import java.nio.charset.Charset
 // why tf i didnt make them suspended by default?
 
 interface FileObject : Serializable {
-    fun listFiles(): List<FileObject>
-    fun isDirectory(): Boolean
-    fun isFile(): Boolean
-    fun getName(): String
-    fun getParentFile(): FileObject?
-    fun exists(): Boolean
-    fun createNewFile(): Boolean
-    fun getCanonicalPath(): String
-    fun mkdir(): Boolean
-    fun mkdirs(): Boolean
-    fun writeText(text: String)
-    fun getInputStream(): InputStream
-    fun getOutPutStream(append: Boolean): OutputStream
+    suspend fun listFiles(): List<FileObject>
+    suspend fun isDirectory(): Boolean
+    suspend fun isFile(): Boolean
+    suspend fun getName(): String
+    suspend fun getParentFile(): FileObject?
+    suspend fun exists(): Boolean
+    suspend fun createNewFile(): Boolean
+    suspend fun getCanonicalPath(): String
+    suspend fun mkdir(): Boolean
+    suspend fun mkdirs(): Boolean
+    suspend fun writeText(text: String)
+    suspend fun getInputStream(): InputStream
+    suspend fun getOutPutStream(append: Boolean): OutputStream
     fun getAbsolutePath(): String
-    fun length(): Long
-    fun delete(): Boolean
+    suspend fun length(): Long
+    suspend fun delete(): Boolean
     fun toUri(): Uri
-    fun getMimeType(context: Context): String?
-    fun renameTo(string: String): Boolean
-    fun hasChild(name: String): Boolean
-    fun createChild(createFile: Boolean, name: String): FileObject?
-    fun canWrite(): Boolean
-    fun canRead(): Boolean
-    fun getChildForName(name: String): FileObject
-    fun readText(): String?
-    fun readText(charset: Charset): String?
+    suspend fun getMimeType(context: Context): String?
+    suspend fun renameTo(string: String): Boolean
+    suspend fun hasChild(name: String): Boolean
+    suspend fun createChild(createFile: Boolean, name: String): FileObject?
+    suspend fun canWrite(): Boolean
+    suspend fun canRead(): Boolean
+    suspend fun getChildForName(name: String): FileObject
+    suspend fun readText(): String?
+    suspend fun readText(charset: Charset): String?
     suspend fun writeText(content: String, charset: Charset): Boolean
-    fun isSymlink(): Boolean
+    suspend fun isSymlink(): Boolean
 }
 
-fun FileObject.copyToTempDir() = run {
+suspend fun FileObject.copyToTempDir() = withContext(Dispatchers.IO) {
     val file = File(App.getTempDir(), getName()).createFileIfNot()
 
     getInputStream().use { input ->
