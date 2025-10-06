@@ -396,8 +396,8 @@
     <string name="capturing_logcat">Capture du logcat…</string>
     <string name="unsupported_file_ext">Extension de fichier non prise en charge</string>
     <string name="invalid_port">Port invalide</string>
-    <string name="lsp_desc">Se connecter au serveur LSP externe</string>
-    <string name="lsp_header">Entrez le port et l\'extension</string>
+    <string name="lsp_desc">Connecter au serveur LSP externe</string>
+    <string name="lsp_header">Entrer le port et l\'extension</string>
     <string name="port_number">Numéro du port</string>
     <string name="file_ext_example">Extension de fichier (par ex. py)</string>
     <string name="logcat_saved">Fichier enregistré dans le répertoire personnel du terminal comme logcat.txt</string>
@@ -405,11 +405,11 @@
     <string name="discord">Communauté Discord</string>
     <string name="use_tabs">Insérer un caractère de tabulation</string>
     <string name="render_whitespace">Afficher les espaces</string>
-    <string name="render_whitespace_desc">Affiche les espaces, les tabulations et les sauts de ligne avec des symboles visibles</string>
+    <string name="render_whitespace_desc">Affiche les espaces, les tabulations et les sauts de ligne comme des symboles visibles</string>
     <string name="lsp_settings">Paramètres LSP</string>
     <string name="no_language_server">Aucun serveur de langue sélectionné.</string>
     <string name="developer">Développeur</string>
-    <string name="build_info">Information sur la compilation</string>
+    <string name="build_info">Information de build</string>
     <string name="community">Communauté</string>
     <string name="failsafe_mode">Mode sans échec</string>
     <string name="failsafe_mode_desc">Démarrer le terminal en mode maintenance</string>
@@ -422,7 +422,7 @@
     <string name="unknown">Inconnu</string>
     <string name="cant_write">Le fichier ne peut pas être enregistré (droit d\'écriture absent)</string>
     <string name="content_update">Ce fichier a été modifié par un autre logiciel. Voulez-vous le mettre à jour ? Les changements non enregistrés seront perdus.</string>
-    <string name="info_lsp">Les serveurs de langue sont des processus séparés qui fournissent des fonctionnalités intelligentes, comme la complétion du code, le surlignement des erreurs et la documentation intégrée.</string>
+    <string name="info_lsp">Les serveurs de langue sont des processus séparés qui fournissent des fonctionnalités intelligentes, comme la complétion du code, le surlignage des erreurs et la documentation intégrée.</string>
     <string name="experimental_lsp">Les serveurs de langue sont expérimentaux et pourraient ne pas fonctionner correctement.</string>
     <string name="storage">Stockage</string>
     <string name="size">Taille</string>
