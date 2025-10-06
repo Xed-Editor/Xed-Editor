@@ -12,7 +12,7 @@
     <string name="open_file_or_folder">Ouvrir fichier ou dossier</string>
     <string name="rep">Substitution</string>
     <string name="wait">Attendez svp…</string>
-    <string name="report_issue">Remonter un Problème</string>
+    <string name="report_issue">Rapporter un problème</string>
     <string name="copy">Copier</string>
     <string name="undo">Annuler</string>
     <string name="settings">Paramètres</string>
@@ -43,15 +43,15 @@
     <string name="rr">Redémarrage requis</string>
     <string name="save_exit">Enregistrer et quitter</string>
     <string name="refresh">Mettre à jour</string>
-    <string name="dir_example">Nom par ex. Test</string>
+    <string name="dir_example">Nom (par ex. test)</string>
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer définitivement %s ?</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement \'%(file_name)\' ?</string>
     <string name="reselect_dir">Re-sélectionnez à nouveau le dossier</string>
     <string name="cant_handle">Aucune app trouvée pour gérer le fichier</string>
     <string name="add_file">Ajouter un fichier externe</string>
-    <string name="keyword_regex">mot-clé (Regex)</string>
+    <string name="keyword_regex">Mot-clé (regex)</string>
     <string name="replace_all">Remplacer tout</string>
     <string name="add_new_replacement_batch">Ajouter lot de substitution</string>
     <string name="replacement">remplacement</string>
@@ -192,7 +192,7 @@
     <string name="discard">Abandonner</string>
     <string name="close">Fermer</string>
     <string name="close_search">Fermer la recherche</string>
-    <string name="new_file_hint">Nom par ex. Test.txt</string>
+    <string name="new_file_hint">Nom, par ex. test.txt</string>
     <string name="rename">Renommer</string>
     <string name="go_prev">Précédent</string>
     <string name="open_with">Ouvrir avec…</string>
@@ -201,7 +201,7 @@
     <string name="github_desc">Mettre une étoile sur GitHub 🤩</string>
     <string name="unsaved">Fichiers non-enregistrés</string>
     <string name="insert_date">Insérer la date</string>
-    <string name="mime">MimeType par ex. text/plain</string>
+    <string name="mime">MIME type (par ex. text/plain)</string>
     <string name="open_file">Ouvrir fichier</string>
     <string name="close_all">Fermer tout</string>
     <string name="cancel">Annuler</string>
