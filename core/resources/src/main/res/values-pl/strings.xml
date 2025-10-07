@@ -338,7 +338,7 @@
     <string name="is_file">Jest plikiem</string>
     <string name="data_clear">Pamieć aplikacji została wyczyszczona</string>
     <string name="app">Aplikacja</string>
-    <string name="oled_desc">Czarny motyw (#000)</string>
+    <string name="oled_desc">Użyj całkowicie czarnego tła przy włączonym trybie ciemnym (#000000)</string>
     <string name="scroll_to_bottom">Skroluj w dół</string>
     <string name="scroll_to_bottom_desc">Skroluj w dół przy otwieraniu pliku</string>
     <string name="file_err">Plik nie może zostać zapisany, spróbuj zamknąć i otworzyć ponownie</string>
