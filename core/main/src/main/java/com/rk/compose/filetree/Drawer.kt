@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -349,6 +350,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProjectDialog(
     onDismiss: () -> Unit,
@@ -360,8 +362,10 @@ private fun AddProjectDialog(
     val activity = context as? MainActivity
     val lifecycleScope = remember { activity?.lifecycleScope ?: DefaultScope }
 
-    XedDialog(onDismissRequest = onDismiss) {
-        DividerColumn {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+        ) {
             AddDialogItem(
                 icon = drawables.file_symlink,
                 title = stringResource(strings.open_directory),
