@@ -9,7 +9,7 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 
 object UpdateManager {
-    private fun deleteCommonFiles() = with(application!!){
+    private suspend fun deleteCommonFiles() = with(application!!){
         codeCacheDir.apply {
             if (exists()){
                 deleteRecursively()
@@ -23,7 +23,7 @@ object UpdateManager {
         }
     }
 
-    fun inspect() = with(application!!){
+    suspend fun inspect() = with(application!!){
         val lastVersionCode = Settings.lastVersionCode
         val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
 

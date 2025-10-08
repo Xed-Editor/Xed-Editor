@@ -16,7 +16,7 @@ import com.rk.runner.RunnerImpl
 import com.rk.terminal.launchInternalTerminal
 
 class Shell : RunnerImpl(){
-    override fun run(context: Context, fileObject: FileObject) {
+    override suspend fun run(context: Context, fileObject: FileObject) {
         if(fileObject !is FileWrapper){
             errorDialog(msgRes = strings.native_runner)
             return
@@ -33,19 +33,19 @@ class Shell : RunnerImpl(){
         ))
     }
 
-    override fun getName(): String {
+    override suspend fun getName(): String {
         return "Shell Runner"
     }
 
-    override fun getIcon(context: Context): Drawable? {
+    override suspend fun getIcon(context: Context): Drawable? {
         return drawables.bash.getDrawable(context)
     }
 
-    override fun isRunning(): Boolean {
+    override suspend fun isRunning(): Boolean {
         return false
     }
 
-    override fun stop() {
+    override suspend fun stop() {
 
     }
 

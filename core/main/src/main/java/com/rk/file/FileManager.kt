@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.libcommons.application
@@ -150,19 +151,22 @@ class FileManager(private val activity: ComponentActivity) {
                 return@launchDirectoryPicker
             }
 
-            try {
-                val fileObject = uri.toFileObject(isFile = true)
-                if (fileObject.hasChild(fileName)) {
-                    toast("File with name $fileName already exists")
+            activity.lifecycleScope.launch {
+                try {
+                    val fileObject = uri.toFileObject(isFile = true)
+                    if (fileObject.hasChild(fileName)) {
+                        toast("File with name $fileName already exists")
+                        callback(null)
+                    } else {
+                        val newFile = fileObject.createChild(true, fileName)
+                        callback(newFile)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                     callback(null)
-                } else {
-                    val newFile = fileObject.createChild(true, fileName)
-                    callback(newFile)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                callback(null)
             }
+
         }
     }
 

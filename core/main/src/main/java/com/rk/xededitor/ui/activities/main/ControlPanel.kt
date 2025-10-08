@@ -9,7 +9,6 @@ import androidx.compose.ui.res.stringResource
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.DefaultScope
-import com.rk.extension.Hooks
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
 import com.rk.resources.strings
@@ -65,10 +64,6 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
                     })
             )
 
-
-            Hooks.ControlItems.items.values.forEach{ item ->
-                ControlItem(item = item)
-            }
 
 
             Mutators.mutators.forEach { mut ->

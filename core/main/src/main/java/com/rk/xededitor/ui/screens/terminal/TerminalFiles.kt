@@ -9,7 +9,7 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 import com.rk.libcommons.toast
 
-fun setupTerminalFiles(){
+suspend fun setupTerminalFiles(){
 
     if (sandboxDir().exists().not()){
         return

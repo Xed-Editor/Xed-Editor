@@ -20,7 +20,7 @@ import kotlinx.coroutines.*
 import java.util.concurrent.TimeUnit
 
 
-fun isTerminalInstalled(): Boolean{
+suspend fun isTerminalInstalled(): Boolean{
     val rootfs = sandboxDir().listFiles()?.filter {
         it.absolutePath != sandboxHomeDir().absolutePath && it.absolutePath != sandboxDir().child(
             "tmp"

@@ -82,51 +82,55 @@ fun SettingsTerminalScreen() {
                 showSwitch = true,
             )
 
+
             val restore = rememberLauncherForActivityResult(
                 ActivityResultContracts.GetContent()
             ) { uri ->
-                if (uri == null) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
+                GlobalScope.launch {
 
-                val fileObject = uri.toFileObject(isFile = true)
 
-                val tempFile = App.getTempDir().child("terminal-backup.tar.gz")
-
-                fileObject.getInputStream().use { inputStream ->
-                    FileOutputStream(tempFile).use { outputStream ->
-                        inputStream.copyTo(outputStream)
+                    if (uri == null) {
+                        toast(strings.invalid_path)
+                        return@launch
                     }
-                }
 
+                    val fileObject = uri.toFileObject(isFile = true)
 
-                if (fileObject.canRead().not()) {
-                    toast(strings.invalid_path)
-                    return@rememberLauncherForActivityResult
-                }
+                    val tempFile = App.getTempDir().child("terminal-backup.tar.gz")
 
-                val loading = LoadingPopup(context, null)
-                loading.show()
-
-                GlobalScope.launch(Dispatchers.IO) {
-                    sandboxDir().deleteRecursively()
-                    sandboxDir().mkdirs()
-
-                    val result =
-                        getRuntime().exec("tar -xf ${tempFile.absolutePath} -C ${sandboxDir()}")
-                            .waitFor()
-                    withContext(Dispatchers.Main) {
-                        loading.hide()
-                        if (result == 0) {
-                            toast(strings.success)
-                        } else {
-                            toast(strings.failed)
+                    fileObject.getInputStream().use { inputStream ->
+                        FileOutputStream(tempFile).use { outputStream ->
+                            inputStream.copyTo(outputStream)
                         }
                     }
+
+
+                    if (fileObject.canRead().not()) {
+                        toast(strings.invalid_path)
+                        return@launch
+                    }
+
+                    val loading = LoadingPopup(context, null)
+                    loading.show()
+
+                    GlobalScope.launch(Dispatchers.IO) {
+                        sandboxDir().deleteRecursively()
+                        sandboxDir().mkdirs()
+
+                        val result =
+                            getRuntime().exec("tar -xf ${tempFile.absolutePath} -C ${sandboxDir()}")
+                                .waitFor()
+                        withContext(Dispatchers.Main) {
+                            loading.hide()
+                            if (result == 0) {
+                                toast(strings.success)
+                            } else {
+                                toast(strings.failed)
+                            }
+                        }
+                    }
+
                 }
-
-
             }
 
             SettingsToggle(
@@ -135,75 +139,84 @@ fun SettingsTerminalScreen() {
                 showSwitch = false,
                 default = false,
                 sideEffect = {
-                    val fileManager = if (SettingsActivity.instance != null){
-                        SettingsActivity.instance!!.fileManager
-                    }else{
-                        MainActivity.instance!!.fileManager
-                    }
+                    GlobalScope.launch {
 
 
-                    fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz"){ fileObject ->
-                        if (fileObject != null){
-                            val targetFile = App.getTempDir().child("terminal-backup.tar.gz")
+                        val fileManager = if (SettingsActivity.instance != null) {
+                            SettingsActivity.instance!!.fileManager
+                        } else {
+                            MainActivity.instance!!.fileManager
+                        }
 
-                            fileObject.getInputStream().use { inputStream ->
-                                FileOutputStream(targetFile).use { outputStream ->
-                                    inputStream.copyTo(outputStream)
+
+                        fileManager.selectDirForNewFileLaunch(fileName = "terminal-backup.tar.gz") { fileObject ->
+                            GlobalScope.launch {
+
+
+                                if (fileObject != null) {
+                                    val targetFile =
+                                        App.getTempDir().child("terminal-backup.tar.gz")
+
+                                    fileObject.getInputStream().use { inputStream ->
+                                        FileOutputStream(targetFile).use { outputStream ->
+                                            inputStream.copyTo(outputStream)
+                                        }
+                                    }
+
+                                    val loading = LoadingPopup(context, null)
+                                    loading.show()
+                                    GlobalScope.launch(Dispatchers.IO) {
+                                        try {
+                                            val sandboxDir = sandboxDir().absolutePath
+                                            val targetPath = targetFile.absolutePath
+
+                                            val processBuilder = ProcessBuilder(
+                                                "tar",
+                                                "-czf",
+                                                targetPath,
+                                                ".",
+                                                "--exclude=dev",
+                                                "--exclude=sys",
+                                                "--exclude=proc",
+                                                "--exclude=system",
+                                                "--exclude=apex",
+                                                "--exclude=vendor",
+                                                "--exclude=data",
+                                                "--exclude=home",
+                                                "--exclude=root",
+                                                "--exclude=var/cache",
+                                                "--exclude=var/tmp",
+                                                "--exclude=lost+found",
+                                                "--exclude=storage",
+                                                "--exclude=system_ext",
+                                                "--exclude=tmp",
+                                                "--exclude=vendor",
+                                                "--exclude=sdcard",
+                                                "--exclude=storage"
+                                            ).apply {
+                                                directory(File(sandboxDir))
+                                                redirectErrorStream(true)
+                                            }
+
+                                            processBuilder.start().waitFor()
+
+                                            withContext(Dispatchers.Main) {
+                                                loading.hide()
+                                            }
+                                        } catch (e: Exception) {
+                                            withContext(Dispatchers.Main) {
+                                                loading.hide()
+                                                toast("Error: ${e.message}")
+                                            }
+                                        }
+                                        FileInputStream(targetFile).use { inputStream ->
+                                            fileObject.getOutPutStream(false).use { outputStream ->
+                                                inputStream.copyTo(outputStream)
+                                            }
+                                        }
+
+                                    }
                                 }
-                            }
-
-                            val loading = LoadingPopup(context, null)
-                            loading.show()
-                            GlobalScope.launch(Dispatchers.IO) {
-                                try {
-                                    val sandboxDir = sandboxDir().absolutePath
-                                    val targetPath = targetFile.absolutePath
-
-                                    val processBuilder = ProcessBuilder(
-                                        "tar",
-                                        "-czf",
-                                        targetPath,
-                                        ".",
-                                        "--exclude=dev",
-                                        "--exclude=sys",
-                                        "--exclude=proc",
-                                        "--exclude=system",
-                                        "--exclude=apex",
-                                        "--exclude=vendor",
-                                        "--exclude=data",
-                                        "--exclude=home",
-                                        "--exclude=root",
-                                        "--exclude=var/cache",
-                                        "--exclude=var/tmp",
-                                        "--exclude=lost+found",
-                                        "--exclude=storage",
-                                        "--exclude=system_ext",
-                                        "--exclude=tmp",
-                                        "--exclude=vendor",
-                                        "--exclude=sdcard",
-                                        "--exclude=storage"
-                                    ).apply {
-                                        directory(File(sandboxDir))
-                                        redirectErrorStream(true)
-                                    }
-
-                                    processBuilder.start().waitFor()
-
-                                    withContext(Dispatchers.Main) {
-                                        loading.hide()
-                                    }
-                                } catch (e: Exception) {
-                                    withContext(Dispatchers.Main) {
-                                        loading.hide()
-                                        toast("Error: ${e.message}")
-                                    }
-                                }
-                                FileInputStream(targetFile).use { inputStream ->
-                                    fileObject.getOutPutStream(false).use { outputStream ->
-                                        inputStream.copyTo(outputStream)
-                                    }
-                                }
-
                             }
                         }
                     }

@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
@@ -85,98 +86,109 @@ private val sql = drawables.sql
 
 @Composable
 private fun FileIcon(file: FileObject) {
-    val icon = if (file.isFile()) {
-        when (file.getName()) {
-            "contract.sol",
-            "LICENSE",
-            "NOTICE",
-                -> text
 
-            "gradlew" -> bash
+    suspend fun getIcon(): Int{
+        return if (file.isFile()) {
+            when (file.getName()) {
+                "contract.sol",
+                "LICENSE",
+                "NOTICE",
+                    -> text
 
-            else ->
-                when (file.getName().substringAfterLast('.', "")) {
-                    "java",
-                    "bsh", "gradle" -> java
+                "gradlew" -> bash
 
-                    "html", "htm", "htmx" -> html
-                    "kt",
-                    "kts" -> kotlin
+                else ->
+                    when (file.getName().substringAfterLast('.', "")) {
+                        "java",
+                        "bsh", "gradle" -> java
 
-                    "py" -> python
-                    "xml" -> xml
-                    "js" -> js
-                    "ts" -> ts
-                    "lua" -> lua
-                    "c",
-                    "h" -> c
+                        "html", "htm", "htmx" -> html
+                        "kt",
+                        "kts" -> kotlin
 
-                    "cpp",
-                    "hpp" -> cpp
+                        "py" -> python
+                        "xml" -> xml
+                        "js" -> js
+                        "ts" -> ts
+                        "lua" -> lua
+                        "c",
+                        "h" -> c
 
-                    "json" -> json
-                    "css",
-                    "sass",
-                    "scss" -> css
+                        "cpp",
+                        "hpp" -> cpp
 
-                    "cs" -> csharp
+                        "json" -> json
+                        "css",
+                        "sass",
+                        "scss" -> css
 
-                    "sh",
-                    "bash",
-                    "zsh",
-                    "bat",
-                    "fish",
-                    "ksh" -> bash
+                        "cs" -> csharp
 
-                    "apk",
-                    "xapk",
-                    "apks" -> apk
+                        "sh",
+                        "bash",
+                        "zsh",
+                        "bat",
+                        "fish",
+                        "ksh" -> bash
 
-                    "zip",
-                    "rar",
-                    "7z",
-                    "gz",
-                    "bz2",
-                    "tar",
-                    "xz" -> archive
+                        "apk",
+                        "xapk",
+                        "apks" -> apk
 
-                    "md" -> markdown
-                    "txt" -> text
+                        "zip",
+                        "rar",
+                        "7z",
+                        "gz",
+                        "bz2",
+                        "tar",
+                        "xz" -> archive
 
-                    "mp3",
-                    "wav",
-                    "ogg", "m4a", "aac", "wma", "opus",
-                    "flac" -> audio
+                        "md" -> markdown
+                        "txt" -> text
 
-                    "mp4",
-                    "mov",
-                    "avi",
-                    "mkv" -> video
+                        "mp3",
+                        "wav",
+                        "ogg", "m4a", "aac", "wma", "opus",
+                        "flac" -> audio
 
-                    "jpg",
-                    "jpeg",
-                    "png",
-                    "gif",
-                    "bmp","svg" -> image
+                        "mp4",
+                        "mov",
+                        "avi",
+                        "mkv" -> video
 
-                    "rs" -> rust
-                    "lisp","clisp" -> lisp
-                    "sql" -> sql
-                    "jsx", "tsx" -> react
-                    "php" -> php
-                    "plugin" -> plugin
-                    "properties", "pro", "package.json" -> prop
-                    "go" -> go
-                    else -> ic_file
-                }
+                        "jpg",
+                        "jpeg",
+                        "png",
+                        "gif",
+                        "bmp","svg" -> image
+
+                        "rs" -> rust
+                        "lisp","clisp" -> lisp
+                        "sql" -> sql
+                        "jsx", "tsx" -> react
+                        "php" -> php
+                        "plugin" -> plugin
+                        "properties", "pro", "package.json" -> prop
+                        "go" -> go
+                        else -> ic_file
+                    }
+            }
+        } else if (file.isDirectory()) {
+            folder
+        } else if (file.isSymlink()) {
+            fileSymlink
+        } else {
+            unknown
         }
-    } else if (file.isDirectory()) {
-        folder
-    } else if (file.isSymlink()) {
-        fileSymlink
-    } else {
-        unknown
     }
+
+    val icon by produceState(
+        initialValue = drawables.unknown_document,
+        key1 = file
+    ) {
+        value = getIcon()
+    }
+
 
     Icon(
         painter = painterResource(icon),
@@ -212,10 +224,10 @@ class FileTreeViewModel : ViewModel() {
     }
 
     fun updateCache(file: FileObject) {
-        if (file.isFile()) {
-            throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
-        }
         viewModelScope.launch(Dispatchers.IO) {
+            if (file.isFile()) {
+                throw IllegalStateException("file ${file.getAbsolutePath()} is a file but a directory was expected")
+            }
             val path = file.getAbsolutePath()
             _loadingStates[path] = true  // Mark as loading
 
@@ -228,12 +240,17 @@ class FileTreeViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Process files
-                val files = fileList
-                    .sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() }))
-                    .map {
-                        it.toFileTreeNode()
-                    }
+                val fileInfos = fileList.map { file ->
+                    val name = file.getName()
+                    val isDir = file.isDirectory()
+                    val node = file.toFileTreeNode()
+                    Triple(isDir, name, node)
+                }
+
+                val files = fileInfos
+                    .sortedWith(compareBy({ !it.first }, { it.second.lowercase() }))
+                    .map { it.third }
+
 
                 fileListCache[path] = files
 
@@ -257,7 +274,7 @@ class FileTreeViewModel : ViewModel() {
         return fileListCache[path] ?: emptyList()
     }
 
-    fun loadChildrenForNode(node: FileTreeNode) {
+    suspend fun loadChildrenForNode(node: FileTreeNode) {
         val path = node.file.getAbsolutePath()
 
         // If already in cache, don't reload
@@ -279,12 +296,17 @@ class FileTreeViewModel : ViewModel() {
                     return@launch
                 }
 
-                // Process files
-                val files = fileList
-                    .sortedWith(compareBy({ !it.isDirectory() }, { it.getName().lowercase() }))
-                    .map {
-                        it.toFileTreeNode()
-                    }
+                val fileInfos = fileList.map { file ->
+                    val name = file.getName()          // suspend call
+                    val isDir = file.isDirectory()     // suspend call
+                    val node = file.toFileTreeNode()   // suspend call if needed
+                    Triple(isDir, name, node)
+                }
+
+                val files = fileInfos
+                    .sortedWith(compareBy({ !it.first }, { it.second.lowercase() }))
+                    .map { it.third }
+
 
                 fileListCache[path] = files
                 viewModelScope.launch {
@@ -311,7 +333,7 @@ var fileTreeViewModel: FileTreeViewModel? = null
 
 @Composable
 fun FileTree(
-    rootNode: FileTreeNode,
+    root: FileObject,
     modifier: Modifier = Modifier,
     onFileClick: FileTreeNode.(FileTreeNode) -> Unit,
     onFileLongClick: FileTreeNode.(FileTreeNode) -> Unit = {},
@@ -320,12 +342,15 @@ fun FileTree(
 
     fileTreeViewModel = viewModel
     // Auto-expand root node on first composition
-    LaunchedEffect(rootNode.file.getAbsolutePath()) {
+    LaunchedEffect(root.getAbsolutePath()) {
+        val rootNode = root.toFileTreeNode()
         if (!viewModel.isNodeExpanded(rootNode.file.getAbsolutePath())) {
             viewModel.toggleNodeExpansion(rootNode.file.getAbsolutePath())
             viewModel.loadChildrenForNode(rootNode)
         }
     }
+
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = modifier,
@@ -337,24 +362,40 @@ fun FileTree(
                 .padding(vertical = 8.dp)
                 .horizontalScroll(rememberScrollState())
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
+
+            val rootNode by produceState<FileTreeNode?>(
+                initialValue = null,
+                key1 = root
             ) {
-                item(key = rootNode.file.hashCode()) {
-                    FileTreeNodeItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        node = rootNode,
-                        depth = 0,
-                        onFileClick = {
-                            rootNode.onFileClick(it)
-                        },
-                        onFileLongClick = {
-                            rootNode.onFileLongClick(it)
-                        },
-                        viewModel = viewModel
-                    )
+                value = root.toFileTreeNode()
+            }
+
+            if (rootNode != null){
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    item(key = root.hashCode()) {
+                        FileTreeNodeItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            node = rootNode!!,
+                            depth = 0,
+                            onFileClick = {
+                                scope.launch {
+                                    rootNode!!.onFileClick(it)
+                                }
+
+                            },
+                            onFileLongClick = {
+                                scope.launch {
+                                    rootNode!!.onFileLongClick(it)
+                                }
+                            },
+                            viewModel = viewModel
+                        )
+                    }
                 }
             }
+
         }
     }
 }
@@ -495,7 +536,7 @@ private fun FileTreeNodeItem(
     }
 }
 
-fun FileObject.getAppropriateName(): String {
+suspend fun FileObject.getAppropriateName(): String {
     return if (getAbsolutePath() == Environment.getExternalStorageDirectory().absolutePath) {
         strings.storage.getString()
     } else {
@@ -503,7 +544,7 @@ fun FileObject.getAppropriateName(): String {
     }
 }
 
-fun FileObject.toFileTreeNode(): FileTreeNode {
+suspend fun FileObject.toFileTreeNode(): FileTreeNode {
     return FileTreeNode(
         file = this,
         isFile = isFile(),

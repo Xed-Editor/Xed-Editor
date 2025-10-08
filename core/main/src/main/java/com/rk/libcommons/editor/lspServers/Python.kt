@@ -13,7 +13,7 @@ class Python() : BaseLspServer() {
     override val languageName: String = "Python"
     override val supportedExtensions: List<String> = listOf("py")
 
-    override fun isInstalled(context: Context): Boolean {
+    override suspend fun isInstalled(context: Context): Boolean {
         if (!isTerminalInstalled()) {
             return false
         }
@@ -21,7 +21,7 @@ class Python() : BaseLspServer() {
         return sandboxHomeDir().child(".local/share/pipx/venvs/python-lsp-server/bin/pylsp").exists()
     }
 
-    override fun install(context: Context) {
+    override suspend fun install(context: Context) {
         val installCommand = """
             apt update && \
             apt upgrade -y && \
@@ -43,7 +43,7 @@ class Python() : BaseLspServer() {
         )
     }
 
-    override fun command(): Array<String> {
+    override suspend fun command(): Array<String> {
         return arrayOf("/home/.local/share/pipx/venvs/python-lsp-server/bin/pylsp")
     }
 }

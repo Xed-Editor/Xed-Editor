@@ -28,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.compose.filetree.fileTreeViewModel
-import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.openWith
@@ -38,6 +37,7 @@ import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
@@ -65,7 +65,30 @@ fun FileActionDialog(
 
     // State for various dialogs
     var showRenameDialog by remember { mutableStateOf(false) }
-    var renameValue by remember { mutableStateOf(file.getName()) }
+
+    val fileName by produceState<String>(
+        initialValue = stringResource(strings.unknown),
+        key1 = file
+    ) {
+        value = file.getName()
+    }
+
+    val isFile by produceState<Boolean>(
+        initialValue = false,
+        key1 = file
+    ) {
+        value = file.isFile()
+    }
+
+    val isDirectory by produceState<Boolean>(
+        initialValue = false,
+        key1 = file
+    ) {
+        value = file.isFile()
+    }
+
+
+    var renameValue by remember { mutableStateOf(fileName) }
     var renameError by remember { mutableStateOf<String?>(null) }
 
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -83,7 +106,7 @@ fun FileActionDialog(
                 .padding(0.dp)
                 .verticalScroll(rememberScrollState())) {
 
-                if (file.isDirectory()) {
+                if (isDirectory) {
                     AddDialogItem(
                         icon = Icons.Outlined.Refresh,
                         title = stringResource(strings.refresh),
@@ -96,23 +119,26 @@ fun FileActionDialog(
                     )
                 }
 
-                if (file is FileWrapper && file.isDirectory()){
+                if (file is FileWrapper && isDirectory){
                     AddDialogItem(
                         icon = drawables.terminal,
                         title = stringResource(strings.open_in_terminal),
                         //description = stringResource(strings.open_in_terminal),
                         onClick = {
                             showTerminalNotice(activity = MainActivity.instance!!){
-                                val intent = Intent(context,Terminal::class.java)
-                                intent.putExtra("cwd",file.getAbsolutePath())
-                                context.startActivity(intent)
-                                onDismissRequest()
+                                scope.launch {
+                                    val intent = Intent(context,Terminal::class.java)
+                                    intent.putExtra("cwd",file.getAbsolutePath())
+                                    context.startActivity(intent)
+                                    onDismissRequest()
+                                }
+
                             }
                         }
                     )
                 }
 
-                if (file.isDirectory()){
+                if (isDirectory){
                     AddDialogItem(
                         icon = XedIcons.CreateNewFile,
                         title = stringResource(strings.new_file),
@@ -156,8 +182,10 @@ fun FileActionDialog(
                     }
                 )
 
+
+
                 AddDialogItem(
-                    icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
+                    icon = if (isFile) drawables.content_copy_24px else drawables.round_content_paste_20,
                     title = stringResource(strings.copy),
                     //description = stringResource(strings.copy_desc),
                     onClick = {
@@ -183,7 +211,7 @@ fun FileActionDialog(
                     }
                 )
 
-                if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()){
+                if (fileTreeContext && FileOperations.clipboard != null && isDirectory){
                     AddDialogItem(
                         icon = drawables.round_content_paste_20,
                         title = stringResource(strings.paste),
@@ -207,9 +235,11 @@ fun FileActionDialog(
                     title = stringResource(strings.open_with),
                     //description = stringResource(strings.open_with_other),
                     onClick = {
-                        FileOperations.openWithExternalApp(context, file)
-                        //showXedDialog = true
-                        onDismissRequest()
+                        scope.launch {
+                            FileOperations.openWithExternalApp(context, file)
+                            //showXedDialog = true
+                            onDismissRequest()
+                        }
                     }
                 )
 
@@ -225,7 +255,7 @@ fun FileActionDialog(
                     }
                 )
 
-                if (fileTreeContext && file.isDirectory()){
+                if (fileTreeContext && isDirectory){
                     AddDialogItem(
                         icon = drawables.arrow_downward,
                         title = stringResource(strings.add_file),
@@ -250,19 +280,6 @@ fun FileActionDialog(
                         //onDismissRequest()
                     }
                 )
-
-                Hooks.FileAction.actions.values.forEach { action ->
-                    if (action.shouldAttach(root,file)){
-                        AddDialogItem(
-                            icon = action.icon,
-                            title = action.title,
-                            onClick = {
-                                action.onClick(root,file)
-                            }
-                        )
-                    }
-
-                }
                 
             }
         }
@@ -271,11 +288,11 @@ fun FileActionDialog(
     // Rename dialog
     if (showRenameDialog) {
         SingleInputDialog(
-            title = if (file.isFile()) stringResource(strings.rename_file) else stringResource(strings.rename_folder),
+            title = if (isFile) stringResource(strings.rename_file) else stringResource(strings.rename_folder),
             inputLabel = stringResource(id = strings.new_name),
             inputValue = renameValue,
             errorMessage = renameError,
-            confirmEnabled = renameValue.isNotBlank() && renameValue != file.getName(),
+            confirmEnabled = renameValue.isNotBlank() && renameValue != fileName,
             confirmText = stringResource(strings.rename),
             onInputValueChange = {
                 renameValue = it
@@ -308,7 +325,7 @@ fun FileActionDialog(
                 onDismissRequest()
             },
             onFinish = {
-                renameValue = file.getName()
+                renameValue = fileName
                 renameError = null
                 showXedDialog = true
                 showRenameDialog = false
@@ -319,7 +336,7 @@ fun FileActionDialog(
     // Delete confirmation dialog
     if (showDeleteDialog) {
         DeleteConfirmationDialog(
-            fileName = file.getName(),
+            fileName = fileName,
             onConfirm = {
                 scope.launch {
                     val success = FileOperations.deleteFile(file)
@@ -372,12 +389,14 @@ fun FileActionDialog(
                 }
             },
             onConfirm = {
-                if (!file.hasChild(newNameValue)){
-                    file.createChild(createFile = isNewFile, newNameValue)
-                }
+                scope.launch {
+                    if (!file.hasChild(newNameValue)){
+                        file.createChild(createFile = isNewFile, newNameValue)
+                    }
 
-                fileTreeViewModel?.updateCache(file)
-                onDismissRequest()
+                    fileTreeViewModel?.updateCache(file)
+                    onDismissRequest()
+                }
             },
             onFinish = {
                 newNameValue = ""
@@ -417,7 +436,7 @@ object FileOperations {
         }
     }
 
-    fun openWithExternalApp(context: Context, file: FileObject) {
+    suspend fun openWithExternalApp(context: Context, file: FileObject) {
         openWith(context,file)
     }
 
@@ -490,29 +509,79 @@ fun FileInfoDialog(
         },
         text = {
             Column {
-                InfoRow(stringResource(strings.name), file.getName())
 
-                if (file.isFile()) {
-                    InfoRow(stringResource(strings.size), formatFileSize(file.length()))
+                val isDirectory by produceState<Boolean>(
+                    initialValue = false,
+                    key1 = file
+                ) {
+                    value = file.isFile()
                 }
+                val fileName by produceState<String>(
+                    initialValue = stringResource(strings.unknown),
+                    key1 = file
+                ) {
+                    value = file.getName()
+                }
+
+                val isFile by produceState<Boolean>(
+                    initialValue = false,
+                    key1 = file
+                ) {
+                    value = file.isFile()
+                }
+
+                val canRead by produceState<Boolean>(
+                    initialValue = false,
+                    key1 = file
+                ) {
+                    value = file.canRead()
+                }
+
+                val canWrite by produceState<Boolean>(
+                    initialValue = false,
+                    key1 = file
+                ) {
+                    value = file.canWrite()
+                }
+
+                val absolutePath by produceState(
+                    initialValue = "null",
+                    key1 = file
+                ) {
+                    value = file.getAbsolutePath()
+                }
+
+                val fileLength by produceState(
+                    initialValue = 0L,
+                    key1 = file
+                ) {
+                    value = file.length()
+                }
+
+                InfoRow(stringResource(strings.name), fileName)
+
+                if (isFile) {
+                    InfoRow(stringResource(strings.size), formatFileSize(fileLength))
+                }
+
 
                 InfoRow(
                     stringResource(strings.type),
-                    if (file.isDirectory()) stringResource(strings.folder) else stringResource(
+                    if (isDirectory) stringResource(strings.folder) else stringResource(
                         strings.file
                     )
                 )
                 InfoRow(
                     stringResource(strings.can_read),
-                    if (file.canRead()) stringResource(strings.yes) else stringResource(strings.no)
+                    if (canRead) stringResource(strings.yes) else stringResource(strings.no)
                 )
                 InfoRow(
                     stringResource(strings.can_write),
-                    if (file.canWrite()) stringResource(strings.yes) else stringResource(strings.no)
+                    if (canWrite) stringResource(strings.yes) else stringResource(strings.no)
                 )
 
                 InfoRow(stringResource(strings.wrapper_type), file.javaClass.simpleName)
-                InfoRow(stringResource(strings.path), file.getAbsolutePath())
+                InfoRow(stringResource(strings.path), absolutePath)
             }
         },
         dismissButton = {
@@ -648,7 +717,7 @@ private suspend fun copyRecursive(
 /**
  * Checks if parentDir is a parent of childDir (prevents copying directory into itself)
  */
-private fun isParentOf(parentDir: FileObject, childDir: FileObject): Boolean {
+private suspend fun isParentOf(parentDir: FileObject, childDir: FileObject): Boolean {
     var current: FileObject? = childDir
     while (current != null) {
         if (current == parentDir) {

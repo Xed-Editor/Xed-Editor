@@ -43,7 +43,6 @@ import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
-import com.rk.extension.Hooks
 import com.rk.libcommons.openUrl
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
@@ -164,55 +163,6 @@ private fun Categories(navController: NavController) {
         startWidget = {
             HeartbeatIcon()
         }
-    )
-
-
-    Hooks.Settings.screens.values.forEach{ entry ->
-        PreferenceTemplate(modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clip(MaterialTheme.shapes.large)
-            .clickable { navController.navigate(entry.route) }
-            .background(Color.Transparent),
-            verticalPadding = 14.dp,
-            title = {
-                Text(entry.label)
-            },
-            description = {
-                Text(entry.description)
-            },
-            startWidget = {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                    entry.icon()
-                }
-            }
-        )
-    }
-
-
-    PreferenceTemplate(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clip(MaterialTheme.shapes.large)
-        .clickable {
-            activity?.openUrl("https://xed-editor.github.io/Xed-Docs/")
-        }
-        .background(Color.Transparent),
-        verticalPadding = 14.dp,
-        title = {
-            Text(stringResource(id = strings.docs))
-        },
-        description = {
-            Text(stringResource(id = strings.docs_desc))
-        },
-        startWidget = {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                Icon(
-                    imageVector = XedIcons.Menu_book,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
     )
 }
 

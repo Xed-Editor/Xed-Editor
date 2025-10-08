@@ -9,7 +9,7 @@ class Bash() : BaseLspServer() {
     override val languageName: String = "Bash"
     override val supportedExtensions: List<String> = listOf()
 
-    override fun isInstalled(context: Context): Boolean {
+    override suspend fun isInstalled(context: Context): Boolean {
         if (isTerminalInstalled().not()){
             return false
         }
@@ -17,11 +17,11 @@ class Bash() : BaseLspServer() {
         return true
     }
 
-    override fun install(context: Context) {
+    override suspend fun install(context: Context) {
         TODO("Not yet implemented")
     }
 
-    override fun command(): Array<String> {
+    override suspend fun command(): Array<String> {
         TODO("Not yet implemented")
     }
 }

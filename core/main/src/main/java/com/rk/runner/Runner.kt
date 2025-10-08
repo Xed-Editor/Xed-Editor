@@ -2,25 +2,32 @@ package com.rk.runner
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.res.stringResource
 import com.rk.components.compose.preferences.base.DividerColumn
+import com.rk.compose.filetree.getAppropriateName
 import com.rk.file.FileObject
 import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
+import com.rk.resources.strings
 import com.rk.runner.runners.Shell
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
 import com.rk.xededitor.ui.components.SettingsToggle
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import kotlin.text.Regex
 
 
 abstract class RunnerImpl(){
-    abstract fun run(context: Context,fileObject: FileObject)
-    abstract fun getName(): String
-    abstract fun getIcon(context: Context): Drawable?
-    abstract fun isRunning(): Boolean
-    abstract fun stop()
+    abstract suspend fun run(context: Context,fileObject: FileObject)
+    abstract suspend fun getName(): String
+    abstract suspend fun getIcon(context: Context): Drawable?
+    abstract suspend fun isRunning(): Boolean
+    abstract suspend fun stop()
 }
 
 
@@ -102,10 +109,19 @@ object Runner {
         composeDialog{ dialog ->
             DividerColumn {
                 runners.forEach{ runner ->
-                    SettingsToggle(label = runner.getName(), showSwitch = false,default = false, sideEffect = {
-                        currentRunner = WeakReference(runner)
-                        runner.run(context,fileObject)
-                        dialog?.dismiss()
+                    val fileName by produceState<String>(
+                        initialValue = stringResource(strings.unknown),
+                        key1 = runner
+                    ) {
+                        value = runner.getName()
+                    }
+                    SettingsToggle(label = fileName, showSwitch = false,default = false, sideEffect = {
+                        GlobalScope.launch {
+                            currentRunner = WeakReference(runner)
+                            runner.run(context,fileObject)
+                            dialog?.dismiss()
+                        }
+
                     })
                 }
             }

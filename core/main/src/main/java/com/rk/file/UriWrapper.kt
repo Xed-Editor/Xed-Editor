@@ -48,22 +48,22 @@ class UriWrapper : FileObject {
     constructor(uri: Uri, isTree: Boolean) : this(uri.getDocumentFile(isTree)!!)
 
 
-    override fun listFiles(): List<FileObject> = when {
+    override suspend fun listFiles(): List<FileObject> = when {
         !file.isDirectory -> emptyList()
         !file.canRead() -> emptyList()
         else -> file.listFiles().map { UriWrapper(it) }
     }
 
-    override fun isDirectory(): Boolean = file.isDirectory
-    override fun isFile(): Boolean = file.isFile
-    override fun getName(): String = file.name ?: "Invalid"
-    override fun getParentFile(): FileObject? =
+    override suspend fun isDirectory(): Boolean = file.isDirectory
+    override suspend fun isFile(): Boolean = file.isFile
+    override suspend fun getName(): String = file.name ?: "Invalid"
+    override suspend fun getParentFile(): FileObject? =
         file.parentFile?.let { UriWrapper(it) }
 
-    override fun exists(): Boolean = file.exists()
+    override suspend fun exists(): Boolean = file.exists()
 
     fun isTermuxUri(): Boolean {
-        return getAbsolutePath().startsWith("content://com.termux")
+        return uri.startsWith("content://com.termux")
     }
 
     fun convertToTermuxFile(): File {
@@ -80,7 +80,7 @@ class UriWrapper : FileObject {
         return File(path)
     }
 
-    override fun createNewFile(): Boolean {
+    override suspend fun createNewFile(): Boolean {
         if (exists()) return false
 
         val parent = file.parentFile ?: throw IOException("Parent directory doesn't exist")
@@ -90,12 +90,12 @@ class UriWrapper : FileObject {
         ) != null
     }
 
-    override fun getCanonicalPath(): String {
+    override suspend fun getCanonicalPath(): String {
         return getAbsolutePath()
     }
 
     @Throws(IOException::class)
-    override fun mkdir(): Boolean {
+    override suspend fun mkdir(): Boolean {
         if (exists()) return false
 
         val parent = file.parentFile ?: throw IOException("Parent directory doesn't exist")
@@ -103,7 +103,7 @@ class UriWrapper : FileObject {
         return parent.createDirectory(file.name ?: "unnamed") != null
     }
 
-    override fun mkdirs(): Boolean {
+    override suspend fun mkdirs(): Boolean {
         if (exists()) return true
 
         val parent = file.parentFile ?: throw IOException("Cannot create parent directory")
@@ -113,7 +113,7 @@ class UriWrapper : FileObject {
         return mkdir()
     }
 
-    override fun writeText(text: String) {
+    override suspend fun writeText(text: String) {
         getOutPutStream(false).use { outputStream ->
             try {
                 outputStream.write(text.toByteArray())
@@ -125,18 +125,18 @@ class UriWrapper : FileObject {
     }
 
     @Throws(FileNotFoundException::class, SecurityException::class)
-    override fun getInputStream(): InputStream {
+    override suspend fun getInputStream(): InputStream {
         return application!!.contentResolver?.openInputStream(file.uri)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
-    override fun getOutPutStream(append: Boolean): OutputStream {
+    override suspend fun getOutPutStream(append: Boolean): OutputStream {
         val mode = if (append) "wa" else "wt"
         return application!!.contentResolver?.openOutputStream(file.uri, mode)
             ?: throw IOException("Could not open input stream for: ${file.uri}")
     }
 
-    override fun getMimeType(context: Context): String? {
+    override suspend fun getMimeType(context: Context): String? {
         val uri = toUri()
         val extension = MimeTypeMap.getFileExtensionFromUrl(uri.toString())
         return if (extension != null) {
@@ -147,11 +147,11 @@ class UriWrapper : FileObject {
         }
     }
 
-    override fun renameTo(string: String): Boolean {
+    override suspend fun renameTo(string: String): Boolean {
         return file.renameTo(string)
     }
 
-    override fun hasChild(name: String): Boolean {
+    override suspend fun hasChild(name: String): Boolean {
         if (isDirectory()) {
             for (child in listFiles()) {
                 if (child.getName() == name) {
@@ -162,7 +162,7 @@ class UriWrapper : FileObject {
         return false
     }
 
-    override fun createChild(createFile: Boolean, name: String): FileObject? {
+    override suspend fun createChild(createFile: Boolean, name: String): FileObject? {
         return if (createFile) {
             file.createFile("application/octet-stream", name)?.let { UriWrapper(it) }
         } else {
@@ -173,11 +173,11 @@ class UriWrapper : FileObject {
 
     override fun getAbsolutePath(): String = toString()
 
-    override fun length(): Long {
+    override suspend fun length(): Long {
         return file.length()
     }
 
-    override fun delete(): Boolean {
+    override suspend fun delete(): Boolean {
         fun deleteFolder(documentFile: DocumentFile): Boolean {
             if (!documentFile.isDirectory) {
                 return documentFile.delete()
@@ -196,15 +196,15 @@ class UriWrapper : FileObject {
         return file.uri
     }
 
-    override fun canWrite(): Boolean {
+    override suspend fun canWrite(): Boolean {
         return file.canWrite()
     }
 
-    override fun canRead(): Boolean {
+    override suspend fun canRead(): Boolean {
         return file.canRead()
     }
 
-    override fun getChildForName(name: String): FileObject {
+    override suspend fun getChildForName(name: String): FileObject {
         if (!file.isDirectory) {
             throw IllegalStateException("Cannot get child for a non-directory file")
         }
@@ -215,7 +215,7 @@ class UriWrapper : FileObject {
         return UriWrapper(child)
     }
 
-    override fun readText(): String? {
+    override suspend fun readText(): String? {
         val uri: Uri = file.uri
         return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
             BufferedReader(InputStreamReader(inputStream)).use { reader ->
@@ -224,7 +224,7 @@ class UriWrapper : FileObject {
         }
     }
 
-    override fun readText(charset: Charset): String? {
+    override suspend fun readText(charset: Charset): String? {
         val uri: Uri = file.uri
         return application!!.contentResolver.openInputStream(uri)?.use { inputStream ->
             BufferedReader(InputStreamReader(inputStream, charset)).use { reader ->
@@ -246,7 +246,7 @@ class UriWrapper : FileObject {
         return true
     }
 
-    override fun isSymlink(): Boolean {
+    override suspend fun isSymlink(): Boolean {
         return false
     }
 

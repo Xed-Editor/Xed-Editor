@@ -54,7 +54,7 @@ object Mutators {
         }
     }
 
-    fun createMutator(name: String,script: String) {
+    suspend fun createMutator(name: String,script: String) {
         val file = getMutatorDirectory().child("$name.mut").createFileIfNot()
         file.writeText(script)
         val mutator = Mutator(file)

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.*
 import androidx.lifecycle.lifecycleScope
 import com.rk.file.FileObject
 import com.rk.libcommons.errorDialog
@@ -19,6 +20,7 @@ import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.net.HttpURLConnection
@@ -36,25 +38,30 @@ class MDViewer : WebActivity() {
         mdViewerRef = WeakReference(this)
         file = toPreviewFile!!
 
-        val isDarkMode: Boolean =
-            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        var title by mutableStateOf("")
 
-        // kill any existing HtmlRunner server
-        HtmlRunner.httpServer?.let {
-            if (it.isAlive) it.stop()
-        }
+        lifecycleScope.launch {
+            title = file.getName()
+            val isDarkMode: Boolean =
+                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
-
-        // start markdown-serving server
-        httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
-            val parameters = session.parameters
-            val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
-            if (parameters.containsKey("textmd")) {
-                return@HttpServer null
+            // kill any existing HtmlRunner server
+            HtmlRunner.httpServer?.let {
+                if (it.isAlive) it.stop()
             }
 
-            if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
-                val htmlString = """
+
+            // start markdown-serving server
+            httpServer = HttpServer(PORT, file.getParentFile() ?: file) { md, session ->
+                return@HttpServer runBlocking {
+                    val parameters = session.parameters
+                    val pathAfterSlash = session.uri?.substringAfter("/") ?: ""
+                    if (parameters.containsKey("textmd")) {
+                        return@runBlocking null
+                    }
+
+                    if (md.exists() && md.isFile() && md.getName().endsWith(".md")) {
+                        val htmlString = """
                     <!DOCTYPE html>
                     <html>
                     <head>
@@ -68,18 +75,22 @@ class MDViewer : WebActivity() {
                     </html>
                 """.trimIndent()
 
-                return@HttpServer newFixedLengthResponse(
-                    NanoHTTPD.Response.Status.OK, "text/html", htmlString
-                )
+                        return@runBlocking newFixedLengthResponse(
+                            NanoHTTPD.Response.Status.OK, "text/html", htmlString
+                        )
+                    }
+                    return@runBlocking null
+                }
             }
-            return@HttpServer null
         }
+
+
 
         // now load WebView inside Compose
         setContent {
             KarbonTheme {
                 WebScreen(
-                    title = file.getName(),
+                    title = title,
                     onBackPressed = { onBackPressedDispatcher.onBackPressed() },
                     setupWebView = { webView ->
                         setupWebView(webView)

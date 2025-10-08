@@ -14,25 +14,25 @@ var mdViewerRef = WeakReference<MDViewer?>(null)
 var toPreviewFile: FileObject? = null
 
 class MarkDownRunner : RunnerImpl() {
-    override fun run(context: Context,file: FileObject) {
+    override suspend fun run(context: Context,file: FileObject) {
         val intent = Intent(context, MDViewer::class.java)
         toPreviewFile = file
         context.startActivity(intent)
     }
 
-    override fun getName(): String {
+    override suspend fun getName(): String {
         return "MarkDown"
     }
 
-    override fun getIcon(context: Context): Drawable? {
+    override suspend fun getIcon(context: Context): Drawable? {
         return ContextCompat.getDrawable(context, R.drawable.markdown)
     }
 
-    override fun isRunning(): Boolean {
+    override suspend fun isRunning(): Boolean {
         return mdViewerRef.get() != null
     }
 
-    override fun stop() {
+    override suspend fun stop() {
         HtmlRunner.httpServer?.let {
             it.closeAllConnections()
             if (it.isAlive) {

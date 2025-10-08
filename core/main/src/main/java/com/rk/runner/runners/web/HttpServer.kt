@@ -3,6 +3,7 @@ package com.rk.runner.runners.web
 import com.rk.file.FileObject
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.Response.Status
+import kotlinx.coroutines.runBlocking
 import java.net.URLConnection
 import java.util.Date
 
@@ -16,29 +17,70 @@ class HttpServer(
     }
 
     override fun serve(session: IHTTPSession?): Response {
-        val uri = session!!.uri
+        return runBlocking {
+            val uri = session!!.uri
 
-        if (root.isFile()) {
-            if (!root.exists()) {
-                return newFixedLengthResponse(
+            if (root.isFile()) {
+                if (!root.exists()) {
+                    return@runBlocking newFixedLengthResponse(
+                        Status.NOT_FOUND,
+                        "text/plain",
+                        "404 not found ${Date()}",
+                    )
+                }
+
+                return@runBlocking try {
+                    newFixedLengthResponse(
+                        Status.OK,
+                        URLConnection.guessContentTypeFromName(root.getName())
+                            ?: "application/octet-stream",
+                        root.getInputStream(),
+                        root.length(),
+                    )
+                } catch (e: SecurityException) {
+                    newFixedLengthResponse(
+                        Status.FORBIDDEN,
+                        "text/plain",
+                        "403 forbidden: cannot read file ${root.getName()}",
+                    )
+                } catch (e: Exception) {
+                    newFixedLengthResponse(
+                        Status.INTERNAL_ERROR,
+                        "text/plain",
+                        "500 internal error: ${e.message ?: "unknown"}",
+                    )
+                }
+            }
+
+            var file = root.getChildForName(uri)
+            if (file.isDirectory()) {
+                file = file.getChildForName("index.html")
+            }
+
+            // Hook override
+            serveHook?.invoke(file, session)?.let { return@runBlocking it }
+
+            if (!file.exists()) {
+                return@runBlocking newFixedLengthResponse(
                     Status.NOT_FOUND,
                     "text/plain",
                     "404 not found ${Date()}",
                 )
             }
 
-            return try {
+            return@runBlocking try {
                 newFixedLengthResponse(
                     Status.OK,
-                    URLConnection.guessContentTypeFromName(root.getName()) ?: "application/octet-stream",
-                    root.getInputStream(),
-                    root.length(),
+                    URLConnection.guessContentTypeFromName(file.getName())
+                        ?: "application/octet-stream",
+                    file.getInputStream(),
+                    file.length(),
                 )
             } catch (e: SecurityException) {
                 newFixedLengthResponse(
                     Status.FORBIDDEN,
                     "text/plain",
-                    "403 forbidden: cannot read file ${root.getName()}",
+                    "403 forbidden: cannot read ${file.getName()}",
                 )
             } catch (e: Exception) {
                 newFixedLengthResponse(
@@ -47,43 +89,6 @@ class HttpServer(
                     "500 internal error: ${e.message ?: "unknown"}",
                 )
             }
-        }
-
-        var file = root.getChildForName(uri)
-        if (file.isDirectory()) {
-            file = file.getChildForName("index.html")
-        }
-
-        // Hook override
-        serveHook?.invoke(file, session)?.let { return it }
-
-        if (!file.exists()) {
-            return newFixedLengthResponse(
-                Status.NOT_FOUND,
-                "text/plain",
-                "404 not found ${Date()}",
-            )
-        }
-
-        return try {
-            newFixedLengthResponse(
-                Status.OK,
-                URLConnection.guessContentTypeFromName(file.getName()) ?: "application/octet-stream",
-                file.getInputStream(),
-                file.length(),
-            )
-        } catch (e: SecurityException) {
-            newFixedLengthResponse(
-                Status.FORBIDDEN,
-                "text/plain",
-                "403 forbidden: cannot read ${file.getName()}",
-            )
-        } catch (e: Exception) {
-            newFixedLengthResponse(
-                Status.INTERNAL_ERROR,
-                "text/plain",
-                "500 internal error: ${e.message ?: "unknown"}",
-            )
         }
     }
 
