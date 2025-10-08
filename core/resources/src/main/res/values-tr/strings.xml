@@ -191,8 +191,8 @@
     <string name="theme_mode">Tema modu</string>
     <string name="theme_mode_desc">Renk temasını değiştir</string>
     <string name="show_suggestions">Klavye önerilerini göster</string>
-    <string name="about">Üzerinde</string>
-    <string name="about_desc">Hakkında</string>
+    <string name="about">Hakkında</string>
+    <string name="about_desc">Xed-Editor hakkında</string>
     <string name="version">Sürüm</string>
     <string name="version_code">Sürüm kodu</string>
     <string name="github">GitHub</string>
