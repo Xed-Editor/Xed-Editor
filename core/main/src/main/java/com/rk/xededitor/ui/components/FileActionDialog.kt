@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.compose.filetree.fileTreeViewModel
+import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -87,6 +89,18 @@ fun FileActionDialog(
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
                     .verticalScroll(rememberScrollState())
             ) {
+
+                if(file == root){
+                    AddDialogItem(
+                        icon = Icons.Outlined.Close,
+                        title = stringResource(strings.close_current_project).fillPlaceholders(mapOf("project_name" to file.getName())),
+                        onClick = {
+                            removeProject(root,true)
+                            onDismissRequest()
+                        }
+                    )
+                }
+
                 if (file.isDirectory()) {
                     AddDialogItem(
                         icon = Icons.Outlined.Refresh,
