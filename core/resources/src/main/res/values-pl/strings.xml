@@ -333,8 +333,8 @@
     <string name="info">Informacje</string>
     <string name="file_info">Informacje o pliku</string>
     <string name="file_size">Rozmiar pliku</string>
-    <string name="can_read">Można odczytać</string>
-    <string name="can_write">Można zapisać</string>
+    <string name="can_read">Odczyt</string>
+    <string name="can_write">Zapis</string>
     <string name="is_file">Jest plikiem</string>
     <string name="data_clear">Pamieć aplikacji została wyczyszczona</string>
     <string name="app">Aplikacja</string>
