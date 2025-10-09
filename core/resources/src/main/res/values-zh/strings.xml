@@ -435,4 +435,7 @@
     <string name="script_show_input_dialog">显示一个输入对话框</string>
     <string name="properties">属性</string>
     <string name="rename_folder">重命名文件夹</string>
+    <string name="ignore_case">忽略大小写</string>
+    <string name="regex">正则表达式</string>
+    <string name="whole_word">全词匹配</string>
 </resources>
