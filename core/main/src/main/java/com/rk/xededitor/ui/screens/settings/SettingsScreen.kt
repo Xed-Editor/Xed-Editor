@@ -189,31 +189,12 @@ private fun Categories(navController: NavController) {
     }
 
 
-    PreferenceTemplate(modifier = Modifier
-        .padding(horizontal = 16.dp)
-        .clip(MaterialTheme.shapes.large)
-        .clickable {
-            activity?.openUrl("https://xed-editor.github.io/Xed-Docs/")
-        }
-        .background(Color.Transparent),
-        verticalPadding = 14.dp,
-        title = {
-            Text(stringResource(id = strings.docs))
-        },
-        description = {
-            Text(stringResource(id = strings.docs_desc))
-        },
-        startWidget = {
-            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                Icon(
-                    imageVector = XedIcons.Menu_book,
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-        },
-    )
+    
+
+
+
+
+
 }
 
 
