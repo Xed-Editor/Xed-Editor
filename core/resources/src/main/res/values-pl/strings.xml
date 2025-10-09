@@ -163,7 +163,7 @@
     <string name="suggest_clear_app_data">Zalecane czyszczenie danych aplikacji</string>
     <string name="update_files_cleared">Aplikacja zaktualizowana: dane wyczyszczone</string>
     <string name="toggle_ww">Włącz zawijanie słów</string>
-    <string name="warning_private_dir">Zawartość tego katalogu zostanie usunięta jeśli wyczyścisz dane lub usuniesz Xed-Editor</string>
+    <string name="warning_private_dir">Zawartość tego katalogu zostanie usunięta jeśli wyczyścisz dane lub odinstalujesz aplikację</string>
     <string name="read_only_file">Plik tylko do odczytu</string>
     <string name="new_document">Nowy dokument</string>
     <string name="new_document_desc">Nowy plik lub katalog</string>
@@ -266,10 +266,10 @@
     <string name="info_mutators">Mutatory to niewielkie skrypty używane do modyfikowania tekstu w edytorze. Stwórz mutator i kliknij, aby otworzyć go w edytorze.</string>
     <string name="no_mutators">Brak mutatorów</string>
     <string name="add_theme">Dodaj motyw</string>
-    <string name="unsupported_feature">Funkcja nie jest obsługiwana przez twoje urządzenie</string>
+    <string name="unsupported_feature">Funkcja jest nieobsługiwana na twoim urządzeniu</string>
     <string name="confirm_exit">Czy napewno chcesz wyjść?</string>
     <string name="control_panel">Panel kontrolny</string>
-    <string name="tab_memory_warning">Za mało pamięci, aby otworzyć kartę. Otwarcie może spowodować awarię Xed-Editor\'a. Czy chcesz kontynuować?</string>
+    <string name="tab_memory_warning">Za mało pamięci, aby otworzyć kartę. Otwarcie może spowodować awarię aplikacji. Czy chcesz kontynuować?</string>
     <string name="read_mode_desc">Włącz tryb czytania domyślnie</string>
     <string name="acquire_wakelock">Przejmij blokadę uśpienia</string>
     <string name="release_wakelock">Zwolnij blokadę uśpienia</string>
@@ -321,7 +321,7 @@
     <string name="installed">Zainstalowane</string>
     <string name="exists">Jest już używana!</string>
     <string name="private_files">Pliki prywatne</string>
-    <string name="private_files_desc">Pliki prywatne Xed-Editor\'a</string>
+    <string name="private_files_desc">Pliki prywatne aplikacji</string>
     <string name="cloning">Klonuje repozytorium…</string>
     <string name="dont_ask_again">Nie pytaj ponownie</string>
     <string name="install">Zainstaluj</string>
@@ -333,8 +333,8 @@
     <string name="info">Informacje</string>
     <string name="file_info">Informacje o pliku</string>
     <string name="file_size">Rozmiar pliku</string>
-    <string name="can_read">Można czytać</string>
-    <string name="can_write">Można pisać</string>
+    <string name="can_read">Można odczytać</string>
+    <string name="can_write">Można zapisać</string>
     <string name="is_file">Jest plikiem</string>
     <string name="data_clear">Pamieć aplikacji została wyczyszczona</string>
     <string name="app">Aplikacja</string>
@@ -345,7 +345,7 @@
     <string name="file_not_loaded">Plik nie został jeszcze wczytany.</string>
     <string name="fetch_failed">Żądanie pobrania zwróciło pustą wartość</string>
     <string name="anr_watchdog">Mechanizm zabiezpieczający ANR</string>
-    <string name="anr_watchdog_desc">Zamknij Xed-Editor jeśli nie będzie odpowiadać przez 5 sekund</string>
+    <string name="anr_watchdog_desc">Zamknij aplikację jeśli nie będzie odpowiadać przez 5 sekund</string>
     <string name="verbose_errors">Błędy merytoryczne</string>
     <string name="verbose_errors_desc">Załącz błedy sekwencji wywołań w dialogu</string>
     <string name="debugger">Debuger</string>
@@ -374,9 +374,9 @@
     <string name="use_tabs_desc">Użyj prawdziwego tabulatora (/t) zamiast spacji, aby zastosować wcięcie</string>
     <string name="render_whitespace">Renderowanie białej spacji</string>
     <string name="render_whitespace_desc">Renderuj spacje, tabulatory oraz przerwy w lini jako widoczne symbole</string>
-    <string name="manage_storage_reason">Xed-Editor wymaga dostępu, aby edytować pliki w twojej pamięci. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
+    <string name="manage_storage_reason">Aplikacja wymaga dostępu, aby edytować pliki w pamięci wewnętrznej. Proszę, zezwól na dostęp w ustawieniach systemowych.</string>
     <string name="ok">Ok</string>
-    <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji Xed-Editor\'a. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
+    <string name="info_ext">Rozszerzenia są używane do modyfikowania zachowania oraz funkcji aplikacji. Aby nauczyć się jak zbudować wtyczkę, kliknij tutaj.</string>
     <string name="initializing">Inicjowanie…</string>
     <string name="network_err">Bład sieci. Proszę, sprawdź czy połączenie z internetem działa prawidłowo.</string>
     <string name="expose_saf_desc">Udostępnij katalog główny aplikacjom zewnętrznym używając systemowego menedżera plików (SAF)</string>
@@ -414,7 +414,7 @@
     <string name="failsafe_mode_desc">Uruchom terminal w trybie serwisowym</string>
     <string name="ask_refresh">Czy napewno chcesz odświeżyć dokument? Wszystkie niezapisane zmiany zostaną utracone.</string>
     <string name="docs">Dokumentacja</string>
-    <string name="docs_desc">Odwiedź stronę dokumentacji.</string>
+    <string name="docs_desc">Odwiedź stronę dokumentacji</string>
     <string name="lsp_settings_desc">Ustawienia serwera językowego</string>
     <string name="github_stars">Gwiazdki na GitHub\'ie</string>
     <string name="api_error">Błąd API</string>
@@ -435,4 +435,7 @@
     <string name="properties">Właściwości</string>
     <string name="rename_folder">Zmień nazwę katalogu</string>
     <string name="wrapper_type">Typ funkcji opakowującej</string>
+    <string name="ignore_case">Ignoruj wielkość znaków</string>
+    <string name="regex">Wyrażenie regularne</string>
+    <string name="whole_word">Całe słowo</string>
 </resources>
