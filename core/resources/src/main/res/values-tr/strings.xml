@@ -435,4 +435,7 @@
     <string name="rename_folder">Klasörü yeniden adlandır</string>
     <string name="size">Boyut</string>
     <string name="wrapper_type">Sarmalayıcı tipi</string>
+    <string name="ignore_case">Harf duyarlılığını göz ardı et</string>
+    <string name="regex">Düzenli ifade</string>
+    <string name="whole_word">Tüm kelime</string>
 </resources>
