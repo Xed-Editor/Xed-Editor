@@ -17,7 +17,9 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
@@ -51,6 +53,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.net.io.Util.copyStream
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileActionDialog(
     modifier: Modifier = Modifier,
@@ -78,11 +81,12 @@ fun FileActionDialog(
     var showNewDialog by remember { mutableStateOf(false) }
 
     if (showXedDialog){
-        XedDialog(onDismissRequest = onDismissRequest) {
-            DividerColumn(modifier = Modifier
-                .padding(0.dp)
-                .verticalScroll(rememberScrollState())) {
-
+        ModalBottomSheet(onDismissRequest = onDismissRequest) {
+            Column(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 if (file.isDirectory()) {
                     AddDialogItem(
                         icon = Icons.Outlined.Refresh,
@@ -96,15 +100,15 @@ fun FileActionDialog(
                     )
                 }
 
-                if (file is FileWrapper && file.isDirectory()){
+                if (file is FileWrapper && file.isDirectory()) {
                     AddDialogItem(
                         icon = drawables.terminal,
                         title = stringResource(strings.open_in_terminal),
                         //description = stringResource(strings.open_in_terminal),
                         onClick = {
-                            showTerminalNotice(activity = MainActivity.instance!!){
-                                val intent = Intent(context,Terminal::class.java)
-                                intent.putExtra("cwd",file.getAbsolutePath())
+                            showTerminalNotice(activity = MainActivity.instance!!) {
+                                val intent = Intent(context, Terminal::class.java)
+                                intent.putExtra("cwd", file.getAbsolutePath())
                                 context.startActivity(intent)
                                 onDismissRequest()
                             }
@@ -112,7 +116,7 @@ fun FileActionDialog(
                     )
                 }
 
-                if (file.isDirectory()){
+                if (file.isDirectory()) {
                     AddDialogItem(
                         icon = XedIcons.CreateNewFile,
                         title = stringResource(strings.new_file),
@@ -176,14 +180,14 @@ fun FileActionDialog(
                     //description = stringResource(strings.cut_desc),
                     onClick = {
                         scope.launch {
-                            FileOperations.copyToClipboard(file,isCut = true)
+                            FileOperations.copyToClipboard(file, isCut = true)
                             showXedDialog = true
                             onDismissRequest()
                         }
                     }
                 )
 
-                if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()){
+                if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()) {
                     AddDialogItem(
                         icon = drawables.round_content_paste_20,
                         title = stringResource(strings.paste),
@@ -191,7 +195,12 @@ fun FileActionDialog(
                         onClick = {
                             scope.launch {
                                 val parentFile = FileOperations.clipboard!!.getParentFile()
-                                pasteFile(context,FileOperations.clipboard!!,file,isCut = FileOperations.isCut)
+                                pasteFile(
+                                    context,
+                                    FileOperations.clipboard!!,
+                                    file,
+                                    isCut = FileOperations.isCut
+                                )
                                 fileTreeViewModel?.updateCache(file)
                                 fileTreeViewModel?.updateCache(parentFile!!)
                                 //showXedDialog = true
@@ -199,7 +208,7 @@ fun FileActionDialog(
                             }
                         }
                     )
-                    
+
                 }
 
                 AddDialogItem(
@@ -225,7 +234,7 @@ fun FileActionDialog(
                     }
                 )
 
-                if (fileTreeContext && file.isDirectory()){
+                if (fileTreeContext && file.isDirectory()) {
                     AddDialogItem(
                         icon = drawables.arrow_downward,
                         title = stringResource(strings.add_file),
@@ -237,7 +246,7 @@ fun FileActionDialog(
                             onDismissRequest()
                         }
                     )
-                    
+
                 }
 
                 AddDialogItem(
@@ -252,18 +261,16 @@ fun FileActionDialog(
                 )
 
                 Hooks.FileAction.actions.values.forEach { action ->
-                    if (action.shouldAttach(root,file)){
+                    if (action.shouldAttach(root, file)) {
                         AddDialogItem(
                             icon = action.icon,
                             title = action.title,
                             onClick = {
-                                action.onClick(root,file)
+                                action.onClick(root, file)
                             }
                         )
                     }
-
                 }
-                
             }
         }
     }
