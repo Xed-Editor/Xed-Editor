@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.11.1"
 annotation = "1.9.1"
 anrwatchdog = "1.4.0"
 appcompat = "1.7.1"
