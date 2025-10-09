@@ -50,7 +50,7 @@
     <string name="create">作成</string>
     <string name="ask_enter_name">名前を入力してください</string>
     <string name="attention">注意</string>
-    <string name="ask_del">「%s(file_name)」を完全に削除してもよろしいですか？</string>
+    <string name="ask_del">「%(file_name)」を完全に削除してもよろしいですか？</string>
     <string name="reselect_dir">ディレクトリを再選択してください</string>
     <string name="keyword_regex">キーワード (正規表現)</string>
     <string name="replace_all">全て置換</string>
@@ -112,7 +112,7 @@
     <string name="editor_desc">エディターの一般設定</string>
     <string name="terminal_desc">ターミナルの一般設定</string>
     <string name="terminal_text_size">ターミナルの文字サイズ</string>
-    <string name="terminal_text_size_desc">ターミナルの文字の大きさを設定する</string>
+    <string name="terminal_text_size_desc">ターミナルの文字の大きさを設定</string>
     <string name="u_err">不明なエラー</string>
     <string name="saved">保存しました</string>
     <string name="pkg_download_failed">パッケージのダウンロードに失敗しました</string>
@@ -159,7 +159,7 @@
     <string name="close_current_project">プロジェクト「%(project_name)」を閉じてもよろしいですか？</string>
     <string name="enter_path">パスを入力してください</string>
     <string name="auto_save_desc">ファイルを自動的に保存する</string>
-    <string name="text_size_desc">文字の大きさを設定する</string>
+    <string name="text_size_desc">文字の大きさを設定</string>
     <string name="ff_path">ファイル/フォルダのパス</string>
     <string name="open_path_desc">内部ストレージを開く</string>
     <string name="download_sure">「%(name)」をダウンロードしてもよろしいですか？</string>
@@ -176,7 +176,7 @@
     <string name="pin_line_number">行番号を固定する</string>
     <string name="already_opened">ファイルは既に開かれています</string>
     <string name="files">ファイル</string>
-    <string name="tab_size_desc">タブのサイズを設定する</string>
+    <string name="tab_size_desc">タブのサイズを設定</string>
     <string name="force_desktop">デスクトップモードを強制</string>
     <string name="smooth_tab_desc">タブの間を滑らかに移動する</string>
     <string name="cursor_anim">カーソルアニメーション</string>
@@ -187,8 +187,8 @@
     <string name="copy_failed">ファイルのコピーに失敗しました</string>
     <string name="auto_mode">自動</string>
     <string name="cannot_be_empty">空欄にすることはできません。</string>
-    <string name="theme_mode_desc">アプリケーションのカラーテーマを変更する</string>
-    <string name="show_suggestions">キーボード候補を表示</string>
+    <string name="theme_mode_desc">アプリケーションのカラーテーマを変更</string>
+    <string name="show_suggestions">キーボード候補を表示する</string>
     <string name="version_code">バージョンコード</string>
     <string name="github">GitHub</string>
     <string name="github_desc">Githubでスターを付ける🤩</string>
@@ -220,7 +220,7 @@
     <string name="launch">起動</string>
     <string name="mutator_desc">ユーザースクリプトを作成</string>
     <string name="restore_sessions">セッションの復元</string>
-    <string name="restore_sessions_desc">前回のタブを復元</string>
+    <string name="restore_sessions_desc">前回のタブを復元する</string>
     <string name="sessions">セッション</string>
     <string name="terminal_runtime_desc">ターミナルのランタイムを選択</string>
     <string name="terminal_runtime">ターミナルのランタイム</string>
@@ -318,7 +318,7 @@
     <string name="cant_undo">この操作は取り消しできません</string>
     <string name="auto_complete">エディターの自動補完</string>
     <string name="capture_logcat">Logcatをキャプチャー</string>
-    <string name="capture_logcat_desc">デバッグ用にログをバックグラウンドでキャプチャーする</string>
+    <string name="capture_logcat_desc">デバッグ用にログをバックグラウンドでキャプチャー</string>
     <string name="logcat_service">Logcatサービス</string>
     <string name="logcat_service_desc">バックグラウンドでログをキャプチャする</string>
     <string name="temp_file">一時ファイル</string>
@@ -335,7 +335,7 @@
     <string name="invalid_regex">無効な正規表現パターン</string>
     <string name="runner_name_exists">ランナー名は既に存在しています</string>
     <string name="edit_runner">ランナーを編集</string>
-    <string name="info_runners">ランナーは、ファイルやプロジェクトを実行するための小さなbashスクリプトです。ランナーを作成し、それをクリックしてエディターで開けます。</string>
+    <string name="info_runners">ランナーは、ファイルやプロジェクトを実行できる小さなbashスクリプトです。ランナーを作成し、クリックするとエディターで開くことができます。</string>
     <string name="redo">やり直し</string>
     <string name="read_mode">読み取りモード</string>
     <string name="edit_mode">編集モード</string>
@@ -343,7 +343,7 @@
     <string name="cut">切り取り</string>
     <string name="cut_desc">ドキュメントを移動</string>
     <string name="timeout">タイムアウトによりダウンロードがキャンセルされました。インターネット接続が安定していることを確認してください</string>
-    <string name="more">もっと</string>
+    <string name="more">その他</string>
     <string name="theme_settings">テーマ設定</string>
     <string name="add_theme">テーマを追加</string>
     <string name="unsupported_feature">この機能はお使いのデバイスではサポートされていません</string>
@@ -405,7 +405,7 @@
     <string name="stop_logcat">logcatを停止</string>
     <string name="discord">Discordコミュニティ</string>
     <string name="use_tabs">タブ文字を挿入</string>
-    <string name="use_tabs_desc">スペースではなく実際のタブ文字(\\t)をインデントとして使用</string>
+    <string name="use_tabs_desc">スペースではなく実際のタブ文字(\\t)をインデントとして使用する</string>
     <string name="lsp_settings">LSPの設定</string>
     <string name="lsp_settings_desc">言語サーバーの設定</string>
     <string name="no_language_server">言語サーバーがインストールされていません。</string>
@@ -418,7 +418,7 @@
     <string name="render_whitespace_desc">スペース、タブ、改行を可視記号として表示する</string>
     <string name="ask_refresh">このドキュメントを本当に更新しますか？ 保存されていない変更はすべて失われます。</string>
     <string name="docs">ドキュメント</string>
-    <string name="docs_desc">ドキュメントページを表示する</string>
+    <string name="docs_desc">ドキュメントページを表示</string>
     <string name="github_stars">GitHubのスター</string>
     <string name="api_error">APIエラー</string>
     <string name="unknown">不明</string>
@@ -435,4 +435,7 @@
     <string name="script_show_input_dialog">入力ダイアログを表示</string>
     <string name="properties">プロパティ</string>
     <string name="rename_folder">フォルダの名前を変更</string>
+    <string name="ignore_case">大文字/小文字を区別しない</string>
+    <string name="regex">正規表現</string>
+    <string name="whole_word">単語全体</string>
 </resources>
