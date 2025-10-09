@@ -435,4 +435,7 @@
     <string name="script_show_input_dialog">Afficher une fenêtre de saisie</string>
     <string name="properties">Propriétés</string>
     <string name="rename_folder">Renommer un répertoire</string>
+    <string name="ignore_case">Ignorer la casse</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Mot entier</string>
 </resources>
