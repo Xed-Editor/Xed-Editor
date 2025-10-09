@@ -63,7 +63,7 @@ ARGS="$ARGS --link2symlink"
 ARGS="$ARGS --sysvipc"
 ARGS="$ARGS -L"
 
-COMMAND="tar -xf $TMP_DIR/sandbox.tar.gz -C $PREFIX/local/sandbox"
+COMMAND="(cd $PREFIX/local/sandbox && tar -xvf $TMP_DIR/sandbox.tar.gz)"
 
 if [ "$FDROID" = false ]; then
     $LINKER "$PREFIX"/local/bin/proot $ARGS /system/bin/sh -c "$COMMAND"
