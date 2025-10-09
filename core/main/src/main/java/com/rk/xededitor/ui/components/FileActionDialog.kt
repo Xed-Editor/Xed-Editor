@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rk.components.compose.preferences.base.DividerColumn
+import com.rk.compose.filetree.currentProject
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
 import com.rk.extension.Hooks
@@ -42,6 +43,7 @@ import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
+import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
@@ -81,6 +83,7 @@ fun FileActionDialog(
     var newNameValue by remember { mutableStateOf("") }
     var newNameError by remember { mutableStateOf<String?>(null) }
     var showNewDialog by remember { mutableStateOf(false) }
+    var showCloseProjectDialog by remember { mutableStateOf(false) }
 
     if (showXedDialog){
         ModalBottomSheet(onDismissRequest = onDismissRequest) {
@@ -93,10 +96,10 @@ fun FileActionDialog(
                 if(file == root){
                     AddDialogItem(
                         icon = Icons.Outlined.Close,
-                        title = stringResource(strings.close_current_project).fillPlaceholders(mapOf("project_name" to file.getName())),
+                        title = stringResource(strings.close),
                         onClick = {
-                            removeProject(root,true)
-                            onDismissRequest()
+                            showCloseProjectDialog = true
+                            showXedDialog = true
                         }
                     )
                 }
@@ -287,6 +290,8 @@ fun FileActionDialog(
                 }
             }
         }
+
+
     }
 
     // Rename dialog
@@ -408,6 +413,19 @@ fun FileActionDialog(
             }
         )
     }
+
+
+    if (showCloseProjectDialog && root != null){
+        CloseConfirmationDialog(fileName = root.getName(),onConfirm = {
+            removeProject(root)
+            showCloseProjectDialog = false
+            onDismissRequest()
+        }, onDismiss = {
+            showCloseProjectDialog = false
+            onDismissRequest()
+        })
+    }
+
 }
 
 // File Operations utility class
@@ -453,6 +471,46 @@ object FileOperations {
         intent.type = "*/*"
         MainActivity.instance?.fileManager?.requestAddFile(parentFile)
     }
+}
+
+
+@Composable
+fun CloseConfirmationDialog(
+    fileName: String,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(stringResource(strings.close))
+        },
+        text = {
+            Column {
+                Text(
+                    text = stringResource(strings.close_current_project).fillPlaceholders(mapOf("project_name" to fileName))
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm,
+            ) {
+                Text(
+                    stringResource(strings.close)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text(
+                    stringResource(strings.cancel)
+                )
+            }
+        },
+    )
 }
 
 // Delete Confirmation Dialog
