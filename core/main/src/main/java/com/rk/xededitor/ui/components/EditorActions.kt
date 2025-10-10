@@ -62,6 +62,7 @@ import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.ranges.random
 import androidx.compose.ui.platform.LocalResources
+import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 
 sealed class ActionType {
     data class PainterAction(@DrawableRes val iconRes: Int) : ActionType()
@@ -111,7 +112,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
     }
 
 
-    val allActions = remember(editable,canRedo.value,canUndo.value,isRunnable) {
+    val allActions = remember(editable,canRedo.value,canUndo.value,isRunnable, InbuiltFeatures.terminal.state.value) {
         listOf(
             EditorAction(
                 id = "save",
@@ -218,6 +219,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
             EditorAction(
                 id = "terminal",
                 type = ActionType.PainterAction(drawables.terminal),
+                visible = InbuiltFeatures.terminal.state.value,
                 labelRes = strings.terminal,
                 action = { tab,editorState ->
                     showTerminalNotice(activity!!){

@@ -9,12 +9,12 @@ import androidx.compose.ui.res.stringResource
 import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.DefaultScope
-import com.rk.extension.Hooks
 import com.rk.libcommons.errorDialog
 import com.rk.mutator_engine.Engine
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.components.XedDialog
+import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import com.rk.xededitor.ui.screens.settings.mutators.MutatorAPI
 import com.rk.xededitor.ui.screens.settings.mutators.Mutators
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -66,35 +66,33 @@ fun ControlPanel(onDismissRequest:()-> Unit,viewModel: MainViewModel){
             )
 
 
-            Hooks.ControlItems.items.values.forEach{ item ->
-                ControlItem(item = item)
-            }
-
-
-            Mutators.mutators.forEach { mut ->
-                ControlItem(
-                    item = ControlItem(
-                        label = mut.name,
-                        sideEffect = {
-                            MainActivity.instance?.viewModel?.currentTab?.let {
-                                if (it is EditorTab){
-                                    it.editorState.showControlPanel = true
+            if (InbuiltFeatures.mutators.state.value){
+                Mutators.mutators.forEach { mut ->
+                    ControlItem(
+                        item = ControlItem(
+                            label = mut.name,
+                            sideEffect = {
+                                MainActivity.instance?.viewModel?.currentTab?.let {
+                                    if (it is EditorTab){
+                                        it.editorState.showControlPanel = true
+                                    }
                                 }
-                            }
-                            DefaultScope.launch {
-                                Engine(
-                                    mut.script,
-                                    DefaultScope
-                                ).start(onResult = { engine, result ->
-                                    println(result)
-                                }, onError = { t ->
-                                    t.printStackTrace()
-                                    errorDialog(t)
-                                }, api = MutatorAPI::class.java)
-                            }
-                        })
-                )
+                                DefaultScope.launch {
+                                    Engine(
+                                        mut.script,
+                                        DefaultScope
+                                    ).start(onResult = { engine, result ->
+                                        println(result)
+                                    }, onError = { t ->
+                                        t.printStackTrace()
+                                        errorDialog(t)
+                                    }, api = MutatorAPI::class.java)
+                                }
+                            })
+                    )
+                }
             }
+
         }
     }
 }

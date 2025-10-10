@@ -40,6 +40,7 @@ import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.icons.CreateNewFile
 import com.rk.xededitor.ui.icons.XedIcons
+import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import kotlinx.coroutines.launch
 
 var addDialog by mutableStateOf(false)
@@ -55,14 +56,17 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
             Icon(imageVector = Icons.Outlined.Add,contentDescription = null)
         }
 
-        IconButton(onClick = {
-            showTerminalNotice(MainActivity.instance!!){
-                val intent = Intent(context, Terminal::class.java)
-                context.startActivity(intent)
+        if (InbuiltFeatures.terminal.state.value){
+            IconButton(onClick = {
+                showTerminalNotice(MainActivity.instance!!){
+                    val intent = Intent(context, Terminal::class.java)
+                    context.startActivity(intent)
+                }
+            }) {
+                Icon(painter = painterResource(drawables.terminal),contentDescription = null)
             }
-        }) {
-            Icon(painter = painterResource(drawables.terminal),contentDescription = null)
         }
+
 
         IconButton(onClick = {
             val intent = Intent(context,SettingsActivity::class.java)

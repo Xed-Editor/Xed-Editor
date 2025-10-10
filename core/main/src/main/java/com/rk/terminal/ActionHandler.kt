@@ -1,7 +1,6 @@
 package com.rk.terminal
 
 import androidx.lifecycle.lifecycleScope
-import com.rk.extension.ExtensionManager
 import com.rk.file.FileWrapper
 import com.rk.file.sandboxDir
 import com.rk.libcommons.application
@@ -65,30 +64,6 @@ object ActionHandler {
                         lifecycleScope.launch(Dispatchers.Main) {
                             viewModel.newTab(FileWrapper(file))
                         }
-                    }
-                }
-
-                "plugin-install" -> {
-                    if (args.isEmpty()) {
-                        return "No file path provided"
-                    }
-
-                    if (file.exists().not()) {
-                        return "File not found : ${file.absolutePath}"
-                    }
-                    if (file.isDirectory) {
-                        return "Path is a directory : ${file.absolutePath}"
-                    }
-                    if (file.extension != "zip") {
-                        return "File is not an ZIP : ${file.absolutePath}"
-                    }
-
-                    runCatching {
-                        ExtensionManager(application!!).installExtension(file)
-                    }.onFailure {
-                        return it.message.toString()
-                    }.onSuccess {
-                        return "ok"
                     }
                 }
 

@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
+import androidx.core.content.edit
 
 object Settings {
     var readOnlyByDefault by CachedPreference("readOnly", false)
@@ -38,8 +39,8 @@ object Settings {
     var github by CachedPreference("github", true)
     var has_shown_private_data_dir_warning by CachedPreference("has_shown_private_data_dir_warning", false)
     var has_shown_terminal_dir_warning by CachedPreference("has_shown_terminal_dir_warning", false)
-    var anr_watchdog by CachedPreference("anr", false)
-    var strict_mode by CachedPreference("strictMode", false)
+    var anr_watchdog by CachedPreference("anr", BuildConfig.DEBUG)
+    var strict_mode by CachedPreference("strictMode", BuildConfig.DEBUG)
     var expose_home_dir by CachedPreference("expose_home_dir", false)
     var verbose_error by CachedPreference("verbose_error", BuildConfig.DEBUG)
     var project_as_pwd by CachedPreference("project_as_pwd", true)
@@ -64,10 +65,8 @@ object Settings {
     var font_gson by CachedPreference("selected_font", "")
     var theme by CachedPreference("theme", blueberry.id)
     var selected_font_path by CachedPreference("selected_font_path", "")
-    var encoding by CachedPreference("encoding", Charset.defaultCharset().name())
-
-
-    var currentLang by CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
+    var encoding: String? by CachedPreference("encoding", Charset.defaultCharset().name())
+    var currentLang: String? by CachedPreference("currentLang", application!!.resources.configuration.locales[0].language)
 
     // Long settings
     var last_update_check_timestamp by CachedPreference("last_update", 0L)
@@ -105,7 +104,7 @@ object Preference {
 
     @SuppressLint("ApplySharedPref")
     fun clearData() {
-        sharedPreferences.edit().clear().commit()
+        sharedPreferences.edit(commit = true) { clear() }
         clearCaches()
     }
 
@@ -122,7 +121,7 @@ object Preference {
             return
         }
 
-        sharedPreferences.edit().remove(key).apply()
+        sharedPreferences.edit { remove(key) }
         clearKeyFromCache(key)
     }
 
@@ -151,7 +150,7 @@ object Preference {
     fun setBoolean(key: String, value: Boolean) {
         boolCache[key] = WeakReference(value)
         runCatching {
-            sharedPreferences.edit().putBoolean(key, value).apply()
+            sharedPreferences.edit { putBoolean(key, value) }
         }.onFailure { it.printStackTrace() }
     }
 
@@ -172,7 +171,7 @@ object Preference {
     fun setString(key: String, value: String?) {
         stringCache[key] = WeakReference(value)
         runCatching {
-            sharedPreferences.edit().putString(key, value).apply()
+            sharedPreferences.edit { putString(key, value) }
         }.onFailure { it.printStackTrace() }
     }
 
@@ -193,7 +192,7 @@ object Preference {
     fun setInt(key: String, value: Int) {
         intCache[key] = WeakReference(value)
         runCatching {
-            sharedPreferences.edit().putInt(key, value).apply()
+            sharedPreferences.edit { putInt(key, value) }
         }.onFailure { it.printStackTrace() }
     }
 
@@ -214,7 +213,7 @@ object Preference {
     fun setLong(key: String, value: Long) {
         longCache[key] = WeakReference(value)
         runCatching {
-            sharedPreferences.edit().putLong(key, value).apply()
+            sharedPreferences.edit { putLong(key, value) }
         }.onFailure { it.printStackTrace() }
     }
 
@@ -235,11 +234,12 @@ object Preference {
     fun setFloat(key: String, value: Float) {
         floatCache[key] = WeakReference(value)
         runCatching {
-            sharedPreferences.edit().putFloat(key, value).apply()
+            sharedPreferences.edit { putFloat(key, value) }
         }.onFailure { it.printStackTrace() }
     }
 }
 
+@Suppress("UNCHECKED_CAST")
 class CachedPreference<T>(private val key: String, private val defaultValue: T) : ReadWriteProperty<Any?, T> {
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         return when (defaultValue) {

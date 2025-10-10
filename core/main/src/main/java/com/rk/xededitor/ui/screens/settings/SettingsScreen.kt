@@ -43,7 +43,6 @@ import com.rk.App
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.components.compose.preferences.base.PreferenceTemplate
 import com.rk.components.compose.preferences.category.PreferenceCategory
-import com.rk.extension.Hooks
 import com.rk.libcommons.openUrl
 import com.rk.resources.drawables
 import com.rk.resources.getFilledString
@@ -105,15 +104,6 @@ private fun Categories(navController: NavController) {
         )
     }
 
-    if (InbuiltFeatures.extensions.state.value) {
-        PreferenceCategory(
-            label = stringResource(strings.ext),
-            description = stringResource(strings.ext_desc),
-            iconResource = drawables.extension,
-            onNavigate = { navController.navigate(SettingsRoutes.Extensions.route) },
-        )
-    }
-
 
     if (App.isFDroid && InbuiltFeatures.developerOptions.state.value) {
         PreferenceCategory(
@@ -165,36 +155,7 @@ private fun Categories(navController: NavController) {
             HeartbeatIcon()
         }
     )
-
-
-    Hooks.Settings.screens.values.forEach{ entry ->
-        PreferenceTemplate(modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .clip(MaterialTheme.shapes.large)
-            .clickable { navController.navigate(entry.route) }
-            .background(Color.Transparent),
-            verticalPadding = 14.dp,
-            title = {
-                Text(entry.label)
-            },
-            description = {
-                Text(entry.description)
-            },
-            startWidget = {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(32.dp)) {
-                    entry.icon()
-                }
-            }
-        )
-    }
-
-
     
-
-
-
-
-
 }
 
 

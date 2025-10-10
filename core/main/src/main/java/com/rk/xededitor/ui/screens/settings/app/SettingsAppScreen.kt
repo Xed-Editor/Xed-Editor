@@ -24,6 +24,7 @@ import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
 import com.rk.settings.Preference
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
+import androidx.core.net.toUri
 
 data class Feature(
     val nameRes: Int,
@@ -40,18 +41,13 @@ data class Feature(
 }
 
 object InbuiltFeatures {
-    val extensions =
-        Feature(nameRes = strings.enable_ext, key = "enable_extension", default = false)
-    val terminal =
-        Feature(
+    val terminal = Feature(
             nameRes = strings.terminal_feature,
             key = "feature_terminal",
             default = true
         )
-    val mutators =
-        Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
-    val developerOptions =
-        Feature(nameRes = strings.debug_options, key = "developerOptions", default = false)
+    val mutators = Feature(nameRes = strings.mutators, key = "feature_mutators", default = true)
+    val developerOptions = Feature(nameRes = strings.debug_options, key = "developerOptions", default = false)
 }
 
 @Composable
@@ -85,28 +81,29 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     Settings.check_for_update = it
                 })
 
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                SettingsToggle(
-                    label = stringResource(strings.manage_storage),
-                    description = stringResource(strings.manage_storage_desc),
-                    isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
-                    showSwitch = false,
-                    default = false,
-                    endWidget = {
-                        Icon(
-                            modifier = Modifier.padding(16.dp),
-                            imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                            contentDescription = null
-                        )
-                    },
-                    sideEffect = {
+            SettingsToggle(
+                label = stringResource(strings.manage_storage),
+                description = stringResource(strings.manage_storage_desc),
+                isEnabled = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q,
+                showSwitch = false,
+                default = false,
+                endWidget = {
+                    Icon(
+                        modifier = Modifier.padding(16.dp),
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null
+                    )
+                },
+                sideEffect = {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
                         val intent =
                             Intent(android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
-                        intent.data = Uri.parse("package:${context.packageName}")
+                        intent.data = "package:${context.packageName}".toUri()
                         context.startActivity(intent)
                     }
-                )
-            }
+
+                }
+            )
 
         }
 
@@ -118,15 +115,6 @@ fun SettingsAppScreen(activity: SettingsActivity,navController: NavController) {
                     InbuiltFeatures.terminal.setEnable(it)
                 }
             )
-            if (App.isFDroid) {
-                SettingsToggle(
-                    label = stringResource(InbuiltFeatures.extensions.nameRes),
-                    default = InbuiltFeatures.extensions.state.value,
-                    sideEffect = {
-                        InbuiltFeatures.extensions.setEnable(it)
-                    }
-                )
-            }
 
             SettingsToggle(
                 label = stringResource(InbuiltFeatures.mutators.nameRes),

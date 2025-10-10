@@ -33,7 +33,6 @@ import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.compose.filetree.currentProject
 import com.rk.compose.filetree.fileTreeViewModel
 import com.rk.compose.filetree.removeProject
-import com.rk.extension.Hooks
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.openWith
@@ -51,6 +50,7 @@ import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.icons.CreateNewFile
 import com.rk.xededitor.ui.icons.CreateNewFolder
 import com.rk.xededitor.ui.icons.XedIcons
+import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -117,7 +117,7 @@ fun FileActionDialog(
                     )
                 }
 
-                if (file is FileWrapper && file.isDirectory()) {
+                if (InbuiltFeatures.terminal.state.value && file is FileWrapper && file.isDirectory()) {
                     AddDialogItem(
                         icon = drawables.terminal,
                         title = stringResource(strings.open_in_terminal),
@@ -276,18 +276,6 @@ fun FileActionDialog(
                         //onDismissRequest()
                     }
                 )
-
-                Hooks.FileAction.actions.values.forEach { action ->
-                    if (action.shouldAttach(root, file)) {
-                        AddDialogItem(
-                            icon = action.icon,
-                            title = action.title,
-                            onClick = {
-                                action.onClick(root, file)
-                            }
-                        )
-                    }
-                }
             }
         }
 

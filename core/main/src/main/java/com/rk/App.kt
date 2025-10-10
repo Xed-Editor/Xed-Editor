@@ -9,7 +9,6 @@ import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
-import com.rk.extension.internal.ExtensionAPIManager
 import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.libcommons.application
@@ -134,11 +133,6 @@ class App : Application() {
             UpdateManager.inspect()
 
         }
-    }
-
-    override fun onTrimMemory(level: Int) {
-        ExtensionAPIManager.onLowMemory()
-        super.onTrimMemory(level)
     }
 
 }
