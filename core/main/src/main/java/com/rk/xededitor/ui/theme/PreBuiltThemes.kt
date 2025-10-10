@@ -149,9 +149,9 @@ val blueberry = Theme(
 
 
 
-val leaves = Theme(
-    id = "leaves",
-    name = "Leaves",
+val lime = Theme(
+    id = "lime",
+    name = "Lime",
     lightScheme = lightColorScheme(
         primary = Color(0xFF4C662B),
         onPrimary = Color(0xFFFFFFFF),
@@ -296,4 +296,4 @@ val leaves = Theme(
     }
 )
 
-val inbuiltThemes = listOf<Theme>(blueberry,leaves)
+val inbuiltThemes = listOf<Theme>(blueberry,lime)
