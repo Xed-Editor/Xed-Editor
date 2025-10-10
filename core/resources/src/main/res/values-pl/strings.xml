@@ -143,7 +143,7 @@
     <string name="script_get_text">Pobierz tekst</string>
     <string name="script_show_toast">Pokaż powiadomienie</string>
     <string name="script_network">Sieć</string>
-    <string name="script_showing_dialog">Pokazuje dialog</string>
+    <string name="script_showing_dialog">Pokaż dialog</string>
     <string name="script_set_text">Ustaw tekst</string>
     <string name="script_text">Tekst zostanie użyty w edytorze</string>
     <string name="script_api_info">Sprawdź klasę ImplApi w kodzie źródłowym Xed-Editor\'a na PROJECT/core/main/ui/screens/mutators/ImplApi aby uzyskać więcej informacji</string>
