@@ -183,7 +183,7 @@ class MainActivity : AppCompatActivity() {
                                             .fillMaxSize()
                                             .padding(top = 8.dp),
                                         onFileSelected = { file ->
-                                            scope.launch {
+                                            scope.launch(Dispatchers.IO) {
                                                 if (file.isFile()) {
                                                     viewModel.newTab(file, switchToTab = true)
                                                 }
