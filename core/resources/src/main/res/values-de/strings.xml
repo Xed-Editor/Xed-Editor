@@ -435,4 +435,7 @@
     <string name="script_show_input_dialog">Zeige einen Eingabedialog an</string>
     <string name="properties">Eigenschaften</string>
     <string name="rename_folder">Ordner umbenennen</string>
+    <string name="ignore_case">Groß-/Kleinschreibung ignorieren</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Ganzes Wort</string>
 </resources>
