@@ -435,4 +435,7 @@
     <string name="script_show_input_dialog">Tampilkan dialog masukan</string>
     <string name="properties">Properti</string>
     <string name="rename_folder">Ubah nama folder</string>
+    <string name="ignore_case">Abaikan huruf besar/kecil</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Semua kata</string>
 </resources>
