@@ -133,7 +133,7 @@
     <string name="add_file_desc">Vyberte nový soubor ke přidání</string>
     <string name="exists">Už existuje!</string>
     <string name="private_files">Soukromé soubory</string>
-    <string name="private_files_desc">Soukromé soubory Xed-Editor</string>
+    <string name="private_files_desc">Soukromé soubory Xed-Editoru</string>
     <string name="open_dir_desc">Otevřít složku pomocí systémového správce souborů</string>
     <string name="open_file_desc">Vyberte soubor ke upravění</string>
     <string name="yes">Ano</string>
@@ -388,4 +388,11 @@
     <string name="stop_logcat">Zastavit logcat</string>
     <string name="size">Velikost</string>
     <string name="support">Podpořit</string>
+    <string name="regex">Regex</string>
+    <string name="whole_word">Celé slovo</string>
+    <string name="ignore_case">Nerozlišovat velká a malá písmena</string>
+    <string name="info_lsp">Jazykové servery jsou služby, které poskytují inteligentní funkce jako dokončování zdrojového kódu, zvýraznění chyb a přímé zobrazení dokumentace.</string>
+    <string name="file_err">Soubor nemohl být uložen, zkuste znovu zavřít a otevřít soubor zase</string>
+    <string name="failsafe_mode">Nouzový režim</string>
+    <string name="failsafe_mode_desc">Spustit terminál v nouzovém režimu</string>
 </resources>
