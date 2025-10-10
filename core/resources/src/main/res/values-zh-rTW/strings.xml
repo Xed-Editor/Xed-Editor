@@ -435,4 +435,7 @@
     <string name="properties">屬性</string>
     <string name="script_show_input_dialog">顯示輸入對話框</string>
     <string name="rename_folder">重新命名資料夾</string>
+    <string name="ignore_case">忽略大小寫</string>
+    <string name="regex">正則表達式</string>
+    <string name="whole_word">全字比對</string>
 </resources>
