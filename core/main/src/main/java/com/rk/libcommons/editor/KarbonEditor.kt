@@ -3,10 +3,8 @@ package com.rk.libcommons.editor
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import android.graphics.drawable.ColorDrawable
 import android.text.InputType
 import android.util.AttributeSet
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,34 +28,12 @@ import io.github.rosemoe.sora.langs.textmate.registry.ThemeRegistry
 import io.github.rosemoe.sora.langs.textmate.registry.model.ThemeModel
 import io.github.rosemoe.sora.langs.textmate.registry.provider.AssetsFileResolver
 import io.github.rosemoe.sora.widget.CodeEditor
-import io.github.rosemoe.sora.widget.component.DefaultCompletionLayout
 import io.github.rosemoe.sora.widget.component.EditorAutoCompletion
 import io.github.rosemoe.sora.widget.component.EditorCompletionAdapter
+import io.github.rosemoe.sora.widget.component.TextActionItem
 import io.github.rosemoe.sora.widget.schemes.EditorColorScheme
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.CURRENT_LINE
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_DIVIDER
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.LINE_NUMBER_CURRENT
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.MATCHED_TEXT_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SCROLL_BAR_THUMB_PRESSED
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.SELECTED_TEXT_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR
-import io.github.rosemoe.sora.widget.schemes.EditorColorScheme.WHOLE_BACKGROUND
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -132,72 +108,79 @@ class KarbonEditor : CodeEditor {
 
             setAdapter(AutoCompletionLayoutAdapter(density))
         }
-
     }
 
-
-
-    fun setThemeColors(editorSurface: Int,surfaceContainer:Int,
-                       surface: Int,onSurface: Int,
-                       colorPrimary: Int,
-                       colorPrimaryContainer: Int,
-                       colorSecondary: Int,
-                       secondaryContainer: Int,
-                       selectionBg: Int,
-                       handleColor: Int,
-                       gutterColor: Int,
-                       currentLine: Int,
-                       dividerColor:Int) {
+    fun setThemeColors(
+        editorSurface: Int, surfaceContainer: Int,
+        surface: Int, onSurface: Int,
+        colorPrimary: Int,
+        colorPrimaryContainer: Int,
+        colorSecondary: Int,
+        secondaryContainer: Int,
+        selectionBg: Int,
+        handleColor: Int,
+        gutterColor: Int,
+        currentLine: Int,
+        dividerColor: Int
+    ) {
         updateColors { colors ->
-            with(colors){
-                setColor(HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
+            with(colors) {
+                setColor(EditorColorScheme.HIGHLIGHTED_DELIMITERS_UNDERLINE, Color.TRANSPARENT)
 
                 fun EditorColorScheme.setColors(color: Int, vararg keys: Int) {
                     keys.forEach { setColor(it, color) }
                 }
 
                 setColors(
-                    onSurface,
-                    TEXT_ACTION_WINDOW_ICON_COLOR,
-                    COMPLETION_WND_TEXT_PRIMARY,
-                    COMPLETION_WND_TEXT_SECONDARY,
-                    DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
-                    DIAGNOSTIC_TOOLTIP_DETAILED_MSG
+                    editorSurface,
+                    EditorColorScheme.WHOLE_BACKGROUND,
                 )
 
                 setColors(
-                    editorSurface,
-                    WHOLE_BACKGROUND,
+                    surfaceContainer,
+                    EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,
+                    EditorColorScheme.COMPLETION_WND_BACKGROUND,
+                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
+                    EditorColorScheme.SIGNATURE_BACKGROUND,
                 )
 
-                setColors(onSurface,LINE_NUMBER,LINE_NUMBER_CURRENT)
+                setColors(
+                    onSurface,
+                    EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR,
+                    EditorColorScheme.COMPLETION_WND_TEXT_PRIMARY,
+                    EditorColorScheme.COMPLETION_WND_TEXT_SECONDARY,
+                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
+                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG,
+                    EditorColorScheme.SIGNATURE_TEXT_NORMAL,
+                    EditorColorScheme.LINE_NUMBER,
+                    EditorColorScheme.LINE_NUMBER_CURRENT
+                )
 
-
-                setColors(surfaceContainer,
-                    TEXT_ACTION_WINDOW_BACKGROUND,
-                    COMPLETION_WND_BACKGROUND,DIAGNOSTIC_TOOLTIP_BACKGROUND)
-
-
-                setColors(handleColor,EditorColorScheme.SELECTION_HANDLE)
-                setColors(selectionBg,EditorColorScheme.SELECTION_INSERT,MATCHED_TEXT_BACKGROUND,SELECTED_TEXT_BACKGROUND)
-                setColors(colorPrimary,HIGHLIGHTED_DELIMITERS_FOREGROUND)
-
+                setColors(
+                    handleColor,
+                    EditorColorScheme.SELECTION_HANDLE
+                )
+                setColors(
+                    selectionBg,
+                    EditorColorScheme.SELECTION_INSERT,
+                    EditorColorScheme.MATCHED_TEXT_BACKGROUND,
+                    EditorColorScheme.SELECTED_TEXT_BACKGROUND
+                )
                 setColors(
                     colorPrimary,
+                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
+                    EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
                     EditorColorScheme.BLOCK_LINE,
                     EditorColorScheme.BLOCK_LINE_CURRENT,
-                    DIAGNOSTIC_TOOLTIP_ACTION
+                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
                 )
 
+                setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
+                setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
 
-                setColors(setAlpha(onSurface,0.3f),SCROLL_BAR_THUMB)
-                setColors(setAlpha(onSurface,0.2f),SCROLL_BAR_THUMB_PRESSED)
-
-                setColors(currentLine,CURRENT_LINE)
-                setColors(gutterColor,LINE_NUMBER_BACKGROUND)
-                setColors(dividerColor,LINE_DIVIDER)
-
-
+                setColors(currentLine, EditorColorScheme.CURRENT_LINE)
+                setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
+                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER)
             }
         }
     }
