@@ -14,6 +14,21 @@ error() {
   printf '\033[31;1m[x] \033[0m%s\n' "$1"
 }
 
+
+# Set timezone
+CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
+
+# Symlink /etc/localtime to the desired timezone
+ln -snf "/usr/share/zoneinfo/$CONTAINER_TIMEZONE" /etc/localtime
+
+# Write the timezone string to /etc/timezone
+echo "$CONTAINER_TIMEZONE" > /etc/timezone
+
+# Reconfigure tzdata to apply without prompts
+DEBIAN_FRONTEND=noninteractive dpkg-reconfigure -f noninteractive tzdata >/dev/null 2>&1
+
+
+
 ALPINE_DIR="$PREFIX/local/alpine"
 RETAINED_FILE="$ALPINE_DIR/.retained"
 
