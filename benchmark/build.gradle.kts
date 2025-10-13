@@ -26,12 +26,6 @@ android {
         }
     }
 
-    flavorDimensions += listOf("store")
-    productFlavors {
-        create("Fdroid") { dimension = "store" }
-        create("PlayStore") { dimension = "store" }
-    }
-
     targetProjectPath = ":app"
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }
