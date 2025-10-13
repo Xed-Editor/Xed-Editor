@@ -91,11 +91,13 @@ jobs:
       - name: Send APK to Telegram
         if: ${{ success() && github.event.head_commit.message != '' }}
         run: |
+          CAPTION=$(jq -R . <<< "${{ github.event.head_commit.message }}")
           curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
           -F chat_id="-1002408175863" \
           -F message_thread_id="582" \
-          -F caption="${{ github.event.head_commit.message }}" \
+          -F caption="$CAPTION" \
           -F document=@"app/xed-editor-${{ env.COMMIT_HASH }}.apk"
+
 
       - name: Check Commit Message and Create Release
         if: startsWith(github.event.head_commit.message, 'release') && env.VERSION_CHANGED == 'true'
