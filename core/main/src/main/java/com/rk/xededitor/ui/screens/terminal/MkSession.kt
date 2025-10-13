@@ -103,7 +103,8 @@ object MkSession {
                 "NATIVE_LIB_DIR=${applicationInfo.nativeLibraryDir}",
                 "FDROID=${App.isFDroid}",
                 "SANDBOX=${Settings.sandbox}",
-                "TMP_DIR=${getTempDir()}"
+                "TMP_DIR=${getTempDir()}",
+                "TZ=UTC"
             )
 
             if (!App.isFDroid){
