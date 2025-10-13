@@ -34,14 +34,11 @@ fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel:
         actions = {
             GlobalActions(viewModel)
 
-            val tabs = viewModel.tabs
-            if (tabs.isNotEmpty()) {
-                val lastIndex = (tabs.size - 1).coerceAtLeast(0)
-                val safeIndex = viewModel.currentTabIndex.coerceIn(0, lastIndex)
-                tabs.getOrNull(safeIndex)?.apply {
-                    Actions()
-                }
-            }
+            if (viewModel.tabs.isNotEmpty()){
+                viewModel.tabs[viewModel.currentTabIndex].apply {
+                    Actions()
+                }
+            }
 
 
         }
