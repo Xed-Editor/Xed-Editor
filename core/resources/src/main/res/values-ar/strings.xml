@@ -60,7 +60,7 @@
     <string name="ask_enter_name">الرجاء إدخال اسم</string>
     <string name="already_exists">يوجد مستند بهذا الاسم بالفعل</string>
     <string name="attention">تحذير</string>
-    <string name="ask_del">هل أنت متأكد أنك تريد حذف ‎%(file_name) نهائيًا؟</string>
+    <string name="ask_del">هل أنت متأكد أنك تريد حذف \'%(file_name)\' بشكل دائم؟</string>
     <string name="reselect_dir">الرجاء إعادة تحديد المسار</string>
     <string name="cant_handle">لم يتم العثور على تطبيق للتعامل مع الملف</string>
     <string name="terminal">موجه الأوامر</string>
@@ -85,7 +85,7 @@
     <string name="open_dir_in_terminal">فتح الدليل في الطرفية</string>
     <string name="file_open_denied">لا يجوز فتح هذا الملف مع برامج أخرى</string>
     <string name="reload_file_tree">إعادة تحميل الملفات</string>
-    <string name="close_current_project">إغلاق المشروع الحالي</string>
+    <string name="close_current_project">هل أنت متأكد أنك تريد إغلاق المشروع \'%(project_name)\'؟</string>
     <string name="rename_desc">إعادة تسمية المستند</string>
     <string name="open_with_other">فتح الملف المحدد في التطبيقات الأخرى</string>
     <string name="add_file_desc">حدد ملفًا جديدًا لإضافته هنا</string>
@@ -167,7 +167,7 @@
     <string name="saved">تم الحفظ</string>
     <string name="is_null">InputStream هو لا شيء</string>
     <string name="wait_pkg">الرجاء الانتظار بينما يتم تنزيل الحزم.</string>
-    <string name="unsupported_aarch">منصة غير مدعومة، استخدم Fail Safe</string>
+    <string name="unsupported_aarch">منصة غير مدعومة، استخدم fail safe</string>
     <string name="pkg_download_failed">فشل تنزيل الحزمة</string>
     <string name="copy_failed">فشل في نسخ الملف</string>
     <string name="install_done">تم التثبيت بنجاح</string>
@@ -175,7 +175,7 @@
     <string name="install_failed">فشل التثبيت</string>
     <string name="choose_file">حدد الملف</string>
     <string name="force_char">اجبار char</string>
-    <string name="force_char_desc">فرض الإدخال المستند إلى Char في موجه الأوامر</string>
+    <string name="force_char_desc">فرض الإدخال المستند إلى char في موجه الأوامر</string>
     <string name="use_ctrl_workaround">استخدم الحل البديل Ctrl</string>
     <string name="use_ctrl_workaround_desc">استخدم الحل البديل لمساحة Ctrl</string>
     <string name="editor_font">خط المحرر</string>
@@ -196,8 +196,8 @@
     <string name="version">الإصدار</string>
     <string name="version_code">رمز الإصدار</string>
     <string name="github">Github</string>
-    <string name="github_desc">ضع نجمة في الجيتهب🤩</string>
-    <string name="telegram">مجموعة التلجرام</string>
+    <string name="github_desc">ضع نجمة في جيتهب🤩</string>
+    <string name="telegram">مجموعة التيليجرام</string>
     <string name="telegram_desc">الإبلاغ عن المشكلات وطلب الميزات وما إلى ذلك.</string>
     <string name="join">انضمام</string>
     <string name="show_virtual_keyboard">إظهار لوحة المفاتيح الافتراضية</string>
@@ -210,9 +210,9 @@
     <string name="file_too_large">الملف كبير جدًا ولا يمكن فتحه</string>
     <string name="toggle_suggestion">تغيير الاقتراح</string>
     <string name="run">تشغيل</string>
-    <string name="txt_ww">لف ملفات txt</string>
-    <string name="txt_ww_desc">التفاف الملفات النصية تلقائيا</string>
-    <string name="manage_editor_font">تعديل خطوط المحرر</string>
+    <string name="txt_ww">لف ملفات TXT</string>
+    <string name="txt_ww_desc">التفاف ملفات TXT تلقائيا</string>
+    <string name="manage_editor_font">إدارة خطوط المحرر</string>
     <string name="default_encoding">الترميز الافتراضي</string>
     <string name="default_encoding_desc">الترميز الافتراضي عند فتح وإنشاء ملفات</string>
     <string name="other">أشياء أخرى</string>
@@ -332,4 +332,5 @@
     <string name="release_wakelock">إصدار قفل الإيقاظ</string>
     <string name="getting_ready">تجهيز كل شيء…</string>
     <string name="delete_desc">حذف المستند نهائيًا</string>
+    <string name="whole_word">‮الكلمة كاملة</string>
 </resources>
