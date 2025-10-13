@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="open_drawer">abrir</string>
-    <string name="close_drawer">fechar</string>
+    <string name="open_drawer">Abrir</string>
+    <string name="close_drawer">Fechar</string>
     <string name="not_implemented">Este recurso não está implementado</string>
     <string name="unsupported_content">Conteúdo não suportado</string>
-    <string name="null_content">Erro: O conteúdo é nulo</string>
+    <string name="null_content">Erro: conteúdo é nulo</string>
     <string name="restart_required">Reinicialização necessária</string>
     <string name="saved_all">Todos os arquivos foram salvos</string>
     <string name="ww_wait">Aguarde a conclusão da quebra de linha</string>
