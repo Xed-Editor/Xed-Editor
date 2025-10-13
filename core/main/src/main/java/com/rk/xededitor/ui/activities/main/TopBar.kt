@@ -32,7 +32,7 @@ fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel:
             }
         },
         actions = {
-            this.GlobalActions(viewModel)
+            GlobalActions(viewModel)
 
             val tabs = viewModel.tabs
             if (tabs.isNotEmpty()) {
