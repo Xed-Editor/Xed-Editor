@@ -132,7 +132,7 @@
     <string name="themes">Темы</string>
     <string name="change_theme">Изменить тему</string>
     <string name="editor">Редактор</string>
-    <string name="smooth_tabs">Плавные вкладки</string>
+    <string name="smooth_tabs">Плавный переход</string>
     <string name="smooth_tab_desc">Плавный переход между вкладками</string>
     <string name="ww_desc">Включить перенос слов во всех редакторах</string>
     <string name="drawer_lock_desc">При открытии файла держать панель открытой</string>
@@ -153,7 +153,7 @@
     <string name="text_size">Размер текста</string>
     <string name="text_size_desc">Установить размер текста</string>
     <string name="tab_size">Размер табуляции</string>
-    <string name="tab_size_desc">Установить размер tab</string>
+    <string name="tab_size_desc">Установить размер табуляции</string>
     <string name="monet">Динамические цвета</string>
     <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
