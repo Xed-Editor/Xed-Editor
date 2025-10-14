@@ -73,7 +73,7 @@
     <string name="dir_example">Nome (es. Test)</string>
     <string name="create">Crea</string>
     <string name="ask_enter_name">Per favore inserisci un nome</string>
-    <string name="ask_del">Sei sicuro di voler eliminare definitivamente %(file_name)?</string>
+    <string name="ask_del">Sei sicuro di voler eliminare definitivamente \'%(file_name)\'?</string>
     <string name="reselect_dir">Per favore seleziona nuovamente la cartella</string>
     <string name="cant_handle">Nessuna app associata a questo tipo di file</string>
     <string name="terminal">Terminale</string>
