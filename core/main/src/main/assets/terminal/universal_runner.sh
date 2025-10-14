@@ -193,6 +193,7 @@ case "$file" in
     # Create a temporary project
     mkdir -p temp_cs_project
     cd temp_cs_project
+    export DOTNET_GCHeapHardLimit=1C0000000
     dotnet new console --force
     cp "../$file" Program.cs
     dotnet run
