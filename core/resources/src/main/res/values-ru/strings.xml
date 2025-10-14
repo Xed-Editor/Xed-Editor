@@ -310,7 +310,7 @@
     <string name="file_info">Информация о файле</string>
     <string name="file_size">Размер файла</string>
     <string name="copied">Скопировано</string>
-    <string name="cant_undo">Это действие не может быть отменено</string>
+    <string name="cant_undo">Это действие необратимо</string>
     <string name="temp_file">Временный файл</string>
     <string name="lang">Язык</string>
     <string name="lang_desc">Выбор языка</string>
