@@ -243,6 +243,36 @@ class DocumentProvider : DocumentsProvider() {
         row.add(DocumentsContract.Document.COLUMN_FLAGS, flags)
         row.add(DocumentsContract.Document.COLUMN_ICON, R.mipmap.ic_launcher)
     }
+    
+     @Throws(FileNotFoundException::class)
+        override fun renameDocument(documentId: String, displayName: String): String {
+            val file = getFileForDocId(documentId)
+            val parent = file.parentFile
+                ?: throw FileNotFoundException("Failed to rename root document with id $documentId")
+
+            if (displayName.isNullOrBlank()) {
+                throw FileNotFoundException("Failed to rename document with id $documentId")
+            }
+
+            if (displayName == file.name) {
+                return documentId
+            }
+
+            if (displayName.contains(File.separator)) {
+                throw FileNotFoundException("Invalid display name for rename: $displayName")
+            }
+
+            val target = File(parent, displayName)
+            if (target.exists()) {
+                throw FileNotFoundException("Target already exists: ${target.absolutePath}")
+            }
+
+            if (!file.renameTo(target)) {
+                throw FileNotFoundException("Failed to rename document with id $documentId")
+            }
+
+            return getDocIdForFile(target)
+        }
 
     companion object {
         fun isDocumentProviderEnabled(context: Context): Boolean {
@@ -315,38 +345,6 @@ class DocumentProvider : DocumentsProvider() {
             if (!f.exists()) throw FileNotFoundException(f.absolutePath + " not found")
             return f
         }
-
-
-        @Throws(FileNotFoundException::class)
-        override fun renameDocument(documentId: String, displayName: String): String {
-            val file = getFileForDocId(documentId)
-            val parent = file.parentFile
-                ?: throw FileNotFoundException("Failed to rename root document with id $documentId")
-        
-            if (displayName.isNullOrBlank()) {
-                throw FileNotFoundException("Failed to rename document with id $documentId")
-            }
-        
-            if (displayName == file.name) {
-                return documentId
-            }
-        
-            if (displayName.contains(File.separator)) {
-                throw FileNotFoundException("Invalid display name for rename: $displayName")
-            }
-        
-            val target = File(parent, displayName)
-            if (target.exists()) {
-                throw FileNotFoundException("Target already exists: ${target.absolutePath}")
-            }
-        
-            if (!file.renameTo(target)) {
-                throw FileNotFoundException("Failed to rename document with id $documentId")
-            }
-        
-            return getDocIdForFile(target)
-        }
-
 
         private fun getMimeType(file: File): String {
             if (file.isDirectory) {
