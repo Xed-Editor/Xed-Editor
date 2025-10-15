@@ -318,7 +318,7 @@ class DocumentProvider : DocumentsProvider() {
 
 
         @Throws(FileNotFoundException::class)
-        override fun renameDocument(documentId: String, displayName: String?): String {
+        override fun renameDocument(documentId: String, displayName: String): String {
             val file = getFileForDocId(documentId)
             val parent = file.parentFile
                 ?: throw FileNotFoundException("Failed to rename root document with id $documentId")
