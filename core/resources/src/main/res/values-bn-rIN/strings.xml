@@ -36,13 +36,12 @@
     <string name="unsaved_files">আপনার অসংরক্ষিত ফাইল আছে!</string>
     <string name="cancel">বাতিল করুন</string>
     <string name="exit">বেরিয়ে যান</string>
-    <string name="rr">পুনরারম্ভ করা প্রয়োজনীয়</string>
     <string name="oled">ব্ল্যাক নাইট থিম</string>
-    <string name="ww">শব্দ মোড়ানো</string>
+    <string name="word_wrap">শব্দ মোড়ানো</string>
     <string name="keep_drawer_locked">ড্রয়ার লক রাখুন</string>
     <string name="restart">পুনরারম্ভ করুন</string>
     <string name="saved_all">সমস্ত নথিপত্র সংরক্ষণ করা হয়েছে</string>
-    <string name="ww_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
+    <string name="word_wrap_wait">শব্দ মোড়ানো সম্পূর্ণ করার জন্য অপেক্ষা করুন</string>
     <string name="rep">প্রতিস্থাপন</string>
     <string name="null_content">ত্রুটি: শূন্য বিষয়বস্তুসমূহ</string>
     <string name="print">মুদ্রণ</string>

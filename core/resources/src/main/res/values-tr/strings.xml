@@ -8,7 +8,7 @@
     <string name="restart_required">Yeniden başlatmanız gerekiyor</string>
     <string name="saved_all">Tüm dosyalar kaydedildi</string>
     <string name="save">Kaydet</string>
-    <string name="ww_wait">Lütfen sözcük kaydırmanın tamamlanmasını bekleyin</string>
+    <string name="word_wrap_wait">Lütfen sözcük kaydırmanın tamamlanmasını bekleyin</string>
     <string name="open_file_or_folder">Dosya veya klasör aç</string>
     <string name="open_directory">Bir klasör aç</string>
     <string name="new_file">Yeni dosya</string>
@@ -48,10 +48,9 @@
     <string name="cancel">İptal et</string>
     <string name="save_exit">Kaydet ve çık</string>
     <string name="exit">Çıkış</string>
-    <string name="rr">Yeniden başlatma gerekli</string>
     <string name="restart_to_apply">Ayarları uygulamak için lütfen yeniden başlatın</string>
     <string name="oled">Koyu tema</string>
-    <string name="ww">Satır kaydırma</string>
+    <string name="word_wrap">Satır kaydırma</string>
     <string name="keep_drawer_locked">Paneli sabitle</string>
     <string name="restart">Tekrar başlat</string>
     <string name="refresh">Yenile</string>
@@ -76,7 +75,6 @@
     <string name="description">Açıklama</string>
     <string name="download">İndir</string>
     <string name="dir_exist_not">Dizin mevcut değil</string>
-    <string name="file_exist_not">Dosya artık mevcut değil</string>
     <string name="file_saved">Dosya kaydedildi</string>
     <string name="apply">Uygula</string>
     <string name="userdata">Kullanıcı Verileri</string>
@@ -134,7 +132,7 @@
     <string name="editor">Editör</string>
     <string name="smooth_tabs">Akıcı sekmeler</string>
     <string name="smooth_tab_desc">Sekmeler arasında sorunsuz geçiş yapın</string>
-    <string name="ww_desc">Tüm düzenleyicilerde satır kaydırmayı etkinleştir</string>
+    <string name="word_wrap_desc">Tüm düzenleyicilerde satır kaydırmayı etkinleştir</string>
     <string name="drawer_lock_desc">Dosyayı açarken çekmeceyi kapalı tutun</string>
     <string name="diagonal_scroll">Çapraz kaydırma</string>
     <string name="diagonal_scroll_desc">Dosya ağacında çapraz kaydırmayı etkinleştir</string>
@@ -147,9 +145,9 @@
     <string name="auto_save">Otomatik kaydetme</string>
     <string name="auto_save_desc">Dosyayı otomatik kaydet</string>
     <string name="interval_in_ms">Milisaniye cinsinden aralık</string>
-    <string name="invalid_v">Geçersiz değer</string>
-    <string name="v_small">Değer çok küçük</string>
-    <string name="v_large">Değer çok büyük</string>
+    <string name="value_invalid">Geçersiz değer</string>
+    <string name="value_small">Değer çok küçük</string>
+    <string name="value_large">Değer çok büyük</string>
     <string name="text_size">Metin boyutu</string>
     <string name="text_size_desc">Metin boyutunu ayarla</string>
     <string name="tab_size">Sekme boyutu</string>
@@ -163,7 +161,7 @@
     <string name="terminal_desc">Genel terminal ayarları</string>
     <string name="terminal_text_size">Terminal metin boyutu</string>
     <string name="terminal_text_size_desc">Terminal metin boyutunu ayarla</string>
-    <string name="u_err">Bilinmeyen hata</string>
+    <string name="unknown_error">Bilinmeyen hata</string>
     <string name="saved">Dosya kaydedildi</string>
     <string name="is_null">Giriş Akışı sıfırdır</string>
     <string name="wait_pkg">Paketler indirilirken lütfen bekleyin.</string>
@@ -210,8 +208,8 @@
     <string name="file_too_large">Dosya açılamayacak kadar büyük</string>
     <string name="toggle_suggestion">Öneriyi Aç/Kapat</string>
     <string name="run">Çalıştır</string>
-    <string name="txt_ww">TXT dosyalarını sarın</string>
-    <string name="txt_ww_desc">TXT dosyalarında satırları otomatik kaydır</string>
+    <string name="txt_word_wrap">TXT dosyalarını sarın</string>
+    <string name="txt_word_wrap_desc">TXT dosyalarında satırları otomatik kaydır</string>
     <string name="manage_editor_font">Editörün yazı tiplerini yönet</string>
     <string name="default_encoding">Varsayılan kodlama</string>
     <string name="default_encoding_desc">Varsayılan editör metin kodlaması</string>
@@ -233,7 +231,6 @@
     <string name="line_spacing_multiplier">Satır aralığı çarpanı</string>
     <string name="mutator_desc">Kullanıcı komut dosyaları oluştur</string>
     <string name="restore_sessions">Oturumu yeniden yükle</string>
-    <string name="enable_ext">Eklentiler</string>
     <string name="ext">Eklentiler</string>
     <string name="script_get_text">Metni al</string>
     <string name="installing">Indiriliyor…</string>
@@ -291,7 +288,6 @@
     <string name="launch">Başlat</string>
     <string name="terminal_home">Terminal ana sayfası</string>
     <string name="sessions">Oturumlar</string>
-    <string name="enable_ext_desc">Üçüncü parti eklentileri yükle</string>
     <string name="script_show_toast">Bilgi mesajı göster</string>
     <string name="script_network">Ağ</string>
     <string name="experimental_feature">Deneysel özellik</string>
@@ -301,12 +297,11 @@
     <string name="misc">Çeşitli</string>
     <string name="misc_desc">Çeşitli ayarlar</string>
     <string name="unrestricted_file">Herhangi boyutta dosya açmaya izin ver</string>
-    <string name="toggle_ww">Satır kaydırmayı aç/kapa</string>
+    <string name="toggle_word_wrap">Satır kaydırmayı aç/kapa</string>
     <string name="native_runner">Bu çalıştırıcı yalnızca yerel dosyalar üzerinde çalışır, terminal ana dizinine taşımayı düşünün</string>
     <string name="getting_ready">Her şey hazırlanıyor…</string>
     <string name="release_wakelock">Wakelock\'u serbest bırakın</string>
     <string name="acquire_wakelock">Wakelock\'u al</string>
-    <string name="preview_err">Bu dosyanın önizlemesi yapılamıyor. Hiçbir üst dizin mevcut değil. Bu dosyayı başka bir yere taşımayı düşünün.</string>
     <string name="edit_mode">Edit modu</string>
     <string name="no_folder_opened">Klasör açılmadı</string>
     <string name="cut">Kes</string>
@@ -327,7 +322,6 @@
     <string name="saf_expose_warning">Giriş dizinini açığa çıkarmak, Git belirteçleri, parolalar, kullanıcı adları ve terminal giriş dizininizde depolanan diğer dosyalar dahil olmak üzere hassas bilgileri kötü amaçlı uygulamalara ifşa edebilir. Devam etmek istiyor musunuz?</string>
     <string name="info">Bilgi</string>
     <string name="file_info">Dosya bilgileri</string>
-    <string name="file_size">Dosya boyutu</string>
     <string name="cant_undo">Bu eylem geri alınamaz</string>
     <string name="auto_complete">Editör otomatik tamamlama</string>
     <string name="capture_logcat">Logcat\'i yakala</string>
@@ -373,7 +367,6 @@
     <string name="sdcard_filetype">Bu konumda kod çalıştırmanız tavsiye edilmez. Dosyanızı terminalin ana dizinine taşımanız önerilir.</string>
     <string name="rename_file">Dosyayı yeniden adlandır</string>
     <string name="new_name">Yeni İsim</string>
-    <string name="file_type">DosyaTürü</string>
     <string name="type">Tür</string>
     <string name="name">İsim</string>
     <string name="view_github_profile">GitHub profilini görüntüle</string>

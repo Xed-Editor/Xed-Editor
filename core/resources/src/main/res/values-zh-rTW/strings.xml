@@ -8,7 +8,7 @@
     <string name="restart_required">需要重新啟動</string>
     <string name="saved_all">已儲存所有檔案</string>
     <string name="save">儲存</string>
-    <string name="ww_wait">請等待換行完成</string>
+    <string name="word_wrap_wait">請等待換行完成</string>
     <string name="open_file_or_folder">開啟檔案或資料夾</string>
     <string name="open_directory">開啟資料夾</string>
     <string name="new_file">新增檔案</string>
@@ -48,10 +48,9 @@
     <string name="cancel">取消</string>
     <string name="save_exit">儲存並退出</string>
     <string name="exit">退出</string>
-    <string name="rr">需要重新啟動以生效</string>
     <string name="restart_to_apply">請重新啟動以套用設定</string>
     <string name="oled">純黑主題</string>
-    <string name="ww">自動換行</string>
+    <string name="word_wrap">自動換行</string>
     <string name="keep_drawer_locked">保持側滑欄狀態</string>
     <string name="restart">重新啟動</string>
     <string name="refresh">重新載入</string>
@@ -76,7 +75,6 @@
     <string name="description">描述</string>
     <string name="download">下載</string>
     <string name="dir_exist_not">資料夾不存在</string>
-    <string name="file_exist_not">檔案已不存在</string>
     <string name="file_saved">檔案已儲存</string>
     <string name="apply">套用</string>
     <string name="userdata">使用者資料</string>
@@ -134,7 +132,7 @@
     <string name="editor">編輯器</string>
     <string name="smooth_tabs">平滑分頁</string>
     <string name="smooth_tab_desc">在分頁之間平滑切換</string>
-    <string name="ww_desc">在所有編輯器中啟用自動換行</string>
+    <string name="word_wrap_desc">在所有編輯器中啟用自動換行</string>
     <string name="drawer_lock_desc">開啟檔案時保持側邊欄鎖定</string>
     <string name="diagonal_scroll">斜向捲動</string>
     <string name="diagonal_scroll_desc">在檔案樹中啟用斜向捲動</string>
@@ -147,9 +145,9 @@
     <string name="auto_save">自動儲存</string>
     <string name="auto_save_desc">自動儲存檔案</string>
     <string name="interval_in_ms">間隔（毫秒）</string>
-    <string name="invalid_v">無效值</string>
-    <string name="v_small">數值太小</string>
-    <string name="v_large">數值太大</string>
+    <string name="value_invalid">無效值</string>
+    <string name="value_small">數值太小</string>
+    <string name="value_large">數值太大</string>
     <string name="text_size">文字大小</string>
     <string name="text_size_desc">設定文字大小</string>
     <string name="tab_size">標簽大小</string>
@@ -163,7 +161,7 @@
     <string name="terminal_desc">終端機一般設定</string>
     <string name="terminal_text_size">終端機文字大小</string>
     <string name="terminal_text_size_desc">設定終端機文字大小</string>
-    <string name="u_err">未知錯誤</string>
+    <string name="unknown_error">未知錯誤</string>
     <string name="is_null">InputStream 為 null</string>
     <string name="wait_pkg">請等待套件下載完成。</string>
     <string name="unsupported_aarch">不支援的平台，已啟動安全模式</string>
@@ -209,8 +207,8 @@
     <string name="file_too_large">開啓的檔案過大</string>
     <string name="toggle_suggestion">鍵盤選詞建議</string>
     <string name="run">運行</string>
-    <string name="txt_ww">自動換行 TXT 檔</string>
-    <string name="txt_ww_desc">自動換行文字檔</string>
+    <string name="txt_word_wrap">自動換行 TXT 檔</string>
+    <string name="txt_word_wrap_desc">自動換行文字檔</string>
     <string name="manage_editor_font">管理編輯器字型</string>
     <string name="default_encoding">預設編碼</string>
     <string name="default_encoding_desc">編輯器預設編碼</string>
@@ -245,8 +243,6 @@
     <string name="add_session">新增工作階段</string>
     <string name="terminal_runtime">終端機執行環境</string>
     <string name="terminal_runtime_desc">選取終端機執行環境</string>
-    <string name="enable_ext">擴充功能</string>
-    <string name="enable_ext_desc">載入第三方擴充功能</string>
     <string name="ext">擴充功能</string>
     <string name="ext_desc">管理擴充功能</string>
     <string name="info_mutators">Mutator 是用來修改編輯器文字的小型腳本。建立一個 Mutator 並點擊它即可在編輯器中開啟。</string>
@@ -285,7 +281,7 @@
     <string name="unrestricted_file_desc">允許開啟任意大小的檔案 （可能會導致程式當機）。</string>
     <string name="suggest_clear_app_data">建議清除應用程式資料</string>
     <string name="update_files_cleared">應用程式已更新：已清除資料</string>
-    <string name="toggle_ww">切換自動換行</string>
+    <string name="toggle_word_wrap">切換自動換行</string>
     <string name="warning_private_dir">若你清除資料或刪除 Xed-Editor時，此資料夾的內容將被刪除</string>
     <string name="new_document">新增檔案</string>
     <string name="read_only_file">檔案為唯讀</string>
@@ -306,7 +302,6 @@
     <string name="expose_saf">顯示主目錄</string>
     <string name="expose_saf_desc">透過系統檔案選擇器 (SAF) 讓外部應用程式可以存取主目錄</string>
     <string name="saf_expose_warning">公開主目錄可能會讓惡意應用程式取得敏感資訊，包括 Git 權杖、密碼、使用者名稱，以及儲存在你終端機主目錄中的其他檔案。你要繼續嗎？</string>
-    <string name="file_size">檔案大小</string>
     <string name="info">資訊</string>
     <string name="file_info">檔案資訊</string>
     <string name="can_read">可讀取</string>
@@ -351,7 +346,6 @@
     <string name="control_panel">控制面板</string>
     <string name="read_mode_desc">預設開啟只讀模式</string>
     <string name="tab_memory_warning">可用記憶體不足，無法開啟此分頁。開啟可能導致 Xed-Editor 當機。你仍要繼續嗎？</string>
-    <string name="preview_err">無法預覽此檔案。沒有可用的上層目錄。請考慮將此檔案移動到其他位置。</string>
     <string name="acquire_wakelock">保持螢幕常亮</string>
     <string name="release_wakelock">停用螢幕常亮</string>
     <string name="getting_ready">正在初始化…</string>
@@ -374,7 +368,6 @@
     <string name="delete_desc">永久刪除檔案</string>
     <string name="rename_file">重新命名檔案</string>
     <string name="new_name">新名稱</string>
-    <string name="file_type">檔案類型</string>
     <string name="type">類型</string>
     <string name="name">名稱</string>
     <string name="view_github_profile">檢視 GitHub 個人資料</string>

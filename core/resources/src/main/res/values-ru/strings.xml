@@ -8,7 +8,7 @@
     <string name="restart_required">Требуется перезапуск</string>
     <string name="saved_all">Все файлы сохранены</string>
     <string name="save">Сохранить</string>
-    <string name="ww_wait">Пожалуйста, дождитесь завершения переноса слов</string>
+    <string name="word_wrap_wait">Пожалуйста, дождитесь завершения переноса слов</string>
     <string name="open_file_or_folder">Открыть файл или папку</string>
     <string name="open_directory">Открыть каталог</string>
     <string name="new_file">Новый файл</string>
@@ -48,10 +48,9 @@
     <string name="cancel">Отмена</string>
     <string name="save_exit">Сохранить и выйти</string>
     <string name="exit">Выйти</string>
-    <string name="rr">Требуется перезапуск</string>
     <string name="restart_to_apply">Перезапустите, чтобы применить настройки</string>
     <string name="oled">Тёмная тема</string>
-    <string name="ww">Перенос слов</string>
+    <string name="word_wrap">Перенос слов</string>
     <string name="keep_drawer_locked">Оставить панель закрытой</string>
     <string name="restart">Перезапуск</string>
     <string name="refresh">Перезагрузить</string>
@@ -76,7 +75,6 @@
     <string name="description">Описание</string>
     <string name="download">Скачать</string>
     <string name="dir_exist_not">Папка не существует</string>
-    <string name="file_exist_not">Файл больше не существует</string>
     <string name="file_saved">Файл сохранен</string>
     <string name="apply">Применить</string>
     <string name="userdata">Данные пользователя</string>
@@ -134,7 +132,7 @@
     <string name="editor">Редактор</string>
     <string name="smooth_tabs">Плавный переход</string>
     <string name="smooth_tab_desc">Плавный переход между вкладками</string>
-    <string name="ww_desc">Включить перенос слов во всех редакторах</string>
+    <string name="word_wrap_desc">Включить перенос слов во всех редакторах</string>
     <string name="drawer_lock_desc">При открытии файла держать панель открытой</string>
     <string name="diagonal_scroll">Диагональная прокрутка</string>
     <string name="diagonal_scroll_desc">Включить диагональную прокрутку в дереве файлов</string>
@@ -147,9 +145,9 @@
     <string name="auto_save">Автоматическое сохранение</string>
     <string name="auto_save_desc">Сохранять файл автоматически</string>
     <string name="interval_in_ms">Интервал в миллисекундах</string>
-    <string name="invalid_v">Недопустимое значение</string>
-    <string name="v_small">Слишком маленькое значение</string>
-    <string name="v_large">Слишком большое значение</string>
+    <string name="value_invalid">Недопустимое значение</string>
+    <string name="value_small">Слишком маленькое значение</string>
+    <string name="value_large">Слишком большое значение</string>
     <string name="text_size">Размер текста</string>
     <string name="text_size_desc">Установить размер текста</string>
     <string name="tab_size">Размер табуляции</string>
@@ -163,7 +161,7 @@
     <string name="terminal_desc">Общие настройки терминала</string>
     <string name="terminal_text_size">Размер текста терминала</string>
     <string name="terminal_text_size_desc">Установить размер текста терминала</string>
-    <string name="u_err">Неизвестная ошибка</string>
+    <string name="unknown_error">Неизвестная ошибка</string>
     <string name="saved">Сохранено</string>
     <string name="is_null">InputStream пустой</string>
     <string name="wait_pkg">Пожалуйста, подождите, пока пакеты будут загружены.</string>
@@ -210,8 +208,8 @@
     <string name="file_too_large">Файл слишком велик, чтобы его открывать</string>
     <string name="toggle_suggestion">Включить предложения</string>
     <string name="run">Запустить</string>
-    <string name="txt_ww">Перенос TXT файлов</string>
-    <string name="txt_ww_desc">Автоматически переносить строки в TXT файлах</string>
+    <string name="txt_word_wrap">Перенос TXT файлов</string>
+    <string name="txt_word_wrap_desc">Автоматически переносить строки в TXT файлах</string>
     <string name="content">Контент</string>
     <string name="default_encoding_desc">Кодировка редактора по умолчанию</string>
     <string name="other">Другое</string>
@@ -244,7 +242,6 @@
     <string name="loading">Загрузка…</string>
     <string name="terminal_home">Домашняя папка терминала</string>
     <string name="terminal_home_desc">Домашняя папка терминала по умолчанию</string>
-    <string name="enable_ext_desc">Загружать сторонние расширения</string>
     <string name="ext">Расширения</string>
     <string name="ext_desc">Управление расширениями</string>
     <string name="tab_opened">Вкладка открыта</string>
@@ -262,7 +259,6 @@
     <string name="restore_sessions">Восстанавливать сессии</string>
     <string name="terminal_runtime">Среда выполнения терминала</string>
     <string name="restore_sessions_desc">Восстанавливать открытые вкладки</string>
-    <string name="enable_ext">Расширения</string>
     <string name="name_empty_err">Имя не должно быть пустым</string>
     <string name="sessions">Сессии</string>
     <string name="add_session">Добавить сессию</string>
@@ -289,7 +285,7 @@
     <string name="file">Файл</string>
     <string name="folder">Папка</string>
     <string name="read_only_file">Файл доступен только для чтения</string>
-    <string name="toggle_ww">Переключить перенос слов</string>
+    <string name="toggle_word_wrap">Переключить перенос слов</string>
     <string name="warning_private_dir">Содержимое этого каталога будет удалено, если вы очистите данные или удалите Xed-Editor</string>
     <string name="sponsor">Поддержать</string>
     <string name="sponsor_desc">Поддержать разработку</string>
@@ -308,7 +304,6 @@
     <string name="saf_expose_warning">Разрешение доступа к домашней директории может раскрыть конфиденциальную информацию к вредоносным приложениям, например: Git токены, пароли, имена пользователей и другие файлы хранящиеся в домашней директории. Вы уверены что хотите продолжить?</string>
     <string name="info">Информация</string>
     <string name="file_info">Информация о файле</string>
-    <string name="file_size">Размер файла</string>
     <string name="copied">Скопировано</string>
     <string name="cant_undo">Это действие необратимо</string>
     <string name="temp_file">Временный файл</string>

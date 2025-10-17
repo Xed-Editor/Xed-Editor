@@ -8,7 +8,7 @@
     <string name="restart_required">Muat ulang diperlukan</string>
     <string name="saved_all">Simpan semua berkas</string>
     <string name="save">Simpan</string>
-    <string name="ww_wait">Harap tunggu sampai pembungkusan kata selesai</string>
+    <string name="word_wrap_wait">Harap tunggu sampai pembungkusan kata selesai</string>
     <string name="open_file_or_folder">Buka berkas atau folder</string>
     <string name="open_directory">Buka direktori</string>
     <string name="new_file">Berkas baru</string>
@@ -48,10 +48,9 @@
     <string name="cancel">Batal</string>
     <string name="save_exit">Simpan dan Keluar</string>
     <string name="exit">Keluar</string>
-    <string name="rr">Diperlukan mulai ulang</string>
     <string name="restart_to_apply">Silakan mulai ulang untuk menerapkan pengaturan</string>
     <string name="oled">Tema hitam</string>
-    <string name="ww">Bungkus kata</string>
+    <string name="word_wrap">Bungkus kata</string>
     <string name="keep_drawer_locked">Jaga Laci Tetap Terkunci</string>
     <string name="restart">Mulai Ulang</string>
     <string name="refresh">Muat Ulang</string>
@@ -76,7 +75,6 @@
     <string name="description">Deskripsi</string>
     <string name="download">Unduh</string>
     <string name="dir_exist_not">Folder tidak ada</string>
-    <string name="file_exist_not">Berkas tidak ada lagi</string>
     <string name="file_saved">Berkas disimpan</string>
     <string name="apply">Terapkan</string>
     <string name="userdata">Data pengguna</string>
@@ -128,7 +126,7 @@
     <string name="editor">Penyunting</string>
     <string name="smooth_tabs">Tab halus</string>
     <string name="smooth_tab_desc">Beralih antar tab dengan lembut</string>
-    <string name="ww_desc">Aktifkan pembungkus kata di semua penyunting</string>
+    <string name="word_wrap_desc">Aktifkan pembungkus kata di semua penyunting</string>
     <string name="diagonal_scroll">Pengguliran diagonal</string>
     <string name="diagonal_scroll_desc">Aktifkan pengguliran diagonal di daftar berkas</string>
     <string name="cursor_anim">Animasi kursor</string>
@@ -139,9 +137,9 @@
     <string name="auto_save">Simpan otomatis</string>
     <string name="auto_save_desc">Simpan berkas secara otomatis</string>
     <string name="interval_in_ms">Interval dalam milidetik</string>
-    <string name="invalid_v">Nilai tidak sah</string>
-    <string name="v_small">Nilai terlalu kecil</string>
-    <string name="v_large">Nilai terlalu besar</string>
+    <string name="value_invalid">Nilai tidak sah</string>
+    <string name="value_small">Nilai terlalu kecil</string>
+    <string name="value_large">Nilai terlalu besar</string>
     <string name="text_size">Ukuran teks</string>
     <string name="text_size_desc">Atur ukuran teks</string>
     <string name="tab_size">Ukuran tab</string>
@@ -152,7 +150,7 @@
     <string name="app_desc">Pengaturan umum aplikasi</string>
     <string name="editor_desc">Pengaturan umum penyunting</string>
     <string name="terminal_text_size">Ukuran teks terminal</string>
-    <string name="u_err">Kesalahan tidak diketahui</string>
+    <string name="unknown_error">Kesalahan tidak diketahui</string>
     <string name="saved">Tersimpan</string>
     <string name="is_null">InputStream adalah null</string>
     <string name="wait_pkg">Mohon tunggu sementara paket sedang diunduh.</string>
@@ -194,8 +192,8 @@
     <string name="no">Tidak</string>
     <string name="toggle_suggestion">Tombol saran</string>
     <string name="run">Jalankan</string>
-    <string name="txt_ww">Bungkus berkas TXT</string>
-    <string name="txt_ww_desc">Bungkus berkas TXT secara otomatis</string>
+    <string name="txt_word_wrap">Bungkus berkas TXT</string>
+    <string name="txt_word_wrap_desc">Bungkus berkas TXT secara otomatis</string>
     <string name="manage_editor_font">Kelola penyunting font</string>
     <string name="default_encoding_desc">Pengodean default penyunting</string>
     <string name="other">Lainnya</string>
@@ -247,8 +245,6 @@
     <string name="update_disable">Pemeriksaan pembaruan dinonaktifkan</string>
     <string name="mutator_desc">Buat skrip pengguna</string>
     <string name="launch">Luncurkan</string>
-    <string name="enable_ext">Pengaya</string>
-    <string name="enable_ext_desc">Memuat pengaya pihak ketiga</string>
     <string name="ext">Pengaya</string>
     <string name="ext_desc">Kelola pengaya</string>
     <string name="no_mutators">Tidak ada mutator</string>
@@ -284,7 +280,7 @@
     <string name="unrestricted_file_desc">Izinkan membuka berkas ukuran apapun. Dapat menyebabkan kerusakan.</string>
     <string name="update_files_cleared">Aplikasi diperbarui: data dibersihkan</string>
     <string name="suggest_clear_app_data">Direkomendasikan untuk membersihkan data aplikasi</string>
-    <string name="toggle_ww">Tombol bungkus kata</string>
+    <string name="toggle_word_wrap">Tombol bungkus kata</string>
     <string name="warning_private_dir">Konten direktori ini akan terhapus jika Anda menghapus data atau menghapus Xed-Editor</string>
     <string name="read_only_file">Berkas hanya dapat dibaca</string>
     <string name="folder">Folder</string>
@@ -304,7 +300,6 @@
     <string name="misc_desc">Pengaturan lainnya</string>
     <string name="expose_saf_desc">Jadikan direktori beranda dapat diakses oleh aplikasi eksternal melalui pemilih berkas sistem (SAF)</string>
     <string name="expose_saf">Perlihatkan direktori beranda</string>
-    <string name="file_size">Ukuran berkas</string>
     <string name="is_file">Merupakan Berkas</string>
     <string name="can_write">Dapat menulis</string>
     <string name="can_read">Dapat membaca</string>
@@ -352,7 +347,6 @@
     <string name="control_panel">Panel Kontrol</string>
     <string name="tab_memory_warning">Memori yang tersedia tidak cukup untuk membuka tab ini. Membuka tab ini dapat menyebabkan Xed-Editor macet. Apakah Anda tetap ingin melanjutkan?</string>
     <string name="read_mode_desc">Mengaktifkan mode baca secara default</string>
-    <string name="preview_err">Tidak dapat melihat pratinjau berkas ini. Tidak ada direktori induk yang tersedia. Pertimbangkan untuk memindahkan file ini ke tempat lain.</string>
     <string name="acquire_wakelock">Ambil wakelock</string>
     <string name="release_wakelock">Bebaskan wakelock</string>
     <string name="getting_ready">Menyiapkan segala sesuatunya…</string>
@@ -373,7 +367,6 @@
     <string name="sdcard_filetype">Menjalankan kode tidak disarankan di lokasi ini. Pertimbangkan untuk memindahkan file Anda ke direktori home terminal.</string>
     <string name="rename_file">Ubah nama berkas</string>
     <string name="new_name">Nama baru</string>
-    <string name="file_type">JenisBerkas</string>
     <string name="type">Jenis</string>
     <string name="name">Nama</string>
     <string name="discord">Komunitas Discord</string>

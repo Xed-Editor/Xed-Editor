@@ -53,16 +53,16 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
-            EditorSettingsToggle(label = stringResource(id = strings.ww),
-                description = stringResource(id = strings.ww_desc),
+            EditorSettingsToggle(label = stringResource(id = strings.word_wrap),
+                description = stringResource(id = strings.word_wrap_desc),
                 default = Settings.wordwrap,
                 sideEffect = {
                     Settings.wordwrap = it
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(strings.txt_ww),
-                description = stringResource(strings.txt_ww_desc),
+            EditorSettingsToggle(label = stringResource(strings.txt_word_wrap),
+                description = stringResource(strings.txt_word_wrap_desc),
                 default = Settings.word_wrap_for_text,
                 sideEffect = {
                     Settings.word_wrap_for_text = it
@@ -169,7 +169,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.textMateSuggestion,
                 sideEffect = {
                     Settings.textMateSuggestion = it
-                    toast(strings.rr)
+                    toast(strings.restart_required)
                 }
             )
 
@@ -254,9 +254,9 @@ fun SettingsEditorScreen(navController: NavController) {
                     lineSpacingValue = it
                     lineSpacingError = null
                     if (lineSpacingValue.toFloatOrNull() == null) {
-                        lineSpacingError = context.getString(strings.invalid_v)
+                        lineSpacingError = context.getString(strings.value_invalid)
                     } else if (lineSpacingValue.toFloat() < 0) {
-                        lineSpacingError = context.getString(strings.v_small)
+                        lineSpacingError = context.getString(strings.value_small)
                     }
                 },
                 onConfirm = {
@@ -280,11 +280,11 @@ fun SettingsEditorScreen(navController: NavController) {
                     textSizeValue = it
                     textSizeError = null
                     if (it.toIntOrNull() == null) {
-                        textSizeError = context.getString(strings.invalid_v);
+                        textSizeError = context.getString(strings.value_invalid)
                     } else if (it.toInt() > 100) {
-                        textSizeError = context.getString(strings.v_large)
+                        textSizeError = context.getString(strings.value_large)
                     } else if (it.toInt() < 6) {
-                        textSizeError = context.getString(strings.v_small)
+                        textSizeError = context.getString(strings.value_small)
                     }
                 },
                 onConfirm = {
@@ -317,11 +317,11 @@ fun SettingsEditorScreen(navController: NavController) {
                     tabSizeValue = it
                     tabSizeError = null
                     if (tabSizeValue.toIntOrNull() == null) {
-                        tabSizeError = context.getString(strings.invalid_v)
+                        tabSizeError = context.getString(strings.value_invalid)
                     } else if (tabSizeValue.toInt() > 16) {
-                        tabSizeError = context.getString(strings.v_large)
+                        tabSizeError = context.getString(strings.value_large)
                     } else if (tabSizeValue.toInt() < 1) {
-                        tabSizeError = context.getString(strings.v_small)
+                        tabSizeError = context.getString(strings.value_small)
                     }
                 },
                 onConfirm = {

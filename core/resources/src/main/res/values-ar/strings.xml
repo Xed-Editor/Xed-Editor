@@ -8,7 +8,7 @@
     <string name="restart_required">إعادة التشغيل مطلوبة</string>
     <string name="saved_all">تم حفظ جميع الملفات</string>
     <string name="save">حفظ</string>
-    <string name="ww_wait">يرجى الانتظار حتى يكتمل ألتفاف النص</string>
+    <string name="word_wrap_wait">يرجى الانتظار حتى يكتمل ألتفاف النص</string>
     <string name="open_file_or_folder">فتح الملف أو المجلد</string>
     <string name="open_directory">فتح مسار</string>
     <string name="new_file">ملف جديد</string>
@@ -48,10 +48,9 @@
     <string name="cancel">إلغاء</string>
     <string name="save_exit">حفظ وخروج</string>
     <string name="exit">خروج</string>
-    <string name="rr">إعادة التشغيل مطلوبة</string>
     <string name="restart_to_apply">يرجى إعادة التشغيل لتطبيق الإعدادات</string>
     <string name="oled">السمة السوداء</string>
-    <string name="ww">التفاف النص</string>
+    <string name="word_wrap">التفاف النص</string>
     <string name="keep_drawer_locked">بقاء الدرج مغلقا</string>
     <string name="restart">إعادة تشغيل</string>
     <string name="refresh">إعادة التحميل</string>
@@ -76,7 +75,6 @@
     <string name="description">وصف</string>
     <string name="download">تحميل</string>
     <string name="dir_exist_not">المجلد غير موجود</string>
-    <string name="file_exist_not">الملف لم يعد موجودا</string>
     <string name="file_saved">تم حفظ الملف</string>
     <string name="apply">تطبيق</string>
     <string name="userdata">بيانات المستخدم</string>
@@ -134,7 +132,7 @@
     <string name="editor">محرر</string>
     <string name="smooth_tabs">علامات تبويب سلسة</string>
     <string name="smooth_tab_desc">التبديل بين علامات التبويب بسلاسة</string>
-    <string name="ww_desc">تفعيل التفاف النص في جميع المحررات</string>
+    <string name="word_wrap_desc">تفعيل التفاف النص في جميع المحررات</string>
     <string name="drawer_lock_desc">بقاء الدرج مغلقًا عند فتح الملف</string>
     <string name="diagonal_scroll">التمرير القطري</string>
     <string name="diagonal_scroll_desc">تمكين التمرير القطري في شجرة الملفات</string>
@@ -147,9 +145,9 @@
     <string name="auto_save">الحفظ التلقائي</string>
     <string name="auto_save_desc">حفظ الملف تلقائيا</string>
     <string name="interval_in_ms">الفاصل الزمني بالمللي ثانية</string>
-    <string name="invalid_v">القيمة غير صالحة</string>
-    <string name="v_small">القيمة صغيرة جدًا</string>
-    <string name="v_large">القيمة كبيرة جدًا</string>
+    <string name="value_invalid">القيمة غير صالحة</string>
+    <string name="value_small">القيمة صغيرة جدًا</string>
+    <string name="value_large">القيمة كبيرة جدًا</string>
     <string name="text_size">حجم النص</string>
     <string name="text_size_desc">ضبط حجم النص</string>
     <string name="tab_size">حجم علامة التبويب</string>
@@ -163,7 +161,7 @@
     <string name="terminal_desc">الإعدادات العامة للمحطة</string>
     <string name="terminal_text_size">حجم النص لموجه الأوامر</string>
     <string name="terminal_text_size_desc">ضبط حجم النص لموجه الأوامر</string>
-    <string name="u_err">خطأ غير معروف</string>
+    <string name="unknown_error">خطأ غير معروف</string>
     <string name="saved">تم الحفظ</string>
     <string name="is_null">InputStream هو لا شيء</string>
     <string name="wait_pkg">الرجاء الانتظار بينما يتم تنزيل الحزم.</string>
@@ -210,8 +208,8 @@
     <string name="file_too_large">الملف كبير جدًا ولا يمكن فتحه</string>
     <string name="toggle_suggestion">تغيير الاقتراح</string>
     <string name="run">تشغيل</string>
-    <string name="txt_ww">لف ملفات TXT</string>
-    <string name="txt_ww_desc">التفاف ملفات TXT تلقائيا</string>
+    <string name="txt_word_wrap">لف ملفات TXT</string>
+    <string name="txt_word_wrap_desc">التفاف ملفات TXT تلقائيا</string>
     <string name="manage_editor_font">إدارة خطوط المحرر</string>
     <string name="default_encoding">الترميز الافتراضي</string>
     <string name="default_encoding_desc">الترميز الافتراضي عند فتح وإنشاء ملفات</string>
@@ -269,8 +267,6 @@
     <string name="add_session">اضف جلسة</string>
     <string name="terminal_runtime_desc">اختيار محطة طرفية</string>
     <string name="terminal_runtime">محطة طرفية</string>
-    <string name="enable_ext">الإضافات</string>
-    <string name="enable_ext_desc">تحميل إضافات طرف ثالث</string>
     <string name="ext">إضافات</string>
     <string name="not_plugin_err">الملف المحدد ليس ملفًا من نوع apk.</string>
     <string name="scroll_to_bottom">التمرير إلى الأسفل</string>
@@ -285,7 +281,7 @@
     <string name="unrestricted_file">فتح الملفات بأي حجم</string>
     <string name="unrestricted_file_desc">السماح بفتح الملفات بأي حجم. قد يؤدي ذلك إلى حدوث أعطال</string>
     <string name="suggest_clear_app_data">يوصى بمسح بيانات التطبيق</string>
-    <string name="toggle_ww">تبديل التفاف الكلمات</string>
+    <string name="toggle_word_wrap">تبديل التفاف الكلمات</string>
     <string name="read_only_file">يتم قراءة الملف فقط</string>
     <string name="temp_file">ملف مؤقت</string>
     <string name="folder">‌مجلد</string>
@@ -304,7 +300,6 @@
     <string name="info">معلومات</string>
     <string name="copied">منسوخ</string>
     <string name="can_read">يمكن القراءة</string>
-    <string name="file_size">حجم الملف</string>
     <string name="file_info">معلومات الملف</string>
     <string name="is_file">هو ملف</string>
     <string name="flavor">نكهة</string>
