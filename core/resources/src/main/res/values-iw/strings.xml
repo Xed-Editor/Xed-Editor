@@ -11,7 +11,7 @@
     <string name="null_content">שגיאה: התוכן ריק</string>
     <string name="saved_all">כל הקבצים נשמרו</string>
     <string name="save">שמירה</string>
-    <string name="ww_wait">אנא המתן עד להשלמת גלישת המילים</string>
+    <string name="word_wrap_wait">אנא המתן עד להשלמת גלישת המילים</string>
     <string name="open_file_or_folder">פתח קובץ או תיקיה</string>
     <string name="open_directory">פתח תיקיה</string>
     <string name="new_file">קובץ חדש</string>
@@ -44,10 +44,9 @@
     <string name="cancel">ביטול</string>
     <string name="save_exit">שמור וצא</string>
     <string name="exit">יציאה</string>
-    <string name="rr">נדרש הפעלה מחדש</string>
     <string name="restart_to_apply">אנא הפעל מחדש כדי להחיל את ההגדרות</string>
     <string name="oled">עיצוב שחור</string>
-    <string name="ww">גלישת טקסט</string>
+    <string name="word_wrap">גלישת טקסט</string>
     <string name="close_this">סגור את זה</string>
     <string name="mime">סוג תוכן (MimeType), לדוגמה: text/plain</string>
     <string name="restart">הפעלה מחדש</string>
@@ -59,7 +58,6 @@
     <string name="replace_all">החלף הכל</string>
     <string name="title">כותרת</string>
     <string name="download">הורדה</string>
-    <string name="file_exist_not">הקובץ כבר לא קיים</string>
     <string name="file_saved">קובץ נשמר</string>
     <string name="userdata">נתוני משתמש</string>
     <string name="reload_file_tree">טען קבצים מחדש</string>
@@ -110,10 +108,10 @@
     <string name="oled_desc">שימוש בעיצוב שחור לגמרי עבור מכשירי AMOLED</string>
     <string name="editor">עורך</string>
     <string name="smooth_tab_desc">מעבר חלק בין כרטיסיות</string>
-    <string name="ww_desc">הפעלת גלישת מילים בכל העורכים</string>
-    <string name="invalid_v">ערך לא חוקי</string>
-    <string name="v_small">ערך קטן מידי</string>
-    <string name="v_large">ערך גדול מידי</string>
+    <string name="word_wrap_desc">הפעלת גלישת מילים בכל העורכים</string>
+    <string name="value_invalid">ערך לא חוקי</string>
+    <string name="value_small">ערך קטן מידי</string>
+    <string name="value_large">ערך גדול מידי</string>
     <string name="text_size">גודל טקסט</string>
     <string name="tab_size">גודל טאב</string>
     <string name="tab_size_desc">הגדר גודל טאב</string>
@@ -125,7 +123,7 @@
     <string name="terminal_desc">הגדרות מסוף כלליות</string>
     <string name="cursor_anim">אנימציית עכבר</string>
     <string name="diagonal_scroll">גלילה אלכסונית</string>
-    <string name="u_err">שגיאה לא ידועה ץ</string>
+    <string name="unknown_error">שגיאה לא ידועה ץ</string>
     <string name="copy_failed">העתקת קובץ נכשלה</string>
     <string name="install_done">הותקן בהצלחה</string>
     <string name="choose_file">בחר קובץ</string>
@@ -216,10 +214,10 @@
     <string name="default_encoding">קידוד ברירת מחדל</string>
     <string name="default_encoding_desc">קידוד ברירת מחדל של העורך</string>
     <string name="invalid_file_type">סוג קובץ לא חוקי, נדרש קובץ zip</string>
-    <string name="txt_ww">גלישת קבצי txt</string>
+    <string name="txt_word_wrap">גלישת קבצי txt</string>
     <string name="use_ctrl_workaround">השתמש בפתרון עוקף של Ctrl</string>
     <string name="use_ctrl_workaround_desc">השתמש בפתרון עוקף של Ctrl רווח</string>
-    <string name="txt_ww_desc">גלישת טקסט אוטומטית בקבצים</string>
+    <string name="txt_word_wrap_desc">גלישת טקסט אוטומטית בקבצים</string>
     <string name="file_not_saved">חלק מהקבצים לא נשמרו</string>
     <string name="ask_unsaved">האם אתה בטוח שברצונך למחוק את המסמך שלא נשמר?</string>
     <string name="keep_editing">המשך לערוך</string>
@@ -229,7 +227,6 @@
     <string name="update">עידכון</string>
     <string name="ignore">התעלם</string>
     <string name="update_disable">בדיקת עדכונים כבוי</string>
-    <string name="enable_ext">תוספים</string>
     <string name="ext">תוספים</string>
     <string name="no_mutators">אין ממירים</string>
     <string name="tab_opened">טאב נפתח</string>
@@ -246,7 +243,6 @@
     <string name="sessions">הפעלות</string>
     <string name="add_session">הוסף הפעלה</string>
     <string name="terminal_runtime">הרצת מסוף</string>
-    <string name="enable_ext_desc">טען תוספי צד שלישי</string>
     <string name="script_get_text">קבל טקסט</string>
     <string name="script_show_toast">הצג התראה קופצת</string>
     <string name="script_network">רשת</string>
@@ -294,7 +290,6 @@
     <string name="saf_expose_warning">חשיפת ספריית הבית עלולה לחשוף מידע רגיש לאפליקציות זדוניות, כולל אסימוני Git, סיסמאות, שמות משתמש וקבצים אחרים המאוחסנים בספריית הבית של המסוף שלך. האם ברצונך להמשיך?</string>
     <string name="info">מידע</string>
     <string name="file_info">מידע על הקובץ</string>
-    <string name="file_size">גודל הקובץ</string>
     <string name="can_read">ניתן לקריאה</string>
     <string name="can_write">ניתן לכתיבה</string>
     <string name="is_file">זה קובץ</string>
@@ -307,7 +302,7 @@
     <string name="unrestricted_file_desc">איפשור פתיחת קבצים בכל גודל. עלול לגרום לקריסות</string>
     <string name="suggest_clear_app_data">מומלץ לנקות נתוני אפליקציה</string>
     <string name="update_files_cleared">האפליקציה עודכנה: נתונים נוקו</string>
-    <string name="toggle_ww">החלף גלישת מילים</string>
+    <string name="toggle_word_wrap">החלף גלישת מילים</string>
     <string name="warning_private_dir">תוכן התיקייה הזו יימחק אם תנקה נתונים או תמחק את Xed-Editor</string>
     <string name="read_only_file">הקובץ לקריאה בלבד</string>
     <string name="new_document">מסמך חדש</string>

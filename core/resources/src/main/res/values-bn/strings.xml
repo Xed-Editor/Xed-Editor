@@ -12,7 +12,7 @@
     <string name="restart_required">পুনরায় চালু করা প্রয়োজন</string>
     <string name="saved_all">সব ফাইল সংরক্ষিত হয়েছে</string>
     <string name="save">সংরক্ষন করুন</string>
-    <string name="ww_wait">ওয়ার্ড র‍্যাপ সম্পূর্ণ হওয়া পর্যন্ত অপেক্ষা করুন</string>
+    <string name="word_wrap_wait">ওয়ার্ড র‍্যাপ সম্পূর্ণ হওয়া পর্যন্ত অপেক্ষা করুন</string>
     <string name="open_file_or_folder">ফাইল বা ফোল্ডার খুলুন</string>
     <string name="open_directory">একটি ডিরেক্টরি খুলুন</string>
     <string name="new_file">নতুন ফাইল</string>

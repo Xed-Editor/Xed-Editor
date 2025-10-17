@@ -3,7 +3,7 @@
     <string name="delete">Löschen</string>
     <string name="open_directory">Ein Verzeichnis öffnen</string>
     <string name="saved_all">Alle Dateien gespeichert</string>
-    <string name="ww_wait">Bitte warten, bis der Zeilenumbruch abgeschlossen ist</string>
+    <string name="word_wrap_wait">Bitte warten, bis der Zeilenumbruch abgeschlossen ist</string>
     <string name="open_file_or_folder">Datei oder Ordner öffnen</string>
     <string name="new_file_hint">Name (z. B. test.txt)</string>
     <string name="cs">Groß-/Kleinschreibung</string>
@@ -18,10 +18,9 @@
     <string name="insert_date">Datum einfügen</string>
     <string name="unsaved_files">Es gibt nicht gespeicherte Dateien!</string>
     <string name="cancel">Abbrechen</string>
-    <string name="rr">Neustart erforderlich</string>
     <string name="restart_to_apply">Bitte neu starten, um die Einstellungen anzuwenden</string>
     <string name="oled">Schwarzes Thema</string>
-    <string name="ww">Zeilenumbruch</string>
+    <string name="word_wrap">Zeilenumbruch</string>
     <string name="restart">Neustart</string>
     <string name="refresh">Neu laden</string>
     <string name="dir_example">Name (z. B. Test)</string>
@@ -90,7 +89,6 @@
     <string name="description">Beschreibung</string>
     <string name="download">Herunterladen</string>
     <string name="dir_exist_not">Ordner existiert nicht</string>
-    <string name="file_exist_not">Datei existiert nicht mehr</string>
     <string name="file_open_denied">Das Öffnen dieser Datei mit anderen Apps ist nicht zulässig</string>
     <string name="reload_file_tree">Dateien neu laden</string>
     <string name="close_current_project">Möchtest du das Projekt \'%(project_name)\' wirklich schließen?</string>
@@ -143,19 +141,19 @@
     <string name="diagonal_scroll">Diagonales Scrollen</string>
     <string name="diagonal_scroll_desc">Diagonales Scrollen im Dateibaum aktivieren</string>
     <string name="smooth_tab_desc">Sanftes Wechseln zwischen Tabs</string>
-    <string name="ww_desc">Zeilenumbruch in allen Editoren aktivieren</string>
+    <string name="word_wrap_desc">Zeilenumbruch in allen Editoren aktivieren</string>
     <string name="show_line_number">Zeilennummern anzeigen</string>
     <string name="pin_line_number">Zeilennummern anheften</string>
     <string name="auto_save">Automatisch speichern</string>
     <string name="auto_save_desc">Datei automatisch speichern</string>
-    <string name="invalid_v">Ungültiger Wert</string>
+    <string name="value_invalid">Ungültiger Wert</string>
     <string name="tab_size">Tabgröße</string>
     <string name="tab_size_desc">Tabgröße festlegen</string>
-    <string name="v_small">Wert zu klein</string>
+    <string name="value_small">Wert zu klein</string>
     <string name="text_size">Textgröße</string>
     <string name="interval_in_ms">Intervall in Millisekunden</string>
     <string name="text_size_desc">Textgröße festlegen</string>
-    <string name="v_large">Wert zu groß</string>
+    <string name="value_large">Wert zu groß</string>
     <string name="monet">Dynamische Farben</string>
     <string name="restart_app">Bitte Anwendung neu starten.</string>
     <string name="old_android">Nicht unterstützte Android-Version</string>
@@ -233,8 +231,6 @@
     <string name="add_session">Sitzung hinzufügen</string>
     <string name="terminal_runtime">Terminal-Runtime</string>
     <string name="terminal_runtime_desc">Terminal-Runtime auswählen</string>
-    <string name="enable_ext">Erweiterungen</string>
-    <string name="enable_ext_desc">Drittanbieter-Erweiterungen laden</string>
     <string name="ext">Erweiterungen</string>
     <string name="ext_desc">Erweiterungen verwalten</string>
     <string name="no_mutators">Keine Mutatoren</string>
@@ -244,7 +240,7 @@
     <string name="name_used">Name bereits verwendet</string>
     <string name="script_showing_dialog">Dialog anzeigen</string>
     <string name="installing">Wird installiert …</string>
-    <string name="u_err">Unbekannter Fehler</string>
+    <string name="unknown_error">Unbekannter Fehler</string>
     <string name="not_plugin_err">Ausgewählte Datei ist keine APK-Datei</string>
     <string name="install_from_storage">Aus Speicher installieren</string>
     <string name="no_ext">Keine Erweiterungen installiert.</string>
@@ -271,7 +267,6 @@
     <string name="misc_desc">Sonstige Einstellungen</string>
     <string name="info">Info</string>
     <string name="file_info">Datei-Info</string>
-    <string name="file_size">Dateigröße</string>
     <string name="copied">Kopiert</string>
     <string name="cant_undo">Diese Aktion kann nicht rückgängig gemacht werden</string>
     <string name="auto_complete">Editor-Autovervollständigung</string>
@@ -297,8 +292,8 @@
     <string name="unsupported_aarch">Nicht unterstützte Plattform, Failsafe verwenden</string>
     <string name="theme_mode_desc">App-Farbthema ändern</string>
     <string name="show_suggestions">Tastaturvorschläge anzeigen</string>
-    <string name="txt_ww">TXT-Dateien umbrechen</string>
-    <string name="txt_ww_desc">TXT-Dateien automatisch umbrechen</string>
+    <string name="txt_word_wrap">TXT-Dateien umbrechen</string>
+    <string name="txt_word_wrap_desc">TXT-Dateien automatisch umbrechen</string>
     <string name="ask_unsaved">Bist du sicher, dass du dieses nicht gespeicherte Dokument verwerfen möchtest?</string>
     <string name="encoding_warning">Von einer Änderung der Standardcodierung wird dringend abgeraten, da dies zu einer Beschädigung der Dateien führen kann. Es wird dringend empfohlen, UTF-8 zu verwenden, es sei denn, du bist dir der Auswirkungen voll bewusst und hast entsprechende Sicherungskopien erstellt.</string>
     <string name="info_mutators">Mutatoren sind kleine Skripte, die verwendet werden, um den Text im Editor zu verändern. Erstelle einen Mutator und klicke auf ihn, um ihn im Editor zu öffnen.</string>
@@ -317,7 +312,7 @@
     <string name="unrestricted_file_desc">Öffnen von Dateien beliebiger Größe erlauben. Kann zu Abstürzen führen.</string>
     <string name="suggest_clear_app_data">Löschen der App-Daten wird empfohlen</string>
     <string name="update_files_cleared">App aktualisiert: Daten gelöscht</string>
-    <string name="toggle_ww">Zeilenumbruch umschalten</string>
+    <string name="toggle_word_wrap">Zeilenumbruch umschalten</string>
     <string name="warning_private_dir">Der Inhalt dieses Verzeichnisses wird gelöscht, wenn du die Daten löscht oder Xed-Editor deinstallierst</string>
     <string name="can_read">Kann lesen</string>
     <string name="can_write">Kann schreiben</string>
@@ -328,7 +323,6 @@
     <string name="timeout">Download wegen Zeitüberschreitung abgebrochen. Bitte stelle sicher, dass deine Internetverbindung stabil ist</string>
     <string name="unsupported_feature">Diese Funktion wird auf deinem Gerät nicht unterstützt</string>
     <string name="tab_memory_warning">Zum Öffnen dieses Tabs ist nicht genügend Arbeitsspeicher verfügbar. Das Öffnen kann zum Absturz des Xed-Editors führen. Möchtest du trotzdem fortfahren?</string>
-    <string name="preview_err">Die Vorschau dieser Datei ist nicht möglich. Es ist kein übergeordnetes Verzeichnis verfügbar. Verschiebe die Datei gegebenenfalls an einen anderen Ort.</string>
     <string name="force_normal_desc">Normalmodus auf großen Bildschirmen erzwingen</string>
     <string name="force_char">Zeichen erzwingen</string>
     <string name="force_char_desc">Zeichenbasierte Eingabe im Terminal erzwingen</string>
@@ -415,7 +409,6 @@
     <string name="ask_refresh">Möchtest du dieses Dokument wirklich aktualisieren? Nicht gespeicherte Änderungen gehen verloren.</string>
     <string name="docs">Dokumentation</string>
     <string name="docs_desc">Dokumentationsseite aufrufen.</string>
-    <string name="file_type">Dateityp</string>
     <string name="lsp_settings_desc">Sprachserver-Einstellungen</string>
     <string name="github_stars">GitHub-Sterne</string>
     <string name="api_error">API-Fehler</string>

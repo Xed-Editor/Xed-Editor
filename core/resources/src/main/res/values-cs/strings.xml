@@ -7,7 +7,7 @@
     <string name="null_content">Chyba: Obsah je null (prázdný)</string>
     <string name="saved_all">Všechny soubory uloženy</string>
     <string name="save">Uložit</string>
-    <string name="ww_wait">Vičkejte prosím než zalamování slov bude dokončeno</string>
+    <string name="word_wrap_wait">Vičkejte prosím než zalamování slov bude dokončeno</string>
     <string name="open_file_or_folder">Otevřít soubor nebo složku</string>
     <string name="open_directory">Otevřít složku</string>
     <string name="new_file">Nový soubor</string>
@@ -15,7 +15,7 @@
     <string name="not_plugin_err">Vybraný soubor není apk soubor</string>
     <string name="title">Název</string>
     <string name="path">Umístění</string>
-    <string name="ww">Zalamování slov</string>
+    <string name="word_wrap">Zalamování slov</string>
     <string name="check_for_updates">Kontrolovat pro aktualizace</string>
     <string name="check_for_updates_desc">Pravidelné kontrolování aktualizacích</string>
     <string name="unsaved_files">Vy máte neuložené soubory!</string>
@@ -28,7 +28,6 @@
     <string name="tab_text_1">Karta 1</string>
     <string name="tab_text_2">Karta 2</string>
     <string name="dir_exist_not">Složka neexistuje</string>
-    <string name="file_exist_not">Soubor neexistuje</string>
     <string name="apply">Použít</string>
     <string name="open_in_terminal">Otevřít ve Terminálu</string>
     <string name="open_dir_in_terminal">Otevřít složku ve Terminálu</string>
@@ -56,7 +55,7 @@
     <string name="restore">Obnovit</string>
     <string name="monet_desc">Použít téma zařízení</string>
     <string name="terminal_text_size_desc">Nastavit velikost textu v terminálu</string>
-    <string name="u_err">Neznámá chyba</string>
+    <string name="unknown_error">Neznámá chyba</string>
     <string name="saved">Uloženo</string>
     <string name="show_suggestions">Zobrazovat návrhy klávesnice</string>
     <string name="file_too_large">Soubor je příliš velký pro otevření</string>
@@ -115,7 +114,6 @@
     <string name="unsaved">Neuložené soubory</string>
     <string name="cancel">Zrušit</string>
     <string name="save_exit">Uložit a ukončit</string>
-    <string name="rr">Restart aplikace je požadovaný</string>
     <string name="restart_to_apply">Prosím restartněte aplikaci pro použití nových nastavení</string>
     <string name="restart">Restart</string>
     <string name="refresh">Načíst</string>
@@ -200,19 +198,19 @@
     <string name="add_session">Přidat relaci</string>
     <string name="editor_desc">Nastavení editoru</string>
     <string name="extra_keys_desc">Zobrazovat více kláves v editoru</string>
-    <string name="invalid_v">Neplatná hodnota</string>
-    <string name="v_small">Hodnota příliš malá</string>
-    <string name="v_large">Hodnota příliš velká</string>
+    <string name="value_invalid">Neplatná hodnota</string>
+    <string name="value_small">Hodnota příliš malá</string>
+    <string name="value_large">Hodnota příliš velká</string>
     <string name="interval_in_ms">Interval ve milisekundách</string>
     <string name="editor">Editor</string>
     <string name="oled_desc">Černé téma (#000)</string>
     <string name="invalid_file_type">Neplatný typ souboru, ZIP soubor očekáván</string>
-    <string name="ww_desc">Zapnout zalamování slov ve všech editorů</string>
-    <string name="txt_ww">Zalamovat txt soubory</string>
+    <string name="word_wrap_desc">Zapnout zalamování slov ve všech editorů</string>
+    <string name="txt_word_wrap">Zalamovat txt soubory</string>
     <string name="default_encoding_desc">Výchozí kódování v editoru</string>
     <string name="other">Jiný</string>
     <string name="add_font_desc">Vyberte TTF font z uložiště</string>
-    <string name="txt_ww_desc">Automaticky zalamuje txt soubory</string>
+    <string name="txt_word_wrap_desc">Automaticky zalamuje txt soubory</string>
     <string name="unknown_err">Něco se stalo</string>
     <string name="mime">Typ MIME (např. text/plain)</string>
     <string name="click_open">Klepněte tady pro otevření souboru</string>
@@ -230,10 +228,8 @@
     <string name="join">Spojit se</string>
     <string name="ask_unsaved">Opravdu chcete tento neuložený soubor zahodit?</string>
     <string name="keep_editing">Dál upravovat</string>
-    <string name="enable_ext">Doplňky</string>
     <string name="ext_desc">Spravovat doplňky</string>
     <string name="ext">Doplňky</string>
-    <string name="enable_ext_desc">Načíst doplňky ze třetích stran</string>
     <string name="content">Obsah</string>
     <string name="discard">Zahodit</string>
     <string name="telegram">Telegram skupina</string>
@@ -263,7 +259,7 @@
     <string name="show_virtual_keyboard">Zobrazit virtuální klávesnici</string>
     <string name="show_virtual_keyboard_desc">Zobrazit virtuální klávesnici když je připojena fyzická klávesnice</string>
     <string name="encoding_warning">Změna výchozího kódování je velmi nedoporučována, může vést k poškození souborů. Důrazně doporučujeme použít UTF-8, dokud plně nepochopíte důsledky a nevytvoříte správnou zálohu.</string>
-    <string name="toggle_ww">Přepnout zalamování slov</string>
+    <string name="toggle_word_wrap">Přepnout zalamování slov</string>
     <string name="misc">Smíšené</string>
     <string name="misc_desc">Smíšené nastavení</string>
     <string name="smooth_tabs">Hladké animace karet</string>
@@ -274,7 +270,6 @@
     <string name="is_file">Je soubor</string>
     <string name="can_write">Lze zapisovat</string>
     <string name="can_read">Lze číst</string>
-    <string name="file_size">Velikost souboru</string>
     <string name="cant_undo">Táto akce nemůže být vrácena zpět</string>
     <string name="capture_logcat">Zaznamenat logcat</string>
     <string name="capture_logcat_desc">Zaznamenat obsah protokolů na pozadí pro ladění</string>
@@ -324,7 +319,6 @@
     <string name="info_mutators">Mutátory jsou malé skripty, které se používají pro upravování textu v editoru. Vytvořte mutátor a klepněte na ho pro otevření v editoru.</string>
     <string name="flavor">Varianta</string>
     <string name="getting_ready">Všechno se připravuje…</string>
-    <string name="preview_err">Tento soubor nelze zobrazit. Žádná mateřská složka je dostupná. Prosím přesuňte tento soubor někde jinde.</string>
     <string name="tab_memory_warning">Není dostatek prostředků pro otevření této karty. Otevření této karty může způsobit havarii Xed-Editoru. Chcete i tak pokračkovat?</string>
     <string name="read_mode_desc">Výchoze zapnout čtecí režim</string>
     <string name="mutator_desc">Vytvářejte uživatelské skripty</string>

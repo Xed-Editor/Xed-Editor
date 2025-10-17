@@ -21,10 +21,9 @@
     <string name="insert_date">插入日期</string>
     <string name="save_exit">保存并退出</string>
     <string name="exit">退出</string>
-    <string name="rr">需要重启以生效</string>
     <string name="restart_to_apply">请重启以应用设置</string>
     <string name="oled">纯黑主题</string>
-    <string name="ww">自动换行</string>
+    <string name="word_wrap">自动换行</string>
     <string name="restart">重新启动</string>
     <string name="refresh">重载</string>
     <string name="dir_example">名称（例如：测试）</string>
@@ -71,7 +70,7 @@
     <string name="null_content">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
     <string name="save">保存</string>
-    <string name="ww_wait">请等待换行完成</string>
+    <string name="word_wrap_wait">请等待换行完成</string>
     <string name="open_file_or_folder">打开文件或文件夹</string>
     <string name="open_directory">打开目录</string>
     <string name="new_file">新建文件</string>
@@ -93,7 +92,6 @@
     <string name="remove_a_search_batch">移除一组批量搜索</string>
     <string name="tab_text_1">标签页 1</string>
     <string name="tab_text_2">标签页 2</string>
-    <string name="file_exist_not">文件已不存在</string>
     <string name="apply">应用</string>
     <string name="invalid_userdata">用户数据无效。请在设置中更改</string>
     <string name="reload_file_tree">重新加载文件</string>
@@ -128,7 +126,7 @@
     <string name="editor">编辑器</string>
     <string name="smooth_tabs">平滑标签页</string>
     <string name="smooth_tab_desc">在标签页之间平滑切换</string>
-    <string name="ww_desc">在所有编辑器中启用自动换行</string>
+    <string name="word_wrap_desc">在所有编辑器中启用自动换行</string>
     <string name="drawer_lock_desc">在打开文件时保持侧滑栏锁定</string>
     <string name="diagonal_scroll">对角线滚动</string>
     <string name="diagonal_scroll_desc">在文件树中启用对角线滚动</string>
@@ -138,9 +136,9 @@
     <string name="extra_keys">额外关键字</string>
     <string name="extra_keys_desc">在编辑器中显示额外关键字</string>
     <string name="interval_in_ms">间隔（毫秒）</string>
-    <string name="invalid_v">无效值</string>
-    <string name="v_small">数值太小</string>
-    <string name="v_large">数值太大</string>
+    <string name="value_invalid">无效值</string>
+    <string name="value_small">数值太小</string>
+    <string name="value_large">数值太大</string>
     <string name="monet">动态颜色</string>
     <string name="app_desc">应用通用设置</string>
     <string name="editor_desc">编辑器通用设置</string>
@@ -161,7 +159,7 @@
     <string name="text_size">字体大小</string>
     <string name="monet_desc">跟随系统主题</string>
     <string name="add_new_replacement_batch">添加新的批量替换</string>
-    <string name="u_err">未知错误</string>
+    <string name="unknown_error">未知错误</string>
     <string name="choose_file">选择文件</string>
     <string name="terminal_text_size_desc">设置终端字体大小</string>
     <string name="saved">已保存</string>
@@ -228,8 +226,8 @@
     <string name="file_too_large">打开的文件过大</string>
     <string name="toggle_suggestion">键盘选词建议</string>
     <string name="run">运行</string>
-    <string name="txt_ww">换行 TXT 文件</string>
-    <string name="txt_ww_desc">自动换行 TXT 文件</string>
+    <string name="txt_word_wrap">换行 TXT 文件</string>
+    <string name="txt_word_wrap_desc">自动换行 TXT 文件</string>
     <string name="telegram">Telegram 群</string>
     <string name="mutators">Mutator</string>
     <string name="update_av">有新版本可用</string>
@@ -264,7 +262,6 @@
     <string name="script_get_text">获取编辑器文本</string>
     <string name="script_show_toast">显示 Toast 提示消息</string>
     <string name="script_network">网络</string>
-    <string name="enable_ext">扩展</string>
     <string name="file_err">无法保存文件，请尝试关闭并重新打开文件</string>
     <string name="file_not_loaded">文件尚未加载。</string>
     <string name="experimental_feature">实验性功能</string>
@@ -272,7 +269,6 @@
     <string name="unrestricted_file">打开任意大小的文件</string>
     <string name="new_document">新建文件</string>
     <string name="new_document_desc">新建文件或文件夹</string>
-    <string name="enable_ext_desc">加载第三方扩展</string>
     <string name="ext_desc">管理扩展</string>
     <string name="script_text">此文本将被写入到编辑器</string>
     <string name="script_set_text">设置编辑器文本</string>
@@ -298,13 +294,12 @@
     <string name="file">文件</string>
     <string name="warning_private_dir">当你清除数据或删除 Xed-Editor 时，此目录的内容将被删除</string>
     <string name="read_only_file">文件处于只读状态</string>
-    <string name="toggle_ww">切换自动换行</string>
+    <string name="toggle_word_wrap">切换自动换行</string>
     <string name="unknown_err">出了点问题</string>
     <string name="misc">其他设置</string>
     <string name="misc_desc">其他的设置选项</string>
     <string name="expose_saf">显示主目录</string>
     <string name="file_info">文件属性</string>
-    <string name="file_size">文件大小</string>
     <string name="can_read">可读</string>
     <string name="can_write">可写</string>
     <string name="is_file">是文件</string>
@@ -352,7 +347,6 @@
     <string name="control_panel">控制面板</string>
     <string name="tab_memory_warning">当前没有足够的内存。打开此标签页可能导致 Xed-Editor 崩溃。你要继续吗？</string>
     <string name="read_mode_desc">默认开启只读模式</string>
-    <string name="preview_err">无法预览此文件，因为找不到父目录。建议将文件移动到其他位置后再试。</string>
     <string name="acquire_wakelock">保持屏幕常亮</string>
     <string name="release_wakelock">关闭屏幕常亮</string>
     <string name="getting_ready">正在初始化…</string>
@@ -374,7 +368,6 @@
     <string name="delete_desc">永久删除文件</string>
     <string name="rename_file">重命名文件</string>
     <string name="new_name">新名称</string>
-    <string name="file_type">文件类型</string>
     <string name="type">类型</string>
     <string name="name">名称</string>
     <string name="view_github_profile">查看 GitHub 个人资料</string>

@@ -10,7 +10,7 @@
     <string name="saved">File saved</string>
     <string name="saved_all">Saved all files</string>
     <string name="save">Save</string>
-    <string name="ww_wait">Please wait for word wrap to complete</string>
+    <string name="word_wrap_wait">Please wait for word wrap to complete</string>
     <string name="open_file_or_folder">Open file or folder</string>
     <string name="open_directory">Open a directory</string>
     <string name="new_file">New file</string>
@@ -50,10 +50,9 @@
     <string name="cancel">Cancel</string>
     <string name="save_exit">Save and exit</string>
     <string name="exit">Exit</string>
-    <string name="rr">Restart required</string>
     <string name="restart_to_apply">Please restart to apply settings</string>
     <string name="oled">Black theme</string>
-    <string name="ww">Word wrap</string>
+    <string name="word_wrap">Word wrap</string>
     <string name="keep_drawer_locked">Keep drawer locked</string>
     <string name="restart">Restart</string>
     <string name="refresh">Reload</string>
@@ -130,13 +129,13 @@
     <string name="yes">Yes</string>
     <string name="fetch_failed">Fetch request returned null</string>
     <string name="app">Application</string>
-    <string name="oled_desc">Black theme (#000)</string>
+    <string name="oled_desc">Applies a pure black theme</string>
     <string name="themes">Themes</string>
     <string name="change_theme">Change theme</string>
     <string name="editor">Editor</string>
     <string name="smooth_tabs">Smooth tabs</string>
     <string name="smooth_tab_desc">Smoothly switch between tabs</string>
-    <string name="ww_desc">Enable word wrap in all editors</string>
+    <string name="word_wrap_desc">Enable word wrap in all editors</string>
     <string name="drawer_lock_desc">Keep drawer locked when opening file</string>
     <string name="diagonal_scroll">Diagonal scrolling</string>
     <string name="diagonal_scroll_desc">Enable diagonal scrolling in file tree</string>
@@ -149,9 +148,9 @@
     <string name="auto_save">Auto save</string>
     <string name="auto_save_desc">Automatically save file</string>
     <string name="interval_in_ms">Interval in milliseconds</string>
-    <string name="invalid_v">Invalid value</string>
-    <string name="v_small">Value too small</string>
-    <string name="v_large">Value too large</string>
+    <string name="value_invalid">Invalid value</string>
+    <string name="value_small">Value too small</string>
+    <string name="value_large">Value too large</string>
     <string name="text_size">Text size</string>
     <string name="text_size_desc">Set text size</string>
     <string name="tab_size">Tab size</string>
@@ -165,7 +164,7 @@
     <string name="terminal_desc">General terminal settings</string>
     <string name="terminal_text_size">Terminal text size</string>
     <string name="terminal_text_size_desc">Set terminal text size</string>
-    <string name="u_err">Unknown error</string>
+    <string name="unknown_error">Unknown error</string>
     <string name="is_null">InputStream is null</string>
     <string name="wait_pkg">Please wait while the packages are being downloaded.</string>
     <string name="unsupported_aarch">Unsupported platform, use fail safe</string>
@@ -211,8 +210,8 @@
     <string name="file_too_large">File is too big to open</string>
     <string name="toggle_suggestion">Toggle suggestion</string>
     <string name="run">Run</string>
-    <string name="txt_ww">Wrap TXT files</string>
-    <string name="txt_ww_desc">Automatically wrap TXT files</string>
+    <string name="txt_word_wrap">Wrap TXT files</string>
+    <string name="txt_word_wrap_desc">Automatically wrap TXT files</string>
     <string name="manage_editor_font">Manage editor fonts</string>
     <string name="default_encoding">Default encoding</string>
     <string name="default_encoding_desc">Editor default encoding</string>
@@ -247,8 +246,6 @@
     <string name="add_session">Add session</string>
     <string name="terminal_runtime">Terminal runtime</string>
     <string name="terminal_runtime_desc">Select terminal runtime</string>
-    <string name="enable_ext">Extensions</string>
-    <string name="enable_ext_desc">Load third party extensions</string>
     <string name="ext">Extensions</string>
     <string name="ext_desc">Manage extensions</string>
     <string name="info_mutators">Mutators are small scripts that are used to modify the editor text. Create a mutator and click on it to open it in the editor.</string>
@@ -287,7 +284,7 @@
     <string name="unrestricted_file_desc">Allow opening files of any size. May lead to crashes.</string>
     <string name="suggest_clear_app_data">Clearing app data is recommended</string>
     <string name="update_files_cleared">App updated: data cleared</string>
-    <string name="toggle_ww">Toggle word wrap</string>
+    <string name="toggle_word_wrap">Toggle word wrap</string>
     <string name="warning_private_dir">Content of this directory will get deleted if you clear data or delete Xed-Editor</string>
     <string name="read_only_file">File is read only</string>
     <string name="new_document">New document</string>

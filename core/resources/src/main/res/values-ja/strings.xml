@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="already_exists">この名前のドキュメントが既に存在します</string>
-    <string name="file_exist_not">ファイルは既に存在しません</string>
     <string name="open_drawer">開く</string>
     <string name="unsupported_content">非対応の内容です</string>
     <string name="open_with">他で開く</string>
@@ -42,8 +41,7 @@
     <string name="cancel">キャンセル</string>
     <string name="save_exit">保存して終了</string>
     <string name="exit">終了</string>
-    <string name="rr">再起動が必要です</string>
-    <string name="ww">ワードラップ</string>
+    <string name="word_wrap">ワードラップ</string>
     <string name="keep_drawer_locked">引き出しをロックしたままにする</string>
     <string name="refresh">再読み込み</string>
     <string name="dir_example">名前 (例: Test)</string>
@@ -94,7 +92,7 @@
     <string name="change_theme">テーマを変更</string>
     <string name="editor">エディター</string>
     <string name="smooth_tabs">滑らかなタブ</string>
-    <string name="ww_desc">全てのエディターでワードラップを有効にする</string>
+    <string name="word_wrap_desc">全てのエディターでワードラップを有効にする</string>
     <string name="drawer_lock_desc">ファイルを開いている間は引き出しをロックする</string>
     <string name="diagonal_scroll">斜めスクロール</string>
     <string name="diagonal_scroll_desc">ファイルツリーで斜めスクロールを有効にする</string>
@@ -104,16 +102,16 @@
     <string name="extra_keys_desc">エディターに追加キーを表示する</string>
     <string name="auto_save">自動保存</string>
     <string name="interval_in_ms">間隔(ミリ秒)</string>
-    <string name="invalid_v">無効な値です</string>
-    <string name="v_small">値が小さすぎます</string>
-    <string name="v_large">値が大きすぎます</string>
+    <string name="value_invalid">無効な値です</string>
+    <string name="value_small">値が小さすぎます</string>
+    <string name="value_large">値が大きすぎます</string>
     <string name="text_size">文字サイズ</string>
     <string name="tab_size">タブサイズ</string>
     <string name="editor_desc">エディターの一般設定</string>
     <string name="terminal_desc">ターミナルの一般設定</string>
     <string name="terminal_text_size">ターミナルの文字サイズ</string>
     <string name="terminal_text_size_desc">ターミナルの文字の大きさを設定</string>
-    <string name="u_err">不明なエラー</string>
+    <string name="unknown_error">不明なエラー</string>
     <string name="saved">保存しました</string>
     <string name="pkg_download_failed">パッケージのダウンロードに失敗しました</string>
     <string name="install_done">インストールに成功しました</string>
@@ -139,7 +137,7 @@
     <string name="manage_storage_reason">Xed-Editorはストレージ内のファイルを編集するためのアクセスを必要とします。次に表示されるシステム設定でアクセスを許可してください。</string>
     <string name="cs">大文字/小文字を区別</string>
     <string name="close">閉じる</string>
-    <string name="ww_wait">ワードラップが完了するまでお待ちください</string>
+    <string name="word_wrap_wait">ワードラップが完了するまでお待ちください</string>
     <string name="invalid_file_type">無効なファイルの種類です。ZIPである必要があります</string>
     <string name="close_this">このファイルを閉じる</string>
     <string name="wait">お待ちください…</string>
@@ -224,8 +222,6 @@
     <string name="sessions">セッション</string>
     <string name="terminal_runtime_desc">ターミナルのランタイムを選択</string>
     <string name="terminal_runtime">ターミナルのランタイム</string>
-    <string name="enable_ext">拡張機能</string>
-    <string name="enable_ext_desc">サードパーティーの拡張機能を読み込む</string>
     <string name="ext">拡張機能</string>
     <string name="ext_desc">拡張機能の管理</string>
     <string name="no_mutators">ミューテーターはありません</string>
@@ -256,8 +252,8 @@
     <string name="version">バージョン</string>
     <string name="click_open">ファイルを開くにはここをクリック</string>
     <string name="add_font_desc">ストレージからTTFフォントを選択する</string>
-    <string name="txt_ww">テキストファイルのワードラップ</string>
-    <string name="txt_ww_desc">テキストファイルを自動的にワードラップする</string>
+    <string name="txt_word_wrap">テキストファイルのワードラップ</string>
+    <string name="txt_word_wrap_desc">テキストファイルを自動的にワードラップする</string>
     <string name="info_ext">拡張機能を使用することで、Xed-Editorの動作や機能を変更することができます。プラグインの作り方については、ここをクリックしてください。</string>
     <string name="dark_mode">ダーク</string>
     <string name="theme_mode">テーマモード</string>
@@ -284,7 +280,7 @@
     <string name="unrestricted_file">サイズによらずファイルを開く</string>
     <string name="suggest_clear_app_data">アプリのデータをクリアすることを推奨します</string>
     <string name="unrestricted_file_desc">どのようなサイズのファイルでも開くようにする(クラッシュの可能性あり)</string>
-    <string name="toggle_ww">ワードラップを切り替え</string>
+    <string name="toggle_word_wrap">ワードラップを切り替え</string>
     <string name="warning_private_dir">アプリデータを消去したり、Xed-Editorを削除すると、このディレクトリの中身は削除されます</string>
     <string name="read_only_file">ファイルは読み取り専用です</string>
     <string name="folder">フォルダ</string>
@@ -308,7 +304,6 @@
     <string name="copied">コピーしました</string>
     <string name="flavor">種類</string>
     <string name="unknown_err">不明なエラが発生しました</string>
-    <string name="file_size">ファイルサイズ</string>
     <string name="info">情報</string>
     <string name="file_info">ファイル情報</string>
     <string name="misc">その他</string>
@@ -351,7 +346,6 @@
     <string name="control_panel">コントロールパネル</string>
     <string name="tab_memory_warning">このタブを開くのに十分なメモリがありません。このタブを開くとXed-Editorがクラッシュする可能性があります。とにかく続けますか？</string>
     <string name="read_mode_desc">デフォルトで読み取りモードを有効にする</string>
-    <string name="preview_err">このファイルをプレビューできません。親ディレクトリがありません。このファイルを他の場所に移動することを検討してください。</string>
     <string name="acquire_wakelock">ウェークロックを取得</string>
     <string name="release_wakelock">ウェークロックを開放</string>
     <string name="getting_ready">準備中…</string>
@@ -373,7 +367,6 @@
     <string name="sdcard_filetype">この場所でのコードの実行は推奨されません。ファイルをターミナルのホームディレクトリに移動することを検討してください。</string>
     <string name="rename_file">ファイル名を変更</string>
     <string name="new_name">新しい名前</string>
-    <string name="file_type">ファイルの種類</string>
     <string name="type">種類</string>
     <string name="name">名前</string>
     <string name="delete_desc">ドキュメントを完全に削除</string>

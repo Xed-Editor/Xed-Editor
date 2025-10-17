@@ -5,7 +5,7 @@
     <string name="saved">Ficheiro gravado</string>
     <string name="saved_all">Todos os ficheiros foram gravados</string>
     <string name="save">Gravar</string>
-    <string name="ww_wait">Aguarde a conclusão da quebra de linha</string>
+    <string name="word_wrap_wait">Aguarde a conclusão da quebra de linha</string>
     <string name="rep">Substituição</string>
     <string name="wait">Por favor, aguarde…</string>
     <string name="copy">Copiar</string>
@@ -93,9 +93,9 @@
     <string name="drawer_lock_desc">Manter gaveta bloqueada ao abrir um ficheiro</string>
     <string name="extra_keys_desc">Exibir teclas extras no editor</string>
     <string name="interval_in_ms">Intervalo em milissegundos</string>
-    <string name="invalid_v">Valor inválido</string>
-    <string name="v_small">Valor muito pequeno</string>
-    <string name="v_large">Valor muito grande</string>
+    <string name="value_invalid">Valor inválido</string>
+    <string name="value_small">Valor muito pequeno</string>
+    <string name="value_large">Valor muito grande</string>
     <string name="text_size_desc">Defina o tamanho do texto</string>
     <string name="tab_size_desc">Defina o tamanho da tabulação</string>
     <string name="monet_desc">Usar o tema do sistema</string>

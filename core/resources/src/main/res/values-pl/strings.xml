@@ -8,7 +8,7 @@
     <string name="restart_required">Wymagane ponowne uruchomienie</string>
     <string name="saved_all">Wszystkie pliki zapisane</string>
     <string name="save">Zapisz</string>
-    <string name="ww_wait">Proszę czekać na ukończenie zawijania tekstu</string>
+    <string name="word_wrap_wait">Proszę czekać na ukończenie zawijania tekstu</string>
     <string name="open_file_or_folder">Otwórz plik lub katalog</string>
     <string name="open_directory">Otwórz katalog</string>
     <string name="new_file">Nowy plik</string>
@@ -48,10 +48,9 @@
     <string name="cancel">Anuluj</string>
     <string name="save_exit">Zapisz i wyjdź</string>
     <string name="exit">Wyjdź</string>
-    <string name="rr">Wymagane ponowne uruchomienie</string>
     <string name="restart_to_apply">Proszę, uruchom ponownie, aby zastosować zmiany</string>
     <string name="oled">Czarny motyw</string>
-    <string name="ww">Zawijanie tekstu</string>
+    <string name="word_wrap">Zawijanie tekstu</string>
     <string name="keep_drawer_locked">Utrzymuj szufladę w pozycji zablokowanej</string>
     <string name="restart">Uruchom ponownie</string>
     <string name="refresh">Przeładuj</string>
@@ -86,9 +85,9 @@
     <string name="auto_save">Automatyczny zapis</string>
     <string name="auto_save_desc">Automatyczne zapisywanie pliku</string>
     <string name="interval_in_ms">Interwał w milisekundach</string>
-    <string name="invalid_v">Nieprawidłowa wartość</string>
-    <string name="v_small">Wartość zbyt niska</string>
-    <string name="v_large">Wartość zbyt wysoka</string>
+    <string name="value_invalid">Nieprawidłowa wartość</string>
+    <string name="value_small">Wartość zbyt niska</string>
+    <string name="value_large">Wartość zbyt wysoka</string>
     <string name="text_size">Rozmiar tekstu</string>
     <string name="text_size_desc">Ustaw rozmiar tekstu</string>
     <string name="tab_size">Rozmiar kart</string>
@@ -102,7 +101,7 @@
     <string name="terminal_desc">Ogólne ustawienia terminalu</string>
     <string name="terminal_text_size">Rozmiar tekstu terminalu</string>
     <string name="terminal_text_size_desc">Ustaw rozmiar tekstu w terminalu</string>
-    <string name="u_err">Nieznany bład</string>
+    <string name="unknown_error">Nieznany bład</string>
     <string name="is_null">Strumień wejściowy wykazuje pustą wartość</string>
     <string name="wait_pkg">Proszę czekać na ukończenie pobierania paczek.</string>
     <string name="unsupported_aarch">Nieobsługiwana platforma, użyj trybu bezpiecznego</string>
@@ -162,7 +161,7 @@
     <string name="unrestricted_file_desc">Pozwala otwierać pliki każdego rozmiaru. Może powodować awarię.</string>
     <string name="suggest_clear_app_data">Zalecane czyszczenie danych aplikacji</string>
     <string name="update_files_cleared">Aplikacja zaktualizowana: dane wyczyszczone</string>
-    <string name="toggle_ww">Włącz zawijanie słów</string>
+    <string name="toggle_word_wrap">Włącz zawijanie słów</string>
     <string name="warning_private_dir">Zawartość tego katalogu zostanie usunięta jeśli wyczyścisz dane lub odinstalujesz aplikację</string>
     <string name="read_only_file">Plik tylko do odczytu</string>
     <string name="new_document">Nowy dokument</string>
@@ -183,7 +182,6 @@
     <string name="expose_saf">Udostępnij katalog główny</string>
     <string name="saved">Plik zapisany</string>
     <string name="dir_exist_not">Katalog nie istnieje</string>
-    <string name="file_exist_not">Plik nie istnieje</string>
     <string name="file_saved">Plik zapisany</string>
     <string name="apply">Zastosuj</string>
     <string name="userdata">Dane użytkownika</string>
@@ -223,8 +221,8 @@
     <string name="file_too_large">Plik jest za duży, aby go otworzyć</string>
     <string name="toggle_suggestion">Włącz sugestie</string>
     <string name="run">Uruchom</string>
-    <string name="txt_ww">Zawijanie w plikach TXT</string>
-    <string name="txt_ww_desc">Automatycznie zawijaj pliki TXT</string>
+    <string name="txt_word_wrap">Zawijanie w plikach TXT</string>
+    <string name="txt_word_wrap_desc">Automatycznie zawijaj pliki TXT</string>
     <string name="manage_editor_font">Zarządzaj czcionkami edytora</string>
     <string name="default_encoding">Domyślne kodowanie</string>
     <string name="default_encoding_desc">Domyślne kodowanie w edytorze</string>
@@ -259,8 +257,6 @@
     <string name="add_session">Dodaj sesje</string>
     <string name="terminal_runtime">Czas działania terminalu</string>
     <string name="terminal_runtime_desc">Wybierz czas działania terminalu</string>
-    <string name="enable_ext">Rozszerzenia</string>
-    <string name="enable_ext_desc">Wczytaj rozszerzenia innych twórców</string>
     <string name="ext">Rozszerzenia</string>
     <string name="ext_desc">Zarządzaj rozszerzeniami</string>
     <string name="info_mutators">Mutatory to niewielkie skrypty używane do modyfikowania tekstu w edytorze. Stwórz mutator i kliknij, aby otworzyć go w edytorze.</string>
@@ -296,7 +292,7 @@
     <string name="editor">Edytor</string>
     <string name="smooth_tabs">Płynne karty</string>
     <string name="smooth_tab_desc">Płynnie przełączaj pomiędzy kartami</string>
-    <string name="ww_desc">Włącz zawijanie tekstu we wszystkich edytorach</string>
+    <string name="word_wrap_desc">Włącz zawijanie tekstu we wszystkich edytorach</string>
     <string name="drawer_lock_desc">Utrzymuj szufladę w pozycji zablokowanej podczas otwierania pliku</string>
     <string name="downloading">Pobieranie…</string>
     <string name="memory_usage">Użycie pamięci</string>
@@ -332,7 +328,6 @@
     <string name="edit_runner">Edytuj program uruchamiający</string>
     <string name="info">Informacje</string>
     <string name="file_info">Informacje o pliku</string>
-    <string name="file_size">Rozmiar pliku</string>
     <string name="can_read">Odczyt</string>
     <string name="can_write">Zapis</string>
     <string name="is_file">Jest plikiem</string>
@@ -365,7 +360,6 @@
     <string name="debug_options">Opcje debug</string>
     <string name="debug_options_desc">Opcje debug dla %(app_name)</string>
     <string name="force_crash">Wymuś awarie</string>
-    <string name="file_type">Typ pliku</string>
     <string name="type">Typ</string>
     <string name="name">Nazwa</string>
     <string name="force_crash_desc">Wywołaj wyjątek czasu wykonywania</string>
@@ -419,7 +413,6 @@
     <string name="github_stars">Gwiazdki na GitHub\'ie</string>
     <string name="api_error">Błąd API</string>
     <string name="unknown">Nieznany</string>
-    <string name="cant_read">Nie można odczytać pliku (brak uprawnienia odczytu)</string>
     <string name="cant_write">Nie można zapisać pliku (brak uprawnienia zapisu)</string>
     <string name="content_update">Dokument został zmodyfikowany przez inną aplikacje. Czy napewno chcesz odświeżyć? Wszystkie niezapisane zmiany zostaną utracone.</string>
     <string name="info_lsp">Serwery językowe dodają inteligentne funkcje, takie jak wypełnianie kodu, podkreślanie błędów oraz dokumentację osadzoną w kodzie.</string>

@@ -8,7 +8,7 @@
     <string name="restart_required">نیاز به ری استارت</string>
     <string name="saved_all">همه فایل ها ذخیره شدند</string>
     <string name="save">ذخیره</string>
-    <string name="ww_wait">لطفا صبر کنید تا قرارگیری واژه ها تمام شود</string>
+    <string name="word_wrap_wait">لطفا صبر کنید تا قرارگیری واژه ها تمام شود</string>
     <string name="open_file_or_folder">باز کردن فایل یا پوشه</string>
     <string name="open_directory">باز کردن پوشه</string>
     <string name="new_file">فایل جدید</string>

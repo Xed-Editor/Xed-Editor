@@ -8,7 +8,7 @@
     <string name="null_content">Erreur : le contenu est vide</string>
     <string name="saved_all">tous les fichiers ont été enregistrés</string>
     <string name="save">Enregistrer</string>
-    <string name="ww_wait">Attendez que le retour à la ligne soit terminé</string>
+    <string name="word_wrap_wait">Attendez que le retour à la ligne soit terminé</string>
     <string name="open_file_or_folder">Ouvrir fichier ou dossier</string>
     <string name="rep">Substitution</string>
     <string name="wait">Attendez svp…</string>
@@ -36,11 +36,10 @@
     <string name="unsaved_files">Vous avez des fichiers non-enregistrés !</string>
     <string name="exit">Quitter</string>
     <string name="restart_to_apply">Redémarrez svp pour appliquer les paramètres</string>
-    <string name="ww">Retour à la ligne automatique</string>
+    <string name="word_wrap">Retour à la ligne automatique</string>
     <string name="keep_drawer_locked">Garder le tiroir fermé</string>
     <string name="restart">Redémarrer</string>
     <string name="oled">Apparence noir profond</string>
-    <string name="rr">Redémarrage requis</string>
     <string name="save_exit">Enregistrer et quitter</string>
     <string name="refresh">Mettre à jour</string>
     <string name="dir_example">Nom (par ex. test)</string>
@@ -62,7 +61,6 @@
     <string name="description">Description</string>
     <string name="download">Télécharger</string>
     <string name="dir_exist_not">Le dossier n’existe pas</string>
-    <string name="file_exist_not">Le fichier n’existe plus</string>
     <string name="file_saved">Fichier enregistré</string>
     <string name="apply">Appliquer</string>
     <string name="userdata">Données utilisateur</string>
@@ -118,7 +116,7 @@
     <string name="editor">Éditeur</string>
     <string name="smooth_tabs">Onglets doux</string>
     <string name="smooth_tab_desc">Bascule douce entre les onglets</string>
-    <string name="ww_desc">Activer le retour à la ligne dans tous les éditeurs</string>
+    <string name="word_wrap_desc">Activer le retour à la ligne dans tous les éditeurs</string>
     <string name="drawer_lock_desc">Tiroir verrouillé à l’ouverture</string>
     <string name="diagonal_scroll">Défilement en diagonale</string>
     <string name="diagonal_scroll_desc">Activer le défilement en diagonale dans l’arborescence de fichiers</string>
@@ -130,8 +128,8 @@
     <string name="auto_save_desc">Enregistrer les fichiers automatiquement</string>
     <string name="auto_save">Enregistrement auto</string>
     <string name="interval_in_ms">Intervalle en millisecondes</string>
-    <string name="v_small">Valeur trop faible</string>
-    <string name="v_large">Valeur trop grande</string>
+    <string name="value_small">Valeur trop faible</string>
+    <string name="value_large">Valeur trop grande</string>
     <string name="text_size">Taille du texte</string>
     <string name="text_size_desc">Régler la taille du texte</string>
     <string name="tab_size">Taille d’onglet</string>
@@ -143,7 +141,7 @@
     <string name="terminal_desc">Paramètres généraux du terminal</string>
     <string name="terminal_text_size">Taille du texte du terminal</string>
     <string name="terminal_text_size_desc">Régler la taille du texte du terminal</string>
-    <string name="u_err">Erreur inconnue</string>
+    <string name="unknown_error">Erreur inconnue</string>
     <string name="saved">Enregistré</string>
     <string name="is_null">Flux entrant vide</string>
     <string name="wait_pkg">Attendez que les paquets soient téléchargés.</string>
@@ -177,8 +175,8 @@
     <string name="file_too_large">Le fichier est trop volumineux pour être ouvert</string>
     <string name="toggle_suggestion">(Dés)activer suggestion</string>
     <string name="run">Exécuter</string>
-    <string name="txt_ww">Condenser fichier TXT</string>
-    <string name="txt_ww_desc">Retour à la ligne automatique pour les fichiers TXT</string>
+    <string name="txt_word_wrap">Condenser fichier TXT</string>
+    <string name="txt_word_wrap_desc">Retour à la ligne automatique pour les fichiers TXT</string>
     <string name="default_encoding">Encodage par défaut</string>
     <string name="default_encoding_desc">Encodage par défaut de l’éditeur</string>
     <string name="other">Autres</string>
@@ -209,7 +207,7 @@
     <string name="auto_mode">Auto</string>
     <string name="show_virtual_keyboard">Montrer le clavier virtuel</string>
     <string name="download_sure">Voulez-vous vraiment télécharger \'%(name)\' ?</string>
-    <string name="invalid_v">Valeur invalide</string>
+    <string name="value_invalid">Valeur invalide</string>
     <string name="app_desc">Paramètres généraux de l’application</string>
     <string name="show_suggestions">Montrer les suggestions clavier</string>
     <string name="github">GitHub</string>
@@ -240,7 +238,6 @@
     <string name="sessions">Sessions</string>
     <string name="add_session">Ajouter session</string>
     <string name="terminal_runtime">Moteur du terminal</string>
-    <string name="enable_ext_desc">Charger des extensions tierces</string>
     <string name="ext_desc">Gérer les extensions</string>
     <string name="tab_opened">Onglet ouvert</string>
     <string name="no_mutators">Aucun mutateur</string>
@@ -268,7 +265,6 @@
     <string name="info_ext">Les extensions sont utilisées pour modifier le comportement et les fonctionnalités de Xed-Editor. Pour découvrir comment créer un greffon, cliquer ici.</string>
     <string name="script_network">Réseau</string>
     <string name="launch">Lancer</string>
-    <string name="enable_ext">Extensions</string>
     <string name="script_api_info">Vérifier la classe ImplApi dans le code source de Xed-Editor à PROJECT/core/main/ui/screens/mutators/ImplApi pour plus d’informations</string>
     <string name="install_from_storage">Installer depuis le stockage</string>
     <string name="not_plugin_err">Le fichier sélectionné n’est pas un fichier APK</string>
@@ -285,7 +281,7 @@
     <string name="unrestricted_file">Ouvrir des fichiers de toute taille</string>
     <string name="unrestricted_file_desc">Autoriser l\'ouverture de fichiers de toute taille. Peut provoquer des plantages.</string>
     <string name="suggest_clear_app_data">Il est recommandé de vider le cache</string>
-    <string name="toggle_ww">(Dés)activer le retour automatique à la ligne</string>
+    <string name="toggle_word_wrap">(Dés)activer le retour automatique à la ligne</string>
     <string name="success">Succès</string>
     <string name="failed">Échec</string>
     <string name="new_document">Nouveau document</string>
@@ -309,7 +305,6 @@
     <string name="can_write">Écriture possible</string>
     <string name="can_read">Lecture possible</string>
     <string name="is_file">Est un fichier</string>
-    <string name="file_size">Taille du fichier</string>
     <string name="info">Info</string>
     <string name="file_info">Informations du fichier</string>
     <string name="flavor">Variante</string>
@@ -352,7 +347,6 @@
     <string name="control_panel">Panneau de contrôle</string>
     <string name="tab_memory_warning">Il n\'y a pas assez de mémoire disponible pour ouvrir cet onglet. L\'ouvrir pourrait causer le crash de Xed-Editor. Voulez-vous quand même continuer ?</string>
     <string name="read_mode_desc">Activer par défaut le mode lecture</string>
-    <string name="preview_err">Impossible de pré-afficher ce fichier. Aucun répertoire parent n\'est disponible. Considérez déplacer ce fichier ailleurs.</string>
     <string name="getting_ready">En train de tout préparer…</string>
     <string name="acquire_wakelock">Activer le wakelock</string>
     <string name="release_wakelock">Désactiver le wakelock</string>
@@ -373,7 +367,6 @@
     <string name="sdcard_filetype">Il n\'est pas recommandé d\'exécuter un code à cet endroit. Veuillez déplacer votre fichier dans le répertoire personnel du terminal.</string>
     <string name="rename_file">Renommer le fichier</string>
     <string name="new_name">Nouveau nom</string>
-    <string name="file_type">Type de fichier</string>
     <string name="type">Type</string>
     <string name="name">Nom</string>
     <string name="use_tabs_desc">Utiliser une vraie tabulation (\\t) au lieu des espaces pour l\'indentation</string>
