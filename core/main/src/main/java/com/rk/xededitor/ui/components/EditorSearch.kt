@@ -40,14 +40,11 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.rk.libcommons.toast
 import com.rk.resources.strings
 import com.rk.tabs.CodeEditorState
-import io.github.rosemoe.sora.event.EventReceiver
 import io.github.rosemoe.sora.event.PublishSearchResultEvent
 import io.github.rosemoe.sora.event.SelectionChangeEvent
 import io.github.rosemoe.sora.widget.EditorSearcher
-import io.github.rosemoe.sora.widget.subscribeAlways
 import java.util.regex.PatternSyntaxException
 
 @Composable
