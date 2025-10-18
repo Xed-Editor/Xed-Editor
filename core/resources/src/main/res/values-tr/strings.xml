@@ -124,7 +124,7 @@
     <string name="yes">Evet</string>
     <string name="fetch_failed">Getirme isteği null değer döndürdü</string>
     <string name="app">Uygulama</string>
-    <string name="oled_desc">Karanlık Tema (#000)</string>
+    <string name="oled_desc">Saf siyah bir tema uygular</string>
     <string name="themes">Temalar</string>
     <string name="change_theme">Temayı değiştir</string>
     <string name="editor">Editör</string>
