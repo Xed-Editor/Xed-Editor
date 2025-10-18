@@ -278,16 +278,14 @@ class KarbonEditor : CodeEditor {
         val maxScaleSize: Float = 100f * resources.displayMetrics.scaledDensity
         setScaleTextSizes(minScaleSize, maxScaleSize)
 
-        if (renderWhitespace) {
-            nonPrintablePaintingFlags = FLAG_DRAW_LINE_SEPARATOR or
-                                        FLAG_DRAW_WHITESPACE_LEADING or
-                                        FLAG_DRAW_WHITESPACE_INNER or
-                                        FLAG_DRAW_WHITESPACE_TRAILING or
-                                        FLAG_DRAW_WHITESPACE_FOR_EMPTY_LINE or
-                                        FLAG_DRAW_WHITESPACE_IN_SELECTION
-        } else {
-            nonPrintablePaintingFlags = 0
-        }
+        nonPrintablePaintingFlags = if (renderWhitespace) {
+            FLAG_DRAW_LINE_SEPARATOR or
+                    FLAG_DRAW_WHITESPACE_LEADING or
+                    FLAG_DRAW_WHITESPACE_INNER or
+                    FLAG_DRAW_WHITESPACE_TRAILING or
+                    FLAG_DRAW_WHITESPACE_FOR_EMPTY_LINE or
+                    FLAG_DRAW_WHITESPACE_IN_SELECTION
+        } else 0
     }
 
 
@@ -376,5 +374,25 @@ class KarbonEditor : CodeEditor {
         language.useTab(Settings.actual_tabs)
 
         withContext(Dispatchers.Main) { setEditorLanguage(language as Language) }
+    }
+
+
+
+    /**
+     * Register an action button in the text action window.
+     *
+     * @param item The text action item instance to register.
+     */
+    fun registerTextAction(item: TextActionItem) {
+        textActionWindow.registerTextAction(item)
+    }
+
+    /**
+     * Unregister an action button in the text action window.
+     *
+     * @param item The text action item instance to unregister.
+     */
+    fun unregisterTextAction(item: TextActionItem) {
+        textActionWindow.unregisterTextAction(item)
     }
 }
