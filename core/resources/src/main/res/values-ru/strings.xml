@@ -124,7 +124,7 @@
     <string name="yes">Да</string>
     <string name="fetch_failed">Запрос ничего не вернул</string>
     <string name="app">Приложение</string>
-    <string name="oled_desc">Чёрная тема (#000)</string>
+    <string name="oled_desc">Применяет чисто чёрную тему</string>
     <string name="themes">Темы</string>
     <string name="change_theme">Изменить тему</string>
     <string name="editor">Редактор</string>
