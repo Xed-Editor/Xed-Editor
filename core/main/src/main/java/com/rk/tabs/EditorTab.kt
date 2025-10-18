@@ -23,14 +23,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
-import com.rk.file.FileContentWatcher
 import com.rk.file.FileObject
-import com.rk.isAppForeground
 import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.editor.BaseLspConnector
@@ -64,6 +63,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
+import com.rk.libcommons.editor.createLspTextActions
+import com.rk.xededitor.ui.components.CodeItem
+import com.rk.xededitor.ui.components.FindingsDialog
+import com.rk.xededitor.ui.components.SingleInputDialog
+import kotlinx.coroutines.CompletableDeferred
 
 
 data class CodeEditorState(
@@ -75,9 +79,10 @@ data class CodeEditorState(
     var isDirty by mutableStateOf(false)
     var editable by mutableStateOf(false)
     val updateLock = Mutex()
+    val contentLoaded = CompletableDeferred<Unit>()
+    val contentRendered = CompletableDeferred<Unit>()
 
     var isSearching by mutableStateOf(false)
-    var showControlPanel by mutableStateOf(false)
     var isReplaceShown by mutableStateOf(false)
     var ignoreCase by mutableStateOf(true)
     var searchRegex by mutableStateOf(false)
@@ -85,6 +90,18 @@ data class CodeEditorState(
     var showOptionsMenu by mutableStateOf(false)
     var searchKeyword by mutableStateOf("")
     var replaceKeyword by mutableStateOf("")
+
+    var showControlPanel by mutableStateOf(false)
+
+    var showFindingsDialog by mutableStateOf(false)
+    var findingsItems by mutableStateOf(listOf<CodeItem>())
+    var findingsTitle by mutableStateOf("")
+    var findingsDescription by mutableStateOf("")
+
+    var showRenameDialog by mutableStateOf(false)
+    var renameValue by mutableStateOf("")
+    var renameError by mutableStateOf<String?>(null)
+    var renameConfirm by mutableStateOf<((String) -> Unit)?>(null)
 }
 
 val lsp_connections = mutableMapOf<String, Int>()
@@ -136,23 +153,18 @@ class EditorTab(
         }
     }
 
-    private var dialogShown = false
     init {
-        if (editorState.content == null){
-            scope.launch(Dispatchers.IO){
+        if (editorState.content == null) {
+            scope.launch(Dispatchers.IO) {
                 runCatching {
                     editorState.content = file.getInputStream().use {
                         ContentIO.createFrom(it, charset)
                     }
-                    editorState.updateLock.withLock{
-                        editorState.editor?.setText(editorState.content)
-                    }
                     editorState.editable = Settings.readOnlyByDefault.not() && file.canWrite()
-
+                    editorState.contentLoaded.complete(Unit)
                 }.onFailure {
                     errorDialog(it)
                 }
-
             }
         }
     }
@@ -188,6 +200,46 @@ class EditorTab(
                 ControlPanel(onDismissRequest = {
                     editorState.showControlPanel = false
                 }, viewModel = viewModel)
+            }
+
+            if (editorState.showFindingsDialog) {
+                FindingsDialog(
+                    title = editorState.findingsTitle,
+                    codeItems = editorState.findingsItems,
+                    description = editorState.findingsDescription,
+                    onFinish = {
+                        editorState.showFindingsDialog = false
+                    }
+                )
+            }
+
+            if (editorState.showRenameDialog) {
+                if (editorState.renameValue.isBlank()) {
+                    editorState.renameError = strings.name_empty_err.getString()
+                }
+
+                SingleInputDialog(
+                    title = stringResource(strings.rename_symbol),
+                    inputLabel = stringResource(strings.new_name),
+                    inputValue = editorState.renameValue,
+                    errorMessage = editorState.renameError,
+                    onInputValueChange = {
+                        editorState.renameValue = it
+                        editorState.renameError = null
+                        if (editorState.renameValue.isBlank()) {
+                            editorState.renameError = strings.name_empty_err.getString()
+                        }
+                    },
+                    onConfirm = {
+                        editorState.renameConfirm?.let { it(editorState.renameValue) }
+                    },
+                    onFinish = {
+                        editorState.renameValue = ""
+                        editorState.renameError = null
+                        editorState.renameConfirm = null
+                        editorState.showRenameDialog = false
+                    }
+                )
             }
 
             SearchPanel(editorState = editorState)
@@ -254,7 +306,11 @@ private fun EditorTab.CodeEditor(
     onKeyEvent: (EditorKeyEvent) -> Unit,
     onTextChange: () -> Unit
 ) {
-    val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+    val surfaceColor = if (isSystemInDarkTheme()) {
+        MaterialTheme.colorScheme.surfaceDim
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
     val selectionColors = LocalTextSelectionColors.current
     val realSurface = MaterialTheme.colorScheme.surface
@@ -322,12 +378,14 @@ private fun EditorTab.CodeEditor(
                             scope.launch(Dispatchers.IO) {
                                 val ext = file.getName().substringAfterLast(".").trim()
 
+                                // Connect with debug language server
                                 if (lsp_connections.contains(ext)) {
                                     baseLspConnector = BaseLspConnector(
                                         ext,
                                         textMateScope = textmateSources[ext]!!,
                                         port = lsp_connections[ext]!!
                                     )
+
                                     file.getParentFile()?.let { parent ->
                                         baseLspConnector?.connect(
                                             parent,
@@ -342,12 +400,14 @@ private fun EditorTab.CodeEditor(
                                 if (server != null && Preference.getBoolean("lsp_${server.id}",true)) {
                                     lspConnection = ProcessConnection(server.command())
 
+                                    // Connect with built-in language server
                                     if (server.isInstalled(context)) {
                                         baseLspConnector = BaseLspConnector(
                                             ext,
                                             textMateScope = textmateSources[ext]!!,
                                             connectionProvider = lspConnection!!
                                         )
+
                                         file.getParentFile()?.let { parent ->
                                             baseLspConnector?.connect(
                                                 parent,
@@ -355,35 +415,38 @@ private fun EditorTab.CodeEditor(
                                                 karbonEditor = editorState.editor!!
                                             )
                                         }
-                                    } else {
-                                        setLanguage(langScope)
-                                        dialog(
-                                            context = context as Activity,
-                                            title = strings.attention.getString(),
-                                            msg = strings.ask_lsp_install.getFilledString(mapOf("language_name" to server.languageName)),
-                                            cancelString = strings.dont_ask_again,
-                                            okString = strings.install,
-                                            onOk = { server.install(context) },
-                                            onCancel = {
-                                                Preference.setBoolean(
-                                                    "lsp_${server.id}",
-                                                    false
-                                                )
-                                            }
-                                        )
+                                        return@launch
                                     }
-                                    return@launch;
+
+                                    dialog(
+                                        context = context as Activity,
+                                        title = strings.attention.getString(),
+                                        msg = strings.ask_lsp_install.getFilledString(mapOf("language_name" to server.languageName)),
+                                        cancelString = strings.dont_ask_again,
+                                        okString = strings.install,
+                                        onOk = { server.install(context) },
+                                        onCancel = {
+                                            Preference.setBoolean(
+                                                "lsp_${server.id}",
+                                                false
+                                            )
+                                        }
+                                    )
                                 }
 
                                 setLanguage(langScope)
                             }
                         }
 
+                        val lspActions = createLspTextActions(scope, context, viewModel, file, editorState) { baseLspConnector }
+                        lspActions.forEach { registerTextAction(it) }
 
-                        scope.launch(Dispatchers.IO){
-                            state.updateLock.withLock{
-                                withContext(Dispatchers.Main){
+                        scope.launch(Dispatchers.IO) {
+                            state.contentLoaded.await()
+                            state.updateLock.withLock {
+                                withContext(Dispatchers.Main) {
                                     setText(state.content)
+                                    state.contentRendered.complete(Unit)
                                 }
                             }
                         }

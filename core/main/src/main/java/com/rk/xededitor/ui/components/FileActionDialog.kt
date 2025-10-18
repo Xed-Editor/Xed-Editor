@@ -304,7 +304,6 @@ fun FileActionDialog(
                 scope.launch {
                     val parentFile = file.getParentFile()
                     val success = FileOperations.renameFile(file, newName)
-                    toast(success.toString())
                     if (success) {
                         if (parentFile != null){
                             fileTreeViewModel?.updateCache(file.getParentFile()!!)

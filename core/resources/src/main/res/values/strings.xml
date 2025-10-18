@@ -68,8 +68,6 @@
     <string name="add_file">Add external file</string>
     <string name="keyword_regex">Keyword (regex)</string>
     <string name="replace_all">Replace all</string>
-    <string name="add_new_replacement_batch">Add new replacement batch</string>
-    <string name="remove_a_search_batch">Remove a search batch</string>
     <string name="replacement">Replacement</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
@@ -432,4 +430,16 @@
     <string name="ignore_case">Ignore case</string>
     <string name="regex">Regex</string>
     <string name="whole_word">Whole word</string>
+    <string name="go_to_definition">Go to definition</string>
+    <string name="go_to_references">Go to references</string>
+    <string name="rename_symbol">Rename symbol</string>
+    <string name="go_to_definition_desc">Select one of the %(count) definitions to navigate to their location.</string>
+    <string name="go_to_references_desc">Select one of the %(count) references to navigate to their location.</string>
+    <string name="no_definitions_found">No definitions found.</string>
+    <string name="no_references_found">No references found.</string>
+    <string name="find_definitions_error">Unable to find definitions.</string>
+    <string name="find_references_error">Unable to find references.</string>
+    <string name="rename_symbol_error">Unable to rename symbol.</string>
+    <string name="cannot_rename_symbol">You cannot rename this symbol.</string>
+    <string name="rename_symbol_multiple_files">Renaming across multiple files is not supported yet.</string>
 </resources>
