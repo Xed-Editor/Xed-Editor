@@ -258,7 +258,6 @@ fun createLspTextActions(scope: CoroutineScope, context: Context, viewModel: Mai
                 editorState.renameValue = currentName
                 editorState.showRenameDialog = true
                 editorState.renameConfirm = { newName ->
-
                     scope.launch(Dispatchers.Default) {
                         val workspaceEdit = baseLspConnectorProvider()!!.requestRenameSymbol(editor, newName)
 
@@ -268,7 +267,7 @@ fun createLspTextActions(scope: CoroutineScope, context: Context, viewModel: Mai
                         // Edits only supported in currently opened file
                         // TODO: Support edits in other files
                         if (changes.size > 1) {
-                            toast("Renaming across multiple files is not supported yet.")
+                            toast(strings.rename_symbol_multiple_files)
                             return@launch
                         }
 
