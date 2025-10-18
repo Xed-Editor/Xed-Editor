@@ -174,7 +174,7 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                                                         msg = strings.ask_unsaved.getString(),
                                                         onOk = { viewModel.removeTab(tabIndex) },
                                                         onCancel = {},
-                                                        okString = strings.close
+                                                        okString = strings.discard
                                                     )
                                                 } else {
                                                     viewModel.removeTab(tabIndex)
