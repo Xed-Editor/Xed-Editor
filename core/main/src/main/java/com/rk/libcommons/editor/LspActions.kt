@@ -107,7 +107,7 @@ fun createLspTextActions(scope: CoroutineScope, context: Context, viewModel: Mai
     val goToDefinition = TextActionItem(
         titleRes = strings.go_to_definition,
         iconRes = drawables.jump_to_element,
-        shouldShow = {editor -> baseLspConnectorProvider()?.isGoToDefinitionSupported() == true },
+        shouldShow = { editor -> baseLspConnectorProvider()?.isGoToDefinitionSupported() == true },
     ) { editor ->
         scope.launch(Dispatchers.Default) {
             runCatching {
@@ -164,7 +164,7 @@ fun createLspTextActions(scope: CoroutineScope, context: Context, viewModel: Mai
     val goToReferences = TextActionItem(
         titleRes = strings.go_to_references,
         iconRes = drawables.manage_search,
-        shouldShow = {editor -> baseLspConnectorProvider()?.isGoToReferencesSupported() == true },
+        shouldShow = { editor -> baseLspConnectorProvider()?.isGoToReferencesSupported() == true },
     ) { editor ->
         scope.launch(Dispatchers.Default) {
             runCatching {
@@ -220,7 +220,7 @@ fun createLspTextActions(scope: CoroutineScope, context: Context, viewModel: Mai
     val renameSymbol = TextActionItem(
         titleRes = strings.rename_symbol,
         iconRes = drawables.edit_note,
-        shouldShow = {editor -> baseLspConnectorProvider()?.isRenameSymbolSupported() == true },
+        shouldShow = { editor -> editor.isEditable && baseLspConnectorProvider()?.isRenameSymbolSupported() == true },
     ) { editor ->
         scope.launch(Dispatchers.Default) {
             runCatching {
