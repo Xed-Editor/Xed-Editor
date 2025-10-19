@@ -214,15 +214,12 @@ class EditorTab(
             }
 
             if (editorState.showRenameDialog) {
-                if (editorState.renameValue.isBlank()) {
-                    editorState.renameError = strings.name_empty_err.getString()
-                }
-
                 SingleInputDialog(
                     title = stringResource(strings.rename_symbol),
                     inputLabel = stringResource(strings.new_name),
                     inputValue = editorState.renameValue,
                     errorMessage = editorState.renameError,
+                    confirmEnabled = editorState.renameValue.isNotBlank(),
                     onInputValueChange = {
                         editorState.renameValue = it
                         editorState.renameError = null

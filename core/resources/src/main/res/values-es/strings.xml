@@ -67,7 +67,6 @@
     <string name="replacement">reemplazo</string>
     <string name="tab_text_1">Pestaña 1</string>
     <string name="tab_text_2">Pestaña 2</string>
-    <string name="remove_a_search_batch">Eliminar un lote de reemplazo</string>
     <string name="attention">Atención</string>
     <string name="title">Título</string>
     <string name="description">Descripción</string>
@@ -209,7 +208,6 @@
     <string name="open_file_or_folder">Abrir archivo o carpeta</string>
     <string name="save_all">Guardar todo</string>
     <string name="open_drawer">abrir</string>
-    <string name="add_new_replacement_batch">Añadir un nuevo lote de reemplazo</string>
     <string name="already_installed">Ya instalada</string>
     <string name="monet">Color dinámico</string>
     <string name="file_name">Nombre de archivo</string>

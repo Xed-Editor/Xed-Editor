@@ -52,8 +52,6 @@
     <string name="reselect_dir">ディレクトリを再選択してください</string>
     <string name="keyword_regex">キーワード (正規表現)</string>
     <string name="replace_all">全て置換</string>
-    <string name="add_new_replacement_batch">新しい置換バッチを追加</string>
-    <string name="remove_a_search_batch">検索バッチを削除</string>
     <string name="replacement">置換</string>
     <string name="tab_text_1">タブ 1</string>
     <string name="tab_text_2">タブ 2</string>

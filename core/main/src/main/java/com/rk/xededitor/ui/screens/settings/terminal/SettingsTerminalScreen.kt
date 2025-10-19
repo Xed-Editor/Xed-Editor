@@ -261,11 +261,17 @@ fun SettingsTerminalScreen() {
             var state by remember { mutableStateOf(Settings.expose_home_dir) }
             val sideEffect: (Boolean) -> Unit = {
                 if (it) {
-                    dialog(context = activity, title = strings.attention.getString(), msg = strings.saf_expose_warning.getString(), onCancel = {}, onOk = {
-                        Settings.expose_home_dir = true
-                        DocumentProvider.setDocumentProviderEnabled(context, true)
-                        state = true
-                    })
+                    dialog(
+                        context = activity,
+                        title = strings.attention.getString(),
+                        msg = strings.saf_expose_warning.getString(),
+                        okString = strings.continue_action,
+                        onCancel = {},
+                        onOk = {
+                            Settings.expose_home_dir = true
+                            DocumentProvider.setDocumentProviderEnabled(context, true)
+                            state = true
+                        })
                 } else {
                     Settings.expose_home_dir = false
                     state = false

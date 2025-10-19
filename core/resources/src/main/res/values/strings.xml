@@ -442,4 +442,5 @@
     <string name="rename_symbol_error">Unable to rename symbol.</string>
     <string name="cannot_rename_symbol">You cannot rename this symbol.</string>
     <string name="rename_symbol_multiple_files">Renaming across multiple files is not supported yet.</string>
+    <string name="continue_action">Continue</string>
 </resources>

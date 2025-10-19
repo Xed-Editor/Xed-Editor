@@ -66,8 +66,6 @@
     <string name="add_file">Tambah berkas eksternal</string>
     <string name="replace_all">Ganti semua</string>
     <string name="keyword_regex">Kata kunci (regex)</string>
-    <string name="add_new_replacement_batch">Tambahkan kumpulan pengganti baru</string>
-    <string name="remove_a_search_batch">Hapus kumpulan pencarian</string>
     <string name="replacement">Penggantian</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>

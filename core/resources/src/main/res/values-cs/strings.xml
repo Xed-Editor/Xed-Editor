@@ -246,7 +246,6 @@
     <string name="install_done">Instalace úspěšná</string>
     <string name="install_failed">Chyba při instalaci</string>
     <string name="toggle_suggestion">Přepnout našeptávání</string>
-    <string name="remove_a_search_batch">Odstranit dávku vyhledávání</string>
     <string name="invalid_userdata">Uživatelelská data jsou neplatná. Změňte v nastavení</string>
     <string name="cloning">Klonuji repozitář…</string>
     <string name="already_installed">Již instalován</string>
@@ -390,7 +389,6 @@
     <string name="failsafe_mode">Nouzový režim</string>
     <string name="failsafe_mode_desc">Spustit terminál v nouzovém režimu</string>
     <string name="keep_drawer_locked">Ponechat postranní panel uzamčený</string>
-    <string name="add_new_replacement_batch">Přidat novou dávku nahrazování</string>
     <string name="drawer_lock_desc">Ponechat postranní panel uzamčený při otevření souboru</string>
     <string name="diagonal_scroll">Diagonální posouvání</string>
     <string name="diagonal_scroll_desc">Povolit diagonální posouvání ve stromu souborů</string>

@@ -111,15 +111,18 @@ class MainViewModel : ViewModel() {
 
         val coroutineScope = this
         if (expectOOM(fileObject.length())){
-            dialog(title = strings.attention.getString(), msg = strings.tab_memory_warning.getString(), onOk = {
-                coroutineScope.launch{
-                    function.invoke()
-                }
-            })
-        }else{
+            dialog(
+                title = strings.attention.getString(),
+                msg = strings.tab_memory_warning.getString(),
+                okString = strings.continue_action,
+                onOk = {
+                    coroutineScope.launch {
+                        function.invoke()
+                    }
+                })
+        } else {
             function.invoke()
         }
-
     }
 
     private suspend fun newEditorTab(file: FileObject, checkDuplicate: Boolean = true,switchToTab: Boolean = false): Boolean = withContext(

@@ -8,9 +8,11 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
@@ -21,15 +23,16 @@ import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,18 +54,17 @@ import com.rk.xededitor.ui.activities.main.MainViewModel
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.terminal.Terminal
 import com.rk.xededitor.ui.screens.terminal.isV
-import io.github.rosemoe.sora.text.ContentIO
 import io.github.rosemoe.sora.widget.CodeEditor
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import kotlin.math.min
 import kotlin.ranges.random
 import androidx.compose.ui.platform.LocalResources
+import com.rk.runner.RunnerImpl
+import com.rk.runner.currentRunner
 import com.rk.xededitor.ui.screens.settings.app.InbuiltFeatures
+import java.lang.ref.WeakReference
 
 sealed class ActionType {
     data class PainterAction(@DrawableRes val iconRes: Int) : ActionType()
@@ -87,7 +89,7 @@ fun CodeEditor.updateUndoRedo(){
     canUndo.value = this.canUndo()
     canRedo.value = this.canRedo()
 }
-@OptIn(DelicateCoroutinesApi::class)
+@OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewModel: MainViewModel) {
@@ -101,6 +103,8 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
     val activity = LocalActivity.current
     val editorState = tab.editorState
 
+    var runnersToShow by remember { mutableStateOf<List<RunnerImpl>>(emptyList()) }
+    var showRunnerDialog by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
 
@@ -111,6 +115,30 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
         }
     }
 
+    if (showRunnerDialog) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                showRunnerDialog = false
+                runnersToShow = emptyList()
+            },
+        ) {
+            Column(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
+            ) {
+                runnersToShow.forEach { runner ->
+                    AddDialogItem(
+                        icon = drawables.run,
+                        title = runner.getName()
+                    ) {
+                        currentRunner = WeakReference(runner)
+                        runner.run(activity!!, tab.file)
+                        showRunnerDialog = false
+                        runnersToShow = emptyList()
+                    }
+                }
+            }
+        }
+    }
 
     val allActions = remember(editable,canRedo.value,canUndo.value,isRunnable, InbuiltFeatures.terminal.state.value) {
         listOf(
@@ -131,7 +159,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.undo),
                 labelRes = strings.undo,
                 isEnabled = canUndo.value,
-                action = { tab,editorState ->
+                action = { tab, editorState ->
                     editorState.editor?.apply {
                         if (canUndo()){
                             undo()
@@ -145,7 +173,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.redo),
                 labelRes = strings.redo,
                 isEnabled = canRedo.value,
-                action = { tab,editorState ->
+                action = { tab, editorState ->
                     editorState.editor?.apply {
                         if (canRedo()){
                             redo()
@@ -159,9 +187,15 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.run),
                 labelRes = strings.run,
                 visible = isRunnable,
-                action = { tab,editorState ->
-                    DefaultScope.launch{
-                        Runner.run(activity!!,tab.file)
+                action = { tab, editorState ->
+                    DefaultScope.launch {
+                        Runner.run(
+                            context = activity!!,
+                            fileObject = tab.file,
+                            onMultipleRunners = {
+                                showRunnerDialog = true
+                                runnersToShow = it
+                            })
                     }
                 }
             ),
@@ -169,7 +203,7 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 id = "add",
                 type = ActionType.VectorAction(imageVector = Icons.Outlined.Add),
                 labelRes = strings.add,
-                action = { tab,editorState ->
+                action = { tab, editorState ->
                     addDialog = true
                 }
             ),
@@ -204,13 +238,17 @@ fun RowScope.EditorActions(modifier: Modifier = Modifier, tab: EditorTab,viewMod
                 type = ActionType.PainterAction(drawables.refresh),
                 labelRes = strings.refresh,
                 action = { tab,editorState ->
-
-
-                    if (editorState.isDirty){
-                        dialog(context = activity, title = strings.attention.getString(), msg = strings.ask_refresh.getString(), okString = strings.refresh, onCancel = {}, onOk = {
-                            tab.refresh()
-                        })
-                    }else{
+                    if (editorState.isDirty) {
+                        dialog(
+                            context = activity,
+                            title = strings.attention.getString(),
+                            msg = strings.ask_refresh.getString(),
+                            okString = strings.refresh,
+                            onCancel = {},
+                            onOk = {
+                                tab.refresh()
+                            })
+                    } else {
                         tab.refresh()
                     }
 

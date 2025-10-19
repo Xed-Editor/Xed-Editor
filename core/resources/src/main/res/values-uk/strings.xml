@@ -66,8 +66,6 @@
     <string name="add_file">Додати файл</string>
     <string name="keyword_regex">ключове слово (регулярний вираз)</string>
     <string name="replace_all">Замінити все</string>
-    <string name="add_new_replacement_batch">Додайте нову партію заміни</string>
-    <string name="remove_a_search_batch">Видалити пошук</string>
     <string name="replacement">Заміна</string>
     <string name="tab_text_1">Вкладка 1</string>
     <string name="tab_text_2">Вкладка 2</string>
