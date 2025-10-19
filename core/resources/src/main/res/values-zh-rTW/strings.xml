@@ -124,7 +124,7 @@
     <string name="yes">是</string>
     <string name="fetch_failed">請求獲取的資料回傳空值</string>
     <string name="app">應用程式</string>
-    <string name="oled_desc">純黑主題（#000）</string>
+    <string name="oled_desc">套用純黑主題</string>
     <string name="themes">主題</string>
     <string name="change_theme">變更主題</string>
     <string name="editor">編輯器</string>
