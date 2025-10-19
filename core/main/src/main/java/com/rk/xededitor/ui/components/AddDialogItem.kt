@@ -53,23 +53,25 @@ fun AddDialogItem(
         description = description,
         onClick = onClick,
         icon = {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-        )
-    })
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+        })
 }
 
 @Composable
 fun AddDialogItem(
-    icon: @Composable ()-> Unit,
+    icon: @Composable () -> Unit,
     title: String,
     description: String? = null,
     onClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -81,7 +83,7 @@ fun AddDialogItem(
 
         Column {
             Text(title, style = MaterialTheme.typography.bodyLarge)
-            if (description != null){
+            if (description != null) {
                 Text(description, style = MaterialTheme.typography.bodySmall)
             }
 
