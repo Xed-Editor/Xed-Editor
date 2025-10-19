@@ -46,7 +46,6 @@ import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.UriWrapper
 import com.rk.DefaultScope
-import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.child
 import com.rk.file.sandboxHomeDir
 import com.rk.file.toFileObject
@@ -54,8 +53,6 @@ import com.rk.libcommons.application
 import com.rk.libcommons.dialog
 import com.rk.libcommons.errorDialog
 import com.rk.resources.drawables
-import com.rk.resources.fillPlaceholders
-import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
@@ -206,7 +203,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                 val scope = rememberCoroutineScope()
                 var showAddDialog by rememberSaveable { mutableStateOf(false) }
                 var fileActionDialog by remember { mutableStateOf<FileObject?>(null) }
-                var closeProjectDialog by remember { mutableStateOf<FileObject?>(null) }
+                var closeProjectDialog by remember { mutableStateOf(false) }
 
                 NavigationRail(modifier = Modifier.width(61.dp)) {
                     projects.forEach { file ->
@@ -223,7 +220,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                             },
                             onClick = {
                                 if (file.fileObject == currentProject) {
-                                    closeProjectDialog = file.fileObject
+                                    closeProjectDialog = true
                                 } else {
                                     scope.launch {
                                         currentProject = file.fileObject
@@ -307,43 +304,17 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                     })
                 }
 
-                if (closeProjectDialog != null){
-                    AlertDialog(
-                        onDismissRequest = {
-                            closeProjectDialog = null
-                        },
-                        title = {
-                            Text(text = strings.close.getString())
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(strings.close_current_project).fillPlaceholders(
-                                    mapOf(
-                                        "project_name" to (closeProjectDialog?.getName() ?: stringResource(
-                                            strings.unknown
-                                        ))
-                                    )
-                                )
-                            )
-                        },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                closeProjectDialog = null
-                                currentProject?.let { removeProject(it) }
-                            }) {
-                                Text(text = strings.close.getString())
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = {
-                                closeProjectDialog = null
-                            }) {
-                                Text(text = strings.cancel.getString())
-                            }
+                if (closeProjectDialog) {
+                    CloseConfirmationDialog(
+                        projectName = currentProject!!.getAppropriateName(),
+                        onConfirm = {
+                            closeProjectDialog = false
+                            currentProject?.let { removeProject(it) }
+                        }, onDismiss = {
+                            closeProjectDialog = false
                         }
                     )
                 }
-
             }
         }
     }

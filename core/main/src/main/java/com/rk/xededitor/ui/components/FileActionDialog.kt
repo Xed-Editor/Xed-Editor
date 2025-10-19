@@ -29,9 +29,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.rk.components.compose.preferences.base.DividerColumn
-import com.rk.compose.filetree.currentProject
 import com.rk.compose.filetree.fileTreeViewModel
+import com.rk.compose.filetree.getAppropriateName
 import com.rk.compose.filetree.removeProject
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
@@ -42,7 +41,6 @@ import com.rk.libcommons.showTerminalNotice
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
 import com.rk.resources.fillPlaceholders
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.xededitor.ui.activities.main.MainActivity
@@ -402,15 +400,18 @@ fun FileActionDialog(
     }
 
 
-    if (showCloseProjectDialog && root != null){
-        CloseConfirmationDialog(fileName = root.getName(),onConfirm = {
-            removeProject(root)
-            showCloseProjectDialog = false
-            onDismissRequest()
-        }, onDismiss = {
-            showCloseProjectDialog = false
-            onDismissRequest()
-        })
+    if (showCloseProjectDialog && root != null) {
+        CloseConfirmationDialog(
+            projectName = root.getAppropriateName(),
+            onConfirm = {
+                removeProject(root)
+                showCloseProjectDialog = false
+                onDismissRequest()
+            }, onDismiss = {
+                showCloseProjectDialog = false
+                onDismissRequest()
+            }
+        )
     }
 
 }
@@ -463,7 +464,7 @@ object FileOperations {
 
 @Composable
 fun CloseConfirmationDialog(
-    fileName: String,
+    projectName: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -475,7 +476,7 @@ fun CloseConfirmationDialog(
         text = {
             Column {
                 Text(
-                    text = stringResource(strings.close_current_project).fillPlaceholders(mapOf("project_name" to fileName))
+                    text = stringResource(strings.close_current_project).fillPlaceholders(mapOf("project_name" to projectName))
                 )
             }
         },
