@@ -2,15 +2,11 @@ package com.rk.runner
 
 import android.content.Context
 import android.graphics.drawable.Drawable
-import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.FileObject
-import com.rk.libcommons.composeDialog
 import com.rk.libcommons.errorDialog
-import com.rk.runner.runners.Shell
 import com.rk.runner.runners.UniversalRunner
 import com.rk.runner.runners.web.html.HtmlRunner
 import com.rk.runner.runners.web.markdown.MarkDownRunner
-import com.rk.xededitor.ui.components.SettingsToggle
 import java.lang.ref.WeakReference
 import kotlin.text.Regex
 
@@ -43,76 +39,60 @@ object Runner {
     }
 
     suspend fun isRunnable(fileObject: FileObject): Boolean{
-        ShellBasedRunners.runners.forEach{
+        ShellBasedRunners.runners.forEach {
             val name = fileObject.getName()
             val regex = Regex(it.regex)
 
-            if (regex.matches(name)){
+            if (regex.matches(name)) {
                 return true
             }
         }
 
-        runnerBuilders.forEach{
+        runnerBuilders.forEach {
             val name = fileObject.getName()
             val regex = it.regex
 
-            if (regex.matches(name)){
+            if (regex.matches(name)) {
                 return true
             }
         }
         return false
     }
 
-    suspend fun run(context: Context,fileObject: FileObject){
+    suspend fun run(context: Context, fileObject: FileObject, onMultipleRunners: (List<RunnerImpl>) -> Unit) {
         val availableRunners = mutableListOf<RunnerImpl>()
 
-        ShellBasedRunners.runners.forEach{
+        ShellBasedRunners.runners.forEach {
             val name = fileObject.getName()
             val regex = Regex(it.regex)
 
-            if (regex.matches(name)){
+            if (regex.matches(name)) {
                 availableRunners.add(it)
             }
         }
 
-        runnerBuilders.forEach{
+        runnerBuilders.forEach {
             val name = fileObject.getName()
             val regex = it.regex
 
-            if (regex.matches(name)){
+            if (regex.matches(name)) {
                 availableRunners.add(it.build())
             }
         }
 
-        if (availableRunners.isEmpty()){
+        if (availableRunners.isEmpty()) {
             errorDialog("No runners available")
             return
         }
 
-        if (availableRunners.size == 1){
-            availableRunners[0].run(context,fileObject)
-        }else{
-            showRunnerSelectionDialog(availableRunners,context,fileObject)
-        }
-
-    }
-
-
-    private suspend fun showRunnerSelectionDialog(runners: List<RunnerImpl>,context: Context,fileObject: FileObject) {
-        composeDialog{ dialog ->
-            DividerColumn {
-                runners.forEach{ runner ->
-                    SettingsToggle(label = runner.getName(), showSwitch = false,default = false, sideEffect = {
-                        currentRunner = WeakReference(runner)
-                        runner.run(context,fileObject)
-                        dialog?.dismiss()
-                    })
-                }
-            }
+        if (availableRunners.size == 1) {
+            availableRunners[0].run(context, fileObject)
+        } else {
+            onMultipleRunners.invoke(availableRunners)
         }
     }
 
-    suspend fun onMainActivityResumed(){
+    suspend fun onMainActivityResumed() {
         currentRunner.get()?.stop()
     }
 }
