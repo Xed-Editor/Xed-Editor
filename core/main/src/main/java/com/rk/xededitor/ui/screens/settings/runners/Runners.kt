@@ -3,9 +3,7 @@ package com.rk.xededitor.ui.screens.settings.runners
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -58,12 +56,14 @@ fun Runners(modifier: Modifier = Modifier) {
 
     // Validation functions
     fun validateName() {
-        nameError = if (runnerName.isBlank()) {
-            strings.name_empty_err.getString()
-        } else if (!runnerName.matches("^[a-zA-Z0-9_-]+$".toRegex())) {
-            strings.invalid_runner_name.getString()
-        } else {
-            null
+        nameError = when {
+            runnerName.isBlank() -> {
+                strings.name_empty_err.getString()
+            }
+            !runnerName.matches("^[a-zA-Z0-9_-]+$".toRegex()) -> {
+                strings.invalid_runner_name.getString()
+            }
+            else -> null
         }
     }
 
@@ -223,7 +223,9 @@ fun Runners(modifier: Modifier = Modifier) {
                                     Text(
                                         text = it,
                                         color = MaterialTheme.colorScheme.error,
-                                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 8.dp)
                                     )
                                 }
                             },
