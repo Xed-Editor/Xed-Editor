@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.WorkspaceFoldersChangeEvent
 import org.eclipse.lsp4j.jsonrpc.messages.Either
 import org.eclipse.lsp4j.jsonrpc.messages.Either3
 import java.nio.charset.Charset
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
 class BaseLspConnector(
@@ -55,6 +56,11 @@ class BaseLspConnector(
     var isConnected: Boolean = false
         private set
     private var fileObject: FileObject? = null
+
+    companion object {
+        private val projectCache = ConcurrentHashMap<String, LspProject>()
+        private val serverDefinitionCache = ConcurrentHashMap<String, ConcurrentHashMap<String, CustomLanguageServerDefinition>>()
+    }
 
     fun isSupported(file: FileObject): Boolean {
         val fileExt = file.getName().substringAfterLast(".")
@@ -78,12 +84,24 @@ class BaseLspConnector(
         this@BaseLspConnector.fileObject = fileObject
 
         runCatching {
-            project = LspProject(projectFile.getAbsolutePath())
-            serverDefinition = object : CustomLanguageServerDefinition(ext, ServerConnectProvider {
-                connectionProvider
-            }) {}
+            val projectPath = projectFile.getAbsolutePath()
 
-            project!!.addServerDefinition(serverDefinition!!)
+            project = projectCache.computeIfAbsent(projectPath) {
+                LspProject(projectFile.getAbsolutePath())
+            }
+
+            val projectServerDefinition = serverDefinitionCache.computeIfAbsent(projectPath) {
+                ConcurrentHashMap()
+            }
+
+            serverDefinition = projectServerDefinition.computeIfAbsent(ext) {
+                val newDef = object : CustomLanguageServerDefinition(ext, ServerConnectProvider {
+                    connectionProvider
+                }) {}
+
+                project!!.addServerDefinition(newDef)
+                newDef
+            }
 
             lspEditor = withContext(Dispatchers.Main) {
                 project!!.createEditor(fileObject.getAbsolutePath()).apply {
