@@ -66,7 +66,6 @@
     <string name="clipboard_empty">לוח הקבצים ריק</string>
     <string name="keep_drawer_locked">שמור על מגירה נעולה</string>
     <string name="reselect_dir">אנא בחר מחדש את התיקייה</string>
-    <string name="add_new_replacement_batch">הוסף קבוצה חלופית חדשה</string>
     <string name="replacement">חלופה</string>
     <string name="tab_text_1">טאב 1</string>
     <string name="tab_text_2">טאב 2</string>
@@ -78,7 +77,6 @@
     <string name="dir_example">שם לדוגמה: Test</string>
     <string name="terminal">מסוף</string>
     <string name="keyword_regex">מילת מפתח (ביטוי רגולרי)</string>
-    <string name="remove_a_search_batch">הסר אצווה חיפוש</string>
     <string name="paste_desc">הדבק מסמך</string>
     <string name="create_new_file_desc">צור קובץ חדש בתיקייה שנבחרה</string>
     <string name="copy_desc">העתק קובץ</string>

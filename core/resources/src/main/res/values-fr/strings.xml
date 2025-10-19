@@ -52,9 +52,7 @@
     <string name="add_file">Ajouter un fichier externe</string>
     <string name="keyword_regex">Mot-clé (regex)</string>
     <string name="replace_all">Remplacer tout</string>
-    <string name="add_new_replacement_batch">Ajouter lot de substitution</string>
     <string name="replacement">Remplacement</string>
-    <string name="remove_a_search_batch">Retirer lot de recherche</string>
     <string name="tab_text_1">Onglet 1</string>
     <string name="tab_text_2">Onglet 2</string>
     <string name="title">Titre</string>

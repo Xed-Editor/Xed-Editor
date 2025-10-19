@@ -56,7 +56,6 @@
     <string name="add_file">Thêm tệp</string>
     <string name="keyword_regex">từ khóa (hỗ trợ biểu thức chính quy)</string>
     <string name="replace_all">Thay thế tất cả</string>
-    <string name="remove_a_search_batch">xóa kịch bản tìm kiếm</string>
     <string name="description">Mô tả</string>
     <string name="download">Tải xuống</string>
     <string name="experimental_session_restore_warning">Tính năng này đang trong giai đoạn thử nghiệm và có thể gây mất dữ liệu</string>
@@ -107,7 +106,6 @@
     <string name="enter_path">Vui lòng nhập một đường dẫn</string>
     <string name="invalid_path">Đường dẫn không tồn tại</string>
     <string name="permission_denied">Quyền Đã Bị Từ Chối</string>
-    <string name="add_new_replacement_batch">Thêm lô thay thế mới</string>
     <string name="manage_storage">Quản lý Kho lưu trữ</string>
     <string name="manage_storage_reason">­Xed-Editor cần quyền truy cập để chỉnh sửa tệp trong kho lưu trữ của bạn. Vui lòng cho phép quyền truy cập trong thiết lập hệ thống sắp tới.</string>
     <string name="ok">OK</string>

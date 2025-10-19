@@ -89,7 +89,6 @@
     <string name="close">关闭</string>
     <string name="unsaved">未保存的文件</string>
     <string name="unsaved_files">你有未保存的文件！</string>
-    <string name="remove_a_search_batch">移除一组批量搜索</string>
     <string name="tab_text_1">标签页 1</string>
     <string name="tab_text_2">标签页 2</string>
     <string name="apply">应用</string>
@@ -158,7 +157,6 @@
     <string name="private_files">私有文件</string>
     <string name="text_size">字体大小</string>
     <string name="monet_desc">跟随系统主题</string>
-    <string name="add_new_replacement_batch">添加新的批量替换</string>
     <string name="unknown_error">未知错误</string>
     <string name="choose_file">选择文件</string>
     <string name="terminal_text_size_desc">设置终端字体大小</string>

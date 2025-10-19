@@ -65,8 +65,6 @@
     <string name="add_file">Adicionar arquivo externo</string>
     <string name="keyword_regex">Palavra-chave (Regex)</string>
     <string name="replace_all">Substituir tudo</string>
-    <string name="add_new_replacement_batch">Adicionar novo lote de substituição</string>
-    <string name="remove_a_search_batch">remover um lote de pesquisa</string>
     <string name="replacement">substituição</string>
     <string name="tab_text_1">Aba 1</string>
     <string name="tab_text_2">Aba 2</string>

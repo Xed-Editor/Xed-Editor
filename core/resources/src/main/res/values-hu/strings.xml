@@ -56,8 +56,6 @@
     <string name="delete">Törlés</string>
     <string name="keep_drawer_locked">Polc zárva tartása</string>
     <string name="restart">Újraindítás</string>
-    <string name="add_new_replacement_batch">Új cseretétel hozzáadása</string>
-    <string name="remove_a_search_batch">keresési cseretétel eltávolítása</string>
     <string name="replacement">helyettesítés</string>
     <string name="tab_text_1">1.Lap</string>
     <string name="tab_text_2">2.Lap</string>

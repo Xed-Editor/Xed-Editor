@@ -66,8 +66,6 @@
     <string name="add_file">新增外部檔案</string>
     <string name="keyword_regex">關鍵字（正則表達式）</string>
     <string name="replace_all">取代全部</string>
-    <string name="add_new_replacement_batch">新增取代批次</string>
-    <string name="remove_a_search_batch">移除搜尋批次</string>
     <string name="replacement">取代</string>
     <string name="tab_text_1">分頁 1</string>
     <string name="tab_text_2">分頁 2</string>
