@@ -429,4 +429,17 @@
     <string name="ignore_case">忽略大小写</string>
     <string name="regex">正则表达式</string>
     <string name="whole_word">全词匹配</string>
+    <string name="go_to_definition">转到定义</string>
+    <string name="go_to_references">转到引用</string>
+    <string name="rename_symbol">重命名符号</string>
+    <string name="go_to_definition_desc">从 %(count) 个定义中选择一个，以导航到其位置。</string>
+    <string name="go_to_references_desc">从 %(count) 个引用中选择一个，以导航到其位置。</string>
+    <string name="no_definitions_found">未找到定义。</string>
+    <string name="no_references_found">未找到引用。</string>
+    <string name="find_definitions_error">无法找到定义。</string>
+    <string name="find_references_error">无法找到引用。</string>
+    <string name="rename_symbol_error">无法重命名符号。</string>
+    <string name="cannot_rename_symbol">你无法重命名此符号。</string>
+    <string name="rename_symbol_multiple_files">当前尚不支持跨文件重命名符号。</string>
+    <string name="continue_action">继续</string>
 </resources>
