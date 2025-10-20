@@ -60,21 +60,17 @@ fun setupTerminalFiles() {
         }
     }
 
-    setupLspFile("python")
-    setupLspFile("html")
-    setupLspFile("css")
-    setupLspFile("typescript")
-    setupLspFile("json")
-    setupLspFile("bash")
+    val lspFiles = listOf("python", "html", "css", "typescript", "json", "bash")
+    lspFiles.forEach { setupLspFile(it) }
 }
 
-fun setupLspFile(scriptName: String) {
-    with(localBinDir().child("lsp/$scriptName")) {
+fun setupLspFile(fileName: String) {
+    with(localBinDir().child("lsp/$fileName")) {
         parentFile?.mkdir()
         if (exists().not()) {
             createFileIfNot()
             writeText(
-                application!!.assets.open("terminal/lsp/$scriptName.sh").bufferedReader()
+                application!!.assets.open("terminal/lsp/$fileName.sh").bufferedReader()
                     .use { it.readText() }
             )
         }
