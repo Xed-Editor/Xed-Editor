@@ -19,7 +19,7 @@ command_exists() {
 info 'Preparing installation...'
 apt update && apt upgrade -y
 
-apt 'Installing pipx...'
+info 'Installing pipx...'
 apt install -y pipx
 pipx ensurepath
 

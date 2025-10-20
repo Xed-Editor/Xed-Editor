@@ -31,7 +31,7 @@ install_nodejs() {
   export PATH="/home/.npm-global/bin:$PATH"
 }
 
-if ! command_exists node || ! command_exist npm; then
+if ! command_exists node || ! command_exists npm; then
   install_nodejs
 fi
 
