@@ -429,4 +429,17 @@
     <string name="ignore_case">Harf duyarlılığını göz ardı et</string>
     <string name="regex">Düzenli ifade</string>
     <string name="whole_word">Tüm kelime</string>
+    <string name="go_to_definition">Tanıma git</string>
+    <string name="go_to_references">Referanslara git</string>
+    <string name="rename_symbol">Sembolü yeniden adlandır</string>
+    <string name="go_to_definition_desc">Konumuna gitmek için %(count) tanımdan birini seçin.</string>
+    <string name="go_to_references_desc">Konumuna gitmek için %(count) referansından birini seçin.</string>
+    <string name="no_definitions_found">Herhangi bir tanım bulunamadı.</string>
+    <string name="no_references_found">Herhangi bir referans bulunamadı.</string>
+    <string name="find_definitions_error">Tanımlar bulunamadı.</string>
+    <string name="find_references_error">Referanslar bulunamadı.</string>
+    <string name="rename_symbol_error">Sembol yeniden adlandırılamıyor.</string>
+    <string name="cannot_rename_symbol">Bu simgeyi yeniden adlandıramazsınız.</string>
+    <string name="rename_symbol_multiple_files">Çoklu dosyalar arasında yeniden adlandırma henüz desteklenmiyor.</string>
+    <string name="continue_action">Devam et</string>
 </resources>
