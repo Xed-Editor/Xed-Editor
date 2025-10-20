@@ -65,6 +65,7 @@ fun setupTerminalFiles() {
     setupLspFile("css")
     setupLspFile("typescript")
     setupLspFile("json")
+    setupLspFile("bash")
 }
 
 fun setupLspFile(scriptName: String) {

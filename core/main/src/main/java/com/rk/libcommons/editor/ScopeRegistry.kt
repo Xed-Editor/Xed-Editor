@@ -1,5 +1,6 @@
 package com.rk.libcommons.editor
 
+import com.rk.libcommons.editor.lspServers.Bash
 import com.rk.libcommons.editor.lspServers.CSS
 import com.rk.libcommons.editor.lspServers.HTML
 import com.rk.libcommons.editor.lspServers.JSON
@@ -79,5 +80,6 @@ val lspRegistry = listOf(
     HTML(),
     CSS(),
     TypeScript(),
-    JSON()
+    JSON(),
+    Bash()
 )
