@@ -429,4 +429,17 @@
     <string name="ignore_case">Ignoruj wielkość znaków</string>
     <string name="regex">Wyrażenie regularne</string>
     <string name="whole_word">Całe słowo</string>
+    <string name="go_to_definition">Przejdź do definic}i</string>
+    <string name="go_to_references">Przejdź do referencji</string>
+    <string name="rename_symbol">Zmień nazwę symbolu</string>
+    <string name="go_to_definition_desc">Wybierz jedną z %(count) definicji, aby przejść do lokalizacji.</string>
+    <string name="go_to_references_desc">Wybierz jedną z %(count) referencji, aby przejść do lokalizacji.</string>
+    <string name="no_definitions_found">Nie znaleziono definicji.</string>
+    <string name="no_references_found">Nie znaleziono referencji.</string>
+    <string name="find_definitions_error">Nie można znaleść definicji.</string>
+    <string name="find_references_error">Nie można znaleść referencji.</string>
+    <string name="rename_symbol_error">Nie można zmienić nazwy symbolu.</string>
+    <string name="cannot_rename_symbol">Nie można zmienić nazwy tego symbolu.</string>
+    <string name="rename_symbol_multiple_files">Zmiana nazw wielu plików nie jest obsługiwana.</string>
+    <string name="continue_action">Kontunuuj</string>
 </resources>
