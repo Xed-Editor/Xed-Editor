@@ -429,4 +429,17 @@
     <string name="ignore_case">Ignorer la casse</string>
     <string name="regex">Regex</string>
     <string name="whole_word">Mot entier</string>
+    <string name="go_to_definition">Aller à la définition</string>
+    <string name="go_to_references">Aller aux références</string>
+    <string name="rename_symbol">Renommer un symbole</string>
+    <string name="go_to_definition_desc">Sélectionner l\'une des %(count) définitions pour aller à sa position.</string>
+    <string name="go_to_references_desc">Sélectionner l\'une des %(count) référence pour aller à sa position.</string>
+    <string name="no_definitions_found">Aucune définition trouvée.</string>
+    <string name="no_references_found">Aucune référence trouvée.</string>
+    <string name="find_definitions_error">Impossible de trouver des définitions.</string>
+    <string name="find_references_error">Impossible de trouver des références.</string>
+    <string name="rename_symbol_error">Impossible de renommer un symbole.</string>
+    <string name="cannot_rename_symbol">Vous ne pouvez pas renommer ce symbole.</string>
+    <string name="rename_symbol_multiple_files">Le renommage dans de multiples fichiers n\'est pas encore disponible.</string>
+    <string name="continue_action">Continuer</string>
 </resources>
