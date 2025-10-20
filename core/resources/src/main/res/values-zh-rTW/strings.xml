@@ -429,4 +429,17 @@
     <string name="ignore_case">忽略大小寫</string>
     <string name="regex">正則表達式</string>
     <string name="whole_word">全字比對</string>
+    <string name="go_to_definition">前往定義</string>
+    <string name="go_to_references">前往參考</string>
+    <string name="rename_symbol">重新命名符號</string>
+    <string name="go_to_definition_desc">選擇其中 %(count) 個定義之一以導覽至其位置。</string>
+    <string name="go_to_references_desc">選擇其中 %(count) 個參考之一以導覽至其位置。</string>
+    <string name="no_definitions_found">找不到任何定義。</string>
+    <string name="no_references_found">找不到任何參考。</string>
+    <string name="find_definitions_error">無法找到定義。</string>
+    <string name="find_references_error">無法找到參考。</string>
+    <string name="rename_symbol_error">無法重新命名符號。</string>
+    <string name="cannot_rename_symbol">你無法重新命名此符號。</string>
+    <string name="rename_symbol_multiple_files">目前尚未支援跨多個檔案的重新命名。</string>
+    <string name="continue_action">繼續</string>
 </resources>
