@@ -50,8 +50,8 @@ install_nodejs() {
   apt install -y nodejs
   mkdir -p /home/.npm-global
   npm config set prefix '/home/.npm-global'
-  grep -qxF "export PATH=\"/home/.npm-global/bin:$PATH\"" ~/.bashrc || \
-      echo "export PATH=\"/home/.npm-global/bin:$PATH\"" >> ~/.bashrc
+  grep -qxF "export PATH=\"/home/.npm-global/bin:\$PATH\"" ~/.bashrc || \
+      echo "export PATH=\"/home/.npm-global/bin:\$PATH\"" >> ~/.bashrc
   export PATH="/home/.npm-global/bin:$PATH"
 }
 

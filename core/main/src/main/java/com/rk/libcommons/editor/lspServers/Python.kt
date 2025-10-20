@@ -2,6 +2,7 @@ package com.rk.libcommons.editor.lspServers
 
 import android.content.Context
 import com.rk.file.child
+import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.editor.BaseLspServer
@@ -22,21 +23,13 @@ class Python() : BaseLspServer() {
     }
 
     override fun install(context: Context) {
-        val installCommand = """
-            apt update && \
-            apt upgrade -y && \
-            apt install -y pipx && \
-            pipx ensurepath && \
-            pipx install 'python-lsp-server[all]' && \
-            clear && \
-            echo 'Python language server installed successfully. Please reopen all tabs or restart the app.'
-        """.trimIndent()
+        val installSH = localBinDir().child("lsp/python")
 
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
-                args = arrayOf("-c", "\"${installCommand}\""),
+                exe = "/system/bin/sh",
+                args = arrayOf(installSH.absolutePath),
                 id = "python-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
             )

@@ -1,64 +1,81 @@
 package com.rk.xededitor.ui.screens.terminal
 
-import android.system.Os
 import com.rk.file.sandboxDir
 import com.rk.libcommons.application
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localBinDir
 import com.rk.file.localDir
-import com.rk.libcommons.toast
 
-fun setupTerminalFiles(){
-
-    if (sandboxDir().exists().not()){
+fun setupTerminalFiles() {
+    if (sandboxDir().exists().not()) {
         return
     }
 
-    if (localBinDir().exists().not()){
+    if (localBinDir().exists().not()) {
         return
     }
 
-    with(localBinDir().child("init")){
+    with(localBinDir().child("init")) {
         if (exists().not()) {
             createFileIfNot()
             writeText(
                 application!!.assets.open("terminal/init.sh").bufferedReader()
-                    .use { it.readText() })
+                    .use { it.readText() }
+            )
         }
     }
 
-    with(localBinDir().child("sandbox")){
+    with(localBinDir().child("sandbox")) {
         if (exists().not()) {
             createFileIfNot()
             writeText(
                 application!!.assets.open("terminal/sandbox.sh").bufferedReader()
-                    .use { it.readText() })
+                    .use { it.readText() }
+            )
         }
     }
 
-    with(localBinDir().child("setup")){
+    with(localBinDir().child("setup")) {
         if (exists().not()) {
             createFileIfNot()
             writeText(
                 application!!.assets.open("terminal/setup.sh").bufferedReader()
-                    .use { it.readText() })
+                    .use { it.readText() }
+            )
         }
     }
 
-
-    with(localDir().child("stat")){
-        if (exists().not()){
+    with(localDir().child("stat")) {
+        if (exists().not()) {
             createFileIfNot()
             writeText(stat)
         }
     }
 
-    with(localDir().child("vmstat")){
-        if (exists().not()){
+    with(localDir().child("vmstat")) {
+        if (exists().not()) {
             createFileIfNot()
             writeText(vmstat)
         }
     }
 
+    setupLspFile("python")
+    setupLspFile("html")
+    setupLspFile("css")
+    setupLspFile("typescript")
+    setupLspFile("json")
+}
+
+fun setupLspFile(scriptName: String) {
+    with(localBinDir().child("lsp/$scriptName")) {
+        parentFile?.mkdir()
+        if (exists().not()) {
+            createFileIfNot()
+            writeText(
+                application!!.assets.open("terminal/lsp/$scriptName.sh").bufferedReader()
+                    .use { it.readText() }
+            )
+        }
+    }
 }

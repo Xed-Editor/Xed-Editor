@@ -2,6 +2,7 @@ package com.rk.libcommons.editor.lspServers
 
 import android.content.Context
 import com.rk.file.child
+import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.editor.BaseLspServer
@@ -22,27 +23,13 @@ class HTML() : BaseLspServer() {
     }
 
     override fun install(context: Context) {
-        val installCommand = """
-            apt update && \
-            apt upgrade -y && \
-            apt install curl -y && \
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-            apt install -y nodejs && \
-            mkdir -p /home/.npm-global && \
-            npm config set prefix '/home/.npm-global' && \
-            grep -qxF 'export PATH="/home/.npm-global/bin:${"$"}PATH"' ~/.bashrc || \
-                echo 'export PATH="/home/.npm-global/bin:${"$"}PATH"' >> ~/.bashrc && \
-            export PATH="/home/.npm-global/bin:${"$"}PATH" && \
-            npm install -g vscode-langservers-extracted && \
-            clear && \
-            echo 'HTML language server installed successfully. Please reopen all tabs or restart the app.'
-        """.trimIndent()
+        val installSH = localBinDir().child("lsp/html")
 
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
-                args = arrayOf("-c", "\"${installCommand}\""),
+                exe = "/system/bin/sh",
+                args = arrayOf(installSH.absolutePath),
                 id = "html-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
             )

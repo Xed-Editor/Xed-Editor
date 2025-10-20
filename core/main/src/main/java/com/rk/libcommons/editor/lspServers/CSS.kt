@@ -2,14 +2,12 @@ package com.rk.libcommons.editor.lspServers
 
 import android.content.Context
 import com.rk.file.child
-import com.rk.file.getPrivateDir
-import com.rk.file.sandboxDir
+import com.rk.file.localBinDir
 import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.TerminalCommand
 import com.rk.libcommons.editor.BaseLspServer
 import com.rk.terminal.isTerminalInstalled
 import com.rk.terminal.launchInternalTerminal
-import java.io.File
 
 class CSS() : BaseLspServer() {
     override val id: String = "css-lsp"
@@ -25,27 +23,13 @@ class CSS() : BaseLspServer() {
     }
 
     override fun install(context: Context) {
-        val installCommand = """
-            apt update && \
-            apt upgrade -y && \
-            apt install curl -y && \
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && \
-            apt install -y nodejs && \
-            mkdir -p /home/.npm-global && \
-            npm config set prefix '/home/.npm-global' && \
-            grep -qxF 'export PATH="/home/.npm-global/bin:${"$"}PATH"' ~/.bashrc || \
-                echo 'export PATH="/home/.npm-global/bin:${"$"}PATH"' >> ~/.bashrc && \
-            export PATH="/home/.npm-global/bin:${"$"}PATH" && \
-            npm install -g vscode-langservers-extracted && \
-            clear && \
-            echo 'CSS language server installed successfully. Please reopen all tabs or restart the app.'
-        """.trimIndent()
+        val installSH = localBinDir().child("lsp/css")
 
         launchInternalTerminal(
             context = context,
             terminalCommand = TerminalCommand(
-                exe = "/bin/bash",
-                args = arrayOf("-c", "\"${installCommand}\""),
+                exe = "/system/bin/sh",
+                args = arrayOf(installSH.absolutePath),
                 id = "css-lsp-installer",
                 env = arrayOf("DEBIAN_FRONTEND=noninteractive"),
             )
