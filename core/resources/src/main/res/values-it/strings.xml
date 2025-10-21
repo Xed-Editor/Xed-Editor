@@ -78,8 +78,6 @@
     <string name="terminal">Terminale</string>
     <string name="add_file">Aggiungi file esterno</string>
     <string name="replace_all">SostituisciTutto</string>
-    <string name="add_new_replacement_batch">Aggiungi una nuova sostituzione batch</string>
-    <string name="remove_a_search_batch">Rimuovi un batch di ricerca</string>
     <string name="replacement">Sostituzione</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>

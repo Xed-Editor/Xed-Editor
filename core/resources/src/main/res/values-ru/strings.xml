@@ -66,8 +66,6 @@
     <string name="add_file">Добавить внешний файл</string>
     <string name="keyword_regex">Ключевое слово (регулярное выражение)</string>
     <string name="replace_all">Заменить все</string>
-    <string name="add_new_replacement_batch">Добавить новую партию замены</string>
-    <string name="remove_a_search_batch">Удалить поиск</string>
     <string name="replacement">Замена</string>
     <string name="tab_text_1">Вкладка 1</string>
     <string name="tab_text_2">Вкладка 2</string>
@@ -126,7 +124,7 @@
     <string name="yes">Да</string>
     <string name="fetch_failed">Запрос ничего не вернул</string>
     <string name="app">Приложение</string>
-    <string name="oled_desc">Чёрная тема (#000)</string>
+    <string name="oled_desc">Применяет чисто чёрную тему</string>
     <string name="themes">Темы</string>
     <string name="change_theme">Изменить тему</string>
     <string name="editor">Редактор</string>

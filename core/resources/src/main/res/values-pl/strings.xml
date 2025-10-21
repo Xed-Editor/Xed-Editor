@@ -66,8 +66,6 @@
     <string name="add_file">Dodaj zewnętrzny plik</string>
     <string name="keyword_regex">Słowo klucz (wyrażenie regularne)</string>
     <string name="replace_all">Zamień wszystkie</string>
-    <string name="add_new_replacement_batch">Dodaj nową partię zastępczą</string>
-    <string name="remove_a_search_batch">Usuń wyszukiwaną partię</string>
     <string name="replacement">Zamiennik</string>
     <string name="tab_text_1">Karta 1</string>
     <string name="tab_text_2">Karta 2</string>
@@ -333,7 +331,7 @@
     <string name="is_file">Jest plikiem</string>
     <string name="data_clear">Pamieć aplikacji została wyczyszczona</string>
     <string name="app">Aplikacja</string>
-    <string name="oled_desc">Użyj całkowicie czarnego tła przy włączonym trybie ciemnym (#000000)</string>
+    <string name="oled_desc">Użyj całkowicie czarnego tła przy włączonym trybie ciemnym</string>
     <string name="scroll_to_bottom">Skroluj w dół</string>
     <string name="scroll_to_bottom_desc">Skroluj w dół przy otwieraniu pliku</string>
     <string name="file_err">Plik nie może zostać zapisany, spróbuj zamknąć i otworzyć ponownie</string>
@@ -431,4 +429,17 @@
     <string name="ignore_case">Ignoruj wielkość znaków</string>
     <string name="regex">Wyrażenie regularne</string>
     <string name="whole_word">Całe słowo</string>
+    <string name="go_to_definition">Przejdź do definic}i</string>
+    <string name="go_to_references">Przejdź do referencji</string>
+    <string name="rename_symbol">Zmień nazwę symbolu</string>
+    <string name="go_to_definition_desc">Wybierz jedną z %(count) definicji, aby przejść do lokalizacji.</string>
+    <string name="go_to_references_desc">Wybierz jedną z %(count) referencji, aby przejść do lokalizacji.</string>
+    <string name="no_definitions_found">Nie znaleziono definicji.</string>
+    <string name="no_references_found">Nie znaleziono referencji.</string>
+    <string name="find_definitions_error">Nie można znaleść definicji.</string>
+    <string name="find_references_error">Nie można znaleść referencji.</string>
+    <string name="rename_symbol_error">Nie można zmienić nazwy symbolu.</string>
+    <string name="cannot_rename_symbol">Nie można zmienić nazwy tego symbolu.</string>
+    <string name="rename_symbol_multiple_files">Zmiana nazw wielu plików nie jest obsługiwana.</string>
+    <string name="continue_action">Kontunuuj</string>
 </resources>

@@ -66,8 +66,6 @@
     <string name="add_file">Harici dosya ekle</string>
     <string name="keyword_regex">Anahtar kelime (regex)</string>
     <string name="replace_all">Tümünü değiştir</string>
-    <string name="add_new_replacement_batch">Yeni yedek grup ekle</string>
-    <string name="remove_a_search_batch">Arama grubunu sil</string>
     <string name="replacement">Değiştir</string>
     <string name="tab_text_1">Sekme 1</string>
     <string name="tab_text_2">Sekme 2</string>
@@ -126,7 +124,7 @@
     <string name="yes">Evet</string>
     <string name="fetch_failed">Getirme isteği null değer döndürdü</string>
     <string name="app">Uygulama</string>
-    <string name="oled_desc">Karanlık Tema (#000)</string>
+    <string name="oled_desc">Saf siyah bir tema uygular</string>
     <string name="themes">Temalar</string>
     <string name="change_theme">Temayı değiştir</string>
     <string name="editor">Editör</string>
@@ -431,4 +429,17 @@
     <string name="ignore_case">Harf duyarlılığını göz ardı et</string>
     <string name="regex">Düzenli ifade</string>
     <string name="whole_word">Tüm kelime</string>
+    <string name="go_to_definition">Tanıma git</string>
+    <string name="go_to_references">Referanslara git</string>
+    <string name="rename_symbol">Sembolü yeniden adlandır</string>
+    <string name="go_to_definition_desc">Konumuna gitmek için %(count) tanımdan birini seçin.</string>
+    <string name="go_to_references_desc">Konumuna gitmek için %(count) referansından birini seçin.</string>
+    <string name="no_definitions_found">Herhangi bir tanım bulunamadı.</string>
+    <string name="no_references_found">Herhangi bir referans bulunamadı.</string>
+    <string name="find_definitions_error">Tanımlar bulunamadı.</string>
+    <string name="find_references_error">Referanslar bulunamadı.</string>
+    <string name="rename_symbol_error">Sembol yeniden adlandırılamıyor.</string>
+    <string name="cannot_rename_symbol">Bu simgeyi yeniden adlandıramazsınız.</string>
+    <string name="rename_symbol_multiple_files">Çoklu dosyalar arasında yeniden adlandırma henüz desteklenmiyor.</string>
+    <string name="continue_action">Devam et</string>
 </resources>

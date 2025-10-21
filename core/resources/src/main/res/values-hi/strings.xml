@@ -67,8 +67,6 @@
     <string name="add_file">बाहरी फ़ाइल जोड़ें</string>
     <string name="keyword_regex">कीवर्ड (रेजेक्स)</string>
     <string name="replace_all">सभी रिप्लेस करें</string>
-    <string name="add_new_replacement_batch">नया रिप्लेसमेंट बैच जोड़ें</string>
-    <string name="remove_a_search_batch">खोज बैच हटाएँ</string>
     <string name="replacement">रिप्लेसमेंट</string>
     <string name="tab_text_1">टैब १</string>
     <string name="tab_text_2">टैब २</string>

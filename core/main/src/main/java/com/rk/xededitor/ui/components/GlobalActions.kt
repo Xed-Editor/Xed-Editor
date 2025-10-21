@@ -23,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
-import com.rk.components.compose.preferences.base.DividerColumn
 import com.rk.file.FileWrapper
 import com.rk.file.child
 import com.rk.file.createFileIfNot
@@ -77,15 +76,26 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
     }
 
     if (addDialog) {
-        ModalBottomSheet(onDismissRequest = {
-            addDialog = false
-        }) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                addDialog = false
+            }
+        ) {
             Column(
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
             ) {
-                AddDialogItem(icon = drawables.file, title = stringResource(strings.temp_file)) {
-                    DefaultScope.launch{
-                        viewModel.newTab(FileWrapper(sandboxHomeDir().child("temp").createFileIfNot()),checkDuplicate = true,switchToTab = true)
+                AddDialogItem(
+                    icon = drawables.file,
+                    title = stringResource(strings.temp_file)
+                ) {
+                    DefaultScope.launch {
+                        viewModel.newTab(
+                            fileObject = FileWrapper(
+                                sandboxHomeDir().child("temp").createFileIfNot()
+                            ),
+                            checkDuplicate = true,
+                            switchToTab = true
+                        )
                     }
                     addDialog = false
                 }

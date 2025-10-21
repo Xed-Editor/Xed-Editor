@@ -62,7 +62,7 @@
     <string name="replace">替换</string>
     <string name="fetch_failed">请求获取的数据为空</string>
     <string name="app">应用程序</string>
-    <string name="oled_desc">纯黑主题（#000）</string>
+    <string name="oled_desc">使用纯黑色主题</string>
     <string name="text_size_desc">设置字体大小</string>
     <string name="tab_size">标签大小</string>
     <string name="tab_size_desc">设置标签大小</string>
@@ -89,7 +89,6 @@
     <string name="close">关闭</string>
     <string name="unsaved">未保存的文件</string>
     <string name="unsaved_files">你有未保存的文件！</string>
-    <string name="remove_a_search_batch">移除一组批量搜索</string>
     <string name="tab_text_1">标签页 1</string>
     <string name="tab_text_2">标签页 2</string>
     <string name="apply">应用</string>
@@ -158,7 +157,6 @@
     <string name="private_files">私有文件</string>
     <string name="text_size">字体大小</string>
     <string name="monet_desc">跟随系统主题</string>
-    <string name="add_new_replacement_batch">添加新的批量替换</string>
     <string name="unknown_error">未知错误</string>
     <string name="choose_file">选择文件</string>
     <string name="terminal_text_size_desc">设置终端字体大小</string>
@@ -431,4 +429,17 @@
     <string name="ignore_case">忽略大小写</string>
     <string name="regex">正则表达式</string>
     <string name="whole_word">全词匹配</string>
+    <string name="go_to_definition">转到定义</string>
+    <string name="go_to_references">转到引用</string>
+    <string name="rename_symbol">重命名符号</string>
+    <string name="go_to_definition_desc">从 %(count) 个定义中选择一个，以导航到其位置。</string>
+    <string name="go_to_references_desc">从 %(count) 个引用中选择一个，以导航到其位置。</string>
+    <string name="no_definitions_found">未找到定义。</string>
+    <string name="no_references_found">未找到引用。</string>
+    <string name="find_definitions_error">无法找到定义。</string>
+    <string name="find_references_error">无法找到引用。</string>
+    <string name="rename_symbol_error">无法重命名符号。</string>
+    <string name="cannot_rename_symbol">你无法重命名此符号。</string>
+    <string name="rename_symbol_multiple_files">当前尚不支持跨文件重命名符号。</string>
+    <string name="continue_action">继续</string>
 </resources>

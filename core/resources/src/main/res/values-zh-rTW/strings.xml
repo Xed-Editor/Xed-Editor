@@ -66,8 +66,6 @@
     <string name="add_file">新增外部檔案</string>
     <string name="keyword_regex">關鍵字（正則表達式）</string>
     <string name="replace_all">取代全部</string>
-    <string name="add_new_replacement_batch">新增取代批次</string>
-    <string name="remove_a_search_batch">移除搜尋批次</string>
     <string name="replacement">取代</string>
     <string name="tab_text_1">分頁 1</string>
     <string name="tab_text_2">分頁 2</string>
@@ -126,7 +124,7 @@
     <string name="yes">是</string>
     <string name="fetch_failed">請求獲取的資料回傳空值</string>
     <string name="app">應用程式</string>
-    <string name="oled_desc">純黑主題（#000）</string>
+    <string name="oled_desc">套用純黑主題</string>
     <string name="themes">主題</string>
     <string name="change_theme">變更主題</string>
     <string name="editor">編輯器</string>
@@ -431,4 +429,17 @@
     <string name="ignore_case">忽略大小寫</string>
     <string name="regex">正則表達式</string>
     <string name="whole_word">全字比對</string>
+    <string name="go_to_definition">前往定義</string>
+    <string name="go_to_references">前往參考</string>
+    <string name="rename_symbol">重新命名符號</string>
+    <string name="go_to_definition_desc">選擇其中 %(count) 個定義之一以導覽至其位置。</string>
+    <string name="go_to_references_desc">選擇其中 %(count) 個參考之一以導覽至其位置。</string>
+    <string name="no_definitions_found">找不到任何定義。</string>
+    <string name="no_references_found">找不到任何參考。</string>
+    <string name="find_definitions_error">無法找到定義。</string>
+    <string name="find_references_error">無法找到參考。</string>
+    <string name="rename_symbol_error">無法重新命名符號。</string>
+    <string name="cannot_rename_symbol">你無法重新命名此符號。</string>
+    <string name="rename_symbol_multiple_files">目前尚未支援跨多個檔案的重新命名。</string>
+    <string name="continue_action">繼續</string>
 </resources>
