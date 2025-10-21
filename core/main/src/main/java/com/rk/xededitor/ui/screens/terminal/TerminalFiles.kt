@@ -8,43 +8,7 @@ import com.rk.file.localBinDir
 import com.rk.file.localDir
 
 fun setupTerminalFiles() {
-    if (sandboxDir().exists().not()) {
-        return
-    }
-
-    if (localBinDir().exists().not()) {
-        return
-    }
-
-    with(localBinDir().child("init")) {
-        if (exists().not()) {
-            createFileIfNot()
-            writeText(
-                application!!.assets.open("terminal/init.sh").bufferedReader()
-                    .use { it.readText() }
-            )
-        }
-    }
-
-    with(localBinDir().child("sandbox")) {
-        if (exists().not()) {
-            createFileIfNot()
-            writeText(
-                application!!.assets.open("terminal/sandbox.sh").bufferedReader()
-                    .use { it.readText() }
-            )
-        }
-    }
-
-    with(localBinDir().child("setup")) {
-        if (exists().not()) {
-            createFileIfNot()
-            writeText(
-                application!!.assets.open("terminal/setup.sh").bufferedReader()
-                    .use { it.readText() }
-            )
-        }
-    }
+    if (sandboxDir().exists().not() || localBinDir().exists().not()) return
 
     with(localDir().child("stat")) {
         if (exists().not()) {
@@ -60,17 +24,24 @@ fun setupTerminalFiles() {
         }
     }
 
+    val internalFiles = listOf("init", "sandbox", "setup", "utils")
+    internalFiles.forEach { setupAssetFile(it) }
+
     val lspFiles = listOf("python", "html", "css", "typescript", "json", "bash")
     lspFiles.forEach { setupLspFile(it) }
 }
 
-fun setupLspFile(fileName: String) {
-    with(localBinDir().child("lsp/$fileName")) {
+fun setupLspFile(fileName: String) = setupAssetFile("lsp/$fileName")
+
+fun setupAssetFile(fileName: String) {
+    with(localBinDir().child(fileName)) {
         parentFile?.mkdir()
         if (exists().not()) {
             createFileIfNot()
             writeText(
-                application!!.assets.open("terminal/lsp/$fileName.sh").bufferedReader()
+                application!!.assets
+                    .open("terminal/$fileName.sh")
+                    .bufferedReader()
                     .use { it.readText() }
             )
         }

@@ -2,18 +2,7 @@
 force_color_prompt=yes
 shopt -s checkwinsize
 
-info() {
-  printf '\033[34;1m[*] \033[0m%s\n' "$1"
-}
-
-warn() {
-  printf '\033[33;1m[!] \033[0m%s\n' "$1"
-}
-
-error() {
-  printf '\033[31;1m[x] \033[0m%s\n' "$1"
-}
-
+source "$(dirname "$0")/utils"
 
 # Set timezone
 CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
