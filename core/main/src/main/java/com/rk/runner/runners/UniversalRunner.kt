@@ -18,19 +18,12 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
 import com.rk.terminal.launchInternalTerminal
+import com.rk.xededitor.ui.screens.terminal.setupAssetFile
 
 class UniversalRunner : RunnerImpl() {
     @SuppressLint("SdCardPath")
     override fun run(context: Context, fileObject: FileObject) {
-        with(localBinDir().child("universal_runner")) {
-            if (exists().not()) {
-                createFileIfNot()
-                writeText(
-                    application!!.assets.open("terminal/universal_runner.sh").bufferedReader()
-                        .use { it.readText() }
-                )
-            }
-        }
+        setupAssetFile("universal_runner")
 
         if (fileObject !is FileWrapper) {
             dialog(
