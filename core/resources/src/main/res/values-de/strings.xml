@@ -429,4 +429,17 @@
     <string name="ignore_case">Groß-/Kleinschreibung ignorieren</string>
     <string name="regex">Regex</string>
     <string name="whole_word">Ganzes Wort</string>
+    <string name="go_to_definition">Gehe zur Definition</string>
+    <string name="go_to_references">Gehe zu Referenzen</string>
+    <string name="rename_symbol">Symbol umbenennen</string>
+    <string name="go_to_definition_desc">Wähle eine der %(count) Definitionen aus, um zu ihrem Standort zu navigieren.</string>
+    <string name="go_to_references_desc">Wähle eine der %(count) Referenzen aus, um zu ihrem Standort zu navigieren.</string>
+    <string name="no_definitions_found">Keine Definitionen gefunden.</string>
+    <string name="no_references_found">Keine Referenzen gefunden.</string>
+    <string name="find_definitions_error">Definitionen konnten nicht gefunden werden.</string>
+    <string name="find_references_error">Referenzen konnten nicht gefunden werden.</string>
+    <string name="rename_symbol_error">Symbol konnte nicht umbenannt werden.</string>
+    <string name="cannot_rename_symbol">Du kannst dieses Symbol nicht umbenennen.</string>
+    <string name="rename_symbol_multiple_files">Umbenennen über mehrere Dateien hinweg wird noch nicht unterstützt.</string>
+    <string name="continue_action">Fortfahren</string>
 </resources>
