@@ -2,7 +2,7 @@
 force_color_prompt=yes
 shopt -s checkwinsize
 
-source "$(dirname "$0")/utils"
+source "$PREFIX/local/bin/utils"
 
 # Set timezone
 CONTAINER_TIMEZONE="UTC"  # or any timezone like "Asia/Kolkata"
