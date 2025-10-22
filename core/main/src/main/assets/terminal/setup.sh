@@ -1,6 +1,6 @@
 set -e
 
-source "$(dirname "$0")/utils"
+source "$PREFIX/local/bin/utils"
 
 info "Extracting the Ubuntu container…"
 
