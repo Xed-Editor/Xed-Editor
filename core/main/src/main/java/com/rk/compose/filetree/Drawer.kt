@@ -214,7 +214,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                                     if ((file.fileObject is UriWrapper && file.fileObject.isTermuxUri()) || (file.fileObject is FileWrapper && file.fileObject.file == sandboxHomeDir())) {
                                         drawables.terminal
                                     } else {
-                                        drawables.outline_folder_24
+                                        drawables.outline_folder
                                     }
                                 Icon(painter = painterResource(iconId), contentDescription = null)
                             },
@@ -273,7 +273,7 @@ fun DrawerContent(modifier: Modifier = Modifier,onFileSelected:(FileObject)-> Un
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                painter = painterResource(drawables.outline_folder_24),
+                                painter = painterResource(drawables.outline_folder),
                                 contentDescription = null, tint = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(modifier = Modifier.height(8.dp))

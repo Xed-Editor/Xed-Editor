@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -30,10 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,12 +40,13 @@ import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.ui.activities.main.getDrawerWidth
+import com.rk.xededitor.ui.theme.folderSurface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private val ic_file = drawables.file
-private val folder = drawables.baseline_folder_24
+private val folder = drawables.folder
 private val unknown = drawables.unknown_document
 private val fileSymlink = drawables.file_symlink
 private val java = drawables.java
@@ -178,10 +174,14 @@ private fun FileIcon(file: FileObject) {
         unknown
     }
 
+    val tint = if (icon == folder || icon == archive) {
+        MaterialTheme.colorScheme.folderSurface
+    } else MaterialTheme.colorScheme.secondary
+
     Icon(
         painter = painterResource(icon),
         contentDescription = null,
-        tint = MaterialTheme.colorScheme.secondary,
+        tint = tint,
         modifier = Modifier.size(20.dp)
     )
 
@@ -296,8 +296,6 @@ class FileTreeViewModel : ViewModel() {
             }
         }
     }
-
-
 }
 
 data class FileTreeNode(
@@ -329,7 +327,7 @@ fun FileTree(
 
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Box(
             modifier = Modifier
@@ -396,30 +394,36 @@ private fun FileTreeNodeItem(
     val scope = rememberCoroutineScope()
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.combinedClickable(
-                onClick = {
-                    if (node.isDirectory) {
-                        viewModel.toggleNodeExpansion(nodePath)
-                    } else {
+            modifier = Modifier
+                .combinedClickable(
+                    onClick = {
+                        if (node.isDirectory) {
+                            viewModel.toggleNodeExpansion(nodePath)
+                        } else {
+                            scope.launch {
+                                delay(100)
+                                onFileClick(node)
+                            }
+
+                        }
+//                    viewModel.selectedFile[currentProject!!] = node.file
+                    },
+                    onLongClick = {
+//                    viewModel.selectedFile[currentProject!!] = node.file
                         scope.launch {
-                            delay(100)
-                            onFileClick(node)
+                            delay(50)
+                            onFileLongClick(node)
                         }
 
                     }
-                    viewModel.selectedFile[currentProject!!] = node.file
-                },
-                onLongClick = {
-                    viewModel.selectedFile[currentProject!!] = node.file
-                    scope.launch {
-                        delay(50)
-                        onFileLongClick(node)
+                )
+                .then(
+                    if (viewModel.selectedFile[currentProject] == node.file) {
+                        Modifier.background(color = MaterialTheme.colorScheme.primaryContainer)
+                    } else {
+                        Modifier
                     }
-
-                }
-            ).then(if (viewModel.selectedFile[currentProject] == node.file){
-                Modifier.background(color = MaterialTheme.colorScheme.primaryContainer)}else{
-                Modifier})
+                )
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -458,7 +462,6 @@ private fun FileTreeNodeItem(
             }
 
             FileIcon(node.file)
-
 
             Spacer(modifier = Modifier.width(8.dp))
 
