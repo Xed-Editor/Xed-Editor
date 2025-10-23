@@ -297,7 +297,7 @@
     <string name="strict_mode">Tryb ścisły</string>
     <string name="copied">Skopiowane</string>
     <string name="flavor">Wydanie</string>
-    <string name="cant_undo">Akcji nie da się odwrócić</string>
+    <string name="cant_undo">Czynności nie da się odwrócić</string>
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
     <string name="available">Dostępne</string>
     <string name="already_installed">Już zainstalowano</string>
@@ -321,7 +321,7 @@
     <string name="install">Zainstaluj</string>
     <string name="ask_lsp_install">Czy chcesz zainstalować \'%(language_name)\' serwer językowy?</string>
     <string name="theme_settings">Ustawienia motywu</string>
-    <string name="action_done">Akcja ukończona</string>
+    <string name="action_done">Czynność ukończona</string>
     <string name="clone_repo">Klonuj repozytorium</string>
     <string name="edit_runner">Edytuj program uruchamiający</string>
     <string name="info">Informacje</string>
@@ -387,7 +387,7 @@
     <string name="terminal_virus_notice">Na niektórych urządzeniach, szczególnie pewnych modelach z Chin, możesz zobaczyć systemowe ostrzeżenie bezpieczeństwa, gdy zbyt wiele procesów jest uruchomionych w terminalu (np. Apt Update\" lub \"Apt Upgrade\"). Informacja jest błędna oraz nie wskazuje na aktywność prawdziwego wirusa.</string>
     <string name="text_mate_suggestion">Automatyczne wypełnianie TextMate</string>
     <string name="text_mate_suggestion_desc">Sugeruj predefiniowane słowa klucze</string>
-    <string name="uninstall_terminal_warning">Odinstalować Ubuntu? Akcji nie da się odwrócić.</string>
+    <string name="uninstall_terminal_warning">Odinstalować Ubuntu? Czynności nie da się odwrócić.</string>
     <string name="uninstall">Odinstaluj</string>
     <string name="uninstall_terminal">Odinstaluj terminal</string>
     <string name="project_as_wk">Użyj projekt jako katalog roboczy</string>
