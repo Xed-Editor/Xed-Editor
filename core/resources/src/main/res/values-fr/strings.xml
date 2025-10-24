@@ -46,7 +46,7 @@
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer définitivement \'%(file_name)\' ?</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement \'%(file_name)\' ?</string>
     <string name="reselect_dir">Re-sélectionnez à nouveau le dossier</string>
     <string name="cant_handle">Aucune app trouvée pour gérer le fichier</string>
     <string name="add_file">Ajouter un fichier externe</string>
@@ -67,7 +67,7 @@
     <string name="open_dir_in_terminal">Ouvrir le dossier dans le terminal</string>
     <string name="file_open_denied">Ouvrir ce fichier avec d’autres apps n’est pas autorisé</string>
     <string name="reload_file_tree">Recharger fichiers</string>
-    <string name="close_current_project">Voulez-vous vraiment fermer le projet \'%(project_name)\' ?</string>
+    <string name="close_current_project">Voulez-vous vraiment fermer le projet \'%(project_name)\' ?</string>
     <string name="rename_desc">Renommer le document</string>
     <string name="open_with_other">Ouvrir le fichier sélectionné dans d’autres apps</string>
     <string name="add_file_desc">Sélectionner un nouveau fichier à ajouter</string>
