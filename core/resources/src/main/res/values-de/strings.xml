@@ -89,7 +89,7 @@
     <string name="dir_exist_not">Ordner existiert nicht</string>
     <string name="file_open_denied">Das Öffnen dieser Datei mit anderen Apps ist nicht zulässig</string>
     <string name="reload_file_tree">Dateien neu laden</string>
-    <string name="close_current_project">Möchtest du das Projekt \'%(project_name)\' wirklich schließen?</string>
+    <string name="close_current_project">Möchtest du das Projekt \'%(project_name)s\' wirklich schließen?</string>
     <string name="rename_desc">Das Dokument umbenennen</string>
     <string name="open_with_other">Ausgewählte Datei in anderen Apps öffnen</string>
     <string name="data_clear">App-Daten wurden gelöscht</string>
@@ -103,7 +103,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in deinem Speicher zu bearbeiten. Erlaube bitte den Zugriff in der nächsten Systemeinstellung.</string>
     <string name="close_this">Schließen</string>
     <string name="cant_handle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Bist du sicher, dass du \'%(file_name)\' endgültig löschen möchtest?</string>
+    <string name="ask_del">Bist du sicher, dass du \'%(file_name)s\' endgültig löschen möchtest?</string>
     <string name="reselect_dir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
@@ -132,7 +132,7 @@
     <string name="editor">Editor</string>
     <string name="fetch_failed">Fetch-Request hat null zurückgegeben</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
-    <string name="download_sure">Möchtest du wirklich \'%(name)\' herunterladen?</string>
+    <string name="download_sure">Möchtest du wirklich \'%(name)s\' herunterladen?</string>
     <string name="oled_desc">Wendet ein rein schwarzes Design an</string>
     <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
