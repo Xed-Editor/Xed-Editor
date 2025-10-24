@@ -100,7 +100,7 @@ fun EditorFontScreen(modifier: Modifier = Modifier) {
                     ) {
                         //onCLick
                         Settings.selected_font_path = font.pathOrAsset
-                        Settings.is_selected_font_assest = font.isAsset
+                        Settings.is_selected_font_asset = font.isAsset
                         selectedFontCompose.value = font
 
                         DefaultScope.launch(Dispatchers.Main) {

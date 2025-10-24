@@ -92,7 +92,7 @@ class App : Application() {
             launch {
                 val fontPath = Settings.selected_font_path
                 if (fontPath.isNotEmpty()) {
-                    FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_assest)
+                    FontCache.loadFont(this@App, fontPath, Settings.is_selected_font_asset)
                 } else {
                     FontCache.loadFont(this@App, "fonts/Default.ttf", true)
                 }

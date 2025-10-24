@@ -2,7 +2,6 @@ package com.rk.settings
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 import com.rk.libcommons.application
 import com.rk.libcommons.hasHardwareKeyboard
@@ -15,22 +14,23 @@ import kotlin.reflect.KProperty
 import androidx.core.content.edit
 
 object Settings {
-    var readOnlyByDefault by CachedPreference("readOnly", false)
+    var read_only_default by CachedPreference("readOnly", false)
     var amoled by CachedPreference("oled", false)
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pinline", false)
-    var wordwrap by CachedPreference("wordwrap", false)
+    var word_wrap by CachedPreference("wordwrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
-    var word_wrap_for_text by CachedPreference("ww_txt", true)
     var cursor_animation by CachedPreference("cursor_animation", false)
     var show_arrow_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
     var show_line_numbers by CachedPreference("show_line_number", true)
     var render_whitespace by CachedPreference("render_whitespace", false)
+    var sticky_scroll by CachedPreference("sticky_scroll", false)
+    var quick_deletion by CachedPreference("fast_delete", false)
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
-    var is_selected_font_assest by CachedPreference("is_font_asset", false)
+    var is_selected_font_asset by CachedPreference("is_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
     var actual_tabs by CachedPreference("actual_tab", false)
     var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
@@ -47,7 +47,7 @@ object Settings {
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
     var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
-    var textMateSuggestion by CachedPreference("textMateSuggestion", true)
+    var textmate_suggestion by CachedPreference("textMateSuggestion", true)
     var seccomp by CachedPreference("seccomp", false)
 
     // Int settings
@@ -73,7 +73,7 @@ object Settings {
     var lastVersionCode by CachedPreference("last_version_code", -1L)
 
     // Float settings
-    var line_spacing by CachedPreference("line_spacing", 0f)
+    var line_spacing by CachedPreference("line_spacing", 1f)
 }
 
 object Preference {

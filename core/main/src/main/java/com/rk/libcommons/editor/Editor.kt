@@ -177,8 +177,9 @@ class Editor : CodeEditor {
                 setColors(
                     dividerColor,
                     EditorColorScheme.LINE_DIVIDER,
+                    EditorColorScheme.STICKY_SCROLL_DIVIDER
                     EditorColorScheme.NON_PRINTABLE_CHAR,
-                    EditorColorScheme.BLOCK_LINE
+                    EditorColorScheme.BLOCK_LINE,
                 )
 
                 setColors(
@@ -270,24 +271,27 @@ class Editor : CodeEditor {
     fun applySettings() {
         val tabSize = Settings.tab_size
         val pinLineNumber = Settings.pin_line_number
+        val stickyScroll = Settings.sticky_scroll
+        val fastDelete = Settings.quick_deletion
         val showLineNumber = Settings.show_line_numbers
         val cursorAnimation = Settings.cursor_animation
         val textSize = Settings.editor_text_size
-        val wordWrap = Settings.wordwrap
+        val wordWrap = Settings.word_wrap
         val keyboardSuggestion = Settings.show_suggestions
         val lineSpacing = Settings.line_spacing
         val renderWhitespace = Settings.render_whitespace
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
-        props.deleteEmptyLineFast = false
+        props.deleteEmptyLineFast = fastDelete
+        props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber
         isCursorAnimationEnabled = cursorAnimation
         setTextSize(textSize.toFloat())
         isWordwrap = wordWrap
-        lineSpacingExtra = lineSpacing
+        lineSpacingMultiplier = lineSpacing
         isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
         showSuggestions(keyboardSuggestion)
 
@@ -310,7 +314,7 @@ class Editor : CodeEditor {
         runCatching {
             val fontPath = Settings.selected_font_path
             val font = if (fontPath.isNotEmpty()) {
-                FontCache.getFont(context, fontPath, Settings.is_selected_font_assest) ?: FontCache.getFont(context, "fonts/Default.ttf", true)
+                FontCache.getFont(context, fontPath, Settings.is_selected_font_asset) ?: FontCache.getFont(context, "fonts/Default.ttf", true)
             } else {
                 FontCache.getFont(context, "fonts/Default.ttf", true)
             }
@@ -357,7 +361,7 @@ class Editor : CodeEditor {
                 textmateSources.values.toSet().forEach {
                     launch(Dispatchers.IO) {
                         val start = System.currentTimeMillis()
-                        val language = TextMateLanguage.create(it, Settings.textMateSuggestion)
+                        val language = TextMateLanguage.create(it, Settings.textmate_suggestion)
                         highlightingCache[it] = language
                     }
                 }
@@ -373,8 +377,8 @@ class Editor : CodeEditor {
         }
 
         val language = highlightingCache.getOrPut(languageScopeName){
-            TextMateLanguage.create(languageScopeName, Settings.textMateSuggestion).apply {
-                if (Settings.textMateSuggestion){
+            TextMateLanguage.create(languageScopeName, Settings.textmate_suggestion).apply {
+                if (Settings.textmate_suggestion){
                     launch {
                         context.assets.open("textmate/keywords.json").use {
                             JsonParser.parseReader(InputStreamReader(it))

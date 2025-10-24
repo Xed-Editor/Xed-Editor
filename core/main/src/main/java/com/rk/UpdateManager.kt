@@ -9,47 +9,38 @@ import com.rk.settings.Preference
 import com.rk.settings.Settings
 
 object UpdateManager {
-    private fun deleteCommonFiles() = with(application!!){
+    private fun deleteCommonFiles() = with(application!!) {
         codeCacheDir.apply {
-            if (exists()){
+            if (exists()) {
                 deleteRecursively()
             }
         }
 
         localBinDir().apply {
-            if (exists()){
+            if (exists()) {
                 deleteRecursively()
             }
         }
     }
 
-    fun inspect() = with(application!!){
+    fun inspect() = with(application!!) {
         val lastVersionCode = Settings.lastVersionCode
-        val currentVersionCode = PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
+        val currentVersionCode =
+            PackageInfoCompat.getLongVersionCode(packageManager.getPackageInfo(packageName, 0))
 
-        if (lastVersionCode != currentVersionCode){
-            //app is updated
-            when(lastVersionCode){
-                //what to do if the last version code matches this
-
-                -1L -> {
-                    deleteCommonFiles()
-                }
-                40L -> {
-                    Preference.clearData()
-                    deleteCommonFiles()
-                }
-                48L -> {
-                    deleteCommonFiles()
-                }
-                else -> {
-                    deleteCommonFiles()
-                }
+        if (lastVersionCode != currentVersionCode) {
+            // App is updated -> Migrate existing files
+            if (lastVersionCode <= 40L) {
+                Preference.clearData()
             }
 
+            if (lastVersionCode <= 66L) {
+                Settings.line_spacing = 1f
+            }
+
+            deleteCommonFiles()
         }
 
         Settings.lastVersionCode = currentVersionCode
-
     }
 }
