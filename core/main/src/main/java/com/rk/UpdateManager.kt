@@ -30,30 +30,17 @@ object UpdateManager {
 
         if (lastVersionCode != currentVersionCode) {
             // App is updated -> Migrate existing files
-            when (lastVersionCode) {
-                -1L -> {
-                    deleteCommonFiles()
-                }
-
-                40L -> {
-                    Preference.clearData()
-                    deleteCommonFiles()
-                }
-
-                48L -> {
-                    deleteCommonFiles()
-                }
-
-                66L -> {
-                    if (Settings.line_spacing == 0f) Settings.line_spacing = 1f
-                    deleteCommonFiles()
-                }
-
-                else -> {
-                    deleteCommonFiles()
-                }
+            if (lastVersionCode <= 40L) {
+                Preference.clearData()
             }
 
+            if (lastVersionCode <= 48L) {
+                deleteCommonFiles()
+            }
+
+            if (lastVersionCode <= 66L && Settings.line_spacing == 0f) {
+                Settings.line_spacing = 1f
+            }
         }
 
         Settings.lastVersionCode = currentVersionCode
