@@ -204,7 +204,7 @@
     <string name="attention">Attention</string>
     <string name="auto_mode">Auto</string>
     <string name="show_virtual_keyboard">Montrer le clavier virtuel</string>
-    <string name="download_sure">Voulez-vous vraiment télécharger \'%(name)\' ?</string>
+    <string name="download_sure">Voulez-vous vraiment télécharger \'%(name)\' ?</string>
     <string name="value_invalid">Valeur invalide</string>
     <string name="app_desc">Paramètres généraux de l’application</string>
     <string name="show_suggestions">Montrer les suggestions clavier</string>
@@ -354,7 +354,7 @@
     <string name="text_mate_suggestion">Autocomplétion TextMate</string>
     <string name="dont_ask_again">Ne plus demander</string>
     <string name="install">Installer</string>
-    <string name="ask_lsp_install">Voulez-vous installer le serveur de langue \'%(language_name)\' ?</string>
+    <string name="ask_lsp_install">Voulez-vous installer le serveur de langue \'%(language_name)\' ?</string>
     <string name="uninstall_terminal_warning">Désinstaller Ubuntu de manière permanente ? Vous ne pourrez plus revenir en arrière.</string>
     <string name="uninstall">Désinstaller</string>
     <string name="uninstall_terminal">Désinstaller le terminal</string>
