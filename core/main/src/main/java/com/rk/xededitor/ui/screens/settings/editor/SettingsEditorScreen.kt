@@ -152,6 +152,24 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
+            EditorSettingsToggle(
+                label = stringResource(id = strings.enable_sticky_scroll),
+                description = stringResource(id = strings.enable_sticky_scroll_desc),
+                default = Settings.sticky_scroll,
+                sideEffect = {
+                    Settings.sticky_scroll = it
+                }
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.enable_quick_deletion),
+                description = stringResource(id = strings.enable_quick_deletion_desc),
+                default = Settings.quick_deletion,
+                sideEffect = {
+                    Settings.quick_deletion = it
+                }
+            )
+
             NextScreenCard(
                 label = stringResource(strings.manage_editor_font),
                 description = stringResource(strings.manage_editor_font),
@@ -165,7 +183,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = false,
                 sideEffect = {
                     showTextSizeDialog = true
-                })
+                }
+            )
 
             SettingsToggle(
                 label = stringResource(strings.text_mate_suggestion),
@@ -194,7 +213,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.show_arrow_keys,
                 sideEffect = {
                     Settings.show_arrow_keys = it
-                })
+                }
+            )
 
             NextScreenCard(
                 label = stringResource(strings.default_encoding),

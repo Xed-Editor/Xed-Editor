@@ -180,7 +180,7 @@ class KarbonEditor : CodeEditor {
 
                 setColors(currentLine, EditorColorScheme.CURRENT_LINE)
                 setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
-                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER)
+                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
             }
         }
     }
@@ -253,6 +253,8 @@ class KarbonEditor : CodeEditor {
     fun applySettings() {
         val tabSize = Settings.tab_size
         val pinLineNumber = Settings.pin_line_number
+        val stickyScroll = Settings.sticky_scroll
+        val fastDelete = Settings.quick_deletion
         val showLineNumber = Settings.show_line_numbers
         val cursorAnimation = Settings.cursor_animation
         val textSize = Settings.editor_text_size
@@ -263,7 +265,8 @@ class KarbonEditor : CodeEditor {
 
         props.deleteMultiSpaces = tabSize
         tabWidth = tabSize
-        props.deleteEmptyLineFast = false
+        props.deleteEmptyLineFast = fastDelete
+        props.stickyScroll = stickyScroll
         props.useICULibToSelectWords = true
         setPinLineNumber(pinLineNumber)
         isLineNumberEnabled = showLineNumber

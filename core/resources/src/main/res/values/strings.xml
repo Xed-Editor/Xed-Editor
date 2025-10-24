@@ -443,4 +443,8 @@
     <string name="cannot_rename_symbol">You cannot rename this symbol.</string>
     <string name="rename_symbol_multiple_files">Renaming across multiple files is not supported yet.</string>
     <string name="continue_action">Continue</string>
+    <string name="enable_sticky_scroll">Enable sticky scroll</string>
+    <string name="enable_sticky_scroll_desc">Keep the current code block header visible while scrolling</string>
+    <string name="enable_quick_deletion">Enable quick line deletion</string>
+    <string name="enable_quick_deletion_desc">Automatically delete the entire line if it is empty</string>
 </resources>
