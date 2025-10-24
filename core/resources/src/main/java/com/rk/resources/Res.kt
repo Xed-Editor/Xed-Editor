@@ -32,7 +32,8 @@ fun String.fillPlaceholders(values: Map<String, Any>): String {
     var result = this
 
     values.forEach { (key, value) ->
-        result = result.replace(Regex("%\\($key\\)[a-z]?"), value.toString())
+        val escapedKey = Regex.escape(key)
+        result = result.replace(Regex("%\\($escapedKey\\)[a-z]?"), value.toString())
     }
 
     return result
