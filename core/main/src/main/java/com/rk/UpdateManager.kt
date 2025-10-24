@@ -34,7 +34,7 @@ object UpdateManager {
                 Preference.clearData()
             }
 
-            if (lastVersionCode <= 66L && Settings.line_spacing == 0f) {
+            if (lastVersionCode <= 66L) {
                 Settings.line_spacing = 1f
             }
 
