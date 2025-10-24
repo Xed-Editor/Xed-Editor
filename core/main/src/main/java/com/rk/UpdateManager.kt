@@ -34,13 +34,11 @@ object UpdateManager {
                 Preference.clearData()
             }
 
-            if (lastVersionCode <= 48L) {
-                deleteCommonFiles()
-            }
-
             if (lastVersionCode <= 66L && Settings.line_spacing == 0f) {
                 Settings.line_spacing = 1f
             }
+
+            deleteCommonFiles()
         }
 
         Settings.lastVersionCode = currentVersionCode
