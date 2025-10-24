@@ -14,13 +14,12 @@ import kotlin.reflect.KProperty
 import androidx.core.content.edit
 
 object Settings {
-    var readOnlyByDefault by CachedPreference("readOnly", false)
+    var read_only_default by CachedPreference("readOnly", false)
     var amoled by CachedPreference("oled", false)
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pinline", false)
-    var wordwrap by CachedPreference("wordwrap", false)
+    var word_wrap by CachedPreference("wordwrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
-    var word_wrap_for_text by CachedPreference("ww_txt", true)
     var cursor_animation by CachedPreference("cursor_animation", false)
     var show_arrow_keys by CachedPreference("arrow_keys", hasHardwareKeyboard(application!!).not())
     var keep_drawer_locked by CachedPreference("drawer_lock", false)
@@ -31,7 +30,7 @@ object Settings {
     var auto_save by CachedPreference("auto_save", false)
     var show_suggestions by CachedPreference("show_suggestions", false)
     var check_for_update by CachedPreference("check_update", false)
-    var is_selected_font_assest by CachedPreference("is_font_asset", false)
+    var is_selected_font_asset by CachedPreference("is_font_asset", false)
     var smooth_tabs by CachedPreference("smooth_tab", false)
     var actual_tabs by CachedPreference("actual_tab", false)
     var scroll_to_bottom by CachedPreference("scroll_to_bottom", false)
@@ -48,7 +47,7 @@ object Settings {
     var donated by CachedPreference("donated", false)
     var sandbox by CachedPreference("sandbox", true)
     var terminalVirusNotice by CachedPreference("terminal-virus-notice", false)
-    var textMateSuggestion by CachedPreference("textMateSuggestion", true)
+    var textmate_suggestion by CachedPreference("textMateSuggestion", true)
     var seccomp by CachedPreference("seccomp", false)
 
     // Int settings

@@ -61,27 +61,18 @@ fun SettingsEditorScreen(navController: NavController) {
             EditorSettingsToggle(
                 label = stringResource(id = strings.word_wrap),
                 description = stringResource(id = strings.word_wrap_desc),
-                default = Settings.wordwrap,
+                default = Settings.word_wrap,
                 sideEffect = {
-                    Settings.wordwrap = it
-                }
-            )
-
-            EditorSettingsToggle(
-                label = stringResource(strings.txt_word_wrap),
-                description = stringResource(strings.txt_word_wrap_desc),
-                default = Settings.word_wrap_for_text,
-                sideEffect = {
-                    Settings.word_wrap_for_text = it
+                    Settings.word_wrap = it
                 }
             )
 
             EditorSettingsToggle(
                 label = stringResource(strings.read_mode),
                 description = stringResource(strings.read_mode_desc),
-                default = Settings.readOnlyByDefault,
+                default = Settings.read_only_default,
                 sideEffect = {
-                    Settings.readOnlyByDefault = it
+                    Settings.read_only_default = it
                 }
             )
         }
@@ -188,9 +179,9 @@ fun SettingsEditorScreen(navController: NavController) {
             SettingsToggle(
                 label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
-                default = Settings.textMateSuggestion,
+                default = Settings.textmate_suggestion,
                 sideEffect = {
-                    Settings.textMateSuggestion = it
+                    Settings.textmate_suggestion = it
                     toast(strings.restart_required)
                 }
             )

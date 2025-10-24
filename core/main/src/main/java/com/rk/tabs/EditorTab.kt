@@ -160,7 +160,7 @@ class EditorTab(
                     editorState.content = file.getInputStream().use {
                         ContentIO.createFrom(it, charset)
                     }
-                    editorState.editable = Settings.readOnlyByDefault.not() && file.canWrite()
+                    editorState.editable = Settings.read_only_default.not() && file.canWrite()
                     editorState.contentLoaded.complete(Unit)
                 }.onFailure {
                     errorDialog(it)
