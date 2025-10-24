@@ -89,15 +89,6 @@ fun SettingsEditorScreen(navController: NavController) {
 
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
             EditorSettingsToggle(
-                label = stringResource(id = strings.restore_sessions),
-                description = stringResource(id = strings.restore_sessions_desc),
-                default = Settings.restore_sessions,
-                sideEffect = {
-                    Settings.restore_sessions = it
-                }
-            )
-
-            EditorSettingsToggle(
                 label = stringResource(strings.disable_virtual_kbd),
                 description = stringResource(strings.disable_virtual_kbd_desc),
                 default = Settings.hide_soft_keyboard_if_hardware,
@@ -135,6 +126,15 @@ fun SettingsEditorScreen(navController: NavController) {
             )
 
             EditorSettingsToggle(
+                label = stringResource(id = strings.pin_line_number),
+                description = stringResource(id = strings.pin_line_number),
+                default = Settings.pin_line_number,
+                sideEffect = {
+                    Settings.pin_line_number = it
+                }
+            )
+
+            EditorSettingsToggle(
                 label = stringResource(id = strings.render_whitespace),
                 description = stringResource(id = strings.render_whitespace_desc),
                 default = Settings.render_whitespace,
@@ -151,16 +151,6 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.show_suggestions = it
                 }
             )
-
-            EditorSettingsToggle(
-                label = stringResource(id = strings.pin_line_number),
-                description = stringResource(id = strings.pin_line_number),
-                default = Settings.pin_line_number,
-                sideEffect = {
-                    Settings.pin_line_number = it
-                }
-            )
-
 
             NextScreenCard(
                 label = stringResource(strings.manage_editor_font),
@@ -189,6 +179,15 @@ fun SettingsEditorScreen(navController: NavController) {
         }
 
         PreferenceGroup(heading = stringResource(strings.other)) {
+            EditorSettingsToggle(
+                label = stringResource(id = strings.restore_sessions),
+                description = stringResource(id = strings.restore_sessions_desc),
+                default = Settings.restore_sessions,
+                sideEffect = {
+                    Settings.restore_sessions = it
+                }
+            )
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
@@ -227,7 +226,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.smooth_tabs,
                 sideEffect = {
                     Settings.smooth_tabs = it
-                })
+                }
+            )
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.tab_size),
@@ -236,7 +236,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = false,
                 sideEffect = {
                     showTabSizeDialog = true
-                })
+                }
+            )
 
             EditorSettingsToggle(
                 label = stringResource(strings.use_tabs),
@@ -254,7 +255,6 @@ fun SettingsEditorScreen(navController: NavController) {
                             }
                         }
                     }
-
                 }
             )
         }
