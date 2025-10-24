@@ -93,7 +93,6 @@ fun AboutScreen() {
                     )
                 }
             )
-
         }
 
         PreferenceGroup(heading = stringResource(strings.build_info)) {
@@ -127,7 +126,6 @@ fun AboutScreen() {
                 },
             )
 
-
             PreferenceTemplate(
                 modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
                     copyToClipboard(BuildConfig.GIT_SHORT_COMMIT_HASH)
@@ -145,29 +143,9 @@ fun AboutScreen() {
                     )
                 },
             )
-
-            PreferenceTemplate(
-                modifier = Modifier.combinedClickable(enabled = true, onClick = {}, onLongClick = {
-                    copyToClipboard(if (App.isFDroid) "FDroid" else "PlayStore")
-                }),
-                title = {
-                    Text(
-                        text = stringResource(strings.flavor),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                },
-                description = {
-                    Text(
-                        text = if (App.isFDroid) "FDroid" else "PlayStore",
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                },
-            )
         }
 
-
         PreferenceGroup(heading = stringResource(strings.community)) {
-
             val stars = remember { mutableStateOf(strings.unknown_err.getString()) }
 
             LaunchedEffect(Unit) {

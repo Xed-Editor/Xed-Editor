@@ -28,11 +28,11 @@ inline fun Int.getFilledString(values: Map<String, Any>): String {
     return this.getString().fillPlaceholders(values)
 }
 
-inline fun String.fillPlaceholders(values: Map<String, Any>): String {
+fun String.fillPlaceholders(values: Map<String, Any>): String {
     var result = this
 
     values.forEach { (key, value) ->
-        result = result.replace("%($key)", value.toString())
+        result = result.replace(Regex("%\\($key\\)[a-z]?"), value.toString())
     }
 
     return result

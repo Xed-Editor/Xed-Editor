@@ -223,7 +223,6 @@ class CrashActivity : ComponentActivity() {
             append("Brand : ").append(Build.BRAND).appendLine()
             append("Manufacturer : ").append(Build.MANUFACTURER).appendLine()
             append("Target Sdk : ").append(application!!.applicationInfo.targetSdkVersion.toString()).appendLine()
-            append("Flavour : ").append(if (App.isFDroid) "FDroid" else "PlayStore").appendLine()
             append("Model : ").append(Build.MODEL).appendLine()
             append("Used Memory: ").append(usedMem).append("MB").appendLine()
             append("Max Memory: ").append(maxMem).append("MB").appendLine()
