@@ -34,13 +34,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.App
-import com.rk.libcommons.editor.KarbonEditor
+import com.rk.libcommons.editor.Editor
 import com.rk.libcommons.origin
 import com.rk.libcommons.toast
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.XedTheme
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -101,7 +101,7 @@ class CrashActivity : ComponentActivity() {
             setContent {
                 val context = LocalContext.current
 
-                KarbonTheme {
+                XedTheme {
                     Scaffold(
                         topBar = {
                             Column {
@@ -162,7 +162,7 @@ class CrashActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(paddingValues),
                             factory = { context ->
-                                KarbonEditor(context).apply {
+                                Editor(context).apply {
                                     setTextSize(10f)
                                     setText(crashText)
                                     editable = false

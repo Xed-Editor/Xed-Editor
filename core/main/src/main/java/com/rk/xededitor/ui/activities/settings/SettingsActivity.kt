@@ -10,7 +10,7 @@ import androidx.navigation.compose.rememberNavController
 import com.rk.file.FileManager
 import com.rk.libcommons.toast
 import com.rk.resources.strings
-import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.XedTheme
 import java.lang.ref.WeakReference
 
 var settingsNavController = WeakReference<NavController?>(null)
@@ -33,7 +33,7 @@ class SettingsActivity : AppCompatActivity() {
         instance = this
         enableEdgeToEdge()
         setContent {
-            KarbonTheme {
+            XedTheme {
 
                     Surface {
                         val navController = rememberNavController()

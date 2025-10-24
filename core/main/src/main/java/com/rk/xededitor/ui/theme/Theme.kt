@@ -27,7 +27,7 @@ val dynamicTheme = mutableStateOf(Settings.monet)
 val amoled = mutableStateOf(Settings.amoled)
 
 @Composable
-fun KarbonTheme(
+fun XedTheme(
     darkTheme: Boolean = when (Settings.default_night_mode) {
         AppCompatDelegate.MODE_NIGHT_YES -> true
         AppCompatDelegate.MODE_NIGHT_NO -> false

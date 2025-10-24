@@ -27,7 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.ComposeView
-import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.XedTheme
 
 class LoadingPopup @OptIn(DelicateCoroutinesApi::class) constructor(
     private val ctx: Context,
@@ -66,7 +66,7 @@ class LoadingPopup @OptIn(DelicateCoroutinesApi::class) constructor(
     private fun createComposeView(): android.view.View {
         return ComposeView(ctx).apply {
             setContent {
-                KarbonTheme {
+                XedTheme {
                     Surface {
                         Row(
                             modifier = Modifier.padding(16.dp),

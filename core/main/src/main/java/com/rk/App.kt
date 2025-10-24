@@ -3,17 +3,14 @@ package com.rk
 import android.app.Application
 import android.os.Build
 import android.os.StrictMode
-import android.system.Os
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
-import com.rk.file.child
-import com.rk.file.localBinDir
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.FontCache
-import com.rk.libcommons.editor.KarbonEditor
+import com.rk.libcommons.editor.Editor
 import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
@@ -25,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
-import java.nio.file.Files
 import java.util.Locale
 import java.util.concurrent.Executors
 
@@ -91,7 +87,7 @@ class App : Application() {
 
         GlobalScope.launch {
             launch(Dispatchers.IO) {
-                KarbonEditor.initGrammarRegistry()
+                Editor.initGrammarRegistry()
             }
             launch {
                 val fontPath = Settings.selected_font_path
