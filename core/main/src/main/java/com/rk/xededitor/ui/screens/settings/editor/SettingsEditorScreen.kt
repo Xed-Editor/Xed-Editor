@@ -41,7 +41,12 @@ fun SettingsEditorScreen(navController: NavController) {
         var lineSpacingError by remember { mutableStateOf<String?>(null) }
 
         PreferenceGroup {
-            NextScreenCard(navController = navController, label = stringResource(strings.lsp_settings), description = stringResource(strings.lsp_settings_desc), route = SettingsRoutes.LspSettings)
+            NextScreenCard(
+                navController = navController,
+                label = stringResource(strings.lsp_settings),
+                description = stringResource(strings.lsp_settings_desc),
+                route = SettingsRoutes.LspSettings
+            )
         }
 
         PreferenceGroup(heading = stringResource(strings.content)) {
@@ -53,7 +58,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
-            EditorSettingsToggle(label = stringResource(id = strings.word_wrap),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.word_wrap),
                 description = stringResource(id = strings.word_wrap_desc),
                 default = Settings.wordwrap,
                 sideEffect = {
@@ -61,7 +67,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(strings.txt_word_wrap),
+            EditorSettingsToggle(
+                label = stringResource(strings.txt_word_wrap),
                 description = stringResource(strings.txt_word_wrap_desc),
                 default = Settings.word_wrap_for_text,
                 sideEffect = {
@@ -70,7 +77,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(strings.read_mode),
+            EditorSettingsToggle(
+                label = stringResource(strings.read_mode),
                 description = stringResource(strings.read_mode_desc),
                 default = Settings.readOnlyByDefault,
                 sideEffect = {
@@ -79,12 +87,9 @@ fun SettingsEditorScreen(navController: NavController) {
             )
         }
 
-
-
-
         PreferenceGroup(heading = stringResource(id = strings.editor)) {
-
-            EditorSettingsToggle(label = stringResource(id = strings.restore_sessions),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.restore_sessions),
                 description = stringResource(id = strings.restore_sessions_desc),
                 default = Settings.restore_sessions,
                 sideEffect = {
@@ -101,25 +106,27 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-
-
-            EditorSettingsToggle(label = stringResource(id = strings.line_spacing),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.line_spacing),
                 description = stringResource(id = strings.line_spacing),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
                     showLineSpacingDialog = true
-                })
+                }
+            )
 
-
-            EditorSettingsToggle(label = stringResource(id = strings.cursor_anim),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.cursor_anim),
                 description = stringResource(id = strings.cursor_anim_desc),
                 default = Settings.cursor_animation,
                 sideEffect = {
                     Settings.cursor_animation = it
                 }
             )
-            EditorSettingsToggle(label = stringResource(id = strings.show_line_number),
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_line_number),
                 description = stringResource(id = strings.show_line_number),
                 default = Settings.show_line_numbers,
                 sideEffect = {
@@ -127,7 +134,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(id = strings.render_whitespace),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.render_whitespace),
                 description = stringResource(id = strings.render_whitespace_desc),
                 default = Settings.render_whitespace,
                 sideEffect = {
@@ -135,13 +143,17 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(id = strings.show_suggestions),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.show_suggestions),
                 description = stringResource(id = strings.show_suggestions),
                 default = Settings.show_suggestions,
                 sideEffect = {
                     Settings.show_suggestions = it
-                })
-            EditorSettingsToggle(label = stringResource(id = strings.pin_line_number),
+                }
+            )
+
+            EditorSettingsToggle(
+                label = stringResource(id = strings.pin_line_number),
                 description = stringResource(id = strings.pin_line_number),
                 default = Settings.pin_line_number,
                 sideEffect = {
@@ -156,7 +168,8 @@ fun SettingsEditorScreen(navController: NavController) {
                 route = SettingsRoutes.EditorFontScreen
             )
 
-            EditorSettingsToggle(label = stringResource(id = strings.text_size),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.text_size),
                 description = stringResource(id = strings.text_size_desc),
                 showSwitch = false,
                 default = false,
@@ -164,7 +177,8 @@ fun SettingsEditorScreen(navController: NavController) {
                     showTextSizeDialog = true
                 })
 
-            SettingsToggle(label = stringResource(strings.text_mate_suggestion),
+            SettingsToggle(
+                label = stringResource(strings.text_mate_suggestion),
                 description = stringResource(strings.text_mate_suggestion_desc),
                 default = Settings.textMateSuggestion,
                 sideEffect = {
@@ -172,13 +186,11 @@ fun SettingsEditorScreen(navController: NavController) {
                     toast(strings.restart_required)
                 }
             )
-
         }
 
-
-
         PreferenceGroup(heading = stringResource(strings.other)) {
-            EditorSettingsToggle(label = stringResource(id = strings.extra_keys),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.extra_keys),
                 description = stringResource(id = strings.extra_keys_desc),
                 default = Settings.show_arrow_keys,
                 sideEffect = {
@@ -199,6 +211,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     Settings.keep_drawer_locked = it
                 }
             )
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.auto_save),
                 description = stringResource(id = strings.auto_save_desc),
@@ -208,14 +221,16 @@ fun SettingsEditorScreen(navController: NavController) {
                 }
             )
 
-            EditorSettingsToggle(label = stringResource(id = strings.smooth_tabs),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.smooth_tabs),
                 description = stringResource(id = strings.smooth_tab_desc),
                 default = Settings.smooth_tabs,
                 sideEffect = {
                     Settings.smooth_tabs = it
                 })
 
-            EditorSettingsToggle(label = stringResource(id = strings.tab_size),
+            EditorSettingsToggle(
+                label = stringResource(id = strings.tab_size),
                 description = stringResource(id = strings.tab_size_desc),
                 showSwitch = false,
                 default = false,
@@ -233,15 +248,15 @@ fun SettingsEditorScreen(navController: NavController) {
                     MainActivity.instance?.apply {
                         viewModel.tabs.forEach { tab ->
                             if (tab is EditorTab) {
-                                (tab.editorState.editor?.editorLanguage as? TextMateLanguage)?.useTab(it)
+                                (tab.editorState.editor?.editorLanguage as? TextMateLanguage)?.useTab(
+                                    it
+                                )
                             }
                         }
                     }
 
                 }
             )
-
-
         }
 
         if (showLineSpacingDialog) {
@@ -342,6 +357,5 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
             )
         }
-
     }
 }
