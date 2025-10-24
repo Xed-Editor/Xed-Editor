@@ -74,7 +74,7 @@ object Settings {
     var lastVersionCode by CachedPreference("last_version_code", -1L)
 
     // Float settings
-    var line_spacing by CachedPreference("line_spacing", 0f)
+    var line_spacing by CachedPreference("line_spacing", 1f)
 }
 
 object Preference {

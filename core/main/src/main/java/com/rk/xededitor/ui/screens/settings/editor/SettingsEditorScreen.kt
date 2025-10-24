@@ -99,7 +99,7 @@ fun SettingsEditorScreen(navController: NavController) {
 
             EditorSettingsToggle(
                 label = stringResource(id = strings.line_spacing),
-                description = stringResource(id = strings.line_spacing),
+                description = stringResource(id = strings.line_spacing_desc),
                 showSwitch = false,
                 default = false,
                 sideEffect = {
@@ -296,6 +296,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.line_spacing = lineSpacingValue.toFloat()
+                    reapplyEditorSettings()
                 },
                 onFinish = {
                     lineSpacingValue = Settings.line_spacing.toString()
@@ -324,15 +325,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.editor_text_size = textSizeValue.toInt()
-
-                    MainActivity.instance?.apply {
-                        viewModel.tabs.forEach {
-                            if (it is EditorTab) {
-                                it.editorState.editor?.applySettings()
-                            }
-                        }
-                    }
-
+                    reapplyEditorSettings()
                 },
                 onFinish = {
                     textSizeValue = Settings.editor_text_size.toString()
@@ -361,14 +354,7 @@ fun SettingsEditorScreen(navController: NavController) {
                 },
                 onConfirm = {
                     Settings.tab_size = tabSizeValue.toInt()
-
-                    MainActivity.instance?.apply {
-                        viewModel.tabs.forEach {
-                            if (it is EditorTab) {
-                                it.editorState.editor?.applySettings()
-                            }
-                        }
-                    }
+                    reapplyEditorSettings()
                 },
                 onFinish = {
                     tabSizeValue = Settings.tab_size.toString()
@@ -376,6 +362,16 @@ fun SettingsEditorScreen(navController: NavController) {
                     showTabSizeDialog = false
                 },
             )
+        }
+    }
+}
+
+private fun reapplyEditorSettings() {
+    MainActivity.instance?.apply {
+        viewModel.tabs.forEach {
+            if (it is EditorTab) {
+                it.editorState.editor?.applySettings()
+            }
         }
     }
 }

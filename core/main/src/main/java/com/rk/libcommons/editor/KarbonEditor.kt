@@ -273,7 +273,7 @@ class KarbonEditor : CodeEditor {
         isCursorAnimationEnabled = cursorAnimation
         setTextSize(textSize.toFloat())
         isWordwrap = wordWrap
-        lineSpacingExtra = lineSpacing
+        lineSpacingMultiplier = lineSpacing
         isDisableSoftKbdIfHardKbdAvailable = Settings.hide_soft_keyboard_if_hardware
         showSuggestions(keyboardSuggestion)
 
