@@ -33,7 +33,7 @@ import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
 import com.rk.libcommons.editor.BaseLspConnector
-import com.rk.libcommons.editor.KarbonEditor
+import com.rk.libcommons.editor.XedEditor
 import com.rk.libcommons.editor.getInputView
 import com.rk.libcommons.editor.lspRegistry
 import com.rk.libcommons.editor.textmateSources
@@ -73,7 +73,7 @@ import kotlinx.coroutines.CompletableDeferred
 data class CodeEditorState(
     val initialContent: Content? = null,
 ) {
-    var editor: KarbonEditor? = null
+    var editor: XedEditor? = null
     var arrowKeys: HorizontalScrollView? = null
     var content by mutableStateOf(initialContent)
     var isDirty by mutableStateOf(false)
@@ -330,7 +330,7 @@ private fun EditorTab.CodeEditor(
         AndroidView(
             modifier = modifier.fillMaxSize(),
             onRelease = {
-                it.children.filterIsInstance<KarbonEditor>().firstOrNull()?.release()
+                it.children.filterIsInstance<XedEditor>().firstOrNull()?.release()
             },
             update = {},
             factory = { ctx ->
@@ -343,7 +343,7 @@ private fun EditorTab.CodeEditor(
                     val horizontalScrollViewId = View.generateViewId()
                     val dividerId = View.generateViewId()
 
-                    val editor = KarbonEditor(ctx).apply {
+                    val editor = XedEditor(ctx).apply {
                         editable = state.editable
                         id = View.generateViewId()
                         layoutParams = ConstraintLayout.LayoutParams(
@@ -381,7 +381,7 @@ private fun EditorTab.CodeEditor(
                                         baseLspConnector?.connect(
                                             parent,
                                             fileObject = file,
-                                            karbonEditor = editorState.editor!!
+                                            xedEditor = editorState.editor!!
                                         )
                                     }
                                     return@launch
@@ -403,7 +403,7 @@ private fun EditorTab.CodeEditor(
                                             baseLspConnector?.connect(
                                                 parent,
                                                 fileObject = file,
-                                                karbonEditor = editorState.editor!!
+                                                xedEditor = editorState.editor!!
                                             )
                                         }
                                         return@launch

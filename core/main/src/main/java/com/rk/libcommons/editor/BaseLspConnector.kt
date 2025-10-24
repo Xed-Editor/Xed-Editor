@@ -1,7 +1,7 @@
 package com.rk.libcommons.editor
 
 import com.rk.file.FileObject
-import com.rk.libcommons.editor.KarbonEditor.Companion.isInit
+import com.rk.libcommons.editor.XedEditor.Companion.isInit
 import com.rk.libcommons.toast
 import io.github.rosemoe.sora.langs.textmate.TextMateLanguage
 import io.github.rosemoe.sora.lsp.client.connection.SocketStreamConnectionProvider
@@ -70,7 +70,7 @@ class BaseLspConnector(
     suspend fun connect(
         projectFile: FileObject,
         fileObject: FileObject,
-        karbonEditor: KarbonEditor
+        xedEditor: XedEditor
     ) = withContext(Dispatchers.IO) {
         if (!isSupported(fileObject)) {
             return@withContext
@@ -106,7 +106,7 @@ class BaseLspConnector(
             lspEditor = withContext(Dispatchers.Main) {
                 project!!.createEditor(fileObject.getAbsolutePath()).apply {
                     wrapperLanguage = TextMateLanguage.create(textMateScope, false)
-                    editor = karbonEditor
+                    editor = xedEditor
                 }
             }
 
@@ -126,7 +126,7 @@ class BaseLspConnector(
             )
             lspEditor!!.openDocument()
         }.onFailure {
-            karbonEditor.setLanguage(
+            xedEditor.setLanguage(
                 languageScopeName = textMateScope,
             )
             isConnected = false
