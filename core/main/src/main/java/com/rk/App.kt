@@ -10,7 +10,7 @@ import com.github.anrwatchdog.ANRWatchDog
 import com.rk.crashhandler.CrashHandler
 import com.rk.libcommons.application
 import com.rk.libcommons.editor.FontCache
-import com.rk.libcommons.editor.XedEditor
+import com.rk.libcommons.editor.Editor
 import com.rk.resources.Res
 import com.rk.settings.Preference
 import com.rk.settings.Settings
@@ -87,7 +87,7 @@ class App : Application() {
 
         GlobalScope.launch {
             launch(Dispatchers.IO) {
-                XedEditor.initGrammarRegistry()
+                Editor.initGrammarRegistry()
             }
             launch {
                 val fontPath = Settings.selected_font_path

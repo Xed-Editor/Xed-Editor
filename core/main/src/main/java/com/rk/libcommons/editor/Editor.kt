@@ -81,7 +81,7 @@ class AutoCompletionLayoutAdapter(private val density: Density) : EditorCompleti
 }
 
 @Suppress("NOTHING_TO_INLINE")
-class XedEditor : CodeEditor {
+class Editor : CodeEditor {
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 

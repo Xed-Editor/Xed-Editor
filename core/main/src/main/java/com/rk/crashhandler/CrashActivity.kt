@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.pm.PackageInfoCompat
 import com.rk.App
-import com.rk.libcommons.editor.XedEditor
+import com.rk.libcommons.editor.Editor
 import com.rk.libcommons.origin
 import com.rk.libcommons.toast
 import com.rk.resources.getString
@@ -162,7 +162,7 @@ class CrashActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(paddingValues),
                             factory = { context ->
-                                XedEditor(context).apply {
+                                Editor(context).apply {
                                     setTextSize(10f)
                                     setText(crashText)
                                     editable = false
