@@ -406,10 +406,10 @@ private fun FileTreeNodeItem(
                             }
 
                         }
-//                    viewModel.selectedFile[currentProject!!] = node.file
+                        viewModel.selectedFile[currentProject!!] = node.file
                     },
                     onLongClick = {
-//                    viewModel.selectedFile[currentProject!!] = node.file
+                        viewModel.selectedFile[currentProject!!] = node.file
                         scope.launch {
                             delay(50)
                             onFileLongClick(node)
@@ -419,7 +419,7 @@ private fun FileTreeNodeItem(
                 )
                 .then(
                     if (viewModel.selectedFile[currentProject] == node.file) {
-                        Modifier.background(color = MaterialTheme.colorScheme.primaryContainer)
+                        Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
                     } else {
                         Modifier
                     }
