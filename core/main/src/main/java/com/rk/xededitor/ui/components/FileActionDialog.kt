@@ -176,7 +176,7 @@ fun FileActionDialog(
                 )
 
                 AddDialogItem(
-                    icon = if (file.isFile()) drawables.content_copy_24px else drawables.round_content_paste_20,
+                    icon = if (file.isFile()) drawables.copy else drawables.paste,
                     title = stringResource(strings.copy),
                     //description = stringResource(strings.copy_desc),
                     onClick = {
@@ -190,7 +190,7 @@ fun FileActionDialog(
                 )
 
                 AddDialogItem(
-                    icon = drawables.round_content_cut_20,
+                    icon = drawables.cut,
                     title = stringResource(strings.cut),
                     //description = stringResource(strings.cut_desc),
                     onClick = {
@@ -204,7 +204,7 @@ fun FileActionDialog(
 
                 if (fileTreeContext && FileOperations.clipboard != null && file.isDirectory()) {
                     AddDialogItem(
-                        icon = drawables.round_content_paste_20,
+                        icon = drawables.paste,
                         title = stringResource(strings.paste),
                         //description = stringResource(strings.paste_desc),
                         onClick = {

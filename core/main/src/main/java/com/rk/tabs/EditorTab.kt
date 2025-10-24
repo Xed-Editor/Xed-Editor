@@ -309,19 +309,17 @@ private fun EditorTab.CodeEditor(
         MaterialTheme.colorScheme.surface
     }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
-    val selectionColors = LocalTextSelectionColors.current
     val realSurface = MaterialTheme.colorScheme.surface
-    val selectionBackground = selectionColors.backgroundColor
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val colorPrimary = MaterialTheme.colorScheme.primary
-    val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
-    val colorSecondary = MaterialTheme.colorScheme.secondary
-    val handleColor = selectionColors.handleColor
-    val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
 
-    val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
+    val selectionColors = LocalTextSelectionColors.current
+    val selectionBackground = selectionColors.backgroundColor
+    val handleColor = selectionColors.handleColor
+
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
+    val dividerCurrent = MaterialTheme.colorScheme.outline
     val divider = MaterialTheme.colorScheme.outlineVariant
 
 
@@ -356,17 +354,13 @@ private fun EditorTab.CodeEditor(
                         setThemeColors(
                             editorSurface = surfaceColor.toArgb(),
                             surfaceContainer = surfaceContainer.toArgb(),
-                            surface = realSurface.toArgb(),
                             onSurface = onSurfaceColor.toArgb(),
                             colorPrimary = colorPrimary.toArgb(),
-                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
-                            colorSecondary = colorSecondary.toArgb(),
-                            secondaryContainer = secondaryContainer.toArgb(),
                             selectionBg = selectionBackground.toArgb(),
                             handleColor = handleColor.toArgb(),
-                            gutterColor = gutterColor.toArgb(),
                             currentLine = currentLineColor.toArgb(),
-                            dividerColor = divider.toArgb()
+                            dividerColor = divider.toArgb(),
+                            dividerCurrent = dividerCurrent.toArgb()
                         )
 
                         state.editor = this
