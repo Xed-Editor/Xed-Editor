@@ -73,7 +73,6 @@ fun SettingsEditorScreen(navController: NavController) {
                 default = Settings.word_wrap_for_text,
                 sideEffect = {
                     Settings.word_wrap_for_text = it
-
                 }
             )
 
@@ -290,7 +289,7 @@ fun SettingsEditorScreen(navController: NavController) {
                     lineSpacingError = null
                     if (lineSpacingValue.toFloatOrNull() == null) {
                         lineSpacingError = context.getString(strings.value_invalid)
-                    } else if (lineSpacingValue.toFloat() < 0) {
+                    } else if (lineSpacingValue.toFloat() < 0.6f) {
                         lineSpacingError = context.getString(strings.value_small)
                     }
                 },
