@@ -2,22 +2,12 @@ package com.rk.xededitor.ui.screens.settings.support
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,21 +15,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import com.rk.components.compose.preferences.base.PreferenceGroup
 import com.rk.components.compose.preferences.base.PreferenceLayout
-import com.rk.components.compose.preferences.base.PreferenceTemplate
-import com.rk.crashhandler.CrashActivity
-import com.rk.libcommons.application
 import com.rk.libcommons.dialog
 import com.rk.libcommons.toast
 import com.rk.resources.drawables
-import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Settings
 import com.rk.xededitor.ui.activities.main.MainActivity
 import com.rk.xededitor.ui.activities.settings.SettingsActivity
 import com.rk.xededitor.ui.activities.settings.SettingsRoutes
-import com.rk.xededitor.ui.activities.settings.settingsNavController
 import com.rk.xededitor.ui.components.SettingsToggle
-import com.rk.xededitor.ui.screens.settings.HeartbeatIcon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -85,7 +69,7 @@ fun Support(modifier: Modifier = Modifier) {
                 startWidget = {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
-                        painter = painterResource(drawables.coffee_24px),
+                        painter = painterResource(drawables.coffee),
                         contentDescription = null
                     )
                 },
@@ -112,7 +96,7 @@ fun Support(modifier: Modifier = Modifier) {
                 startWidget = {
                     Icon(
                         modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
-                        painter = painterResource(drawables.upi_pay_24px),
+                        painter = painterResource(drawables.upi_pay),
                         contentDescription = null
                     )
                 },

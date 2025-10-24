@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.material.color.MaterialColors
 import com.rk.libcommons.isDarkMode
 import com.rk.libcommons.toast
 import com.rk.settings.Settings
@@ -85,9 +86,18 @@ fun KarbonTheme(
 @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
 fun supportsDynamicTheming() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
+@Composable
+fun harmonize(color: Long): Int {
+    val context = LocalContext.current
+    return MaterialColors.harmonizeWithPrimary(context, color.toInt())
+}
+
 // Custom warning colors
 val ColorScheme.warningSurface: Color
-    @Composable get() = if (isSystemInDarkTheme()) Color(0xFF633F00) else Color(0xFFFFDDB4)
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFF633F00)) else Color(harmonize(0xFFFFDDB4))
 
 val ColorScheme.onWarningSurface: Color
-    @Composable get() = if (isSystemInDarkTheme()) Color(0xFFFFDDB4) else Color(0xFF633F00)
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFDDB4)) else Color(harmonize(0xFF633F00))
+
+val ColorScheme.folderSurface: Color
+    @Composable get() = if (isSystemInDarkTheme()) Color(harmonize(0xFFFFC857)) else Color(harmonize(0xFFFAB72D))
