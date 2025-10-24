@@ -25,12 +25,6 @@ android {
     }
 
     targetProjectPath = ":app"
-
-    flavorDimensions += listOf("store")
-    productFlavors {
-        create("Fdroid") { dimension = "store" }
-        create("PlayStore") { dimension = "store" }
-    }
 }
 
 // This is the configuration block for the Baseline Profile plugin.

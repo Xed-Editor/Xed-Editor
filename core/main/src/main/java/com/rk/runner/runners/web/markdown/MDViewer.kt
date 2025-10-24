@@ -7,14 +7,11 @@ import android.webkit.WebViewClient
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import com.rk.file.FileObject
-import com.rk.libcommons.errorDialog
-import com.rk.resources.getString
-import com.rk.resources.strings
 import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.WebScreen
 import com.rk.runner.runners.web.html.HtmlRunner
-import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.XedTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.Dispatchers
@@ -77,7 +74,7 @@ class MDViewer : WebActivity() {
 
         // now load WebView inside Compose
         setContent {
-            KarbonTheme {
+            XedTheme {
                 WebScreen(
                     title = file.getName(),
                     onBackPressed = { onBackPressedDispatcher.onBackPressed() },

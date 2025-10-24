@@ -34,19 +34,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.App.Companion.getTempDir
 import com.rk.SessionService
-import com.rk.file.child
 import com.rk.file.localBinDir
 import com.rk.file.sandboxDir
-import com.rk.file.sandboxHomeDir
 import com.rk.libcommons.*
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.terminal.isTerminalInstalled
-import com.rk.xededitor.ui.components.XedDialog
 import com.rk.xededitor.ui.screens.terminal.NEXT_STAGE
 import com.rk.xededitor.ui.screens.terminal.TerminalScreen
 import com.rk.xededitor.ui.screens.terminal.getNextStage
-import com.rk.xededitor.ui.theme.KarbonTheme
+import com.rk.xededitor.ui.theme.XedTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -99,7 +96,7 @@ class Terminal : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            KarbonTheme {
+            XedTheme {
                 Surface {
                     if (sessionBinder != null) {
                         TerminalScreenHost(this)
