@@ -12,7 +12,6 @@ import com.rk.libcommons.application
 import com.rk.libcommons.editor.FontCache
 import com.rk.libcommons.editor.KarbonEditor
 import com.rk.resources.Res
-import com.rk.settings.MigrationManager
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 import com.rk.xededitor.BuildConfig
@@ -58,8 +57,6 @@ class App : Application() {
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
-
-        MigrationManager.migrate(this)
 
         val currentLocale = Locale.forLanguageTag(Settings.currentLang)
         val appLocale = LocaleListCompat.create(currentLocale)
