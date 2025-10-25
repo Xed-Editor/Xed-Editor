@@ -343,6 +343,11 @@ private fun EditorTab.CodeEditor(
 
                     val editor = Editor(ctx).apply {
                         editable = state.editable
+                        if(isWordwrap.not()){
+                            if (Settings.word_wrap_for_text){
+                                isWordwrap = file.getName().endsWith(".txt")
+                            }
+                        }
                         id = View.generateViewId()
                         layoutParams = ConstraintLayout.LayoutParams(
                             ConstraintLayout.LayoutParams.MATCH_PARENT,

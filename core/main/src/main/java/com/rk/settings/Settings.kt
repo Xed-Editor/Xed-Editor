@@ -18,6 +18,7 @@ object Settings {
     var amoled by CachedPreference("oled", false)
     var monet by CachedPreference("monet", false)
     var pin_line_number by CachedPreference("pinline", false)
+    var word_wrap_for_text by CachedPreference("ww_txt", true)
     var word_wrap by CachedPreference("wordwrap", false)
     var restore_sessions by CachedPreference("restore_sessions", true)
     var cursor_animation by CachedPreference("cursor_animation", false)

@@ -3,6 +3,9 @@ package com.rk.xededitor.ui.components
 import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import com.rk.DefaultScope
@@ -18,17 +21,19 @@ fun EditorSettingsToggle(
     label: String,
     description: String? = null,
     @DrawableRes iconRes: Int? = null,
-    default: Boolean,
+    default: Boolean = false,
     reactiveSideEffect: ((checked: Boolean) -> Boolean)? = null,
     sideEffect: ((checked: Boolean) -> Unit)? = null,
     showSwitch: Boolean = true,
     onLongClick: (() -> Unit)? = null,
     isEnabled: Boolean = true,
     isSwitchLocked: Boolean = false,
+    state: MutableState<Boolean> = remember { mutableStateOf(default) },
 ) {
     SettingsToggle(
         modifier = modifier,
         label = label,
+        state = state,
         description = description,
         iconRes = iconRes,
         default = default,

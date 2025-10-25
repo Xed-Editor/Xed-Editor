@@ -58,12 +58,31 @@ fun SettingsEditorScreen(navController: NavController) {
                 )
             }
 
+            val wordWrap = remember { mutableStateOf(Settings.word_wrap) }
+            val wordWrapTxt = remember { mutableStateOf(Settings.word_wrap_for_text || Settings.word_wrap) }
+
             EditorSettingsToggle(
                 label = stringResource(id = strings.word_wrap),
                 description = stringResource(id = strings.word_wrap_desc),
-                default = Settings.word_wrap,
+                state = wordWrap,
                 sideEffect = {
+                    wordWrap.value = it
+                    if (it){
+                        wordWrapTxt.value = true
+                    }
                     Settings.word_wrap = it
+                }
+            )
+
+
+            EditorSettingsToggle(label = stringResource(strings.txt_word_wrap),
+                description = stringResource(strings.txt_word_wrap_desc),
+                isEnabled = !wordWrap.value,
+                state = wordWrapTxt,
+                sideEffect = {
+                    wordWrapTxt.value = it
+                    Settings.word_wrap_for_text = it
+                    toast(strings.restart_required)
                 }
             )
 
