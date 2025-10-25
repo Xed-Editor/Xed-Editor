@@ -111,15 +111,17 @@ class Editor : CodeEditor {
     }
 
     fun setThemeColors(
-        editorSurface: Int,
-        surfaceContainer: Int,
-        onSurface: Int,
+        editorSurface: Int, surfaceContainer: Int,
+        surface: Int, onSurface: Int,
         colorPrimary: Int,
+        colorPrimaryContainer: Int,
+        colorSecondary: Int,
+        secondaryContainer: Int,
         selectionBg: Int,
         handleColor: Int,
+        gutterColor: Int,
         currentLine: Int,
-        dividerColor: Int,
-        dividerCurrent: Int
+        dividerColor: Int
     ) {
         updateColors { colors ->
             with(colors) {
@@ -129,23 +131,19 @@ class Editor : CodeEditor {
                     keys.forEach { setColor(it, color) }
                 }
 
-                // Background
                 setColors(
                     editorSurface,
                     EditorColorScheme.WHOLE_BACKGROUND,
-                    EditorColorScheme.LINE_NUMBER_BACKGROUND
                 )
 
-                // Container background
                 setColors(
                     surfaceContainer,
                     EditorColorScheme.TEXT_ACTION_WINDOW_BACKGROUND,
                     EditorColorScheme.COMPLETION_WND_BACKGROUND,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_BACKGROUND,
-                    EditorColorScheme.SIGNATURE_BACKGROUND
+                    EditorColorScheme.SIGNATURE_BACKGROUND,
                 )
 
-                // Container/surface foreground
                 setColors(
                     onSurface,
                     EditorColorScheme.TEXT_ACTION_WINDOW_ICON_COLOR,
@@ -154,51 +152,35 @@ class Editor : CodeEditor {
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_BRIEF_MSG,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_DETAILED_MSG,
                     EditorColorScheme.SIGNATURE_TEXT_NORMAL,
+                    EditorColorScheme.LINE_NUMBER,
                     EditorColorScheme.LINE_NUMBER_CURRENT
                 )
 
-                // Primary colors
-                setColors(
-                    colorPrimary,
-                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
-                    EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
-                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
-                )
-
-                // Scrollbar colors
-                setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
-                setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
-
-                // Line colors
-                setColors(currentLine, EditorColorScheme.CURRENT_LINE)
-                setColors(setAlpha(onSurface, 0.4f), EditorColorScheme.LINE_NUMBER)
-
-                // Divider colors
-                setColors(
-                    dividerColor,
-                    EditorColorScheme.LINE_DIVIDER,
-                    EditorColorScheme.STICKY_SCROLL_DIVIDER
-                    EditorColorScheme.NON_PRINTABLE_CHAR,
-                    EditorColorScheme.BLOCK_LINE,
-                )
-
-                setColors(
-                    dividerCurrent,
-                    EditorColorScheme.BLOCK_LINE_CURRENT
-                )
-
-                // Selection colors
                 setColors(
                     handleColor,
                     EditorColorScheme.SELECTION_HANDLE
                 )
-
                 setColors(
                     selectionBg,
                     EditorColorScheme.SELECTION_INSERT,
                     EditorColorScheme.MATCHED_TEXT_BACKGROUND,
                     EditorColorScheme.SELECTED_TEXT_BACKGROUND
                 )
+                setColors(
+                    colorPrimary,
+                    EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
+                    EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
+                    EditorColorScheme.BLOCK_LINE,
+                    EditorColorScheme.BLOCK_LINE_CURRENT,
+                    EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
+                )
+
+                setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
+                setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
+
+                setColors(currentLine, EditorColorScheme.CURRENT_LINE)
+                setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
+                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER)
             }
         }
     }
