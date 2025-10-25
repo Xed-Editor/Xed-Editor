@@ -149,7 +149,7 @@
     <string name="text_size">文字大小</string>
     <string name="text_size_desc">設定文字大小</string>
     <string name="tab_size">標簽大小</string>
-    <string name="tab_size_desc">設定標簽大小</string>
+    <string name="tab_size_desc">Tab 字元所插入的空白數量</string>
     <string name="monet">動態配色</string>
     <string name="monet_desc">跟隨系統主題</string>
     <string name="restart_app">請重新啟動應用程式。</string>
@@ -441,4 +441,9 @@
     <string name="cannot_rename_symbol">你無法重新命名此符號。</string>
     <string name="rename_symbol_multiple_files">目前尚未支援跨多個檔案的重新命名。</string>
     <string name="continue_action">繼續</string>
+    <string name="line_spacing_desc">編輯器中每行的行高倍數</string>
+    <string name="enable_sticky_scroll">啟用固定卷軸</string>
+    <string name="enable_sticky_scroll_desc">在捲動時保持目前的程式區塊標頭可見</string>
+    <string name="enable_quick_deletion">啟用快速刪除行</string>
+    <string name="enable_quick_deletion_desc">若該行為空，則自動刪除整行</string>
 </resources>
