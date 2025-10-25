@@ -65,7 +65,7 @@
     <string name="oled_desc">使用纯黑色主题</string>
     <string name="text_size_desc">设置字体大小</string>
     <string name="tab_size">标签大小</string>
-    <string name="tab_size_desc">设置标签大小</string>
+    <string name="tab_size_desc">往 Tab 字符插入的空格数量。</string>
     <string name="unsupported_content">不支持的内容</string>
     <string name="null_content">错误：内容为空</string>
     <string name="restart_required">需要重启</string>
@@ -442,4 +442,9 @@
     <string name="cannot_rename_symbol">你无法重命名此符号。</string>
     <string name="rename_symbol_multiple_files">当前尚不支持跨文件重命名符号。</string>
     <string name="continue_action">继续</string>
+    <string name="line_spacing_desc">编辑器中每行的高度</string>
+    <string name="enable_sticky_scroll">启用粘性滚动</string>
+    <string name="enable_sticky_scroll_desc">在滚动时保持当前代码块头部可见</string>
+    <string name="enable_quick_deletion">启用快速行删除</string>
+    <string name="enable_quick_deletion_desc">如果行为空则自动删除整行</string>
 </resources>
