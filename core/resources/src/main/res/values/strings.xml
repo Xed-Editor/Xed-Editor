@@ -61,7 +61,7 @@
     <string name="ask_enter_name">Please enter a name</string>
     <string name="already_exists">A document already exist with this name</string>
     <string name="attention">Attention</string>
-    <string name="ask_del">Are you sure you want to permanently delete \'%(file_name)s\'?</string>
+    <string name="ask_del">Are you sure you want to permanently delete \'%s\'?</string>
     <string name="reselect_dir">Please reselect the directory</string>
     <string name="cant_handle">No app found to handle the file</string>
     <string name="terminal">Terminal</string>
@@ -83,7 +83,7 @@
     <string name="open_dir_in_terminal">Open directory in Terminal</string>
     <string name="file_open_denied">Opening this file with other apps is not permitted</string>
     <string name="reload_file_tree">Reload files</string>
-    <string name="close_current_project">Are you sure you want to close the project \'%(project_name)s\'?</string>
+    <string name="close_current_project">Are you sure you want to close the project \'%s\'?</string>
     <string name="rename_desc">Rename the document</string>
     <string name="open_with_other">Open selected file in other apps</string>
     <string name="delete_desc">Permanently delete document</string>
@@ -123,7 +123,7 @@
     <string name="installed">Installed</string>
     <string name="available">Available</string>
     <string name="already_installed">Already installed</string>
-    <string name="download_sure">Are you sure you want to download \'%(name)s\'?</string>
+    <string name="download_sure">Are you sure you want to download \'%s\'?</string>
     <string name="yes">Yes</string>
     <string name="fetch_failed">Fetch request returned null</string>
     <string name="app">Application</string>
@@ -357,7 +357,7 @@
     <string name="text_mate_suggestion_desc">Suggest predefined keywords</string>
     <string name="dont_ask_again">Don\'t ask again</string>
     <string name="install">Install</string>
-    <string name="ask_lsp_install">Would you like to install \'%(language_name)s\' language server?</string>
+    <string name="ask_lsp_install">Would you like to install \'%s\' language server?</string>
     <string name="uninstall_terminal_warning">Permanently uninstall Ubuntu? This action cannot be undone.</string>
     <string name="uninstall">Uninstall</string>
     <string name="uninstall_terminal">Uninstall terminal</string>
@@ -373,7 +373,7 @@
     <string name="name">Name</string>
     <string name="view_github_profile">View GitHub profile</string>
     <string name="debug_options">Debug options</string>
-    <string name="debug_options_desc">Debugging options for %(app_name)s</string>
+    <string name="debug_options_desc">Debugging options for %s</string>
     <string name="force_crash">Force crash</string>
     <string name="force_crash_desc">Throw a runtime exception</string>
     <string name="force_crash_confirm">Do you want to force crash the app? The app may freeze.</string>
@@ -433,8 +433,8 @@
     <string name="go_to_definition">Go to definition</string>
     <string name="go_to_references">Go to references</string>
     <string name="rename_symbol">Rename symbol</string>
-    <string name="go_to_definition_desc">Select one of the %(count)d definitions to navigate to their location.</string>
-    <string name="go_to_references_desc">Select one of the %(count)d references to navigate to their location.</string>
+    <string name="go_to_definition_desc">Select one of the %d definitions to navigate to their location.</string>
+    <string name="go_to_references_desc">Select one of the %d references to navigate to their location.</string>
     <string name="no_definitions_found">No definitions found.</string>
     <string name="no_references_found">No references found.</string>
     <string name="find_definitions_error">Unable to find definitions.</string>

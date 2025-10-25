@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Lütfen bir ad girin</string>
     <string name="already_exists">Bu isimde bir belge zaten mevcut</string>
     <string name="attention">Dikkat</string>
-    <string name="ask_del">Şu dosyayı kalıcı olarak silmek istediğinizden emin misiniz: \'%(file_name)\'?</string>
+    <string name="ask_del">Şu dosyayı kalıcı olarak silmek istediğinizden emin misiniz: \'%s\'?</string>
     <string name="reselect_dir">Lütfen dizini yeniden seçin</string>
     <string name="cant_handle">Dosyayı işleyecek uygulama bulunamadı</string>
     <string name="terminal">Terminal</string>
@@ -81,7 +81,7 @@
     <string name="open_dir_in_terminal">Klasörü terminalde aç</string>
     <string name="file_open_denied">Bu dosyanın başka programlarla açılmasına izin verilmiyor</string>
     <string name="reload_file_tree">Dosyaları yenile</string>
-    <string name="close_current_project">Şu projeyi kapatmak istediğinizden emin misiniz: \'%(project_name)\'?</string>
+    <string name="close_current_project">Şu projeyi kapatmak istediğinizden emin misiniz: \'%s\'?</string>
     <string name="rename_desc">Belgeyi yeniden isimlendir</string>
     <string name="open_with_other">Seçilen dosyayı diğer uygulamalarda aç</string>
     <string name="add_file_desc">Buraya eklenecek yeni bir dosya seçin</string>
@@ -120,7 +120,7 @@
     <string name="installed">Yüklendi</string>
     <string name="available">Mevcut</string>
     <string name="already_installed">Zaten yüklü</string>
-    <string name="download_sure">Şunu indirmek istediğinizden emin misiniz: \'%(name)\'?</string>
+    <string name="download_sure">Şunu indirmek istediğinizden emin misiniz: \'%s\'?</string>
     <string name="yes">Evet</string>
     <string name="fetch_failed">Getirme isteği null değer döndürdü</string>
     <string name="app">Uygulama</string>
@@ -226,7 +226,6 @@
     <string name="warning">Uyarı</string>
     <string name="encoding_warning">Dosya bozulmasına yol açabileceğinden, varsayılan kodlamanın değiştirilmesi kesinlikle önerilmez. Etkilerini tam olarak anlamadığınız ve uygun yedeklemeler oluşturmadığınız sürece UTF-8 kullanmanız şiddetle tavsiye edilir.</string>
     <string name="line_spacing">Satır aralığı</string>
-    <string name="line_spacing_multiplier">Satır aralığı çarpanı</string>
     <string name="mutator_desc">Kullanıcı komut dosyaları oluştur</string>
     <string name="restore_sessions">Oturumu yeniden yükle</string>
     <string name="ext">Eklentiler</string>
@@ -351,7 +350,7 @@
     <string name="text_mate_suggestion_desc">Önceden tanımlanmış anahtar kelimeler öner</string>
     <string name="dont_ask_again">Bir daha sorma</string>
     <string name="install">Yükle</string>
-    <string name="ask_lsp_install">\'%(language_name)\' dil sunucusunu yüklemek ister misiniz?</string>
+    <string name="ask_lsp_install">\'%s\' dil sunucusunu yüklemek ister misiniz?</string>
     <string name="text_mate_suggestion">TextMate otomatik tamamlama</string>
     <string name="flavor">Yazılım</string>
     <string name="indian">Hint</string>
@@ -369,7 +368,7 @@
     <string name="name">İsim</string>
     <string name="view_github_profile">GitHub profilini görüntüle</string>
     <string name="debug_options">Hata ayıklama seçenekleri</string>
-    <string name="debug_options_desc">%(app_name) için hata ayıklama seçenekleri</string>
+    <string name="debug_options_desc">%s için hata ayıklama seçenekleri</string>
     <string name="force_crash">Zorla çökert</string>
     <string name="force_crash_desc">Çalışma zamanı istisnası fırlat</string>
     <string name="force_crash_confirm">Uygulamayı zorla çökertmek mi istiyorsun? Uygulama donabilir.</string>
@@ -432,8 +431,8 @@
     <string name="go_to_definition">Tanıma git</string>
     <string name="go_to_references">Referanslara git</string>
     <string name="rename_symbol">Sembolü yeniden adlandır</string>
-    <string name="go_to_definition_desc">Konumuna gitmek için %(count) tanımdan birini seçin.</string>
-    <string name="go_to_references_desc">Konumuna gitmek için %(count) referansından birini seçin.</string>
+    <string name="go_to_definition_desc">Konumuna gitmek için %d tanımdan birini seçin.</string>
+    <string name="go_to_references_desc">Konumuna gitmek için %d referansından birini seçin.</string>
     <string name="no_definitions_found">Herhangi bir tanım bulunamadı.</string>
     <string name="no_references_found">Herhangi bir referans bulunamadı.</string>
     <string name="find_definitions_error">Tanımlar bulunamadı.</string>

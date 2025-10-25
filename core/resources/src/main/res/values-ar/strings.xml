@@ -59,7 +59,7 @@
     <string name="ask_enter_name">الرجاء إدخال اسم</string>
     <string name="already_exists">يوجد مستند بهذا الاسم بالفعل</string>
     <string name="attention">تحذير</string>
-    <string name="ask_del">هل أنت متأكد أنك تريد حذف \'%(file_name)\' بشكل دائم؟</string>
+    <string name="ask_del">هل أنت متأكد أنك تريد حذف \'%s\' بشكل دائم؟</string>
     <string name="reselect_dir">الرجاء إعادة تحديد المسار</string>
     <string name="cant_handle">لم يتم العثور على تطبيق للتعامل مع الملف</string>
     <string name="terminal">موجه الأوامر</string>
@@ -81,7 +81,7 @@
     <string name="open_dir_in_terminal">فتح الدليل في الطرفية</string>
     <string name="file_open_denied">لا يجوز فتح هذا الملف مع برامج أخرى</string>
     <string name="reload_file_tree">إعادة تحميل الملفات</string>
-    <string name="close_current_project">هل أنت متأكد أنك تريد إغلاق المشروع \'%(project_name)\'؟</string>
+    <string name="close_current_project">هل أنت متأكد أنك تريد إغلاق المشروع \'%s\'؟</string>
     <string name="rename_desc">إعادة تسمية المستند</string>
     <string name="open_with_other">فتح الملف المحدد في التطبيقات الأخرى</string>
     <string name="add_file_desc">حدد ملفًا جديدًا لإضافته هنا</string>
@@ -120,7 +120,7 @@
     <string name="installed">تم التثبيت</string>
     <string name="available">متاح</string>
     <string name="already_installed">مثبّت مسبقًا</string>
-    <string name="download_sure">هل أنت متأكد أنك تريد تنزيل ‎%(name)؟</string>
+    <string name="download_sure">هل أنت متأكد أنك تريد تنزيل ‎%s؟</string>
     <string name="yes">نعم</string>
     <string name="fetch_failed">طلب الجلب أرجع فارغًا</string>
     <string name="app">تطبيق</string>

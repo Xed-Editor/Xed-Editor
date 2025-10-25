@@ -476,7 +476,7 @@ fun CloseConfirmationDialog(
         text = {
             Column {
                 Text(
-                    text = stringResource(strings.close_current_project).fillPlaceholders(mapOf("project_name" to projectName))
+                    text = stringResource(strings.close_current_project).fillPlaceholders(projectName)
                 )
             }
         },
@@ -516,7 +516,7 @@ fun DeleteConfirmationDialog(
         text = {
             Column {
                 Text(
-                    text = stringResource(strings.ask_del).fillPlaceholders(mapOf("file_name" to fileName))
+                    text = stringResource(strings.ask_del).fillPlaceholders(fileName)
                 )
             }
         },

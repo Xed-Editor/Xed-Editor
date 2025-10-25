@@ -48,7 +48,7 @@
     <string name="create">作成</string>
     <string name="ask_enter_name">名前を入力してください</string>
     <string name="attention">注意</string>
-    <string name="ask_del">「%(file_name)」を完全に削除してもよろしいですか？</string>
+    <string name="ask_del">「%s」を完全に削除してもよろしいですか？</string>
     <string name="reselect_dir">ディレクトリを再選択してください</string>
     <string name="keyword_regex">キーワード (正規表現)</string>
     <string name="replace_all">全て置換</string>
@@ -152,13 +152,13 @@
     <string name="invalid_userdata">ユーザーデータが有効ではありません。設定で変更してください</string>
     <string name="download">ダウンロード</string>
     <string name="open_dir_in_terminal">ディレクトリをターミナル開く</string>
-    <string name="close_current_project">プロジェクト「%(project_name)」を閉じてもよろしいですか？</string>
+    <string name="close_current_project">プロジェクト「%s」を閉じてもよろしいですか？</string>
     <string name="enter_path">パスを入力してください</string>
     <string name="auto_save_desc">ファイルを自動的に保存する</string>
     <string name="text_size_desc">文字の大きさを設定</string>
     <string name="ff_path">ファイル/フォルダのパス</string>
     <string name="open_path_desc">内部ストレージを開く</string>
-    <string name="download_sure">「%(name)」をダウンロードしてもよろしいですか？</string>
+    <string name="download_sure">「%s」をダウンロードしてもよろしいですか？</string>
     <string name="choose_file">ファイルを選択</string>
     <string name="force_desktop_desc">画面が小さいデバイスで、デスクトップ用レイアウトを強制する</string>
     <string name="force_char_desc">ターミナルで文字ベースの入力を強制する</string>
@@ -208,7 +208,6 @@
     <string name="discard">破棄</string>
     <string name="warning">警告</string>
     <string name="line_spacing">行間</string>
-    <string name="line_spacing_multiplier">行間の倍率</string>
     <string name="mutators">ミューテーター</string>
     <string name="update_av">新しいアップデートが利用可能です</string>
     <string name="update">アップデート</string>
@@ -354,7 +353,7 @@
     <string name="text_mate_suggestion_desc">事前定義されたキーワードを提案する</string>
     <string name="dont_ask_again">再度表示しない</string>
     <string name="install">インストール</string>
-    <string name="ask_lsp_install">「%(language_name)」の言語サーバーをインストールしますか？</string>
+    <string name="ask_lsp_install">「%s」の言語サーバーをインストールしますか？</string>
     <string name="uninstall_terminal_warning">Ubuntuを完全にアンインストールしますか？ この操作は元に戻せません。</string>
     <string name="uninstall">アンインストール</string>
     <string name="uninstall_terminal">ターミナルをアンインストール</string>
@@ -372,7 +371,7 @@
     <string name="wrapper_type">ラッパーの種類</string>
     <string name="view_github_profile">Githubのプロフィールを表示</string>
     <string name="debug_options">デバッグオプション</string>
-    <string name="debug_options_desc">%(app_name)のデバッグオプション</string>
+    <string name="debug_options_desc">%sのデバッグオプション</string>
     <string name="force_crash">クラッシュを強制</string>
     <string name="force_crash_desc">実行時例外を発生させる</string>
     <string name="force_crash_confirm">アプリをクラッシュさせますか？ アプリがフリーズするかもしれません。</string>

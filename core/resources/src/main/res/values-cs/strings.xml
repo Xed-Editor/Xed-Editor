@@ -23,7 +23,7 @@
     <string name="close">Zavřít</string>
     <string name="download">Stáhnout</string>
     <string name="attention">Upozornění</string>
-    <string name="ask_del">Určitě chcete nenávratně odstranit \'%(file_name)\'?</string>
+    <string name="ask_del">Určitě chcete nenávratně odstranit \'%s\'?</string>
     <string name="terminal">Terminál</string>
     <string name="tab_text_1">Karta 1</string>
     <string name="tab_text_2">Karta 2</string>
@@ -160,7 +160,7 @@
     <string name="ok">OK</string>
     <string name="invalid_path">Umístění neexistuje</string>
     <string name="action_done">Akce dokončena</string>
-    <string name="download_sure">Opravdu chcete stáhnout \'%(name)\'?</string>
+    <string name="download_sure">Opravdu chcete stáhnout \'%s\'?</string>
     <string name="cursor_anim">Animace kurzoru</string>
     <string name="file_name">Jméno souboru</string>
     <string name="save_desc">Uložte vybraný soubor někde jinde</string>
@@ -235,7 +235,7 @@
     <string name="telegram">Telegram skupina</string>
     <string name="userdata">Uživatelská data</string>
     <string name="file_open_denied">Otevřít tento soubor jinými aplikacemi není povoleno</string>
-    <string name="close_current_project">Opravdu chcete uzavřít projekt \'%(project_name)\'?</string>
+    <string name="close_current_project">Opravdu chcete uzavřít projekt \'%s\'?</string>
     <string name="clone_repo">Klonovat repozitář</string>
     <string name="force_desktop">Vynutit stolní rozhraní</string>
     <string name="force_desktop_desc">Vynutit stolní rozhraní na zařízeních s menší obrazovkou</string>
@@ -322,7 +322,7 @@
     <string name="read_mode_desc">Výchoze zapnout čtecí režim</string>
     <string name="mutator_desc">Vytvářejte uživatelské skripty</string>
     <string name="info_ext">Doplňky mohou být použity pro změnění chování a funkce Xed-Editoru. K naučení jak se sestavuje plugin, klepněte zde.</string>
-    <string name="ask_lsp_install">Chtěli byste nainstalovat \'%(language_name)\' jazykový server?</string>
+    <string name="ask_lsp_install">Chtěli byste nainstalovat \'%s\' jazykový server?</string>
     <string name="dont_ask_again">Neptat se znova</string>
     <string name="install">Instalovat</string>
     <string name="uninstall_terminal_warning">Nenávratně odinstalovat Ubuntu? Táto akce nemůže být vrácena zpět.</string>
@@ -419,7 +419,7 @@
     <string name="seccomp_desc">Opravit chybu \"function not implemented\" na některých zařízeních</string>
     <string name="wrapper_type">Typ wrapperu</string>
     <string name="debug_options">Ladící možnosti</string>
-    <string name="debug_options_desc">Ladící možnosti pro %(app_name)</string>
+    <string name="debug_options_desc">Ladící možnosti pro %s</string>
     <string name="strict_mode">Striktní režim</string>
     <string name="strict_mode_desc">Detekovat přístup na disk nebo síť v hlavním vlákně</string>
     <string name="lsp_desc">Připojit k externímu LSP serveru</string>

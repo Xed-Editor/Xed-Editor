@@ -52,7 +52,7 @@ fun FindingsDialog(
         },
         text = {
             Column {
-                Text(description.fillPlaceholders(mapOf("count" to codeItems.size)))
+                Text(description.fillPlaceholders(codeItems.size))
                 Spacer(modifier = Modifier.height(16.dp))
 
                 LazyColumn {

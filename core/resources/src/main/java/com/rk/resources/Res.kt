@@ -24,17 +24,10 @@ inline fun Int.getDrawable(context: Context): Drawable? {
     return ContextCompat.getDrawable(context, this)
 }
 
-inline fun Int.getFilledString(values: Map<String, Any>): String {
-    return this.getString().fillPlaceholders(values)
+inline fun Int.getFilledString(vararg args: Any?): String {
+    return this.getString().fillPlaceholders(*args)
 }
 
-fun String.fillPlaceholders(values: Map<String, Any>): String {
-    var result = this
-
-    values.forEach { (key, value) ->
-        val escapedKey = Regex.escape(key)
-        result = result.replace(Regex("%\\($escapedKey\\)[a-z]?"), value.toString())
-    }
-
-    return result
+fun String.fillPlaceholders(vararg args: Any?): String {
+    return String.format(this, *args)
 }
