@@ -430,4 +430,21 @@
     <string name="regex">Regex</string>
     <string name="whole_word">Целое слово</string>
     <string name="line_spacing_desc">Высота для каждый строки в редакторе</string>
+    <string name="go_to_definition">Перейти к определению</string>
+    <string name="go_to_references">Перейти к источникам</string>
+    <string name="rename_symbol">Переименовать символ</string>
+    <string name="go_to_definition_desc">Выберите одно из определений %(count)d, чтобы перейти к их расположению.</string>
+    <string name="go_to_references_desc">Выберите один из источников %(count)d, чтобы перейти к его расположению.</string>
+    <string name="no_definitions_found">Определения не найдены.</string>
+    <string name="no_references_found">Ссылки не найдены.</string>
+    <string name="find_definitions_error">Не удается найти определения.</string>
+    <string name="find_references_error">Не удается найти ссылки.</string>
+    <string name="rename_symbol_error">Не удается переименовать символ.</string>
+    <string name="cannot_rename_symbol">Вы не можете переименовать этот символ.</string>
+    <string name="rename_symbol_multiple_files">Переименование нескольких файлов не поддерживается.</string>
+    <string name="continue_action">Продолжить</string>
+    <string name="enable_sticky_scroll">Включить липкую прокрутку</string>
+    <string name="enable_sticky_scroll_desc">Закрепять заголовки блоков кода при прокрутке</string>
+    <string name="enable_quick_deletion">Включить быстрое удаление строк</string>
+    <string name="enable_quick_deletion_desc">Автоматически удалять всю строку, если она пуста</string>
 </resources>
