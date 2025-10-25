@@ -303,23 +303,21 @@ private fun EditorTab.CodeEditor(
     onKeyEvent: (EditorKeyEvent) -> Unit,
     onTextChange: () -> Unit
 ) {
-    val surfaceColor = if (isSystemInDarkTheme()) {
-        MaterialTheme.colorScheme.surfaceDim
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
     val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+    val selectionColors = LocalTextSelectionColors.current
     val realSurface = MaterialTheme.colorScheme.surface
+    val selectionBackground = selectionColors.backgroundColor
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
     val colorPrimary = MaterialTheme.colorScheme.primary
-
-    val selectionColors = LocalTextSelectionColors.current
-    val selectionBackground = selectionColors.backgroundColor
+    val colorPrimaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val colorSecondary = MaterialTheme.colorScheme.secondary
     val handleColor = selectionColors.handleColor
+    val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
 
+    val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
 
-    val dividerCurrent = MaterialTheme.colorScheme.outline
     val divider = MaterialTheme.colorScheme.outlineVariant
 
 
@@ -354,13 +352,17 @@ private fun EditorTab.CodeEditor(
                         setThemeColors(
                             editorSurface = surfaceColor.toArgb(),
                             surfaceContainer = surfaceContainer.toArgb(),
+                            surface = realSurface.toArgb(),
                             onSurface = onSurfaceColor.toArgb(),
                             colorPrimary = colorPrimary.toArgb(),
+                            colorPrimaryContainer = colorPrimaryContainer.toArgb(),
+                            colorSecondary = colorSecondary.toArgb(),
+                            secondaryContainer = secondaryContainer.toArgb(),
                             selectionBg = selectionBackground.toArgb(),
                             handleColor = handleColor.toArgb(),
+                            gutterColor = gutterColor.toArgb(),
                             currentLine = currentLineColor.toArgb(),
-                            dividerColor = divider.toArgb(),
-                            dividerCurrent = dividerCurrent.toArgb()
+                            dividerColor = divider.toArgb()
                         )
 
                         state.editor = this
