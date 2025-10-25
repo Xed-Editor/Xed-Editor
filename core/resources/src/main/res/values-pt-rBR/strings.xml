@@ -226,7 +226,6 @@
     <string name="warning">Aviso</string>
     <string name="encoding_warning">Alterar a codificação padrão é altamente desencorajado, pois pode levar à corrupção de arquivos. É altamente recomendável usar UTF-8, a menos que você entenda completamente as implicações e tenha criado um backup adequado.</string>
     <string name="line_spacing">Espaçamento entre linhas</string>
-    <string name="line_spacing_multiplier">Multiplicador de espaçamento de linha</string>
     <string name="mutators">Mutadores</string>
     <string name="update">Atualizar</string>
     <string name="ignore">Ignorar</string>
@@ -373,7 +372,7 @@
     <string name="delete_desc">Excluir documento permanentemente</string>
     <string name="view_github_profile">Ver perfil no GitHub</string>
     <string name="debug_options">Opções de depuração</string>
-    <string name="debug_options_desc">Opções de depuração para %(app_name)</string>
+    <string name="debug_options_desc">Opções de depuração para %s</string>
     <string name="force_crash">Forçar encerramento</string>
     <string name="force_crash_desc">Lançar uma exceção de tempo de execução</string>
     <string name="force_crash_confirm">Deseja forçar o encerramento do aplicativo? O aplicativo pode travar.</string>

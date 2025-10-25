@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Silakan masukkan nama</string>
     <string name="already_exists">Dokumen dengan nama ini sudah ada</string>
     <string name="attention">Perhatian</string>
-    <string name="ask_del">Apakah Anda yakin ingin menghapus secara permanen \'%(file_name)\'?</string>
+    <string name="ask_del">Apakah Anda yakin ingin menghapus secara permanen \'%s\'?</string>
     <string name="reselect_dir">Pilih kembali direktori tersebut</string>
     <string name="cant_handle">Tidak ada aplikasi yang ditemukan untuk menangani berkas tersebut</string>
     <string name="terminal">Terminal</string>
@@ -81,7 +81,7 @@
     <string name="open_dir_in_terminal">Buka direktori di Terminal</string>
     <string name="file_open_denied">Membuka berkas ini dengan aplikasi lain tidak diizinkan</string>
     <string name="reload_file_tree">Muat ulang berkas</string>
-    <string name="close_current_project">Apakah Anda yakin ingin menutup proyek \'%(project_name)\'?</string>
+    <string name="close_current_project">Apakah Anda yakin ingin menutup proyek \'%s\'?</string>
     <string name="rename_desc">Ubah nama dokumen</string>
     <string name="open_with_other">Buka berkas yang dipilih di aplikasi lain</string>
     <string name="add_file_desc">Pilih berkas baru yang akan ditambahkan di sini</string>
@@ -115,7 +115,7 @@
     <string name="files">Berkas</string>
     <string name="installed">Terpasang</string>
     <string name="already_installed">Sudah terpasang</string>
-    <string name="download_sure">Apakah Anda yakin ingin mengunduh \'%(name)\'?</string>
+    <string name="download_sure">Apakah Anda yakin ingin mengunduh \'%s\'?</string>
     <string name="yes">Ya</string>
     <string name="app">Aplikasi</string>
     <string name="oled_desc">Tema hitam (#000)</string>
@@ -354,7 +354,7 @@
     <string name="text_mate_suggestion_desc">Sarankan kata kunci yang telah ditentukan sebelumnya</string>
     <string name="dont_ask_again">Jangan tanya lagi</string>
     <string name="install">Pasang</string>
-    <string name="ask_lsp_install">Apakah Anda ingin memasang server bahasa \'%(language_name)\'?</string>
+    <string name="ask_lsp_install">Apakah Anda ingin memasang server bahasa \'%s\'?</string>
     <string name="uninstall_terminal_warning">Mencopot pemasangan Ubuntu secara permanen? Tindakan ini tidak dapat dibatalkan.</string>
     <string name="uninstall">Copot</string>
     <string name="uninstall_terminal">Copot terminal</string>
@@ -373,7 +373,7 @@
     <string name="delete_desc">Hapus dokumen secara permanen</string>
     <string name="view_github_profile">Lihat profil GitHub</string>
     <string name="debug_options">Pilihan debug</string>
-    <string name="debug_options_desc">Pilihan debugging untuk %(app_name)</string>
+    <string name="debug_options_desc">Pilihan debugging untuk %s</string>
     <string name="force_crash">Paksa kerusakan</string>
     <string name="force_crash_desc">Berikan pengecualian runtime</string>
     <string name="force_crash_confirm">Apakah Anda ingin merusak aplikasi secara paksa? Aplikasi mungkin akan macet.</string>

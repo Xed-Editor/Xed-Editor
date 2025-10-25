@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Proszę, wprowadź nazwę</string>
     <string name="already_exists">Nazwa dokumentu z wprowadzoną nazwą jest już używana</string>
     <string name="attention">Uwaga</string>
-    <string name="ask_del">Czy napewno chcesz trwale usunąć \'%(file_name)\'?</string>
+    <string name="ask_del">Czy napewno chcesz trwale usunąć \'%s\'?</string>
     <string name="reselect_dir">Proszę wybierz ponownie katalog</string>
     <string name="cant_handle">Nie znaleziono aplikacji do obsługi pliku</string>
     <string name="terminal">Terminal</string>
@@ -188,7 +188,7 @@
     <string name="open_dir_in_terminal">Otwórz katalog w terminalu</string>
     <string name="file_open_denied">Otwieranie wybranego pliku w innych aplikacjach jest zabronione</string>
     <string name="reload_file_tree">Przeładuj pliki</string>
-    <string name="close_current_project">Czy napewno chcesz zamknąć projekt \'%(project_name)\'?</string>
+    <string name="close_current_project">Czy napewno chcesz zamknąć projekt \'%s\'?</string>
     <string name="rename_desc">Zmień nazwę dokumentu</string>
     <string name="open_with_other">Otwórz wybrany plik w innych aplikacjach</string>
     <string name="delete_desc">Usuń trwale dokument</string>
@@ -239,7 +239,6 @@
     <string name="warning">Ostrzeżenie</string>
     <string name="encoding_warning">Zmiana domyślnego kodowania jest odradzana, ze względu na możliwość uszkodzenia pliku. Zaleca się używanie UTF-8, chyba że w pełni rozumiesz następstwa oraz tworzysz kopie zapasowe.</string>
     <string name="line_spacing">Odległość między wierszami</string>
-    <string name="line_spacing_multiplier">Mnożnik odległości między wierszami</string>
     <string name="mutators">Mutatory</string>
     <string name="update_av">Dostępne aktualizacje</string>
     <string name="update">Aktualizacja</string>
@@ -301,7 +300,7 @@
     <string name="auto_complete">Automatyczne wypełnianie w edytorze</string>
     <string name="available">Dostępne</string>
     <string name="already_installed">Już zainstalowano</string>
-    <string name="download_sure">Czy napewno chcesz pobrać \'%(name)\'?</string>
+    <string name="download_sure">Czy napewno chcesz pobrać \'%s\'?</string>
     <string name="yes">Tak</string>
     <string name="error">Błąd</string>
     <string name="open_dir_desc">Otwórz katalog przez systemowy menedżer plików (SAF)</string>
@@ -319,7 +318,7 @@
     <string name="cloning">Klonuje repozytorium…</string>
     <string name="dont_ask_again">Nie pytaj ponownie</string>
     <string name="install">Zainstaluj</string>
-    <string name="ask_lsp_install">Czy chcesz zainstalować \'%(language_name)\' serwer językowy?</string>
+    <string name="ask_lsp_install">Czy chcesz zainstalować \'%s\' serwer językowy?</string>
     <string name="theme_settings">Ustawienia motywu</string>
     <string name="action_done">Czynność ukończona</string>
     <string name="clone_repo">Klonuj repozytorium</string>
@@ -356,7 +355,7 @@
     <string name="use_tabs">Wstaw tabulator</string>
     <string name="view_github_profile">Odwiedź profil GitHub</string>
     <string name="debug_options">Opcje debug</string>
-    <string name="debug_options_desc">Opcje debug dla %(app_name)</string>
+    <string name="debug_options_desc">Opcje debug dla %s</string>
     <string name="force_crash">Wymuś awarie</string>
     <string name="type">Typ</string>
     <string name="name">Nazwa</string>
@@ -432,8 +431,8 @@
     <string name="go_to_definition">Przejdź do definic}i</string>
     <string name="go_to_references">Przejdź do referencji</string>
     <string name="rename_symbol">Zmień nazwę symbolu</string>
-    <string name="go_to_definition_desc">Wybierz jedną z %(count) definicji, aby przejść do lokalizacji.</string>
-    <string name="go_to_references_desc">Wybierz jedną z %(count) referencji, aby przejść do lokalizacji.</string>
+    <string name="go_to_definition_desc">Wybierz jedną z %d definicji, aby przejść do lokalizacji.</string>
+    <string name="go_to_references_desc">Wybierz jedną z %d referencji, aby przejść do lokalizacji.</string>
     <string name="no_definitions_found">Nie znaleziono definicji.</string>
     <string name="no_references_found">Nie znaleziono referencji.</string>
     <string name="find_definitions_error">Nie można znaleść definicji.</string>

@@ -12,7 +12,7 @@
     <string name="action_done">Azione eseguita</string>
     <string name="manage_storage_reason">Xed-Editor ha bisogno dei permessi per modificare i file. Per favore concedi i permessi nella schermata seguente.</string>
     <string name="open_file_desc">Scegli un file per modificarlo direttamente</string>
-    <string name="download_sure">Sei sicuro di voler scaricare %(name)?</string>
+    <string name="download_sure">Sei sicuro di voler scaricare %s?</string>
     <string name="themes">Temi</string>
     <string name="open_directory">Apri una cartella</string>
     <string name="save">Salva</string>
@@ -72,7 +72,7 @@
     <string name="dir_example">Nome (es. Test)</string>
     <string name="create">Crea</string>
     <string name="ask_enter_name">Per favore inserisci un nome</string>
-    <string name="ask_del">Sei sicuro di voler eliminare definitivamente \'%(file_name)\'?</string>
+    <string name="ask_del">Sei sicuro di voler eliminare definitivamente \'%s\'?</string>
     <string name="reselect_dir">Per favore seleziona nuovamente la cartella</string>
     <string name="cant_handle">Nessuna app associata a questo tipo di file</string>
     <string name="terminal">Terminale</string>
@@ -348,7 +348,7 @@
     <string name="read_mode_desc">Abilita modalità lettura per impostazione predefinita</string>
     <string name="dont_ask_again">Non chiedere più</string>
     <string name="install">Installa</string>
-    <string name="ask_lsp_install">Vuoi installare il server linguistico per %(language_name)?</string>
+    <string name="ask_lsp_install">Vuoi installare il server linguistico per %s?</string>
     <string name="uninstall_terminal_warning">Disinstallare Ubuntu in modo permanente? Questa azione non può essere annullata.</string>
     <string name="uninstall">Disinstalla</string>
     <string name="uninstall_terminal">Disinstalla terminale</string>
@@ -363,7 +363,7 @@
     <string name="name">Nome</string>
     <string name="view_github_profile">Visualizza profilo GitHub</string>
     <string name="debug_options">Opzioni di debug</string>
-    <string name="debug_options_desc">Opzioni di debug per %(app_name)</string>
+    <string name="debug_options_desc">Opzioni di debug per %s</string>
     <string name="force_crash">Forza arresto</string>
     <string name="force_crash_desc">Genera un’eccezione a runtime</string>
     <string name="force_crash_confirm">Vuoi forzare l\'arresto dell\'app? L\'app potrebbe bloccarsi.</string>

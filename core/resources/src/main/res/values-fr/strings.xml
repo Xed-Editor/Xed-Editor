@@ -46,7 +46,7 @@
     <string name="create">Créer</string>
     <string name="ask_enter_name">Entrer un nom svp</string>
     <string name="already_exists">Un document existant porte déjà ce nom</string>
-    <string name="ask_del">Voulez-vous vraiment supprimer définitivement \'%(file_name)\' ?</string>
+    <string name="ask_del">Voulez-vous vraiment supprimer définitivement \'%s\' ?</string>
     <string name="reselect_dir">Re-sélectionnez à nouveau le dossier</string>
     <string name="cant_handle">Aucune app trouvée pour gérer le fichier</string>
     <string name="add_file">Ajouter un fichier externe</string>
@@ -67,7 +67,7 @@
     <string name="open_dir_in_terminal">Ouvrir le dossier dans le terminal</string>
     <string name="file_open_denied">Ouvrir ce fichier avec d’autres apps n’est pas autorisé</string>
     <string name="reload_file_tree">Recharger fichiers</string>
-    <string name="close_current_project">Voulez-vous vraiment fermer le projet \'%(project_name)\' ?</string>
+    <string name="close_current_project">Voulez-vous vraiment fermer le projet \'%s\' ?</string>
     <string name="rename_desc">Renommer le document</string>
     <string name="open_with_other">Ouvrir le fichier sélectionné dans d’autres apps</string>
     <string name="add_file_desc">Sélectionner un nouveau fichier à ajouter</string>
@@ -204,7 +204,7 @@
     <string name="attention">Attention</string>
     <string name="auto_mode">Auto</string>
     <string name="show_virtual_keyboard">Montrer le clavier virtuel</string>
-    <string name="download_sure">Voulez-vous vraiment télécharger \'%(name)\' ?</string>
+    <string name="download_sure">Voulez-vous vraiment télécharger \'%s\' ?</string>
     <string name="value_invalid">Valeur invalide</string>
     <string name="app_desc">Paramètres généraux de l’application</string>
     <string name="show_suggestions">Montrer les suggestions clavier</string>
@@ -354,7 +354,7 @@
     <string name="text_mate_suggestion">Autocomplétion TextMate</string>
     <string name="dont_ask_again">Ne plus demander</string>
     <string name="install">Installer</string>
-    <string name="ask_lsp_install">Voulez-vous installer le serveur de langue \'%(language_name)\' ?</string>
+    <string name="ask_lsp_install">Voulez-vous installer le serveur de langue \'%s\' ?</string>
     <string name="uninstall_terminal_warning">Désinstaller Ubuntu de manière permanente ? Vous ne pourrez plus revenir en arrière.</string>
     <string name="uninstall">Désinstaller</string>
     <string name="uninstall_terminal">Désinstaller le terminal</string>
@@ -371,7 +371,7 @@
     <string name="delete_desc">Effacer définitivement le document</string>
     <string name="view_github_profile">Afficher le profil GitHub</string>
     <string name="debug_options">Options de débogage</string>
-    <string name="debug_options_desc">Options de débogage pour %(app_name)</string>
+    <string name="debug_options_desc">Options de débogage pour %s</string>
     <string name="force_crash">Arrêt forcé</string>
     <string name="force_crash_desc">Lancer une exception d\'exécution</string>
     <string name="force_crash_confirm">Voulez-vous forcer l\'arrêt de l\'application ? L\'application risque de se bloquer.</string>
@@ -432,8 +432,8 @@
     <string name="go_to_definition">Aller à la définition</string>
     <string name="go_to_references">Aller aux références</string>
     <string name="rename_symbol">Renommer un symbole</string>
-    <string name="go_to_definition_desc">Sélectionner l\'une des %(count) définitions pour aller à sa position.</string>
-    <string name="go_to_references_desc">Sélectionner l\'une des %(count) référence pour aller à sa position.</string>
+    <string name="go_to_definition_desc">Sélectionner l\'une des %d définitions pour aller à sa position.</string>
+    <string name="go_to_references_desc">Sélectionner l\'une des %d référence pour aller à sa position.</string>
     <string name="no_definitions_found">Aucune définition trouvée.</string>
     <string name="no_references_found">Aucune référence trouvée.</string>
     <string name="find_definitions_error">Impossible de trouver des définitions.</string>

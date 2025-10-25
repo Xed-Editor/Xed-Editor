@@ -89,7 +89,7 @@
     <string name="dir_exist_not">Ordner existiert nicht</string>
     <string name="file_open_denied">Das Öffnen dieser Datei mit anderen Apps ist nicht zulässig</string>
     <string name="reload_file_tree">Dateien neu laden</string>
-    <string name="close_current_project">Möchtest du das Projekt \'%(project_name)s\' wirklich schließen?</string>
+    <string name="close_current_project">Möchtest du das Projekt \'%s\' wirklich schließen?</string>
     <string name="rename_desc">Das Dokument umbenennen</string>
     <string name="open_with_other">Ausgewählte Datei in anderen Apps öffnen</string>
     <string name="data_clear">App-Daten wurden gelöscht</string>
@@ -103,7 +103,7 @@
     <string name="manage_storage_reason">Xed-Editor benötigt Zugriff, um Dateien in deinem Speicher zu bearbeiten. Erlaube bitte den Zugriff in der nächsten Systemeinstellung.</string>
     <string name="close_this">Schließen</string>
     <string name="cant_handle">Keine App zum Verarbeiten der Datei gefunden</string>
-    <string name="ask_del">Bist du sicher, dass du \'%(file_name)s\' endgültig löschen möchtest?</string>
+    <string name="ask_del">Bist du sicher, dass du \'%s\' endgültig löschen möchtest?</string>
     <string name="reselect_dir">Bitte wähle das Verzeichnis erneut aus</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="create_new_file_desc">Eine neue Datei im ausgewählten Ordner erstellen</string>
@@ -132,7 +132,7 @@
     <string name="editor">Editor</string>
     <string name="fetch_failed">Fetch-Request hat null zurückgegeben</string>
     <string name="open_cant">Kann nicht mehr öffnen als</string>
-    <string name="download_sure">Möchtest du wirklich \'%(name)s\' herunterladen?</string>
+    <string name="download_sure">Möchtest du wirklich \'%s\' herunterladen?</string>
     <string name="oled_desc">Wendet ein rein schwarzes Design an</string>
     <string name="open_dir_desc">Öffne ein Verzeichnis über den System-Dateiauswahldialog</string>
     <string name="open_file_desc">Wähle eine Datei aus, um sie direkt zu bearbeiten</string>
@@ -213,7 +213,6 @@
     <string name="discard">Verwerfen</string>
     <string name="warning">Warnung</string>
     <string name="line_spacing">Zeilenabstand</string>
-    <string name="line_spacing_multiplier">Multiplikator für Zeilenabstand</string>
     <string name="mutators">Mutatoren</string>
     <string name="update_av">Neue Updates verfügbar</string>
     <string name="update">Aktualisieren</string>
@@ -353,7 +352,7 @@
     <string name="text_mate_suggestion_desc">Vordefinierte Schlüsselwörter vorschlagen</string>
     <string name="dont_ask_again">Nicht noch mal fragen</string>
     <string name="install">Installieren</string>
-    <string name="ask_lsp_install">Möchtest du den \'%(language_name)\' Sprachserver installieren?</string>
+    <string name="ask_lsp_install">Möchtest du den \'%s\' Sprachserver installieren?</string>
     <string name="uninstall_terminal_warning">Ubuntu endgültig deinstallieren? Diese Aktion kann nicht rückgängig gemacht werden.</string>
     <string name="uninstall">Deinstallieren</string>
     <string name="uninstall_terminal">Terminal deinstallieren</string>
@@ -369,7 +368,7 @@
     <string name="view_github_profile">GitHub-Profil anzeigen</string>
     <string name="debug_options">Debug-Optionen</string>
     <string name="delete_desc">Dokument endgültig löschen</string>
-    <string name="debug_options_desc">Debugging-Optionen für %(app_name)</string>
+    <string name="debug_options_desc">Debugging-Optionen für %s</string>
     <string name="force_crash">Absturz erzwingen</string>
     <string name="force_crash_desc">Eine Runtime-Exception werfen</string>
     <string name="force_crash_confirm">Möchtest du einen Absturz der App erzwingen? Die App kann einfrieren.</string>
@@ -432,8 +431,8 @@
     <string name="go_to_definition">Gehe zur Definition</string>
     <string name="go_to_references">Gehe zu Referenzen</string>
     <string name="rename_symbol">Symbol umbenennen</string>
-    <string name="go_to_definition_desc">Wähle eine der %(count) Definitionen aus, um zu ihrem Standort zu navigieren.</string>
-    <string name="go_to_references_desc">Wähle eine der %(count) Referenzen aus, um zu ihrem Standort zu navigieren.</string>
+    <string name="go_to_definition_desc">Wähle eine der %d Definitionen aus, um zu ihrem Standort zu navigieren.</string>
+    <string name="go_to_references_desc">Wähle eine der %d Referenzen aus, um zu ihrem Standort zu navigieren.</string>
     <string name="no_definitions_found">Keine Definitionen gefunden.</string>
     <string name="no_references_found">Keine Referenzen gefunden.</string>
     <string name="find_definitions_error">Definitionen konnten nicht gefunden werden.</string>

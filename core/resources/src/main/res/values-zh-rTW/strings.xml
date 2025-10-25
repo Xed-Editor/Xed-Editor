@@ -59,7 +59,7 @@
     <string name="ask_enter_name">請輸入名稱</string>
     <string name="already_exists">已存在同名文件</string>
     <string name="attention">注意</string>
-    <string name="ask_del">你確定要永久刪除 \' %(file_name)s\' 嗎？</string>
+    <string name="ask_del">你確定要永久刪除 \' %s\' 嗎？</string>
     <string name="reselect_dir">請重新選取資料夾</string>
     <string name="cant_handle">找不到可處理此檔案的應用程式</string>
     <string name="terminal">終端機</string>
@@ -81,7 +81,7 @@
     <string name="open_dir_in_terminal">在終端機開啟資料夾</string>
     <string name="file_open_denied">無法使用其他應用程式開啟此檔案</string>
     <string name="reload_file_tree">重新載入檔案</string>
-    <string name="close_current_project">你確定要關閉專案 \'%(project_name)\'嗎？</string>
+    <string name="close_current_project">你確定要關閉專案 \'%s\'嗎？</string>
     <string name="rename_desc">重新命名文件</string>
     <string name="open_with_other">在其他應用程式中開啟所選檔案</string>
     <string name="add_file_desc">選取要在此新增的新檔案</string>
@@ -120,7 +120,7 @@
     <string name="installed">已安裝</string>
     <string name="available">可用</string>
     <string name="already_installed">已完成安裝</string>
-    <string name="download_sure">你確定要下載 \'%(name)s\'嗎？</string>
+    <string name="download_sure">你確定要下載 \'%s\'嗎？</string>
     <string name="yes">是</string>
     <string name="fetch_failed">請求獲取的資料回傳空值</string>
     <string name="app">應用程式</string>
@@ -225,7 +225,6 @@
     <string name="warning">警告</string>
     <string name="encoding_warning">不建議更改預設編碼，因為這可能導致檔案毀損。強烈建議使用 UTF-8，除非你完全了解其影響並已建立妥善的備份。</string>
     <string name="line_spacing">行距</string>
-    <string name="line_spacing_multiplier">行距倍數</string>
     <string name="mutators">Mutators</string>
     <string name="update_av">有新版本可用</string>
     <string name="update">更新</string>
@@ -353,7 +352,7 @@
     <string name="text_mate_suggestion_desc">建議預先定義的關鍵字</string>
     <string name="dont_ask_again">不再詢問</string>
     <string name="install">安裝</string>
-    <string name="ask_lsp_install">是否要安裝 \'%(language_name)s\' 語言伺服器？</string>
+    <string name="ask_lsp_install">是否要安裝 \'%s\' 語言伺服器？</string>
     <string name="uninstall_terminal_warning">要永久解除安裝 Ubuntu 嗎？此操作將無法復原。</string>
     <string name="uninstall">解除安裝</string>
     <string name="uninstall_terminal">解除安裝終端機</string>
@@ -370,7 +369,7 @@
     <string name="name">名稱</string>
     <string name="view_github_profile">檢視 GitHub 個人資料</string>
     <string name="debug_options">除錯選項</string>
-    <string name="debug_options_desc">%(app_name)s 的除錯選項</string>
+    <string name="debug_options_desc">%s 的除錯選項</string>
     <string name="force_crash">強制當機</string>
     <string name="force_crash_desc">拋出一個 RuntimeException 錯誤</string>
     <string name="force_crash_confirm">確定要觸發應用程式當機嗎？可能會導致應用程式無響應。</string>
@@ -432,8 +431,8 @@
     <string name="go_to_definition">前往定義</string>
     <string name="go_to_references">前往參考</string>
     <string name="rename_symbol">重新命名符號</string>
-    <string name="go_to_definition_desc">選擇其中 %(count)d 個定義之一以導覽至其位置。</string>
-    <string name="go_to_references_desc">選擇其中 %(count)d 個參考之一以導覽至其位置。</string>
+    <string name="go_to_definition_desc">選擇其中 %d 個定義之一以導覽至其位置。</string>
+    <string name="go_to_references_desc">選擇其中 %d 個參考之一以導覽至其位置。</string>
     <string name="no_definitions_found">找不到任何定義。</string>
     <string name="no_references_found">找不到任何參考。</string>
     <string name="find_definitions_error">無法找到定義。</string>

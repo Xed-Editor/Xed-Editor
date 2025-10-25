@@ -108,7 +108,7 @@ private fun Categories(navController: NavController) {
     if (App.isFDroid && InbuiltFeatures.developerOptions.state.value) {
         PreferenceCategory(
             label = stringResource(strings.debug_options),
-            description = strings.debug_options_desc.getFilledString(mapOf("app_name" to strings.app_name.getString())),
+            description = strings.debug_options_desc.getFilledString(strings.app_name.getString()),
             iconResource = drawables.build,
             onNavigate = { navController.navigate(SettingsRoutes.DeveloperOptions.route) },
         )

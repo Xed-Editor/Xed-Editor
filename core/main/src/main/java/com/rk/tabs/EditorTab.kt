@@ -419,7 +419,7 @@ private fun EditorTab.CodeEditor(
                                     dialog(
                                         context = context as Activity,
                                         title = strings.attention.getString(),
-                                        msg = strings.ask_lsp_install.getFilledString(mapOf("language_name" to server.languageName)),
+                                        msg = strings.ask_lsp_install.getFilledString(server.languageName),
                                         cancelString = strings.dont_ask_again,
                                         okString = strings.install,
                                         onOk = { server.install(context) },

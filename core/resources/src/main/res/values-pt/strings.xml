@@ -236,7 +236,7 @@
     <string name="mime">Tipo de MIME (por exemplo, text/plain)</string>
     <string name="search_keyword">Procurar palavra-chave</string>
     <string name="dir_example">Nome (por exemplo, teste)</string>
-    <string name="ask_del">Tem certeza que deseja apagar %(file_name) permanentemente?</string>
+    <string name="ask_del">Tem certeza que deseja apagar %s permanentemente?</string>
     <string name="add_file">Adicionar ficheiro externo</string>
     <string name="keyword_regex">Palavra-chave (regex)</string>
     <string name="replacement">Substituição</string>
