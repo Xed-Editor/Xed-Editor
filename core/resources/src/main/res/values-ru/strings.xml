@@ -59,7 +59,7 @@
     <string name="ask_enter_name">Пожалуйста, введите имя</string>
     <string name="already_exists">Документ с таким именем уже существует</string>
     <string name="attention">Внимание</string>
-    <string name="ask_del">Вы уверены, что хотите навсегда удалить \'%(file_name)\'?</string>
+    <string name="ask_del">Вы уверены, что хотите навсегда удалить \'%(file_name)s\'?</string>
     <string name="reselect_dir">Пожалуйста, выберите каталог еще раз</string>
     <string name="cant_handle">Не найдено приложение для обработки файла</string>
     <string name="terminal">Терминал</string>
@@ -81,7 +81,7 @@
     <string name="open_dir_in_terminal">Открыть папку в терминале</string>
     <string name="file_open_denied">Открытие этого файла другими программами запрещено</string>
     <string name="reload_file_tree">Обновить файлы</string>
-    <string name="close_current_project">Вы уверены, что хотите закрыть проект \'%(project_name)\'?</string>
+    <string name="close_current_project">Вы уверены, что хотите закрыть проект \'%(project_name)s\'?</string>
     <string name="rename_desc">Переименовать документ</string>
     <string name="open_with_other">Открыть выбранный файл в других приложениях</string>
     <string name="add_file_desc">Выберите новый файл, который будет добавлен сюда</string>
@@ -120,7 +120,7 @@
     <string name="installed">Установлено</string>
     <string name="available">Доступно</string>
     <string name="already_installed">Уже установлено</string>
-    <string name="download_sure">Вы уверены, что хотите скачать \'%(name)\'?</string>
+    <string name="download_sure">Вы уверены, что хотите скачать \'%(name)s\'?</string>
     <string name="yes">Да</string>
     <string name="fetch_failed">Запрос ничего не вернул</string>
     <string name="app">Приложение</string>
@@ -149,7 +149,7 @@
     <string name="text_size">Размер текста</string>
     <string name="text_size_desc">Установить размер текста</string>
     <string name="tab_size">Размер табуляции</string>
-    <string name="tab_size_desc">Установить размер табуляции</string>
+    <string name="tab_size_desc">Установить размер табуляции.</string>
     <string name="monet">Динамические цвета</string>
     <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
@@ -365,7 +365,7 @@
     <string name="name">Имя</string>
     <string name="view_github_profile">Открыть профиль GitHub</string>
     <string name="debug_options">Отладка</string>
-    <string name="debug_options_desc">Настройки отладки для %(app_name)</string>
+    <string name="debug_options_desc">Настройки отладки для %(app_name)s</string>
     <string name="force_crash_confirm">Вызвать принудительный сбой приложения? Приложение может зависнуть.</string>
     <string name="memory_usage">Использование памяти</string>
     <string name="anr_watchdog_desc">Завершать Xed-Editor, если не отвечает более 5 секунд</string>
@@ -390,7 +390,7 @@
     <string name="flavor">Вариант</string>
     <string name="native_runner">Данный обработчик поддерживает только работу с локальными файлами. Переместите его в домашний каталог терминала</string>
     <string name="text_mate_suggestion">Автозавершение TextMate</string>
-    <string name="ask_lsp_install">Установить сервер языка \'%(language_name)\'?</string>
+    <string name="ask_lsp_install">Установить сервер языка \'%(language_name)s\'?</string>
     <string name="strict_mode_desc">Обнаружить доступ к диску или сети в основном процессе</string>
     <string name="anr_watchdog">Мониторинг ANR</string>
     <string name="lsp_header">Введите порт и расширение</string>
@@ -429,4 +429,5 @@
     <string name="ignore_case">Игнорировать регистр</string>
     <string name="regex">Regex</string>
     <string name="whole_word">Целое слово</string>
+    <string name="line_spacing_desc">Высота для каждый строки в редакторе</string>
 </resources>
