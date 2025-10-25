@@ -146,7 +146,7 @@
     <string name="auto_save_desc">Datei automatisch speichern</string>
     <string name="value_invalid">Ungültiger Wert</string>
     <string name="tab_size">Tabgröße</string>
-    <string name="tab_size_desc">Tabgröße festlegen</string>
+    <string name="tab_size_desc">Anzahl der für ein Tab-Zeichen eingefügten Leerzeichen.</string>
     <string name="value_small">Wert zu klein</string>
     <string name="text_size">Textgröße</string>
     <string name="interval_in_ms">Intervall in Millisekunden</string>
@@ -441,4 +441,9 @@
     <string name="cannot_rename_symbol">Du kannst dieses Symbol nicht umbenennen.</string>
     <string name="rename_symbol_multiple_files">Umbenennen über mehrere Dateien hinweg wird noch nicht unterstützt.</string>
     <string name="continue_action">Fortfahren</string>
+    <string name="line_spacing_desc">Höhenmultiplikator für jede Zeile im Editor</string>
+    <string name="enable_sticky_scroll">Sticky Scroll aktivieren</string>
+    <string name="enable_sticky_scroll_desc">Die aktuelle Codeblock-Überschrift beim Scrollen sichtbar halten</string>
+    <string name="enable_quick_deletion">Schnelllöschung aktivieren</string>
+    <string name="enable_quick_deletion_desc">Die gesamten Zeile automatisch löschen, wenn diese leer ist</string>
 </resources>
