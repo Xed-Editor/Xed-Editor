@@ -170,17 +170,17 @@ class Editor : CodeEditor {
                     colorPrimary,
                     EditorColorScheme.HIGHLIGHTED_DELIMITERS_FOREGROUND,
                     EditorColorScheme.SIGNATURE_TEXT_HIGHLIGHTED_PARAMETER,
-                    EditorColorScheme.BLOCK_LINE,
-                    EditorColorScheme.BLOCK_LINE_CURRENT,
                     EditorColorScheme.DIAGNOSTIC_TOOLTIP_ACTION
                 )
 
+                setColors(setAlpha(onSurface, 0.6f), EditorColorScheme.BLOCK_LINE_CURRENT)
+                setColors(setAlpha(onSurface, 0.4f), EditorColorScheme.NON_PRINTABLE_CHAR, EditorColorScheme.BLOCK_LINE)
                 setColors(setAlpha(onSurface, 0.3f), EditorColorScheme.SCROLL_BAR_THUMB)
                 setColors(setAlpha(onSurface, 0.2f), EditorColorScheme.SCROLL_BAR_THUMB_PRESSED)
 
                 setColors(currentLine, EditorColorScheme.CURRENT_LINE)
                 setColors(gutterColor, EditorColorScheme.LINE_NUMBER_BACKGROUND)
-                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER)
+                setColors(dividerColor, EditorColorScheme.LINE_DIVIDER, EditorColorScheme.STICKY_SCROLL_DIVIDER)
             }
         }
     }
@@ -302,6 +302,7 @@ class Editor : CodeEditor {
             }
 
             typefaceText = font ?: Typeface.DEFAULT
+            typefaceLineNumber = font ?: Typeface.DEFAULT
         }.onFailure {
             errorDialog(it)
         }
