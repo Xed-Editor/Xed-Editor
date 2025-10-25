@@ -149,7 +149,7 @@
     <string name="text_size">Размер текста</string>
     <string name="text_size_desc">Установить размер текста</string>
     <string name="tab_size">Размер табуляции</string>
-    <string name="tab_size_desc">Установить размер табуляции</string>
+    <string name="tab_size_desc">Установить размер табуляции.</string>
     <string name="monet">Динамические цвета</string>
     <string name="monet_desc">Использовать тему устройства в приложении</string>
     <string name="restart_app">Пожалуйста, перезапустите приложение.</string>
@@ -428,4 +428,5 @@
     <string name="ignore_case">Игнорировать регистр</string>
     <string name="regex">Regex</string>
     <string name="whole_word">Целое слово</string>
+    <string name="line_spacing_desc">Высота для каждый строки в редакторе</string>
 </resources>
