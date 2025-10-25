@@ -1,7 +1,7 @@
 package com.rk.tabs
 
 import android.app.Activity
-import com.rk.xededitor.ui.activities.main.ControlPanel
+import com.rk.xededitor.ui.activities.main.CommandPalette
 import com.rk.xededitor.ui.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
@@ -29,6 +29,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.DefaultScope
 import com.rk.file.FileObject
 import com.rk.libcommons.dialog
 import com.rk.libcommons.dpToPx
@@ -64,6 +65,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
 import com.rk.libcommons.editor.createLspTextActions
+import com.rk.xededitor.ui.activities.main.CommandProvider
 import com.rk.xededitor.ui.components.CodeItem
 import com.rk.xededitor.ui.components.FindingsDialog
 import com.rk.xededitor.ui.components.SingleInputDialog
@@ -190,16 +192,24 @@ class EditorTab(
     }
 
     @Composable
-    override fun Content(){
+    override fun Content() {
         Column {
             val language = file.let {
                 textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
 
-            if (editorState.showControlPanel){
-                ControlPanel(onDismissRequest = {
-                    editorState.showControlPanel = false
-                }, viewModel = viewModel)
+            val commands = CommandProvider.getAll()
+            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, commands)
+
+            if (editorState.showControlPanel) {
+                CommandPalette(
+                    commands = commands,
+                    lastUsedCommand = lastUsedCommand,
+                    viewModel = viewModel,
+                    onDismissRequest = {
+                        editorState.showControlPanel = false
+                    }
+                )
             }
 
             if (editorState.showFindingsDialog) {
