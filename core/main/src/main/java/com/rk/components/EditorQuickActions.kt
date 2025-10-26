@@ -1,7 +1,6 @@
-package com.rk.xededitor.ui.components
+package com.rk.components
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,14 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rk.activities.main.MainViewModel
-import com.rk.icons.Error
-import com.rk.icons.XedIcons
 import com.rk.terminal.isV
 import com.rk.utils.x
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlin.math.min
 import kotlin.ranges.random
-import com.rk.xededitor.ui.activities.main.CommandProvider
+import com.rk.activities.main.CommandProvider
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -42,7 +39,7 @@ fun RowScope.EditorQuickActions(modifier: Modifier = Modifier, viewModel: MainVi
 
     val selectedIds = listOf("editor.undo", "editor.redo", "editor.save", "global.terminal", "global.settings")
 
-    val allCommands = CommandProvider.getAll()
+    val allCommands = CommandProvider.getAll(viewModel)
     val allActions = selectedIds.mapNotNull {
         CommandProvider.getForId(it, allCommands)
     }
@@ -53,7 +50,7 @@ fun RowScope.EditorQuickActions(modifier: Modifier = Modifier, viewModel: MainVi
         val maxVisibleCount = (availableWidth / itemWidth).toInt().coerceAtLeast(0)
 
         // Filter visible actions first
-        val visibleActions = allActions.filter { it.isSupported(viewModel, activity) }
+        val visibleActions = allActions.filter { it.isSupported.value }
 
         // Calculate actual number of actions to show in toolbar
         val actualVisibleCount = min(visibleActions.size, maxVisibleCount)
@@ -73,11 +70,11 @@ fun RowScope.EditorQuickActions(modifier: Modifier = Modifier, viewModel: MainVi
                 IconButton(
                     onClick = { command.action(viewModel, activity) },
                     modifier = Modifier.size(48.dp),
-                    enabled = command.isEnabled(viewModel, activity)
+                    enabled = command.isEnabled.value
                 ) {
                     Icon(
-                        imageVector = command.getIcon(viewModel, activity) ?: XedIcons.Error,
-                        contentDescription = command.label
+                        imageVector = command.icon.value,
+                        contentDescription = command.label.value
                     )
                 }
             }
@@ -97,16 +94,16 @@ fun RowScope.EditorQuickActions(modifier: Modifier = Modifier, viewModel: MainVi
                     ) {
                         dropdownActions.forEach { command ->
                             DropdownMenuItem(
-                                enabled = command.isEnabled(viewModel, activity),
-                                text = { Text(command.getLabel(viewModel, activity)) },
+                                enabled = command.isEnabled.value,
+                                text = { Text(command.label.value) },
                                 onClick = {
                                     command.action(viewModel, activity)
                                     expanded = false
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector = command.getIcon(viewModel, activity) ?: XedIcons.Error,
-                                        contentDescription = command.label
+                                        imageVector = command.icon.value,
+                                        contentDescription = command.label.value
                                     )
                                 }
                             )

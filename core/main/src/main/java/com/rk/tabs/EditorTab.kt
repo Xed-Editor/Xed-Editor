@@ -1,7 +1,6 @@
 package com.rk.tabs
 
 import android.app.Activity
-import com.rk.activities.main.ControlPanel
 import com.rk.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
@@ -47,9 +46,7 @@ import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.components.EditorActions
 import com.rk.components.SearchPanel
-import com.rk.components.updateUndoRedo
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
@@ -75,9 +72,9 @@ import com.rk.lsp.lspRegistry
 import com.rk.resources.drawables
 import com.rk.runner.RunnerImpl
 import com.rk.runner.currentRunner
-import com.rk.xededitor.ui.activities.main.CommandPalette
-import com.rk.xededitor.ui.activities.main.CommandProvider
-import com.rk.xededitor.ui.components.EditorQuickActions
+import com.rk.activities.main.CommandPalette
+import com.rk.activities.main.CommandProvider
+import com.rk.components.EditorQuickActions
 import kotlinx.coroutines.CompletableDeferred
 import java.lang.ref.WeakReference
 
@@ -222,7 +219,7 @@ class EditorTab(
                 textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
 
-            val commands = CommandProvider.getAll()
+            val commands = CommandProvider.getAll(viewModel)
             val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, commands)
 
             if (editorState.showRunnerDialog) {
@@ -323,10 +320,19 @@ class EditorTab(
                     }
                 },
                 onKeyEvent = { event ->
-                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S) {
+                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_S && event.eventType == EditorKeyEvent.Type.DOWN) {
                         scope.launch(Dispatchers.IO) {
                             save()
                         }
+                    }
+
+                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_F && event.eventType == EditorKeyEvent.Type.DOWN) {
+                        editorState.isSearching = !editorState.isSearching
+                    }
+
+                    if (event.isCtrlPressed && event.keyCode == KeyEvent.KEYCODE_H && event.eventType == EditorKeyEvent.Type.DOWN) {
+                        editorState.isSearching = !editorState.isReplaceShown
+                        editorState.isReplaceShown = !editorState.isReplaceShown
                     }
                 }
             )
