@@ -7,18 +7,16 @@ import android.os.Environment
 import com.rk.file.FileObject
 import com.rk.file.FileWrapper
 import com.rk.file.child
-import com.rk.file.createFileIfNot
 import com.rk.file.localBinDir
-import com.rk.libcommons.TerminalCommand
-import com.rk.libcommons.application
-import com.rk.libcommons.dialog
+import com.rk.exec.TerminalCommand
+import com.rk.utils.dialog
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.runner.RunnerImpl
-import com.rk.terminal.launchInternalTerminal
-import com.rk.xededitor.ui.screens.terminal.setupAssetFile
+import com.rk.exec.launchInternalTerminal
+import com.rk.terminal.setupAssetFile
 
 class UniversalRunner : RunnerImpl() {
     @SuppressLint("SdCardPath")

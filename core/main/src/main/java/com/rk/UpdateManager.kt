@@ -1,10 +1,8 @@
 package com.rk
 
 import androidx.core.content.pm.PackageInfoCompat
-import com.rk.libcommons.application
+import com.rk.utils.application
 import com.rk.file.localBinDir
-import com.rk.libcommons.toast
-import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
 

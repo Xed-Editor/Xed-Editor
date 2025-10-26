@@ -11,9 +11,9 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import com.rk.DefaultScope
-import com.rk.compose.filetree.fileTreeViewModel
-import com.rk.libcommons.application
-import com.rk.libcommons.toast
+import com.rk.filetree.fileTreeViewModel
+import com.rk.utils.application
+import com.rk.utils.toast
 import com.rk.resources.getString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -87,7 +87,7 @@ class FileManager(private val activity: ComponentActivity) {
             if (result.resultCode == Activity.RESULT_OK) {
                 val uri = result.data?.data
 
-                val fileObject = uri?.toFileObject(isFile = true)
+                val fileObject = uri?.toFileObject(expectedIsFile = true)
                 callback(fileObject)
             } else {
                 callback(null)
@@ -151,7 +151,7 @@ class FileManager(private val activity: ComponentActivity) {
             }
 
             try {
-                val fileObject = uri.toFileObject(isFile = true)
+                val fileObject = uri.toFileObject(expectedIsFile = true)
                 if (fileObject.hasChild(fileName)) {
                     toast("File with name $fileName already exists")
                     callback(null)

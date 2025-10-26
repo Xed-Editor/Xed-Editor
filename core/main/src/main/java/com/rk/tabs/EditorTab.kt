@@ -1,8 +1,8 @@
 package com.rk.tabs
 
 import android.app.Activity
-import com.rk.xededitor.ui.activities.main.ControlPanel
-import com.rk.xededitor.ui.activities.main.MainViewModel
+import com.rk.activities.main.ControlPanel
+import com.rk.activities.main.MainViewModel
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -30,23 +30,21 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import com.rk.file.FileObject
-import com.rk.libcommons.dialog
-import com.rk.libcommons.dpToPx
-import com.rk.libcommons.editor.BaseLspConnector
-import com.rk.libcommons.editor.Editor
-import com.rk.libcommons.editor.getInputView
-import com.rk.libcommons.editor.lspRegistry
-import com.rk.libcommons.editor.textmateSources
-import com.rk.libcommons.errorDialog
+import com.rk.utils.dialog
+import com.rk.utils.dpToPx
+import com.rk.lsp.BaseLspConnector
+import com.rk.editor.Editor
+import com.rk.editor.getInputView
+import com.rk.editor.textmateSources
+import com.rk.utils.errorDialog
 import com.rk.resources.getFilledString
 import com.rk.resources.getString
 import com.rk.resources.strings
 import com.rk.settings.Preference
 import com.rk.settings.Settings
-import com.rk.terminal.ProcessConnection
-import com.rk.xededitor.ui.components.EditorActions
-import com.rk.xededitor.ui.components.SearchPanel
-import com.rk.xededitor.ui.components.updateUndoRedo
+import com.rk.components.EditorActions
+import com.rk.components.SearchPanel
+import com.rk.components.updateUndoRedo
 import io.github.rosemoe.sora.event.ContentChangeEvent
 import io.github.rosemoe.sora.event.EditorKeyEvent
 import io.github.rosemoe.sora.lsp.client.connection.StreamConnectionProvider
@@ -63,10 +61,12 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
-import com.rk.libcommons.editor.createLspTextActions
-import com.rk.xededitor.ui.components.CodeItem
-import com.rk.xededitor.ui.components.FindingsDialog
-import com.rk.xededitor.ui.components.SingleInputDialog
+import com.rk.lsp.createLspTextActions
+import com.rk.components.CodeItem
+import com.rk.components.FindingsDialog
+import com.rk.components.SingleInputDialog
+import com.rk.lsp.ProcessConnection
+import com.rk.lsp.lspRegistry
 import kotlinx.coroutines.CompletableDeferred
 
 
@@ -314,10 +314,8 @@ private fun EditorTab.CodeEditor(
     val colorSecondary = MaterialTheme.colorScheme.secondary
     val handleColor = selectionColors.handleColor
     val secondaryContainer = MaterialTheme.colorScheme.secondaryContainer
-
     val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
-    val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp).copy(alpha = 0.8f)
-
+    val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
     val divider = MaterialTheme.colorScheme.outlineVariant
 
 

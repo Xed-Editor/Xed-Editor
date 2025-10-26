@@ -42,7 +42,7 @@
             tools:targetApi="29" />
 
         <activity
-            android:name="com.rk.xededitor.ui.activities.main.MainActivity"
+            android:name="com.rk.activities.main.MainActivity"
             android:alwaysRetainTaskState="true"
             android:exported="true"
             android:inputType="textFilter"
@@ -88,7 +88,7 @@
             android:name="com.rk.crashhandler.CrashActivity"
             android:exported="false" />
         <activity
-            android:name="com.rk.xededitor.ui.activities.settings.SettingsActivity"
+            android:name="com.rk.activities.settings.SettingsActivity"
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.markdown.MDViewer"
@@ -97,7 +97,7 @@
             android:name="com.rk.runner.runners.web.WebActivity"
             android:exported="false" />
         <activity
-            android:name="com.rk.xededitor.ui.activities.terminal.Terminal"
+            android:name="com.rk.activities.terminal.Terminal"
             android:exported="true"
             android:label="Terminal"
             android:launchMode="singleTask"

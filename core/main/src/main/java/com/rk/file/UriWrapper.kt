@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
-import com.rk.libcommons.application
-import com.rk.libcommons.errorDialog
+import com.rk.utils.application
+import com.rk.utils.errorDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader

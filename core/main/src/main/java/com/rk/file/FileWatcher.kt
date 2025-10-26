@@ -1,8 +1,6 @@
 package com.rk.file
 import android.os.Build
 import android.os.FileObserver
-import com.rk.isAppForeground
-import com.rk.libcommons.toast
 import java.io.File
 
 class FileContentWatcher(fileObject: FileObject,onUpdate:()-> Unit){

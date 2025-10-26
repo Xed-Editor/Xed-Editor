@@ -11,7 +11,7 @@ import com.rk.runner.runners.web.HttpServer
 import com.rk.runner.runners.web.WebActivity
 import com.rk.runner.runners.web.WebScreen
 import com.rk.runner.runners.web.html.HtmlRunner
-import com.rk.xededitor.ui.theme.XedTheme
+import com.rk.theme.XedTheme
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoHTTPD.newFixedLengthResponse
 import kotlinx.coroutines.Dispatchers

@@ -11,10 +11,10 @@ import com.rk.file.child
 import com.rk.file.createFileIfNot
 import com.rk.file.localDir
 import com.rk.file.runnerDir
-import com.rk.libcommons.TerminalCommand
+import com.rk.exec.TerminalCommand
 import com.rk.resources.drawables
 import com.rk.resources.getDrawable
-import com.rk.terminal.launchInternalTerminal
+import com.rk.exec.launchInternalTerminal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

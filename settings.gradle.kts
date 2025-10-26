@@ -41,7 +41,6 @@ include(":core:main")
 
 include(":core:components")
 include(":core:resources")
-include(":core:bridge")
 include(":core:terminal-view")
 include(":core:terminal-emulator")
 include(":core:extension")
@@ -61,7 +60,7 @@ if (!soraX.exists() || soraX.listFiles()?.isEmpty() != false) {
 }
 
 
-//includeBuild("soraX")
+
 include(":editor")
 project(":editor").projectDir = file("soraX/editor")
 

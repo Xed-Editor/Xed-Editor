@@ -1,8 +1,7 @@
 package com.rk.file
 
 import android.content.Context
-import com.rk.libcommons.application
-import com.rk.xededitor.BuildConfig
+import com.rk.utils.application
 import java.io.File
 
 fun getPrivateDir(context: Context = application!!): File {

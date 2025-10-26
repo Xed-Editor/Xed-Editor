@@ -1,7 +1,7 @@
 package com.rk
 
 import androidx.lifecycle.lifecycleScope
-import com.rk.xededitor.ui.activities.main.MainActivity
+import com.rk.activities.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope

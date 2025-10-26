@@ -448,4 +448,5 @@
     <string name="enable_quick_deletion">Enable quick line deletion</string>
     <string name="enable_quick_deletion_desc">Automatically delete the entire line if it is empty</string>
     <string name="rename_failed">Unable to rename file</string>
-</resources>
+    <string name="expert_mode">Expert Mode</string>
+    <string name="expert_mode_warn">Expert mode disables safety restrictions, which could lead to data loss or other issues if misused. Only enable it if you know what you\'re doing.</string></resources>

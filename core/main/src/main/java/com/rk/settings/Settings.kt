@@ -3,10 +3,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
-import com.rk.libcommons.application
-import com.rk.libcommons.hasHardwareKeyboard
+import com.rk.utils.application
+import com.rk.utils.hasHardwareKeyboard
 import com.rk.xededitor.BuildConfig
-import com.rk.xededitor.ui.theme.blueberry
+import com.rk.theme.blueberry
 import java.lang.ref.WeakReference
 import java.nio.charset.Charset
 import kotlin.properties.ReadWriteProperty

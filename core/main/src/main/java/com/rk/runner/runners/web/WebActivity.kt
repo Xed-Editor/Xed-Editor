@@ -18,7 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.WindowCompat
-import com.rk.xededitor.ui.theme.XedTheme
+import com.rk.theme.XedTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 abstract class WebActivity : ComponentActivity() {

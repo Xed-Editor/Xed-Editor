@@ -2,9 +2,10 @@ package com.rk.file
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import com.rk.App
-import com.rk.libcommons.PathUtils
-import com.rk.libcommons.PathUtils.toPath
+import com.rk.utils.PathUtils.toPath
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -54,17 +55,26 @@ fun FileObject.copyToTempDir() = run {
     file
 }
 
-fun Uri.toFileObject(isFile: Boolean): FileObject{
+fun Uri.toFileObject(expectedIsFile: Boolean): FileObject {
+    // First, try to resolve to a real File (for direct access when possible)
     val file = File(this.toPath())
-    var shouldUseUri = true
-    if (file.exists() && file.canRead() && file.canWrite()){
-        if (isFile == file.isFile){
-             shouldUseUri = false
-        }
+
+    // On Android 11+, force Uri if we lack full storage access (scoped storage rules)
+    if (needsUriFallback()) {
+        return UriWrapper(this,!expectedIsFile)
     }
-    return if (shouldUseUri){
-        UriWrapper(this,isFile.not())
-    }else{
-        FileWrapper(file)
+
+    // If File access works and matches expectations (file vs. dir), use it
+    if (file.exists() && file.canRead() && file.canWrite() &&
+        expectedIsFile == file.isFile) {
+        return FileWrapper(file)
     }
+
+    // Fallback to Uri for safety/compatibility
+    return UriWrapper(this,!expectedIsFile)
+}
+
+
+private fun needsUriFallback(): Boolean {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()
 }

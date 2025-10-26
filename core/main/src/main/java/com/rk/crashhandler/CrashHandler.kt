@@ -3,7 +3,7 @@ package com.rk.crashhandler
 import android.content.Intent
 import android.os.Looper
 import android.util.Log
-import com.rk.libcommons.application
+import com.rk.utils.application
 import com.rk.file.child
 import com.rk.file.createFileIfNot
 import java.io.PrintWriter
