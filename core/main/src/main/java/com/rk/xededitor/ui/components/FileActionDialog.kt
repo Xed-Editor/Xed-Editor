@@ -301,18 +301,19 @@ fun FileActionDialog(
                 val newName = renameValue
                 scope.launch {
                     val parentFile = file.getParentFile()
-                    val success = FileOperations.renameFile(file, newName)
+                    val success = file.renameTo(newName)
                     if (success) {
                         if (parentFile != null){
                             fileTreeViewModel?.updateCache(file.getParentFile()!!)
                             MainActivity.instance?.apply {
-                                val targetTab = viewModel.tabs.
-                                find { it is EditorTab && it.file == file } as? EditorTab
+                                val targetTab = viewModel.tabs.find { it is EditorTab && it.file == file } as? EditorTab
 
                                 targetTab?.tabTitle?.value = newName
                                 targetTab?.file = parentFile.getChildForName(newName)
                             }
                         }
+                    }else{
+                        toast(strings.rename_failed)
                     }
                 }
 
@@ -424,15 +425,6 @@ object FileOperations {
     suspend fun copyToClipboard(file: FileObject,isCut: Boolean = false) {
         clipboard = file
         this.isCut = isCut
-    }
-
-    suspend fun renameFile(file: FileObject, newName: String): Boolean {
-        return try {
-            file.renameTo(newName)
-        } catch (e: Exception) {
-            errorDialog(e)
-            false
-        }
     }
 
     suspend fun deleteFile(file: FileObject): Boolean {

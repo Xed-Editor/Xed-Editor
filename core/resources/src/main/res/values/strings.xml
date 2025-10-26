@@ -447,4 +447,5 @@
     <string name="enable_sticky_scroll_desc">Keep the current code block header visible while scrolling</string>
     <string name="enable_quick_deletion">Enable quick line deletion</string>
     <string name="enable_quick_deletion_desc">Automatically delete the entire line if it is empty</string>
+    <string name="rename_failed">Unable to rename file</string>
 </resources>
