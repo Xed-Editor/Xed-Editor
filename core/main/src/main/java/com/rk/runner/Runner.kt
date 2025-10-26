@@ -38,7 +38,7 @@ object Runner {
         }
     }
 
-    suspend fun isRunnable(fileObject: FileObject): Boolean{
+    fun isRunnable(fileObject: FileObject): Boolean{
         ShellBasedRunners.runners.forEach {
             val name = fileObject.getName()
             val regex = Regex(it.regex)

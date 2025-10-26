@@ -75,6 +75,8 @@ object Settings {
 
     // Float settings
     var line_spacing by CachedPreference("line_spacing", 1f)
+
+    var last_used_command by CachedPreference("last_used_command", "")
 }
 
 object Preference {

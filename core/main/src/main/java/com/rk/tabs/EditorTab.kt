@@ -12,23 +12,28 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
+import com.rk.components.AddDialogItem
 import com.rk.file.FileObject
 import com.rk.utils.dialog
 import com.rk.utils.dpToPx
@@ -67,7 +72,14 @@ import com.rk.components.FindingsDialog
 import com.rk.components.SingleInputDialog
 import com.rk.lsp.ProcessConnection
 import com.rk.lsp.lspRegistry
+import com.rk.resources.drawables
+import com.rk.runner.RunnerImpl
+import com.rk.runner.currentRunner
+import com.rk.xededitor.ui.activities.main.CommandPalette
+import com.rk.xededitor.ui.activities.main.CommandProvider
+import com.rk.xededitor.ui.components.EditorQuickActions
 import kotlinx.coroutines.CompletableDeferred
+import java.lang.ref.WeakReference
 
 
 data class CodeEditorState(
@@ -102,6 +114,17 @@ data class CodeEditorState(
     var renameValue by mutableStateOf("")
     var renameError by mutableStateOf<String?>(null)
     var renameConfirm by mutableStateOf<((String) -> Unit)?>(null)
+
+    var runnersToShow by mutableStateOf<List<RunnerImpl>>(emptyList())
+    var showRunnerDialog by mutableStateOf(false)
+
+    var canUndo by mutableStateOf(false)
+    var canRedo by mutableStateOf(false)
+
+    fun updateUndoRedo() {
+        canUndo = editor?.canUndo() ?: false
+        canRedo = editor?.canRedo() ?: false
+    }
 }
 
 val lsp_connections = mutableMapOf<String, Int>()
@@ -173,7 +196,7 @@ class EditorTab(
 
     @OptIn(DelicateCoroutinesApi::class)
     suspend fun save() = withContext(Dispatchers.IO){
-        saveMutex.withLock{
+        saveMutex.withLock {
             runCatching {
                 if (file.canWrite().not()){
                     errorDialog(strings.cant_write)
@@ -189,17 +212,58 @@ class EditorTab(
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    override fun Content(){
+    override fun Content() {
+        val context = LocalContext.current
+
         Column {
             val language = file.let {
                 textmateSources[it.getName().substringAfterLast('.', "").trim()]
             }
 
-            if (editorState.showControlPanel){
-                ControlPanel(onDismissRequest = {
-                    editorState.showControlPanel = false
-                }, viewModel = viewModel)
+            val commands = CommandProvider.getAll()
+            val lastUsedCommand = CommandProvider.getForId(Settings.last_used_command, commands)
+
+            if (editorState.showRunnerDialog) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        editorState.showRunnerDialog = false
+                        editorState.runnersToShow = emptyList()
+                    },
+                ) {
+                    Column(
+                        modifier = Modifier.padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                            bottom = 16.dp,
+                            top = 0.dp
+                        )
+                    ) {
+                        editorState.runnersToShow.forEach { runner ->
+                            AddDialogItem(
+                                icon = drawables.run,
+                                title = runner.getName()
+                            ) {
+                                currentRunner = WeakReference(runner)
+                                runner.run(context, file)
+                                editorState.showRunnerDialog = false
+                                editorState.runnersToShow = emptyList()
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (editorState.showControlPanel) {
+                CommandPalette(
+                    commands = commands,
+                    lastUsedCommand = lastUsedCommand,
+                    viewModel = viewModel,
+                    onDismissRequest = {
+                        editorState.showControlPanel = false
+                    }
+                )
             }
 
             if (editorState.showFindingsDialog) {
@@ -240,7 +304,7 @@ class EditorTab(
             }
 
             SearchPanel(editorState = editorState)
-            if (editorState.isSearching){
+            if (editorState.isSearching) {
                 HorizontalDivider()
             }
 
@@ -249,8 +313,8 @@ class EditorTab(
                 state = editorState,
                 textmateScope = language,
                 onTextChange = {
-                    if (Settings.auto_save){
-                        scope.launch(Dispatchers.IO){
+                    if (Settings.auto_save) {
+                        scope.launch(Dispatchers.IO) {
                             save()
                             saveMutex.lock()
                             delay(400)
@@ -270,10 +334,9 @@ class EditorTab(
     }
 
     @Composable
-    override fun RowScope.Actions(){
-        EditorActions(
+    override fun RowScope.Actions() {
+        EditorQuickActions(
             modifier = Modifier,
-            tab = this@EditorTab,
             viewModel = viewModel
         )
     }
@@ -287,7 +350,7 @@ class EditorTab(
             withContext(Dispatchers.Main){
                 editorState.updateLock.withLock{
                     editorState.editor?.setText(content)
-                    editorState.editor!!.updateUndoRedo()
+                    editorState.updateUndoRedo()
                 }
             }
         }
@@ -317,7 +380,6 @@ private fun EditorTab.CodeEditor(
     val gutterColor = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
     val currentLineColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
     val divider = MaterialTheme.colorScheme.outlineVariant
-
 
     AnimatedVisibility(visible = true) {
         val constraintSet = remember { ConstraintSet() }
@@ -450,7 +512,7 @@ private fun EditorTab.CodeEditor(
                         subscribeAlways(ContentChangeEvent::class.java) {
                             if (!state.updateLock.isLocked){
                                 state.isDirty = true
-                                updateUndoRedo()
+                                editorState.updateUndoRedo()
                                 onTextChange.invoke()
                             }
                         }

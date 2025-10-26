@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel: MainViewModel) {
+fun XedTopBar(modifier: Modifier = Modifier, drawerState: DrawerState, viewModel: MainViewModel) {
     val scope = rememberCoroutineScope()
     TopAppBar(
         title = {},
@@ -34,13 +34,11 @@ fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel:
         actions = {
             GlobalActions(viewModel)
 
-            if (viewModel.tabs.isNotEmpty()){
+            if (viewModel.tabs.isNotEmpty()) {
                 viewModel.tabs[viewModel.currentTabIndex].apply {
                     Actions()
                 }
             }
-
-
         }
     )
 }

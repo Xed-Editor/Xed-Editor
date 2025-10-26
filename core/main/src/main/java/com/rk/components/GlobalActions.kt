@@ -48,30 +48,29 @@ var addDialog by mutableStateOf(false)
 @Composable
 fun RowScope.GlobalActions(viewModel: MainViewModel) {
     val context = LocalContext.current
-    if (viewModel.tabs.isEmpty()){
+    if (viewModel.tabs.isEmpty()) {
         IconButton(onClick = {
             addDialog = true
         }) {
-            Icon(imageVector = Icons.Outlined.Add,contentDescription = null)
+            Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
         }
 
-        if (InbuiltFeatures.terminal.state.value){
+        if (InbuiltFeatures.terminal.state.value) {
             IconButton(onClick = {
-                showTerminalNotice(MainActivity.instance!!){
+                showTerminalNotice(MainActivity.instance!!) {
                     val intent = Intent(context, Terminal::class.java)
                     context.startActivity(intent)
                 }
             }) {
-                Icon(painter = painterResource(drawables.terminal),contentDescription = null)
+                Icon(painter = painterResource(drawables.terminal), contentDescription = null)
             }
         }
 
-
         IconButton(onClick = {
-            val intent = Intent(context,SettingsActivity::class.java)
+            val intent = Intent(context, SettingsActivity::class.java)
             context.startActivity(intent)
         }) {
-            Icon(imageVector = Icons.Outlined.Settings,contentDescription = null)
+            Icon(imageVector = Icons.Outlined.Settings, contentDescription = null)
         }
     }
 
@@ -100,7 +99,10 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                     addDialog = false
                 }
 
-                AddDialogItem(icon = XedIcons.CreateNewFile, title = stringResource(strings.new_file)) {
+                AddDialogItem(
+                    icon = XedIcons.CreateNewFile,
+                    title = stringResource(strings.new_file)
+                ) {
                     addDialog = false
                     val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
@@ -111,14 +113,21 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                         intent,
                         PackageManager.MATCH_ALL
                     )
-                    if (activities.isEmpty()){
+                    if (activities.isEmpty()) {
                         errorDialog(strings.unsupported_feature)
-                    }else{
+                    } else {
                         MainActivity.instance?.apply {
-                            fileManager.createNewFile(mimeType = "*/*", title = "newfile.txt"){
-                                if (it != null){
-                                    lifecycleScope.launch{
-                                        viewModel.newTab(it,checkDuplicate = true,switchToTab = true)
+                            fileManager.createNewFile(
+                                mimeType = "*/*",
+                                title = "newfile.txt"
+                            ) {
+                                if (it != null) {
+                                    lifecycleScope.launch {
+                                        viewModel.newTab(
+                                            it,
+                                            checkDuplicate = true,
+                                            switchToTab = true
+                                        )
                                     }
                                 }
                             }
@@ -127,9 +136,13 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
 
                 }
 
-                AddDialogItem(icon = drawables.file_symlink, title = stringResource(strings.open_file)) {
+                AddDialogItem(
+                    icon = drawables.file_symlink,
+                    title = stringResource(strings.open_file)
+                ) {
                     addDialog = false
                     MainActivity.instance?.apply {
+
                         fileManager.requestOpenFile(mimeType = "*/*"){
                             if (it != null){
                                 lifecycleScope.launch{
@@ -142,6 +155,4 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
             }
         }
     }
-
-
 }

@@ -1,0 +1,137 @@
+package com.rk.xededitor.ui.activities.main
+
+import android.util.Log
+import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.rk.activities.main.MainViewModel
+import com.rk.components.XedDialog
+import com.rk.components.compose.preferences.base.PreferenceTemplate
+import com.rk.resources.strings
+import com.rk.settings.Settings
+import kotlinx.coroutines.DelicateCoroutinesApi
+
+@OptIn(DelicateCoroutinesApi::class)
+@Composable
+fun CommandPalette(
+    commands: List<Command>,
+    lastUsedCommand: Command?,
+    viewModel: MainViewModel,
+    onDismissRequest: () -> Unit
+) {
+    val activity = LocalActivity.current
+
+    var searchQuery by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+
+    val sortedCommands = buildList {
+        lastUsedCommand?.let { add(it) }
+        addAll(commands.filter { it != lastUsedCommand })
+    }
+
+    val filteredCommands = sortedCommands.filter {
+        it.getLabel(viewModel, activity).contains(searchQuery, ignoreCase = true) ||
+        it.description?.contains(searchQuery, ignoreCase = true) == true
+    }
+
+    XedDialog(onDismissRequest = onDismissRequest) {
+        Column {
+            TextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester),
+                placeholder = { Text(stringResource(strings.type_command)) }
+            )
+
+            LazyColumn {
+                items(filteredCommands) { command ->
+                    val isRecentlyUsed = command == lastUsedCommand
+                    CommandItem(viewModel, command, isRecentlyUsed, onDismissRequest)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CommandItem(viewModel: MainViewModel, command: Command, recentlyUsed: Boolean, onDismissRequest: () -> Unit) {
+    val activity = LocalActivity.current
+
+    PreferenceTemplate(
+        enabled = command.isEnabled(viewModel, activity) ||
+                command.isSupported(viewModel, activity),
+        modifier = Modifier.clickable(
+            enabled = true,
+            onClick = {
+
+                onDismissRequest()
+                Settings.last_used_command = command.id
+                command.action(viewModel, activity)
+            }
+        ),
+        verticalPadding = 12.dp,
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                command.prefix?.let {
+                    Text(
+                        text = "$it: ",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text(text = command.getLabel(viewModel, activity))
+                if (recentlyUsed) {
+                    Text(
+                        text = stringResource(strings.recently_used),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+        },
+        description = {
+            command.description?.let {
+                Text(
+                    text = it,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        },
+        endWidget = {
+            command.keybinds?.let {
+                Text(
+                    text = command.keybinds,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    )
+}
