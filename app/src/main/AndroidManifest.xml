@@ -41,6 +41,18 @@
             android:shell="true"
             tools:targetApi="29" />
 
+
+<service
+            android:name="com.rk.SessionService"
+            android:foregroundServiceType="specialUse" />
+
+
+
+
+        <service android:name="com.rk.LogcatService" />
+
+
+
         <activity
             android:name="com.rk.activities.main.MainActivity"
             android:alwaysRetainTaskState="true"
