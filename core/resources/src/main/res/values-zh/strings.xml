@@ -289,7 +289,7 @@
     <string name="failed">失败</string>
     <string name="folder">文件夹</string>
     <string name="file">文件</string>
-    <string name="warning_private_dir">当你清除数据或删除 Xed-Editor 时，此目录的内容将被删除</string>
+    <string name="warning_private_dir">当你清除 Xed-Editor 的数据或卸载时，此文件夹的数据将被删除</string>
     <string name="read_only_file">文件处于只读状态</string>
     <string name="toggle_word_wrap">切换自动换行</string>
     <string name="unknown_err">出了点问题</string>
@@ -304,7 +304,7 @@
     <string name="cant_undo">此操作无法撤消</string>
     <string name="info">属性</string>
     <string name="saf_expose_warning">让终端主目录在系统文件管理器中显示可能会让恶意应用程序获取敏感信息，包括 Git 令牌、密码、用户名以及存储在主目录中的其他文件。你想继续吗？</string>
-    <string name="expose_saf_desc">通过系统文件选择器（SAF）允许外部应用访问终端主目录</string>
+    <string name="expose_saf_desc">允许外部应用通过系统文件选择器（SAF）访问终端主目录</string>
     <string name="flavor">版本</string>
     <string name="temp_file">临时文件</string>
     <string name="disable_virtual_kbd">禁用虚拟键盘</string>
@@ -359,7 +359,7 @@
     <string name="uninstall_terminal">卸载终端</string>
     <string name="project_as_wk">将项目作为工作目录</string>
     <string name="project_as_wk_desc">在终端中使用项目作为工作目录</string>
-    <string name="seccomp_desc">修复在部分设备上显示方法未实现的错误</string>
+    <string name="seccomp_desc">修复部分设备上方法未实现的错误</string>
     <string name="non_native_filetype">此目录不支持运行代码。请将你的文件移动到终端主目录后再运行。</string>
     <string name="sdcard_filetype">不推荐在此目录运行代码。建议将文件移动到终端主目录。</string>
     <string name="delete_desc">永久删除文件</string>
