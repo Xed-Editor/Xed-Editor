@@ -1,10 +1,8 @@
-package com.rk.settings.mutators
+package com.rk.mutation
 
 import com.google.gson.Gson
 import com.rk.utils.LoadingPopup
 import com.rk.utils.toast
-import com.rk.mutation.Engine
-import com.rk.mutation.EngineAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -13,7 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-
+import java.util.concurrent.CountDownLatch
 
 /**
  * all function in class must block the caller
@@ -63,7 +61,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
     }
 
     override fun http(url: String?, options: String?): String? {
-        var loadingPopup:LoadingPopup? = null
+        var loadingPopup: LoadingPopup? = null
         runBlocking {
 
         }
@@ -72,7 +70,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
 
 
         runBlocking {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 loadingPopup?.hide()
             }
         }
@@ -105,7 +103,7 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
         val body = optionsMap["body"] as? String
 
         if (method == "POST" || method == "PUT") {
-            builder.method(method, body?.toRequestBody("application/json".toMediaTypeOrNull()) ?: RequestBody.create(null, ByteArray(0)))
+            builder.method(method, body?.toRequestBody("application/json".toMediaTypeOrNull()) ?: RequestBody.Companion.create(null, ByteArray(0)))
         } else {
             builder.method(method, null)
         }
@@ -141,17 +139,17 @@ class MutatorAPI(val engine: Engine) : EngineAPI {
         }
 
     }
-    
+
     override fun showInput(title: String?, hint: String?, prefill: String?): String {
      var result: String? = null
-     runBlocking {
-         val latch = java.util.concurrent.CountDownLatch(1)
-         withContext(Dispatchers.Main) {
+        runBlocking {
+            val latch = CountDownLatch(1)
+            withContext(Dispatchers.Main) {
 
 
-         }
-         latch.await()
-     }
+            }
+            latch.await()
+        }
      return result ?: ""
     }
 

@@ -14,7 +14,7 @@ import com.rk.resources.strings
 import com.rk.tabs.EditorTab
 import com.rk.components.XedDialog
 import com.rk.settings.app.InbuiltFeatures
-import com.rk.settings.mutators.Mutators
+import com.rk.mutation.Mutators
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

@@ -69,11 +69,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name="com.rk.SessionService"
-            android:foregroundServiceType="specialUse" />
-        <service android:name="com.rk.LogcatService" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -92,6 +87,7 @@
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.markdown.MDViewer"
+            tools:ignore="Instantiatable"
             android:exported="false" />
         <activity
             android:name="com.rk.runner.runners.web.WebActivity"
