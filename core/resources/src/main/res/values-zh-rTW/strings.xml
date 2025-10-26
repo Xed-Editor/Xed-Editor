@@ -297,7 +297,7 @@
     <string name="misc">其他設定</string>
     <string name="misc_desc">其他的設定選項</string>
     <string name="expose_saf">顯示主目錄</string>
-    <string name="expose_saf_desc">透過系統檔案選擇器 (SAF) 讓外部應用程式可以存取主目錄</string>
+    <string name="expose_saf_desc">允許外部應用程式透過系統檔案選擇器（SAF）存取主目錄</string>
     <string name="saf_expose_warning">公開主目錄可能會讓惡意應用程式取得敏感資訊，包括 Git 權杖、密碼、使用者名稱，以及儲存在你終端機主目錄中的其他檔案。你要繼續嗎？</string>
     <string name="info">資訊</string>
     <string name="file_info">檔案資訊</string>
