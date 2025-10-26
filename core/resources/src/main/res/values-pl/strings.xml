@@ -441,4 +441,6 @@
     <string name="cannot_rename_symbol">Nie można zmienić nazwy tego symbolu.</string>
     <string name="rename_symbol_multiple_files">Zmiana nazw wielu plików nie jest obsługiwana.</string>
     <string name="continue_action">Kontunuuj</string>
+    <string name="rename_failed">Nie można zmienić nazwy</string>
+    <string name="expert_mode">Tryb eksperta</string>
 </resources>
