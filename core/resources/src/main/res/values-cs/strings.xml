@@ -217,7 +217,7 @@
     <string name="data_clear">Data aplikace byly vyčištěny</string>
     <string name="restore_sessions">Obnovit relace</string>
     <string name="unrestricted_file_desc">Povolí otevřít soubory jakékoliv velikosti. Může způsobit havárii.</string>
-    <string name="tab_size_desc">Nastavit velikost tabulátoru (počet mezer)</string>
+    <string name="tab_size_desc">Počet mezer vložených pro tabulátor.</string>
     <string name="tab_size">Velikost tabulátoru</string>
     <string name="restore_sessions_desc">Obnovit minule otevřené karty</string>
     <string name="terminal_home">Domovská složka Terminálu</string>
@@ -429,4 +429,8 @@
     <string name="debugger">Debugger</string>
     <string name="debugger_not_allowed">Debugger není povolen v release sestaveních</string>
     <string name="capturing_logcat">Zachytávání logcat…</string>
+    <string name="enable_quick_deletion">Zapnout rychlé vymazání řádků</string>
+    <string name="enable_quick_deletion_desc">Automaticky vymaže celý řádek jestli je prázdný</string>
+    <string name="rename_failed">Nelze přejmenovat soubor</string>
+    <string name="continue_action">Pokračovat</string>
 </resources>
