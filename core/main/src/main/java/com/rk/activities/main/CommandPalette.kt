@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -22,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
@@ -90,6 +90,10 @@ fun CommandPalette(
                     .focusRequester(focusRequester),
                 placeholder = { Text(stringResource(strings.type_command)) }
             )
+
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
 
             LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
                 items(items = filteredCommands, key = { it.id }) { command ->
