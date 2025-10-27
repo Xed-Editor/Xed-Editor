@@ -92,7 +92,7 @@ fun LspSettings(modifier: Modifier = Modifier) {
 
         if (lsp_connections.isNotEmpty()){
             lsp_connections.forEach { server ->
-                PreferenceGroup(heading = stringResource(strings.external_lsp)) {
+                PreferenceGroup(heading = stringResource(strings.external)) {
                     SettingsToggle(
                         label = server.key,
                         default = true,
