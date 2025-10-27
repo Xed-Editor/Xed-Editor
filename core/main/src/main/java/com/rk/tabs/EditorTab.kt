@@ -105,7 +105,7 @@ data class CodeEditorState(
     var renameConfirm by mutableStateOf<((String) -> Unit)?>(null)
 }
 
-val lsp_connections = mutableMapOf<String, Int>()
+val lsp_connections = mutableStateMapOf<String, Int>()
 
 @OptIn(DelicateCoroutinesApi::class)
 class EditorTab(

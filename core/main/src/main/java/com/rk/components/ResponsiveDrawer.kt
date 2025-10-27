@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.rk.settings.Settings
 
 @Composable
 inline fun getDrawerWidth(): Dp {
@@ -37,9 +38,11 @@ fun ResponsiveDrawer(
     mainContent: @Composable () -> Unit,
     sheetContent: @Composable ColumnScope.() -> Unit
 ) {
-    val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
 
-    //isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
+    if (Settings.desktopMode){
+        val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
+        isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
+    }
 
     if (isPermanentDrawer) {
         PermanentNavigationDrawer(
