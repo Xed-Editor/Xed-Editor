@@ -412,6 +412,7 @@
     <string name="docs">Documentation</string>
     <string name="docs_desc">Visit documentation page.</string>
     <string name="github_stars">GitHub stars</string>
+    <string name="api_error">API Error</string>
     <string name="unknown">Unknown</string>
     <string name="cant_write">Cannot write to the file (no write permissions)</string>
     <string name="content_update">This file was modified by another app. Do you want to refresh? Unsaved changes will be lost.</string>
