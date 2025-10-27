@@ -1082,7 +1082,7 @@
 							"name": "punctuation.definition.string.rust"
 						}
 					},
-					"end": "(\")(\\2)",
+					"end": "(\")\\2",
 					"endCaptures": {
 						"1": {
 							"name": "punctuation.definition.string.rust"
