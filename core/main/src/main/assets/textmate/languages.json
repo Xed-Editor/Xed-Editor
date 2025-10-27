@@ -7,6 +7,12 @@
       "languageConfiguration": "textmate/dart/Dart.config.json"
     },
     {
+      "grammar": "textmate/asm/asm.tmLanguage.json",
+      "name": "asm",
+      "scopeName": "source.asm",
+      "languageConfiguration": "textmate/asm/language-configuration.json"
+    },
+    {
       "grammar": "textmate/pascal/Pascal.tmLanguage.json",
       "name": "Pascal",
       "scopeName": "source.pascal",
