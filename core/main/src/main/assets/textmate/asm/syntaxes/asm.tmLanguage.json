@@ -1,7 +1,6 @@
 {
   "information_for_contributors": [
-    "This file is a TextMate grammar for x86_64 assembly language",
-    "Based on the structure of Java TextMate grammar"
+    "This file is a TextMate grammar for x86_64 assembly language"
   ],
   "version": "1.0.0",
   "name": "Assembly",

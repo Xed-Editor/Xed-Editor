@@ -8,7 +8,7 @@
     },
     {
       "grammar": "textmate/asm/asm.tmLanguage.json",
-      "name": "asm",
+      "name": "Assembly",
       "scopeName": "source.asm",
       "languageConfiguration": "textmate/asm/language-configuration.json"
     },
