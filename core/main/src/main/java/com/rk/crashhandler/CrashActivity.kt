@@ -141,9 +141,13 @@ class CrashActivity : ComponentActivity() {
                             }
                         },
                     ) { paddingValues ->
-
-                        val surfaceColor = if (isSystemInDarkTheme()){ MaterialTheme.colorScheme.surfaceDim }else{ MaterialTheme.colorScheme.surface }
+                        val surfaceColor = if (isSystemInDarkTheme()) {
+                            MaterialTheme.colorScheme.surfaceDim
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        }
                         val surfaceContainer = MaterialTheme.colorScheme.surfaceContainer
+                        val highSurfaceContainer = MaterialTheme.colorScheme.surfaceContainerHigh
                         val selectionColors = LocalTextSelectionColors.current
                         val realSurface = MaterialTheme.colorScheme.surface
                         val selectionBackground = selectionColors.backgroundColor
@@ -172,6 +176,7 @@ class CrashActivity : ComponentActivity() {
                                     setThemeColors(
                                         editorSurface = surfaceColor.toArgb(),
                                         surfaceContainer = surfaceContainer.toArgb(),
+                                        highSurfaceContainer = highSurfaceContainer.toArgb(),
                                         surface = realSurface.toArgb(),
                                         onSurface = onSurfaceColor.toArgb(),
                                         colorPrimary = colorPrimary.toArgb(),
