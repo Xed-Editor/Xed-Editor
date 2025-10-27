@@ -35,11 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.rk.components.getDrawerWidth
+import com.rk.components.isPermanentDrawer
 import com.rk.file.FileObject
 import com.rk.resources.drawables
 import com.rk.resources.getString
 import com.rk.resources.strings
-import com.rk.activities.main.getDrawerWidth
 import com.rk.theme.folderSurface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -328,7 +329,11 @@ fun FileTree(
 
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        color = if (isPermanentDrawer){
+            MaterialTheme.colorScheme.surface
+        }else{
+            MaterialTheme.colorScheme.surfaceContainerLow
+        },
     ) {
         Box(
             modifier = Modifier

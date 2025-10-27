@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.rk.components.GlobalActions
+import com.rk.components.isPermanentDrawer
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -20,16 +21,19 @@ fun XedTopBar(modifier: Modifier = Modifier,drawerState: DrawerState, viewModel:
     TopAppBar(
         title = {},
         navigationIcon = {
-            IconButton(
-                onClick = {
-                    scope.launch {
-                        if (drawerState.isClosed) drawerState.open()
-                        else drawerState.close()
+            if (!isPermanentDrawer){
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            if (drawerState.isClosed) drawerState.open()
+                            else drawerState.close()
+                        }
                     }
+                ) {
+                    Icon(Icons.Outlined.Menu, null)
                 }
-            ) {
-                Icon(Icons.Outlined.Menu, null)
             }
+
         },
         actions = {
             GlobalActions(viewModel)

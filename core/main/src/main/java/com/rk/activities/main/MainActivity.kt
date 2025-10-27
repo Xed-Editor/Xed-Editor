@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -51,12 +52,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
-
-@Composable
-fun getDrawerWidth(): Dp {
-    val configuration = LocalConfiguration.current
-    return (configuration.screenWidthDp * 0.83).dp
-}
 
 class MainActivity : AppCompatActivity() {
     val viewModel: MainViewModel by viewModels()
@@ -122,93 +117,7 @@ class MainActivity : AppCompatActivity() {
             window.isNavigationBarContrastEnforced = false
         }
 
-        setContent {
-            XedTheme {
-
-
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.surface
-                    ) {
-                        val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                        val scope = rememberCoroutineScope()
-
-                        BackHandler {
-                            if (drawerState.isOpen) {
-                                scope.launch {
-                                    drawerState.close()
-                                }
-                            }else if (viewModel.tabs.isNotEmpty()){
-                                dialog(title = strings.attention.getString(), msg = strings.confirm_exit.getString(), onCancel = {}, onOk = {
-                                    finish()
-                                }, okString = strings.exit)
-                            }else{
-                                finish()
-                            }
-
-                        }
-
-                        ModalNavigationDrawer(
-                            modifier = Modifier
-                                .imePadding()
-                                .systemBarsPadding(),
-                            drawerState = drawerState,
-                            gesturesEnabled = drawerState.isOpen,
-                            //scrimColor = androidx.compose.ui.graphics.Color.Transparent,
-                            drawerContent = {
-
-                                ModalDrawerSheet(
-                                    modifier = Modifier.width(getDrawerWidth()),
-                                    drawerShape = RectangleShape
-                                    //drawerTonalElevation = 0.dp
-                                ) {
-
-                                    LaunchedEffect(Unit) {
-                                        isLoading = true
-                                        restoreProjects()
-                                        isLoading = false
-                                    }
-                                    DrawerContent(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(top = 8.dp),
-                                        onFileSelected = { file ->
-                                            scope.launch(Dispatchers.IO) {
-                                                if (file.isFile()) {
-                                                    viewModel.newTab(file, switchToTab = true)
-                                                }
-
-                                                delay(60)
-                                                if (Settings.keep_drawer_locked.not()){
-                                                    drawerState.close()
-                                                }
-
-                                            }
-                                        }
-                                    )
-                                }
-                            }
-                        ) {
-                            Scaffold(
-                                modifier = Modifier.nestedScroll(
-                                    rememberNestedScrollInteropConnection()
-                                ),
-                                topBar = {
-                                    XedTopBar(drawerState = drawerState, viewModel = viewModel)
-                                }
-                            ) { innerPadding ->
-                                MainContent(
-                                    innerPadding = innerPadding,
-                                    drawerState = drawerState,
-                                    viewModel = viewModel
-                                )
-                            }
-
-                        }
-                    }
-
-            }
-        }
+        setContent { MainContentHost() }
     }
 
     override fun onRequestPermissionsResult(
