@@ -39,10 +39,7 @@ fun ResponsiveDrawer(
 ) {
     val screenWidthDp = LocalWindowInfo.current.containerSize.width.dp
 
-    println("yoyo $screenWidthDp")
-
-    // (e.g., 600dp for tablets)
-    isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
+    //isPermanentDrawer = remember(screenWidthDp) { screenWidthDp >= 1080.dp }
 
     if (isPermanentDrawer) {
         PermanentNavigationDrawer(
