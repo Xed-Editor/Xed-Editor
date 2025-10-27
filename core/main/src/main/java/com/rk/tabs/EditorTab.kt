@@ -65,6 +65,7 @@ import com.rk.lsp.createLspTextActions
 import com.rk.components.CodeItem
 import com.rk.components.FindingsDialog
 import com.rk.components.SingleInputDialog
+import com.rk.file.persistentTempDir
 import com.rk.lsp.ProcessConnection
 import com.rk.lsp.lspRegistry
 import kotlinx.coroutines.CompletableDeferred

@@ -225,16 +225,15 @@ fun MainContent(modifier: Modifier = Modifier,innerPadding: PaddingValues,viewMo
                 key = { index -> viewModel.tabs[index].refreshKey }
             ) { page ->
                 if (page < viewModel.tabs.size) {
-                    val tab = viewModel.tabs[page]
                     viewModel.tabs[page].Content()
                 }
             }
 
-            if (fileActionDialog != null && currentProject != null){
+            if (fileActionDialog != null){
                 FileActionDialog(
                     modifier = Modifier,
                     file = fileActionDialog!!,
-                    root = currentProject!!,
+                    root = currentProject,
                     onDismissRequest = {
                         fileActionDialog = null
                     },

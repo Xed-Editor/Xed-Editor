@@ -37,9 +37,12 @@ import com.rk.activities.main.MainActivity
 import com.rk.activities.main.MainViewModel
 import com.rk.activities.settings.SettingsActivity
 import com.rk.activities.terminal.Terminal
+import com.rk.file.persistentTempDir
 import com.rk.icons.CreateNewFile
 import com.rk.icons.XedIcons
 import com.rk.settings.app.InbuiltFeatures
+import com.rk.utils.toast
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 var addDialog by mutableStateOf(false)
@@ -89,13 +92,29 @@ fun RowScope.GlobalActions(viewModel: MainViewModel) {
                     title = stringResource(strings.temp_file)
                 ) {
                     DefaultScope.launch {
-                        viewModel.newTab(
-                            fileObject = FileWrapper(
-                                sandboxHomeDir().child("temp").createFileIfNot()
-                            ),
-                            checkDuplicate = true,
-                            switchToTab = true
-                        )
+                        var tempFile: FileWrapper? = null
+                        var index = 0
+
+                        while (tempFile == null && isActive && index < 10) {
+                            val candidate = FileWrapper(persistentTempDir().child("Temp$index"))
+                            if (!viewModel.isEditorTabOpened(candidate)) {
+                                tempFile = candidate
+                            } else {
+                                index++
+                            }
+                        }
+
+                        if (tempFile != null){
+                            tempFile.createFileIfNot()
+
+                            viewModel.newTab(
+                                fileObject = tempFile,
+                                checkDuplicate = true,
+                                switchToTab = true
+                            )
+                        }else{
+                            toast("Temp file limit reached")
+                        }
                     }
                     addDialog = false
                 }

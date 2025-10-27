@@ -46,5 +46,5 @@ class ImageTab(
     @Composable
     override fun RowScope.Actions() { }
 
-    override fun onTabRemoved() { }
+    override fun onTabRemoved(){}
 }
