@@ -449,4 +449,8 @@
     <string name="rename_failed">无法重命名文件</string>
     <string name="expert_mode">专家模式</string>
     <string name="expert_mode_warn">专家模式会禁用安全限制，若使用不当，可能导致数据丢失或其他问题。请在你知道自己在做什么的情况下再启用。</string>
+    <string name="external_lsp">外部 LSP</string>
+    <string name="desktop_mode">桌面模式（实验性）</string>
+    <string name="desktop_mode_desc">让应用在平板和桌面设备大小屏幕上的使用更轻松。</string>
+    <string name="built_in">内置</string>
 </resources>
